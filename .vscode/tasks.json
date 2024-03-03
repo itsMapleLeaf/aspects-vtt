@@ -19,6 +19,15 @@
 			"args": ["install"],
 			"problemMatcher": [],
 			"label": "pnpm install"
+		},
+		{
+			"label": "build",
+			"type": "npm",
+			"script": "build",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
