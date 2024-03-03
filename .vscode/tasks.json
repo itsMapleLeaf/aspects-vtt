@@ -14,7 +14,7 @@
 			"dependsOn": ["pnpm install"]
 		},
 		{
-			"type": "process",
+			"type": "shell",
 			"command": "pnpm",
 			"args": ["install"],
 			"problemMatcher": [],
