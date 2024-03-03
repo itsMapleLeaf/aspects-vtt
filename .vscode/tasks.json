@@ -1,0 +1,24 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "typescript",
+			"tsconfig": "tsconfig.json",
+			"option": "watch",
+			"problemMatcher": ["$tsc-watch"],
+			"group": "build",
+			"label": "tsc watch",
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"dependsOn": ["pnpm install"]
+		},
+		{
+			"type": "process",
+			"command": "pnpm",
+			"args": ["install"],
+			"problemMatcher": [],
+			"label": "pnpm install"
+		}
+	]
+}
