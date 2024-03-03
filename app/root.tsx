@@ -20,7 +20,7 @@ export const meta: MetaFunction = () => {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="bg-gray-950 text-gray-50">
+		<html lang="en" className="bg-primary-100 text-primary-900">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,6 +28,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
+				<p className="bg-primary-100">test</p>
+				<p className="bg-primary-200">test</p>
+				<p className="bg-primary-300">test</p>
+				<p className="bg-primary-400">test</p>
+				<p className="bg-primary-500">test</p>
+				<p className="bg-primary-600">test</p>
+				<p className="bg-primary-700">test</p>
+				<p className="bg-primary-800">test</p>
+				<p className="bg-primary-900">test</p>
 				{children}
 				<ScrollRestoration />
 				<Scripts />
