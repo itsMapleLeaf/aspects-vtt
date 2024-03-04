@@ -43,7 +43,7 @@ export default function Index() {
 
 			const count = acceptPositiveInteger(match[1] ?? 1)
 			if (!count) {
-				errors.push(`Error: Invalid roll "${arg}"`)
+				errors.push(`Error: Invalid count "${arg}"`)
 				continue
 			}
 
