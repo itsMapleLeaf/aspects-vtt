@@ -1,14 +1,9 @@
-import { type ActionFunctionArgs, redirect } from "@remix-run/node"
+import { type ActionFunctionArgs, json, redirect } from "@remix-run/node"
 import type { LoaderFunctionArgs } from "@remix-run/node"
-import { Form, useLoaderData } from "@remix-run/react"
+import { Form, useLoaderData, useSearchParams } from "@remix-run/react"
 import { useRef, useState } from "react"
-import { HiPencilAlt } from "react-icons/hi"
-import {
-	HiArrowRightOnRectangle,
-	HiChatBubbleOvalLeft,
-	HiPaperAirplane,
-	HiUser,
-} from "react-icons/hi2"
+import * as LucideIcons from "react-icons/lu"
+import { setDefaultRoomResponse } from "~/features/rooms/defaultRoom.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { getUsername, setUsernameResponse } from "./username.server.ts"
@@ -19,29 +14,34 @@ type Message = {
 	error?: boolean
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-	return { username: await getUsername(request) }
+export async function loader({ request, params }: LoaderFunctionArgs) {
+	return setDefaultRoomResponse(
+		params.roomId as string,
+		json({ username: await getUsername(request) }),
+	)
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
 	const formData = await request.formData()
-
-	const response = redirect(
-		request.headers.get("Referer") ?? `/rooms/${params.roomId}`,
-	)
+	const username = await getUsername(request)
+	const location = `/rooms/${params.roomId}`
 
 	if (formData.has("clearUsername")) {
-		return setUsernameResponse("", response)
+		const params = new URLSearchParams({ username })
+		return setUsernameResponse("", redirect(`${location}?${params.toString()}`))
 	}
 
-	const username = formData.get("username") as string
-	return setUsernameResponse(username, response)
+	return setUsernameResponse(
+		formData.get("username") as string,
+		redirect(location),
+	)
 }
 
 export default function RoomRoute() {
 	const { username } = useLoaderData<typeof loader>()
 	const [messages, setMessages] = useState<Message[]>([])
 	const formRef = useRef<HTMLFormElement>(null)
+	const [searchParams] = useSearchParams()
 
 	const addMessage = (content: string) => {
 		setMessages((messages) => [
@@ -113,6 +113,7 @@ export default function RoomRoute() {
 			<main className="flex items-center flex-col h-dvh">
 				<Form
 					method="post"
+					action=""
 					className="m-auto rounded-md flex flex-col items-center gap-3"
 				>
 					<label
@@ -127,7 +128,8 @@ export default function RoomRoute() {
 							id="username"
 							name="username"
 							placeholder="cute felirian"
-							icon={<HiUser />}
+							icon={<LucideIcons.LuCat />}
+							defaultValue={searchParams.get("username") ?? ""}
 							required
 							autoFocus
 							onChange={(event) => {
@@ -141,11 +143,7 @@ export default function RoomRoute() {
 								}
 							}}
 						/>
-						<Button
-							type="submit"
-							text="Enter"
-							icon={<HiArrowRightOnRectangle />}
-						/>
+						<Button type="submit" text="Enter" icon={<LucideIcons.LuLogIn />} />
 					</div>
 				</Form>
 			</main>
@@ -169,8 +167,17 @@ export default function RoomRoute() {
 				<Form method="post">
 					<Button
 						type="submit"
-						icon={<HiPencilAlt />}
+						icon={<LucideIcons.LuPencil />}
 						text={username}
+						name="clearUsername"
+						value="do it"
+					/>
+				</Form>
+				<Form method="post" action="leave">
+					<Button
+						type="submit"
+						icon={<LucideIcons.LuDoorOpen />}
+						text="Leave"
 						name="clearUsername"
 						value="do it"
 					/>
@@ -196,10 +203,10 @@ export default function RoomRoute() {
 						name="message"
 						placeholder="Say something!"
 						required
-						icon={<HiChatBubbleOvalLeft />}
+						icon={<LucideIcons.LuMessageCircle />}
 						className="flex-1"
 					/>
-					<Button type="submit" text="Send" icon={<HiPaperAirplane />} />
+					<Button type="submit" text="Send" icon={<LucideIcons.LuSend />} />
 				</form>
 			</section>
 		</main>
