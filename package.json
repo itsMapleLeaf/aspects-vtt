@@ -17,8 +17,8 @@
 		"@remix-run/react": "^2.8.0",
 		"@remix-run/serve": "^2.8.0",
 		"isbot": "^4.1.0",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "18.3.0-canary-2f8f77602-20240229",
+		"react-dom": "18.3.0-canary-2f8f77602-20240229"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.5.3",

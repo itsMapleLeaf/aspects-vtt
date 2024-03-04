@@ -5,16 +5,19 @@ import plugin from "tailwindcss/plugin.js"
 export default {
 	content: ["app/**/*.{ts,tsx}"],
 	theme: {
-		colors: {
-			primary: generateOklchPalette({
-				hue: "var(--hue)",
-				minChroma: 0.04,
-				maxChroma: 0.15,
-			}),
-		},
 		extend: {
+			colors: {
+				primary: generateOklchPalette({
+					hue: "var(--hue)",
+					minChroma: 0.04,
+					maxChroma: 0.15,
+				}),
+			},
 			fontFamily: {
 				sans: ["Maven Pro Variable", ...defaultTheme.fontFamily.sans],
+			},
+			boxShadowColor: {
+				DEFAULT: `rgba(0,0,0,0.3)`,
 			},
 		},
 	},
