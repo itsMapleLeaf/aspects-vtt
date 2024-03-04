@@ -12,7 +12,8 @@
 			"recommended": true,
 			"suspicious": {
 				"noArrayIndexKey": "off",
-				"noAssignInExpressions": "off"
+				"noAssignInExpressions": "off",
+				"noImplicitAnyLet": "off"
 			},
 			"nursery": {
 				"useImportType": "error",

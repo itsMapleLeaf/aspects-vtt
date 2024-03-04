@@ -28,6 +28,20 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "dev convex",
+			"type": "npm",
+			"script": "dev:convex",
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": { "regexp": ".*" },
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*",
+					"endsPattern": "Convex functions ready!"
+				}
+			}
 		}
 	]
 }

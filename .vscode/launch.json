@@ -10,7 +10,8 @@
 			"request": "launch",
 			"skipFiles": ["<node_internals>/**"],
 			"runtimeExecutable": "pnpm",
-			"runtimeArgs": ["dev"]
+			"runtimeArgs": ["dev:remix"],
+			"preLaunchTask": "dev convex"
 		}
 	]
 }

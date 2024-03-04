@@ -44,7 +44,8 @@ function generateOklchPalette(args: {
 	for (let i = 1; i <= 9; i++) {
 		const lightness = lerp(minLightness, maxLightness, ((i - 1) / 8) ** 1.1)
 		const chroma = lerp(args.minChroma, args.maxChroma, ((i - 1) / 8) ** 1)
-		colors[i * 100] = `oklch(${lightness} ${chroma} ${args.hue})`
+		colors[i * 100] =
+			`oklch(${lightness} ${chroma} ${args.hue} / <alpha-value>)`
 	}
 	return colors
 }

@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
+		"allowImportingTsExtensions": true,
 		"baseUrl": ".",
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
@@ -12,7 +13,8 @@
 		"noEmit": true,
 		"noUncheckedIndexedAccess": true,
 		"paths": {
-			"~/*": ["./app/*"]
+			"~/*": ["./app/*"],
+			"convex-backend/*": ["./convex/*"],
 		},
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
