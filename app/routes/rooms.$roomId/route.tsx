@@ -1,4 +1,17 @@
+import { type ActionFunctionArgs, redirect } from "@remix-run/node"
+import type { LoaderFunctionArgs } from "@remix-run/node"
+import { Form, useLoaderData } from "@remix-run/react"
 import { useRef, useState } from "react"
+import { HiPencilAlt } from "react-icons/hi"
+import {
+	HiArrowRightOnRectangle,
+	HiChatBubbleOvalLeft,
+	HiPaperAirplane,
+	HiUser,
+} from "react-icons/hi2"
+import { Button } from "~/ui/Button.tsx"
+import { Input } from "~/ui/Input.tsx"
+import { getUsername, setUsernameResponse } from "./username.server.ts"
 
 type Message = {
 	id: string
@@ -6,7 +19,27 @@ type Message = {
 	error?: boolean
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+	return { username: await getUsername(request) }
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+	const formData = await request.formData()
+
+	const response = redirect(
+		request.headers.get("Referer") ?? `/rooms/${params.roomId}`,
+	)
+
+	if (formData.has("clearUsername")) {
+		return setUsernameResponse("", response)
+	}
+
+	const username = formData.get("username") as string
+	return setUsernameResponse(username, response)
+}
+
 export default function RoomRoute() {
+	const { username } = useLoaderData<typeof loader>()
 	const [messages, setMessages] = useState<Message[]>([])
 	const formRef = useRef<HTMLFormElement>(null)
 
@@ -75,9 +108,53 @@ export default function RoomRoute() {
 		formRef.current?.reset()
 	}
 
+	if (!username) {
+		return (
+			<main className="flex items-center flex-col h-dvh">
+				<Form
+					method="post"
+					className="m-auto rounded-md flex flex-col items-center gap-3"
+				>
+					<label
+						htmlFor="username"
+						className="text-3xl font-light text-primary-900/75"
+					>
+						What should we call you?
+					</label>
+
+					<div className="flex gap-1">
+						<Input
+							id="username"
+							name="username"
+							placeholder="cute felirian"
+							icon={<HiUser />}
+							required
+							autoFocus
+							onChange={(event) => {
+								const lengthLimit = 50
+								if (event.currentTarget.value.length > lengthLimit) {
+									event.currentTarget.setCustomValidity(
+										`Your name must be less than ${lengthLimit} characters.`,
+									)
+								} else {
+									event.currentTarget.setCustomValidity("")
+								}
+							}}
+						/>
+						<Button
+							type="submit"
+							text="Enter"
+							icon={<HiArrowRightOnRectangle />}
+						/>
+					</div>
+				</Form>
+			</main>
+		)
+	}
+
 	return (
-		<main className="h-dvh p-2 gap-2 flex flex-col bg-primary-200">
-			<section className="flex-1 bg-primary-100 shadow py-2 px-3 rounded">
+		<main className="h-dvh p-2 gap-2 flex flex-col bg-primary-100">
+			<section className="flex-1 bg-primary-200 border border-primary-300 shadow py-2 px-3 rounded">
 				{messages.map((message) => (
 					<p
 						key={message.id}
@@ -88,31 +165,43 @@ export default function RoomRoute() {
 					</p>
 				))}
 			</section>
-			<form
-				action={(data) => {
-					const message = (data.get("message") as string).trim()
-					if (message.startsWith("/roll") || message.startsWith("/r")) {
-						handleRollCommand(message)
-						return
-					}
-
-					if (message.startsWith("/")) {
-						addError(`Error: Unknown command "${message}"`)
-						return
-					}
-
-					addMessage(message)
-					formRef.current?.reset()
-				}}
-				ref={formRef}
-			>
-				<input
-					name="message"
-					placeholder="Say something!"
-					required
-					className="bg-primary-100 py-2 px-3 rounded w-full outline outline-2 outline-transparent transition-[outline-color] focus:outline-primary-300"
-				/>
-			</form>
+			<section className="flex gap-2">
+				<Form method="post">
+					<Button
+						type="submit"
+						icon={<HiPencilAlt />}
+						text={username}
+						name="clearUsername"
+						value="do it"
+					/>
+				</Form>
+				<form
+					className="contents"
+					ref={formRef}
+					action={(data) => {
+						const message = (data.get("message") as string).trim()
+						if (message.startsWith("/roll") || message.startsWith("/r")) {
+							handleRollCommand(message)
+							return
+						}
+						if (message.startsWith("/")) {
+							addError(`Error: Unknown command "${message}"`)
+							return
+						}
+						addMessage(message)
+						formRef.current?.reset()
+					}}
+				>
+					<Input
+						name="message"
+						placeholder="Say something!"
+						required
+						icon={<HiChatBubbleOvalLeft />}
+						className="flex-1"
+					/>
+					<Button type="submit" text="Send" icon={<HiPaperAirplane />} />
+				</form>
+			</section>
 		</main>
 	)
 }

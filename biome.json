@@ -10,6 +10,9 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"a11y": {
+				"noAutofocus": "off"
+			},
 			"suspicious": {
 				"noArrayIndexKey": "off",
 				"noAssignInExpressions": "off",
