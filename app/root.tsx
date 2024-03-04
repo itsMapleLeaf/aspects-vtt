@@ -1,3 +1,4 @@
+import "@fontsource-variable/maven-pro"
 import type { MetaFunction } from "@remix-run/node"
 import {
 	Links,
@@ -28,15 +29,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<p className="bg-primary-100">test</p>
-				<p className="bg-primary-200">test</p>
-				<p className="bg-primary-300">test</p>
-				<p className="bg-primary-400">test</p>
-				<p className="bg-primary-500">test</p>
-				<p className="bg-primary-600">test</p>
-				<p className="bg-primary-700">test</p>
-				<p className="bg-primary-800">test</p>
-				<p className="bg-primary-900">test</p>
 				{children}
 				<ScrollRestoration />
 				<Scripts />

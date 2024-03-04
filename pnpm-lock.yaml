@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@fontsource-variable/maven-pro':
+    specifier: 5.0.17
+    version: 5.0.17
   '@remix-run/node':
     specifier: ^2.8.0
     version: 2.8.0(typescript@5.3.3)
@@ -898,6 +901,10 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@fontsource-variable/maven-pro@5.0.17:
+    resolution: {integrity: sha512-cE9rC+C4GBl0i/qjEsrefuQlvPZXENFR3tTqHtbSUNewJ5oGxJ4zEkz+fGA3TWBb7JAI4vIjGkIBukLYRQ1UXw==}
+    dev: false
 
   /@isaacs/cliui@8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}

@@ -12,6 +12,7 @@
 		"typecheck": "tsc"
 	},
 	"dependencies": {
+		"@fontsource-variable/maven-pro": "5.0.17",
 		"@remix-run/node": "^2.8.0",
 		"@remix-run/react": "^2.8.0",
 		"@remix-run/serve": "^2.8.0",

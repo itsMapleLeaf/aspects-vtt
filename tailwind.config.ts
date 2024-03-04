@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss"
+import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
 
 export default {
@@ -7,9 +8,14 @@ export default {
 		colors: {
 			primary: generateOklchPalette({
 				hue: "var(--hue)",
-				minChroma: 0.08,
-				maxChroma: 0.35,
+				minChroma: 0.04,
+				maxChroma: 0.15,
 			}),
+		},
+		extend: {
+			fontFamily: {
+				sans: ["Maven Pro Variable", ...defaultTheme.fontFamily.sans],
+			},
 		},
 	},
 	plugins: [
@@ -29,12 +35,12 @@ function generateOklchPalette(args: {
 	minChroma: number
 	maxChroma: number
 }) {
-	const minLightness = 0.1
-	const maxLightness = 1
+	const minLightness = 0.17
+	const maxLightness = 1.0
 	const colors: Record<number, string> = {}
 	for (let i = 1; i <= 9; i++) {
-		const lightness = lerp(minLightness, maxLightness, ((i - 1) / 8) ** 1)
-		const chroma = lerp(args.minChroma, args.maxChroma, ((i - 1) / 8) ** 1.4)
+		const lightness = lerp(minLightness, maxLightness, ((i - 1) / 8) ** 1.1)
+		const chroma = lerp(args.minChroma, args.maxChroma, ((i - 1) / 8) ** 1)
 		colors[i * 100] = `oklch(${lightness} ${chroma} ${args.hue})`
 	}
 	return colors
