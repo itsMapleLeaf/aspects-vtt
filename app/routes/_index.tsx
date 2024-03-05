@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node"
 import { api } from "convex-backend/_generated/api.js"
 import { ConvexHttpClient } from "convex/browser"
 import { LuPlus } from "react-icons/lu"
-import { serverEnv } from "~/env.server.js"
+import { clientEnv } from "~/env.ts"
 import { getDefaultRoomId } from "~/features/rooms/defaultRoom.server"
 import { Button } from "~/ui/Button"
 
@@ -14,7 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-	const convex = new ConvexHttpClient(serverEnv.CONVEX_URL)
+	const convex = new ConvexHttpClient(clientEnv.VITE_CONVEX_URL)
 	const result = await convex.mutation(api.rooms.create, {})
 	return redirect(`/rooms/${result.slug}`, 303)
 }
