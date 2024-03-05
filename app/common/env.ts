@@ -1,8 +1,8 @@
 import type * as zod from "zod"
 
-export function validateEnv<T>(
-	schema: zod.ZodType<T, zod.ZodTypeDef, Record<string, string | undefined>>,
-	env: Record<string, string | undefined>,
+export function validateEnv<Output, Input>(
+	schema: zod.ZodType<Output, zod.ZodTypeDef, Input>,
+	env: Input,
 ) {
 	const result = schema.safeParse(env)
 	if (!result.success) {
