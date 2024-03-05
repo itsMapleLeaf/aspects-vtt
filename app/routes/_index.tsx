@@ -5,12 +5,14 @@ import { api } from "convex-backend/_generated/api.js"
 import { ConvexHttpClient } from "convex/browser"
 import { LuPlus } from "react-icons/lu"
 import { clientEnv } from "~/env.ts"
-import { getDefaultRoomId } from "~/features/rooms/defaultRoom.server"
+import { Preferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button"
 
 export async function loader({ request }: LoaderFunctionArgs) {
-	const roomId = await getDefaultRoomId(request)
-	return roomId ? redirect(`/rooms/${roomId}`, 303) : null
+	const preferences = await Preferences.fromRequest(request)
+	return preferences.defaultRoomId
+		? redirect(`/rooms/${preferences.defaultRoomId}`, 303)
+		: null
 }
 
 export async function action({ request }: ActionFunctionArgs) {

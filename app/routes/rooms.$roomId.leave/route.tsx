@@ -1,6 +1,8 @@
 import { type ActionFunctionArgs, redirect } from "@remix-run/node"
-import { setDefaultRoomResponse } from "~/features/rooms/defaultRoom.server.ts"
+import { Preferences } from "~/preferences.server.ts"
 
 export async function action({ request }: ActionFunctionArgs) {
-	return setDefaultRoomResponse("", redirect("/", 303))
+	const preferences = await Preferences.fromRequest(request)
+	preferences.update({ defaultRoomId: "" })
+	return preferences.response(redirect("/", 303))
 }

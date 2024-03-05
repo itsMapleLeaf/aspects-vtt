@@ -3,10 +3,9 @@ import type { LoaderFunctionArgs } from "@remix-run/node"
 import { Form, useLoaderData, useSearchParams } from "@remix-run/react"
 import { useRef, useState } from "react"
 import * as LucideIcons from "react-icons/lu"
-import { setDefaultRoomResponse } from "~/features/rooms/defaultRoom.server.ts"
+import { Preferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
-import { getUsername, setUsernameResponse } from "./username.server.ts"
 
 type Message = {
 	id: string
@@ -15,26 +14,29 @@ type Message = {
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-	return setDefaultRoomResponse(
-		params.roomId as string,
-		json({ username: await getUsername(request) }),
-	)
+	const preferences = await Preferences.fromRequest(request)
+	preferences.update({ defaultRoomId: params.roomId as string })
+	return preferences.response(json({ username: preferences.username }))
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
 	const formData = await request.formData()
-	const username = await getUsername(request)
-	const location = `/rooms/${params.roomId}`
+	const preferences = await Preferences.fromRequest(request)
+	const redirectLocation = `/rooms/${params.roomId}`
 
 	if (formData.has("clearUsername")) {
-		const params = new URLSearchParams({ username })
-		return setUsernameResponse("", redirect(`${location}?${params.toString()}`))
+		const params = new URLSearchParams()
+		if (preferences.username) {
+			params.set("username", preferences.username)
+		}
+		preferences.update({ username: "" })
+		return preferences.response(
+			redirect(`${redirectLocation}?${params.toString()}`),
+		)
 	}
 
-	return setUsernameResponse(
-		formData.get("username") as string,
-		redirect(location),
-	)
+	preferences.update({ username: formData.get("username") as string })
+	return preferences.response(redirect(redirectLocation))
 }
 
 export default function RoomRoute() {
