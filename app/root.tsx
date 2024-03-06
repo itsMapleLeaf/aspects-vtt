@@ -7,7 +7,11 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react"
+import { ConvexProvider, ConvexReactClient } from "convex/react"
 import "tailwindcss/tailwind.css"
+import { clientEnv } from "./env.ts"
+
+const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
 
 export const meta: MetaFunction = () => {
 	return [
@@ -29,7 +33,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				{children}
+				<ConvexProvider client={convex}>{children}</ConvexProvider>
 				<ScrollRestoration />
 				<Scripts />
 			</body>

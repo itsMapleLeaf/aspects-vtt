@@ -3,7 +3,8 @@ import type { ActionFunctionArgs } from "@remix-run/node"
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { api } from "convex-backend/_generated/api.js"
 import { ConvexHttpClient } from "convex/browser"
-import { LuPlus } from "react-icons/lu"
+import { LucidePlus } from "lucide-react"
+
 import { clientEnv } from "~/env.ts"
 import { Preferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button"
@@ -24,7 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function Index() {
 	return (
 		<form method="post" action="?index" className="p-4">
-			<Button type="submit" text="Create new room" icon={<LuPlus />} />
+			<Button type="submit" text="Create new room" icon={<LucidePlus />} />
 		</form>
 	)
 }

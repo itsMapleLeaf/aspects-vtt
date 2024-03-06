@@ -1,6 +1,6 @@
 import { type ActionFunctionArgs, redirect } from "@remix-run/node"
 import { Form, useSearchParams } from "@remix-run/react"
-import * as LucideIcons from "react-icons/lu"
+import * as Lucide from "lucide-react"
 import { Preferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
@@ -33,7 +33,7 @@ export default function RoomRoute() {
 						id="username"
 						name="username"
 						placeholder="cute felirian"
-						icon={<LucideIcons.LuCat />}
+						icon={<Lucide.Cat />}
 						defaultValue={searchParams.get("username") ?? ""}
 						required
 						autoFocus
@@ -48,7 +48,7 @@ export default function RoomRoute() {
 							}
 						}}
 					/>
-					<Button type="submit" text="Enter" icon={<LucideIcons.LuLogIn />} />
+					<Button type="submit" text="Enter" icon={<Lucide.LogIn />} />
 				</div>
 			</Form>
 		</main>

@@ -6,11 +6,15 @@ export default defineSchema({
 		name: v.string(),
 		slug: v.string(),
 	}).index("by_slug", ["slug"]),
-	messages: defineTable({
+
+	diceRolls: defineTable({
 		roomId: v.id("rooms"),
-		authorId: v.id("users"),
-		content: v.string(),
-	})
-		.index("by_room", ["roomId"])
-		.index("by_author", ["authorId"]),
+		author: v.string(),
+		dice: v.array(
+			v.object({
+				sides: v.number(),
+				outcome: v.number(),
+			}),
+		),
+	}).index("by_room", ["roomId"]),
 })
