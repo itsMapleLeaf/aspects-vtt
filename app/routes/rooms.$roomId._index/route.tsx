@@ -1,8 +1,9 @@
-import { type ActionFunctionArgs, json, redirect } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import type { LoaderFunctionArgs } from "@remix-run/node"
-import { Form, useLoaderData, useSearchParams } from "@remix-run/react"
+import { Form, useLoaderData, useParams } from "@remix-run/react"
 import { useRef, useState } from "react"
 import * as LucideIcons from "react-icons/lu"
+import { roll } from "~/common/random.ts"
 import { Preferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
@@ -16,34 +17,18 @@ type Message = {
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const preferences = await Preferences.fromRequest(request)
 	preferences.update({ defaultRoomId: params.roomId as string })
-	return preferences.response(json({ username: preferences.username }))
-}
-
-export async function action({ request, params }: ActionFunctionArgs) {
-	const formData = await request.formData()
-	const preferences = await Preferences.fromRequest(request)
-	const redirectLocation = `/rooms/${params.roomId}`
-
-	if (formData.has("clearUsername")) {
-		const params = new URLSearchParams()
-		if (preferences.username) {
-			params.set("username", preferences.username)
-		}
-		preferences.update({ username: "" })
-		return preferences.response(
-			redirect(`${redirectLocation}?${params.toString()}`),
-		)
-	}
-
-	preferences.update({ username: formData.get("username") as string })
-	return preferences.response(redirect(redirectLocation))
+	return preferences.response(
+		preferences.username
+			? json({ username: preferences.username })
+			: redirect(`/rooms/${params.roomId}/setup`),
+	)
 }
 
 export default function RoomRoute() {
 	const { username } = useLoaderData<typeof loader>()
 	const [messages, setMessages] = useState<Message[]>([])
 	const formRef = useRef<HTMLFormElement>(null)
-	const [searchParams] = useSearchParams()
+	const params = useParams()
 
 	const addMessage = (content: string) => {
 		setMessages((messages) => [
@@ -110,48 +95,6 @@ export default function RoomRoute() {
 		formRef.current?.reset()
 	}
 
-	if (!username) {
-		return (
-			<main className="flex items-center flex-col h-dvh">
-				<Form
-					method="post"
-					action=""
-					className="m-auto rounded-md flex flex-col items-center gap-3"
-				>
-					<label
-						htmlFor="username"
-						className="text-3xl font-light text-primary-900/75"
-					>
-						What should we call you?
-					</label>
-
-					<div className="flex gap-1">
-						<Input
-							id="username"
-							name="username"
-							placeholder="cute felirian"
-							icon={<LucideIcons.LuCat />}
-							defaultValue={searchParams.get("username") ?? ""}
-							required
-							autoFocus
-							onChange={(event) => {
-								const lengthLimit = 50
-								if (event.currentTarget.value.length > lengthLimit) {
-									event.currentTarget.setCustomValidity(
-										`Your name must be less than ${lengthLimit} characters.`,
-									)
-								} else {
-									event.currentTarget.setCustomValidity("")
-								}
-							}}
-						/>
-						<Button type="submit" text="Enter" icon={<LucideIcons.LuLogIn />} />
-					</div>
-				</Form>
-			</main>
-		)
-	}
-
 	return (
 		<main className="h-dvh p-2 gap-2 flex flex-col bg-primary-100">
 			<section className="flex-1 bg-primary-200 border border-primary-300 shadow py-2 px-3 rounded">
@@ -166,15 +109,13 @@ export default function RoomRoute() {
 				))}
 			</section>
 			<section className="flex gap-2">
-				<Form method="post">
-					<Button
-						type="submit"
-						icon={<LucideIcons.LuPencil />}
-						text={username}
-						name="clearUsername"
-						value="do it"
-					/>
-				</Form>
+				<Button
+					to={`/rooms/${params.roomId}/setup?username=${username}`}
+					icon={<LucideIcons.LuPencil />}
+					text={username}
+					name="clearUsername"
+					value="do it"
+				/>
 				<Form method="post" action="leave">
 					<Button
 						type="submit"
@@ -213,15 +154,6 @@ export default function RoomRoute() {
 			</section>
 		</main>
 	)
-}
-
-function roll(sides: number) {
-	return randomInt(1, sides)
-}
-
-function randomInt(...args: [min: number, max: number] | [max: number]) {
-	const [min, max] = args.length === 1 ? [1, args[0]] : args
-	return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 function* range(...args: [start: number, end: number] | [end: number]) {
