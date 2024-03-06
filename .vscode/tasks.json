@@ -9,7 +9,8 @@
 			"group": "build",
 			"label": "tsc watch",
 			"runOptions": {
-				"runOn": "folderOpen"
+				"runOn": "folderOpen",
+				"instanceLimit": 1
 			},
 			"dependsOn": ["pnpm install"]
 		},
