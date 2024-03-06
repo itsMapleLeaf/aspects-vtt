@@ -16,7 +16,10 @@ export type ButtonProps = Overwrite<
 export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 	const content = (
 		<>
-			<span data-size={size} className="relative -mx-1 size-5 empty:hidden *:data-[size=lg]:size-8">
+			<span
+				data-size={size}
+				className="relative -mx-1 *:size-5 empty:hidden *:data-[size=lg]:size-8"
+			>
 				{icon}
 			</span>
 			<span data-size={size} className="relative flex-1 empty:hidden">
