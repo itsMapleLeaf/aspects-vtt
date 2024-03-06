@@ -11,15 +11,7 @@
 			"runOptions": {
 				"runOn": "folderOpen",
 				"instanceLimit": 1
-			},
-			"dependsOn": ["pnpm install"]
-		},
-		{
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["install"],
-			"problemMatcher": [],
-			"label": "pnpm install"
+			}
 		},
 		{
 			"label": "build",
