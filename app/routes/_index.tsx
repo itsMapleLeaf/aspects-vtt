@@ -11,9 +11,7 @@ import { Button } from "~/ui/Button"
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const preferences = await Preferences.fromRequest(request)
-	return preferences.defaultRoomId
-		? redirect(`/rooms/${preferences.defaultRoomId}`, 303)
-		: null
+	return preferences.defaultRoomId ? redirect(`/rooms/${preferences.defaultRoomId}`, 303) : null
 }
 
 export async function action({ request }: ActionFunctionArgs) {

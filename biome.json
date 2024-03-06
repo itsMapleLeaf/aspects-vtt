@@ -28,6 +28,9 @@
 			}
 		}
 	},
+	"formatter": {
+		"enabled": false
+	},
 	"javascript": {
 		"formatter": {
 			"semicolons": "asNeeded"

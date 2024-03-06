@@ -15,7 +15,7 @@
 		"noUncheckedIndexedAccess": true,
 		"paths": {
 			"~/*": ["./app/*"],
-			"convex-backend/*": ["./convex/*"],
+			"convex-backend/*": ["./convex/*"]
 		},
 		"resolveJsonModule": true,
 		"skipLibCheck": true,

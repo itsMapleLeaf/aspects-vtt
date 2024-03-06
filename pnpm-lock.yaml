@@ -29,6 +29,9 @@ dependencies:
   lodash-es:
     specifier: 4.17.21
     version: 4.17.21
+  lucide-react:
+    specifier: 0.344.0
+    version: 0.344.0(react@18.3.0-canary-2f8f77602-20240229)
   random-word-slugs:
     specifier: 0.1.7
     version: 0.1.7
@@ -38,9 +41,6 @@ dependencies:
   react-dom:
     specifier: 18.3.0-canary-2f8f77602-20240229
     version: 18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229)
-  react-icons:
-    specifier: 5.0.1
-    version: 5.0.1(react@18.3.0-canary-2f8f77602-20240229)
   tailwind-merge:
     specifier: 2.2.1
     version: 2.2.1
@@ -64,6 +64,12 @@ devDependencies:
   '@types/react-dom':
     specifier: ^18.2.20
     version: 18.2.20
+  prettier:
+    specifier: 3.2.5
+    version: 3.2.5
+  prettier-plugin-tailwindcss:
+    specifier: 0.5.11
+    version: 0.5.11(prettier@3.2.5)
   tailwindcss:
     specifier: 3.4.1
     version: 3.4.1
@@ -3358,6 +3364,14 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
+  /lucide-react@0.344.0(react@18.3.0-canary-2f8f77602-20240229):
+    resolution: {integrity: sha512-6YyBnn91GB45VuVT96bYCOKElbJzUHqp65vX8cDcu55MQL9T969v4dhGClpljamuI/+KMO9P6w9Acq1CVQGvIQ==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.3.0-canary-2f8f77602-20240229
+    dev: false
+
   /markdown-extensions@1.1.1:
     resolution: {integrity: sha512-WWC0ZuMzCyDHYCasEGs4IPvLyTGftYwh6wIEOULOF0HXcqZlhwRzrK0w2VUlxWA98xnvb/jszw4ZSkJ6ADpM6Q==}
     engines: {node: '>=0.10.0'}
@@ -4366,9 +4380,67 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
+  /prettier-plugin-tailwindcss@0.5.11(prettier@3.2.5):
+    resolution: {integrity: sha512-AvI/DNyMctyyxGOjyePgi/gqj5hJYClZ1avtQvLlqMT3uDZkRbi4HhGUpok3DRzv9z7Lti85Kdj3s3/1CeNI0w==}
+    engines: {node: '>=14.21.3'}
+    peerDependencies:
+      '@ianvs/prettier-plugin-sort-imports': '*'
+      '@prettier/plugin-pug': '*'
+      '@shopify/prettier-plugin-liquid': '*'
+      '@trivago/prettier-plugin-sort-imports': '*'
+      prettier: ^3.0
+      prettier-plugin-astro: '*'
+      prettier-plugin-css-order: '*'
+      prettier-plugin-import-sort: '*'
+      prettier-plugin-jsdoc: '*'
+      prettier-plugin-marko: '*'
+      prettier-plugin-organize-attributes: '*'
+      prettier-plugin-organize-imports: '*'
+      prettier-plugin-style-order: '*'
+      prettier-plugin-svelte: '*'
+      prettier-plugin-twig-melody: '*'
+    peerDependenciesMeta:
+      '@ianvs/prettier-plugin-sort-imports':
+        optional: true
+      '@prettier/plugin-pug':
+        optional: true
+      '@shopify/prettier-plugin-liquid':
+        optional: true
+      '@trivago/prettier-plugin-sort-imports':
+        optional: true
+      prettier-plugin-astro:
+        optional: true
+      prettier-plugin-css-order:
+        optional: true
+      prettier-plugin-import-sort:
+        optional: true
+      prettier-plugin-jsdoc:
+        optional: true
+      prettier-plugin-marko:
+        optional: true
+      prettier-plugin-organize-attributes:
+        optional: true
+      prettier-plugin-organize-imports:
+        optional: true
+      prettier-plugin-style-order:
+        optional: true
+      prettier-plugin-svelte:
+        optional: true
+      prettier-plugin-twig-melody:
+        optional: true
+    dependencies:
+      prettier: 3.2.5
+    dev: true
+
   /prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
+  /prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
     hasBin: true
     dev: true
 
@@ -4477,14 +4549,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.3.0-canary-2f8f77602-20240229
       scheduler: 0.24.0-canary-2f8f77602-20240229
-    dev: false
-
-  /react-icons@5.0.1(react@18.3.0-canary-2f8f77602-20240229):
-    resolution: {integrity: sha512-WqLZJ4bLzlhmsvme6iFdgO8gfZP17rfjYEJ2m9RsZjZ+cc4k1hTzknEz63YS1MeT50kVzoa1Nz36f4BEx+Wigw==}
-    peerDependencies:
-      react: '*'
-    dependencies:
-      react: 18.3.0-canary-2f8f77602-20240229
     dev: false
 
   /react-refresh@0.14.0:

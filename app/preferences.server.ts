@@ -43,10 +43,7 @@ export class Preferences {
 	}
 
 	async response<T>(response: TypedResponse<T> = new Response()) {
-		response.headers.append(
-			"Set-Cookie",
-			await preferencesCookie.serialize(this.#data),
-		)
+		response.headers.append("Set-Cookie", await preferencesCookie.serialize(this.#data))
 		return response
 	}
 }

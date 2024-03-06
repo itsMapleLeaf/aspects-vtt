@@ -10,16 +10,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 	const preferences = await Preferences.fromRequest(request)
 	preferences.update({ defaultRoomId: params.roomId as string })
 	return preferences.response(
-		preferences.username
-			? json({ username: preferences.username })
-			: redirect(`/rooms/${params.roomId}/setup`),
+		preferences.username ?
+			json({ username: preferences.username })
+		:	redirect(`/rooms/${params.roomId}/setup`),
 	)
 }
 
 export default function RoomRoute() {
 	const { username } = useLoaderData<typeof loader>()
 	return (
-		<div className="h-dvh p-2 gap-2 flex flex-col bg-primary-100">
+		<div className="flex h-dvh flex-col gap-2 bg-primary-100 p-2">
 			<header className="flex justify-end gap-[inherit]">
 				<Form method="post" action="leave">
 					<Button
@@ -30,11 +30,7 @@ export default function RoomRoute() {
 						value="do it"
 					/>
 				</Form>
-				<Button
-					to={`setup?username=${username}`}
-					icon={<Lucide.Edit />}
-					text={username}
-				/>
+				<Button to={`setup?username=${username}`} icon={<Lucide.Edit />} text={username} />
 			</header>
 			<main>
 				<DiceRoller />
@@ -63,11 +59,9 @@ function DiceRoller() {
 						<Button
 							// size="lg"
 							icon={kind.icon}
-							text={`${
-								(counts[kind.sides] ?? 0) === 0 ? "" : counts[kind.sides]
-							}d${kind.sides}`}
+							text={`${(counts[kind.sides] ?? 0) === 0 ? "" : counts[kind.sides]}d${kind.sides}`}
 							data-faded={(counts[kind.sides] ?? 0) === 0}
-							className="data-[faded=true]:opacity-60 tabular-nums"
+							className="tabular-nums data-[faded=true]:opacity-60"
 							onClick={() =>
 								setCounts((counts) => ({
 									...counts,
@@ -87,13 +81,9 @@ function DiceRoller() {
 						</div> */}
 					</div>
 				))}
-				<div className="flex items-center justify-end flex-1 gap-[inherit]">
+				<div className="flex flex-1 items-center justify-end gap-[inherit]">
 					{Object.values(counts).reduce((a, b) => a + b, 0) > 0 && (
-						<Button
-							text="Clear"
-							icon={<Lucide.X />}
-							onClick={() => setCounts({})}
-						/>
+						<Button text="Clear" icon={<Lucide.X />} onClick={() => setCounts({})} />
 					)}
 					<Button text="Roll" icon={<Lucide.Dices />} />
 				</div>

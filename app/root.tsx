@@ -1,12 +1,6 @@
 import "@fontsource-variable/maven-pro"
 import type { MetaFunction } from "@remix-run/node"
-import {
-	Links,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
-} from "@remix-run/react"
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexProvider, ConvexReactClient } from "convex/react"
 import "tailwindcss/tailwind.css"
 import { clientEnv } from "./env.ts"
@@ -25,7 +19,7 @@ export const meta: MetaFunction = () => {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="bg-primary-100 text-primary-900 break-words">
+		<html lang="en" className="break-words bg-primary-100 text-primary-900">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
