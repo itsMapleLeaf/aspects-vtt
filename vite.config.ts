@@ -16,10 +16,10 @@ export default defineConfig({
 				v3_relativeSplatPath: true,
 				v3_throwAbortReason: true,
 			},
+			presets: [vercelPreset()],
 		}),
 		remixRoutes(),
 		tsconfigPaths(),
-		vercelPreset(),
 		inspect(),
 	],
 })
