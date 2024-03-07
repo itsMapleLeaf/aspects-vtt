@@ -15,7 +15,7 @@ export function DiceRollList({ roomSlug }: { roomSlug: string }) {
 			style={{ height: "100%" }}
 			data={list.results}
 			itemContent={(_index, roll) => (
-				<div className="pb-2">
+				<div className="pb-2 animate-in fade-in">
 					<DiceRollSummary roll={roll} />
 				</div>
 			)}

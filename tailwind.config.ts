@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss"
+import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
 
@@ -22,6 +23,7 @@ export default {
 		},
 	},
 	plugins: [
+		animate,
 		plugin(function customPreflight(api) {
 			api.addBase({
 				":root": {
