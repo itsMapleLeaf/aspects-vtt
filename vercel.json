@@ -1,4 +1,0 @@
-{
-	"buildCommand": "pnpm convex deploy --cmd \"pnpm run build\" --cmd-url-env-var-name VITE_CONVEX_URL",
-	"rewrites": [{ "source": "/:path*", "destination": "/api/handler" }]
-}
