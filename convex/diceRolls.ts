@@ -3,7 +3,7 @@ import { v } from "convex/values"
 import { roll } from "~/common/random.js"
 import { mutation, query } from "./_generated/server.js"
 
-export const createPayload = {
+export const diceRollCreatePayload = {
 	roomSlug: v.string(),
 	author: v.string(),
 	label: v.optional(v.string()),
@@ -25,7 +25,7 @@ export const list = query({
 
 export const create = mutation({
 	args: {
-		...createPayload,
+		...diceRollCreatePayload,
 		dice: v.array(v.object({ sides: v.number() })),
 	},
 	handler: async (ctx, { dice, ...data }) => {

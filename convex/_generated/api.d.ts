@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as characters from "../characters.js";
 import type * as diceRolls from "../diceRolls.js";
 import type * as rooms from "../rooms.js";
 
@@ -26,6 +27,7 @@ import type * as rooms from "../rooms.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  characters: typeof characters;
   diceRolls: typeof diceRolls;
   rooms: typeof rooms;
 }>;
