@@ -23,3 +23,4 @@
 - NPC generation and tracking
 - buttons on character sheets to make specific rolls for skills and other actions
 - custom dice macros?
+- export and import individual characters as json
