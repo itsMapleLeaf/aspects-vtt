@@ -1,4 +1,5 @@
 {
+	"$schema": "",
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.formatOnSave": true,
 	"editor.codeActionsOnSave": {
@@ -6,5 +7,10 @@
 		"source.organizeImports.biome": "explicit",
 		"source.fixAll": "explicit",
 		"quickfix.biome": "explicit"
-	}
+	},
+	"tailwindCSS.experimental.classRegex": [["twMerge\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]],
+	"javascript.preferences.importModuleSpecifier": "shortest",
+	"javascript.preferences.importModuleSpecifierEnding": "js",
+	"typescript.preferences.importModuleSpecifier": "shortest",
+	"typescript.preferences.importModuleSpecifierEnding": "js"
 }
