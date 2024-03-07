@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
+import { createPayload } from "./diceRolls.ts"
 
 export default defineSchema({
 	rooms: defineTable({
@@ -8,13 +9,13 @@ export default defineSchema({
 	}).index("by_slug", ["slug"]),
 
 	diceRolls: defineTable({
-		roomId: v.id("rooms"),
-		author: v.string(),
+		...createPayload,
 		dice: v.array(
 			v.object({
+				key: v.string(),
 				sides: v.number(),
 				outcome: v.number(),
 			}),
 		),
-	}).index("by_room", ["roomId"]),
+	}).index("by_room", ["roomSlug"]),
 })

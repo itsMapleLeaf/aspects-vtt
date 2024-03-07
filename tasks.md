@@ -5,7 +5,7 @@
 ## mvp
 
 - [x] set username
-- [ ] dice rolls
+- [x] dice rolls
 - character sheets
   - [ ] name
   - [ ] notes

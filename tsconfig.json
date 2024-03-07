@@ -21,7 +21,7 @@
 		"skipLibCheck": true,
 		"strict": true,
 		"target": "ESNext",
-		"types": ["@remix-run/node", "vite/client", "react/canary"]
+		"types": ["@remix-run/node", "vite/client", "react/canary", "react-dom/canary"]
 	},
 	"include": [
 		"**/*.ts",

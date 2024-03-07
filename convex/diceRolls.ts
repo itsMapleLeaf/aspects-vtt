@@ -1,35 +1,41 @@
+import { paginationOptsValidator } from "convex/server"
 import { v } from "convex/values"
 import { roll } from "~/common/random.js"
 import { mutation, query } from "./_generated/server.js"
 
+export const createPayload = {
+	roomSlug: v.string(),
+	author: v.string(),
+	label: v.optional(v.string()),
+}
+
 export const list = query({
 	args: {
-		roomId: v.id("rooms"),
+		roomSlug: v.string(),
+		paginationOpts: paginationOptsValidator,
 	},
 	handler: async (ctx, args) => {
-		const items = await ctx.db
+		return await ctx.db
 			.query("diceRolls")
-			.withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+			.withIndex("by_room", (q) => q.eq("roomSlug", args.roomSlug))
 			.order("desc")
-			.take(100)
-		return items.toReversed()
+			.paginate(args.paginationOpts)
 	},
 })
 
 export const create = mutation({
 	args: {
-		roomId: v.id("rooms"),
-		author: v.string(),
+		...createPayload,
 		dice: v.array(v.object({ sides: v.number() })),
 	},
-	handler: async (ctx, args) => {
-		const rolledDice = args.dice.map((die) => ({
-			...die,
+	handler: async (ctx, { dice, ...data }) => {
+		const rolledDice = dice.map((die) => ({
+			key: crypto.randomUUID(),
+			sides: die.sides,
 			outcome: roll(die.sides),
 		}))
 		return await ctx.db.insert("diceRolls", {
-			roomId: args.roomId,
-			author: args.author,
+			...data,
 			dice: rolledDice,
 		})
 	},
