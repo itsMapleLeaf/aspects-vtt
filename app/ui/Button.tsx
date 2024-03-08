@@ -1,26 +1,28 @@
 import { type ComponentPropsWithoutRef, type ReactElement, cloneElement, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
-import type { Overwrite } from "~/common/types.ts"
+import type { Disallowed, StrictOmit } from "~/common/types.ts"
 import { Loading } from "./Loading.tsx"
 import { withMergedClassName } from "./withMergedClassName"
 
-export type ButtonProps = {
+interface ButtonPropsBase {
 	icon: ReactElement | undefined
 	text?: string
 	size?: "md" | "lg"
-} & (
-	| {
-			element: ReactElement
-			className?: string
-	  }
-	| Overwrite<
-			ComponentPropsWithoutRef<"button">,
-			{
-				onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
-			}
-	  >
-)
+}
+
+interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
+	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
+}
+
+interface ButtonPropsAsElement
+	extends Disallowed<StrictOmit<ComponentPropsWithoutRef<"button">, "className">>,
+		ButtonPropsBase {
+	element: ReactElement
+	className?: string
+}
+
+export type ButtonProps = ButtonPropsAsButton | ButtonPropsAsElement
 
 export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 	const [onClickPending, setOnClickPending] = useState(false)
@@ -46,6 +48,8 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 
 		"translate-y-0 active:translate-y-0.5",
 		"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
+
+		"disabled:opacity-50",
 	)
 
 	const children = (

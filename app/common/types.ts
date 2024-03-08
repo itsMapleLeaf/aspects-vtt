@@ -21,3 +21,8 @@ export type Simplify<T extends object> = { [K in keyof T]: T[K] } & {}
 export type Falsy = false | null | undefined | 0 | 0n | ""
 
 export type Nullish<T> = T | null | undefined
+
+/** Creates a new object type which disallows properties of the given type */
+export type Disallowed<T extends object> = {
+	[K in keyof T]?: never
+}
