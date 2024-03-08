@@ -66,7 +66,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 
 	return "element" in props ?
 			cloneElement(props.element, {
-				...withMergedClassName(props, className),
+				className: twMerge(className, props.className),
 				children: children,
 			})
 		:	<button
