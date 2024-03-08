@@ -1,9 +1,11 @@
 import { v } from "convex/values"
+import { expect } from "~/common/expect.js"
 import { mutation, query } from "./_generated/server.js"
+import { characterNames } from "./characterNames.js"
 
 export const characterCreatePayload = {
-	roomSlug: v.string(),
 	player: v.optional(v.string()),
+	roomSlug: v.string(),
 }
 
 export const list = query({
@@ -30,7 +32,13 @@ export const get = query({
 export const create = mutation({
 	args: characterCreatePayload,
 	handler: async (ctx, args) => {
-		return await ctx.db.insert("characters", args)
+		return await ctx.db.insert("characters", {
+			...args,
+			name: expect(
+				characterNames[Math.floor(Math.random() * characterNames.length)],
+				"Character names is empty",
+			),
+		})
 	},
 })
 

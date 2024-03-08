@@ -16,3 +16,6 @@ export type Overwrite<A extends object, B extends object> = Simplify<
  * Simplify complex types into a flat object
  */
 export type Simplify<T extends object> = { [K in keyof T]: T[K] } & {}
+
+/** Represents all JS falsy values */
+export type Falsy = false | null | undefined | 0 | 0n | ""

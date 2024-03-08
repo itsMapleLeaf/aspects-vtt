@@ -22,6 +22,7 @@ export default defineSchema({
 
 	characters: defineTable({
 		...characterCreatePayload,
+		name: v.string(),
 		values: v.optional(
 			v.array(
 				v.object({
