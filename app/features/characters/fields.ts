@@ -15,7 +15,6 @@ export type CharacterField = Simplify<
 >
 
 export const CharacterFields: readonly CharacterField[] = [
-	{ key: "Name", label: "Name", type: "text", fallback: "" },
 	{ key: "Gender", label: "Gender", type: "text", fallback: "" },
 	{ key: "Pronouns", label: "Pronouns", type: "text", fallback: "" },
 	{ key: "Image", label: "Image", type: "image", fallback: undefined },

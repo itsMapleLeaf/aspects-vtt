@@ -1,11 +1,16 @@
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
-import { Form, Link, useLoaderData, useParams, useSearchParams } from "@remix-run/react"
+import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
 import { api } from "convex-backend/_generated/api.js"
-import { useMutation, useQuery } from "convex/react"
+import type { Id } from "convex-backend/_generated/dataModel.js"
+import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useCallback, useEffect } from "react"
+import { useRef } from "react"
 import { $params, $path } from "remix-routes"
+import { CharacterForm } from "~/features/characters/CharacterForm"
+import { CharacterSelect } from "~/features/characters/CharacterSelect"
+import { CreateCharacterButton } from "~/features/characters/CreateCharacterButton"
+import { useCurrentCharacterId } from "~/features/characters/useCurrentCharacterId.ts"
 import { DiceRollForm } from "~/features/dice/DiceRollForm"
 import { DiceRollList } from "~/features/dice/DiceRollList"
 import { Preferences } from "~/preferences.server.ts"
@@ -27,6 +32,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function RoomRoute() {
 	const { username } = useLoaderData<typeof loader>()
 	const { roomSlug } = $params("/rooms/:roomSlug", useParams())
+
+	const [characterId] = useCurrentCharacterId()
+	const [character, characterPending] = useStableQueryValue(
+		useQuery(api.characters.get, characterId ? { id: characterId as Id<"characters"> } : "skip"),
+	)
+
 	return (
 		<div className="flex h-dvh flex-col gap-2 bg-primary-100 p-2">
 			<header className="flex justify-end gap-[inherit]">
@@ -55,12 +66,25 @@ export default function RoomRoute() {
 				<div className={panel("flex-1")}>
 					<p>map</p>
 				</div>
-				<div className="flex w-[360px] flex-col">
+				<div className="flex w-[360px] flex-col gap-2">
 					<div className="flex gap-2">
-						<div className="flex-1">
-							<CharacterSelect />
+						<div className="relative flex flex-1 items-center">
+							<div className="flex-1">
+								<CharacterSelect />
+							</div>
+							<div
+								data-pending={characterPending}
+								className="pointer-events-none absolute right-2 opacity-0 data-[pending=true]:opacity-100"
+							>
+								<Loading size="sm" />
+							</div>
 						</div>
 						<CreateCharacterButton roomSlug={roomSlug} username={username} />
+					</div>
+					<div className="min-h-0 flex-1  data-[pending=true]:opacity-75">
+						{character ?
+							<CharacterForm character={character} />
+						:	<Loading />}
 					</div>
 				</div>
 			</main>
@@ -68,71 +92,10 @@ export default function RoomRoute() {
 	)
 }
 
-function CharacterSelect() {
-	const { roomSlug } = $params("/rooms/:roomSlug", useParams())
-	const characters = useQuery(api.characters.list, { roomSlug })
-	const [currentCharacterId, setCurrentCharacterId] = useCurrentCharacterId()
-	const firstCharacterId = characters?.[0]?._id
-
-	useEffect(() => {
-		if (!currentCharacterId && firstCharacterId) {
-			setCurrentCharacterId(firstCharacterId)
-		}
-	}, [currentCharacterId, firstCharacterId, setCurrentCharacterId])
-
-	return (
-		characters === undefined ? <Loading />
-		: characters.length === 0 ?
-			<p className="flex h-10 flex-row items-center px-2 opacity-60">No characters found.</p>
-		:	<div className="relative flex flex-row items-center">
-				<select
-					className="block h-10 w-full appearance-none rounded border border-primary-300 bg-primary-200 pl-9"
-					value={currentCharacterId ?? ""}
-					onChange={(event) => {
-						setCurrentCharacterId(event.target.value)
-					}}
-				>
-					{characters.map((character) => (
-						<option key={character._id} value={character._id}>
-							{character.name}
-						</option>
-					))}
-				</select>
-				<Lucide.ChevronsUpDown className="pointer-events-none absolute left-2" />
-			</div>
-	)
-}
-
-function CreateCharacterButton({ roomSlug, username }: { roomSlug: string; username: string }) {
-	const create = useMutation(api.characters.create)
-	const [, setCurrentCharacterId] = useCurrentCharacterId()
-	return (
-		<Button
-			icon={<Lucide.UserPlus2 />}
-			title="New Character"
-			onClick={async () => {
-				const id = await create({ roomSlug, player: username })
-				setCurrentCharacterId(id)
-			}}
-		/>
-	)
-}
-
-function useCurrentCharacterId() {
-	const [searchParams, setSearchParams] = useSearchParams()
-	return [
-		searchParams.get("character"),
-		useCallback(
-			(newCharacterId: string) => {
-				setSearchParams(
-					(params) => {
-						params.set("character", newCharacterId)
-						return params
-					},
-					{ replace: true },
-				)
-			},
-			[setSearchParams],
-		),
-	] as const
+function useStableQueryValue<T>(value: T): readonly [value: T, pending: boolean] {
+	const ref = useRef(value)
+	if (ref.current !== value && value !== undefined) {
+		ref.current = value
+	}
+	return [ref.current, value === undefined]
 }

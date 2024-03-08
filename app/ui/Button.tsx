@@ -1,4 +1,5 @@
 import { type ComponentPropsWithoutRef, type ReactElement, cloneElement, useState } from "react"
+import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import type { Overwrite } from "~/common/types.ts"
 import { Loading } from "./Loading.tsx"
@@ -22,7 +23,9 @@ export type ButtonProps = {
 )
 
 export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
-	const [pending, setPending] = useState(false)
+	const [onClickPending, setOnClickPending] = useState(false)
+	const status = useFormStatus()
+	const pending = status.pending || onClickPending
 
 	const className = twMerge(
 		"flex items-center gap-2",
@@ -52,7 +55,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 				className="relative -mx-1 *:size-5 empty:hidden *:data-[size=lg]:size-8"
 			>
 				{pending ?
-					<Loading />
+					<Loading size="sm" />
 				:	icon}
 			</span>
 			<span data-size={size} className="relative flex-1 empty:hidden">
@@ -68,13 +71,14 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 			})
 		:	<button
 				type="button"
+				disabled={pending}
 				{...withMergedClassName(props, className)}
 				onClick={async (event) => {
-					setPending(true)
+					setOnClickPending(true)
 					try {
 						await props.onClick?.(event)
 					} catch {}
-					setPending(false)
+					setOnClickPending(false)
 				}}
 			>
 				{children}

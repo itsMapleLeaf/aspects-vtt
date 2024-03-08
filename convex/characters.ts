@@ -45,6 +45,7 @@ export const create = mutation({
 export const update = mutation({
 	args: {
 		id: v.id("characters"),
+		name: v.optional(v.string()),
 		player: v.optional(v.string()),
 		values: v.optional(
 			v.array(
