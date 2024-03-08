@@ -15,7 +15,7 @@ export function CreateCharacterButton({
 	const [, setCurrentCharacterId] = useCurrentCharacterId()
 	return (
 		<Button
-			icon={<Lucide.UserPlus2 />}
+			icon={<Lucide.Plus />}
 			title="New Character"
 			onClick={async () => {
 				const id = await create({ roomSlug, player: username })

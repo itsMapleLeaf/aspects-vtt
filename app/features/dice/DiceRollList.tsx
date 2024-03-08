@@ -22,7 +22,12 @@ export function DiceRollList({ roomSlug }: { roomSlug: string }) {
 			defaultItemHeight={135}
 			endReached={() => list.loadMore(numItems)}
 			components={{
-				Footer: () => (list.status === "Exhausted" ? null : <Loading />),
+				Footer: () =>
+					list.status === "Exhausted" ?
+						null
+					:	<div className="flex justify-center p-4">
+							<Loading />
+						</div>,
 			}}
 		/>
 	)

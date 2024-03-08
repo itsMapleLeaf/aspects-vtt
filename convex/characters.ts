@@ -1,4 +1,5 @@
 import { v } from "convex/values"
+import { raise } from "~/common/errors.js"
 import { expect } from "~/common/expect.js"
 import { mutation, query } from "./_generated/server.js"
 import { characterNames } from "./characterNames.js"
@@ -22,10 +23,11 @@ export const list = query({
 
 export const get = query({
 	args: {
-		id: v.id("characters"),
+		id: v.string(),
 	},
 	handler: async (ctx, args) => {
-		return await ctx.db.get(args.id)
+		const id = ctx.db.normalizeId("characters", args.id)
+		return await ctx.db.get(id ?? raise(`Invalid character ID: ${args.id}`))
 	},
 })
 
