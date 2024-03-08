@@ -19,3 +19,5 @@ export type Simplify<T extends object> = { [K in keyof T]: T[K] } & {}
 
 /** Represents all JS falsy values */
 export type Falsy = false | null | undefined | 0 | 0n | ""
+
+export type Nullish<T> = T | null | undefined
