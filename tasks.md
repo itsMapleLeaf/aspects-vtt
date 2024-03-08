@@ -7,10 +7,17 @@
 - [x] set username
 - [x] dice rolls
 - character sheets
-  - [ ] name
-  - [ ] notes
-  - [ ] counters
+  - [x] name
+  - [x] text fields
+  - [ ] number fields
+  - [ ] dice fields
 - [ ] token grid
+
+## features
+
+- character sheets
+  - [ ] multiline text fields
+  - [ ] image fields
 
 ## ideas
 
@@ -24,3 +31,4 @@
 - buttons on character sheets to make specific rolls for skills and other actions
 - custom dice macros?
 - export and import individual characters as json
+- button to randomize character names
