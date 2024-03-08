@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
+	"$schema": "https://biomejs.dev/schemas/1.6.0/schema.json",
 	"files": {
 		"ignore": ["convex/_generated"]
 	},
@@ -13,16 +13,16 @@
 			"a11y": {
 				"noAutofocus": "off"
 			},
+			"correctness": {
+				"noUnusedImports": "error"
+			},
 			"suspicious": {
 				"noArrayIndexKey": "off",
 				"noAssignInExpressions": "off",
 				"noImplicitAnyLet": "off"
 			},
-			"nursery": {
-				"useImportType": "error",
-				"noUnusedImports": "warn"
-			},
 			"style": {
+				"useImportType": "error",
 				"noUnusedTemplateLiteral": "off",
 				"noParameterAssign": "off"
 			}
