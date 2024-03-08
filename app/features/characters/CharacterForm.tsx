@@ -2,7 +2,7 @@ import { api } from "convex-backend/_generated/api.js"
 import type { Doc } from "convex-backend/_generated/dataModel.js"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type ComponentPropsWithoutRef, useId, useState } from "react"
+import { type ComponentPropsWithoutRef, type ReactNode, useId, useState } from "react"
 import { expect } from "~/common/expect.ts"
 import { CharacterFields } from "~/features/characters/fields.ts"
 import { Button } from "~/ui/Button.tsx"
@@ -78,10 +78,7 @@ function TextField({
 }) {
 	const inputId = useId()
 	return (
-		<div className={className}>
-			<label htmlFor={inputId} className="text-sm/4 font-medium">
-				{label}
-			</label>
+		<Field label={label} className={className} htmlFor={inputId}>
 			<Input
 				id={inputId}
 				type="text"
@@ -97,6 +94,29 @@ function TextField({
 					form.requestSubmit()
 				}}
 			/>
+		</Field>
+	)
+}
+
+function Field({
+	label,
+	htmlFor,
+	className,
+	children,
+}: {
+	label: ReactNode
+	htmlFor: string | undefined
+	className?: string
+	children: React.ReactNode
+}) {
+	return (
+		<div className={className}>
+			{htmlFor ?
+				<label htmlFor={htmlFor} className="text-sm/4 font-medium">
+					{label}
+				</label>
+			:	<p className="text-sm/4 font-medium">{label}</p>}
+			{children}
 		</div>
 	)
 }
