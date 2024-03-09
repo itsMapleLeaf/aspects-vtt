@@ -1,17 +1,19 @@
 # Tasks
 
-- [x] add convex
-
 ## mvp
 
+- [x] add convex
 - [x] set username
 - [x] dice rolls
 - character sheets
   - [x] name
   - [x] text fields
+  - [ ] avatar
   - [ ] number fields
   - [ ] dice fields
+  - [ ] createdBy
 - [ ] token grid
+- [ ] do we need auth? we'll see i guess
 
 ## features
 
