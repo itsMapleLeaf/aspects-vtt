@@ -83,7 +83,7 @@ export default function RoomRoute() {
 							<CreateCharacterButton roomSlug={roomSlug} username={username} />
 						</div>
 						{character && (
-							<div className="min-h-0 flex-1 data-[pending=true]:opacity-75">
+							<div className="min-h-0 flex-1">
 								<CharacterForm character={character} />
 							</div>
 						)}
