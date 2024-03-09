@@ -1,8 +1,9 @@
 import "@fontsource-variable/maven-pro"
+import "tailwindcss/tailwind.css"
+
 import type { MetaFunction } from "@remix-run/node"
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexProvider, ConvexReactClient } from "convex/react"
-import "tailwindcss/tailwind.css"
 import { clientEnv } from "./env.ts"
 
 const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
