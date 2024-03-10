@@ -64,7 +64,7 @@ export default function RoomRoute() {
 				/>
 			</header>
 			<main className="flex min-h-0 flex-1 gap-2">
-				<div className="flex h-full w-[360px] flex-col gap-2">
+				<div className="flex h-full max-w-[360px] flex-1 flex-col gap-2">
 					<DiceRollForm username={username} roomSlug={roomSlug} />
 					<div className="min-h-0 flex-1">
 						<DiceRollList roomSlug={roomSlug} />
@@ -74,7 +74,7 @@ export default function RoomRoute() {
 					<p>map</p>
 				</div>
 				{characters !== undefined ?
-					<div className="flex w-[360px] flex-col gap-2">
+					<div className="flex max-w-[360px] flex-1 flex-col gap-2">
 						<div className="flex gap-2">
 							<div className="flex-1">
 								<CharacterSelect characters={characters} />
@@ -88,7 +88,7 @@ export default function RoomRoute() {
 							</div>
 						)}
 					</div>
-				:	<div className="flex w-[360px] flex-col items-center justify-center">
+				:	<div className="flex max-w-[360px] flex-1 flex-col items-center justify-center">
 						<Loading />
 					</div>
 				}
