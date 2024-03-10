@@ -4,8 +4,9 @@ import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
 import { api } from "convex-backend/_generated/api.js"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { $params, $path } from "remix-routes"
+import { expect } from "~/common/expect.ts"
 import { CharacterForm } from "~/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "~/features/characters/CharacterSelect.tsx"
 import { CreateCharacterButton } from "~/features/characters/CreateCharacterButton.tsx"
@@ -70,8 +71,8 @@ export default function RoomRoute() {
 						<DiceRollList roomSlug={roomSlug} />
 					</div>
 				</div>
-				<div className={panel("flex-1")}>
-					<p>map</p>
+				<div className={panel("flex min-w-0 flex-1")}>
+					<MapGrid />
 				</div>
 				{characters !== undefined ?
 					<div className="flex max-w-[360px] flex-1 flex-col gap-2">
@@ -93,6 +94,49 @@ export default function RoomRoute() {
 					</div>
 				}
 			</main>
+		</div>
+	)
+}
+
+function MapGrid() {
+	const cellSize = 50
+	const columnCount = 10
+	const rowCount = 10
+
+	const offsetX = useRef(0)
+	const offsetY = useRef(0)
+
+	const gridElementRef = useRef<HTMLDivElement>(null)
+
+	return (
+		<div
+			className="size-full overflow-clip"
+			onPointerMove={(event) => {
+				if (event.buttons === 1) {
+					event.preventDefault()
+					offsetX.current += event.movementX
+					offsetY.current += event.movementY
+
+					expect(gridElementRef.current, "grid ref not set").style.transform =
+						`translate(${offsetX.current}px, ${offsetY.current}px)`
+				}
+			}}
+		>
+			<div
+				ref={gridElementRef}
+				className="border-b border-r border-[--line-color] bg-primary-100/40 [--line-color:theme(colors.primary.300)]"
+				style={{
+					width: cellSize * columnCount,
+					height: cellSize * rowCount,
+					backgroundImage: `
+						linear-gradient(to right, var(--line-color) 1px, transparent 1px),
+						linear-gradient(to bottom, var(--line-color) 1px, transparent 1px)
+					`,
+					backgroundSize: `${cellSize}px ${cellSize}px`,
+				}}
+			>
+				the
+			</div>
 		</div>
 	)
 }
