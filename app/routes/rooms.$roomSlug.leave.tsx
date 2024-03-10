@@ -1,6 +1,6 @@
 import { type ActionFunctionArgs, redirect } from "@remix-run/node"
-import { updatePreferences } from "~/preferences.server.ts"
+import { getPreferences } from "~/preferences.server.ts"
 
 export async function action({ request }: ActionFunctionArgs) {
-	return updatePreferences({ defaultRoomId: "" }, redirect("/", 303))
+	return (await getPreferences(request)).update({ defaultRoomId: undefined }, redirect("/", 303))
 }

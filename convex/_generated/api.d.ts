@@ -17,7 +17,9 @@ import type {
 import type * as characterNames from "../characterNames.js";
 import type * as characters from "../characters.js";
 import type * as diceRolls from "../diceRolls.js";
+import type * as http from "../http.js";
 import type * as rooms from "../rooms.js";
+import type * as storage from "../storage.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -31,7 +33,9 @@ declare const fullApi: ApiFromModules<{
   characterNames: typeof characterNames;
   characters: typeof characters;
   diceRolls: typeof diceRolls;
+  http: typeof http;
   rooms: typeof rooms;
+  storage: typeof storage;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

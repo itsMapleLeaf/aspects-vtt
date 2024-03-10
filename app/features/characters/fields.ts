@@ -1,5 +1,8 @@
 import type { Simplify } from "~/common/types.ts"
 
+export const characterFieldDice = [4, 6, 8, 12, 20] as const
+export type CharacterFieldDie = (typeof characterFieldDice)[number]
+
 type CharacterFieldBase<Type extends string, Value> = {
 	key: string
 	label: string
@@ -9,15 +12,13 @@ type CharacterFieldBase<Type extends string, Value> = {
 
 export type CharacterField = Simplify<
 	| (CharacterFieldBase<"text", string> & { multiline?: boolean })
-	| CharacterFieldBase<"image", string | undefined>
 	| (CharacterFieldBase<"counter", number> & { hasMax?: boolean })
-	| CharacterFieldBase<"die", 4 | 6 | 8 | 12 | 20>
+	| CharacterFieldBase<"die", CharacterFieldDie>
 >
 
-export const CharacterFields: readonly CharacterField[] = [
+export const characterFields: readonly CharacterField[] = [
 	{ key: "Gender", label: "Gender", type: "text", fallback: "" },
 	{ key: "Pronouns", label: "Pronouns", type: "text", fallback: "" },
-	{ key: "Image", label: "Image", type: "image", fallback: undefined },
 
 	{ key: "Strength", label: "Strength", type: "die", fallback: 4 },
 	{ key: "Sense", label: "Sense", type: "die", fallback: 4 },
@@ -36,7 +37,3 @@ export const CharacterFields: readonly CharacterField[] = [
 	{ key: "Items", label: "Items", type: "text", fallback: "", multiline: true },
 	{ key: "Profile", label: "Profile", type: "text", fallback: "", multiline: true },
 ]
-
-export const CharacterFieldsByKey: ReadonlyMap<CharacterField["key"], CharacterField> = new Map(
-	CharacterFields.map((field) => [field.key, field]),
-)

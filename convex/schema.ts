@@ -1,6 +1,10 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
-import { characterCreatePayload } from "./characters.ts"
+import {
+	characterCreatePayload,
+	characterImageValidator,
+	characterValueObjectValidator,
+} from "./characters.ts"
 import { diceRollCreatePayload } from "./diceRolls.ts"
 
 export default defineSchema({
@@ -23,13 +27,7 @@ export default defineSchema({
 	characters: defineTable({
 		...characterCreatePayload,
 		name: v.string(),
-		values: v.optional(
-			v.array(
-				v.object({
-					key: v.string(),
-					value: v.union(v.string(), v.number(), v.boolean()),
-				}),
-			),
-		),
+		image: v.optional(v.union(v.null(), characterImageValidator)),
+		values: v.optional(v.array(characterValueObjectValidator)),
 	}).index("by_room", ["roomSlug"]),
 })

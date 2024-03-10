@@ -13,7 +13,7 @@ import { DeleteCharacterButton } from "~/features/characters/DeleteCharacterButt
 import { useCurrentCharacterId } from "~/features/characters/useCurrentCharacterId.ts"
 import { DiceRollForm } from "~/features/dice/DiceRollForm.tsx"
 import { DiceRollList } from "~/features/dice/DiceRollList.tsx"
-import { getPreferences, updatePreferences } from "~/preferences.server.ts"
+import { getPreferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { panel } from "~/ui/styles.ts"
@@ -21,7 +21,7 @@ import { panel } from "~/ui/styles.ts"
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const { roomSlug } = $params("/rooms/:roomSlug", params)
 	const preferences = await getPreferences(request)
-	return updatePreferences(
+	return preferences.update(
 		{ defaultRoomId: roomSlug },
 		preferences.username ?
 			json({ username: preferences.username })

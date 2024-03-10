@@ -16,17 +16,22 @@ const preferencesCookie = createCookie("preferences", {
 	sameSite: "lax",
 })
 
-export async function getPreferences(request: Request): Promise<PreferencesData> {
+export async function getPreferences(request: Request) {
 	const result = preferencesSchema.safeParse(
 		await preferencesCookie.parse(request.headers.get("cookie")),
 	)
-	return result.success ? result.data : {}
-}
-
-export async function updatePreferences<T>(
-	preferences: Partial<PreferencesData>,
-	response: TypedResponse<T> = new Response(),
-): Promise<TypedResponse<T>> {
-	response.headers.append("Set-Cookie", await preferencesCookie.serialize(preferences))
-	return response
+	const data = result.success ? result.data : {}
+	return {
+		...data,
+		async update<T>(
+			updates: Partial<PreferencesData>,
+			response: TypedResponse<T>,
+		): Promise<TypedResponse<T>> {
+			response.headers.append(
+				"Set-Cookie",
+				await preferencesCookie.serialize({ ...data, ...updates }),
+			)
+			return response
+		},
+	}
 }

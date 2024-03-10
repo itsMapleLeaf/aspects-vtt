@@ -1,4 +1,4 @@
-import { v } from "convex/values"
+import { type Infer, v } from "convex/values"
 import { raise } from "~/common/errors.js"
 import { expect } from "~/common/expect.js"
 import { mutation, query } from "./_generated/server.js"
@@ -8,6 +8,21 @@ export const characterCreatePayload = {
 	player: v.optional(v.string()),
 	roomSlug: v.string(),
 }
+
+const characterValueValidator = v.union(v.string(), v.number(), v.boolean())
+export type CharacterValue = Infer<typeof characterValueValidator>
+
+export const characterValueObjectValidator = v.object({
+	key: v.string(),
+	value: characterValueValidator,
+})
+export type CharacterImage = Infer<typeof characterImageValidator>
+
+export const characterImageValidator = v.object({
+	name: v.string(),
+	mimeType: v.string(),
+	storageId: v.id("_storage"),
+})
 
 export const list = query({
 	args: {
@@ -49,6 +64,7 @@ export const update = mutation({
 		id: v.id("characters"),
 		name: v.optional(v.string()),
 		player: v.optional(v.string()),
+		image: v.optional(v.union(v.null(), characterImageValidator)),
 		values: v.optional(
 			v.array(
 				v.object({

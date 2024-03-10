@@ -2,14 +2,14 @@ import { type ActionFunctionArgs, redirect } from "@remix-run/node"
 import { Form, useSearchParams } from "@remix-run/react"
 import * as Lucide from "lucide-react"
 import { $params, $path } from "remix-routes"
-import { updatePreferences } from "~/preferences.server.ts"
+import { getPreferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 
 export async function action({ request, params }: ActionFunctionArgs) {
 	const { roomSlug } = $params("/rooms/:roomSlug", params)
 	const formData = await request.formData()
-	return updatePreferences(
+	return (await getPreferences(request)).update(
 		{ username: formData.get("username") as string },
 		redirect($path("/rooms/:roomSlug", { roomSlug })),
 	)
