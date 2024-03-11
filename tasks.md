@@ -14,8 +14,8 @@
   - [x] dice fields
   - [x] createdBy (in database)
 - token grid
-  - [ ] infinite grid
-  - [ ] left-click and drag to move viewport
+  - [x] infinite grid
+  - [x] left-click and drag to move viewport
   - [ ] button to reset viewport
   - [ ] add a `tokens` table to the database: `{ x: number, y: number, image: StorageId }`
   - [ ] add `tokenId` and `tokenVisible` to the characters table
