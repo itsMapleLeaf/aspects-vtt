@@ -6,7 +6,6 @@ import * as Lucide from "lucide-react"
 import { type ComponentPropsWithoutRef, type ReactNode, useId, useState } from "react"
 import { z } from "zod"
 import { expect } from "~/common/expect.ts"
-import { clientEnv } from "~/env.ts"
 import {
 	type CharacterField,
 	characterFieldDice,
@@ -16,6 +15,7 @@ import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { Select } from "~/ui/Select.tsx"
+import { UploadedImage } from "../images/UploadedImage"
 
 export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 	const valuesById = Object.fromEntries(
@@ -30,6 +30,7 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 	>({})
 
 	const update = useMutation(api.characters.update)
+	const createToken = useMutation(api.mapTokens.create)
 
 	const submit = async () => {
 		if (Object.keys(updates).length === 0) return
@@ -56,13 +57,30 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 
 	return (
 		<form action={submit} className="flex h-full flex-col gap-2">
-			<fieldset className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto" key={character._id}>
+			<fieldset
+				className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto *:shrink-0"
+				key={character._id}
+			>
 				<TextField
 					label="Name"
 					value={updates.name ?? character?.name}
 					onChangeValue={(name) => setUpdates((updates) => ({ ...updates, name }))}
 				/>
 				<ImageInput character={character} />
+				<Button
+					icon={<Lucide.Box />}
+					text="Add Token"
+					className="self-start"
+					onClick={() =>
+						createToken({
+							roomSlug: character.roomSlug,
+							name: character.name,
+							x: 0,
+							y: 0,
+							imageId: character.imageId,
+						})
+					}
+				/>
 				{characterFields.map((field) => (
 					<CharacterFieldInput
 						key={field.key}
@@ -183,6 +201,9 @@ function TextField({
 
 function ImageInput({ character }: { character: Doc<"characters"> }) {
 	const getUploadUrl = useMutation(api.storage.getUploadUrl)
+	const createImage = useMutation(api.images.create)
+	const updateImage = useMutation(api.images.update)
+	const removeImage = useMutation(api.images.remove)
 	const updateCharacter = useMutation(api.characters.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
 
@@ -201,14 +222,22 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 				.object({ storageId: z.string().refine((value): value is Id<"_storage"> => true) })
 				.parse(await response.json())
 
-			await updateCharacter({
-				id: character._id,
-				image: {
-					name: file.name,
-					mimeType: file.type,
+			if (character.imageId) {
+				await updateImage({
+					id: character.imageId,
 					storageId: result.storageId,
-				},
-			})
+					mimeType: file.type,
+				})
+			} else {
+				const imageId = await createImage({
+					storageId: result.storageId,
+					mimeType: file.type,
+				})
+				await updateCharacter({
+					id: character._id,
+					imageId,
+				})
+			}
 
 			setStatus("idle")
 		} catch (error) {
@@ -217,18 +246,11 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 		}
 	}
 
-	const convexUrl = new URL(clientEnv.VITE_CONVEX_URL)
-	const convexSiteUrl = convexUrl.origin.replace(/cloud[\/]*$/, "site")
-
 	return (
 		<div className="relative flex aspect-square w-full items-center justify-center rounded border border-dashed border-primary-300 bg-primary-200/50 transition hover:bg-primary-200/75">
 			{status === "idle" &&
-				(character.image ?
-					<img
-						src={`${convexSiteUrl}/characters/image?characterId=${character._id}`}
-						alt=""
-						className="size-full"
-					/>
+				(character.imageId ?
+					<UploadedImage imageId={character.imageId} className="size-full" />
 				:	<Lucide.ImagePlus className="size-full max-w-24 text-primary-400" />)}
 			{status === "uploading" && <Loading />}
 			{status === "error" && <Lucide.FileX2 />}
@@ -244,12 +266,13 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 					event.target.value = ""
 				}}
 			/>
-			{character.image && (
+			{character.imageId && (
 				<Button
 					icon={<Lucide.Trash />}
 					title="Remove image"
 					onClick={async () => {
-						await updateCharacter({ id: character._id, image: null })
+						await updateCharacter({ id: character._id, imageId: undefined })
+						await removeImage({ id: character.imageId as Id<"images"> })
 					}}
 					className="absolute right-0 top-0 m-2"
 				/>
@@ -272,10 +295,10 @@ function Field({
 	return (
 		<div className={className}>
 			{htmlFor ?
-				<label htmlFor={htmlFor} className="text-sm/4 font-medium">
+				<label htmlFor={htmlFor} className="select-none text-sm/4 font-medium">
 					{label}
 				</label>
-			:	<p className="text-sm/4 font-medium">{label}</p>}
+			:	<p className="select-none text-sm/4 font-medium">{label}</p>}
 			{children}
 		</div>
 	)

@@ -5,9 +5,9 @@ export const create = mutation({
 	args: {
 		roomSlug: v.string(),
 		name: v.string(),
-		image: v.id("_storage"),
 		x: v.number(),
 		y: v.number(),
+		imageId: v.optional(v.id("images")),
 	},
 	handler: async (ctx, data) => {
 		return await ctx.db.insert("mapTokens", data)
@@ -23,6 +23,19 @@ export const list = query({
 			.query("mapTokens")
 			.withIndex("by_room", (q) => q.eq("roomSlug", roomSlug))
 			.collect()
+	},
+})
+
+export const update = mutation({
+	args: {
+		id: v.id("mapTokens"),
+		name: v.optional(v.string()),
+		x: v.optional(v.number()),
+		y: v.optional(v.number()),
+		imageId: v.optional(v.id("images")),
+	},
+	handler: async (ctx, { id, ...data }) => {
+		return await ctx.db.patch(id, data)
 	},
 })
 

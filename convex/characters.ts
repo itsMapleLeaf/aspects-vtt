@@ -64,7 +64,7 @@ export const update = mutation({
 		id: v.id("characters"),
 		name: v.optional(v.string()),
 		player: v.optional(v.string()),
-		image: v.optional(v.union(v.null(), characterImageValidator)),
+		imageId: v.optional(v.id("images")),
 		values: v.optional(
 			v.array(
 				v.object({
@@ -73,6 +73,7 @@ export const update = mutation({
 				}),
 			),
 		),
+		tokenVisible: v.optional(v.boolean()),
 	},
 	handler: async (ctx, { id, ...data }) => {
 		await ctx.db.patch(id, data)

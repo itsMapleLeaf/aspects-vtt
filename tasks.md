@@ -20,10 +20,10 @@
   - [x] add token properties to characters
   - [x] rendering database tokens
   - [x] rendering character tokens
-  - [ ] drag token to move it
+  - [x] drag token to move it
+  - [x] add token from character
   - [ ] button to create token from image upload
   - [ ] button to set background image from upload
-  - [ ] add a checkbox on character sheets to show/hide their token
 
 ## features
 
@@ -35,6 +35,10 @@
   - [ ] draw lines
   - [ ] draw squares
   - [ ] player cursors
+  - [ ] custom token sizes
+  - [ ] zooming
+  - [ ] items per token
+- [ ] move health & fatigue to tokens
 
 ## ideas
 
@@ -49,3 +53,4 @@
 - custom dice macros?
 - export and import individual characters as json
 - button to randomize character names
+- chat

@@ -2,7 +2,8 @@ import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
 import { api } from "convex-backend/_generated/api.js"
-import { useQuery } from "convex/react"
+import type { Doc, Id } from "convex-backend/_generated/dataModel.js"
+import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { $params, $path } from "remix-routes"
@@ -15,6 +16,7 @@ import { DeleteCharacterButton } from "~/features/characters/DeleteCharacterButt
 import { useCurrentCharacterId } from "~/features/characters/useCurrentCharacterId.ts"
 import { DiceRollForm } from "~/features/dice/DiceRollForm.tsx"
 import { DiceRollList } from "~/features/dice/DiceRollList.tsx"
+import { UploadedImage } from "~/features/images/UploadedImage.tsx"
 import { getPreferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Loading } from "~/ui/Loading.tsx"
@@ -102,79 +104,116 @@ export default function RoomRoute() {
 const cellSize = 80
 
 function RoomMap({ roomSlug }: { roomSlug: string }) {
-	const characters = useQuery(api.characters.list, { roomSlug }) ?? []
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
+	const updateToken = useMutation(api.mapTokens.update).withOptimisticUpdate((store, args) => {
+		if (!tokens) return
+		store.setQuery(
+			api.mapTokens.list,
+			{ roomSlug },
+			tokens.map((token) =>
+				token._id === args.id ? { ...token, x: args.x ?? token.x, y: args.y ?? token.y } : token,
+			),
+		)
+	})
 
+	type Input =
+		| { type: "idle" }
+		| { type: "draggingViewport" }
+		| { type: "movingToken"; tokenId: Id<"mapTokens">; position: { x: number; y: number } }
+
+	const [input, setInput] = useState<Input>({ type: "idle" })
 	const [offsetX, setOffsetX] = useState(0)
 	const [offsetY, setOffsetY] = useState(0)
 
+	const containerRef = useRef<HTMLDivElement>(null)
+
+	useWindowEvent("pointermove", (event) => {
+		if (input.type === "draggingViewport") {
+			setOffsetX((prev) => prev + event.movementX)
+			setOffsetY((prev) => prev + event.movementY)
+		} else if (input.type === "movingToken") {
+			const container = expect(containerRef.current, "container ref not set")
+			const containerRect = container.getBoundingClientRect()
+
+			const x = (event.clientX - containerRect.x - offsetX) / cellSize - 0.5
+			const y = (event.clientY - containerRect.y - offsetY) / cellSize - 0.5
+			setInput({ ...input, position: { x, y } })
+		}
+	})
+
+	const finishInput = () => {
+		if (input.type === "movingToken") {
+			updateToken({
+				id: input.tokenId,
+				x: Math.round(input.position.x),
+				y: Math.round(input.position.y),
+			})
+		}
+		setInput({ type: "idle" })
+	}
+	useWindowEvent("pointerup", finishInput)
+	useWindowEvent("pointercancel", finishInput)
+	useWindowEvent("blur", finishInput)
+
 	return (
 		<div
+			ref={containerRef}
 			className="relative size-full overflow-hidden"
-			onPointerMove={(event) => {
-				const buttonLeft = 0b0001
-				const buttonRight = 0b0010
-				const buttonMiddle = 0b0100
-				event.preventDefault()
-				if ((event.buttons & (buttonLeft | buttonMiddle)) > 0) {
-					setOffsetX((x) => x + event.movementX)
-					setOffsetY((y) => y + event.movementY)
+			onPointerDown={(event) => {
+				if (event.target === event.currentTarget && event.buttons & 0b0001) {
+					event.preventDefault()
+					setInput({ type: "draggingViewport" })
 				}
 			}}
 		>
 			<CanvasGrid offsetX={offsetX} offsetY={offsetY} />
 			{tokens.map((token) => (
-				<div
+				<button
+					type="button"
 					key={token._id}
 					className="absolute left-0 top-0"
 					style={{
 						width: cellSize,
 						height: cellSize,
-						transform: `translate(${token.x * cellSize + offsetX}px, ${token.y * cellSize + offsetY}px)`,
+						translate:
+							input.type === "movingToken" && input.tokenId === token._id ?
+								`${input.position.x * cellSize + offsetX}px ${input.position.y * cellSize + offsetY}px`
+							:	`${token.x * cellSize + offsetX}px ${token.y * cellSize + offsetY}px`,
+					}}
+					onPointerDown={(event) => {
+						event.preventDefault()
+						setInput({
+							type: "movingToken",
+							tokenId: token._id,
+							position: token,
+						})
 					}}
 				>
-					<button type="button" className="relative block size-full">
-						<img
-							src={`https://valuable-falcon-17.convex.site/image?storageId=${token.image}`}
-							alt=""
-							className="size-full object-contain"
-						/>
-						<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
-							{token.name}
-						</p>
-					</button>
-				</div>
+					<MapToken token={token} />
+				</button>
 			))}
-			{characters.map((character) => (
-				<div
-					key={character._id}
-					className="absolute left-0 top-0"
-					style={{
-						width: cellSize,
-						height: cellSize,
-						transform: `translate(${(character.token?.x ?? 0) * cellSize + offsetX}px, ${(character.token?.y ?? 0) * cellSize + offsetY}px)`,
-					}}
-				>
-					<button type="button" className="relative block size-full">
-						{character.image ?
-							<img
-								src={`https://valuable-falcon-17.convex.site/image?storageId=${character.image.storageId}`}
-								alt=""
-								className="size-full object-contain"
-							/>
-						:	<Lucide.Ghost className="size-full" />}
-						<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
-							{character.name}
-						</p>
-					</button>
-				</div>
-			))}
+			{/* {characters.map((character) => (
+				<MapToken key={character._id} name={character.name} image={character.image?.storageId} />
+			))} */}
+		</div>
+	)
+}
+
+function MapToken({ token }: { token: Doc<"mapTokens"> }) {
+	return (
+		<div className="relative size-full">
+			{token.imageId ?
+				<UploadedImage imageId={token.imageId} className="size-full" />
+			:	<Lucide.Ghost className="size-full" />}
+			<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
+				{token.name}
+			</p>
 		</div>
 	)
 }
 
 function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
-	const canvasRef = useRef<HTMLCanvasElement | null>(null)
+	const canvasRef = useRef<HTMLCanvasElement>(null)
 
 	const draw = useCallback(() => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
@@ -222,7 +261,7 @@ function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) 
 		draw()
 	})
 
-	return <canvas ref={canvasRef} className="size-full" />
+	return <canvas ref={canvasRef} className="pointer-events-none size-full" />
 }
 
 function useResizeObserver(
@@ -252,4 +291,15 @@ function pixelCoords<T extends readonly number[]>(...input: readonly [...T]): re
 		output[index] = Math.floor(value) + 0.5
 	}
 	return output
+}
+
+function useWindowEvent<E extends keyof WindowEventMap>(
+	event: E,
+	listener: (this: Window, ev: WindowEventMap[E]) => void,
+	options?: boolean | AddEventListenerOptions,
+) {
+	useEffect(() => {
+		window.addEventListener(event, listener, options)
+		return () => window.removeEventListener(event, listener, options)
+	})
 }
