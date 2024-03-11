@@ -1,5 +1,5 @@
 import { httpRouter } from "convex/server"
-import { api } from "./_generated/api"
+import { internal } from "./_generated/api"
 import type { Id } from "./_generated/dataModel"
 import { httpAction } from "./_generated/server"
 
@@ -10,28 +10,27 @@ http.route({
 	method: "GET",
 	handler: httpAction(async (ctx, request) => {
 		const url = new URL(request.url)
-		const id = url.searchParams.get("id")
-		if (!id) {
-			return new Response(`Missing required query parameter "id"`, { status: 400 })
+		const storageId = url.searchParams.get("storageId")
+		if (!storageId) {
+			return new Response(`Missing required query parameter "storageId"`, { status: 400 })
 		}
 
-		const image = await ctx.runQuery(api.images.get, { id: id as Id<"images"> })
-		if (!image) {
-			return new Response(`Image with id "${id}" not found`, { status: 404 })
-		}
-
-		const file = await ctx.storage.get(image.storageId)
+		const file = await ctx.storage.get(storageId as Id<"_storage">)
 		if (!file) {
-			return new Response(
-				`File with id "${image.storageId}" not found for image id "${image._id}"`,
-				{ status: 404 },
-			)
+			return new Response(`File with id "${storageId}" not found`, { status: 404 })
+		}
+
+		const image = await ctx.runQuery(internal.images.getByStorageId, {
+			storageId: storageId as Id<"_storage">,
+		})
+
+		const headers = new Headers()
+		if (image?.mimeType) {
+			headers.set("Content-Type", image.mimeType)
 		}
 
 		return new Response(file, {
-			headers: {
-				"Content-Type": image.mimeType,
-			},
+			headers,
 		})
 	}),
 })

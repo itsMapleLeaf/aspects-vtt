@@ -1,5 +1,5 @@
 import { v } from "convex/values"
-import { mutation, query } from "./_generated/server"
+import { internalQuery, mutation, query } from "./_generated/server"
 
 export const create = mutation({
 	args: {
@@ -17,6 +17,18 @@ export const get = query({
 	},
 	handler: async (ctx, { id }) => {
 		return await ctx.db.get(id)
+	},
+})
+
+export const getByStorageId = internalQuery({
+	args: {
+		storageId: v.id("_storage"),
+	},
+	handler: async (ctx, { storageId }) => {
+		return await ctx.db
+			.query("images")
+			.withIndex("by_storage_id", (q) => q.eq("storageId", storageId))
+			.first()
 	},
 })
 
