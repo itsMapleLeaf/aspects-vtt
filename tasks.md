@@ -16,21 +16,21 @@
 - token grid
   - [x] infinite grid
   - [x] left-click and drag to move viewport
-  - [ ] button to reset viewport
   - [x] add a `tokens` table to the database
   - [x] add token properties to characters
   - [x] rendering database tokens
-  - [ ] rendering character tokens
-  - [ ] add a checkbox on character sheets to show/hide their token
+  - [x] rendering character tokens
+  - [ ] drag token to move it
   - [ ] button to create token from image upload
   - [ ] button to set background image from upload
-  - [ ] drag token to move it
+  - [ ] add a checkbox on character sheets to show/hide their token
 
 ## features
 
 - character sheets
   - [ ] buttons next to dice fields to roll them, automatically includes fatigue
 - token grid
+  - [ ] button to reset viewport
   - [ ] measuring distance
   - [ ] draw lines
   - [ ] draw squares

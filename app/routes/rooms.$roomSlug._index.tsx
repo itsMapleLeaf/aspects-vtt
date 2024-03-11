@@ -102,6 +102,7 @@ export default function RoomRoute() {
 const cellSize = 80
 
 function RoomMap({ roomSlug }: { roomSlug: string }) {
+	const characters = useQuery(api.characters.list, { roomSlug }) ?? []
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
 
 	const [offsetX, setOffsetX] = useState(0)
@@ -140,6 +141,30 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 						/>
 						<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
 							{token.name}
+						</p>
+					</button>
+				</div>
+			))}
+			{characters.map((character) => (
+				<div
+					key={character._id}
+					className="absolute left-0 top-0"
+					style={{
+						width: cellSize,
+						height: cellSize,
+						transform: `translate(${(character.token?.x ?? 0) * cellSize + offsetX}px, ${(character.token?.y ?? 0) * cellSize + offsetY}px)`,
+					}}
+				>
+					<button type="button" className="relative block size-full">
+						{character.image ?
+							<img
+								src={`https://valuable-falcon-17.convex.site/image?storageId=${character.image.storageId}`}
+								alt=""
+								className="size-full object-contain"
+							/>
+						:	<Lucide.Ghost className="size-full" />}
+						<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
+							{character.name}
 						</p>
 					</button>
 				</div>
