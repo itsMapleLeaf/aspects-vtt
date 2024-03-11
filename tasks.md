@@ -8,18 +8,31 @@
 - character sheets
   - [x] name
   - [x] text fields
-  - [ ] avatar
-  - [ ] number fields
-  - [ ] dice fields
-  - [ ] createdBy
-- [ ] token grid
-- [ ] do we need auth? we'll see i guess
+  - [x] image
+  - [x] number fields
+  - [x] multiline text fields
+  - [x] dice fields
+  - [x] createdBy (in database)
+- token grid
+  - [ ] infinite grid
+  - [ ] left-click and drag to move viewport
+  - [ ] button to reset viewport
+  - [ ] add a `tokens` table to the database: `{ x: number, y: number, image: StorageId }`
+  - [ ] add `tokenId` and `tokenVisible` to the characters table
+  - [ ] add a checkbox on character sheets to show/hide their token
+  - [ ] button to create token from image upload
+  - [ ] button to set background image from upload
+  - [ ] drag token to move it
 
 ## features
 
 - character sheets
-  - [ ] multiline text fields
-  - [ ] image fields
+  - [ ] buttons next to dice fields to roll them, automatically includes fatigue
+- token grid
+  - [ ] measuring distance
+  - [ ] draw lines
+  - [ ] draw squares
+  - [ ] player cursors
 
 ## ideas
 
