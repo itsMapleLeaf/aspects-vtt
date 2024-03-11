@@ -4,7 +4,7 @@ import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
 import { api } from "convex-backend/_generated/api.js"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { $params, $path } from "remix-routes"
 import { expect } from "~/common/expect.ts"
 import type { Nullish } from "~/common/types.ts"
@@ -73,7 +73,7 @@ export default function RoomRoute() {
 					</div>
 				</div>
 				<div className={panel("flex min-w-0 flex-1")}>
-					<MapGrid />
+					<RoomMap roomSlug={roomSlug} />
 				</div>
 				{characters !== undefined ?
 					<div className="flex max-w-[360px] flex-1 flex-col gap-2">
@@ -99,14 +99,57 @@ export default function RoomRoute() {
 	)
 }
 
-function MapGrid() {
-	const cellSize = 50
+const cellSize = 80
 
-	const offsetX = useRef(0)
-	const offsetY = useRef(0)
+function RoomMap({ roomSlug }: { roomSlug: string }) {
+	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
 
-	const containerRef = useRef<HTMLDivElement>(null)
-	const canvasRef = useRef<HTMLCanvasElement>(null)
+	const [offsetX, setOffsetX] = useState(0)
+	const [offsetY, setOffsetY] = useState(0)
+
+	return (
+		<div
+			className="relative size-full overflow-hidden"
+			onPointerMove={(event) => {
+				const buttonLeft = 0b0001
+				const buttonRight = 0b0010
+				const buttonMiddle = 0b0100
+				event.preventDefault()
+				if ((event.buttons & (buttonLeft | buttonMiddle)) > 0) {
+					setOffsetX((x) => x + event.movementX)
+					setOffsetY((y) => y + event.movementY)
+				}
+			}}
+		>
+			<CanvasGrid offsetX={offsetX} offsetY={offsetY} />
+			{tokens.map((token) => (
+				<div
+					key={token._id}
+					className="absolute left-0 top-0"
+					style={{
+						width: cellSize,
+						height: cellSize,
+						transform: `translate(${token.x * cellSize + offsetX}px, ${token.y * cellSize + offsetY}px)`,
+					}}
+				>
+					<button type="button" className="relative block size-full">
+						<img
+							src={`https://valuable-falcon-17.convex.site/image?storageId=${token.image}`}
+							alt=""
+							className="size-full object-contain"
+						/>
+						<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
+							{token.name}
+						</p>
+					</button>
+				</div>
+			))}
+		</div>
+	)
+}
+
+function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
+	const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
 	const draw = useCallback(() => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
@@ -121,12 +164,12 @@ function MapGrid() {
 
 		context.beginPath()
 
-		for (let x = offsetX.current % cellSize; x <= canvas.width; x += cellSize) {
+		for (let x = offsetX % cellSize; x <= canvas.width; x += cellSize) {
 			context.moveTo(...pixelCoords(x, 0))
 			context.lineTo(...pixelCoords(x, canvas.height))
 		}
 
-		for (let y = offsetY.current % cellSize; y <= canvas.height; y += cellSize) {
+		for (let y = offsetY % cellSize; y <= canvas.height; y += cellSize) {
 			context.moveTo(...pixelCoords(0, y))
 			context.lineTo(...pixelCoords(canvas.width, y))
 		}
@@ -139,44 +182,22 @@ function MapGrid() {
 		context.fillStyle = "white"
 		context.font = "16px sans-serif"
 		context.textBaseline = "top"
-		context.fillText(`offset: ${-offsetX.current}, ${-offsetY.current}`, 10, 10)
+		context.fillText(`offset: ${-offsetX}, ${-offsetY}`, 10, 10)
 		context.restore()
-	}, [])
+	}, [offsetX, offsetY])
 
 	useEffect(() => {
-		const canvas = expect(canvasRef.current, "canvas ref not set")
-		const container = expect(containerRef.current, "container ref not set")
-		canvas.width = container.clientWidth
-		canvas.height = container.clientHeight
 		draw()
 	}, [draw])
 
-	useResizeObserver(containerRef, (entry) => {
+	useResizeObserver(canvasRef, (entry) => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
 		canvas.width = entry.contentRect.width
 		canvas.height = entry.contentRect.height
 		draw()
 	})
 
-	return (
-		<div
-			ref={containerRef}
-			className="size-full overflow-clip"
-			onPointerMove={(event) => {
-				const buttonLeft = 0b0001
-				const buttonRight = 0b0010
-				const buttonMiddle = 0b0100
-				event.preventDefault()
-				if ((event.buttons & (buttonLeft | buttonMiddle)) > 0) {
-					offsetX.current += event.movementX
-					offsetY.current += event.movementY
-					draw()
-				}
-			}}
-		>
-			<canvas ref={canvasRef} className="size-full" />
-		</div>
-	)
+	return <canvas ref={canvasRef} className="size-full" />
 }
 
 function useResizeObserver(

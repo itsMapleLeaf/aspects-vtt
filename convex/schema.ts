@@ -29,5 +29,15 @@ export default defineSchema({
 		name: v.string(),
 		image: v.optional(v.union(v.null(), characterImageValidator)),
 		values: v.optional(v.array(characterValueObjectValidator)),
+		token: v.optional(v.object({ x: v.number(), y: v.number() })),
+		tokenVisible: v.optional(v.boolean()),
+	}).index("by_room", ["roomSlug"]),
+
+	mapTokens: defineTable({
+		roomSlug: v.string(),
+		name: v.string(),
+		image: v.string(),
+		x: v.number(),
+		y: v.number(),
 	}).index("by_room", ["roomSlug"]),
 })

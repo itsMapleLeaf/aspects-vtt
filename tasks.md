@@ -17,8 +17,10 @@
   - [x] infinite grid
   - [x] left-click and drag to move viewport
   - [ ] button to reset viewport
-  - [ ] add a `tokens` table to the database: `{ x: number, y: number, image: StorageId }`
-  - [ ] add `tokenId` and `tokenVisible` to the characters table
+  - [x] add a `tokens` table to the database
+  - [x] add token properties to characters
+  - [x] rendering database tokens
+  - [ ] rendering character tokens
   - [ ] add a checkbox on character sheets to show/hide their token
   - [ ] button to create token from image upload
   - [ ] button to set background image from upload
