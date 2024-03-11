@@ -1,3 +1,4 @@
+import * as Ariakit from "@ariakit/react"
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
@@ -102,6 +103,7 @@ export default function RoomRoute() {
 }
 
 const cellSize = 80
+const leftMouseButton = 0b0001
 
 function RoomMap({ roomSlug }: { roomSlug: string }) {
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
@@ -158,10 +160,9 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 	return (
 		<div
 			ref={containerRef}
-			className="relative size-full overflow-hidden"
+			className="relative size-full select-none overflow-hidden"
 			onPointerDown={(event) => {
-				if (event.target === event.currentTarget && event.buttons & 0b0001) {
-					event.preventDefault()
+				if (event.target === event.currentTarget && event.buttons & leftMouseButton) {
 					setInput({ type: "draggingViewport" })
 				}
 			}}
@@ -182,11 +183,13 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 					}}
 					onPointerDown={(event) => {
 						event.preventDefault()
-						setInput({
-							type: "movingToken",
-							tokenId: token._id,
-							position: token,
-						})
+						if (event.buttons & leftMouseButton) {
+							setInput({
+								type: "movingToken",
+								tokenId: token._id,
+								position: token,
+							})
+						}
 					}}
 				>
 					<MapToken token={token} />
@@ -200,14 +203,33 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 }
 
 function MapToken({ token }: { token: Doc<"mapTokens"> }) {
+	const removeToken = useMutation(api.mapTokens.remove)
+	const menu = Ariakit.useMenuStore()
+	const [anchorRect, setAnchorRect] = useState({ x: 0, y: 0 })
 	return (
-		<div className="relative size-full">
+		<div
+			className="relative size-full"
+			onContextMenu={(event) => {
+				event.preventDefault()
+				event.stopPropagation()
+				setAnchorRect({ x: event.clientX, y: event.clientY })
+				menu.show()
+			}}
+		>
 			{token.imageId ?
 				<UploadedImage imageId={token.imageId} className="size-full" />
 			:	<Lucide.Ghost className="size-full" />}
 			<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
 				{token.name}
 			</p>
+			<Ariakit.Menu store={menu} portal getAnchorRect={() => anchorRect} className={panel()}>
+				<Button
+					icon={<Lucide.Trash />}
+					text="Delete"
+					className="cursor-default"
+					element={<Ariakit.MenuItem onClick={() => removeToken({ id: token._id })} />}
+				/>
+			</Ariakit.Menu>
 		</div>
 	)
 }

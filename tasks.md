@@ -22,6 +22,7 @@
   - [x] rendering character tokens
   - [x] drag token to move it
   - [x] add token from character
+  - [x] remove token
   - [ ] button to create token from image upload
   - [ ] button to set background image from upload
 
