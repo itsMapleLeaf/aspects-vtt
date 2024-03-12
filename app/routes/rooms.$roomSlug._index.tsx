@@ -118,40 +118,41 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 		)
 	})
 
-	type Input =
+	type InputAction =
 		| { type: "idle" }
 		| { type: "draggingViewport" }
 		| { type: "movingToken"; tokenId: Id<"mapTokens">; position: { x: number; y: number } }
 
-	const [input, setInput] = useState<Input>({ type: "idle" })
+	const [selectedTokenId, setSelectedTokenId] = useState<Id<"mapTokens">>()
+	const [inputAction, setInputAction] = useState<InputAction>({ type: "idle" })
 	const [offsetX, setOffsetX] = useState(0)
 	const [offsetY, setOffsetY] = useState(0)
 
 	const containerRef = useRef<HTMLDivElement>(null)
 
 	useWindowEvent("pointermove", (event) => {
-		if (input.type === "draggingViewport") {
+		if (inputAction.type === "draggingViewport") {
 			setOffsetX((prev) => prev + event.movementX)
 			setOffsetY((prev) => prev + event.movementY)
-		} else if (input.type === "movingToken") {
+		} else if (inputAction.type === "movingToken") {
 			const container = expect(containerRef.current, "container ref not set")
 			const containerRect = container.getBoundingClientRect()
 
 			const x = (event.clientX - containerRect.x - offsetX) / cellSize - 0.5
 			const y = (event.clientY - containerRect.y - offsetY) / cellSize - 0.5
-			setInput({ ...input, position: { x, y } })
+			setInputAction({ ...inputAction, position: { x, y } })
 		}
 	})
 
 	const finishInput = () => {
-		if (input.type === "movingToken") {
+		if (inputAction.type === "movingToken") {
 			updateToken({
-				id: input.tokenId,
-				x: Math.round(input.position.x),
-				y: Math.round(input.position.y),
+				id: inputAction.tokenId,
+				x: Math.round(inputAction.position.x),
+				y: Math.round(inputAction.position.y),
 			})
 		}
-		setInput({ type: "idle" })
+		setInputAction({ type: "idle" })
 	}
 	useWindowEvent("pointerup", finishInput)
 	useWindowEvent("pointercancel", finishInput)
@@ -163,7 +164,8 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 			className="relative size-full select-none overflow-hidden"
 			onPointerDown={(event) => {
 				if (event.target === event.currentTarget && event.buttons & leftMouseButton) {
-					setInput({ type: "draggingViewport" })
+					setInputAction({ type: "draggingViewport" })
+					setSelectedTokenId(undefined)
 				}
 			}}
 		>
@@ -177,14 +179,15 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 						width: cellSize,
 						height: cellSize,
 						translate:
-							input.type === "movingToken" && input.tokenId === token._id ?
-								`${input.position.x * cellSize + offsetX}px ${input.position.y * cellSize + offsetY}px`
+							inputAction.type === "movingToken" && inputAction.tokenId === token._id ?
+								`${inputAction.position.x * cellSize + offsetX}px ${inputAction.position.y * cellSize + offsetY}px`
 							:	`${token.x * cellSize + offsetX}px ${token.y * cellSize + offsetY}px`,
 					}}
 					onPointerDown={(event) => {
 						event.preventDefault()
 						if (event.buttons & leftMouseButton) {
-							setInput({
+							setSelectedTokenId(token._id)
+							setInputAction({
 								type: "movingToken",
 								tokenId: token._id,
 								position: token,
@@ -192,7 +195,7 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 						}
 					}}
 				>
-					<MapToken token={token} />
+					<MapToken token={token} selected={selectedTokenId === token._id} />
 				</button>
 			))}
 			{/* {characters.map((character) => (
@@ -202,13 +205,14 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 	)
 }
 
-function MapToken({ token }: { token: Doc<"mapTokens"> }) {
+function MapToken({ token, selected }: { token: Doc<"mapTokens">; selected?: boolean }) {
 	const removeToken = useMutation(api.mapTokens.remove)
 	const menu = Ariakit.useMenuStore()
 	const [anchorRect, setAnchorRect] = useState({ x: 0, y: 0 })
 	return (
 		<div
-			className="relative size-full"
+			data-selected={selected}
+			className="relative size-full border-2 border-transparent data-[selected=true]:border-primary-600"
 			onContextMenu={(event) => {
 				event.preventDefault()
 				event.stopPropagation()
