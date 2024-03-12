@@ -15,6 +15,7 @@ import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { Select } from "~/ui/Select.tsx"
+import { FormField } from "../../ui/FormField"
 import { UploadedImage } from "../images/UploadedImage"
 
 export function CharacterForm({ character }: { character: Doc<"characters"> }) {
@@ -84,7 +85,6 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 				{characterFields.map((field) => (
 					<CharacterFieldInput
 						key={field.key}
-						character={character}
 						field={field}
 						value={updates[field.key] ?? valuesById[field.key]}
 						onChange={(value) => setUpdates((updates) => ({ ...updates, [field.key]: value }))}
@@ -97,12 +97,10 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 }
 
 function CharacterFieldInput({
-	character,
 	field,
 	value,
 	onChange,
 }: {
-	character: Doc<"characters">
 	field: CharacterField
 	value: CharacterValue | undefined
 	onChange: (value: CharacterValue | undefined) => void
@@ -117,7 +115,7 @@ function CharacterFieldInput({
 	}
 
 	return (
-		<Field label={field.label} htmlFor={inputId}>
+		<FormField label={field.label} htmlFor={inputId}>
 			{field.type === "text" && !field.multiline ?
 				<Input
 					id={inputId}
@@ -162,7 +160,7 @@ function CharacterFieldInput({
 					onBlur={handleBlur}
 				/>
 			:	null}
-		</Field>
+		</FormField>
 	)
 }
 
@@ -179,7 +177,7 @@ function TextField({
 }) {
 	const inputId = useId()
 	return (
-		<Field label={label} className={className} htmlFor={inputId}>
+		<FormField label={label} className={className} htmlFor={inputId}>
 			<Input
 				id={inputId}
 				type="text"
@@ -195,7 +193,7 @@ function TextField({
 					form.requestSubmit()
 				}}
 			/>
-		</Field>
+		</FormField>
 	)
 }
 
@@ -277,29 +275,6 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 					className="absolute right-0 top-0 m-2"
 				/>
 			)}
-		</div>
-	)
-}
-
-function Field({
-	label,
-	htmlFor,
-	className,
-	children,
-}: {
-	label: ReactNode
-	htmlFor: string | undefined
-	className?: string
-	children: React.ReactNode
-}) {
-	return (
-		<div className={className}>
-			{htmlFor ?
-				<label htmlFor={htmlFor} className="select-none text-sm/4 font-medium">
-					{label}
-				</label>
-			:	<p className="select-none text-sm/4 font-medium">{label}</p>}
-			{children}
 		</div>
 	)
 }

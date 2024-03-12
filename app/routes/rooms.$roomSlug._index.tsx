@@ -1,9 +1,8 @@
-import * as Ariakit from "@ariakit/react"
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
 import { api } from "convex-backend/_generated/api.js"
-import type { Doc, Id } from "convex-backend/_generated/dataModel.js"
+import type { Id } from "convex-backend/_generated/dataModel.js"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -107,6 +106,8 @@ const leftMouseButton = 0b0001
 
 function RoomMap({ roomSlug }: { roomSlug: string }) {
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
+	const removeToken = useMutation(api.mapTokens.remove)
+
 	const updateToken = useMutation(api.mapTokens.update).withOptimisticUpdate((store, args) => {
 		if (!tokens) return
 		store.setQuery(
@@ -171,73 +172,67 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 		>
 			<CanvasGrid offsetX={offsetX} offsetY={offsetY} />
 			{tokens.map((token) => (
-				<button
-					type="button"
+				<div
 					key={token._id}
-					className="absolute left-0 top-0"
+					className="absolute"
 					style={{
 						width: cellSize,
 						height: cellSize,
-						translate:
+						left:
 							inputAction.type === "movingToken" && inputAction.tokenId === token._id ?
-								`${inputAction.position.x * cellSize + offsetX}px ${inputAction.position.y * cellSize + offsetY}px`
-							:	`${token.x * cellSize + offsetX}px ${token.y * cellSize + offsetY}px`,
-					}}
-					onPointerDown={(event) => {
-						event.preventDefault()
-						if (event.buttons & leftMouseButton) {
-							setSelectedTokenId(token._id)
-							setInputAction({
-								type: "movingToken",
-								tokenId: token._id,
-								position: token,
-							})
-						}
+								`${inputAction.position.x * cellSize + offsetX}px`
+							:	`${token.x * cellSize + offsetX}px`,
+						top:
+							inputAction.type === "movingToken" && inputAction.tokenId === token._id ?
+								`${inputAction.position.y * cellSize + offsetY}px`
+							:	`${token.y * cellSize + offsetY}px`,
 					}}
 				>
-					<MapToken token={token} selected={selectedTokenId === token._id} />
-				</button>
+					<div
+						data-selected={selectedTokenId === token._id}
+						className="group relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
+					>
+						<button
+							type="button"
+							className="size-full"
+							onPointerDown={(event) => {
+								event.preventDefault()
+								if (event.buttons & leftMouseButton) {
+									setSelectedTokenId(token._id)
+									setInputAction({
+										type: "movingToken",
+										tokenId: token._id,
+										position: token,
+									})
+								}
+							}}
+						>
+							{token.imageId ?
+								<UploadedImage imageId={token.imageId} className="size-full" />
+							:	<Lucide.Ghost className="size-full" />}
+							<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
+								{token.name}
+							</p>
+						</button>
+						<div
+							className={panel(
+								"absolute left-1/2 top-full -translate-x-1/2 translate-y-2 shadow-md",
+								"hidden flex-col gap-3 group-data-[selected=true]:block",
+							)}
+						>
+							<Button
+								icon={<Lucide.Trash />}
+								text="Delete"
+								className="cursor-default"
+								onClick={() => removeToken({ id: token._id })}
+							/>
+						</div>
+					</div>
+				</div>
 			))}
-			{/* {characters.map((character) => (
-				<MapToken key={character._id} name={character.name} image={character.image?.storageId} />
-			))} */}
 		</div>
 	)
 }
-
-function MapToken({ token, selected }: { token: Doc<"mapTokens">; selected?: boolean }) {
-	const removeToken = useMutation(api.mapTokens.remove)
-	const menu = Ariakit.useMenuStore()
-	const [anchorRect, setAnchorRect] = useState({ x: 0, y: 0 })
-	return (
-		<div
-			data-selected={selected}
-			className="relative size-full border-2 border-transparent data-[selected=true]:border-primary-600"
-			onContextMenu={(event) => {
-				event.preventDefault()
-				event.stopPropagation()
-				setAnchorRect({ x: event.clientX, y: event.clientY })
-				menu.show()
-			}}
-		>
-			{token.imageId ?
-				<UploadedImage imageId={token.imageId} className="size-full" />
-			:	<Lucide.Ghost className="size-full" />}
-			<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
-				{token.name}
-			</p>
-			<Ariakit.Menu store={menu} portal getAnchorRect={() => anchorRect} className={panel()}>
-				<Button
-					icon={<Lucide.Trash />}
-					text="Delete"
-					className="cursor-default"
-					element={<Ariakit.MenuItem onClick={() => removeToken({ id: token._id })} />}
-				/>
-			</Ariakit.Menu>
-		</div>
-	)
-}
-
 function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 
