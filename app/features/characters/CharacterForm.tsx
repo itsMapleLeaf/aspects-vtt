@@ -10,6 +10,7 @@ import {
 	type CharacterField,
 	characterFieldDice,
 	characterFields,
+	characterFieldsById,
 } from "~/features/characters/fields.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
@@ -72,15 +73,23 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 					icon={<Lucide.Box />}
 					text="Add Token"
 					className="self-start"
-					onClick={() =>
-						createToken({
+					onClick={async () => {
+						const strengthField = expect(characterFieldsById.get("Strength"), "No Strength field")
+
+						let strength = Number(valuesById[strengthField.key])
+						if (!Number.isFinite(strength)) strength = strengthField.fallback as number
+
+						await createToken({
 							roomSlug: character.roomSlug,
 							name: character.name,
 							x: 0,
 							y: 0,
 							imageId: character.imageId,
+							health: strength * 2,
+							maxHealth: strength * 2,
+							fatigue: 0,
 						})
-					}
+					}}
 				/>
 				{characterFields.map((field) => (
 					<CharacterFieldInput

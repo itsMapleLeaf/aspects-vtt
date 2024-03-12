@@ -23,6 +23,7 @@
   - [x] drag token to move it
   - [x] add token from character
   - [x] remove token
+  - [x] configurable token-level health and fatigue
   - [ ] button to create token from image upload
   - [ ] button to set background image from upload
 

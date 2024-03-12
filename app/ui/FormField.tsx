@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { twMerge } from "tailwind-merge"
 
 export function FormField({
 	label,
@@ -7,12 +8,12 @@ export function FormField({
 	children,
 }: {
 	label: ReactNode
-	htmlFor: string | undefined
+	htmlFor?: string
 	className?: string
 	children: React.ReactNode
 }) {
 	return (
-		<div className={className}>
+		<div className={twMerge(className, "flex flex-col gap-1")}>
 			{htmlFor ?
 				<label htmlFor={htmlFor} className="select-none text-sm/4 font-medium">
 					{label}

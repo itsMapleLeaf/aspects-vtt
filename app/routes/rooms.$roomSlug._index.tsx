@@ -19,6 +19,8 @@ import { DiceRollList } from "~/features/dice/DiceRollList.tsx"
 import { UploadedImage } from "~/features/images/UploadedImage.tsx"
 import { getPreferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
+import { FormField } from "~/ui/FormField.tsx"
+import { Input } from "~/ui/Input.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { panel } from "~/ui/styles.ts"
 
@@ -114,7 +116,9 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 			api.mapTokens.list,
 			{ roomSlug },
 			tokens.map((token) =>
-				token._id === args.id ? { ...token, x: args.x ?? token.x, y: args.y ?? token.y } : token,
+				token._id === args.id ?
+					{ ...token, ...args, x: args.x ?? token.x, y: args.y ?? token.y }
+				:	token,
 			),
 		)
 	})
@@ -214,17 +218,57 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 								{token.name}
 							</p>
 						</button>
+
 						<div
 							className={panel(
-								"absolute left-1/2 top-full -translate-x-1/2 translate-y-2 shadow-md",
-								"hidden flex-col gap-3 group-data-[selected=true]:block",
+								"absolute right-full top-1/2 z-10 w-32 -translate-x-4 -translate-y-1/2 shadow-md",
+								"hidden flex-col gap-3 group-data-[selected=true]:flex",
+								"p-2",
 							)}
 						>
+							<FormField label="Health">
+								<Input
+									type="number"
+									value={token.health ?? 8}
+									min={0}
+									max={token.maxHealth ?? 8}
+									onChange={(event) => {
+										updateToken({ id: token._id, health: event.target.valueAsNumber })
+									}}
+								/>
+							</FormField>
+							<FormField label="Max Health">
+								<Input
+									type="number"
+									min={0}
+									value={token.maxHealth ?? 8}
+									onChange={(event) => {
+										updateToken({ id: token._id, maxHealth: event.target.valueAsNumber })
+									}}
+								/>
+							</FormField>
+							<FormField label="Fatigue">
+								<Input
+									type="number"
+									value={token.fatigue ?? 0}
+									min={0}
+									onChange={(event) => {
+										updateToken({ id: token._id, fatigue: event.target.valueAsNumber })
+									}}
+								/>
+							</FormField>
 							<Button
 								icon={<Lucide.Trash />}
 								text="Delete"
 								className="cursor-default"
 								onClick={() => removeToken({ id: token._id })}
+							/>
+						</div>
+
+						<div className="absolute bottom-full left-1/2 h-3 w-24 -translate-x-1/2 -translate-y-2 rounded border border-red-500 p-px opacity-50">
+							<div
+								className="h-full rounded-sm bg-red-600"
+								style={{ width: `${((token.health ?? 8) / (token.maxHealth ?? 8)) * 100}%` }}
 							/>
 						</div>
 					</div>

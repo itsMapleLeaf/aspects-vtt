@@ -8,6 +8,9 @@ export const create = mutation({
 		x: v.number(),
 		y: v.number(),
 		imageId: v.optional(v.id("images")),
+		health: v.optional(v.number()),
+		maxHealth: v.optional(v.number()),
+		fatigue: v.optional(v.number()),
 	},
 	handler: async (ctx, data) => {
 		return await ctx.db.insert("mapTokens", data)
@@ -33,6 +36,9 @@ export const update = mutation({
 		x: v.optional(v.number()),
 		y: v.optional(v.number()),
 		imageId: v.optional(v.id("images")),
+		health: v.optional(v.number()),
+		maxHealth: v.optional(v.number()),
+		fatigue: v.optional(v.number()),
 	},
 	handler: async (ctx, { id, ...data }) => {
 		return await ctx.db.patch(id, data)

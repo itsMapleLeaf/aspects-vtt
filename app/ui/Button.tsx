@@ -62,7 +62,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 					<Loading size="sm" />
 				:	icon}
 			</span>
-			<span data-size={size} className="relative flex-1 empty:hidden">
+			<span data-size={size} className="relative flex-1 text-left empty:hidden">
 				{text}
 			</span>
 		</>

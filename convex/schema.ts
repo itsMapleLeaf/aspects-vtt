@@ -33,6 +33,9 @@ export default defineSchema({
 		x: v.number(),
 		y: v.number(),
 		imageId: v.optional(v.id("images")),
+		health: v.optional(v.number()),
+		maxHealth: v.optional(v.number()),
+		fatigue: v.optional(v.number()),
 	}).index("by_room", ["roomSlug"]),
 
 	images: defineTable({

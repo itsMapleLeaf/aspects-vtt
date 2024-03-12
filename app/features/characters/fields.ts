@@ -26,7 +26,6 @@ export const characterFields: readonly CharacterField[] = [
 	{ key: "Intellect", label: "Intellect", type: "die", fallback: 4 },
 	{ key: "Wit", label: "Wit", type: "die", fallback: 4 },
 
-	{ key: "Health", label: "Health", type: "counter", fallback: 0, hasMax: true },
 	{ key: "Fatigue", label: "Fatigue", type: "counter", fallback: 0 },
 	{ key: "Notes", label: "Notes", type: "counter", fallback: 100 },
 	{ key: "Skills", label: "Skills", type: "text", fallback: "", multiline: true },
@@ -37,3 +36,5 @@ export const characterFields: readonly CharacterField[] = [
 	{ key: "Items", label: "Items", type: "text", fallback: "", multiline: true },
 	{ key: "Profile", label: "Profile", type: "text", fallback: "", multiline: true },
 ]
+
+export const characterFieldsById = new Map(characterFields.map((field) => [field.key, field]))
