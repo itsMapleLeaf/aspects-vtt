@@ -105,6 +105,8 @@ export default function RoomRoute() {
 
 const cellSize = 80
 const leftMouseButton = 0b0001
+const rightMouseButton = 0b0010
+const middleMouseButton = 0b0100
 
 function RoomMap({ roomSlug }: { roomSlug: string }) {
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
@@ -168,9 +170,14 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 			ref={containerRef}
 			className="relative size-full select-none overflow-hidden"
 			onPointerDown={(event) => {
-				if (event.target === event.currentTarget && event.buttons & leftMouseButton) {
+				if (
+					event.target === event.currentTarget &&
+					event.buttons & (leftMouseButton | middleMouseButton)
+				) {
 					setInputAction({ type: "draggingViewport" })
-					setSelectedTokenId(undefined)
+					if (event.buttons & leftMouseButton) {
+						setSelectedTokenId(undefined)
+					}
 				}
 			}}
 		>
@@ -265,7 +272,7 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 							/>
 						</div>
 
-						<div className="absolute bottom-full left-1/2 h-3 w-24 -translate-x-1/2 -translate-y-2 rounded border border-red-500 p-px opacity-50">
+						<div className="absolute bottom-full left-1/2 z-10 h-3 w-16 -translate-x-1/2 -translate-y-2 rounded border border-red-500 p-px opacity-50">
 							<div
 								className="h-full rounded-sm bg-red-600"
 								style={{ width: `${((token.health ?? 8) / (token.maxHealth ?? 8)) * 100}%` }}
