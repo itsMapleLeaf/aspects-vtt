@@ -58,9 +58,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 				data-size={size}
 				className="-mx-1 relative empty:hidden *:data-[size=lg]:size-8 *:size-5"
 			>
-				{pending ?
-					<Loading size="sm" />
-				:	icon}
+				{pending ? <Loading size="sm" /> : icon}
 			</span>
 			<span data-size={size} className="relative flex-1 text-left empty:hidden">
 				{text}
@@ -68,23 +66,25 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		</>
 	)
 
-	return "element" in props ?
-			cloneElement(props.element, {
-				className: twMerge(className, props.className),
-				children: children,
-			})
-		:	<button
-				type="button"
-				disabled={pending}
-				{...withMergedClassName(props, className)}
-				onClick={async (event) => {
-					setOnClickPending(true)
-					try {
-						await props.onClick?.(event)
-					} catch {}
-					setOnClickPending(false)
-				}}
-			>
-				{children}
-			</button>
+	return "element" in props ? (
+		cloneElement(props.element, {
+			className: twMerge(className, props.className),
+			children: children,
+		})
+	) : (
+		<button
+			type="button"
+			disabled={pending}
+			{...withMergedClassName(props, className)}
+			onClick={async (event) => {
+				setOnClickPending(true)
+				try {
+					await props.onClick?.(event)
+				} catch {}
+				setOnClickPending(false)
+			}}
+		>
+			{children}
+		</button>
+	)
 }

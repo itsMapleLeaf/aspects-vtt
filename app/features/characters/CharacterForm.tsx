@@ -125,7 +125,7 @@ function CharacterFieldInput({
 
 	return (
 		<FormField label={field.label} htmlFor={inputId}>
-			{field.type === "text" && !field.multiline ?
+			{field.type === "text" && !field.multiline ? (
 				<Input
 					id={inputId}
 					type="text"
@@ -135,7 +135,7 @@ function CharacterFieldInput({
 					}}
 					onBlur={handleBlur}
 				/>
-			: field.type === "text" && field.multiline ?
+			) : field.type === "text" && field.multiline ? (
 				<textarea
 					id={inputId}
 					className="min-h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 px-3 ring-primary-400 ring-inset transition focus:outline-none focus:ring-2"
@@ -146,7 +146,7 @@ function CharacterFieldInput({
 					}}
 					onBlur={handleBlur}
 				/>
-			: field.type === "die" ?
+			) : field.type === "die" ? (
 				<Select
 					options={characterFieldDice.map((value) => ({
 						value: String(value),
@@ -158,7 +158,7 @@ function CharacterFieldInput({
 					}}
 					onBlur={handleBlur}
 				/>
-			: field.type === "counter" ?
+			) : field.type === "counter" ? (
 				<Input
 					id={inputId}
 					type="number"
@@ -168,7 +168,7 @@ function CharacterFieldInput({
 					}}
 					onBlur={handleBlur}
 				/>
-			:	null}
+			) : null}
 		</FormField>
 	)
 }
@@ -256,9 +256,11 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 	return (
 		<div className="relative flex aspect-square w-full items-center justify-center rounded border border-primary-300 border-dashed bg-primary-200/50 transition hover:bg-primary-200/75">
 			{status === "idle" &&
-				(character.imageId ?
+				(character.imageId ? (
 					<UploadedImage imageId={character.imageId} className="size-full" />
-				:	<Lucide.ImagePlus className="size-full max-w-24 text-primary-400" />)}
+				) : (
+					<Lucide.ImagePlus className="size-full max-w-24 text-primary-400" />
+				))}
 			{status === "uploading" && <Loading />}
 			{status === "error" && <Lucide.FileX2 />}
 			<input

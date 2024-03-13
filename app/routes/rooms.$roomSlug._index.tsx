@@ -30,9 +30,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 	const preferences = await getPreferences(request)
 	return preferences.update(
 		{ defaultRoomId: roomSlug },
-		preferences.username ?
-			json({ username: preferences.username })
-		:	redirect($path("/rooms/:roomSlug/setup", { roomSlug })),
+		preferences.username
+			? json({ username: preferences.username })
+			: redirect($path("/rooms/:roomSlug/setup", { roomSlug })),
 	)
 }
 
@@ -80,7 +80,7 @@ export default function RoomRoute() {
 				<div className={panel("flex min-w-0 flex-1")}>
 					<RoomMap roomSlug={roomSlug} />
 				</div>
-				{characters !== undefined ?
+				{characters !== undefined ? (
 					<div className="flex max-w-[360px] flex-1 flex-col gap-2">
 						<div className="flex gap-2">
 							<div className="flex-1">
@@ -95,10 +95,11 @@ export default function RoomRoute() {
 							</div>
 						)}
 					</div>
-				:	<div className="flex max-w-[360px] flex-1 flex-col items-center justify-center">
+				) : (
+					<div className="flex max-w-[360px] flex-1 flex-col items-center justify-center">
 						<Loading />
 					</div>
-				}
+				)}
 			</main>
 		</div>
 	)
@@ -130,9 +131,9 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 			api.mapTokens.list,
 			{ roomSlug },
 			tokens.map((token) =>
-				token._id === args.id ?
-					{ ...token, ...args, x: args.x ?? token.x, y: args.y ?? token.y }
-				:	token,
+				token._id === args.id
+					? { ...token, ...args, x: args.x ?? token.x, y: args.y ?? token.y }
+					: token,
 			),
 		)
 	})
@@ -237,9 +238,11 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 								}
 							}}
 						>
-							{token.imageId ?
+							{token.imageId ? (
 								<UploadedImage imageId={token.imageId} className="size-full" />
-							:	<Lucide.Ghost className="size-full" />}
+							) : (
+								<Lucide.Ghost className="size-full" />
+							)}
 							<p className="-translate-x-1/2 -translate-y-1/2 absolute top-full left-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
 								{token.name}
 							</p>

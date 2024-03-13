@@ -23,11 +23,11 @@ export function DiceRollList({ roomSlug }: { roomSlug: string }) {
 			endReached={() => list.loadMore(numItems)}
 			components={{
 				Footer: () =>
-					list.status === "Exhausted" ?
-						null
-					:	<div className="flex justify-center p-4">
+					list.status === "Exhausted" ? null : (
+						<div className="flex justify-center p-4">
 							<Loading />
-						</div>,
+						</div>
+					),
 			}}
 		/>
 	)
