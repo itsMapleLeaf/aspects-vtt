@@ -2,13 +2,14 @@ import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
 import { api } from "convex-backend/_generated/api.js"
-import type { Id } from "convex-backend/_generated/dataModel.js"
+import type { Doc, Id } from "convex-backend/_generated/dataModel.js"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { type SetStateAction, useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { $params, $path } from "remix-routes"
 import { expect } from "~/common/expect.ts"
-import type { Nullish } from "~/common/types.ts"
+import type { Nullish, Overwrite } from "~/common/types.ts"
+import { Vector } from "~/common/vector.ts"
 import { CharacterForm } from "~/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "~/features/characters/CharacterSelect.tsx"
 import { CreateCharacterButton } from "~/features/characters/CreateCharacterButton.tsx"
@@ -20,7 +21,7 @@ import { UploadedImage } from "~/features/images/UploadedImage.tsx"
 import { getPreferences } from "~/preferences.server.ts"
 import { Button } from "~/ui/Button.tsx"
 import { FormField } from "~/ui/FormField.tsx"
-import { Input } from "~/ui/Input.tsx"
+import { Input, type InputProps } from "~/ui/Input.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { panel } from "~/ui/styles.ts"
 
@@ -103,6 +104,17 @@ export default function RoomRoute() {
 	)
 }
 
+type InputAction =
+	| { type: "idle" }
+	| { type: "draggingViewport" }
+	| { type: "movingToken"; tokenId: Id<"mapTokens">; position: Vector }
+
+type MapState = {
+	selectedTokenId?: Id<"mapTokens">
+	inputAction: InputAction
+	viewportOffset: Vector
+}
+
 const cellSize = 80
 const leftMouseButton = 0b0001
 const rightMouseButton = 0b0010
@@ -125,45 +137,65 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 		)
 	})
 
-	type InputAction =
-		| { type: "idle" }
-		| { type: "draggingViewport" }
-		| { type: "movingToken"; tokenId: Id<"mapTokens">; position: { x: number; y: number } }
-
-	const [selectedTokenId, setSelectedTokenId] = useState<Id<"mapTokens">>()
-	const [inputAction, setInputAction] = useState<InputAction>({ type: "idle" })
-	const [offsetX, setOffsetX] = useState(0)
-	const [offsetY, setOffsetY] = useState(0)
+	const [state, updateState] = useReducer(
+		(state: MapState, action: SetStateAction<Partial<MapState>>) => ({
+			...state,
+			...(typeof action === "function" ? action(state) : action),
+		}),
+		{
+			selectedTokenId: undefined,
+			inputAction: { type: "idle" },
+			viewportOffset: Vector.from({ x: 0, y: 0 }),
+		},
+	)
 
 	const containerRef = useRef<HTMLDivElement>(null)
 
 	useWindowEvent("pointermove", (event) => {
-		if (inputAction.type === "draggingViewport") {
-			setOffsetX((prev) => prev + event.movementX)
-			setOffsetY((prev) => prev + event.movementY)
-		} else if (inputAction.type === "movingToken") {
+		if (state.inputAction.type === "draggingViewport") {
+			updateState({
+				viewportOffset: state.viewportOffset.plus(event.movementX, event.movementY),
+			})
+		} else if (state.inputAction.type === "movingToken") {
 			const container = expect(containerRef.current, "container ref not set")
-			const containerRect = container.getBoundingClientRect()
 
-			const x = (event.clientX - containerRect.x - offsetX) / cellSize - 0.5
-			const y = (event.clientY - containerRect.y - offsetY) / cellSize - 0.5
-			setInputAction({ ...inputAction, position: { x, y } })
+			const position = Vector.from(event.clientX, event.clientY)
+				.minus(container.getBoundingClientRect())
+				.minus(state.viewportOffset)
+				.dividedBy(cellSize)
+				.minus(0.5)
+
+			updateState({
+				inputAction: { ...state.inputAction, position },
+			})
 		}
 	})
 
 	const finishInput = () => {
-		if (inputAction.type === "movingToken") {
+		if (state.inputAction.type === "movingToken") {
 			updateToken({
-				id: inputAction.tokenId,
-				x: Math.round(inputAction.position.x),
-				y: Math.round(inputAction.position.y),
+				id: state.inputAction.tokenId,
+				x: Math.round(state.inputAction.position.x),
+				y: Math.round(state.inputAction.position.y),
 			})
 		}
-		setInputAction({ type: "idle" })
+		updateState({ inputAction: { type: "idle" } })
 	}
 	useWindowEvent("pointerup", finishInput)
 	useWindowEvent("pointercancel", finishInput)
 	useWindowEvent("blur", finishInput)
+
+	const getTokenStyle = (token: Doc<"mapTokens">) => {
+		let position = Vector.from(token)
+		if (state.inputAction.type === "movingToken" && state.inputAction.tokenId === token._id) {
+			position = state.inputAction.position
+		}
+		return {
+			width: cellSize,
+			height: cellSize,
+			...position.times(cellSize).plus(state.viewportOffset).toObject("left", "top"),
+		}
+	}
 
 	return (
 		<div
@@ -174,33 +206,18 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 					event.target === event.currentTarget &&
 					event.buttons & (leftMouseButton | middleMouseButton)
 				) {
-					setInputAction({ type: "draggingViewport" })
+					updateState({ inputAction: { type: "draggingViewport" } })
 					if (event.buttons & leftMouseButton) {
-						setSelectedTokenId(undefined)
+						updateState({ selectedTokenId: undefined })
 					}
 				}
 			}}
 		>
-			<CanvasGrid offsetX={offsetX} offsetY={offsetY} />
+			<CanvasGrid offsetX={state.viewportOffset.x} offsetY={state.viewportOffset.y} />
 			{tokens.map((token) => (
-				<div
-					key={token._id}
-					className="absolute"
-					style={{
-						width: cellSize,
-						height: cellSize,
-						left:
-							inputAction.type === "movingToken" && inputAction.tokenId === token._id ?
-								`${inputAction.position.x * cellSize + offsetX}px`
-							:	`${token.x * cellSize + offsetX}px`,
-						top:
-							inputAction.type === "movingToken" && inputAction.tokenId === token._id ?
-								`${inputAction.position.y * cellSize + offsetY}px`
-							:	`${token.y * cellSize + offsetY}px`,
-					}}
-				>
+				<div key={token._id} className="absolute" style={getTokenStyle(token)}>
 					<div
-						data-selected={selectedTokenId === token._id}
+						data-selected={state.selectedTokenId === token._id}
 						className="group relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
 					>
 						<button
@@ -209,11 +226,13 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 							onPointerDown={(event) => {
 								event.preventDefault()
 								if (event.buttons & leftMouseButton) {
-									setSelectedTokenId(token._id)
-									setInputAction({
-										type: "movingToken",
-										tokenId: token._id,
-										position: token,
+									updateState({
+										selectedTokenId: token._id,
+										inputAction: {
+											type: "movingToken",
+											tokenId: token._id,
+											position: Vector.from(token),
+										},
 									})
 								}
 							}}
@@ -241,33 +260,36 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 							)}
 						>
 							<FormField label="Health">
-								<Input
+								<LazyInput
 									type="number"
-									value={token.health ?? 8}
+									value={Math.min(token.health ?? 8, token.maxHealth ?? 8)}
 									min={0}
 									max={token.maxHealth ?? 8}
-									onChange={(event) => {
-										updateToken({ id: token._id, health: event.target.valueAsNumber })
+									onChangeValue={(value) => {
+										updateToken({ id: token._id, health: toPositiveInt(value) ?? token.health })
 									}}
 								/>
 							</FormField>
 							<FormField label="Max Health">
-								<Input
+								<LazyInput
 									type="number"
-									min={0}
 									value={token.maxHealth ?? 8}
-									onChange={(event) => {
-										updateToken({ id: token._id, maxHealth: event.target.valueAsNumber })
+									min={0}
+									onChangeValue={(value) => {
+										updateToken({
+											id: token._id,
+											maxHealth: toPositiveInt(value) ?? token.maxHealth,
+										})
 									}}
 								/>
 							</FormField>
 							<FormField label="Fatigue">
-								<Input
+								<LazyInput
 									type="number"
 									value={token.fatigue ?? 0}
 									min={0}
-									onChange={(event) => {
-										updateToken({ id: token._id, fatigue: event.target.valueAsNumber })
+									onChangeValue={(value) => {
+										updateToken({ id: token._id, fatigue: toPositiveInt(value) ?? token.fatigue })
 									}}
 								/>
 							</FormField>
@@ -284,6 +306,7 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 		</div>
 	)
 }
+
 function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -336,6 +359,28 @@ function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) 
 	return <canvas ref={canvasRef} className="pointer-events-none size-full" />
 }
 
+function LazyInput({
+	onChangeValue,
+	...props
+}: Overwrite<InputProps, { value: string | number; onChangeValue: (value: string) => void }>) {
+	const [value, setValue] = useState<string>()
+	return (
+		<Input
+			{...props}
+			value={value ?? props.value}
+			onChange={(event) => {
+				setValue(event.target.value)
+			}}
+			onBlur={() => {
+				if (value !== props.value && value !== undefined) {
+					onChangeValue(value)
+					setValue(undefined)
+				}
+			}}
+		/>
+	)
+}
+
 function useResizeObserver(
 	ref: Nullish<React.RefObject<Element> | Element>,
 	callback: (entry: ResizeObserverEntry) => void,
@@ -374,4 +419,9 @@ function useWindowEvent<E extends keyof WindowEventMap>(
 		window.addEventListener(event, listener, options)
 		return () => window.removeEventListener(event, listener, options)
 	})
+}
+
+function toPositiveInt(value: unknown): number | undefined {
+	const number = Number(value)
+	return Number.isFinite(number) ? Math.floor(Math.max(number, 0)) : undefined
 }
