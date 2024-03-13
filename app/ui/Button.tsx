@@ -44,7 +44,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		"before:transition active:before:duration-0",
 
 		"bg-primary-300/30",
-		"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
+		"active:before:bg-primary-300 before:bg-primary-300/60 hover:text-primary-700",
 
 		"translate-y-0 active:translate-y-0.5",
 		"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
@@ -56,7 +56,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		<>
 			<span
 				data-size={size}
-				className="relative -mx-1 *:size-5 empty:hidden *:data-[size=lg]:size-8"
+				className="-mx-1 relative empty:hidden *:data-[size=lg]:size-8 *:size-5"
 			>
 				{pending ?
 					<Loading size="sm" />

@@ -240,12 +240,12 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 							{token.imageId ?
 								<UploadedImage imageId={token.imageId} className="size-full" />
 							:	<Lucide.Ghost className="size-full" />}
-							<p className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
+							<p className="-translate-x-1/2 -translate-y-1/2 absolute top-full left-1/2 rounded bg-primary-100/75 p-1.5 leading-none">
 								{token.name}
 							</p>
 						</button>
 
-						<div className="absolute bottom-full left-1/2 z-10 h-3 w-16 -translate-x-1/2 -translate-y-2 rounded border border-red-500 p-px opacity-50">
+						<div className="-translate-x-1/2 -translate-y-2 absolute bottom-full left-1/2 z-10 h-3 w-16 rounded border border-red-500 p-px opacity-50">
 							<div
 								className="h-full rounded-sm bg-red-600"
 								style={{ width: `${((token.health ?? 8) / (token.maxHealth ?? 8)) * 100}%` }}
@@ -254,7 +254,7 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 
 						<div
 							className={panel(
-								"absolute right-full top-1/2 z-10 w-32 -translate-x-4 -translate-y-1/2 shadow-md",
+								"-translate-x-4 -translate-y-1/2 absolute top-1/2 right-full z-10 w-32 shadow-md",
 								"hidden flex-col gap-3 group-data-[selected=true]:flex",
 								"p-2",
 							)}

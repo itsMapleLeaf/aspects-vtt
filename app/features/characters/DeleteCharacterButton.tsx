@@ -26,7 +26,7 @@ export function DeleteCharacterButton({ character }: { character: Doc<"character
 									await remove({ id: character._id })
 									store.hide()
 								}}
-								className="border-red-600/40 bg-red-600/30 before:bg-red-600/30 hover:text-red-100 active:before:bg-red-500/30"
+								className="border-red-600/40 bg-red-600/30 active:before:bg-red-500/30 before:bg-red-600/30 hover:text-red-100"
 							/>
 						</ModalActions>
 					</ModalPanel>

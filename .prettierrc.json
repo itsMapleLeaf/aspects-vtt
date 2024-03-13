@@ -3,8 +3,7 @@
 	"useTabs": true,
 	"printWidth": 100,
 	"experimentalTernaries": true,
-	"plugins": ["prettier-plugin-jsdoc", "prettier-plugin-tailwindcss"],
-	"tailwindFunctions": ["twMerge"],
+	"plugins": ["prettier-plugin-jsdoc"],
 	"overrides": [
 		{
 			"files": ["pnpm-lock.yaml", "convex/_generated/**"],

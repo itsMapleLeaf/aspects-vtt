@@ -31,7 +31,7 @@ export function DiceRollForm({ username, roomSlug }: { username: string; roomSlu
 		>
 			<div className="flex flex-wrap gap-[inherit]">
 				{diceKinds.map((kind) => (
-					<div key={kind.sides} className="relative flex justify-center ">
+					<div key={kind.sides} className="relative flex justify-center">
 						<Button
 							icon={kind.icon}
 							text={(dice[kind.sides] ?? 0) === 0 ? `d${kind.sides}` : `${dice[kind.sides]}`}

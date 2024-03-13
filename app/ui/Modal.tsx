@@ -59,7 +59,7 @@ export function ModalPanel({ title, description, children, ...props }: ModalPane
 			<div className={panel("m-auto divide-y divide-primary-300 shadow-lg")}>
 				<header className="flex items-center gap-3 bg-black/25 p-3">
 					<div className="flex-1">
-						<DialogHeading className="text-2xl/tight font-light">{title}</DialogHeading>
+						<DialogHeading className="font-light text-2xl/tight">{title}</DialogHeading>
 						{description && <DialogDescription>{description}</DialogDescription>}
 					</div>
 					<DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">

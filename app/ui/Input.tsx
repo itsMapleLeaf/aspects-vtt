@@ -17,7 +17,7 @@ export function Input({ icon, className, ...props }: InputProps) {
 			</div>
 			<input
 				{...props}
-				className="h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 pl-8 pr-3 ring-inset ring-primary-400 transition focus:outline-none focus:ring-2 peer-empty:pl-3"
+				className="h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 pr-3 pl-8 ring-primary-400 ring-inset transition peer-empty:pl-3 focus:outline-none focus:ring-2"
 			/>
 		</div>
 	)

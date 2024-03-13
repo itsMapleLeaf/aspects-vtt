@@ -20,7 +20,7 @@ export default function RoomRoute() {
 	return (
 		<main className="flex h-dvh flex-col items-center">
 			<Form method="post" action="" className="m-auto flex flex-col items-center gap-3 rounded-md">
-				<label htmlFor="username" className="text-3xl font-light text-primary-900/75">
+				<label htmlFor="username" className="font-light text-3xl text-primary-900/75">
 					What should we call you?
 				</label>
 

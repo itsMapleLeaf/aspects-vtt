@@ -138,7 +138,7 @@ function CharacterFieldInput({
 			: field.type === "text" && field.multiline ?
 				<textarea
 					id={inputId}
-					className="min-h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 px-3 ring-inset ring-primary-400 transition focus:outline-none focus:ring-2"
+					className="min-h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 px-3 ring-primary-400 ring-inset transition focus:outline-none focus:ring-2"
 					rows={3}
 					value={value != null ? String(value) : field.fallback}
 					onChange={(event) => {
@@ -254,7 +254,7 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 	}
 
 	return (
-		<div className="relative flex aspect-square w-full items-center justify-center rounded border border-dashed border-primary-300 bg-primary-200/50 transition hover:bg-primary-200/75">
+		<div className="relative flex aspect-square w-full items-center justify-center rounded border border-primary-300 border-dashed bg-primary-200/50 transition hover:bg-primary-200/75">
 			{status === "idle" &&
 				(character.imageId ?
 					<UploadedImage imageId={character.imageId} className="size-full" />
@@ -281,7 +281,7 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 						await updateCharacter({ id: character._id, imageId: undefined })
 						await removeImage({ id: character.imageId as Id<"images"> })
 					}}
-					className="absolute right-0 top-0 m-2"
+					className="absolute top-0 right-0 m-2"
 				/>
 			)}
 		</div>

@@ -15,10 +15,10 @@ export function FormField({
 	return (
 		<div className={twMerge(className, "flex flex-col gap-1")}>
 			{htmlFor ?
-				<label htmlFor={htmlFor} className="select-none text-sm/4 font-medium">
+				<label htmlFor={htmlFor} className="select-none font-medium text-sm/4">
 					{label}
 				</label>
-			:	<p className="select-none text-sm/4 font-medium">{label}</p>}
+			:	<p className="select-none font-medium text-sm/4">{label}</p>}
 			{children}
 		</div>
 	)
