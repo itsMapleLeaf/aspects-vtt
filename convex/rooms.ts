@@ -12,6 +12,11 @@ export const get = query({
 export const create = mutation({
 	handler: async (ctx, args) => {
 		const slug = await generateUniqueSlug(ctx)
+		if (!slug) {
+			console.error("Failed to create unique slug")
+			return { error: "Something went wrong, try again." }
+		}
+
 		await ctx.db.insert("rooms", { name: slug, slug })
 		return { slug }
 	},
@@ -38,15 +43,12 @@ async function getRoomBySlug(ctx: QueryCtx, args: { slug: string }) {
 		.unique()
 }
 
-async function generateUniqueSlug(ctx: QueryCtx) {
+async function generateUniqueSlug(ctx: QueryCtx): Promise<string | undefined> {
 	let slug
 	let attempts = 0
 	do {
 		slug = generateSlug()
 		attempts++
 	} while ((await getRoomBySlug(ctx, { slug })) == null && attempts < 10)
-	if (!slug) {
-		throw new Error("Failed to generate a unique slug")
-	}
 	return slug
 }
