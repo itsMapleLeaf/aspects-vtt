@@ -1,16 +1,22 @@
-import { v } from "convex/values"
+import { type Infer, v } from "convex/values"
 import { mutation, query } from "./_generated/server"
+
+const mapTokenValueValidator = v.union(v.string(), v.number(), v.boolean())
+export type MapTokenValue = Infer<typeof mapTokenValueValidator>
+
+export const mapTokenFieldValidator = v.object({
+	key: v.string(),
+	value: mapTokenValueValidator,
+})
+export type MapTokenField = Infer<typeof mapTokenFieldValidator>
 
 export const create = mutation({
 	args: {
 		roomSlug: v.string(),
-		name: v.string(),
 		x: v.number(),
 		y: v.number(),
 		imageId: v.optional(v.id("images")),
-		health: v.optional(v.number()),
-		maxHealth: v.optional(v.number()),
-		fatigue: v.optional(v.number()),
+		fields: v.optional(v.array(mapTokenFieldValidator)),
 	},
 	handler: async (ctx, data) => {
 		return await ctx.db.insert("mapTokens", data)
@@ -35,10 +41,7 @@ export const update = mutation({
 		name: v.optional(v.string()),
 		x: v.optional(v.number()),
 		y: v.optional(v.number()),
-		imageId: v.optional(v.id("images")),
-		health: v.optional(v.number()),
-		maxHealth: v.optional(v.number()),
-		fatigue: v.optional(v.number()),
+		fields: v.optional(v.array(mapTokenFieldValidator)),
 	},
 	handler: async (ctx, { id, ...data }) => {
 		return await ctx.db.patch(id, data)

@@ -11,7 +11,8 @@
 		"rules": {
 			"recommended": true,
 			"a11y": {
-				"noAutofocus": "off"
+				"noAutofocus": "off",
+				"useKeyWithClickEvents": "off"
 			},
 			"correctness": {
 				"noUnusedImports": "warn"

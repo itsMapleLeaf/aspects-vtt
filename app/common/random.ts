@@ -6,3 +6,7 @@ export function randomInt(...args: [min: number, max: number] | [max: number]) {
 export function roll(sides: number) {
 	return randomInt(1, sides)
 }
+
+export function randomItem<T>(array: readonly T[]) {
+	return array[randomInt(array.length - 1)]
+}

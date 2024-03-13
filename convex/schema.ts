@@ -2,6 +2,7 @@ import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterCreatePayload, characterValueObjectValidator } from "./characters.ts"
 import { diceRollCreatePayload } from "./diceRolls.ts"
+import { mapTokenFieldValidator } from "./mapTokens.ts"
 
 export default defineSchema({
 	rooms: defineTable({
@@ -29,10 +30,13 @@ export default defineSchema({
 
 	mapTokens: defineTable({
 		roomSlug: v.string(),
-		name: v.string(),
 		x: v.number(),
 		y: v.number(),
 		imageId: v.optional(v.id("images")),
+		fields: v.optional(v.array(mapTokenFieldValidator)),
+
+		// deprecated
+		name: v.optional(v.string()),
 		health: v.optional(v.number()),
 		maxHealth: v.optional(v.number()),
 		fatigue: v.optional(v.number()),

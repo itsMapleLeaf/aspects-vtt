@@ -23,6 +23,10 @@ export class Vector {
 		return new Vector(args[0], args[1] ?? args[0])
 	}
 
+	get xy(): { x: number; y: number } {
+		return { x: this.x, y: this.y }
+	}
+
 	get length(): number {
 		return (this.x * this.x + this.y * this.y) ** 0.5
 	}

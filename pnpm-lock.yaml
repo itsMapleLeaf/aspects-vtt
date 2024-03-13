@@ -8,6 +8,9 @@ dependencies:
   '@ariakit/react':
     specifier: ^0.4.3
     version: 0.4.3(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307)
+  '@floating-ui/react-dom':
+    specifier: 2.0.8
+    version: 2.0.8(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307)
   '@fontsource-variable/maven-pro':
     specifier: 5.0.17
     version: 5.0.17
@@ -1096,6 +1099,17 @@ packages:
     dependencies:
       '@floating-ui/core': 1.6.0
       '@floating-ui/utils': 0.2.1
+    dev: false
+
+  /@floating-ui/react-dom@2.0.8(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307):
+    resolution: {integrity: sha512-HOdqOt3R3OGeTKidaLvJKcgg75S6tibQ3Tif4eyd91QnIJWr0NLvoXFpJA/j8HqkFSL68GDca9AuyWEHlhyClw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@floating-ui/dom': 1.6.3
+      react: 18.3.0-canary-338dddc08-20240307
+      react-dom: 18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307)
     dev: false
 
   /@floating-ui/utils@0.2.1:

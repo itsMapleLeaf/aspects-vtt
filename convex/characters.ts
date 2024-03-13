@@ -2,7 +2,7 @@ import { type Infer, v } from "convex/values"
 import { raise } from "#app/common/errors.js"
 import { expect } from "#app/common/expect.js"
 import { mutation, query } from "./_generated/server.js"
-import { characterNames } from "./characterNames.js"
+import { characterNames } from "../app/features/characters/characterNames.js"
 
 export const characterCreatePayload = {
 	player: v.optional(v.string()),
