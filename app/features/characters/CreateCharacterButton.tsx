@@ -1,8 +1,8 @@
-import { api } from "convex-backend/_generated/api.js"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useCurrentCharacterId } from "~/features/characters/useCurrentCharacterId"
-import { Button } from "~/ui/Button.tsx"
+import { useCurrentCharacterId } from "#app/features/characters/useCurrentCharacterId.ts"
+import { Button } from "#app/ui/Button.tsx"
+import { api } from "#convex/_generated/api.js"
 
 export function CreateCharacterButton({
 	roomSlug,

@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
-import type { Overwrite } from "~/common/types.ts"
+import type { Overwrite } from "#app/common/types.ts"
 
 export type InputProps = Overwrite<
 	ComponentPropsWithoutRef<"input">,

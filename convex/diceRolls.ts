@@ -1,6 +1,6 @@
 import { paginationOptsValidator } from "convex/server"
 import { v } from "convex/values"
-import { roll } from "~/common/random.js"
+import { roll } from "#app/common/random.js"
 import { mutation, query } from "./_generated/server.js"
 
 export const diceRollCreatePayload = {

@@ -1,7 +1,7 @@
 import { type ComponentPropsWithoutRef, type ReactElement, cloneElement, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
-import type { Disallowed, StrictOmit } from "~/common/types.ts"
+import type { Disallowed, StrictOmit } from "#app/common/types.ts"
 import { Loading } from "./Loading.tsx"
 import { withMergedClassName } from "./withMergedClassName"
 

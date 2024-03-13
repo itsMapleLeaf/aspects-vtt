@@ -1,6 +1,6 @@
 import { type Infer, v } from "convex/values"
-import { raise } from "~/common/errors.js"
-import { expect } from "~/common/expect.js"
+import { raise } from "#app/common/errors.js"
+import { expect } from "#app/common/expect.js"
 import { mutation, query } from "./_generated/server.js"
 import { characterNames } from "./characterNames.js"
 

@@ -1,7 +1,7 @@
 import * as Lucide from "lucide-react"
 import type { ComponentPropsWithoutRef } from "react"
 import { twMerge } from "tailwind-merge"
-import type { Nullish, Overwrite } from "~/common/types.ts"
+import type { Nullish, Overwrite } from "#app/common/types.ts"
 
 export function Select({
 	options,

@@ -1,24 +1,41 @@
-import { api } from "convex-backend/_generated/api.js"
-import type { Doc } from "convex-backend/_generated/dataModel.js"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { Button } from "~/ui/Button.tsx"
-import { Modal, ModalActions, ModalButton, ModalDismiss, ModalPanel } from "~/ui/Modal.tsx"
+import { Button } from "#app/ui/Button.tsx"
+import {
+	Modal,
+	ModalActions,
+	ModalButton,
+	ModalDismiss,
+	ModalPanel,
+} from "#app/ui/Modal.tsx"
+import { api } from "#convex/_generated/api.js"
+import type { Doc } from "#convex/_generated/dataModel.js"
 
-export function DeleteCharacterButton({ character }: { character: Doc<"characters"> }) {
+export function DeleteCharacterButton({
+	character,
+}: {
+	character: Doc<"characters">
+}) {
 	const remove = useMutation(api.characters.remove)
 	return (
 		<Modal>
 			{(store) => (
 				<>
-					<Button icon={<Lucide.Trash />} element={<ModalButton title="Delete Character" />} />
+					<Button
+						icon={<Lucide.Trash />}
+						element={<ModalButton title="Delete Character" />}
+					/>
 					<ModalPanel title="Delete Character">
 						<p>
-							Are you sure you want to delete <strong>{character.name}</strong>? This cannot be
-							undone!
+							Are you sure you want to delete <strong>{character.name}</strong>?
+							This cannot be undone!
 						</p>
 						<ModalActions>
-							<Button icon={<Lucide.X />} text="No, keep character" element={<ModalDismiss />} />
+							<Button
+								icon={<Lucide.X />}
+								text="No, keep character"
+								element={<ModalDismiss />}
+							/>
 							<Button
 								icon={<Lucide.Trash />}
 								text={`Yes, delete ${character.name}`}

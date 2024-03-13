@@ -1,29 +1,36 @@
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
-import { api } from "convex-backend/_generated/api.js"
-import type { Doc, Id } from "convex-backend/_generated/dataModel.js"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type SetStateAction, useCallback, useEffect, useReducer, useRef, useState } from "react"
+import {
+	type SetStateAction,
+	useCallback,
+	useEffect,
+	useReducer,
+	useRef,
+	useState,
+} from "react"
 import { $params, $path } from "remix-routes"
-import { expect } from "~/common/expect.ts"
-import type { Nullish, Overwrite } from "~/common/types.ts"
-import { Vector } from "~/common/vector.ts"
-import { CharacterForm } from "~/features/characters/CharacterForm.tsx"
-import { CharacterSelect } from "~/features/characters/CharacterSelect.tsx"
-import { CreateCharacterButton } from "~/features/characters/CreateCharacterButton.tsx"
-import { DeleteCharacterButton } from "~/features/characters/DeleteCharacterButton.tsx"
-import { useCurrentCharacterId } from "~/features/characters/useCurrentCharacterId.ts"
-import { DiceRollForm } from "~/features/dice/DiceRollForm.tsx"
-import { DiceRollList } from "~/features/dice/DiceRollList.tsx"
-import { UploadedImage } from "~/features/images/UploadedImage.tsx"
-import { getPreferences } from "~/preferences.server.ts"
-import { Button } from "~/ui/Button.tsx"
-import { FormField } from "~/ui/FormField.tsx"
-import { Input, type InputProps } from "~/ui/Input.tsx"
-import { Loading } from "~/ui/Loading.tsx"
-import { panel } from "~/ui/styles.ts"
+import { expect } from "#app/common/expect.ts"
+import type { Nullish, Overwrite } from "#app/common/types.ts"
+import { Vector } from "#app/common/vector.ts"
+import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
+import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
+import { CreateCharacterButton } from "#app/features/characters/CreateCharacterButton.tsx"
+import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterButton.tsx"
+import { useCurrentCharacterId } from "#app/features/characters/useCurrentCharacterId.ts"
+import { DiceRollForm } from "#app/features/dice/DiceRollForm.tsx"
+import { DiceRollList } from "#app/features/dice/DiceRollList.tsx"
+import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
+import { getPreferences } from "#app/preferences.server.ts"
+import { Button } from "#app/ui/Button.tsx"
+import { FormField } from "#app/ui/FormField.tsx"
+import { Input, type InputProps } from "#app/ui/Input.tsx"
+import { Loading } from "#app/ui/Loading.tsx"
+import { panel } from "#app/ui/styles.ts"
+import { api } from "#convex/_generated/api.js"
+import type { Doc, Id } from "#convex/_generated/dataModel.js"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const { roomSlug } = $params("/rooms/:roomSlug", params)
@@ -44,7 +51,8 @@ export default function RoomRoute() {
 	const characters = useQuery(api.characters.list, { roomSlug })
 	const [currentCharacterId, setCurrentCharacterId] = useCurrentCharacterId()
 	const firstCharacter = characters?.[0]
-	const character = characters?.find((c) => c._id === currentCharacterId) ?? firstCharacter
+	const character =
+		characters?.find((c) => c._id === currentCharacterId) ?? firstCharacter
 
 	useEffect(() => {
 		if (!character?._id && firstCharacter?._id) {
@@ -55,7 +63,10 @@ export default function RoomRoute() {
 	return (
 		<div className="flex h-dvh flex-col gap-2 bg-primary-100 p-2">
 			<header className="flex justify-end gap-[inherit]">
-				<Form method="post" action={$path("/rooms/:roomSlug/leave", { roomSlug })}>
+				<Form
+					method="post"
+					action={$path("/rooms/:roomSlug/leave", { roomSlug })}
+				>
 					<Button
 						type="submit"
 						icon={<Lucide.DoorOpen />}
@@ -125,18 +136,20 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
 	const removeToken = useMutation(api.mapTokens.remove)
 
-	const updateToken = useMutation(api.mapTokens.update).withOptimisticUpdate((store, args) => {
-		if (!tokens) return
-		store.setQuery(
-			api.mapTokens.list,
-			{ roomSlug },
-			tokens.map((token) =>
-				token._id === args.id
-					? { ...token, ...args, x: args.x ?? token.x, y: args.y ?? token.y }
-					: token,
-			),
-		)
-	})
+	const updateToken = useMutation(api.mapTokens.update).withOptimisticUpdate(
+		(store, args) => {
+			if (!tokens) return
+			store.setQuery(
+				api.mapTokens.list,
+				{ roomSlug },
+				tokens.map((token) =>
+					token._id === args.id
+						? { ...token, ...args, x: args.x ?? token.x, y: args.y ?? token.y }
+						: token,
+				),
+			)
+		},
+	)
 
 	const [state, updateState] = useReducer(
 		(state: MapState, action: SetStateAction<Partial<MapState>>) => ({
@@ -155,7 +168,10 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 	useWindowEvent("pointermove", (event) => {
 		if (state.inputAction.type === "draggingViewport") {
 			updateState({
-				viewportOffset: state.viewportOffset.plus(event.movementX, event.movementY),
+				viewportOffset: state.viewportOffset.plus(
+					event.movementX,
+					event.movementY,
+				),
 			})
 		} else if (state.inputAction.type === "movingToken") {
 			const container = expect(containerRef.current, "container ref not set")
@@ -188,13 +204,19 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 
 	const getTokenStyle = (token: Doc<"mapTokens">) => {
 		let position = Vector.from(token)
-		if (state.inputAction.type === "movingToken" && state.inputAction.tokenId === token._id) {
+		if (
+			state.inputAction.type === "movingToken" &&
+			state.inputAction.tokenId === token._id
+		) {
 			position = state.inputAction.position
 		}
 		return {
 			width: cellSize,
 			height: cellSize,
-			...position.times(cellSize).plus(state.viewportOffset).toObject("left", "top"),
+			...position
+				.times(cellSize)
+				.plus(state.viewportOffset)
+				.toObject("left", "top"),
 		}
 	}
 
@@ -214,7 +236,10 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 				}
 			}}
 		>
-			<CanvasGrid offsetX={state.viewportOffset.x} offsetY={state.viewportOffset.y} />
+			<CanvasGrid
+				offsetX={state.viewportOffset.x}
+				offsetY={state.viewportOffset.y}
+			/>
 			{tokens.map((token) => (
 				<div key={token._id} className="absolute" style={getTokenStyle(token)}>
 					<div
@@ -251,7 +276,11 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 						<div className="-translate-x-1/2 -translate-y-2 absolute bottom-full left-1/2 z-10 h-3 w-16 rounded border border-red-500 p-px opacity-50">
 							<div
 								className="h-full rounded-sm bg-red-600"
-								style={{ width: `${((token.health ?? 8) / (token.maxHealth ?? 8)) * 100}%` }}
+								style={{
+									width: `${
+										((token.health ?? 8) / (token.maxHealth ?? 8)) * 100
+									}%`,
+								}}
 							/>
 						</div>
 
@@ -269,7 +298,10 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 									min={0}
 									max={token.maxHealth ?? 8}
 									onChangeValue={(value) => {
-										updateToken({ id: token._id, health: toPositiveInt(value) ?? token.health })
+										updateToken({
+											id: token._id,
+											health: toPositiveInt(value) ?? token.health,
+										})
 									}}
 								/>
 							</FormField>
@@ -292,7 +324,10 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 									value={token.fatigue ?? 0}
 									min={0}
 									onChangeValue={(value) => {
-										updateToken({ id: token._id, fatigue: toPositiveInt(value) ?? token.fatigue })
+										updateToken({
+											id: token._id,
+											fatigue: toPositiveInt(value) ?? token.fatigue,
+										})
 									}}
 								/>
 							</FormField>
@@ -310,12 +345,21 @@ function RoomMap({ roomSlug }: { roomSlug: string }) {
 	)
 }
 
-function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
+function CanvasGrid({
+	offsetX,
+	offsetY,
+}: {
+	offsetX: number
+	offsetY: number
+}) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 
 	const draw = useCallback(() => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
-		const context = expect(canvas.getContext("2d"), "failed to get canvas context")
+		const context = expect(
+			canvas.getContext("2d"),
+			"failed to get canvas context",
+		)
 
 		context.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -365,7 +409,10 @@ function CanvasGrid({ offsetX, offsetY }: { offsetX: number; offsetY: number }) 
 function LazyInput({
 	onChangeValue,
 	...props
-}: Overwrite<InputProps, { value: string | number; onChangeValue: (value: string) => void }>) {
+}: Overwrite<
+	InputProps,
+	{ value: string | number; onChangeValue: (value: string) => void }
+>) {
 	const [value, setValue] = useState<string>()
 	return (
 		<Input
@@ -398,14 +445,18 @@ function useResizeObserver(
 		if (!element) return
 
 		const observer = new ResizeObserver((entries) => {
-			callbackRef.current?.(expect(entries[0], "resize observer entry not found"))
+			callbackRef.current?.(
+				expect(entries[0], "resize observer entry not found"),
+			)
 		})
 		observer.observe(element)
 		return () => observer.disconnect()
 	}, [ref])
 }
 
-function pixelCoords<T extends readonly number[]>(...input: readonly [...T]): readonly [...T] {
+function pixelCoords<T extends readonly number[]>(
+	...input: readonly [...T]
+): readonly [...T] {
 	const output = [...input] as const
 	for (const [index, value] of input.entries()) {
 		output[index] = Math.floor(value) + 0.5

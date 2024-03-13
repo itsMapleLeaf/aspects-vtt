@@ -1,23 +1,28 @@
-import { api } from "convex-backend/_generated/api.js"
-import type { Doc, Id } from "convex-backend/_generated/dataModel.js"
-import type { CharacterValue } from "convex-backend/characters.ts"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type ComponentPropsWithoutRef, type ReactNode, useId, useState } from "react"
+import {
+	type ComponentPropsWithoutRef,
+	type ReactNode,
+	useId,
+	useState,
+} from "react"
 import { z } from "zod"
-import { expect } from "~/common/expect.ts"
+import { expect } from "#app/common/expect.ts"
 import {
 	type CharacterField,
 	characterFieldDice,
 	characterFields,
 	characterFieldsById,
-} from "~/features/characters/fields.ts"
-import { Button } from "~/ui/Button.tsx"
-import { Input } from "~/ui/Input.tsx"
-import { Loading } from "~/ui/Loading.tsx"
-import { Select } from "~/ui/Select.tsx"
-import { FormField } from "../../ui/FormField"
-import { UploadedImage } from "../images/UploadedImage"
+} from "#app/features/characters/fields.ts"
+import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
+import { Button } from "#app/ui/Button.tsx"
+import { FormField } from "#app/ui/FormField.tsx"
+import { Input } from "#app/ui/Input.tsx"
+import { Loading } from "#app/ui/Loading.tsx"
+import { Select } from "#app/ui/Select.tsx"
+import { api } from "#convex/_generated/api.js"
+import type { Doc, Id } from "#convex/_generated/dataModel.js"
+import type { CharacterValue } from "#convex/characters.ts"
 
 export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 	const valuesById = Object.fromEntries(
@@ -66,7 +71,9 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 				<TextField
 					label="Name"
 					value={updates.name ?? character?.name}
-					onChangeValue={(name) => setUpdates((updates) => ({ ...updates, name }))}
+					onChangeValue={(name) =>
+						setUpdates((updates) => ({ ...updates, name }))
+					}
 				/>
 				<ImageInput character={character} />
 				<Button
@@ -74,10 +81,14 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 					text="Add Token"
 					className="self-start"
 					onClick={async () => {
-						const strengthField = expect(characterFieldsById.get("Strength"), "No Strength field")
+						const strengthField = expect(
+							characterFieldsById.get("Strength"),
+							"No Strength field",
+						)
 
 						let strength = Number(valuesById[strengthField.key])
-						if (!Number.isFinite(strength)) strength = strengthField.fallback as number
+						if (!Number.isFinite(strength))
+							strength = strengthField.fallback as number
 
 						await createToken({
 							roomSlug: character.roomSlug,
@@ -96,11 +107,18 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 						key={field.key}
 						field={field}
 						value={updates[field.key] ?? valuesById[field.key]}
-						onChange={(value) => setUpdates((updates) => ({ ...updates, [field.key]: value }))}
+						onChange={(value) =>
+							setUpdates((updates) => ({ ...updates, [field.key]: value }))
+						}
 					/>
 				))}
 			</fieldset>
-			<Button type="submit" icon={<Lucide.Save />} text="Save" className="self-start" />
+			<Button
+				type="submit"
+				icon={<Lucide.Save />}
+				text="Save"
+				className="self-start"
+			/>
 		</form>
 	)
 }
@@ -117,7 +135,9 @@ function CharacterFieldInput({
 	const inputId = useId()
 
 	const handleBlur = (
-		event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+		event: React.FocusEvent<
+			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+		>,
 	) => {
 		const form = expect(event.currentTarget.form, "Element has no form")
 		form.requestSubmit()
@@ -152,7 +172,9 @@ function CharacterFieldInput({
 						value: String(value),
 						label: `d${value}`,
 					}))}
-					value={value != null && typeof value !== "boolean" ? value : field.fallback}
+					value={
+						value != null && typeof value !== "boolean" ? value : field.fallback
+					}
 					onChange={(value) => {
 						onChange(Number(value))
 					}}
@@ -226,7 +248,11 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 			})
 
 			const result = z
-				.object({ storageId: z.string().refine((value): value is Id<"_storage"> => true) })
+				.object({
+					storageId: z
+						.string()
+						.refine((value): value is Id<"_storage"> => true),
+				})
 				.parse(await response.json())
 
 			if (character.imageId) {

@@ -2,6 +2,10 @@
 	"name": "aspects-vtt",
 	"private": true,
 	"type": "module",
+	"imports": {
+		"#app/*": "./app/*",
+		"#convex/*": "./convex/*"
+	},
 	"scripts": {
 		"build": "remix vite:build",
 		"dev": "pnpm run /^dev:/",
@@ -43,8 +47,7 @@
 		"tailwindcss-animate": "^1.0.7",
 		"typescript": "5.4.2",
 		"vite": "^5.1.6",
-		"vite-plugin-inspect": "0.8.3",
-		"vite-tsconfig-paths": "^4.3.1"
+		"vite-plugin-inspect": "0.8.3"
 	},
 	"engines": {
 		"node": "20"

@@ -2,7 +2,6 @@
 	"compilerOptions": {
 		"allowJs": true,
 		"allowImportingTsExtensions": true,
-		"baseUrl": ".",
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
@@ -11,10 +10,6 @@
 		"noEmit": true,
 		"noErrorTruncation": true,
 		"noUncheckedIndexedAccess": true,
-		"paths": {
-			"~/*": ["./app/*"],
-			"convex-backend/*": ["./convex/*"]
-		},
 		"skipLibCheck": true,
 		"strict": true,
 		"target": "ESNext",
@@ -24,7 +19,12 @@
 			"react/canary",
 			"react-dom/canary",
 			"@total-typescript/ts-reset"
-		]
+		],
+
+		// convex doesn't support package.json `imports` yet
+		"paths": {
+			"#app/*": ["./app/*"]
+		}
 	},
 	"include": [
 		"**/*.ts",

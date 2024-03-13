@@ -2,9 +2,9 @@ import { type ActionFunctionArgs, redirect } from "@remix-run/node"
 import { Form, useSearchParams } from "@remix-run/react"
 import * as Lucide from "lucide-react"
 import { $params, $path } from "remix-routes"
-import { getPreferences } from "~/preferences.server.ts"
-import { Button } from "~/ui/Button.tsx"
-import { Input } from "~/ui/Input.tsx"
+import { getPreferences } from "#app/preferences.server.ts"
+import { Button } from "#app/ui/Button.tsx"
+import { Input } from "#app/ui/Input.tsx"
 
 export async function action({ request, params }: ActionFunctionArgs) {
 	const { roomSlug } = $params("/rooms/:roomSlug", params)

@@ -1,10 +1,10 @@
-import { api } from "convex-backend/_generated/api.js"
-import type { Id } from "convex-backend/_generated/dataModel.js"
 import { useQuery } from "convex/react"
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
-import type { StrictOmit } from "~/common/types.ts"
-import { clientEnv } from "~/env.ts"
-import { withMergedClassName } from "~/ui/withMergedClassName.ts"
+import type { StrictOmit } from "#app/common/types.ts"
+import { clientEnv } from "#app/env.ts"
+import { withMergedClassName } from "#app/ui/withMergedClassName.ts"
+import { api } from "#convex/_generated/api.js"
+import type { Id } from "#convex/_generated/dataModel.js"
 
 export function UploadedImage({
 	imageId,

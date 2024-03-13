@@ -1,15 +1,19 @@
-import { api } from "convex-backend/_generated/api.js"
-import type { Doc } from "convex-backend/_generated/dataModel.js"
 import { usePaginatedQuery } from "convex/react"
 import { formatDistanceToNow } from "date-fns"
 import type { CSSProperties } from "react"
 import { Virtuoso } from "react-virtuoso"
-import { Loading } from "~/ui/Loading"
+import { Loading } from "#app/ui/Loading.tsx"
+import { api } from "#convex/_generated/api.js"
+import type { Doc } from "#convex/_generated/dataModel.js"
 import { defaultDiceKind, diceKindsBySide } from "./diceKinds"
 
 export function DiceRollList({ roomSlug }: { roomSlug: string }) {
 	const numItems = 20
-	const list = usePaginatedQuery(api.diceRolls.list, { roomSlug }, { initialNumItems: numItems })
+	const list = usePaginatedQuery(
+		api.diceRolls.list,
+		{ roomSlug },
+		{ initialNumItems: numItems },
+	)
 	return (
 		<Virtuoso
 			style={{ height: "100%" }}
@@ -46,7 +50,8 @@ function DiceRollSummary({ roll }: { roll: Doc<"diceRolls"> }) {
 				))}
 			</ul>
 			<p className="text-primary-600 leading-tight">
-				rolled by <strong className="font-medium text-primary-900">{roll.author}</strong>{" "}
+				rolled by{" "}
+				<strong className="font-medium text-primary-900">{roll.author}</strong>{" "}
 				{formatDistanceToNow(new Date(roll._creationTime), { addSuffix: true })}
 			</p>
 		</li>

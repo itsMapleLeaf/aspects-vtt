@@ -4,7 +4,6 @@ import { vercelPreset } from "@vercel/remix/vite"
 import { remixRoutes } from "remix-routes/vite.js"
 import { defineConfig } from "vite"
 import inspect from "vite-plugin-inspect"
-import tsconfigPaths from "vite-tsconfig-paths"
 
 installGlobals()
 
@@ -19,7 +18,6 @@ export default defineConfig({
 			presets: [vercelPreset()],
 		}),
 		remixRoutes(),
-		tsconfigPaths(),
 		inspect(),
 	],
 })

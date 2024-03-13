@@ -1,16 +1,18 @@
 import { redirect } from "@remix-run/node"
 import type { ActionFunctionArgs } from "@remix-run/node"
 import type { LoaderFunctionArgs } from "@remix-run/node"
-import { api } from "convex-backend/_generated/api.js"
 import { ConvexHttpClient } from "convex/browser"
 import { LucidePlus } from "lucide-react"
-import { clientEnv } from "~/env.ts"
-import { getPreferences } from "~/preferences.server.ts"
-import { Button } from "~/ui/Button"
+import { clientEnv } from "#app/env.ts"
+import { getPreferences } from "#app/preferences.server.ts"
+import { Button } from "#app/ui/Button.tsx"
+import { api } from "#convex/_generated/api.js"
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const preferences = await getPreferences(request)
-	return preferences.defaultRoomId ? redirect(`/rooms/${preferences.defaultRoomId}`, 303) : null
+	return preferences.defaultRoomId
+		? redirect(`/rooms/${preferences.defaultRoomId}`, 303)
+		: null
 }
 
 export async function action({ request }: ActionFunctionArgs) {

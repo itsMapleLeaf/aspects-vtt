@@ -1,4 +1,4 @@
-import type { Simplify } from "~/common/types.ts"
+import type { Simplify } from "#app/common/types.ts"
 
 export const characterFieldDice = [4, 6, 8, 12, 20] as const
 export type CharacterFieldDie = (typeof characterFieldDice)[number]
@@ -28,13 +28,27 @@ export const characterFields: readonly CharacterField[] = [
 
 	{ key: "Fatigue", label: "Fatigue", type: "counter", fallback: 0 },
 	{ key: "Notes", label: "Notes", type: "counter", fallback: 100 },
-	{ key: "Skills", label: "Skills", type: "text", fallback: "", multiline: true },
+	{
+		key: "Skills",
+		label: "Skills",
+		type: "text",
+		fallback: "",
+		multiline: true,
+	},
 
 	{ key: "Homeland", label: "Homeland", type: "text", fallback: "" },
 	{ key: "Race", label: "Race", type: "text", fallback: "" },
 	{ key: "Experience", label: "Experience", type: "counter", fallback: 0 },
 	{ key: "Items", label: "Items", type: "text", fallback: "", multiline: true },
-	{ key: "Profile", label: "Profile", type: "text", fallback: "", multiline: true },
+	{
+		key: "Profile",
+		label: "Profile",
+		type: "text",
+		fallback: "",
+		multiline: true,
+	},
 ]
 
-export const characterFieldsById = new Map(characterFields.map((field) => [field.key, field]))
+export const characterFieldsById = new Map(
+	characterFields.map((field) => [field.key, field]),
+)
