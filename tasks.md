@@ -16,7 +16,7 @@
 - token grid
   - [x] infinite grid
   - [x] left-click and drag to move viewport
-  - [x] add a `tokens` table to the database
+  - [x] add a `mapTokens` table to the database
   - [x] add token properties to characters
   - [x] rendering database tokens
   - [x] rendering character tokens
@@ -24,15 +24,19 @@
   - [x] add token from character
   - [x] remove token
   - [x] configurable token-level health and fatigue
-  - [ ] button to create token from image upload
+  - [ ] link tokens to characters - each token uses the character's values as fallbacks, but can be set individually
+  - [ ] hide menu while dragging token
+  - [ ] hide token tags unless selected
   - [ ] button to set background image from upload
+  - [ ] configure background size in cell width
+  - [ ] load character from json file
 
 ## features
 
 - character sheets
   - [ ] buttons next to dice fields to roll them, automatically includes fatigue
 - token grid
-  - [ ] button to reset viewport
+  - [x] button to reset viewport
   - [ ] measuring distance
   - [ ] draw lines
   - [ ] draw squares
@@ -40,7 +44,8 @@
   - [ ] custom token sizes
   - [ ] zooming
   - [ ] items per token
-- [ ] move health & fatigue to tokens
+  - [ ] set background from drag and drop
+- [x] move health & fatigue to tokens
 
 ## ideas
 
