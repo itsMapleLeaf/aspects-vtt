@@ -4,6 +4,7 @@ import { toNearestPositiveInt, toPositiveNumber } from "#app/common/numbers.ts"
 import { randomItem } from "#app/common/random.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.tsx"
+import { Select } from "#app/ui/Select.js"
 import { api } from "#convex/_generated/api.js"
 import type { Doc } from "#convex/_generated/dataModel.js"
 import type { MapTokenValue } from "#convex/mapTokens.js"
@@ -11,10 +12,10 @@ import { characterNames } from "../characters/characterNames.ts"
 
 interface TokenFieldArgs {
 	label: string
-	fallback: () => MapTokenValue
 }
 
 interface TokenFieldConfig extends TokenFieldArgs {
+	fallback: () => MapTokenValue
 	Input: React.ComponentType<TokenInputProps>
 	display?:
 		| {
@@ -55,6 +56,21 @@ export const TOKEN_FIELDS: TokenFieldConfig[] = [
 	defineIntField({
 		label: "Fatigue",
 		fallback: () => 0,
+	}),
+	defineDiceSelectField({
+		label: "Strength",
+	}),
+	defineDiceSelectField({
+		label: "Sense",
+	}),
+	defineDiceSelectField({
+		label: "Mobility",
+	}),
+	defineDiceSelectField({
+		label: "Intellect",
+	}),
+	defineDiceSelectField({
+		label: "Wit",
 	}),
 ]
 
@@ -202,5 +218,46 @@ function defineIntField({
 				getMax: (values) => toPositiveNumber(values.get(maxKey)) ?? options.fallback(),
 			},
 		}),
+	}
+}
+
+interface DiceSelectFieldArgs extends TokenFieldArgs {
+	fallback?: () => number
+	key?: string
+}
+
+const diceOptions = [
+	{ value: 4, label: "d4" },
+	{ value: 6, label: "d6" },
+	{ value: 8, label: "d8" },
+	{ value: 12, label: "d12" },
+	{ value: 20, label: "d20" },
+]
+
+function defineDiceSelectField({
+	label,
+	key = label.toLowerCase(),
+	fallback = () => 4,
+	...options
+}: DiceSelectFieldArgs): TokenFieldConfig {
+	return {
+		...options,
+		label,
+		fallback,
+		Input({ getValue, setValue, ...props }) {
+			let value = getValue(key)
+			if (typeof value !== "number" || !diceOptions.some((option) => option.value === value)) {
+				value = fallback()
+			}
+			return (
+				<Select
+					options={diceOptions}
+					value={value}
+					onChange={(value) => {
+						setValue(key, Number(value))
+					}}
+				/>
+			)
+		},
 	}
 }
