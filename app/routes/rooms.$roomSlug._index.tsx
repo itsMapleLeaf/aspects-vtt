@@ -31,7 +31,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export const shouldRevalidate = () => false
 
-export default function RoomRoute() {
+export default function RoomIndexRoute() {
 	const { username } = useLoaderData<typeof loader>()
 	const { roomSlug } = $params("/rooms/:roomSlug", useParams())
 	const characters = useQuery(api.characters.list, { roomSlug })

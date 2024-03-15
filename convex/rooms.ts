@@ -23,9 +23,13 @@ export const create = mutation({
 })
 
 export const update = mutation({
-	args: { id: v.id("rooms"), name: v.string() },
-	handler: async (ctx, args) => {
-		return await ctx.db.patch(args.id, { name: args.name })
+	args: {
+		id: v.id("rooms"),
+		name: v.optional(v.string()),
+		mapImageId: v.optional(v.id("images")),
+	},
+	handler: async (ctx, { id, ...args }) => {
+		return await ctx.db.patch(id, args)
 	},
 })
 

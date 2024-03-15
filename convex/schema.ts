@@ -7,6 +7,7 @@ export default defineSchema({
 	rooms: defineTable({
 		name: v.string(),
 		slug: v.string(),
+		mapImageId: v.optional(v.id("images")),
 	}).index("by_slug", ["slug"]),
 
 	diceRolls: defineTable({

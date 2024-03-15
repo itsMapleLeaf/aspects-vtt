@@ -1,5 +1,5 @@
 import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
-import { useMutation, useQuery } from "convex/react"
+import { useConvex, useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type SetStateAction, useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { createPortal } from "react-dom"
@@ -8,13 +8,16 @@ import type { Nullish } from "#app/common/types.ts"
 import { Vector } from "#app/common/vector.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
+import { Loading } from "#app/ui/Loading.js"
 import { panel } from "#app/ui/styles.ts"
 import { api } from "#convex/_generated/api.js"
 import type { Doc, Id } from "#convex/_generated/dataModel.js"
 import { CHARACTER_FIELDS, CharacterFormField } from "../characters/characterFields.tsx"
+import { uploadImage } from "../images/uploadImage.ts"
+import { useRoom } from "../rooms/useRoom.tsx"
 
-const mapSize = Vector.from(50)
-const cellSize = 80
+const mapSize = Vector.from(30)
+const cellSize = 50
 
 const leftMouseButton = 1
 const rightMouseButton = 2
@@ -23,8 +26,19 @@ const middleMouseButton = 4
 export function TokenMap({ roomSlug }: { roomSlug: string }) {
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
 	const [selectedTokenId, setSelectedTokenId] = useState<Id<"mapTokens">>()
+	const room = useRoom()
 	return (
-		<Viewport roomSlug={roomSlug} onBackdropClick={() => setSelectedTokenId(undefined)}>
+		<Viewport
+			background={
+				room.mapImageId && (
+					<UploadedImage
+						imageId={room.mapImageId}
+						className="absolute inset-0 size-full object-contain object-top brightness-75"
+					/>
+				)
+			}
+			onBackdropClick={() => setSelectedTokenId(undefined)}
+		>
 			{tokens.map((token) => (
 				<Token
 					key={token._id}
@@ -42,11 +56,11 @@ export function TokenMap({ roomSlug }: { roomSlug: string }) {
 
 function Viewport({
 	children,
-	roomSlug,
+	background,
 	onBackdropClick,
 }: {
 	children: React.ReactNode
-	roomSlug: string
+	background?: React.ReactNode
 	onBackdropClick?: () => void
 }) {
 	const viewportRef = useRef<HTMLDivElement>(null)
@@ -72,7 +86,7 @@ function Viewport({
 
 	const drag = useDrag(viewportRef, {
 		onStart(event) {
-			if (event.target === event.currentTarget) onBackdropClick?.()
+			onBackdropClick?.()
 		},
 		onFinish({ distance }) {
 			setOffsetState((state) => state.minus(distance))
@@ -89,17 +103,68 @@ function Viewport({
 					icon={<Lucide.Compass />}
 					onClick={() => setOffsetState(Vector.zero)}
 				/>
+				<BackgroundButton />
 			</div>
 			<div className={panel("relative size-full overflow-clip")} ref={viewportRef}>
+				<div
+					className="absolute top-0 left-0"
+					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
+				>
+					<div style={mapSize.times(cellSize).toObject("width", "height")} className="relative">
+						{background}
+					</div>
+				</div>
 				<CanvasGrid offsetX={-offset.x} offsetY={-offset.y} />
 				<div
 					className="absolute top-0 left-0"
 					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
 				>
-					{children}
+					<div style={mapSize.times(cellSize).toObject("width", "height")} className="relative">
+						{children}
+					</div>
 				</div>
 			</div>
 		</div>
+	)
+}
+
+function BackgroundButton() {
+	const room = useRoom()
+	const updateRoom = useMutation(api.rooms.update)
+	const backgroundImageInputRef = useRef<HTMLInputElement>(null)
+	const [isUploading, setIsUploading] = useState(false)
+	const convex = useConvex()
+
+	return (
+		<>
+			<Button
+				text="Set Background"
+				icon={isUploading ? <Loading /> : <Lucide.Image />}
+				onClick={() => {
+					backgroundImageInputRef.current?.click()
+				}}
+				disabled={isUploading}
+			/>
+			<input
+				type="file"
+				accept="image/*"
+				ref={backgroundImageInputRef}
+				className="hidden"
+				onChange={async (event: React.ChangeEvent<HTMLInputElement>) => {
+					const file = event.target.files?.[0]
+					if (!file) return
+
+					setIsUploading(true)
+					try {
+						const imageId = await uploadImage(file, room.mapImageId, convex)
+						await updateRoom({ id: room._id, mapImageId: imageId })
+					} finally {
+						setIsUploading(false)
+					}
+				}}
+				disabled={isUploading}
+			/>
+		</>
 	)
 }
 
@@ -270,7 +335,7 @@ function CanvasGrid({
 		context.save()
 
 		context.strokeStyle = "white"
-		context.globalAlpha = 0.25
+		context.globalAlpha = 0.2
 
 		context.beginPath()
 
@@ -307,7 +372,7 @@ function CanvasGrid({
 		draw()
 	})
 
-	return <canvas ref={canvasRef} className="pointer-events-none size-full" />
+	return <canvas ref={canvasRef} className="pointer-events-none relative size-full" />
 }
 
 function useResizeObserver(
