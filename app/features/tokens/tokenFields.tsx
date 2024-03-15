@@ -12,6 +12,10 @@ import { characterNames } from "../characters/characterNames.ts"
 interface TokenFieldArgs {
 	label: string
 	fallback: () => MapTokenValue
+}
+
+interface TokenFieldConfig extends TokenFieldArgs {
+	Input: React.ComponentType<TokenInputProps>
 	display?:
 		| {
 				type: "tag"
@@ -22,10 +26,6 @@ interface TokenFieldArgs {
 				getValue: (values: Map<string, MapTokenValue>) => number
 				getMax: (values: Map<string, MapTokenValue>) => number
 		  }
-}
-
-interface TokenFieldConfig extends TokenFieldArgs {
-	Input: React.ComponentType<TokenInputProps>
 }
 
 interface TokenFieldProps extends TokenFieldConfig {
@@ -44,20 +44,13 @@ export const TOKEN_FIELDS: TokenFieldConfig[] = [
 	defineTextField({
 		label: "Name",
 		fallback: () => randomItem(characterNames) ?? "Cute Felirian",
-		display: {
-			type: "tag",
-			getText: (values) => String(values.get("name") ?? "Cute Felirian"),
-		},
+		display: "tag",
 	}),
 	defineIntField({
 		label: "Health",
 		fallback: () => 8,
-		display: {
-			type: "bar",
-			getValue: (values) => toPositiveNumber(values.get("health")) ?? 8,
-			getMax: (values) => toPositiveNumber(values.get("health:max")) ?? 8,
-		},
 		hasMax: true,
+		display: "bar",
 	}),
 	defineIntField({
 		label: "Fatigue",
@@ -113,11 +106,13 @@ export function TokenField({ token, Input, ...config }: TokenFieldProps) {
 interface TextFieldArgs extends TokenFieldArgs {
 	fallback: () => string
 	key?: string
+	display?: "tag"
 }
 
 function defineTextField({
 	label,
 	key = label.toLowerCase(),
+	display,
 	...options
 }: TextFieldArgs): TokenFieldConfig {
 	return {
@@ -137,6 +132,12 @@ function defineTextField({
 				/>
 			)
 		},
+		...(display === "tag" && {
+			display: {
+				type: "tag",
+				getText: (values) => String(values.get(key) ?? options.fallback()),
+			},
+		}),
 	}
 }
 
@@ -144,12 +145,14 @@ interface IntFieldArgs extends TokenFieldArgs {
 	fallback: () => number
 	key?: string
 	hasMax?: boolean
+	display?: "bar"
 }
 
 function defineIntField({
 	label,
 	key = label.toLowerCase(),
 	hasMax = false,
+	display,
 	...options
 }: IntFieldArgs): TokenFieldConfig {
 	const maxKey = `${label}:max`
@@ -192,5 +195,12 @@ function defineIntField({
 				</div>
 			)
 		},
+		...(display === "bar" && {
+			display: {
+				type: "bar",
+				getValue: (values) => toPositiveNumber(values.get(key)) ?? options.fallback(),
+				getMax: (values) => toPositiveNumber(values.get(maxKey)) ?? options.fallback(),
+			},
+		}),
 	}
 }
