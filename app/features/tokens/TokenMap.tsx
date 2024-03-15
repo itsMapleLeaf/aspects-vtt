@@ -33,7 +33,7 @@ export function TokenMap({ roomSlug }: { roomSlug: string }) {
 				room.mapImageId && (
 					<UploadedImage
 						imageId={room.mapImageId}
-						className="absolute inset-0 size-full object-contain object-top brightness-75"
+						className="absolute inset-0 size-full object-contain object-left-top brightness-75"
 					/>
 				)
 			}
