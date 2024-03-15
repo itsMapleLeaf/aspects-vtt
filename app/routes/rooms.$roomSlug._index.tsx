@@ -21,12 +21,9 @@ import { api } from "#convex/_generated/api.js"
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const { roomSlug } = $params("/rooms/:roomSlug", params)
 	const preferences = await getPreferences(request)
-	return preferences.update(
-		{ defaultRoomId: roomSlug },
-		preferences.username
-			? json({ username: preferences.username })
-			: redirect($path("/rooms/:roomSlug/setup", { roomSlug })),
-	)
+	return preferences.username
+		? json({ username: preferences.username })
+		: redirect($path("/rooms/:roomSlug/setup", { roomSlug }))
 }
 
 export const shouldRevalidate = () => false

@@ -4,7 +4,6 @@ import { z } from "zod"
 const preferencesSchema = z
 	.object({
 		username: z.string(),
-		defaultRoomId: z.string(),
 	})
 	.partial()
 export type PreferencesData = z.output<typeof preferencesSchema>
@@ -25,7 +24,7 @@ export async function getPreferences(request: Request) {
 		...data,
 		async update<T>(
 			updates: Partial<PreferencesData>,
-			response: TypedResponse<T>,
+			response: TypedResponse<T> = new Response(),
 		): Promise<TypedResponse<T>> {
 			response.headers.append(
 				"Set-Cookie",
