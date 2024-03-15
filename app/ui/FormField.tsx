@@ -13,7 +13,7 @@ export function FormField({
 	children: React.ReactNode
 }) {
 	return (
-		<div className={twMerge(className, "flex flex-col gap-1")}>
+		<div className={twMerge("flex flex-col gap-1", className)}>
 			{htmlFor ? (
 				<label htmlFor={htmlFor} className="select-none font-medium text-sm/4">
 					{label}

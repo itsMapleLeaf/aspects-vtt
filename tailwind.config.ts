@@ -18,7 +18,7 @@ export default {
 				sans: ["Maven Pro Variable", ...defaultTheme.fontFamily.sans],
 			},
 			boxShadowColor: {
-				DEFAULT: `rgba(0,0,0,0.3)`,
+				DEFAULT: `rgba(0,0,0,0.5)`,
 			},
 		},
 	},

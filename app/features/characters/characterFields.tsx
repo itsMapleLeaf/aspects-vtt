@@ -1,11 +1,20 @@
+import * as Ariakit from "@ariakit/react"
+import { useMutation } from "convex/react"
+import { LucideDices } from "lucide-react"
 import { useId, useState } from "react"
 import { toNearestPositiveInt, toPositiveNumber } from "#app/common/numbers.ts"
 import { randomItem } from "#app/common/random.js"
+import { range } from "#app/common/range.js"
+import { Button } from "#app/ui/Button.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.tsx"
 import { Select } from "#app/ui/Select.js"
+import { panel } from "#app/ui/styles.js"
+import { api } from "#convex/_generated/api.js"
 import type { Doc } from "#convex/_generated/dataModel.js"
 import type { CharacterField, CharacterFieldValue } from "#convex/characters.js"
+import { useRoom } from "../rooms/useRoom.tsx"
+import { useUser } from "../user/useUser.tsx"
 import { characterNames } from "./characterNames.ts"
 
 interface CharacterFieldConfig {
@@ -274,20 +283,115 @@ function defineDiceSelectField({
 		initialValues: () => [{ key, value: fallback() }],
 		fallback,
 		Input({ getValue, setValue, ...props }) {
+			const user = useUser()
+
 			let value = getValue(key)
 			if (typeof value !== "number" || !diceOptions.some((option) => option.value === value)) {
 				value = fallback()
 			}
+
 			return (
-				<Select
-					{...props}
-					options={diceOptions}
-					value={value}
-					onChange={(value) => {
-						setValue(key, Number(value))
-					}}
-				/>
+				<div className="flex gap-2">
+					<Select
+						{...props}
+						className="flex-1"
+						options={diceOptions}
+						value={value}
+						onChange={(value) => {
+							setValue(key, Number(value))
+						}}
+					/>
+					{user && (
+						<DicePopover
+							user={user}
+							label={`${getValue("name")}: ${label}`}
+							die={value}
+							fatigue={toPositiveNumber(getValue("fatigue")) ?? 0}
+						/>
+					)}
+				</div>
 			)
 		},
 	}
+}
+
+function DicePopover({
+	user,
+	label,
+	die,
+	fatigue,
+}: {
+	user: { username: string }
+	label: string
+	die: number
+	fatigue: number
+}) {
+	const room = useRoom()
+	const createDiceRoll = useMutation(api.diceRolls.create)
+
+	const submit = async (formData: FormData) => {
+		console.log("submit", { fatigue })
+		const modifier = formData.get("modifier") as string
+		const hasFatigue = formData.get("fatigue") === "on"
+
+		let rollLabel = label
+		const dice = []
+		if (modifier === "eased" || modifier === "daunting") {
+			rollLabel += ` (${startCase(modifier)})`
+			dice.push({ sides: die }, { sides: die })
+		} else {
+			dice.push({ sides: die })
+		}
+
+		if (hasFatigue) {
+			dice.push(...[...range(fatigue)].map(() => ({ sides: 6 })))
+		} else {
+			rollLabel += " (No Fatigue)"
+		}
+
+		await createDiceRoll({
+			label: rollLabel,
+			author: user.username,
+			roomSlug: room.slug,
+			dice,
+		})
+	}
+
+	return (
+		<Ariakit.PopoverProvider placement="left">
+			<Button
+				icon={<LucideDices />}
+				element={<Ariakit.PopoverDisclosure title={`Roll ${label}`} />}
+			/>
+			<Ariakit.Popover
+				className={panel("w-36 bg-primary-100")}
+				portal
+				gutter={8}
+				overflowPadding={8}
+				unmountOnHide
+			>
+				<form action={submit} className="flex flex-col gap-3 p-3">
+					<FormField label="Modifier" htmlFor="modifier">
+						<Select
+							id="modifier"
+							name="modifier"
+							options={[
+								{ value: "none", label: "None" },
+								{ value: "eased", label: "Eased" },
+								{ value: "daunting", label: "Daunting" },
+							]}
+						/>
+					</FormField>
+					<FormField label="Fatigue?" htmlFor="fatigue" className="flex-row">
+						<input id="fatigue" name="fatigue" type="checkbox" defaultChecked />
+					</FormField>
+					<Button icon={<LucideDices />} text="Roll" type="submit" />
+				</form>
+			</Ariakit.Popover>
+		</Ariakit.PopoverProvider>
+	)
+}
+
+function startCase(text: string) {
+	return text.charAt(0).toUpperCase() + text.slice(1)
 }

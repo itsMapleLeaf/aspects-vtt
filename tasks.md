@@ -13,7 +13,7 @@
   - [x] multiline text fields
   - [x] dice fields
   - [x] createdBy (in database)
-  - [ ] buttons next to dice fields to roll them, automatically includes fatigue
+  - [x] buttons next to dice fields to roll them, automatically includes fatigue
 - token grid
   - [x] infinite grid
   - [x] left-click and drag to move viewport

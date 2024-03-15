@@ -276,7 +276,7 @@ function Token({
 				)}
 
 				{barFieldDisplay && (
-					<div className="-translate-x-1/2 -translate-y-2 absolute bottom-full left-1/2 z-10 h-3 w-16 rounded border border-red-500 p-px opacity-50">
+					<div className="-translate-x-1/2 -translate-y-2 absolute bottom-full left-1/2 z-10 h-2.5 w-10 rounded border border-red-500 p-px opacity-50">
 						<div
 							className="h-full origin-left rounded-sm bg-red-600"
 							style={{
@@ -292,7 +292,7 @@ function Token({
 						<div
 							ref={refs.setFloating}
 							style={floatingStyles}
-							className={panel("flex w-64 flex-col gap-3 p-2 shadow-md")}
+							className={panel("flex w-64 flex-col gap-3 bg-primary-100 p-2 shadow-md")}
 						>
 							{CHARACTER_FIELDS.map((field) => (
 								<CharacterFormField

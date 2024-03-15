@@ -13,8 +13,8 @@ export function Select({
 	ComponentPropsWithoutRef<"select">,
 	{
 		options: { value: string | number; label: string }[]
-		value: Nullish<string | number>
-		onChange: (value: string) => void
+		value?: Nullish<string | number>
+		onChange?: (value: string) => void
 	}
 >) {
 	return (
@@ -22,9 +22,9 @@ export function Select({
 			<select
 				{...props}
 				className="block h-10 w-full appearance-none rounded border border-primary-300 bg-primary-200 pl-9"
-				value={value ?? ""}
+				value={value ?? undefined}
 				onChange={(event) => {
-					onChange(event.target.value)
+					onChange?.(event.target.value)
 				}}
 			>
 				{options.map((option) => (
