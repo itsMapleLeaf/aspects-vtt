@@ -1,4 +1,4 @@
-import { autoUpdate, offset, useFloating } from "@floating-ui/react-dom"
+import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -117,7 +117,13 @@ function Token({
 	const { refs, floatingStyles } = useFloating({
 		placement: "right",
 		strategy: "fixed",
-		middleware: [offset(8)],
+		middleware: [
+			offset(8),
+			shift({
+				crossAxis: true,
+				padding: 16,
+			}),
+		],
 		whileElementsMounted: (...args) => autoUpdate(...args, { animationFrame: true }),
 	})
 
@@ -181,7 +187,7 @@ function Token({
 						<div
 							ref={refs.setFloating}
 							style={floatingStyles}
-							className={panel("flex w-48 flex-col gap-3 p-2 shadow-md")}
+							className={panel("flex w-64 flex-col gap-3 p-2 shadow-md")}
 						>
 							{TOKEN_FIELDS.map((field) => (
 								<TokenField {...field} token={token} key={field.label} />
