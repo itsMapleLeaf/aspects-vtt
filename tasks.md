@@ -13,6 +13,7 @@
   - [x] multiline text fields
   - [x] dice fields
   - [x] createdBy (in database)
+  - [ ] buttons next to dice fields to roll them, automatically includes fatigue
 - token grid
   - [x] infinite grid
   - [x] left-click and drag to move viewport
@@ -25,10 +26,12 @@
   - [x] remove token
   - [x] configurable token-level health and fatigue
   - [x] link tokens to characters - each token uses the character's values as fallbacks, but can be set individually
-  - [ ] button to set background image from upload
-  - [ ] configure background size in cell width
-  - [ ] hide menu while dragging token
-  - [ ] hide token tags unless selected
+  - [x] button to set background image from upload
+  - [x] hide menu while dragging token
+  - [x] hide token tags unless selected
+
+## features
+
 - room ownership
   - [ ] set room owner on creation
   - only room owner can:
@@ -41,14 +44,11 @@
   - [ ] when a player joins a room, add them to the room's player list
 - character ownership
   - [ ] dropdown to assign character to player
-
-## features
-
 - character sheets
-  - [ ] buttons next to dice fields to roll them, automatically includes fatigue
   - [ ] load character from json file (?)
 - token grid
   - [x] button to reset viewport
+  - [ ] configure background size in cell width
   - [ ] measuring distance
   - [ ] draw lines
   - [ ] draw squares

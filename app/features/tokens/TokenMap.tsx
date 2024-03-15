@@ -268,12 +268,12 @@ function Token({
 					) : (
 						<Lucide.Ghost className="size-full" />
 					)}
-					{tagFieldDisplay && (
-						<p className="-translate-x-1/2 absolute top-full left-1/2 w-max max-w-48 translate-y-2 text-balance rounded bg-primary-100/75 p-1.5 leading-none empty:hidden">
-							{tagFieldDisplay.getText(values)}
-						</p>
-					)}
 				</button>
+				{tagFieldDisplay && (
+					<p className="-translate-x-1/2 absolute top-full left-1/2 w-max max-w-48 translate-y-2 text-balance rounded bg-primary-100/75 p-1.5 leading-none opacity-0 empty:hidden [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100">
+						{tagFieldDisplay.getText(values)}
+					</p>
+				)}
 
 				{barFieldDisplay && (
 					<div className="-translate-x-1/2 -translate-y-2 absolute bottom-full left-1/2 z-10 h-3 w-16 rounded border border-red-500 p-px opacity-50">
@@ -287,6 +287,7 @@ function Token({
 				)}
 
 				{selected &&
+					!drag &&
 					createPortal(
 						<div
 							ref={refs.setFloating}
