@@ -3,6 +3,7 @@ import * as Lucide from "lucide-react"
 import { useCurrentCharacterId } from "#app/features/characters/useCurrentCharacterId.ts"
 import { Button } from "#app/ui/Button.tsx"
 import { api } from "#convex/_generated/api.js"
+import { CHARACTER_FIELDS } from "./characterFields.tsx"
 
 export function CreateCharacterButton({
 	roomSlug,
@@ -18,7 +19,11 @@ export function CreateCharacterButton({
 			icon={<Lucide.Plus />}
 			title="New Character"
 			onClick={async () => {
-				const id = await create({ roomSlug, player: username })
+				const id = await create({
+					roomSlug,
+					player: username,
+					fields: CHARACTER_FIELDS.flatMap((field) => field.initialValues()),
+				})
 				setCurrentCharacterId(id)
 			}}
 		/>

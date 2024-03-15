@@ -1,28 +1,15 @@
 import { type Infer, v } from "convex/values"
 import { raise } from "#app/common/errors.js"
-import { expect } from "#app/common/expect.js"
 import { mutation, query } from "./_generated/server.js"
-import { characterNames } from "../app/features/characters/characterNames.js"
 
-export const characterCreatePayload = {
-	player: v.optional(v.string()),
-	roomSlug: v.string(),
-}
+const characterFieldValueValidator = v.union(v.string(), v.number(), v.boolean())
+export type CharacterFieldValue = Infer<typeof characterFieldValueValidator>
 
-const characterValueValidator = v.union(v.string(), v.number(), v.boolean())
-export type CharacterValue = Infer<typeof characterValueValidator>
-
-export const characterValueObjectValidator = v.object({
+export const characterFieldValidator = v.object({
 	key: v.string(),
-	value: characterValueValidator,
+	value: characterFieldValueValidator,
 })
-export type CharacterImage = Infer<typeof characterImageValidator>
-
-export const characterImageValidator = v.object({
-	name: v.string(),
-	mimeType: v.string(),
-	storageId: v.id("_storage"),
-})
+export type CharacterField = Infer<typeof characterFieldValidator>
 
 export const list = query({
 	args: {
@@ -47,25 +34,22 @@ export const get = query({
 })
 
 export const create = mutation({
-	args: characterCreatePayload,
+	args: {
+		player: v.string(),
+		fields: v.array(characterFieldValidator),
+		roomSlug: v.string(),
+	},
 	handler: async (ctx, args) => {
-		return await ctx.db.insert("characters", {
-			...args,
-			name: expect(
-				characterNames[Math.floor(Math.random() * characterNames.length)],
-				"Character names is empty",
-			),
-		})
+		return await ctx.db.insert("characters", args)
 	},
 })
 
 export const update = mutation({
 	args: {
 		id: v.id("characters"),
-		name: v.optional(v.string()),
 		player: v.optional(v.string()),
 		imageId: v.optional(v.id("images")),
-		values: v.optional(
+		fields: v.optional(
 			v.array(
 				v.object({
 					key: v.string(),
@@ -73,7 +57,6 @@ export const update = mutation({
 				}),
 			),
 		),
-		tokenVisible: v.optional(v.boolean()),
 	},
 	handler: async (ctx, { id, ...data }) => {
 		await ctx.db.patch(id, data)

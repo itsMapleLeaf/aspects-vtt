@@ -1,22 +1,14 @@
-import { type Infer, v } from "convex/values"
+import { v } from "convex/values"
 import { mutation, query } from "./_generated/server"
-
-const mapTokenValueValidator = v.union(v.string(), v.number(), v.boolean())
-export type MapTokenValue = Infer<typeof mapTokenValueValidator>
-
-export const mapTokenFieldValidator = v.object({
-	key: v.string(),
-	value: mapTokenValueValidator,
-})
-export type MapTokenField = Infer<typeof mapTokenFieldValidator>
+import { characterFieldValidator } from "./characters.ts"
 
 export const create = mutation({
 	args: {
 		roomSlug: v.string(),
-		x: v.number(),
-		y: v.number(),
-		imageId: v.optional(v.id("images")),
-		fields: v.optional(v.array(mapTokenFieldValidator)),
+		x: v.optional(v.number()),
+		y: v.optional(v.number()),
+		characterId: v.id("characters"),
+		overrides: v.optional(v.array(characterFieldValidator)),
 	},
 	handler: async (ctx, data) => {
 		return await ctx.db.insert("mapTokens", data)
@@ -27,21 +19,30 @@ export const list = query({
 	args: {
 		roomSlug: v.string(),
 	},
-	handler: async (ctx, { roomSlug }) => {
-		return await ctx.db
+	async handler(ctx, { roomSlug }) {
+		const tokens = await ctx.db
 			.query("mapTokens")
 			.withIndex("by_room", (q) => q.eq("roomSlug", roomSlug))
 			.collect()
+
+		const tokensWithCharacters = await Promise.all(
+			tokens.map(async (token) => {
+				const character = await ctx.db.get(token.characterId)
+				return character && { ...token, character }
+			}),
+		)
+
+		return tokensWithCharacters.filter(Boolean)
 	},
 })
 
 export const update = mutation({
 	args: {
 		id: v.id("mapTokens"),
-		name: v.optional(v.string()),
 		x: v.optional(v.number()),
 		y: v.optional(v.number()),
-		fields: v.optional(v.array(mapTokenFieldValidator)),
+		characterId: v.optional(v.id("characters")),
+		overrides: v.optional(v.array(characterFieldValidator)),
 	},
 	handler: async (ctx, { id, ...data }) => {
 		return await ctx.db.patch(id, data)

@@ -24,17 +24,29 @@
   - [x] add token from character
   - [x] remove token
   - [x] configurable token-level health and fatigue
-  - [ ] link tokens to characters - each token uses the character's values as fallbacks, but can be set individually
-  - [ ] hide menu while dragging token
-  - [ ] hide token tags unless selected
+  - [x] link tokens to characters - each token uses the character's values as fallbacks, but can be set individually
   - [ ] button to set background image from upload
   - [ ] configure background size in cell width
-  - [ ] load character from json file
+  - [ ] hide menu while dragging token
+  - [ ] hide token tags unless selected
+- room ownership
+  - [ ] set room owner on creation
+  - only room owner can:
+    - [ ] delete room
+    - [ ] change room background
+    - [ ] add, remove, show, or hide characters
+    - [ ] add, remove, show, or hide tokens
+- room players
+  - [ ] add player model to database
+  - [ ] when a player joins a room, add them to the room's player list
+- character ownership
+  - [ ] dropdown to assign character to player
 
 ## features
 
 - character sheets
   - [ ] buttons next to dice fields to roll them, automatically includes fatigue
+  - [ ] load character from json file (?)
 - token grid
   - [x] button to reset viewport
   - [ ] measuring distance
@@ -45,6 +57,7 @@
   - [ ] zooming
   - [ ] items per token
   - [ ] set background from drag and drop
+  - [ ] press delete to remove selected token
 - [x] move health & fatigue to tokens
 
 ## ideas

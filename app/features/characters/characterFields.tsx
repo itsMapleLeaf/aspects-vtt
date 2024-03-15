@@ -1,51 +1,45 @@
-import { useMutation } from "convex/react"
 import { useId, useState } from "react"
 import { toNearestPositiveInt, toPositiveNumber } from "#app/common/numbers.ts"
 import { randomItem } from "#app/common/random.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.tsx"
 import { Select } from "#app/ui/Select.js"
-import { api } from "#convex/_generated/api.js"
 import type { Doc } from "#convex/_generated/dataModel.js"
-import type { MapTokenValue } from "#convex/mapTokens.js"
-import { characterNames } from "../characters/characterNames.ts"
+import type { CharacterField, CharacterFieldValue } from "#convex/characters.js"
+import { characterNames } from "./characterNames.ts"
 
-interface TokenFieldArgs {
+interface CharacterFieldConfig {
 	label: string
-}
-
-interface TokenFieldConfig extends TokenFieldArgs {
-	fallback: () => MapTokenValue
-	Input: React.ComponentType<TokenInputProps>
+	initialValues: () => CharacterField[]
+	fallback: () => CharacterFieldValue
+	Input: React.ComponentType<CharacterInputProps>
+	identifier?: (values: Map<string, CharacterFieldValue>) => string
 	display?:
 		| {
 				type: "tag"
-				getText: (values: Map<string, MapTokenValue>) => string
+				getText: (values: Map<string, CharacterFieldValue>) => string
 		  }
 		| {
 				type: "bar"
-				getValue: (values: Map<string, MapTokenValue>) => number
-				getMax: (values: Map<string, MapTokenValue>) => number
+				getValue: (values: Map<string, CharacterFieldValue>) => number
+				getMax: (values: Map<string, CharacterFieldValue>) => number
 		  }
 }
 
-interface TokenFieldProps extends TokenFieldConfig {
-	token: Doc<"mapTokens">
-}
-
-interface TokenInputProps {
+interface CharacterInputProps {
 	id: string
-	onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void
+	onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => void
 	onBlur: () => void
-	getValue: (key: string) => MapTokenValue | undefined
-	setValue: (key: string, value: MapTokenValue) => void
+	getValue: (key: string) => CharacterFieldValue | undefined
+	setValue: (key: string, value: CharacterFieldValue) => void
 }
 
-export const TOKEN_FIELDS: TokenFieldConfig[] = [
+export const CHARACTER_FIELDS: CharacterFieldConfig[] = [
 	defineTextField({
 		label: "Name",
 		fallback: () => randomItem(characterNames) ?? "Cute Felirian",
 		display: "tag",
+		isIdentifier: true,
 	}),
 	defineIntField({
 		label: "Health",
@@ -74,17 +68,38 @@ export const TOKEN_FIELDS: TokenFieldConfig[] = [
 	}),
 ]
 
-export function TokenField({ token, Input, ...config }: TokenFieldProps) {
-	const values = new Map(token.fields?.map((field) => [field.key, field.value]))
-	const [updates, setUpdates] = useState<ReadonlyMap<string, MapTokenValue>>(new Map())
-	const updateToken = useMutation(api.mapTokens.update)
+export function getCharacterIdentifier(character: Doc<"characters">): string {
+	const values = new Map(character.fields?.map(({ key, value }) => [key, value]))
+	for (const field of CHARACTER_FIELDS) {
+		const identifier = field.identifier?.(values)
+		if (identifier) return identifier
+	}
+	return character._id
+}
+
+interface CharacterFormFieldProps extends CharacterFieldConfig {
+	fields: CharacterField[] | undefined
+	onSubmit: (newFields: CharacterField[]) => Promise<void>
+}
+
+export function CharacterFormField({
+	fields,
+	onSubmit,
+	Input,
+	...config
+}: CharacterFormFieldProps) {
+	const values = new Map(fields?.map((field) => [field.key, field.value]))
+	const [updates, setUpdates] = useState<ReadonlyMap<string, CharacterFieldValue>>(new Map())
 	const [pending, setPending] = useState(false)
 
 	const submit = async () => {
+		if (updates.size === 0) return
+		if (pending) return
+
 		setPending(true)
 		try {
 			const fields = [...new Map([...values, ...updates])].map(([key, value]) => ({ key, value }))
-			await updateToken({ id: token._id, fields })
+			await onSubmit(fields)
 			setUpdates(new Map())
 		} finally {
 			setPending(false)
@@ -92,7 +107,7 @@ export function TokenField({ token, Input, ...config }: TokenFieldProps) {
 	}
 
 	const id = useId()
-	const props: TokenInputProps = {
+	const props: CharacterInputProps = {
 		id,
 		getValue(key) {
 			return updates.get(key) ?? values.get(key)
@@ -119,21 +134,25 @@ export function TokenField({ token, Input, ...config }: TokenFieldProps) {
 	)
 }
 
-interface TextFieldArgs extends TokenFieldArgs {
+interface TextFieldArgs {
+	label: string
 	fallback: () => string
 	key?: string
 	display?: "tag"
+	isIdentifier?: boolean
 }
 
 function defineTextField({
 	label,
 	key = label.toLowerCase(),
 	display,
+	isIdentifier,
 	...options
-}: TextFieldArgs): TokenFieldConfig {
+}: TextFieldArgs): CharacterFieldConfig {
 	return {
 		...options,
 		label,
+		initialValues: () => [{ key, value: options.fallback() }],
 		Input({ getValue, setValue, ...props }) {
 			const [fallback] = useState(options.fallback)
 			const value = getValue(key)
@@ -154,10 +173,14 @@ function defineTextField({
 				getText: (values) => String(values.get(key) ?? options.fallback()),
 			},
 		}),
+		...(isIdentifier && {
+			identifier: (values) => String(values.get(key) ?? options.fallback()),
+		}),
 	}
 }
 
-interface IntFieldArgs extends TokenFieldArgs {
+interface IntFieldArgs {
+	label: string
 	fallback: () => number
 	key?: string
 	hasMax?: boolean
@@ -170,11 +193,15 @@ function defineIntField({
 	hasMax = false,
 	display,
 	...options
-}: IntFieldArgs): TokenFieldConfig {
+}: IntFieldArgs): CharacterFieldConfig {
 	const maxKey = `${label}:max`
 	return {
 		...options,
 		label,
+		initialValues: () => [
+			{ key, value: options.fallback() },
+			...(hasMax ? [{ key: maxKey, value: options.fallback() }] : []),
+		],
 		Input({ getValue, setValue, ...props }) {
 			return (
 				<div className="flex gap-2">
@@ -221,7 +248,8 @@ function defineIntField({
 	}
 }
 
-interface DiceSelectFieldArgs extends TokenFieldArgs {
+interface DiceSelectFieldArgs {
+	label: string
 	fallback?: () => number
 	key?: string
 }
@@ -239,10 +267,11 @@ function defineDiceSelectField({
 	key = label.toLowerCase(),
 	fallback = () => 4,
 	...options
-}: DiceSelectFieldArgs): TokenFieldConfig {
+}: DiceSelectFieldArgs): CharacterFieldConfig {
 	return {
 		...options,
 		label,
+		initialValues: () => [{ key, value: fallback() }],
 		fallback,
 		Input({ getValue, setValue, ...props }) {
 			let value = getValue(key)
@@ -251,6 +280,7 @@ function defineDiceSelectField({
 			}
 			return (
 				<Select
+					{...props}
 					options={diceOptions}
 					value={value}
 					onChange={(value) => {

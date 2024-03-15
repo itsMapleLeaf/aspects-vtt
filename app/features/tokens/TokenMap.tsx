@@ -11,7 +11,7 @@ import { Button } from "#app/ui/Button.tsx"
 import { panel } from "#app/ui/styles.ts"
 import { api } from "#convex/_generated/api.js"
 import type { Doc, Id } from "#convex/_generated/dataModel.js"
-import { TOKEN_FIELDS, TokenField } from "./tokenFields.tsx"
+import { CHARACTER_FIELDS, CharacterFormField } from "../characters/characterFields.tsx"
 
 const cellSize = 80
 const leftMouseButton = 1
@@ -27,6 +27,7 @@ export function TokenMap({ roomSlug }: { roomSlug: string }) {
 				<Token
 					key={token._id}
 					token={token}
+					character={token.character}
 					selected={selectedTokenId === token._id}
 					onSelect={() => {
 						setSelectedTokenId(token._id)
@@ -66,7 +67,6 @@ function Viewport({
 					icon={<Lucide.Compass />}
 					onClick={() => setOffsetState(Vector.from(0, 0))}
 				/>
-				<AddTokenButton roomSlug={roomSlug} />
 			</div>
 			<div className={panel("relative size-full overflow-clip")} ref={dragRef}>
 				<CanvasGrid offsetX={offset.x} offsetY={offset.y} />
@@ -80,9 +80,15 @@ function Viewport({
 
 function Token({
 	token,
+	character,
 	selected,
 	onSelect,
-}: { token: Doc<"mapTokens">; selected: boolean; onSelect: () => void }) {
+}: {
+	token: Doc<"mapTokens">
+	character: Doc<"characters">
+	selected: boolean
+	onSelect: () => void
+}) {
 	const removeToken = useMutation(api.mapTokens.remove)
 
 	const updateToken = useMutation(api.mapTokens.update).withOptimisticUpdate((store, args) => {
@@ -104,12 +110,12 @@ function Token({
 		onFinish: ({ distance }) => {
 			updateToken({
 				id: token._id,
-				...Vector.from(token).plus(distance.dividedBy(cellSize)).rounded.xy,
+				...Vector.from(token?.x ?? 0, token?.y ?? 0).plus(distance.dividedBy(cellSize)).rounded.xy,
 			})
 		},
 	})
 
-	let visualPosition = Vector.from(token).times(cellSize)
+	let visualPosition = Vector.from(token?.x ?? 0, token?.y ?? 0).times(cellSize)
 	if (drag) {
 		visualPosition = visualPosition.plus(drag.distance)
 	}
@@ -127,10 +133,12 @@ function Token({
 		whileElementsMounted: (...args) => autoUpdate(...args, { animationFrame: true }),
 	})
 
-	const values = new Map(token.fields?.map((field) => [field.key, field.value]))
+	const values = new Map(
+		character.fields?.concat(token.overrides ?? []).map((field) => [field.key, field.value]),
+	)
 
 	let barFieldDisplay
-	for (const field of TOKEN_FIELDS) {
+	for (const field of CHARACTER_FIELDS) {
 		if (field.display?.type === "bar") {
 			barFieldDisplay = field.display
 			break
@@ -138,7 +146,7 @@ function Token({
 	}
 
 	let tagFieldDisplay
-	for (const field of TOKEN_FIELDS) {
+	for (const field of CHARACTER_FIELDS) {
 		if (field.display?.type === "tag") {
 			tagFieldDisplay = field.display
 			break
@@ -161,8 +169,8 @@ function Token({
 				className="group relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
 			>
 				<button type="button" className="size-full" ref={dragRef}>
-					{token.imageId ? (
-						<UploadedImage imageId={token.imageId} className="size-full" />
+					{character.imageId ? (
+						<UploadedImage imageId={character.imageId} className="size-full" />
 					) : (
 						<Lucide.Ghost className="size-full" />
 					)}
@@ -177,7 +185,9 @@ function Token({
 					<div className="-translate-x-1/2 -translate-y-2 absolute bottom-full left-1/2 z-10 h-3 w-16 rounded border border-red-500 p-px opacity-50">
 						<div
 							className="h-full origin-left rounded-sm bg-red-600"
-							style={{ scale: barFieldDisplay.getValue(values) / barFieldDisplay.getMax(values) }}
+							style={{
+								scale: `${barFieldDisplay.getValue(values) / barFieldDisplay.getMax(values)} 1`,
+							}}
 						/>
 					</div>
 				)}
@@ -189,8 +199,15 @@ function Token({
 							style={floatingStyles}
 							className={panel("flex w-64 flex-col gap-3 p-2 shadow-md")}
 						>
-							{TOKEN_FIELDS.map((field) => (
-								<TokenField {...field} token={token} key={field.label} />
+							{CHARACTER_FIELDS.map((field) => (
+								<CharacterFormField
+									{...field}
+									key={field.label}
+									fields={character.fields?.concat(token.overrides ?? [])}
+									onSubmit={async (overrides) => {
+										await updateToken({ id: token._id, overrides })
+									}}
+								/>
 							))}
 							<Button
 								icon={<Lucide.Trash />}
@@ -203,27 +220,6 @@ function Token({
 					)}
 			</div>
 		</div>
-	)
-}
-
-function AddTokenButton({ roomSlug }: { roomSlug: string }) {
-	const createToken = useMutation(api.mapTokens.create)
-	return (
-		<Button
-			text="Add Token"
-			icon={<Lucide.ImagePlus />}
-			onClick={() =>
-				createToken({
-					roomSlug,
-					x: 0,
-					y: 0,
-					fields: TOKEN_FIELDS.map((field) => ({
-						key: field.label.toLowerCase(),
-						value: field.fallback(),
-					})),
-				})
-			}
-		/>
 	)
 }
 
