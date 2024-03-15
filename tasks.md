@@ -32,6 +32,7 @@
 
 ## features
 
+- [ ] toggleable side panels
 - room ownership
   - [ ] set room owner on creation
   - only room owner can:
@@ -45,9 +46,10 @@
 - character ownership
   - [ ] dropdown to assign character to player
 - character sheets
-  - [ ] load character from json file (?)
+  - [ ] open in a pop-out window
 - token grid
   - [x] button to reset viewport
+  - [ ] add new token to center of screen and/or click to place token
   - [ ] configure background size in cell width
   - [ ] measuring distance
   - [ ] draw lines
