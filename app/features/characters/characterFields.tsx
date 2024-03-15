@@ -194,7 +194,7 @@ function defineIntField({
 	display,
 	...options
 }: IntFieldArgs): CharacterFieldConfig {
-	const maxKey = `${label}:max`
+	const maxKey = `${key}:max`
 	return {
 		...options,
 		label,
