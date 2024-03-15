@@ -1,7 +1,7 @@
 import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { type SetStateAction, useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { expect } from "#app/common/expect.ts"
 import type { Nullish } from "#app/common/types.ts"
@@ -13,7 +13,9 @@ import { api } from "#convex/_generated/api.js"
 import type { Doc, Id } from "#convex/_generated/dataModel.js"
 import { CHARACTER_FIELDS, CharacterFormField } from "../characters/characterFields.tsx"
 
+const mapSize = Vector.from(50)
 const cellSize = 80
+
 const leftMouseButton = 1
 const rightMouseButton = 2
 const middleMouseButton = 4
@@ -47,17 +49,37 @@ function Viewport({
 	roomSlug: string
 	onBackdropClick?: () => void
 }) {
-	const [drag, dragRef] = useDrag({
+	const viewportRef = useRef<HTMLDivElement>(null)
+
+	const [viewportSize, setViewportSize] = useState(Vector.zero)
+	useResizeObserver(viewportRef, (info) =>
+		setViewportSize(Vector.from(info.contentRect.width, info.contentRect.height)),
+	)
+
+	const [offsetState, setOffsetState] = useReducer(
+		(current: Vector, next: SetStateAction<Vector>) => {
+			const offset = typeof next === "function" ? next(current) : next
+			return clampOffset(offset)
+		},
+		Vector.zero,
+	)
+
+	function clampOffset(offset: Vector) {
+		const topLeft = Vector.zero
+		const bottomRight = mapSize.times(cellSize).minus(viewportSize).clampTopLeft(Vector.zero)
+		return offset.clamp(topLeft, bottomRight)
+	}
+
+	const drag = useDrag(viewportRef, {
 		onStart(event) {
 			if (event.target === event.currentTarget) onBackdropClick?.()
 		},
 		onFinish({ distance }) {
-			setOffsetState((state) => state.plus(distance))
+			setOffsetState((state) => state.minus(distance))
 		},
 	})
 
-	const [offsetState, setOffsetState] = useState(Vector.from(0, 0))
-	const offset = offsetState.plus(drag?.current.minus(drag.start) ?? Vector.from(0, 0))
+	const offset = clampOffset(offsetState.minus(drag?.current.minus(drag.start) ?? Vector.zero))
 
 	return (
 		<div className="flex h-full flex-col gap-2">
@@ -65,12 +87,15 @@ function Viewport({
 				<Button
 					text="Reset View"
 					icon={<Lucide.Compass />}
-					onClick={() => setOffsetState(Vector.from(0, 0))}
+					onClick={() => setOffsetState(Vector.zero)}
 				/>
 			</div>
-			<div className={panel("relative size-full overflow-clip")} ref={dragRef}>
-				<CanvasGrid offsetX={offset.x} offsetY={offset.y} />
-				<div className="absolute top-0 left-0" style={{ translate: `${offset.x}px ${offset.y}px` }}>
+			<div className={panel("relative size-full overflow-clip")} ref={viewportRef}>
+				<CanvasGrid offsetX={-offset.x} offsetY={-offset.y} />
+				<div
+					className="absolute top-0 left-0"
+					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
+				>
 					{children}
 				</div>
 			</div>
@@ -105,12 +130,16 @@ function Token({
 		)
 	})
 
-	const [drag, dragRef] = useDrag({
+	const ref = useRef<HTMLButtonElement>(null)
+
+	const drag = useDrag(ref, {
 		onStart: () => onSelect(),
 		onFinish: ({ distance }) => {
 			updateToken({
 				id: token._id,
-				...Vector.from(token?.x ?? 0, token?.y ?? 0).plus(distance.dividedBy(cellSize)).rounded.xy,
+				...Vector.from(token?.x ?? 0, token?.y ?? 0)
+					.plus(distance.dividedBy(cellSize))
+					.clamp(Vector.zero, mapSize.minus(Vector.one)).rounded.xy,
 			})
 		},
 	})
@@ -168,7 +197,7 @@ function Token({
 				ref={refs.setReference}
 				className="group relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
 			>
-				<button type="button" className="size-full" ref={dragRef}>
+				<button type="button" className="size-full" ref={ref}>
 					{character.imageId ? (
 						<UploadedImage imageId={character.imageId} className="size-full" />
 					) : (
@@ -259,12 +288,12 @@ function CanvasGrid({
 
 		context.restore()
 
-		context.save()
-		context.fillStyle = "white"
-		context.font = "16px sans-serif"
-		context.textBaseline = "top"
-		context.fillText(`offset: ${-offsetX}, ${-offsetY}`, 10, 10)
-		context.restore()
+		// context.save()
+		// context.fillStyle = "white"
+		// context.font = "16px sans-serif"
+		// context.textBaseline = "top"
+		// context.fillText(`offset: ${Math.round(offsetX)}, ${Math.round(offsetY)}`, 10, 10)
+		// context.restore()
 	}, [offsetX, offsetY])
 
 	useEffect(() => {
@@ -307,17 +336,20 @@ type DragState = {
 	current: Vector
 }
 
-function useDrag({
-	onStart,
-	onFinish,
-}: {
-	onStart?: (event: PointerEvent) => void
-	onFinish: ({ distance }: { distance: Vector }) => void
-}) {
+function useDrag(
+	ref: HTMLElement | null | undefined | { readonly current: HTMLElement | null | undefined },
+	{
+		onStart,
+		onFinish,
+	}: {
+		onStart?: (event: PointerEvent) => void
+		onFinish: ({ distance }: { distance: Vector }) => void
+	},
+) {
 	const [state, setState] = useState<DragState>()
-	const [element, dragRef] = useState<HTMLElement | null>()
 
 	useEffect(() => {
+		const element = ref && "current" in ref ? ref.current : ref
 		if (!element) return
 		if (state) return
 
@@ -340,6 +372,7 @@ function useDrag({
 	})
 
 	useEffect(() => {
+		const element = ref && "current" in ref ? ref.current : ref
 		if (!element) return
 		if (!state) return
 
@@ -371,10 +404,7 @@ function useDrag({
 		}
 	})
 
-	return [
-		state ? { ...state, distance: state?.current.minus(state.start) } : undefined,
-		dragRef,
-	] as const
+	return state ? { ...state, distance: state?.current.minus(state.start) } : undefined
 }
 
 function pixelCoords<T extends readonly number[]>(...input: readonly [...T]): readonly [...T] {
