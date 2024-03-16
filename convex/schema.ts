@@ -19,22 +19,22 @@ export default defineSchema({
 				outcome: v.number(),
 			}),
 		),
-	}).index("by_room", ["roomSlug"]),
+	}).index("by_room", ["roomId"]),
 
 	characters: defineTable({
 		player: v.optional(v.string()),
 		imageId: v.optional(v.id("images")),
 		fields: v.optional(v.array(characterFieldValidator)),
-		roomSlug: v.string(),
-	}).index("by_room", ["roomSlug"]),
+		roomId: v.id("rooms"),
+	}).index("by_room", ["roomId"]),
 
 	mapTokens: defineTable({
-		roomSlug: v.string(),
+		roomId: v.id("rooms"),
 		x: v.optional(v.number()),
 		y: v.optional(v.number()),
 		characterId: v.id("characters"),
 		overrides: v.optional(v.array(characterFieldValidator)),
-	}).index("by_room", ["roomSlug"]),
+	}).index("by_room", ["roomId"]),
 
 	images: defineTable({
 		storageId: v.id("_storage"),

@@ -4,20 +4,20 @@ import { roll } from "#app/common/random.js"
 import { mutation, query } from "./_generated/server.js"
 
 export const diceRollCreatePayload = {
-	roomSlug: v.string(),
+	roomId: v.id("rooms"),
 	author: v.string(),
 	label: v.optional(v.string()),
 }
 
 export const list = query({
 	args: {
-		roomSlug: v.string(),
+		roomId: v.id("rooms"),
 		paginationOpts: paginationOptsValidator,
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db
 			.query("diceRolls")
-			.withIndex("by_room", (q) => q.eq("roomSlug", args.roomSlug))
+			.withIndex("by_room", (q) => q.eq("roomId", args.roomId))
 			.order("desc")
 			.paginate(args.paginationOpts)
 	},

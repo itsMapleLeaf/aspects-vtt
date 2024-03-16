@@ -5,13 +5,15 @@ import { Virtuoso } from "react-virtuoso"
 import { Loading } from "#app/ui/Loading.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Doc } from "#convex/_generated/dataModel.js"
+import { useRoom } from "../rooms/useRoom.tsx"
 import { defaultDiceKind, diceKindsBySide } from "./diceKinds"
 
-export function DiceRollList({ roomSlug }: { roomSlug: string }) {
+export function DiceRollList() {
+	const room = useRoom()
 	const numItems = 20
 	const list = usePaginatedQuery(
 		api.diceRolls.list,
-		{ roomSlug },
+		{ roomId: room._id },
 		{ initialNumItems: numItems },
 	)
 	return (
@@ -50,8 +52,7 @@ function DiceRollSummary({ roll }: { roll: Doc<"diceRolls"> }) {
 				))}
 			</ul>
 			<p className="text-primary-600 leading-tight">
-				rolled by{" "}
-				<strong className="font-medium text-primary-900">{roll.author}</strong>{" "}
+				rolled by <strong className="font-medium text-primary-900">{roll.author}</strong>{" "}
 				{formatDistanceToNow(new Date(roll._creationTime), { addSuffix: true })}
 			</p>
 		</li>

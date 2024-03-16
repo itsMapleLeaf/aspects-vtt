@@ -352,7 +352,7 @@ function DicePopover({
 		await createDiceRoll({
 			label: rollLabel,
 			author: user.username,
-			roomSlug: room.slug,
+			roomId: room._id,
 			dice,
 		})
 	}

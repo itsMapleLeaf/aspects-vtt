@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
-import { Link, useLoaderData, useParams } from "@remix-run/react"
+import { Link, useLoaderData } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect } from "react"
@@ -12,6 +12,7 @@ import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterB
 import { useCurrentCharacterId } from "#app/features/characters/useCurrentCharacterId.ts"
 import { DiceRollForm } from "#app/features/dice/DiceRollForm.tsx"
 import { DiceRollList } from "#app/features/dice/DiceRollList.tsx"
+import { useRoom } from "#app/features/rooms/useRoom.js"
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
 import { getPreferences } from "#app/preferences.server.ts"
 import { Button } from "#app/ui/Button.tsx"
@@ -30,8 +31,8 @@ export const shouldRevalidate = () => false
 
 export default function RoomIndexRoute() {
 	const { username } = useLoaderData<typeof loader>()
-	const { roomSlug } = $params("/rooms/:roomSlug", useParams())
-	const characters = useQuery(api.characters.list, { roomSlug })
+	const room = useRoom()
+	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const [currentCharacterId, setCurrentCharacterId] = useCurrentCharacterId()
 	const firstCharacter = characters?.[0]
 	const character = characters?.find((c) => c._id === currentCharacterId) ?? firstCharacter
@@ -47,20 +48,22 @@ export default function RoomIndexRoute() {
 			<header className="flex justify-end gap-[inherit]">
 				<Button icon={<Lucide.DoorOpen />} text="Leave" element={<Link to={$path("/")} />} />
 				<Button
-					element={<Link to={$path("/rooms/:roomSlug/setup", { roomSlug }, { username })} />}
+					element={
+						<Link to={$path("/rooms/:roomSlug/setup", { roomSlug: room.slug }, { username })} />
+					}
 					icon={<Lucide.Edit />}
 					text={username}
 				/>
 			</header>
 			<main className="flex min-h-0 flex-1 gap-2">
 				<div className="flex h-full max-w-[360px] flex-1 flex-col gap-2">
-					<DiceRollForm username={username} roomSlug={roomSlug} />
+					<DiceRollForm username={username} />
 					<div className="min-h-0 flex-1">
-						<DiceRollList roomSlug={roomSlug} />
+						<DiceRollList />
 					</div>
 				</div>
 				<div className="flex min-w-0 flex-1">
-					<TokenMap roomSlug={roomSlug} />
+					<TokenMap />
 				</div>
 				{characters !== undefined ? (
 					<div className="flex max-w-[360px] flex-1 flex-col gap-2">
@@ -69,7 +72,7 @@ export default function RoomIndexRoute() {
 								<CharacterSelect characters={characters} />
 							</div>
 							{character && <DeleteCharacterButton character={character} />}
-							<CreateCharacterButton roomSlug={roomSlug} username={username} />
+							<CreateCharacterButton username={username} />
 						</div>
 						{character && (
 							<div className="min-h-0 flex-1">
