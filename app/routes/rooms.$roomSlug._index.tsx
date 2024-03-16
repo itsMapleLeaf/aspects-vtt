@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
-import { Form, Link, useLoaderData, useParams } from "@remix-run/react"
+import { Link, useLoaderData, useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect } from "react"
@@ -45,17 +45,9 @@ export default function RoomIndexRoute() {
 	return (
 		<div className="flex h-dvh flex-col gap-2 bg-primary-100 p-2">
 			<header className="flex justify-end gap-[inherit]">
-				<Form method="post" action={$path("/rooms/:roomSlug/leave", { roomSlug })}>
-					<Button
-						type="submit"
-						icon={<Lucide.DoorOpen />}
-						text="Leave"
-						name="clearUsername"
-						value="do it"
-					/>
-				</Form>
+				<Button icon={<Lucide.DoorOpen />} text="Leave" element={<Link to={$path("/")} />} />
 				<Button
-					element={<Link to={`setup?username=${username}`} />}
+					element={<Link to={$path("/rooms/:roomSlug/setup", { roomSlug }, { username })} />}
 					icon={<Lucide.Edit />}
 					text={username}
 				/>
