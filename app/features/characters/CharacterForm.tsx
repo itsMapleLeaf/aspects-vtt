@@ -31,8 +31,8 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 				onClick={async () => {
 					await createToken({
 						roomSlug: character.roomSlug,
-						x: 0,
-						y: 0,
+						x: 10,
+						y: 10,
 						characterId: character._id,
 						overrides: character.fields,
 					})
