@@ -4,15 +4,15 @@ import { randomItem } from "#app/common/random.js"
 import { useCurrentCharacterId } from "#app/features/characters/useCurrentCharacterId.ts"
 import { Button } from "#app/ui/Button.tsx"
 import { api } from "#convex/_generated/api.js"
+import { useRoom } from "../rooms/useRoom.tsx"
 import { characterNames } from "./characterNames.ts"
 
 export function CreateCharacterButton({
-	roomSlug,
 	username,
 }: {
-	roomSlug: string
 	username: string
 }) {
+	const room = useRoom()
 	const create = useMutation(api.characters.create)
 	const [, setCurrentCharacterId] = useCurrentCharacterId()
 	return (
@@ -25,7 +25,7 @@ export function CreateCharacterButton({
 				const [strength, sense, mobility, intellect, wit] = dice
 
 				const id = await create({
-					roomSlug,
+					roomId: room._id,
 					player: username,
 					fields: [
 						{ key: "name", value: randomItem(characterNames) ?? "Cute Felirian" },

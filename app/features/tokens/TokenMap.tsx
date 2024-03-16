@@ -23,9 +23,9 @@ const leftMouseButton = 1
 const rightMouseButton = 2
 const middleMouseButton = 4
 
-export function TokenMap({ roomSlug }: { roomSlug: string }) {
+export function TokenMap() {
 	const room = useRoom()
-	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
+	const tokens = useQuery(api.mapTokens.list, { roomId: room._id }) ?? []
 	const [selectedTokenId, setSelectedTokenId] = useState<Id<"mapTokens">>()
 	const removeToken = useMutation(api.mapTokens.remove)
 
@@ -201,11 +201,11 @@ function Token({
 	const removeToken = useMutation(api.mapTokens.remove)
 
 	const updateToken = useMutation(api.mapTokens.update).withOptimisticUpdate((store, args) => {
-		const tokens = store.getQuery(api.mapTokens.list, { roomSlug: token.roomSlug })
+		const tokens = store.getQuery(api.mapTokens.list, { roomId: token.roomId })
 		if (!tokens) return
 		store.setQuery(
 			api.mapTokens.list,
-			{ roomSlug: token.roomSlug },
+			{ roomId: token.roomId },
 			tokens.map((token) =>
 				token._id === args.id
 					? { ...token, ...args, x: args.x ?? token.x, y: args.y ?? token.y }

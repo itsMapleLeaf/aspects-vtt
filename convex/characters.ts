@@ -13,12 +13,12 @@ export type CharacterField = Infer<typeof characterFieldValidator>
 
 export const list = query({
 	args: {
-		roomSlug: v.string(),
+		roomId: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db
 			.query("characters")
-			.withIndex("by_room", (q) => q.eq("roomSlug", args.roomSlug))
+			.withIndex("by_room", (q) => q.eq("roomId", args.roomId))
 			.collect()
 	},
 })
@@ -37,7 +37,7 @@ export const create = mutation({
 	args: {
 		player: v.string(),
 		fields: v.array(characterFieldValidator),
-		roomSlug: v.string(),
+		roomId: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db.insert("characters", args)

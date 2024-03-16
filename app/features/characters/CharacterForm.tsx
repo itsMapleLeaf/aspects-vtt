@@ -30,7 +30,7 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 				className="self-start"
 				onClick={async () => {
 					await createToken({
-						roomSlug: character.roomSlug,
+						roomId: character.roomId,
 						x: 10,
 						y: 10,
 						characterId: character._id,

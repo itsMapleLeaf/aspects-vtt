@@ -5,15 +5,11 @@ import { range } from "#app/common/range.ts"
 import { Button } from "#app/ui/Button.tsx"
 import { Input } from "#app/ui/Input.tsx"
 import { api } from "#convex/_generated/api.js"
+import { useRoom } from "../rooms/useRoom.tsx"
 import { diceKinds } from "./diceKinds"
 
-export function DiceRollForm({
-	username,
-	roomSlug,
-}: {
-	username: string
-	roomSlug: string
-}) {
+export function DiceRollForm({ username }: { username: string }) {
+	const room = useRoom()
 	const [label, setLabel] = useState("")
 	const [dice, setDice] = useState<Record<number, number>>({})
 	const createDiceRoll = useMutation(api.diceRolls.create)
@@ -23,7 +19,7 @@ export function DiceRollForm({
 		<form
 			action={async () => {
 				await createDiceRoll({
-					roomSlug,
+					roomId: room._id,
 					author: username,
 					label,
 					dice: Object.entries(dice).flatMap(([sides, count]) =>
@@ -40,11 +36,7 @@ export function DiceRollForm({
 					<div key={kind.sides} className="relative flex justify-center">
 						<Button
 							icon={kind.icon}
-							text={
-								(dice[kind.sides] ?? 0) === 0
-									? `d${kind.sides}`
-									: `${dice[kind.sides]}`
-							}
+							text={(dice[kind.sides] ?? 0) === 0 ? `d${kind.sides}` : `${dice[kind.sides]}`}
 							data-faded={(dice[kind.sides] ?? 0) === 0}
 							className="tabular-nums data-[faded=true]:opacity-60"
 							onClick={() =>
@@ -73,12 +65,7 @@ export function DiceRollForm({
 					onChange={(event) => setLabel(event.target.value)}
 					className="flex-1"
 				/>
-				<Button
-					type="submit"
-					text="Roll"
-					icon={<Lucide.Dices />}
-					disabled={totalDice < 1}
-				/>
+				<Button type="submit" text="Roll" icon={<Lucide.Dices />} disabled={totalDice < 1} />
 			</div>
 		</form>
 	)

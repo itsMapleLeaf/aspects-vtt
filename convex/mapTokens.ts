@@ -4,7 +4,7 @@ import { characterFieldValidator } from "./characters.ts"
 
 export const create = mutation({
 	args: {
-		roomSlug: v.string(),
+		roomId: v.id("rooms"),
 		x: v.optional(v.number()),
 		y: v.optional(v.number()),
 		characterId: v.id("characters"),
@@ -17,12 +17,12 @@ export const create = mutation({
 
 export const list = query({
 	args: {
-		roomSlug: v.string(),
+		roomId: v.id("rooms"),
 	},
-	async handler(ctx, { roomSlug }) {
+	async handler(ctx, { roomId }) {
 		const tokens = await ctx.db
 			.query("mapTokens")
-			.withIndex("by_room", (q) => q.eq("roomSlug", roomSlug))
+			.withIndex("by_room", (q) => q.eq("roomId", roomId))
 			.collect()
 
 		const tokensWithCharacters = await Promise.all(
