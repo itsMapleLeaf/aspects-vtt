@@ -59,7 +59,7 @@
   - [ ] zooming
   - [ ] items per token
   - [ ] set background from drag and drop
-  - [ ] press delete to remove selected token
+  - [x] press delete to remove selected token
 - [x] move health & fatigue to tokens
 
 ## ideas

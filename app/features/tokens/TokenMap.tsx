@@ -24,9 +24,28 @@ const rightMouseButton = 2
 const middleMouseButton = 4
 
 export function TokenMap({ roomSlug }: { roomSlug: string }) {
+	const room = useRoom()
 	const tokens = useQuery(api.mapTokens.list, { roomSlug }) ?? []
 	const [selectedTokenId, setSelectedTokenId] = useState<Id<"mapTokens">>()
-	const room = useRoom()
+	const removeToken = useMutation(api.mapTokens.remove)
+
+	useWindowEvent("keydown", (event) => {
+		if (document.activeElement instanceof HTMLInputElement) return
+		if (document.activeElement instanceof HTMLTextAreaElement) return
+
+		if (event.key === "Escape") {
+			event.preventDefault()
+			setSelectedTokenId(undefined)
+		}
+
+		if (event.key === "Delete") {
+			event.preventDefault()
+			if (selectedTokenId) {
+				removeToken({ id: selectedTokenId })
+			}
+		}
+	})
+
 	return (
 		<Viewport
 			background={
@@ -480,4 +499,17 @@ function pixelCoords<T extends readonly number[]>(...input: readonly [...T]): re
 		output[index] = Math.floor(value) + 0.5
 	}
 	return output
+}
+
+function useWindowEvent<K extends keyof WindowEventMap>(
+	eventType: K,
+	handler: (event: WindowEventMap[K]) => void,
+	options?: AddEventListenerOptions,
+) {
+	useEffect(() => {
+		window.addEventListener(eventType, handler, options)
+		return () => {
+			window.removeEventListener(eventType, handler, options)
+		}
+	})
 }
