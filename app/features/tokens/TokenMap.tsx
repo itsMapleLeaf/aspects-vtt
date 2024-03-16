@@ -96,7 +96,7 @@ function Viewport({
 	const offset = clampOffset(offsetState.minus(drag?.current.minus(drag.start) ?? Vector.zero))
 
 	return (
-		<div className="flex h-full flex-col gap-2">
+		<div className="flex size-full flex-col gap-2">
 			<div className="flex flex-1 gap-[inherit]">
 				<Button
 					text="Reset View"
@@ -105,7 +105,7 @@ function Viewport({
 				/>
 				<BackgroundButton />
 			</div>
-			<div className={panel("relative size-full overflow-clip")} ref={viewportRef}>
+			<div className={panel("relative size-full select-none overflow-clip")} ref={viewportRef}>
 				<div
 					className="absolute top-0 left-0"
 					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
@@ -264,11 +264,12 @@ function Token({
 			>
 				<button type="button" className="size-full" ref={ref}>
 					{character.imageId ? (
-						<UploadedImage imageId={character.imageId} className="size-full" />
+						<UploadedImage imageId={character.imageId} className="size-full" draggable={false} />
 					) : (
 						<Lucide.Ghost className="size-full" />
 					)}
 				</button>
+
 				{tagFieldDisplay && (
 					<p className="-translate-x-1/2 absolute top-full left-1/2 w-max max-w-48 translate-y-2 text-balance rounded bg-primary-100/75 p-1.5 leading-none opacity-0 empty:hidden [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100">
 						{tagFieldDisplay.getText(values)}
