@@ -55,7 +55,7 @@ function App() {
 							</h1>
 						</Link>
 						<div className="flex flex-1 justify-end gap-2">
-							<UserButton afterSignOutUrl={$path("/sign-in")} />
+							<UserButton />
 						</div>
 					</header>
 					<div className="h-[calc(100dvh-theme(spacing.20))]">
@@ -68,6 +68,12 @@ function App() {
 }
 
 export default ClerkApp(App, {
+	signInUrl: $path("/sign-in"),
+	signUpUrl: $path("/sign-up"),
+	afterSignInUrl: $path("/"),
+	afterSignUpUrl: $path("/"),
+	afterSignOutUrl: $path("/sign-up"),
+	telemetry: false,
 	appearance: {
 		baseTheme: dark,
 		variables: {
@@ -84,11 +90,11 @@ export default ClerkApp(App, {
 function ConvexAuthGuard({ children }: { children: React.ReactNode }) {
 	const { user } = useUser()
 	const setup = useMutation(api.auth.setup)
-	const { isAuthenticated } = useConvexAuth()
+	const { isLoading, isAuthenticated } = useConvexAuth()
 	useEffect(() => {
 		if (user?.username && isAuthenticated) {
 			setup({ name: user.username, avatarUrl: user.imageUrl })
 		}
 	}, [user?.username, user?.imageUrl, isAuthenticated, setup])
-	return isAuthenticated ? children : <Loading fill="screen" />
+	return isLoading ? <Loading fill="screen" /> : children
 }
