@@ -1,40 +1,54 @@
-import { v } from "convex/values"
-import { argon2id } from "hash-wasm"
-import { internal } from "./_generated/api.js"
-import { action } from "./_generated/server.js"
+import { ConvexError, v } from "convex/values"
+import { type QueryCtx, mutation, query } from "./_generated/server.js"
 
-type ResultTuple<T> = [data: T, error: null] | [data: null, error: string]
-
-const successResult = <T>(data: T): ResultTuple<T> => [data, null]
-const errorResult = <T = never>(error: string): ResultTuple<T> => [null, error]
-
-export const register = action({
-	args: {
-		username: v.string(),
-		password: v.string(),
-	},
-	async handler(ctx, args): Promise<ResultTuple<{ sessionId: string }>> {
-		const existingUser = await ctx.runQuery(internal.users.getByUsername, {
-			username: args.username,
-		})
-		if (existingUser) {
-			return errorResult("Username already taken")
-		}
-
-		const passwordHash = await argon2id({
-			password: args.password,
-			salt: crypto.getRandomValues(new Uint8Array(16)),
-			parallelism: 1,
-			iterations: 256,
-			memorySize: 512,
-			hashLength: 32,
-		})
-
-		const userId = await ctx.runMutation(internal.users.create, {
-			username: args.username,
-			passwordHash,
-		})
-		const sessionId = await ctx.runMutation(internal.sessions.create, { userId })
-		return successResult({ sessionId })
+export const user = query({
+	async handler(ctx) {
+		return await getIdentityUser(ctx)
 	},
 })
+
+export const setup = mutation({
+	args: {
+		name: v.string(),
+		avatarUrl: v.optional(v.string()),
+	},
+	async handler(ctx, args) {
+		const identity = await requireIdentity(ctx)
+		const user = await getIdentityUser(ctx)
+		if (user) {
+			await ctx.db.patch(user._id, {
+				name: args.name,
+				avatarUrl: args.avatarUrl,
+			})
+		} else {
+			await ctx.db.insert("users", {
+				clerkId: identity.subject,
+				name: args.name,
+				avatarUrl: args.avatarUrl,
+			})
+		}
+	},
+})
+
+async function requireIdentity(ctx: QueryCtx) {
+	const identity = await ctx.auth.getUserIdentity()
+	if (!identity) throw new ConvexError("Not logged in")
+	return identity
+}
+
+export async function getIdentityUser(ctx: QueryCtx) {
+	const identity = await ctx.auth.getUserIdentity()
+	return (
+		identity &&
+		(await ctx.db
+			.query("users")
+			.withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+			.unique())
+	)
+}
+
+export async function requireIdentityUser(ctx: QueryCtx) {
+	const user = await getIdentityUser(ctx)
+	if (!user) throw new ConvexError("User not found")
+	return user
+}

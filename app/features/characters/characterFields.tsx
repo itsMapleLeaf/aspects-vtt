@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { LucideDices } from "lucide-react"
 import { useId, useState } from "react"
 import { toNearestPositiveInt, toPositiveNumber } from "#app/common/numbers.ts"
@@ -11,10 +11,9 @@ import { Input } from "#app/ui/Input.tsx"
 import { Select } from "#app/ui/Select.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
-import type { Doc } from "#convex/_generated/dataModel.js"
+import type { Doc, Id } from "#convex/_generated/dataModel.js"
 import type { CharacterField, CharacterFieldValue } from "#convex/characters.js"
-import { useRoom } from "../rooms/useRoom.tsx"
-import { useUser } from "../user/useUser.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { characterNames } from "./characterNames.ts"
 
 interface CharacterFieldConfig {
@@ -283,7 +282,7 @@ function defineDiceSelectField({
 		initialValues: () => [{ key, value: fallback() }],
 		fallback,
 		Input({ getValue, setValue, ...props }) {
-			const user = useUser()
+			const user = useQuery(api.auth.user)
 
 			let value = getValue(key)
 			if (typeof value !== "number" || !diceOptions.some((option) => option.value === value)) {
@@ -321,7 +320,7 @@ function DicePopover({
 	die,
 	fatigue,
 }: {
-	user: { username: string }
+	user: { _id: Id<"users"> }
 	label: string
 	die: number
 	fatigue: number
@@ -351,7 +350,7 @@ function DicePopover({
 
 		await createDiceRoll({
 			label: rollLabel,
-			author: user.username,
+			rolledBy: user._id,
 			roomId: room._id,
 			dice,
 		})

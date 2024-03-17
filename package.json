@@ -18,6 +18,7 @@
 	},
 	"dependencies": {
 		"@ariakit/react": "^0.4.3",
+		"@clerk/remix": "3.2.0",
 		"@floating-ui/react-dom": "2.0.8",
 		"@fontsource-variable/manrope": "5.0.18",
 		"@remix-run/node": "^2.8.1",

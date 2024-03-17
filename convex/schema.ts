@@ -5,19 +5,19 @@ import { diceRollCreatePayload } from "./diceRolls.ts"
 
 export default defineSchema({
 	users: defineTable({
-		username: v.string(),
-		passwordHash: v.string(),
-	}).index("by_username", ["username"]),
-
-	sessions: defineTable({
-		userId: v.id("users"),
-	}).index("by_user", ["userId"]),
+		clerkId: v.string(),
+		name: v.string(),
+		avatarUrl: v.optional(v.string()),
+	}).index("by_clerk_id", ["clerkId"]),
 
 	rooms: defineTable({
 		name: v.string(),
 		slug: v.string(),
+		ownerId: v.id("users"),
 		mapImageId: v.optional(v.id("images")),
-	}).index("by_slug", ["slug"]),
+	})
+		.index("by_slug", ["slug"])
+		.index("by_owner", ["ownerId"]),
 
 	diceRolls: defineTable({
 		...diceRollCreatePayload,
@@ -31,10 +31,10 @@ export default defineSchema({
 	}).index("by_room", ["roomId"]),
 
 	characters: defineTable({
-		player: v.optional(v.string()),
+		roomId: v.id("rooms"),
+		playerId: v.optional(v.id("users")),
 		imageId: v.optional(v.id("images")),
 		fields: v.optional(v.array(characterFieldValidator)),
-		roomId: v.id("rooms"),
 	}).index("by_room", ["roomId"]),
 
 	mapTokens: defineTable({

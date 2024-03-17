@@ -5,7 +5,7 @@ import { mutation, query } from "./_generated/server.js"
 
 export const diceRollCreatePayload = {
 	roomId: v.id("rooms"),
-	author: v.string(),
+	rolledBy: v.id("users"),
 	label: v.optional(v.string()),
 }
 
@@ -15,11 +15,25 @@ export const list = query({
 		paginationOpts: paginationOptsValidator,
 	},
 	handler: async (ctx, args) => {
-		return await ctx.db
+		const result = await ctx.db
 			.query("diceRolls")
 			.withIndex("by_room", (q) => q.eq("roomId", args.roomId))
 			.order("desc")
 			.paginate(args.paginationOpts)
+		return {
+			...result,
+			page: await Promise.all(
+				result.page.map(async (roll) => {
+					const rolledBy = await ctx.db.get(roll.rolledBy)
+					return {
+						...roll,
+						rolledBy: rolledBy && {
+							name: rolledBy.name,
+						},
+					}
+				}),
+			),
+		}
 	},
 })
 
