@@ -1,10 +1,20 @@
-import { Link, useNavigate } from "@remix-run/react"
+import { getAuth } from "@clerk/remix/ssr.server"
+import type { LoaderFunctionArgs } from "@remix-run/node"
+import { Link, redirect, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import { LucideHome, LucidePlus } from "lucide-react"
 import { $path } from "remix-routes"
 import { Button } from "#app/ui/Button.tsx"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
+
+export async function loader(args: LoaderFunctionArgs) {
+	const auth = await getAuth(args)
+	if (!auth.userId) {
+		return redirect($path("/sign-up"))
+	}
+	return {}
+}
 
 export default function CreateRoomRoute() {
 	const rooms = useQuery(api.rooms.list)
