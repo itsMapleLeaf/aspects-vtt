@@ -1,3 +1,4 @@
+import { dark } from "@clerk/themes"
 import "@fontsource-variable/manrope"
 import "./root.css"
 
@@ -12,6 +13,7 @@ import { useEffect } from "react"
 import { $path } from "remix-routes"
 import { api } from "#convex/_generated/api.js"
 import { clientEnv } from "./env.ts"
+import { theme } from "./theme.ts"
 
 const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
 
@@ -40,29 +42,45 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-export default ClerkApp(function App() {
-	return (
-		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-			<AuthSetup />
-			<div className="p-4">
-				<header className="mb-4 flex items-center gap-3">
-					<Link to={$path("/")}>
-						<h1 className="text-2xl">
-							<span className="font-light text-primary-600">Aspects</span>
-							<span className="font-medium text-primary-800">VTT</span>
-						</h1>
-					</Link>
-					<div className="flex flex-1 justify-end gap-2">
-						<UserButton afterSignOutUrl={$path("/sign-in")} />
+export default ClerkApp(
+	function App() {
+		return (
+			<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+				<AuthSetup />
+				<div className="p-4">
+					<header className="mb-4 flex items-center gap-3">
+						<Link to={$path("/")}>
+							<h1 className="text-2xl">
+								<span className="font-light text-primary-600">Aspects</span>
+								<span className="font-medium text-primary-800">VTT</span>
+							</h1>
+						</Link>
+						<div className="flex flex-1 justify-end gap-2">
+							<UserButton afterSignOutUrl={$path("/sign-in")} />
+						</div>
+					</header>
+					<div className="h-[calc(100dvh-theme(spacing.20))]">
+						<Outlet />
 					</div>
-				</header>
-				<div className="h-[calc(100dvh-theme(spacing.20))]">
-					<Outlet />
 				</div>
-			</div>
-		</ConvexProviderWithClerk>
-	)
-})
+			</ConvexProviderWithClerk>
+		)
+	},
+	{
+		appearance: {
+			baseTheme: dark,
+			variables: {
+				borderRadius: "0.25rem",
+				colorAlphaShade: "white",
+				colorBackground: theme.colors.primary[200],
+				colorText: theme.colors.primary[900],
+				colorPrimary: theme.colors.primary[600],
+				colorInputBackground: theme.colors.primary[300],
+				colorInputText: theme.colors.primary[900],
+			},
+		},
+	},
+)
 
 export const ErrorBoundary: ErrorBoundaryComponent = ClerkErrorBoundary()
 
