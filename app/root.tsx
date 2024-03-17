@@ -4,7 +4,7 @@ import "./root.css"
 
 import { ClerkApp, UserButton, useAuth, useUser } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
-import type { MetaFunction } from "@remix-run/node"
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexReactClient, useConvexAuth, useMutation } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
@@ -17,7 +17,7 @@ import { Loading } from "./ui/Loading.tsx"
 
 const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
 
-export const loader = rootAuthLoader
+export const loader = (args: LoaderFunctionArgs) => rootAuthLoader(args)
 
 export const meta: MetaFunction = () => [
 	{ title: "Aspects VTT" },
