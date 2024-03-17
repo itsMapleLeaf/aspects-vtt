@@ -1,11 +1,21 @@
-import "@fontsource-variable/maven-pro"
-import "tailwindcss/tailwind.css"
+import "@fontsource-variable/manrope"
+import "./root.css"
 
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import type { MetaFunction } from "@remix-run/node"
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "@remix-run/react"
+import {
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	useLoaderData,
+	useRouteError,
+} from "@remix-run/react"
+import type { ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
 import { ConvexProvider, ConvexReactClient } from "convex/react"
 import { clientEnv } from "./env.ts"
+import { SessionError } from "./features/user/session.tsx"
 import { UserProvider } from "./features/user/useUser.tsx"
 import { getPreferences } from "./preferences.server.ts"
 
@@ -28,7 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="break-words bg-primary-100 text-primary-900">
+		<html lang="en" className="text-balance break-words bg-primary-100 text-primary-900">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -51,4 +61,12 @@ export default function App() {
 			<Outlet />
 		</UserProvider>
 	)
+}
+
+export const ErrorBoundary: ErrorBoundaryComponent = () => {
+	const error = useRouteError()
+
+	if (error instanceof SessionError) {
+		return <p>{error.message}</p>
+	}
 }

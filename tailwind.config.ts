@@ -15,7 +15,7 @@ export default {
 				}),
 			},
 			fontFamily: {
-				sans: ["Maven Pro Variable", ...defaultTheme.fontFamily.sans],
+				sans: ["Manrope Variable", ...defaultTheme.fontFamily.sans],
 			},
 			boxShadowColor: {
 				DEFAULT: `rgba(0,0,0,0.5)`,

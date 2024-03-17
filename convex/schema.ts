@@ -4,6 +4,15 @@ import { characterFieldValidator } from "./characters.ts"
 import { diceRollCreatePayload } from "./diceRolls.ts"
 
 export default defineSchema({
+	users: defineTable({
+		username: v.string(),
+		passwordHash: v.string(),
+	}).index("by_username", ["username"]),
+
+	sessions: defineTable({
+		userId: v.id("users"),
+	}).index("by_user", ["userId"]),
+
 	rooms: defineTable({
 		name: v.string(),
 		slug: v.string(),

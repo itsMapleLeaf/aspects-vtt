@@ -36,7 +36,6 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		size === "lg" && "h-12 px-4",
 
 		"rounded border border-primary-300",
-		"ring-primary-400 focus:outline-none focus-visible:ring-2",
 
 		"relative before:absolute before:inset-0 before:size-full",
 
