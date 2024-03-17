@@ -30,35 +30,47 @@
   - [x] hide menu while dragging token
   - [x] hide token tags unless selected
 
+## priority
+
+- [ ] toggleable right side panel
+- room ownership
+  - [x] set room owner on creation
+  - only room owner can:
+    - [x] delete room
+    - [ ] change room background
+    - [x] add or remove characters
+    - [ ] add or remove tokens
+    - [ ] show/hide tokens
+- players
+  - [ ] add `players` property to room
+  - [ ] when a player joins a room, add their user ID to the list
+  - [ ] owner-only dropdown to assign character to player
+  - [ ] player only sees their own character
+  - [ ] player _cannot_ add or remove their own token
+  - [ ] player can only control their own token
+- token grid
+  - [ ] conform to background image size
+  - [ ] configure cell size in pixels
+  - [ ] zooming
+  - [ ] fix token name tag blocking clicks
+  - [ ] non-character tokens
+- characters
+  - [ ] pronouns field
+
 ## features
 
-- [ ] toggleable side panels
-- room ownership
-  - [ ] set room owner on creation
-  - only room owner can:
-    - [ ] delete room
-    - [ ] change room background
-    - [ ] add, remove, show, or hide characters
-    - [ ] add, remove, show, or hide tokens
-- room players
-  - [ ] add player model to database
-  - [ ] when a player joins a room, add them to the room's player list
-- character ownership
-  - [ ] dropdown to assign character to player
 - character sheets
   - [ ] open in a pop-out window
 - token grid
-  - [x] button to reset viewport
-  - [ ] add new token to center of screen and/or click to place token
-  - [ ] configure background size in cell width
   - [ ] measuring distance
   - [ ] draw lines
   - [ ] draw squares
+  - [ ] add new token to center of screen and/or click to place token
   - [ ] player cursors
   - [ ] custom token sizes
-  - [ ] zooming
   - [ ] items per token
   - [ ] set background from drag and drop
+  - [x] button to reset viewport
   - [x] press delete to remove selected token
 - [x] move health & fatigue to tokens
 
