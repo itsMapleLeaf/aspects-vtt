@@ -1,40 +1,26 @@
 import "@fontsource-variable/manrope"
 import "./root.css"
 
-import type { LoaderFunctionArgs } from "@remix-run/node"
+import { ClerkApp, ClerkErrorBoundary, UserButton, useAuth, useUser } from "@clerk/remix"
+import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import type { MetaFunction } from "@remix-run/node"
-import {
-	Links,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
-	useLoaderData,
-	useRouteError,
-} from "@remix-run/react"
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import type { ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
-import { ConvexProvider, ConvexReactClient } from "convex/react"
+import { ConvexReactClient, useConvexAuth, useMutation } from "convex/react"
+import { ConvexProviderWithClerk } from "convex/react-clerk"
+import { useEffect } from "react"
+import { $path } from "remix-routes"
+import { api } from "#convex/_generated/api.js"
 import { clientEnv } from "./env.ts"
-import { SessionError } from "./features/user/session.tsx"
-import { UserProvider } from "./features/user/useUser.tsx"
-import { getPreferences } from "./preferences.server.ts"
 
 const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
 
-export const meta: MetaFunction = () => {
-	return [
-		{ title: "Aspects VTT" },
-		{
-			name: "description",
-			content: "A virtual tabletop for the Aspects of Nature tabletop RPG",
-		},
-	]
-}
+export const loader = rootAuthLoader
 
-export async function loader({ request }: LoaderFunctionArgs) {
-	const preferences = await getPreferences(request)
-	return { user: preferences.username ? { username: preferences.username } : undefined }
-}
+export const meta: MetaFunction = () => [
+	{ title: "Aspects VTT" },
+	{ name: "description", content: "A virtual tabletop for the Aspects of Nature tabletop RPG" },
+]
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -46,7 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<ConvexProvider client={convex}>{children}</ConvexProvider>
+				{children}
 				<ScrollRestoration />
 				<Scripts />
 			</body>
@@ -54,19 +40,40 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-export default function App() {
-	const data = useLoaderData<typeof loader>()
+export default ClerkApp(function App() {
 	return (
-		<UserProvider user={data.user}>
-			<Outlet />
-		</UserProvider>
+		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+			<AuthSetup />
+			<div className="p-4">
+				<header className="mb-4 flex items-center gap-3">
+					<Link to={$path("/")}>
+						<h1 className="text-2xl">
+							<span className="font-light text-primary-600">Aspects</span>
+							<span className="font-medium text-primary-800">VTT</span>
+						</h1>
+					</Link>
+					<div className="flex flex-1 justify-end gap-2">
+						<UserButton afterSignOutUrl={$path("/sign-in")} />
+					</div>
+				</header>
+				<div className="h-[calc(100dvh-theme(spacing.20))]">
+					<Outlet />
+				</div>
+			</div>
+		</ConvexProviderWithClerk>
 	)
-}
+})
 
-export const ErrorBoundary: ErrorBoundaryComponent = () => {
-	const error = useRouteError()
+export const ErrorBoundary: ErrorBoundaryComponent = ClerkErrorBoundary()
 
-	if (error instanceof SessionError) {
-		return <p>{error.message}</p>
-	}
+function AuthSetup() {
+	const { user } = useUser()
+	const setup = useMutation(api.auth.setup)
+	const { isAuthenticated } = useConvexAuth()
+	useEffect(() => {
+		if (user?.username && isAuthenticated) {
+			setup({ name: user.username, avatarUrl: user.imageUrl })
+		}
+	}, [user?.username, user?.imageUrl, isAuthenticated, setup])
+	return null
 }

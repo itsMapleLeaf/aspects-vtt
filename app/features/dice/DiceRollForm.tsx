@@ -5,10 +5,11 @@ import { range } from "#app/common/range.ts"
 import { Button } from "#app/ui/Button.tsx"
 import { Input } from "#app/ui/Input.tsx"
 import { api } from "#convex/_generated/api.js"
-import { useRoom } from "../rooms/useRoom.tsx"
+import type { Id } from "#convex/_generated/dataModel.js"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { diceKinds } from "./diceKinds"
 
-export function DiceRollForm({ username }: { username: string }) {
+export function DiceRollForm({ userId }: { userId: Id<"users"> }) {
 	const room = useRoom()
 	const [label, setLabel] = useState("")
 	const [dice, setDice] = useState<Record<number, number>>({})
@@ -20,7 +21,7 @@ export function DiceRollForm({ username }: { username: string }) {
 			action={async () => {
 				await createDiceRoll({
 					roomId: room._id,
-					author: username,
+					rolledBy: userId,
 					label,
 					dice: Object.entries(dice).flatMap(([sides, count]) =>
 						[...range(count)].map(() => ({ sides: Number(sides) })),

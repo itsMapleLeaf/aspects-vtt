@@ -14,7 +14,7 @@ import { api } from "#convex/_generated/api.js"
 import type { Doc, Id } from "#convex/_generated/dataModel.js"
 import { CHARACTER_FIELDS, CharacterFormField } from "../characters/characterFields.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
-import { useRoom } from "../rooms/useRoom.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 
 const mapSize = Vector.from(30)
 const cellSize = 50

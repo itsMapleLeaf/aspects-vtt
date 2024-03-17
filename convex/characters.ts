@@ -1,6 +1,10 @@
-import { type Infer, v } from "convex/values"
+import { ConvexError, type Infer, v } from "convex/values"
 import { raise } from "#app/common/errors.js"
-import { mutation, query } from "./_generated/server.js"
+import type { Id } from "./_generated/dataModel.js"
+import { type QueryCtx, mutation, query } from "./_generated/server.js"
+import { requireIdentityUser } from "./auth.js"
+import { requireDoc } from "./helpers.js"
+import { requireOwnedRoom } from "./rooms.js"
 
 const characterFieldValueValidator = v.union(v.string(), v.number(), v.boolean())
 export type CharacterFieldValue = Infer<typeof characterFieldValueValidator>
@@ -35,11 +39,11 @@ export const get = query({
 
 export const create = mutation({
 	args: {
-		player: v.string(),
-		fields: v.array(characterFieldValidator),
 		roomId: v.id("rooms"),
+		fields: v.array(characterFieldValidator),
 	},
 	handler: async (ctx, args) => {
+		await requireOwnedRoom(ctx, args.roomId)
 		return await ctx.db.insert("characters", args)
 	},
 })
@@ -47,7 +51,7 @@ export const create = mutation({
 export const update = mutation({
 	args: {
 		id: v.id("characters"),
-		player: v.optional(v.string()),
+		playerId: v.optional(v.id("users")),
 		imageId: v.optional(v.id("images")),
 		fields: v.optional(
 			v.array(
@@ -59,6 +63,13 @@ export const update = mutation({
 		),
 	},
 	handler: async (ctx, { id, ...data }) => {
+		if (data.playerId) {
+			const character = await requireDoc(ctx, "characters", id)
+			await requireOwnedRoom(ctx, character.roomId)
+		}
+		if (data.imageId || data.fields) {
+			await requireOwnedCharacter(ctx, id)
+		}
 		await ctx.db.patch(id, data)
 	},
 })
@@ -71,3 +82,12 @@ export const remove = mutation({
 		await ctx.db.delete(args.id)
 	},
 })
+
+async function requireOwnedCharacter(ctx: QueryCtx, characterId: Id<"characters">) {
+	const user = await requireIdentityUser(ctx)
+	const character = await requireDoc(ctx, "characters", characterId)
+	const room = await requireDoc(ctx, "rooms", character.roomId)
+	if (user._id !== character.playerId && user._id !== room.ownerId) {
+		throw new ConvexError("Insufficient permissions.")
+	}
+}
