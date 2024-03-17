@@ -2,11 +2,10 @@ import { dark } from "@clerk/themes"
 import "@fontsource-variable/manrope"
 import "./root.css"
 
-import { ClerkApp, ClerkErrorBoundary, UserButton, useAuth, useUser } from "@clerk/remix"
+import { ClerkApp, UserButton, useAuth, useUser } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import type { MetaFunction } from "@remix-run/node"
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
-import type { ErrorBoundaryComponent } from "@remix-run/react/dist/routeModules"
 import { ConvexReactClient, useConvexAuth, useMutation } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
 import { useEffect } from "react"
@@ -14,6 +13,7 @@ import { $path } from "remix-routes"
 import { api } from "#convex/_generated/api.js"
 import { clientEnv } from "./env.ts"
 import { theme } from "./theme.ts"
+import { Loading } from "./ui/Loading.tsx"
 
 const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
 
@@ -42,11 +42,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-export default ClerkApp(
-	function App() {
-		return (
-			<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-				<AuthSetup />
+function App() {
+	return (
+		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+			<ConvexAuthGuard>
 				<div className="p-4">
 					<header className="mb-4 flex items-center gap-3">
 						<Link to={$path("/")}>
@@ -63,28 +62,26 @@ export default ClerkApp(
 						<Outlet />
 					</div>
 				</div>
-			</ConvexProviderWithClerk>
-		)
-	},
-	{
-		appearance: {
-			baseTheme: dark,
-			variables: {
-				borderRadius: "0.25rem",
-				colorAlphaShade: "white",
-				colorBackground: theme.colors.primary[200],
-				colorText: theme.colors.primary[900],
-				colorPrimary: theme.colors.primary[600],
-				colorInputBackground: theme.colors.primary[300],
-				colorInputText: theme.colors.primary[900],
-			},
+			</ConvexAuthGuard>
+		</ConvexProviderWithClerk>
+	)
+}
+
+export default ClerkApp(App, {
+	appearance: {
+		baseTheme: dark,
+		variables: {
+			borderRadius: "0.25rem",
+			colorBackground: theme.colors.primary[200],
+			colorText: theme.colors.primary[900],
+			colorPrimary: theme.colors.primary[600],
+			colorInputBackground: theme.colors.primary[300],
+			colorInputText: theme.colors.primary[900],
 		},
 	},
-)
+})
 
-export const ErrorBoundary: ErrorBoundaryComponent = ClerkErrorBoundary()
-
-function AuthSetup() {
+function ConvexAuthGuard({ children }: { children: React.ReactNode }) {
 	const { user } = useUser()
 	const setup = useMutation(api.auth.setup)
 	const { isAuthenticated } = useConvexAuth()
@@ -93,5 +90,5 @@ function AuthSetup() {
 			setup({ name: user.username, avatarUrl: user.imageUrl })
 		}
 	}, [user?.username, user?.imageUrl, isAuthenticated, setup])
-	return null
+	return isAuthenticated ? children : <Loading fill="screen" />
 }

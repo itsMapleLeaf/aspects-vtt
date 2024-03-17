@@ -1,18 +1,23 @@
 import { twMerge } from "tailwind-merge"
 
-export function Loading({ size = "md" }: { size?: "sm" | "md" }) {
+export function Loading({ size = "md", fill }: { size?: "sm" | "md"; fill?: "parent" | "screen" }) {
 	return (
 		<div
-			className={twMerge(
-				"grid animate-spin grid-cols-2 grid-rows-2 gap-[12%] [animation-timing-function:ease]",
-				size === "sm" && "size-6",
-				size === "md" && "size-12",
-			)}
+			data-fill={fill}
+			className="flex items-center justify-center p-4 data-[fill=parent]:size-full data-[fill=screen]:h-dvh"
 		>
-			<div className="aspect-square rounded-md bg-primary-700" />
-			<div className="aspect-square rounded-md bg-primary-800" />
-			<div className="aspect-square rounded-md bg-primary-800" />
-			<div className="aspect-square rounded-md bg-primary-700" />
+			<div
+				className={twMerge(
+					"grid animate-spin grid-cols-2 grid-rows-2 gap-[12%] [animation-timing-function:ease]",
+					size === "sm" && "size-6",
+					size === "md" && "size-12",
+				)}
+			>
+				<div className="aspect-square rounded-md bg-primary-700" />
+				<div className="aspect-square rounded-md bg-primary-800" />
+				<div className="aspect-square rounded-md bg-primary-800" />
+				<div className="aspect-square rounded-md bg-primary-700" />
+			</div>
 		</div>
 	)
 }
