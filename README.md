@@ -11,6 +11,7 @@ A simple virtual tabletop for the [Aspects of Nature](https://itsmapleleaf.notio
 
 1. Clone the repository.
 1. Run `pnpm install` to install dependencies.
+1. `cp .env.example .env.local` and fill in the environment variables.
 
 ## Development (VSCode)
 
