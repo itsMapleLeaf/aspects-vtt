@@ -8,11 +8,12 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexReactClient, useConvexAuth, useMutation } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
-import { useEffect, useSyncExternalStore } from "react"
+import { useEffect } from "react"
 import { createPortal } from "react-dom"
 import { $path } from "remix-routes"
 import { api } from "#convex/_generated/api.js"
 import { expect } from "./common/expect.ts"
+import { useIsomorphicValue } from "./common/react.ts"
 import { clientEnv } from "./env.ts"
 import { theme } from "./theme.ts"
 import { Loading } from "./ui/Loading.tsx"
@@ -58,11 +59,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-	const headerRightElement = useSyncExternalStore(
-		() => () => {},
-		() => expect(document.getElementById(headerRightId), "#header-right element missing"),
-		() => undefined,
-	)
+	const headerRightElement = useIsomorphicValue({
+		client: () => {
+			return expect(document.getElementById(headerRightId), "#header-right element missing")
+		},
+	})
 	return (
 		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
 			<ConvexAuthGuard>
