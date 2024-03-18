@@ -8,9 +8,11 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexReactClient, useConvexAuth, useMutation } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
-import { useEffect } from "react"
+import { useEffect, useSyncExternalStore } from "react"
+import { createPortal } from "react-dom"
 import { $path } from "remix-routes"
 import { api } from "#convex/_generated/api.js"
+import { expect } from "./common/expect.ts"
 import { clientEnv } from "./env.ts"
 import { theme } from "./theme.ts"
 import { Loading } from "./ui/Loading.tsx"
@@ -24,6 +26,8 @@ export const meta: MetaFunction = () => [
 	{ name: "description", content: "A virtual tabletop for the Aspects of Nature tabletop RPG" },
 ]
 
+const headerRightId = "header-right"
+
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" className="text-balance break-words bg-primary-100 text-primary-900">
@@ -34,18 +38,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				{children}
-				<ScrollRestoration />
-				<Scripts />
-			</body>
-		</html>
-	)
-}
-
-function App() {
-	return (
-		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-			<ConvexAuthGuard>
 				<div className="p-4">
 					<header className="mb-4 flex items-center gap-3">
 						<Link to={$path("/")}>
@@ -54,14 +46,29 @@ function App() {
 								<span className="font-medium text-primary-800">VTT</span>
 							</h1>
 						</Link>
-						<div className="flex flex-1 justify-end gap-2">
-							<UserButton />
-						</div>
+						<div className="flex flex-1 justify-end gap-2" id={headerRightId} />
 					</header>
-					<div className="h-[calc(100dvh-theme(spacing.20))]">
-						<Outlet />
-					</div>
+					<div className="h-[calc(100dvh-theme(spacing.20))]">{children}</div>
 				</div>
+				<ScrollRestoration />
+				<Scripts />
+			</body>
+		</html>
+	)
+}
+
+function App() {
+	const headerRightElement = useSyncExternalStore(
+		() => () => {},
+		() => expect(document.getElementById(headerRightId), "#header-right element missing"),
+		() => undefined,
+	)
+	return (
+		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+			<ConvexAuthGuard>
+				<Outlet />
+				{/* this may be my most cursed usage of react ever */}
+				{headerRightElement && createPortal(<UserButton />, headerRightElement)}
 			</ConvexAuthGuard>
 		</ConvexProviderWithClerk>
 	)
