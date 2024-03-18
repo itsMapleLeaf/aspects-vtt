@@ -74,7 +74,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		<button
 			type="button"
 			disabled={pending}
-			{...withMergedClassName(props, className)}
+			{...withMergedClassName(props, "cursor-default", className)}
 			onClick={async (event) => {
 				setOnClickPending(true)
 				try {

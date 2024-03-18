@@ -2,10 +2,10 @@ import { paginationOptsValidator } from "convex/server"
 import { v } from "convex/values"
 import { roll } from "#app/common/random.js"
 import { mutation, query } from "./_generated/server.js"
+import { requireIdentityUser } from "./auth.js"
 
 export const diceRollCreatePayload = {
 	roomId: v.id("rooms"),
-	rolledBy: v.id("users"),
 	label: v.optional(v.string()),
 }
 
@@ -43,6 +43,7 @@ export const create = mutation({
 		dice: v.array(v.object({ sides: v.number() })),
 	},
 	handler: async (ctx, { dice, ...data }) => {
+		const user = await requireIdentityUser(ctx)
 		const rolledDice = dice.map((die) => ({
 			key: crypto.randomUUID(),
 			sides: die.sides,
@@ -51,6 +52,7 @@ export const create = mutation({
 		return await ctx.db.insert("diceRolls", {
 			...data,
 			dice: rolledDice,
+			rolledBy: user._id,
 		})
 	},
 })

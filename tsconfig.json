@@ -8,7 +8,6 @@
 		"lib": ["DOM", "DOM.Iterable", "ES2023"],
 		"module": "Preserve",
 		"noEmit": true,
-		"noErrorTruncation": true,
 		"noUncheckedIndexedAccess": true,
 		"skipLibCheck": true,
 		"strict": true,

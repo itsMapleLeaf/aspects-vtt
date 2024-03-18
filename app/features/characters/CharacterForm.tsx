@@ -1,64 +1,196 @@
 import { useConvex, useMutation } from "convex/react"
+import type { FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { range } from "#app/common/range.js"
+import { startCase } from "#app/common/string.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
+import { FormField } from "#app/ui/FormField.js"
+import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
+import { Select } from "#app/ui/Select.js"
 import { api } from "#convex/_generated/api.js"
-import type { Doc } from "#convex/_generated/dataModel.js"
-import type { CharacterField } from "#convex/characters.js"
+import { diceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
-import { CHARACTER_FIELDS, CharacterFormField } from "./characterFields.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 
-export function CharacterForm({ character }: { character: Doc<"characters"> }) {
-	const update = useMutation(api.characters.update)
-	const createToken = useMutation(api.mapTokens.create)
+type Character = NonNullable<
+	| FunctionReturnType<typeof api.characters.list>[number]
+	| FunctionReturnType<typeof api.characters.getPlayerCharacter>
+>
 
-	const submit = async (fields: CharacterField[]) => {
-		await update({
-			id: character._id,
-			fields,
-		})
+export function CharacterForm(props: {
+	character: Character
+}) {
+	const room = useRoom()
+	const updateCharacter = useMutation(api.characters.update)
+	const [updates, setUpdates] = useState<Partial<Character>>()
+	const character = { ...props.character, ...updates }
+	const createDiceRoll = useMutation(api.diceRolls.create)
+
+	useEffect(
+		function syncCharacter() {
+			if (!updates) return
+
+			let cancelled = false
+			const id = setTimeout(async () => {
+				await updateCharacter({ ...updates, id: character._id })
+				if (!cancelled) setUpdates(undefined)
+			}, 300)
+
+			return () => {
+				clearTimeout(id)
+				cancelled = true
+			}
+		},
+		[updates, character._id, updateCharacter],
+	)
+
+	const updateValues = (values: Partial<typeof character>) => {
+		setUpdates((prev) => ({ ...prev, ...values }))
+	}
+
+	type MatchKeys<Source, Value> = keyof {
+		[K in keyof Source as Value extends Source[K] ? K : never]: K
+	}
+
+	function renderTextField(key: MatchKeys<Character, string>, label = startCase(key)) {
+		return (
+			<FormField label={label} htmlFor={key}>
+				<Input
+					id={key}
+					value={character[key]}
+					onChange={(event) => updateValues({ [key]: event.target.value })}
+				/>
+			</FormField>
+		)
+	}
+
+	function renderMultilineTextField(key: MatchKeys<Character, string>, label = startCase(key)) {
+		return (
+			<FormField label={label} htmlFor={key}>
+				<Input
+					id={key}
+					value={character[key]}
+					multiline
+					onChange={(event) => updateValues({ [key]: event.target.value })}
+				/>
+			</FormField>
+		)
+	}
+
+	function renderNumberField(key: MatchKeys<Character, number>, label = startCase(key)) {
+		return (
+			<FormField label={label} htmlFor={key}>
+				<Input
+					id={key}
+					type="number"
+					value={character[key]}
+					onChange={(event) => updateValues({ [key]: event.target.valueAsNumber })}
+				/>
+			</FormField>
+		)
+	}
+
+	function renderDiceField(key: MatchKeys<Character, number>, label = startCase(key)) {
+		return (
+			<FormField label={label} htmlFor={key}>
+				<div className="flex gap-2">
+					<Select
+						id={key}
+						options={diceKinds.map((kind) => ({
+							label: `d${kind.sides}`,
+							value: kind.sides,
+						}))}
+						value={character[key]}
+						onChange={(value) => updateValues({ [key]: value })}
+						className="flex-1"
+					/>
+					<Button
+						icon={<Lucide.Dice3 />}
+						title="Flat Roll"
+						onClick={async () => {
+							await createDiceRoll({
+								roomId: room._id,
+								label: `${character.name}: ${label} (Flat)`,
+								dice: [{ sides: character[key] }],
+							})
+						}}
+					/>
+					<Button
+						icon={<Lucide.Dices />}
+						title="Roll"
+						onClick={async () => {
+							await createDiceRoll({
+								roomId: room._id,
+								label: `${character.name}: ${label}`,
+								dice: [
+									{ sides: character[key] },
+									...range.array(character.fatigue).map(() => ({ sides: 6 })),
+								],
+							})
+						}}
+					/>
+				</div>
+			</FormField>
+		)
 	}
 
 	return (
-		<div className="flex h-full min-h-0 flex-1 flex-col gap-2 overflow-y-auto *:shrink-0">
+		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
+			<div className="flex gap-2 *:flex-1">
+				{renderTextField("name")}
+				{renderTextField("pronouns")}
+			</div>
+
+			{"playerId" in character && room.players && (
+				<FormField label="Player" htmlFor="player">
+					<Select
+						options={[
+							{ label: "None", value: null },
+							...room.players.map((player) => ({ label: player.name, value: player._id })),
+						]}
+						value={character.playerId}
+						onChange={(value) => {
+							updateValues({ playerId: value })
+						}}
+					/>
+				</FormField>
+			)}
+
 			<ImageInput character={character} />
-			<Button
-				icon={<Lucide.Box />}
-				text="Add Token"
-				className="self-start"
-				onClick={async () => {
-					await createToken({
-						roomId: character.roomId,
-						x: 10,
-						y: 10,
-						characterId: character._id,
-						overrides: character.fields,
-					})
-				}}
-			/>
-			{CHARACTER_FIELDS.map((field) => (
-				<CharacterFormField
-					key={field.label}
-					{...field}
-					fields={character.fields}
-					onSubmit={submit}
-				/>
-			))}
+
+			<div className="flex gap-2 *:flex-1">
+				{renderNumberField("damage")}
+				{renderNumberField("fatigue")}
+				{renderNumberField("currency")}
+			</div>
+
+			{renderDiceField("strength")}
+			{renderDiceField("sense")}
+			{renderDiceField("mobility")}
+			{renderDiceField("intellect")}
+			{renderDiceField("wit")}
+
+			{room.isOwner
+				? renderMultilineTextField("ownerNotes", "Notes")
+				: renderMultilineTextField("playerNotes", "Notes")}
 		</div>
 	)
 }
 
-function ImageInput({ character }: { character: Doc<"characters"> }) {
-	const updateCharacter = useMutation(api.characters.update)
+function ImageInput({
+	character,
+}: { character: NonNullable<FunctionReturnType<typeof api.characters.getPlayerCharacter>> }) {
+	const update = useMutation(api.characters.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
 	const convex = useConvex()
 
 	async function upload(file: File) {
 		setStatus("uploading")
 		try {
-			await updateCharacter({
+			await update({
 				id: character._id,
 				imageId: await uploadImage(file, convex),
 			})
@@ -97,7 +229,7 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 					icon={<Lucide.Trash />}
 					title="Remove image"
 					onClick={async () => {
-						await updateCharacter({ id: character._id, imageId: null })
+						await update({ id: character._id, imageId: null })
 					}}
 					className="absolute top-0 right-0 m-2"
 				/>

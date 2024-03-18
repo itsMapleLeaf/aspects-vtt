@@ -2,7 +2,7 @@ import { type ClassNameValue, twMerge } from "tailwind-merge"
 
 export function withMergedClassName<T extends { className?: ClassNameValue }>(
 	props: T,
-	className?: ClassNameValue,
+	...classes: ClassNameValue[]
 ) {
-	return { ...props, className: twMerge(className, props.className) }
+	return { ...props, className: twMerge(...classes, props.className) }
 }

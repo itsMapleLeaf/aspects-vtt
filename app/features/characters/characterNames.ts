@@ -1,4 +1,4 @@
-export const characterNames = [
+export const characterNames: readonly [string, ...string[]] = [
 	// male
 	"Adrian",
 	"Alexander",

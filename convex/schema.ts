@@ -1,7 +1,8 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
-import { characterFieldValidator } from "./characters.ts"
+import { characterProperties } from "./characters.ts"
 import { diceRollCreatePayload } from "./diceRolls.ts"
+import { nullish } from "./helpers.ts"
 
 export default defineSchema({
 	users: defineTable({
@@ -15,12 +16,19 @@ export default defineSchema({
 		slug: v.string(),
 		ownerId: v.id("users"),
 		mapImageId: v.optional(v.id("_storage")),
+		players: v.array(
+			v.object({
+				userId: v.id("users"),
+				characterId: nullish(v.id("characters")),
+			}),
+		),
 	})
 		.index("by_slug", ["slug"])
 		.index("by_owner", ["ownerId"]),
 
 	diceRolls: defineTable({
 		...diceRollCreatePayload,
+		rolledBy: v.id("users"),
 		dice: v.array(
 			v.object({
 				key: v.string(),
@@ -32,16 +40,6 @@ export default defineSchema({
 
 	characters: defineTable({
 		roomId: v.id("rooms"),
-		playerId: v.optional(v.id("users")),
-		imageId: v.optional(v.union(v.id("_storage"), v.null())),
-		fields: v.optional(v.array(characterFieldValidator)),
-	}).index("by_room", ["roomId"]),
-
-	mapTokens: defineTable({
-		roomId: v.id("rooms"),
-		x: v.optional(v.number()),
-		y: v.optional(v.number()),
-		characterId: v.id("characters"),
-		overrides: v.optional(v.array(characterFieldValidator)),
+		...characterProperties,
 	}).index("by_room", ["roomId"]),
 })

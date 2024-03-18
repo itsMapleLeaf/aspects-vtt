@@ -13,14 +13,10 @@ export function FormField({
 	children: React.ReactNode
 }) {
 	return (
-		<div className={twMerge("flex flex-col gap-1", className)}>
-			{htmlFor ? (
-				<label htmlFor={htmlFor} className="select-none font-medium text-sm/4">
-					{label}
-				</label>
-			) : (
-				<p className="select-none font-medium text-sm/4">{label}</p>
-			)}
+		<div className={twMerge("flex flex-col", className)}>
+			<div className="select-none font-bold text-sm/6">
+				{htmlFor ? <label htmlFor={htmlFor}>{label}</label> : label}
+			</div>
 			{children}
 		</div>
 	)

@@ -1,8 +1,8 @@
 import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
 import { useConvex, useMutation, useQuery } from "convex/react"
+import type { FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
 import { type SetStateAction, useCallback, useEffect, useReducer, useRef, useState } from "react"
-import { createPortal } from "react-dom"
 import { expect } from "#app/common/expect.ts"
 import type { Nullish } from "#app/common/types.ts"
 import { Vector } from "#app/common/vector.ts"
@@ -11,8 +11,7 @@ import { Button } from "#app/ui/Button.tsx"
 import { Loading } from "#app/ui/Loading.js"
 import { panel } from "#app/ui/styles.ts"
 import { api } from "#convex/_generated/api.js"
-import type { Doc, Id } from "#convex/_generated/dataModel.js"
-import { CHARACTER_FIELDS, CharacterFormField } from "../characters/characterFields.tsx"
+import type { Id } from "#convex/_generated/dataModel.js"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
@@ -23,28 +22,15 @@ const leftMouseButton = 1
 const rightMouseButton = 2
 const middleMouseButton = 4
 
-export function TokenMap() {
+export function TokenMap({
+	selectedCharacterId,
+	onSelectedCharacterChange,
+}: {
+	selectedCharacterId?: Id<"characters">
+	onSelectedCharacterChange?: (id: Id<"characters">) => void
+}) {
 	const room = useRoom()
-	const tokens = useQuery(api.mapTokens.list, { roomId: room._id }) ?? []
-	const [selectedTokenId, setSelectedTokenId] = useState<Id<"mapTokens">>()
-	const removeToken = useMutation(api.mapTokens.remove)
-
-	useWindowEvent("keydown", (event) => {
-		if (document.activeElement instanceof HTMLInputElement) return
-		if (document.activeElement instanceof HTMLTextAreaElement) return
-
-		if (event.key === "Escape") {
-			event.preventDefault()
-			setSelectedTokenId(undefined)
-		}
-
-		if (event.key === "Delete") {
-			event.preventDefault()
-			if (selectedTokenId) {
-				removeToken({ id: selectedTokenId })
-			}
-		}
-	})
+	const characters = useQuery(api.characters.list, { roomId: room._id }) ?? []
 
 	return (
 		<Viewport
@@ -56,16 +42,14 @@ export function TokenMap() {
 					/>
 				)
 			}
-			onBackdropClick={() => setSelectedTokenId(undefined)}
 		>
-			{tokens.map((token) => (
+			{characters.map((character) => (
 				<Token
-					key={token._id}
-					token={token}
-					character={token.character}
-					selected={selectedTokenId === token._id}
+					key={character._id}
+					character={character}
+					selected={selectedCharacterId === character._id}
 					onSelect={() => {
-						setSelectedTokenId(token._id)
+						onSelectedCharacterChange?.(character._id)
 					}}
 				/>
 			))}
@@ -188,48 +172,45 @@ function BackgroundButton() {
 }
 
 function Token({
-	token,
 	character,
 	selected,
 	onSelect,
 }: {
-	token: Doc<"mapTokens">
-	character: Doc<"characters">
+	character: FunctionReturnType<typeof api.characters.list>[number]
 	selected: boolean
 	onSelect: () => void
 }) {
-	const removeToken = useMutation(api.mapTokens.remove)
+	const room = useRoom()
 
-	const updateToken = useMutation(api.mapTokens.update).withOptimisticUpdate((store, args) => {
-		const tokens = store.getQuery(api.mapTokens.list, { roomId: token.roomId })
-		if (!tokens) return
+	const updateCharacter = useMutation(api.characters.update).withOptimisticUpdate((store, args) => {
+		const characters = store.getQuery(api.characters.list, { roomId: room._id })
+		if (!characters) return
 		store.setQuery(
-			api.mapTokens.list,
-			{ roomId: token.roomId },
-			tokens.map((token) =>
-				token._id === args.id
-					? { ...token, ...args, x: args.x ?? token.x, y: args.y ?? token.y }
-					: token,
+			api.characters.list,
+			{ roomId: room._id },
+			characters.map((c) =>
+				c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? { x: 0, y: 0 } } : c,
 			),
 		)
 	})
 
 	const ref = useRef<HTMLButtonElement>(null)
-
 	const drag = useDrag(ref, {
 		onStart: () => onSelect(),
 		onFinish: ({ distance }) => {
-			updateToken({
-				id: token._id,
-				...Vector.from(token?.x ?? 0, token?.y ?? 0)
-					.plus(distance.dividedBy(cellSize))
-					.clamp(Vector.zero, mapSize.minus(Vector.one)).rounded.xy,
-			})
+			if (selected) {
+				updateCharacter({
+					id: character._id,
+					tokenPosition: Vector.from(character.tokenPosition)
+						.plus(distance.dividedBy(cellSize))
+						.clamp(Vector.zero, mapSize.minus(1)).rounded.xy,
+				})
+			}
 		},
 	})
 
-	let visualPosition = Vector.from(token?.x ?? 0, token?.y ?? 0).times(cellSize)
-	if (drag) {
+	let visualPosition = Vector.from(character.tokenPosition).times(cellSize)
+	if (drag && selected) {
 		visualPosition = visualPosition.plus(drag.distance)
 	}
 
@@ -246,29 +227,8 @@ function Token({
 		whileElementsMounted: (...args) => autoUpdate(...args, { animationFrame: true }),
 	})
 
-	const values = new Map(
-		character.fields?.concat(token.overrides ?? []).map((field) => [field.key, field.value]),
-	)
-
-	let barFieldDisplay
-	for (const field of CHARACTER_FIELDS) {
-		if (field.display?.type === "bar") {
-			barFieldDisplay = field.display
-			break
-		}
-	}
-
-	let tagFieldDisplay
-	for (const field of CHARACTER_FIELDS) {
-		if (field.display?.type === "tag") {
-			tagFieldDisplay = field.display
-			break
-		}
-	}
-
 	return (
 		<div
-			key={token._id}
 			className="absolute top-0 left-0"
 			style={{
 				width: cellSize,
@@ -290,50 +250,18 @@ function Token({
 					/>
 				</button>
 
-				{tagFieldDisplay && (
-					<p className="-translate-x-1/2 absolute top-full left-1/2 w-max max-w-48 translate-y-2 text-balance rounded bg-primary-100/75 p-1.5 leading-none opacity-0 empty:hidden [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100">
-						{tagFieldDisplay.getText(values)}
-					</p>
-				)}
+				<p className="-translate-x-1/2 pointer-events-none absolute top-full left-1/2 w-max max-w-48 translate-y-2 text-balance rounded bg-primary-100/75 p-1.5 leading-none opacity-0 empty:hidden [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100">
+					{character.name}
+				</p>
 
-				{barFieldDisplay && (
-					<div className="-translate-x-1/2 -translate-y-2 absolute bottom-full left-1/2 z-10 h-2.5 w-10 rounded border border-red-500 p-px opacity-50">
-						<div
-							className="h-full origin-left rounded-sm bg-red-600"
-							style={{
-								scale: `${barFieldDisplay.getValue(values) / barFieldDisplay.getMax(values)} 1`,
-							}}
-						/>
-					</div>
-				)}
-
-				{selected &&
-					!drag &&
-					createPortal(
-						<div
-							ref={refs.setFloating}
-							style={floatingStyles}
-							className={panel("flex w-64 flex-col gap-3 bg-primary-100 p-2 shadow-md")}
-						>
-							{CHARACTER_FIELDS.map((field) => (
-								<CharacterFormField
-									{...field}
-									key={field.label}
-									fields={character.fields?.concat(token.overrides ?? [])}
-									onSubmit={async (overrides) => {
-										await updateToken({ id: token._id, overrides })
-									}}
-								/>
-							))}
-							<Button
-								icon={<Lucide.Trash />}
-								text="Delete"
-								className="self-start"
-								onClick={() => removeToken({ id: token._id })}
-							/>
-						</div>,
-						document.body,
-					)}
+				<div className="-translate-x-1/2 -translate-y-2 pointer-events-none absolute bottom-full left-1/2 z-10 h-2.5 w-10 rounded border border-red-500 p-px opacity-50">
+					<div
+						className="h-full origin-left rounded-sm bg-red-600"
+						style={{
+							scale: `${1 - character.damage / (20 + character.strength)} 1`,
+						}}
+					/>
+				</div>
 			</div>
 		</div>
 	)

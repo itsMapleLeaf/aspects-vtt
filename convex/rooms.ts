@@ -1,9 +1,11 @@
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
+import { raise } from "#app/common/errors.js"
 import { pick } from "#app/common/object.js"
 import type { Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { getIdentityUser, requireIdentityUser } from "./auth.js"
+import { requireDoc } from "./helpers.js"
 import { replaceFile } from "./storage.js"
 
 export const get = query({
@@ -15,9 +17,16 @@ export const get = query({
 		const room = await getRoomBySlug(ctx, args)
 		if (!room) return null
 
+		const isOwner = room.ownerId === user._id
+
+		const players = isOwner
+			? await Promise.all(room.players.map((player) => ctx.db.get(player.userId)))
+			: undefined
+
 		return {
-			...pick(room, ["_id", "_creationTime", "name", "slug", "mapImageId"]),
-			isOwner: room.ownerId === user._id,
+			...pick(room, ["_id", "_creationTime", "name", "mapImageId"]),
+			isOwner,
+			players: players?.filter(Boolean).map((player) => pick(player, ["_id", "name", "avatarUrl"])),
 		}
 	},
 })
@@ -47,6 +56,7 @@ export const create = mutation({
 			name: slug,
 			slug,
 			ownerId: user._id,
+			players: [],
 		})
 
 		return { slug }
@@ -70,6 +80,23 @@ export const remove = mutation({
 	args: { id: v.id("rooms") },
 	handler: async (ctx, args) => {
 		return await ctx.db.delete(args.id)
+	},
+})
+
+export const join = mutation({
+	args: {
+		id: v.id("rooms"),
+	},
+	handler: async (ctx, args) => {
+		const user = await getIdentityUser(ctx)
+		if (!user) return
+
+		const room = await requireDoc(ctx, "rooms", args.id)
+		await ctx.db.patch(args.id, {
+			players: room.players.some((player) => player.userId === user._id)
+				? undefined
+				: [...room.players, { userId: user._id }],
+		})
 	},
 })
 
@@ -98,11 +125,15 @@ export async function requireRoom(ctx: QueryCtx, roomId: Id<"rooms">) {
 	return room
 }
 
-export async function requireOwnedRoom(ctx: QueryCtx, roomId: Id<"rooms">) {
-	const user = await requireIdentityUser(ctx)
-	const room = await requireRoom(ctx, roomId)
-	if (room.ownerId !== user._id) {
-		throw new ConvexError("Room not owned by user.")
+export async function getOwnedRoom(ctx: QueryCtx, roomId: Id<"rooms">) {
+	const user = await getIdentityUser(ctx)
+	const room = await ctx.db.get(roomId)
+	if (room && user && room.ownerId === user._id) {
+		return room
 	}
-	return room
+}
+
+export async function requireOwnedRoom(ctx: QueryCtx, roomId: Id<"rooms">) {
+	const room = await getOwnedRoom(ctx, roomId)
+	return room ?? raise(new ConvexError("Room not owned by user."))
 }

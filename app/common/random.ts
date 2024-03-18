@@ -7,6 +7,8 @@ export function roll(sides: number) {
 	return randomInt(1, sides)
 }
 
-export function randomItem<T>(array: readonly T[]) {
-	return array[randomInt(array.length - 1)]
+export function randomItem<const T extends readonly unknown[]>(items: T) {
+	return items[randomInt(items.length - 1)] as T extends readonly [unknown, ...unknown[]]
+		? T[number]
+		: T[number] | undefined
 }

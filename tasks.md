@@ -33,33 +33,34 @@
 ## priority
 
 - [x] simplify images
-- [ ] hardcode the character data schema
-- [ ] toggleable right side panel
+- [x] hardcode the character data schema
+- [x] make characters and tokens equivalent
+- [ ] token deselection to hide side panel
 - room ownership
   - [x] set room owner on creation
   - only room owner can:
     - [x] delete room
     - [ ] change room background
     - [x] add or remove characters
-    - [ ] add or remove tokens
     - [ ] show/hide tokens
 - players
-  - [ ] add `players` property to room
-  - [ ] when a player joins a room, add their user ID to the list
-  - [ ] owner-only dropdown to assign character to player
-  - [ ] player only sees their own character
-  - [ ] player _cannot_ add or remove their own token
-  - [ ] player can only control their own token
+  - [x] add `players` property to room
+  - [x] when a player joins a room, add their user ID to the list
+  - [x] owner-only dropdown to assign character to player
+  - [x] player only sees their own character
+  - [x] player _cannot_ add or remove their own token
+  - [x] player can only control their own token
+  - [x] notes field
 - tokens
-  - [ ] fix name tag blocking clicks
+  - [x] fix name tag blocking clicks
   - [ ] non-character tokens
-  - [ ] notes field
 - map
   - [ ] conform to background image size
   - [ ] configure cell size in pixels
   - [ ] zooming
 - characters
-  - [ ] pronouns field
+  - [x] pronouns field
+  - [ ] duplicate button
 
 ## features
 
