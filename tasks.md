@@ -48,12 +48,14 @@
   - [ ] player only sees their own character
   - [ ] player _cannot_ add or remove their own token
   - [ ] player can only control their own token
-- token grid
+- tokens
+  - [ ] fix name tag blocking clicks
+  - [ ] non-character tokens
+  - [ ] notes field
+- map
   - [ ] conform to background image size
   - [ ] configure cell size in pixels
   - [ ] zooming
-  - [ ] fix token name tag blocking clicks
-  - [ ] non-character tokens
 - characters
   - [ ] pronouns field
 
