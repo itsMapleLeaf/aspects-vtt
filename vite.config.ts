@@ -2,6 +2,7 @@ import { vitePlugin as remix } from "@remix-run/dev"
 import { installGlobals } from "@remix-run/node"
 import { vercelPreset } from "@vercel/remix/vite"
 import { remixRoutes } from "remix-routes/vite.js"
+import { visualizer } from "rollup-plugin-visualizer"
 import { defineConfig } from "vite"
 import inspect from "vite-plugin-inspect"
 
@@ -19,5 +20,6 @@ export default defineConfig({
 		}),
 		remixRoutes(),
 		inspect(),
+		visualizer({ emitFile: true, filename: "build/stats.html" }),
 	],
 })
