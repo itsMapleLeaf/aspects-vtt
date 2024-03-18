@@ -5,6 +5,7 @@ import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { requireIdentityUser } from "./auth.js"
 import { requireDoc } from "./helpers.js"
 import { requireOwnedRoom } from "./rooms.js"
+import { replaceFile } from "./storage.js"
 
 const characterFieldValueValidator = v.union(v.string(), v.number(), v.boolean())
 export type CharacterFieldValue = Infer<typeof characterFieldValueValidator>
@@ -52,7 +53,7 @@ export const update = mutation({
 	args: {
 		id: v.id("characters"),
 		playerId: v.optional(v.id("users")),
-		imageId: v.optional(v.id("images")),
+		imageId: v.optional(v.union(v.id("_storage"), v.null())),
 		fields: v.optional(
 			v.array(
 				v.object({
@@ -62,15 +63,16 @@ export const update = mutation({
 			),
 		),
 	},
-	handler: async (ctx, { id, ...data }) => {
-		if (data.playerId) {
-			const character = await requireDoc(ctx, "characters", id)
+	handler: async (ctx, { id, ...args }) => {
+		const character = await requireDoc(ctx, "characters", id)
+		if (args.playerId) {
 			await requireOwnedRoom(ctx, character.roomId)
 		}
-		if (data.imageId || data.fields) {
+		if (args.imageId || args.fields) {
 			await requireOwnedCharacter(ctx, id)
 		}
-		await ctx.db.patch(id, data)
+		await replaceFile(ctx, character.imageId, args.imageId)
+		await ctx.db.patch(id, args)
 	},
 })
 

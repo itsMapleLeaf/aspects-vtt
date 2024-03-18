@@ -51,7 +51,7 @@ export function TokenMap() {
 			background={
 				room.mapImageId && (
 					<UploadedImage
-						imageId={room.mapImageId}
+						id={room.mapImageId}
 						className="absolute inset-0 size-full object-contain object-left-top brightness-75"
 					/>
 				)
@@ -175,7 +175,7 @@ function BackgroundButton() {
 
 					setIsUploading(true)
 					try {
-						const imageId = await uploadImage(file, room.mapImageId, convex)
+						const imageId = await uploadImage(file, convex)
 						await updateRoom({ id: room._id, mapImageId: imageId })
 					} finally {
 						setIsUploading(false)
@@ -283,7 +283,7 @@ function Token({
 			>
 				<button type="button" className="size-full" ref={ref}>
 					{character.imageId ? (
-						<UploadedImage imageId={character.imageId} className="size-full" draggable={false} />
+						<UploadedImage id={character.imageId} className="size-full" draggable={false} />
 					) : (
 						<Lucide.Ghost className="size-full" />
 					)}

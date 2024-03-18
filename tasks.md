@@ -32,6 +32,8 @@
 
 ## priority
 
+- [x] simplify images
+- [ ] hardcode the character data schema
 - [ ] toggleable right side panel
 - room ownership
   - [x] set room owner on creation

@@ -14,7 +14,7 @@ export default defineSchema({
 		name: v.string(),
 		slug: v.string(),
 		ownerId: v.id("users"),
-		mapImageId: v.optional(v.id("images")),
+		mapImageId: v.optional(v.id("_storage")),
 	})
 		.index("by_slug", ["slug"])
 		.index("by_owner", ["ownerId"]),
@@ -33,7 +33,7 @@ export default defineSchema({
 	characters: defineTable({
 		roomId: v.id("rooms"),
 		playerId: v.optional(v.id("users")),
-		imageId: v.optional(v.id("images")),
+		imageId: v.optional(v.union(v.id("_storage"), v.null())),
 		fields: v.optional(v.array(characterFieldValidator)),
 	}).index("by_room", ["roomId"]),
 
@@ -44,9 +44,4 @@ export default defineSchema({
 		characterId: v.id("characters"),
 		overrides: v.optional(v.array(characterFieldValidator)),
 	}).index("by_room", ["roomId"]),
-
-	images: defineTable({
-		storageId: v.id("_storage"),
-		mimeType: v.string(),
-	}).index("by_storage_id", ["storageId"]),
 })

@@ -1,29 +1,28 @@
-import { useQuery } from "convex/react"
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import type { StrictOmit } from "#app/common/types.ts"
 import { clientEnv } from "#app/env.ts"
 import { withMergedClassName } from "#app/ui/withMergedClassName.ts"
-import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 
+function getImageUrl(id: Id<"_storage">) {
+	const url = new URL("/image", clientEnv.VITE_CONVEX_URL.replace(/\.cloud[\/]*$/, ".site"))
+	url.searchParams.set("id", id)
+	return url
+}
+
 export function UploadedImage({
-	imageId,
-	fallback,
-	...props
-}: { imageId: Id<"images">; fallback?: ReactNode } & StrictOmit<
-	ComponentPropsWithoutRef<"img">,
-	"src"
->) {
-	const convexUrl = new URL(clientEnv.VITE_CONVEX_URL)
-	const convexSiteUrl = convexUrl.origin.replace(/cloud[\/]*$/, "site")
-	const image = useQuery(api.images.get, { id: imageId })
-	return (
-		image?.storageId && (
+		id,
+		fallback,
+		...props
+	}: { id: Id<"_storage">; fallback?: ReactNode } & StrictOmit<
+		ComponentPropsWithoutRef<"img">,
+		"src"
+	>) {
+		return (
 			<img
-				src={`${convexSiteUrl}/image?storageId=${image.storageId}`}
+				src={getImageUrl(id).href}
 				{...withMergedClassName(props, "object-contain")}
 				alt={props.alt ?? ""}
 			/>
 		)
-	)
-}
+	}

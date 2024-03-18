@@ -19,7 +19,6 @@ import type * as characters from "../characters.js";
 import type * as diceRolls from "../diceRolls.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
-import type * as images from "../images.js";
 import type * as mapTokens from "../mapTokens.js";
 import type * as rooms from "../rooms.js";
 import type * as storage from "../storage.js";
@@ -38,7 +37,6 @@ declare const fullApi: ApiFromModules<{
   diceRolls: typeof diceRolls;
   helpers: typeof helpers;
   http: typeof http;
-  images: typeof images;
   mapTokens: typeof mapTokens;
   rooms: typeof rooms;
   storage: typeof storage;

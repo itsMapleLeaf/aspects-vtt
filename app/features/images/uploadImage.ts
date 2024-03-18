@@ -7,11 +7,7 @@ const uploadResultSchema = z.object({
 	storageId: z.string().refine((_value): _value is Id<"_storage"> => true),
 })
 
-export async function uploadImage(
-	file: File,
-	imageId: Id<"images"> | undefined,
-	convex: ConvexReactClient,
-): Promise<Id<"images">> {
+export async function uploadImage(file: File, convex: ConvexReactClient): Promise<Id<"_storage">> {
 	const url = await convex.mutation(api.storage.getUploadUrl)
 
 	const response = await fetch(url, {
@@ -21,19 +17,5 @@ export async function uploadImage(
 	})
 
 	const result = uploadResultSchema.parse(await response.json())
-
-	if (imageId) {
-		await convex.mutation(api.images.update, {
-			id: imageId,
-			storageId: result.storageId,
-			mimeType: file.type,
-		})
-	} else {
-		imageId = await convex.mutation(api.images.create, {
-			storageId: result.storageId,
-			mimeType: file.type,
-		})
-	}
-
-	return imageId
+	return result.storageId
 }

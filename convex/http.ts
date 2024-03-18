@@ -10,9 +10,9 @@ http.route({
 	method: "GET",
 	handler: httpAction(async (ctx, request) => {
 		const url = new URL(request.url)
-		const storageId = url.searchParams.get("storageId")
+		const storageId = url.searchParams.get("id")
 		if (!storageId) {
-			return new Response(`Missing required query parameter "storageId"`, { status: 400 })
+			return new Response(`Missing required query parameter "id"`, { status: 400 })
 		}
 
 		const file = await ctx.storage.get(storageId as Id<"_storage">)
@@ -20,18 +20,15 @@ http.route({
 			return new Response(`File with id "${storageId}" not found`, { status: 404 })
 		}
 
-		const image = await ctx.runQuery(internal.images.getByStorageId, {
+		const metadata = await ctx.runQuery(internal.storage.getMetadata, {
 			storageId: storageId as Id<"_storage">,
 		})
 
 		const headers = new Headers()
-		if (image?.mimeType) {
-			headers.set("Content-Type", image.mimeType)
+		if (metadata?.contentType) {
+			headers.set("Content-Type", metadata.contentType)
 		}
-
-		return new Response(file, {
-			headers,
-		})
+		return new Response(file, { headers })
 	}),
 })
 

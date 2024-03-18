@@ -5,7 +5,7 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
 import { Loading } from "#app/ui/Loading.tsx"
 import { api } from "#convex/_generated/api.js"
-import type { Doc, Id } from "#convex/_generated/dataModel.js"
+import type { Doc } from "#convex/_generated/dataModel.js"
 import type { CharacterField } from "#convex/characters.js"
 import { uploadImage } from "../images/uploadImage.ts"
 import { CHARACTER_FIELDS, CharacterFormField } from "./characterFields.tsx"
@@ -51,7 +51,6 @@ export function CharacterForm({ character }: { character: Doc<"characters"> }) {
 }
 
 function ImageInput({ character }: { character: Doc<"characters"> }) {
-	const removeImage = useMutation(api.images.remove)
 	const updateCharacter = useMutation(api.characters.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
 	const convex = useConvex()
@@ -61,7 +60,7 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 		try {
 			await updateCharacter({
 				id: character._id,
-				imageId: await uploadImage(file, character.imageId, convex),
+				imageId: await uploadImage(file, convex),
 			})
 			setStatus("idle")
 		} catch (error) {
@@ -74,7 +73,7 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 		<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-primary-300 border-dashed bg-primary-200/50 transition hover:bg-primary-200/75">
 			{status === "idle" &&
 				(character.imageId ? (
-					<UploadedImage imageId={character.imageId} className="size-full" />
+					<UploadedImage id={character.imageId} className="size-full" />
 				) : (
 					<Lucide.ImagePlus className="size-full max-w-24 text-primary-400" />
 				))}
@@ -86,10 +85,10 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 				accept="image/*"
 				onChange={(event) => {
 					const file = event.target.files?.[0]
+					event.target.value = ""
 					if (file) {
 						upload(file)
 					}
-					event.target.value = ""
 				}}
 			/>
 			{character.imageId && (
@@ -97,8 +96,7 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 					icon={<Lucide.Trash />}
 					title="Remove image"
 					onClick={async () => {
-						await updateCharacter({ id: character._id, imageId: undefined })
-						await removeImage({ id: character.imageId as Id<"images"> })
+						await updateCharacter({ id: character._id, imageId: null })
 					}}
 					className="absolute top-0 right-0 m-2"
 				/>

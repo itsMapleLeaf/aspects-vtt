@@ -1,8 +1,10 @@
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
+import { pick } from "#app/common/object.js"
 import type { Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { getIdentityUser, requireIdentityUser } from "./auth.js"
+import { replaceFile } from "./storage.js"
 
 export const get = query({
 	args: { slug: v.string() },
@@ -14,11 +16,7 @@ export const get = query({
 		if (!room) return null
 
 		return {
-			_id: room._id,
-			_creationTime: room._creationTime,
-			name: room.name,
-			slug: room.slug,
-			mapImageId: room.mapImageId,
+			...pick(room, ["_id", "_creationTime", "name", "slug", "mapImageId"]),
 			isOwner: room.ownerId === user._id,
 		}
 	},
@@ -59,9 +57,11 @@ export const update = mutation({
 	args: {
 		id: v.id("rooms"),
 		name: v.optional(v.string()),
-		mapImageId: v.optional(v.id("images")),
+		mapImageId: v.optional(v.id("_storage")),
 	},
 	handler: async (ctx, { id, ...args }) => {
+		const room = await requireOwnedRoom(ctx, id)
+		await replaceFile(ctx, room.mapImageId, args.mapImageId)
 		return await ctx.db.patch(id, args)
 	},
 })
