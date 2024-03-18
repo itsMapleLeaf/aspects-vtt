@@ -6,7 +6,7 @@ import { $path } from "remix-routes"
 export async function loader(args: LoaderFunctionArgs) {
 	const auth = await getAuth(args)
 	if (!auth.userId) {
-		return redirect($path("/sign-up"))
+		return redirect($path("/sign-in/*", { "*": "" }))
 	}
 	return {}
 }
