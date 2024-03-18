@@ -15,9 +15,14 @@ export default function RoomRoute() {
 			<Loading />
 		</div>
 	) : room === null ? (
-		<main className="flex flex-col gap-4 p-4">
+		<main className="flex flex-col gap-4">
 			<p>Room not found.</p>
-			<Button text="Return to home" icon={<Lucide.DoorOpen />} element={<Link to={$path("/")} />} />
+			<Button
+				text="Return to home"
+				icon={<Lucide.DoorOpen />}
+				element={<Link to={$path("/")} />}
+				className="self-start"
+			/>
 		</main>
 	) : (
 		<RoomProvider room={room}>
