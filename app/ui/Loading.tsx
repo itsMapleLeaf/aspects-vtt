@@ -1,10 +1,17 @@
 import { twMerge } from "tailwind-merge"
 
-export function Loading({ size = "md", fill }: { size?: "sm" | "md"; fill?: "parent" | "screen" }) {
+export function Loading({
+	size = "md",
+	fill,
+	className,
+}: { size?: "sm" | "md"; fill?: "parent" | "screen"; className?: string }) {
 	return (
 		<div
 			data-fill={fill}
-			className="flex items-center justify-center p-4 data-[fill=parent]:size-full data-[fill=screen]:h-dvh"
+			className={twMerge(
+				"flex items-center justify-center p-4 data-[fill=parent]:size-full data-[fill=screen]:h-dvh",
+				className,
+			)}
 		>
 			<div
 				className={twMerge(

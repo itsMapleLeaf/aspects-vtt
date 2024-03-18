@@ -24,11 +24,15 @@ http.route({
 			storageId: storageId as Id<"_storage">,
 		})
 
-		const headers = new Headers()
+		const headers = new Headers({
+			"Cache-Control": "public, max-age=31536000, immutable",
+		})
 		if (metadata?.contentType) {
 			headers.set("Content-Type", metadata.contentType)
 		}
-		return new Response(file, { headers })
+		return new Response(file, {
+			headers,
+		})
 	}),
 })
 

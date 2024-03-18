@@ -282,11 +282,12 @@ function Token({
 				className="group relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
 			>
 				<button type="button" className="size-full" ref={ref}>
-					{character.imageId ? (
-						<UploadedImage id={character.imageId} className="size-full" draggable={false} />
-					) : (
-						<Lucide.Ghost className="size-full" />
-					)}
+					<UploadedImage
+						id={character.imageId}
+						emptyIcon={<Lucide.Ghost />}
+						className="size-full"
+						draggable={false}
+					/>
 				</button>
 
 				{tagFieldDisplay && (

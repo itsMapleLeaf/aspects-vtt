@@ -71,12 +71,13 @@ function ImageInput({ character }: { character: Doc<"characters"> }) {
 
 	return (
 		<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-primary-300 border-dashed bg-primary-200/50 transition hover:bg-primary-200/75">
-			{status === "idle" &&
-				(character.imageId ? (
-					<UploadedImage id={character.imageId} className="size-full" />
-				) : (
-					<Lucide.ImagePlus className="size-full max-w-24 text-primary-400" />
-				))}
+			{status === "idle" && (
+				<UploadedImage
+					id={character.imageId}
+					emptyIcon={<Lucide.ImagePlus />}
+					className="size-full"
+				/>
+			)}
 			{status === "uploading" && <Loading />}
 			{status === "error" && <Lucide.FileX2 />}
 			<input
