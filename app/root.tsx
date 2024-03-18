@@ -68,11 +68,6 @@ function App() {
 }
 
 export default ClerkApp(App, {
-	signInUrl: $path("/sign-in"),
-	signUpUrl: $path("/sign-up"),
-	afterSignInUrl: $path("/"),
-	afterSignUpUrl: $path("/"),
-	afterSignOutUrl: $path("/sign-up"),
 	telemetry: false,
 	appearance: {
 		baseTheme: dark,
