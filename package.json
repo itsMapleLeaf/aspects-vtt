@@ -12,7 +12,7 @@
 	},
 	"scripts": {
 		"build": "remix vite:build",
-		"dev": "pnpm run /^dev:/",
+		"dev": "pnpm run --parallel /^dev:/",
 		"dev:remix": "remix vite:dev",
 		"dev:convex": "convex dev",
 		"preview": "dotenv -c -- remix-serve ./build/server/index.js",
