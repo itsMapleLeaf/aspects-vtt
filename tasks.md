@@ -32,11 +32,15 @@
 
 ## priority
 
+- general axiom:
+  - the only difference between the player and the GM is what the player can see and control
 - [x] simplify images
 - [x] hardcode the character data schema
 - [x] make characters and tokens equivalent
 - [ ] token deselection to hide side panel
-- room ownership
+- rooms
+  - [x] list rooms you own
+  - [ ] list rooms you've joined
   - [x] set room owner on creation
   - only room owner can:
     - [x] delete room
@@ -54,6 +58,7 @@
 - tokens
   - [x] fix name tag blocking clicks
   - [ ] non-character tokens
+  - [ ] semi-translucent when hidden
 - map
   - [ ] conform to background image size
   - [ ] configure cell size in pixels
@@ -61,22 +66,38 @@
 - characters
   - [x] pronouns field
   - [ ] duplicate button
+  - [x] show stress thresholds
+  - [ ] separate visibility for character browser and tokens, + let players browse visible characters
+  - [ ] turn character sidebar into a drawer / overlay
+- dice
+  - [x] roll boost and snag dice with attributes
+  - [ ] show the effect, base, boost, and snag values
+  - [ ] give a special appearance for boost and snag dice
 
 ## features
 
+- [ ] show a list of usable actions/skills somewhere (the dice roller probably)
 - character sheets
   - [ ] open in a pop-out window
-- token grid
+  - [ ] items
+  - [ ] show a warning when dice aren't unique
+  - [ ] race field
+  - [ ] aspect skill picker
+  - [ ] experience field
+  - [ ] limit aspect skills based on experience
+- token map
   - [ ] measuring distance
   - [ ] draw lines
   - [ ] draw squares
   - [ ] add new token to center of screen and/or click to place token
   - [ ] player cursors
   - [ ] custom token sizes
-  - [ ] items per token
   - [ ] set background from drag and drop
   - [x] button to reset viewport
-  - [x] press delete to remove selected token
+  - [ ] H shortcut to hide or show
+  - [ ] move camera when dragging token to edge of viewport
+- dice
+  - [ ] improve dice button layout
 - [x] move health & fatigue to tokens
 
 ## ideas
