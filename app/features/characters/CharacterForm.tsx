@@ -93,7 +93,11 @@ export function CharacterForm(props: {
 		)
 	}
 
-	function renderDiceField(key: keyof PickByValue<Character, number>, label = startCase(key)) {
+	function renderDiceField(
+		key: keyof PickByValue<Character, number>,
+		stressKey: "damage" | "fatigue",
+	) {
+		const label = startCase(key)
 		return (
 			<FormField label={label} htmlFor={key}>
 				<div className="flex gap-2">
@@ -108,17 +112,6 @@ export function CharacterForm(props: {
 						className="flex-1"
 					/>
 					<Button
-						icon={<Lucide.Dice3 />}
-						title="Flat Roll"
-						onClick={async () => {
-							await createDiceRoll({
-								roomId: room._id,
-								label: `${character.name}: ${label} (Flat)`,
-								dice: [{ sides: character[key] }],
-							})
-						}}
-					/>
-					<Button
 						icon={<Lucide.Dices />}
 						title="Roll"
 						onClick={async () => {
@@ -127,7 +120,7 @@ export function CharacterForm(props: {
 								label: `${character.name}: ${label}`,
 								dice: [
 									{ sides: character[key] },
-									...range.array(character.fatigue).map(() => ({ sides: 6 })),
+									...range.array(character[stressKey]).map(() => ({ sides: 6 })),
 								],
 							})
 						}}
@@ -167,11 +160,11 @@ export function CharacterForm(props: {
 				{renderNumberField("currency")}
 			</div>
 
-			{renderDiceField("strength")}
-			{renderDiceField("sense")}
-			{renderDiceField("mobility")}
-			{renderDiceField("intellect")}
-			{renderDiceField("wit")}
+			{renderDiceField("strength", "damage")}
+			{renderDiceField("sense", "fatigue")}
+			{renderDiceField("mobility", "damage")}
+			{renderDiceField("intellect", "fatigue")}
+			{renderDiceField("wit", "fatigue")}
 
 			{room.isOwner
 				? renderMultilineTextField("ownerNotes", "Notes")
