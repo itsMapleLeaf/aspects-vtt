@@ -113,7 +113,7 @@ export function CharacterForm(props: {
 					/>
 					<Button
 						icon={<Lucide.Dices />}
-						title="Roll"
+						title={`Roll ${label}`}
 						onClick={async () => {
 							await createDiceRoll({
 								roomId: room._id,
@@ -155,8 +155,11 @@ export function CharacterForm(props: {
 			<ImageInput character={character} />
 
 			<div className="flex gap-2 *:flex-1">
-				{renderNumberField("damage")}
-				{renderNumberField("fatigue")}
+				{renderNumberField("damage", `Damage / ${character.strength + character.mobility}`)}
+				{renderNumberField(
+					"fatigue",
+					`Fatigue / ${character.sense + character.intellect + character.wit}`,
+				)}
 				{renderNumberField("currency")}
 			</div>
 
