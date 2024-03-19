@@ -4,6 +4,7 @@ import * as Lucide from "lucide-react"
 import { useEffect, useState } from "react"
 import { range } from "#app/common/range.js"
 import { startCase } from "#app/common/string.js"
+import type { PickByValue } from "#app/common/types.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
 import { FormField } from "#app/ui/FormField.js"
@@ -51,11 +52,7 @@ export function CharacterForm(props: {
 		setUpdates((prev) => ({ ...prev, ...values }))
 	}
 
-	type MatchKeys<Source, Value> = keyof {
-		[K in keyof Source as Value extends Source[K] ? K : never]: K
-	}
-
-	function renderTextField(key: MatchKeys<Character, string>, label = startCase(key)) {
+	function renderTextField(key: keyof PickByValue<Character, string>, label = startCase(key)) {
 		return (
 			<FormField label={label} htmlFor={key}>
 				<Input
@@ -67,7 +64,10 @@ export function CharacterForm(props: {
 		)
 	}
 
-	function renderMultilineTextField(key: MatchKeys<Character, string>, label = startCase(key)) {
+	function renderMultilineTextField(
+		key: keyof PickByValue<Character, string>,
+		label = startCase(key),
+	) {
 		return (
 			<FormField label={label} htmlFor={key}>
 				<Input
@@ -80,7 +80,7 @@ export function CharacterForm(props: {
 		)
 	}
 
-	function renderNumberField(key: MatchKeys<Character, number>, label = startCase(key)) {
+	function renderNumberField(key: keyof PickByValue<Character, number>, label = startCase(key)) {
 		return (
 			<FormField label={label} htmlFor={key}>
 				<Input
@@ -93,7 +93,7 @@ export function CharacterForm(props: {
 		)
 	}
 
-	function renderDiceField(key: MatchKeys<Character, number>, label = startCase(key)) {
+	function renderDiceField(key: keyof PickByValue<Character, number>, label = startCase(key)) {
 		return (
 			<FormField label={label} htmlFor={key}>
 				<div className="flex gap-2">

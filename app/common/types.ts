@@ -20,3 +20,8 @@ export type Nullish<T> = T | null | undefined
 export type Disallowed<T extends object> = {
 	[K in keyof T]?: never
 }
+
+/** Pick properties in an object type whose values are assignable to the given type */
+export type PickByValue<Source, Value> = {
+	[K in keyof Source as Value extends Source[K] ? K : never]: Source[K]
+}
