@@ -37,14 +37,11 @@
 - [x] simplify images
 - [x] hardcode the character data schema
 - [x] make characters and tokens equivalent
-- [ ] token deselection to hide side panel
 - rooms
   - [x] list rooms you own
-  - [ ] list rooms you've joined
   - [x] set room owner on creation
   - only room owner can:
     - [x] delete room
-    - [ ] change room background
     - [x] add or remove characters
     - [ ] show/hide tokens
 - players
@@ -57,7 +54,6 @@
   - [x] notes field
 - tokens
   - [x] fix name tag blocking clicks
-  - [ ] non-character tokens
   - [ ] semi-translucent when hidden
 - map
   - [ ] conform to background image size
@@ -65,19 +61,21 @@
   - [ ] zooming
 - characters
   - [x] pronouns field
-  - [ ] duplicate button
   - [x] show stress thresholds
-  - [ ] separate visibility for character browser and tokens, + let players browse visible characters
-  - [ ] turn character sidebar into a drawer / overlay
+  - [ ] duplicate button
+  - [ ] separate visibility for character browser and tokens + let players browse visible characters
 - dice
   - [x] roll boost and snag dice with attributes
-  - [ ] show the effect, base, boost, and snag values
   - [ ] give a special appearance for boost and snag dice
+  - [ ] show the effect, base, boost, and snag values
 
 ## features
 
 - [ ] show a list of usable actions/skills somewhere (the dice roller probably)
-- character sheets
+- rooms
+  - [ ] list rooms you've joined
+  - [ ] only room owner can change room background
+- characters
   - [ ] open in a pop-out window
   - [ ] items
   - [ ] show a warning when dice aren't unique
@@ -85,7 +83,9 @@
   - [ ] aspect skill picker
   - [ ] experience field
   - [ ] limit aspect skills based on experience
+  - [ ] turn character sidebar into a drawer / overlay
 - token map
+  - [ ] token deselection to hide side panel
   - [ ] measuring distance
   - [ ] draw lines
   - [ ] draw squares
@@ -96,6 +96,7 @@
   - [x] button to reset viewport
   - [ ] H shortcut to hide or show
   - [ ] move camera when dragging token to edge of viewport
+  - [ ] non-character tokens
 - dice
   - [ ] improve dice button layout
 - [x] move health & fatigue to tokens
