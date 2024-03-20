@@ -1,8 +1,8 @@
-import type { FunctionReturnType } from "convex/server"
 import { createContext, useContext } from "react"
 import type { api } from "#convex/_generated/api.js"
+import type { ResultQueryData } from "#convex/resultResponse.js"
 
-type Room = NonNullable<FunctionReturnType<typeof api.rooms.get>["data"]>
+type Room = ResultQueryData<typeof api.rooms.get>
 
 const RoomContext = createContext<Room | undefined>(undefined)
 

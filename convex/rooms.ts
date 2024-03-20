@@ -5,7 +5,7 @@ import { pick } from "#app/common/object.js"
 import type { Doc, Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { getIdentityUser } from "./auth.js"
-import { withResultResponse } from "./helpers.js"
+import { withResultResponse } from "./resultResponse.js"
 import { replaceFile } from "./storage.js"
 
 export const get = query({

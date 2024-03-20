@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values"
 import { safeCall } from "#app/common/attempt.js"
 import { raise } from "#app/common/errors.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
-import { withResultResponse } from "./helpers.js"
+import { withResultResponse } from "./resultResponse.js"
 
 export const user = query({
 	handler: withResultResponse(async (ctx: QueryCtx) => {

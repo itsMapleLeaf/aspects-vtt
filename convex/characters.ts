@@ -4,7 +4,8 @@ import { omit, pick } from "#app/common/object.js"
 import { randomInt, randomItem } from "#app/common/random.js"
 import { characterNames } from "#app/features/characters/characterNames.ts"
 import { mutation, query } from "./_generated/server.js"
-import { nullish, withResultResponse } from "./helpers.js"
+import { nullish } from "./helpers.js"
+import { withResultResponse } from "./resultResponse.js"
 import { getRoomContext, getRoomOwnerOnlyContext, getRoomPlayerContext } from "./rooms.js"
 
 const visibleToValidator = v.union(v.literal("owner"), v.literal("everyone"))

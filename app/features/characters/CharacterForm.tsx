@@ -1,5 +1,4 @@
 import { useConvex, useMutation } from "convex/react"
-import type { FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
 import { useEffect, useState } from "react"
 import { range } from "#app/common/range.js"
@@ -13,13 +12,14 @@ import { Loading } from "#app/ui/Loading.tsx"
 import { Select } from "#app/ui/Select.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import type { ResultQueryData } from "#convex/resultResponse.js"
 import { diceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 type Character =
-	| NonNullable<FunctionReturnType<typeof api.characters.list>["data"]>[number]
-	| NonNullable<FunctionReturnType<typeof api.characters.getPlayerCharacter>["data"]>
+	| ResultQueryData<typeof api.characters.list>[number]
+	| ResultQueryData<typeof api.characters.getPlayerCharacter>
 
 export function CharacterForm(props: {
 	character: Character

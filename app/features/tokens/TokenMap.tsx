@@ -1,6 +1,5 @@
 import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
 import { useConvex, useMutation, useQuery } from "convex/react"
-import type { FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
 import { type SetStateAction, useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { expect } from "#app/common/expect.ts"
@@ -12,6 +11,7 @@ import { Loading } from "#app/ui/Loading.js"
 import { panel } from "#app/ui/styles.ts"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import type { ResultQueryData } from "#convex/resultResponse.js"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
@@ -176,7 +176,7 @@ function Token({
 	selected,
 	onSelect,
 }: {
-	character: NonNullable<FunctionReturnType<typeof api.characters.list>["data"]>[number]
+	character: ResultQueryData<typeof api.characters.list>[number]
 	selected: boolean
 	onSelect: () => void
 }) {
