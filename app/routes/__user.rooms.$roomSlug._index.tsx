@@ -18,11 +18,12 @@ export default function RoomIndexRoute() {
 	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const playerCharacter = useQuery(api.characters.getPlayerCharacter, { roomId: room._id })
 
-	const [currentCharacterId = characters?.[0]?._id, setCurrentCharacterId] =
+	const [currentCharacterId = characters?.data?.[0]?._id, setCurrentCharacterId] =
 		useState<Id<"characters">>()
 
 	const character =
-		characters?.find((character) => character._id === currentCharacterId) ?? characters?.[0]
+		characters?.data?.find((character) => character._id === currentCharacterId) ??
+		characters?.data?.[0]
 
 	useEffect(() => {
 		join({ id: room._id })
@@ -44,20 +45,22 @@ export default function RoomIndexRoute() {
 							onSelectedCharacterChange={setCurrentCharacterId}
 						/>
 					) : (
-						<TokenMap selectedCharacterId={playerCharacter?._id} />
+						<TokenMap selectedCharacterId={playerCharacter?.data?._id} />
 					)}
 				</div>
 				{characters === undefined ? (
 					<div className="flex max-w-[360px] flex-1 flex-col items-center justify-center">
 						<Loading />
 					</div>
+				) : !characters.ok ? (
+					<p>Failed to load characters: {characters.error}</p>
 				) : (
 					<div className="flex max-w-[360px] flex-1 flex-col gap-2">
 						{room.isOwner && (
 							<div className="flex gap-2">
 								<div className="flex-1">
 									<CharacterSelect
-										characters={characters}
+										characters={characters.data}
 										selected={currentCharacterId}
 										onChange={setCurrentCharacterId}
 									/>
@@ -71,9 +74,9 @@ export default function RoomIndexRoute() {
 								<CharacterForm character={character} />
 							</div>
 						)}
-						{!room.isOwner && playerCharacter && (
+						{!room.isOwner && playerCharacter?.ok && (
 							<div className="min-h-0 flex-1">
-								<CharacterForm character={playerCharacter} />
+								<CharacterForm character={playerCharacter.data} />
 							</div>
 						)}
 					</div>

@@ -6,7 +6,7 @@ import { ClerkApp, UserButton, useAuth, useUser } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
-import { ConvexReactClient, useConvexAuth, useMutation } from "convex/react"
+import { ConvexReactClient, useConvexAuth, useMutation, useQuery } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
 import { useEffect } from "react"
 import { createPortal } from "react-dom"
@@ -91,13 +91,46 @@ export default ClerkApp(App, {
 })
 
 function ConvexAuthGuard({ children }: { children: React.ReactNode }) {
-	const { user } = useUser()
-	const setup = useMutation(api.auth.setup)
+	const updateUser = useMutation(api.auth.setup)
 	const { isLoading, isAuthenticated } = useConvexAuth()
+	const { user } = useUser()
+	const convexUser = useQuery(api.auth.user)
+
+	// there's definitely a better way to do this, but i have a brain skill issue
 	useEffect(() => {
-		if (user?.username && isAuthenticated) {
-			setup({ name: user.username, avatarUrl: user.imageUrl })
+		if (!isAuthenticated) return
+
+		let name = convexUser?.data?.name
+		let avatarUrl = convexUser?.data?.avatarUrl
+		let shouldUpdate = false
+
+		if (user?.username && user.username !== name) {
+			name = user.username
+			shouldUpdate = true
 		}
-	}, [user?.username, user?.imageUrl, isAuthenticated, setup])
+
+		if (user?.imageUrl && user.imageUrl !== avatarUrl) {
+			avatarUrl = user.imageUrl
+			shouldUpdate = true
+		}
+
+		if (!name) {
+			console.warn("User has no name")
+			name = "Unnamed User"
+			shouldUpdate = true
+		}
+
+		if (shouldUpdate) {
+			updateUser({ name, avatarUrl })
+		}
+	}, [
+		user?.username,
+		user?.imageUrl,
+		convexUser?.data?.avatarUrl,
+		convexUser?.data?.name,
+		isAuthenticated,
+		updateUser,
+	])
+
 	return isLoading ? <Loading fill="screen" /> : children
 }

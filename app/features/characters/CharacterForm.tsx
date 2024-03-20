@@ -12,14 +12,14 @@ import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { Select } from "#app/ui/Select.js"
 import { api } from "#convex/_generated/api.js"
+import type { Id } from "#convex/_generated/dataModel.js"
 import { diceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
-type Character = NonNullable<
-	| FunctionReturnType<typeof api.characters.list>[number]
-	| FunctionReturnType<typeof api.characters.getPlayerCharacter>
->
+type Character =
+	| NonNullable<FunctionReturnType<typeof api.characters.list>["data"]>[number]
+	| NonNullable<FunctionReturnType<typeof api.characters.getPlayerCharacter>["data"]>
 
 export function CharacterForm(props: {
 	character: Character
@@ -137,7 +137,7 @@ export function CharacterForm(props: {
 				{renderTextField("pronouns")}
 			</div>
 
-			{"playerId" in character && room.players && (
+			{room.isOwner && room.players && "playerId" in character && (
 				<FormField label="Player" htmlFor="player">
 					<Select
 						options={[
@@ -178,7 +178,9 @@ export function CharacterForm(props: {
 
 function ImageInput({
 	character,
-}: { character: NonNullable<FunctionReturnType<typeof api.characters.getPlayerCharacter>> }) {
+}: {
+	character: { _id: Id<"characters">; imageId: Id<"_storage"> | null }
+}) {
 	const update = useMutation(api.characters.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
 	const convex = useConvex()

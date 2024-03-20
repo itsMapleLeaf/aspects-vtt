@@ -1,10 +1,13 @@
 import { ConvexError, v } from "convex/values"
+import { safeCall } from "#app/common/attempt.js"
+import { raise } from "#app/common/errors.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
+import { withResultResponse } from "./helpers.js"
 
 export const user = query({
-	async handler(ctx) {
+	handler: withResultResponse(async (ctx: QueryCtx) => {
 		return await getIdentityUser(ctx)
-	},
+	}),
 })
 
 export const setup = mutation({
@@ -13,8 +16,8 @@ export const setup = mutation({
 		avatarUrl: v.optional(v.string()),
 	},
 	async handler(ctx, args) {
-		const identity = await requireIdentity(ctx)
-		const user = await getIdentityUser(ctx)
+		const identity = await getIdentity(ctx)
+		const [user] = await safeCall(getUserByClerkId, ctx, identity.subject)
 		if (user) {
 			await ctx.db.patch(user._id, {
 				name: args.name,
@@ -30,25 +33,20 @@ export const setup = mutation({
 	},
 })
 
-async function requireIdentity(ctx: QueryCtx) {
+async function getUserByClerkId(ctx: QueryCtx, clerkId: string) {
+	const user = await ctx.db
+		.query("users")
+		.withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+		.unique()
+	return user ?? raise(new ConvexError("User not set up"))
+}
+
+async function getIdentity(ctx: QueryCtx) {
 	const identity = await ctx.auth.getUserIdentity()
-	if (!identity) throw new ConvexError("Not logged in")
-	return identity
+	return identity ?? raise(new ConvexError("Not logged in"))
 }
 
 export async function getIdentityUser(ctx: QueryCtx) {
-	const identity = await ctx.auth.getUserIdentity()
-	return (
-		identity &&
-		(await ctx.db
-			.query("users")
-			.withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-			.unique())
-	)
-}
-
-export async function requireIdentityUser(ctx: QueryCtx) {
-	const user = await getIdentityUser(ctx)
-	if (!user) throw new ConvexError("User not found")
-	return user
+	const identity = await getIdentity(ctx)
+	return await getUserByClerkId(ctx, identity.subject)
 }

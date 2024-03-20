@@ -8,7 +8,7 @@ export function CharacterSelect({
 	selected,
 	onChange,
 }: {
-	characters: FunctionReturnType<typeof api.characters.list>
+	characters: NonNullable<FunctionReturnType<typeof api.characters.list>["data"]>
 	selected: Id<"characters"> | undefined
 	onChange: (id: Id<"characters">) => void
 }) {

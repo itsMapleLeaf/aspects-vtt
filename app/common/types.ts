@@ -25,3 +25,5 @@ export type Disallowed<T extends object> = {
 export type PickByValue<Source, Value> = {
 	[K in keyof Source as Value extends Source[K] ? K : never]: Source[K]
 }
+
+export type Awaitable<T> = T | PromiseLike<T>

@@ -30,7 +30,7 @@ export function TokenMap({
 	onSelectedCharacterChange?: (id: Id<"characters">) => void
 }) {
 	const room = useRoom()
-	const characters = useQuery(api.characters.list, { roomId: room._id }) ?? []
+	const characters = useQuery(api.characters.list, { roomId: room._id })
 
 	return (
 		<Viewport
@@ -43,7 +43,7 @@ export function TokenMap({
 				)
 			}
 		>
-			{characters.map((character) => (
+			{characters?.data?.map((character) => (
 				<Token
 					key={character._id}
 					character={character}
@@ -176,7 +176,7 @@ function Token({
 	selected,
 	onSelect,
 }: {
-	character: FunctionReturnType<typeof api.characters.list>[number]
+	character: NonNullable<FunctionReturnType<typeof api.characters.list>["data"]>[number]
 	selected: boolean
 	onSelect: () => void
 }) {
@@ -184,13 +184,17 @@ function Token({
 
 	const updateCharacter = useMutation(api.characters.update).withOptimisticUpdate((store, args) => {
 		const characters = store.getQuery(api.characters.list, { roomId: room._id })
-		if (!characters) return
+		if (!characters?.data) return
 		store.setQuery(
 			api.characters.list,
 			{ roomId: room._id },
-			characters.map((c) =>
-				c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? { x: 0, y: 0 } } : c,
-			),
+			{
+				ok: true,
+				// @ts-expect-error life is hard
+				data: characters.data.map((c) =>
+					c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? c.tokenPosition } : c,
+				),
+			},
 		)
 	})
 

@@ -14,9 +14,9 @@ export default function RoomRoute() {
 		<div className="flex h-full flex-col items-center justify-center">
 			<Loading />
 		</div>
-	) : room === null ? (
+	) : !room.ok ? (
 		<main className="flex flex-col gap-4">
-			<p>Room not found.</p>
+			<p>{room.error}</p>
 			<Button
 				text="Return to home"
 				icon={<Lucide.DoorOpen />}
@@ -25,7 +25,7 @@ export default function RoomRoute() {
 			/>
 		</main>
 	) : (
-		<RoomProvider room={room}>
+		<RoomProvider room={room.data}>
 			<Outlet />
 		</RoomProvider>
 	)
