@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { type ReactNode, isValidElement } from "react"
 import { twMerge } from "tailwind-merge"
 
 export function FormField({
@@ -14,9 +14,13 @@ export function FormField({
 }) {
 	return (
 		<div className={twMerge("flex flex-col", className)}>
-			<div className="select-none font-bold text-sm/6">
-				{htmlFor ? <label htmlFor={htmlFor}>{label}</label> : label}
-			</div>
+			{isValidElement(label) ? (
+				label
+			) : (
+				<div className="select-none font-bold text-sm/6">
+					{htmlFor ? <label htmlFor={htmlFor}>{label}</label> : label}
+				</div>
+			)}
 			{children}
 		</div>
 	)

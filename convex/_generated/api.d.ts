@@ -19,6 +19,7 @@ import type * as characters from "../characters.js";
 import type * as diceRolls from "../diceRolls.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
+import type * as resultResponse from "../resultResponse.js";
 import type * as rooms from "../rooms.js";
 import type * as storage from "../storage.js";
 
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   diceRolls: typeof diceRolls;
   helpers: typeof helpers;
   http: typeof http;
+  resultResponse: typeof resultResponse;
   rooms: typeof rooms;
   storage: typeof storage;
 }>;

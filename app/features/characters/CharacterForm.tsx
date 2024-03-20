@@ -1,6 +1,6 @@
 import { useConvex, useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useId, useState } from "react"
 import { range } from "#app/common/range.js"
 import { startCase } from "#app/common/string.js"
 import type { PickByValue } from "#app/common/types.js"
@@ -30,33 +30,33 @@ export function CharacterForm(props: {
 	const character = { ...props.character, ...updates }
 	const createDiceRoll = useMutation(api.diceRolls.create)
 
-	useEffect(
-		function syncCharacter() {
-			if (!updates) return
+	useEffect(() => {
+		if (!updates) return
 
-			let cancelled = false
-			const id = setTimeout(async () => {
-				await updateCharacter({ ...updates, id: character._id })
-				if (!cancelled) setUpdates(undefined)
-			}, 300)
+		let cancelled = false
+		const id = setTimeout(async () => {
+			await updateCharacter({ ...updates, id: character._id })
+			if (!cancelled) setUpdates(undefined)
+		}, 300)
 
-			return () => {
-				clearTimeout(id)
-				cancelled = true
-			}
-		},
-		[updates, character._id, updateCharacter],
-	)
+		return () => {
+			clearTimeout(id)
+			cancelled = true
+		}
+	}, [updates, character._id, updateCharacter])
 
-	const updateValues = (values: Partial<typeof character>) => {
+	function updateValues(values: Partial<typeof character>) {
 		setUpdates((prev) => ({ ...prev, ...values }))
 	}
 
+	const baseId = useId()
+	const inputId = (name: string) => `${baseId}:${name}`
+
 	function renderTextField(key: keyof PickByValue<Character, string>, label = startCase(key)) {
 		return (
-			<FormField label={label} htmlFor={key}>
+			<FormField label={label} htmlFor={inputId(key)}>
 				<Input
-					id={key}
+					id={inputId(key)}
 					value={character[key]}
 					onChange={(event) => updateValues({ [key]: event.target.value })}
 				/>
@@ -69,9 +69,9 @@ export function CharacterForm(props: {
 		label = startCase(key),
 	) {
 		return (
-			<FormField label={label} htmlFor={key}>
+			<FormField label={label} htmlFor={inputId(key)}>
 				<Input
-					id={key}
+					id={inputId(key)}
 					value={character[key]}
 					multiline
 					onChange={(event) => updateValues({ [key]: event.target.value })}
@@ -82,9 +82,9 @@ export function CharacterForm(props: {
 
 	function renderNumberField(key: keyof PickByValue<Character, number>, label = startCase(key)) {
 		return (
-			<FormField label={label} htmlFor={key}>
+			<FormField label={label} htmlFor={inputId(key)}>
 				<Input
-					id={key}
+					id={inputId(key)}
 					type="number"
 					value={character[key]}
 					onChange={(event) => updateValues({ [key]: event.target.valueAsNumber })}
@@ -99,10 +99,10 @@ export function CharacterForm(props: {
 	) {
 		const label = startCase(key)
 		return (
-			<FormField label={label} htmlFor={key}>
+			<FormField label={label} htmlFor={inputId(key)}>
 				<div className="flex gap-2">
 					<Select
-						id={key}
+						id={inputId(key)}
 						options={diceKinds.map((kind) => ({
 							label: `d${kind.sides}`,
 							value: kind.sides,
@@ -137,12 +137,13 @@ export function CharacterForm(props: {
 				{renderTextField("pronouns")}
 			</div>
 
-			{room.isOwner && room.players && "playerId" in character && (
-				<FormField label="Player" htmlFor="player">
+			{room.isOwner && (
+				<FormField label="Player" htmlFor={inputId("player")}>
 					<Select
+						id={inputId("player")}
 						options={[
 							{ label: "None", value: null },
-							...room.players.map((player) => ({ label: player.name, value: player._id })),
+							...(room.players?.map((player) => ({ label: player.name, value: player._id })) ?? []),
 						]}
 						value={character.playerId}
 						onChange={(value) => {
@@ -150,6 +151,27 @@ export function CharacterForm(props: {
 						}}
 					/>
 				</FormField>
+			)}
+
+			{room.isOwner && (
+				<>
+					<CheckboxField
+						label="Public"
+						id={inputId("visibleTo")}
+						checked={character.visibleTo === "everyone"}
+						onChange={(event) =>
+							updateValues({ visibleTo: event.currentTarget.checked ? "everyone" : "owner" })
+						}
+					/>
+					<CheckboxField
+						label="Show Token"
+						id={inputId("tokenVisibleTo")}
+						checked={character.tokenVisibleTo === "everyone"}
+						onChange={(event) =>
+							updateValues({ tokenVisibleTo: event.currentTarget.checked ? "everyone" : "owner" })
+						}
+					/>
+				</>
 			)}
 
 			<ImageInput character={character} />
@@ -173,6 +195,37 @@ export function CharacterForm(props: {
 				? renderMultilineTextField("ownerNotes", "Notes")
 				: renderMultilineTextField("playerNotes", "Notes")}
 		</div>
+	)
+}
+
+function CheckboxField({
+	label,
+	id,
+	checked,
+	onChange,
+}: {
+	label: string
+	id: string
+	checked: boolean
+	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+}) {
+	return (
+		<FormField label={label} htmlFor={id} className="flex-row-reverse justify-end gap-1.5">
+			<div className="relative flex size-5 items-center justify-center overflow-clip">
+				<input
+					className="peer size-full appearance-none rounded border-2 border-primary-400 bg-primary-100 transition active:border-primary-600 checked:bg-primary-300/50 checked:hover:bg-primary-300 hover:bg-primary-200 active:duration-0"
+					id={id}
+					type="checkbox"
+					checked={checked}
+					onChange={onChange}
+				/>
+				<Lucide.X
+					className="pointer-events-none invisible absolute size-5 text-primary-700 peer-checked:visible"
+					strokeWidth={3}
+					absoluteStrokeWidth
+				/>
+			</div>
+		</FormField>
 	)
 }
 

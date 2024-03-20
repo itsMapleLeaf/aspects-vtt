@@ -1,5 +1,6 @@
 import { ConvexError, type Infer, v } from "convex/values"
 import { raise } from "#app/common/errors.js"
+import { clamp } from "#app/common/math.js"
 import { omit, pick } from "#app/common/object.js"
 import { randomInt, randomItem } from "#app/common/random.js"
 import { characterNames } from "#app/features/characters/characterNames.ts"
@@ -82,11 +83,7 @@ export const list = query({
 
 		if (!isOwner) {
 			query = query.filter((q) =>
-				q.or(
-					q.eq(q.field("visibleTo"), "everyone"),
-					q.eq(q.field("tokenVisibleTo"), "everyone"),
-					q.eq(q.field("_id"), player?.characterId),
-				),
+				q.or(q.eq(q.field("visibleTo"), "everyone"), q.eq(q.field("_id"), player?.characterId)),
 			)
 		}
 
@@ -94,7 +91,7 @@ export const list = query({
 			characters.map((character) => ({
 				...defaultProperties,
 				...character,
-				playerId: playersByCharacterId.get(character._id)?.userId,
+				playerId: playersByCharacterId.get(character._id)?.userId ?? null,
 			})),
 		)
 
@@ -111,10 +108,44 @@ export const list = query({
 				playerId: null,
 				...((character.visibleTo === "everyone" || character._id === player?.characterId) &&
 					pick(character, playerPropertyKeys)),
-				...((character.tokenVisibleTo === "everyone" || character._id === player?.characterId) &&
-					pick(character, ["_id", "name", "imageId", "tokenPosition"])),
 			}))
 			.filter(Boolean)
+	}),
+})
+
+export const listTokens = query({
+	args: {
+		roomId: v.id("rooms"),
+	},
+	handler: withResultResponse(async (ctx, args) => {
+		const { isOwner, player } = await getRoomContext(ctx, args.roomId)
+
+		let query = ctx.db.query("characters").withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+
+		if (!isOwner) {
+			query = query.filter((q) =>
+				q.or(
+					q.eq(q.field("tokenVisibleTo"), "everyone"),
+					q.eq(q.field("_id"), player?.characterId),
+				),
+			)
+		}
+
+		const characters = await query.collect()
+
+		return characters
+			.map((character) => ({ ...defaultProperties, ...character }))
+			.map((character) => ({
+				...pick(character, ["_id", "name", "imageId", "tokenPosition"]),
+				...(isOwner && {
+					damageRatio: clamp(character.damage / (character.strength + character.mobility), 0, 1),
+					fatigueRatio: clamp(
+						character.fatigue / (character.sense + character.intellect + character.wit),
+						0,
+						1,
+					),
+				}),
+			}))
 	}),
 })
 
@@ -161,6 +192,7 @@ export const getPlayerCharacter = query({
 		return {
 			...defaultProperties,
 			...pick(character, ["_id", ...keys(playerProperties)]),
+			playerId: player.userId,
 		}
 	}),
 })

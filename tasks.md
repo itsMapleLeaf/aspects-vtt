@@ -43,7 +43,8 @@
   - only room owner can:
     - [x] delete room
     - [x] add or remove characters
-    - [ ] show/hide tokens
+    - [x] make characters public or private
+    - [x] show/hide tokens
 - players
   - [x] add `players` property to room
   - [x] when a player joins a room, add their user ID to the list
@@ -54,7 +55,7 @@
   - [x] notes field
 - tokens
   - [x] fix name tag blocking clicks
-  - [ ] semi-translucent when hidden
+  - [ ] semi-translucent to the owner when hidden
 - map
   - [ ] conform to background image size
   - [ ] configure cell size in pixels

@@ -30,7 +30,8 @@ export function TokenMap({
 	onSelectedCharacterChange?: (id: Id<"characters">) => void
 }) {
 	const room = useRoom()
-	const characters = useQuery(api.characters.list, { roomId: room._id })
+	const characters = useQuery(api.characters.listTokens, { roomId: room._id })
+	const user = useQuery(api.auth.user)
 
 	return (
 		<Viewport
@@ -176,21 +177,20 @@ function Token({
 	selected,
 	onSelect,
 }: {
-	character: ResultQueryData<typeof api.characters.list>[number]
+	character: ResultQueryData<typeof api.characters.listTokens>[number]
 	selected: boolean
 	onSelect: () => void
 }) {
 	const room = useRoom()
 
 	const updateCharacter = useMutation(api.characters.update).withOptimisticUpdate((store, args) => {
-		const characters = store.getQuery(api.characters.list, { roomId: room._id })
+		const characters = store.getQuery(api.characters.listTokens, { roomId: room._id })
 		if (!characters?.data) return
 		store.setQuery(
-			api.characters.list,
+			api.characters.listTokens,
 			{ roomId: room._id },
 			{
 				ok: true,
-				// @ts-expect-error life is hard
 				data: characters.data.map((c) =>
 					c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? c.tokenPosition } : c,
 				),
@@ -258,14 +258,15 @@ function Token({
 					{character.name}
 				</p>
 
-				<div className="-translate-x-1/2 -translate-y-2 pointer-events-none absolute bottom-full left-1/2 z-10 h-2.5 w-10 rounded border border-red-500 p-px opacity-50">
+				{/* TODO: decide  if and how I want to show stress bars */}
+				{/* <div className="-translate-x-1/2 -translate-y-2 pointer-events-none absolute bottom-full left-1/2 z-10 h-2.5 w-10 rounded border border-red-500 p-px opacity-50">
 					<div
 						className="h-full origin-left rounded-sm bg-red-600"
 						style={{
 							scale: `${1 - character.damage / (20 + character.strength)} 1`,
 						}}
 					/>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	)
