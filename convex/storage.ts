@@ -25,5 +25,7 @@ export async function replaceFile(
 ) {
 	if (next !== undefined && current !== next && current) {
 		await ctx.storage.delete(current)
+		return next
 	}
+	return current
 }

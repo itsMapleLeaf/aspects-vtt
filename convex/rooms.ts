@@ -59,8 +59,10 @@ export const update = mutation({
 	},
 	handler: async (ctx, { id, ...args }) => {
 		const room = await getRoomById(ctx, id)
-		await replaceFile(ctx, room.mapImageId, args.mapImageId)
-		await ctx.db.patch(id, args)
+		await ctx.db.patch(id, {
+			...args,
+			mapImageId: (await replaceFile(ctx, room.mapImageId, args.mapImageId)) ?? undefined,
+		})
 	},
 })
 

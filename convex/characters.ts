@@ -8,6 +8,7 @@ import { mutation, query } from "./_generated/server.js"
 import { nullish } from "./helpers.js"
 import { withResultResponse } from "./resultResponse.js"
 import { getRoomContext, getRoomOwnerOnlyContext, getRoomPlayerContext } from "./rooms.js"
+import { replaceFile } from "./storage.js"
 
 const visibleToValidator = v.union(v.literal("owner"), v.literal("everyone"))
 
@@ -215,11 +216,23 @@ export const update = mutation({
 					),
 				})
 			}
-			return await ctx.db.patch(id, args)
+			return await ctx.db.patch(id, {
+				...args,
+				imageId: await replaceFile(ctx, character.imageId, args.imageId),
+			})
 		}
 
 		if (player.characterId === character._id) {
-			return await ctx.db.patch(id, omit(args, keys(roomOwnerProperties)))
+			return await ctx.db.patch(
+				id,
+				omit(
+					{
+						...args,
+						imageId: await replaceFile(ctx, character.imageId, args.imageId),
+					},
+					keys(roomOwnerProperties),
+				),
+			)
 		}
 
 		throw new ConvexError("You don't have permission to edit this character.")
