@@ -13,11 +13,12 @@ export const get = query({
 	handler: withResultResponse(async (ctx, args) => {
 		const { room, isOwner } = await createRoomContext(ctx, await getRoomBySlug(ctx, args))
 
-		const players = isOwner
-			? await Promise.all(room.players.map((player) => ctx.db.get(player.userId))).then((players) =>
+		const players =
+			isOwner ?
+				await Promise.all(room.players.map((player) => ctx.db.get(player.userId))).then((players) =>
 					players.filter(Boolean).map((player) => pick(player, ["_id", "name", "avatarUrl"])),
-			  )
-			: undefined
+				)
+			:	undefined
 
 		return {
 			mapDimensions: { width: 1000, height: 1000 },

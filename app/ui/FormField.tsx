@@ -14,13 +14,14 @@ export function FormField({
 }) {
 	return (
 		<div className={twMerge("flex flex-col", className)}>
-			{isValidElement(label) ? (
+			{isValidElement(label) ?
 				label
-			) : (
-				<div className="select-none font-bold text-sm/6">
-					{htmlFor ? <label htmlFor={htmlFor}>{label}</label> : label}
+			:	<div className="select-none text-sm/6 font-bold">
+					{htmlFor ?
+						<label htmlFor={htmlFor}>{label}</label>
+					:	label}
 				</div>
-			)}
+			}
 			{children}
 		</div>
 	)

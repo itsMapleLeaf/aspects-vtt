@@ -45,14 +45,13 @@ export default function RoomIndexRoute() {
 						onSelectedCharacterChange={setCurrentCharacterId}
 					/>
 				</div>
-				{characters === undefined ? (
+				{characters === undefined ?
 					<div className="flex max-w-[360px] flex-1 flex-col items-center justify-center">
 						<Loading />
 					</div>
-				) : !characters.ok ? (
+				: !characters.ok ?
 					<p>Failed to load characters: {characters.error}</p>
-				) : (
-					<div className="flex max-w-[360px] flex-1 flex-col gap-2">
+				:	<div className="flex max-w-[360px] flex-1 flex-col gap-2">
 						<div className="flex gap-2">
 							<div className="flex-1">
 								<CharacterSelect
@@ -67,10 +66,12 @@ export default function RoomIndexRoute() {
 							</RoomOwnerOnly>
 						</div>
 						<div className="min-h-0 flex-1">
-							{character ? <CharacterForm character={character} /> : undefined}
+							{character ?
+								<CharacterForm character={character} />
+							:	undefined}
 						</div>
 					</div>
-				)}
+				}
 			</main>
 		</div>
 	)

@@ -21,7 +21,7 @@ export type InputProps = Overwrite<
 
 export function Input({ icon, className, align, ...props }: InputProps) {
 	const inputClassNameBase = twMerge(
-		"w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 pr-3 pl-8 transition peer-empty:pl-3",
+		"w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 pl-8 pr-3 transition peer-empty:pl-3",
 		align === "left" && "text-left",
 		align === "right" && "text-right",
 		align === "center" && "text-center",
@@ -31,20 +31,19 @@ export function Input({ icon, className, align, ...props }: InputProps) {
 			<div className="peer pointer-events-none absolute left-2 opacity-50 transition *:size-5 group-focus-within:opacity-100">
 				{icon}
 			</div>
-			{props.multiline ? (
+			{props.multiline ?
 				<textarea
 					rows={3}
 					{...omit(props, ["multiline", "elementRef"])}
 					className={twMerge(inputClassNameBase, "py-1.5 leading-7")}
 					ref={props.elementRef}
 				/>
-			) : (
-				<input
+			:	<input
 					{...omit(props, ["multiline", "elementRef"])}
 					className={twMerge(inputClassNameBase, "h-10")}
 					ref={props.elementRef}
 				/>
-			)}
+			}
 		</div>
 	)
 }

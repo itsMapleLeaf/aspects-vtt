@@ -13,11 +13,7 @@ export const theme = {
 	},
 }
 
-function generateOklchPalette(args: {
-	hue: number
-	minChroma: number
-	maxChroma: number
-}) {
+function generateOklchPalette(args: { hue: number; minChroma: number; maxChroma: number }) {
 	const minLightness = 0.17
 	const maxLightness = 1.0
 	const colors: Record<number, string> = {}

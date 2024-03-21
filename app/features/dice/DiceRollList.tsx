@@ -20,7 +20,7 @@ export function DiceRollList() {
 			style={{ height: "100%" }}
 			data={list.results}
 			itemContent={(_index, roll) => (
-				<div className="fade-in animate-in pb-2">
+				<div className="pb-2 animate-in fade-in">
 					<DiceRollSummary roll={roll} />
 				</div>
 			)}
@@ -28,11 +28,11 @@ export function DiceRollList() {
 			endReached={() => list.loadMore(numItems)}
 			components={{
 				Footer: () =>
-					list.status === "Exhausted" ? null : (
-						<div className="flex justify-center p-4">
+					list.status === "Exhausted" ?
+						null
+					:	<div className="flex justify-center p-4">
 							<Loading />
-						</div>
-					),
+						</div>,
 			}}
 		/>
 	)
@@ -44,13 +44,13 @@ function DiceRollSummary({ roll }: { roll: PaginatedQueryItem<typeof api.diceRol
 			key={roll._id}
 			className="flex flex-col gap-1 rounded border border-primary-300 bg-primary-200 px-3 py-2"
 		>
-			<h3 className="font-light text-xl/tight empty:hidden">{roll.label}</h3>
+			<h3 className="text-xl/tight font-light empty:hidden">{roll.label}</h3>
 			<ul className="-mx-1.5 flex flex-wrap">
 				{roll.dice.map((die) => (
 					<DiceRollIcon key={die.key} die={die} />
 				))}
 			</ul>
-			<p className="text-primary-600 leading-tight">
+			<p className="leading-tight text-primary-600">
 				rolled by{" "}
 				<strong className="font-medium text-primary-900">
 					{roll.rolledBy ? roll.rolledBy.name : <span className="opacity-50">unknown user</span>}
@@ -71,8 +71,8 @@ function DiceRollIcon({ die }: { die: { sides: number; outcome: number } }) {
 				style={style}
 				className="absolute flex translate-y-[--text-offset] flex-col items-center"
 			>
-				<p className="font-medium text-xl/none">{die.outcome}</p>
-				<p className="text-primary-800 text-sm/none">d{die.sides}</p>
+				<p className="text-xl/none font-medium">{die.outcome}</p>
+				<p className="text-sm/none text-primary-800">d{die.sides}</p>
 			</div>
 		</div>
 	)

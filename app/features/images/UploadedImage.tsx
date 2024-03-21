@@ -47,12 +47,12 @@ function UploadedImageInternal({ id, emptyIcon = <LucideImage />, ...props }: Up
 		<div
 			{...withMergedClassName(
 				props,
-				"bg-contain bg-center bg-no-repeat flex items-center justify-center",
+				"flex items-center justify-center bg-contain bg-center bg-no-repeat",
 			)}
 			style={{ ...props.style, backgroundImage: imageUrl ? `url(${imageUrl})` : undefined }}
 			data-status={imageUrl ? status : undefined}
 		>
-			<div className="flex size-full flex-col text-primary-600 opacity-50 *:m-auto empty:hidden *:aspect-square *:size-full *:max-h-24 *:max-w-24">
+			<div className="flex size-full flex-col text-primary-600 opacity-50 *:m-auto *:aspect-square *:size-full *:max-h-24 *:max-w-24 empty:hidden">
 				{status === "error" && <LucideFileX />}
 				{imageUrl ? null : emptyIcon}
 			</div>

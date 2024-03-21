@@ -24,9 +24,7 @@ type Character =
 	| ResultQueryData<typeof api.characters.list>[number]
 	| ResultQueryData<typeof api.characters.getPlayerCharacter>
 
-export function CharacterForm(props: {
-	character: Character
-}) {
+export function CharacterForm(props: { character: Character }) {
 	const room = useRoom()
 	const user = useQuery(api.auth.user)
 	const updateCharacter = useMutation(api.characters.update)
@@ -140,22 +138,19 @@ export function CharacterForm(props: {
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
-			{isCharacterOwner ? (
+			{isCharacterOwner ?
 				<ImageInput character={character} />
-			) : (
-				<UploadedImage id={character.imageId} className="aspect-square w-full" />
-			)}
+			:	<UploadedImage id={character.imageId} className="aspect-square w-full" />}
 
-			{isCharacterOwner ? (
+			{isCharacterOwner ?
 				<div className="flex gap-2 *:flex-1">
 					{renderTextField("name")}
 					{renderTextField("pronouns")}
 				</div>
-			) : (
-				<FormField label="Pronouns">
+			:	<FormField label="Pronouns">
 					<p className={panel("flex h-10 items-center px-3")}>{character.pronouns}</p>
 				</FormField>
-			)}
+			}
 
 			{room.isOwner && (
 				<>
@@ -207,9 +202,9 @@ export function CharacterForm(props: {
 				</>
 			)}
 
-			{room.isOwner
-				? renderMultilineTextField("ownerNotes", "Notes")
-				: renderMultilineTextField("playerNotes", "Notes")}
+			{room.isOwner ?
+				renderMultilineTextField("ownerNotes", "Notes")
+			:	renderMultilineTextField("playerNotes", "Notes")}
 		</div>
 	)
 }
@@ -270,7 +265,7 @@ function CheckboxField({
 		<FormField label={label} htmlFor={id} className="flex-row-reverse justify-end gap-1.5">
 			<div className="relative flex size-5 items-center justify-center overflow-clip">
 				<input
-					className="peer size-full appearance-none rounded border-2 border-primary-400 bg-primary-100 transition active:border-primary-600 checked:bg-primary-300/50 checked:hover:bg-primary-300 hover:bg-primary-200 active:duration-0"
+					className="peer size-full appearance-none rounded border-2 border-primary-400 bg-primary-100 transition checked:bg-primary-300/50 hover:bg-primary-200 checked:hover:bg-primary-300 active:border-primary-600 active:duration-0"
 					id={id}
 					type="checkbox"
 					checked={checked}
@@ -310,7 +305,7 @@ function ImageInput({
 	}
 
 	return (
-		<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-primary-300 border-dashed bg-primary-200/50 transition hover:bg-primary-200/75">
+		<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-dashed border-primary-300 bg-primary-200/50 transition hover:bg-primary-200/75">
 			{status === "idle" && (
 				<UploadedImage
 					id={character.imageId}
@@ -339,7 +334,7 @@ function ImageInput({
 					onClick={async () => {
 						await update({ id: character._id, imageId: null })
 					}}
-					className="absolute top-0 right-0 m-2"
+					className="absolute right-0 top-0 m-2"
 				/>
 			)}
 		</div>

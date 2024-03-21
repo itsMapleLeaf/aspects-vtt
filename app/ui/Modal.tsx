@@ -37,24 +37,15 @@ export function ModalButton(props: DialogDisclosureProps) {
 	return <DialogDisclosure {...props} />
 }
 
-export interface ModalPanelProps
-	extends StrictOmit<DialogProps, "backdrop" | "title"> {
+export interface ModalPanelProps extends StrictOmit<DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
 	description?: React.ReactNode
 }
 
-export function ModalPanel({
-	title,
-	description,
-	children,
-	...props
-}: ModalPanelProps) {
+export function ModalPanel({ title, description, children, ...props }: ModalPanelProps) {
 	const store =
 		useDialogContext() ??
-		raise(
-			`<${ModalPanel.name} /> must be used within a <${Modal.name} />`,
-			ModalPanel,
-		)
+		raise(`<${ModalPanel.name} /> must be used within a <${Modal.name} />`, ModalPanel)
 
 	return (
 		<Dialog
@@ -68,12 +59,8 @@ export function ModalPanel({
 			<div className={panel("m-auto divide-y divide-primary-300 shadow-lg")}>
 				<header className="flex items-center gap-3 bg-black/25 p-3">
 					<div className="flex-1">
-						<DialogHeading className="font-light text-2xl/tight">
-							{title}
-						</DialogHeading>
-						{description && (
-							<DialogDescription>{description}</DialogDescription>
-						)}
+						<DialogHeading className="text-2xl/tight font-light">{title}</DialogHeading>
+						{description && <DialogDescription>{description}</DialogDescription>}
 					</div>
 					<DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
 						<LucideX />

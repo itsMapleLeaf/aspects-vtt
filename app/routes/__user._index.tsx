@@ -14,12 +14,11 @@ export default function CreateRoomRoute() {
 	const navigate = useNavigate()
 	return (
 		<main>
-			{rooms === undefined ? (
+			{rooms === undefined ?
 				<Loading />
-			) : !rooms.ok ? (
+			: !rooms.ok ?
 				<p>Failed to load rooms: {rooms.error}</p>
-			) : (
-				<ul className="mb-2 grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-2">
+			:	<ul className="mb-2 grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-2">
 					{rooms.data.map((room) => (
 						<li key={room._id}>
 							<Link
@@ -29,12 +28,12 @@ export default function CreateRoomRoute() {
 								)}
 							>
 								<LucideHome />
-								<h2 className="flex-1 font-light text-lg">{room.name}</h2>
+								<h2 className="flex-1 text-lg font-light">{room.name}</h2>
 							</Link>
 						</li>
 					))}
 				</ul>
-			)}
+			}
 			<Button
 				icon={<LucidePlus />}
 				text="Create Room"

@@ -5,11 +5,7 @@ import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { useRoom } from "../rooms/roomContext.tsx"
 
-export function CreateCharacterButton({
-	onCreate,
-}: {
-	onCreate: (id: Id<"characters">) => void
-}) {
+export function CreateCharacterButton({ onCreate }: { onCreate: (id: Id<"characters">) => void }) {
 	const room = useRoom()
 	const create = useMutation(api.characters.create)
 	return (

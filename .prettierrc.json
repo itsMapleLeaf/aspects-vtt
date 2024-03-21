@@ -1,0 +1,16 @@
+{
+	"printWidth": 100,
+	"semi": false,
+	"useTabs": true,
+	"experimentalTernaries": true,
+	"plugins": ["prettier-plugin-jsdoc", "prettier-plugin-tailwindcss"],
+	"tailwindFunctions": ["twMerge", "withMergedClassName"],
+	"overrides": [
+		{
+			"files": ["pnpm-lock.yaml", "convex/_generated/**"],
+			"options": {
+				"requirePragma": true
+			}
+		}
+	]
+}

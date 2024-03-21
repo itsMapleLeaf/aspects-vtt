@@ -76,7 +76,7 @@ export function Token({
 
 	return (
 		<div
-			className="absolute top-0 left-0 transition-[translate] ease-out data-[dragging=true]:duration-0"
+			className="absolute left-0 top-0 transition-[translate] ease-out data-[dragging=true]:duration-0"
 			data-dragging={!!drag}
 			style={{
 				width: room.mapCellSize,
@@ -86,7 +86,7 @@ export function Token({
 		>
 			<div
 				ref={refs.setReference}
-				className="group relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
+				className="relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
 				data-selected={selected}
 			>
 				<button
@@ -106,14 +106,15 @@ export function Token({
 
 				<div
 					style={{ scale: 1 / zoom }}
-					className="pointer-events-none absolute inset-x-0 top-full flex origin-top justify-center text-balance p-2 opacity-0 transition-[scale] ease-out [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100"
+					data-selected={selected}
+					className="pointer-events-none absolute inset-x-0 top-full flex origin-top justify-center text-balance p-2 opacity-0 transition-[scale] ease-out peer-hover:opacity-100 data-[selected=true]:opacity-100"
 				>
 					<p className="rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 empty:hidden">
 						{character.name}
 					</p>
 				</div>
 
-				<div className="-translate-x-1/2 -translate-y-1.5 pointer-events-none absolute bottom-full left-1/2 z-10 flex w-11 flex-col gap-1.5">
+				<div className="pointer-events-none absolute bottom-full left-1/2 z-10 flex w-11 -translate-x-1/2 -translate-y-1.5 flex-col gap-1.5">
 					{[
 						{
 							ratio: character.damageRatio,
@@ -128,9 +129,8 @@ export function Token({
 							),
 						},
 					]
-						.flatMap((item) =>
-							item.ratio != null && item.ratio > 0 ? { ...item, ratio: item.ratio } : [],
-						)
+						.map((item) => ({ ...item, ratio: item.ratio ?? 0 }))
+						.filter((item) => item.ratio > 0)
 						.map((item, i) => (
 							<div
 								key={i}

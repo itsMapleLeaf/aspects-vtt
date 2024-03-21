@@ -43,7 +43,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		"before:transition active:before:duration-0",
 
 		"bg-primary-300/30",
-		"active:before:bg-primary-300 before:bg-primary-300/60 hover:text-primary-700",
+		"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
 
 		"translate-y-0 active:translate-y-0.5",
 		"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
@@ -55,9 +55,11 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		<>
 			<span
 				data-size={size}
-				className="-mx-1 relative empty:hidden *:data-[size=lg]:size-8 *:size-5"
+				className="relative -mx-1 *:size-5 empty:hidden *:data-[size=lg]:size-8"
 			>
-				{pending ? <Loading size="sm" /> : icon}
+				{pending ?
+					<Loading size="sm" />
+				:	icon}
 			</span>
 			<span data-size={size} className="relative flex-1 text-left empty:hidden">
 				{text}
@@ -65,25 +67,23 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		</>
 	)
 
-	return "element" in props ? (
-		cloneElement(props.element, {
-			className: twMerge(className, props.className),
-			children: children,
-		})
-	) : (
-		<button
-			type="button"
-			disabled={pending}
-			{...withMergedClassName(props, "cursor-default", className)}
-			onClick={async (event) => {
-				setOnClickPending(true)
-				try {
-					await props.onClick?.(event)
-				} catch {}
-				setOnClickPending(false)
-			}}
-		>
-			{children}
-		</button>
-	)
+	return "element" in props ?
+			cloneElement(props.element, {
+				className: twMerge(className, props.className),
+				children: children,
+			})
+		:	<button
+				type="button"
+				disabled={pending}
+				{...withMergedClassName(props, "cursor-default", className)}
+				onClick={async (event) => {
+					setOnClickPending(true)
+					try {
+						await props.onClick?.(event)
+					} catch {}
+					setOnClickPending(false)
+				}}
+			>
+				{children}
+			</button>
 }

@@ -4,7 +4,11 @@ export function Loading({
 	size = "md",
 	fill,
 	className,
-}: { size?: "sm" | "md"; fill?: "parent" | "screen"; className?: string }) {
+}: {
+	size?: "sm" | "md"
+	fill?: "parent" | "screen"
+	className?: string
+}) {
 	return (
 		<div
 			data-fill={fill}

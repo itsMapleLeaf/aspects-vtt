@@ -117,17 +117,17 @@ export function TokenMapViewport({
 				}}
 			>
 				<div
-					className="absolute top-0 left-0 origin-top-left transition-[translate,scale] ease-out"
+					className="absolute left-0 top-0 origin-top-left transition-[translate,scale] ease-out"
 					style={{ translate: `${-offset.x}px ${-offset.y}px`, scale: zoom }}
 				>
 					<UploadedImage
 						id={room.mapImageId}
-						className="absolute top-0 left-0"
+						className="absolute left-0 top-0"
 						style={mapDimensions.toObject("width", "height")}
 					/>
 					<ZoomContext.Provider value={zoom}>
 						<TokenMapGrid
-							className="absolute top-0 left-0 opacity-25"
+							className="absolute left-0 top-0 opacity-25"
 							style={mapDimensions.toObject("width", "height")}
 						/>
 						{children}
