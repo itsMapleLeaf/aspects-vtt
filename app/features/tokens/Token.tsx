@@ -79,17 +79,23 @@ export function Token({
 			}}
 		>
 			<div
-				data-selected={selected}
 				ref={refs.setReference}
 				className="group relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
+				data-selected={selected}
 			>
-				<button type="button" className="size-full" ref={ref}>
+				<button
+					type="button"
+					className="relative flex size-full items-center justify-center"
+					ref={ref}
+				>
 					<UploadedImage
 						id={character.imageId}
 						emptyIcon={<Lucide.Ghost />}
-						className="size-full"
 						draggable={false}
+						className="peer size-full transition-opacity data-[faded=true]:opacity-50"
+						data-faded={room.isOwner && character.tokenVisibleTo !== "everyone"}
 					/>
+					<Lucide.EyeOff className="absolute size-8 opacity-0 transition-opacity peer-data-[faded=true]:opacity-100" />
 				</button>
 
 				<p className="-translate-x-1/2 pointer-events-none absolute top-full left-1/2 w-max max-w-48 translate-y-2 text-balance rounded bg-primary-100/75 p-1.5 leading-none opacity-0 empty:hidden [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100">

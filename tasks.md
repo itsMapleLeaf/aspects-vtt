@@ -55,7 +55,7 @@
   - [x] notes field
 - tokens
   - [x] fix name tag blocking clicks
-  - [ ] translucent to the owner when hidden
+  - [x] translucent to the owner when hidden
   - [ ] show damage and fatigue bars, where the owner can see all of them and players can only see their own
 - map
   - [ ] conform to background image size
@@ -100,6 +100,7 @@
   - [ ] H shortcut to hide or show
   - [ ] move camera when dragging token to edge of viewport
   - [ ] non-character tokens
+  - [ ] focus viewport on token when a character is selected on the sidebar
 - dice
   - [ ] improve dice button layout
 - [x] move health & fatigue to tokens

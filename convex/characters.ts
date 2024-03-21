@@ -137,7 +137,7 @@ export const listTokens = query({
 		return characters
 			.map((character) => ({ ...defaultProperties, ...character }))
 			.map((character) => ({
-				...pick(character, ["_id", "name", "imageId", "tokenPosition"]),
+				...pick(character, ["_id", "name", "imageId", "tokenPosition", "tokenVisibleTo"]),
 				...(isOwner && {
 					damageRatio: clamp(character.damage / (character.strength + character.mobility), 0, 1),
 					fatigueRatio: clamp(
