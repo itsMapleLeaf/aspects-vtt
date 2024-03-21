@@ -106,7 +106,7 @@ export const list = query({
 			.map((character) => ({
 				...defaultProperties,
 				_id: character._id,
-				playerId: null,
+				playerId: character.playerId,
 				...((character.visibleTo === "everyone" || character._id === player?.characterId) &&
 					pick(character, playerPropertyKeys)),
 			}))

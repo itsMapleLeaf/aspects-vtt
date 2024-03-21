@@ -1,4 +1,4 @@
-import { useConvex, useMutation } from "convex/react"
+import { useConvex, useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
 import { expect } from "#app/common/expect.js"
@@ -12,6 +12,7 @@ import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { Select } from "#app/ui/Select.js"
+import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
@@ -27,9 +28,11 @@ export function CharacterForm(props: {
 	character: Character
 }) {
 	const room = useRoom()
+	const user = useQuery(api.auth.user)
 	const updateCharacter = useMutation(api.characters.update)
 	const [updates, setUpdates] = useState<Partial<Character>>()
 	const character = { ...props.character, ...updates }
+	const isCharacterOwner = room.isOwner || character.playerId === user?.data?._id
 	const createDiceRoll = useMutation(api.diceRolls.create)
 
 	useEffect(() => {
@@ -87,39 +90,12 @@ export function CharacterForm(props: {
 		max?: number,
 		label = [startCase(key), max].filter(Boolean).join(" / "),
 	) {
-		const ref = useRef<HTMLInputElement>(null)
-
-		function setValue(value: number) {
-			updateValues({
-				[key]: clamp(value, 0, max ?? Number.POSITIVE_INFINITY),
-			})
-		}
-
-		useEffect(() => {
-			const handleWheel = (event: WheelEvent) => {
-				if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
-					event.preventDefault()
-					event.stopPropagation()
-					setValue(character[key] - Math.sign(event.deltaY))
-				}
-			}
-			const element = expect(ref.current, "input ref not set")
-			element.addEventListener("wheel", handleWheel, { passive: false })
-			return () => {
-				element.removeEventListener("wheel", handleWheel)
-			}
-		})
-
 		return (
 			<FormField label={label} htmlFor={inputId(key)}>
-				<Input
-					id={inputId(key)}
-					type="number"
+				<NumberInput
 					value={character[key]}
-					min={0}
 					max={max}
-					elementRef={ref}
-					onChange={(event) => setValue(event.target.valueAsNumber)}
+					onChangeValue={(value) => updateValues({ [key]: value })}
 				/>
 			</FormField>
 		)
@@ -164,29 +140,39 @@ export function CharacterForm(props: {
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
-			<div className="flex gap-2 *:flex-1">
-				{renderTextField("name")}
-				{renderTextField("pronouns")}
-			</div>
+			{isCharacterOwner ? (
+				<ImageInput character={character} />
+			) : (
+				<UploadedImage id={character.imageId} className="aspect-square w-full" />
+			)}
 
-			{room.isOwner && (
-				<FormField label="Player" htmlFor={inputId("player")}>
-					<Select
-						id={inputId("player")}
-						options={[
-							{ label: "None", value: null },
-							...(room.players?.map((player) => ({ label: player.name, value: player._id })) ?? []),
-						]}
-						value={character.playerId}
-						onChange={(value) => {
-							updateValues({ playerId: value })
-						}}
-					/>
+			{isCharacterOwner ? (
+				<div className="flex gap-2 *:flex-1">
+					{renderTextField("name")}
+					{renderTextField("pronouns")}
+				</div>
+			) : (
+				<FormField label="Pronouns">
+					<p className={panel("flex h-10 items-center px-3")}>{character.pronouns}</p>
 				</FormField>
 			)}
 
 			{room.isOwner && (
 				<>
+					<FormField label="Player" htmlFor={inputId("player")}>
+						<Select
+							id={inputId("player")}
+							options={[
+								{ label: "None", value: null },
+								...(room.players?.map((player) => ({ label: player.name, value: player._id })) ??
+									[]),
+							]}
+							value={character.playerId}
+							onChange={(value) => {
+								updateValues({ playerId: value })
+							}}
+						/>
+					</FormField>
 					<CheckboxField
 						label="Public"
 						id={inputId("visibleTo")}
@@ -206,24 +192,66 @@ export function CharacterForm(props: {
 				</>
 			)}
 
-			<ImageInput character={character} />
-
-			<div className="flex gap-2 *:flex-1">
-				{renderNumberField("damage", character.strength + character.mobility)}
-				{renderNumberField("fatigue", character.sense + character.intellect + character.wit)}
-				{renderNumberField("currency")}
-			</div>
-
-			{renderDiceField("strength", "damage")}
-			{renderDiceField("sense", "fatigue")}
-			{renderDiceField("mobility", "damage")}
-			{renderDiceField("intellect", "fatigue")}
-			{renderDiceField("wit", "fatigue")}
+			{isCharacterOwner && (
+				<>
+					<div className="flex gap-2 *:flex-1">
+						{renderNumberField("damage", character.strength + character.mobility)}
+						{renderNumberField("fatigue", character.sense + character.intellect + character.wit)}
+						{renderNumberField("currency")}
+					</div>
+					{renderDiceField("strength", "damage")}
+					{renderDiceField("sense", "fatigue")}
+					{renderDiceField("mobility", "damage")}
+					{renderDiceField("intellect", "fatigue")}
+					{renderDiceField("wit", "fatigue")}
+				</>
+			)}
 
 			{room.isOwner
 				? renderMultilineTextField("ownerNotes", "Notes")
 				: renderMultilineTextField("playerNotes", "Notes")}
 		</div>
+	)
+}
+
+type NumberInputProps = {
+	value: number
+	max?: number
+	onChangeValue: (value: number) => void
+}
+
+export function NumberInput({ value, max, onChangeValue }: NumberInputProps) {
+	const ref = useRef<HTMLInputElement>(null)
+
+	function setValue(newValue: number) {
+		const clampedValue = clamp(newValue, 0, max ?? Number.POSITIVE_INFINITY)
+		onChangeValue(clampedValue)
+	}
+
+	useEffect(() => {
+		const handleWheel = (event: WheelEvent) => {
+			if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
+				event.preventDefault()
+				event.stopPropagation()
+				setValue(value - Math.sign(event.deltaY))
+			}
+		}
+		const element = expect(ref.current, "input ref not set")
+		element.addEventListener("wheel", handleWheel, { passive: false })
+		return () => {
+			element.removeEventListener("wheel", handleWheel)
+		}
+	})
+
+	return (
+		<Input
+			type="number"
+			value={value}
+			min={0}
+			max={max}
+			elementRef={ref}
+			onChange={(event) => setValue(event.target.valueAsNumber)}
+		/>
 	)
 }
 

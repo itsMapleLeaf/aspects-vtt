@@ -66,7 +66,7 @@
   - [x] pronouns field
   - [x] show stress thresholds
   - [x] separate visibility for character browser and tokens + let players browse visible characters
-  - [ ] hide fields for players that don't have permission to edit them
+  - [x] hide fields for players that don't have permission to edit them
   - [ ] duplicate button
 - dice
   - [x] roll boost and snag dice with attributes

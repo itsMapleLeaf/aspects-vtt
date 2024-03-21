@@ -78,7 +78,7 @@ export function TokenMapViewport({
 							onChange={(event) => {
 								const value = event.currentTarget.valueAsNumber
 								if (Number.isNaN(value)) return
-								updateRoom({ id: room._id, mapCellSize: value })
+								updateRoom({ id: room._id, mapCellSize: Math.max(value, 1) })
 							}}
 						/>
 					</FormField>
