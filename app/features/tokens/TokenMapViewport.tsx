@@ -1,7 +1,7 @@
 import { useConvex, useMutation } from "convex/react"
 import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
-import { type SetStateAction, createContext, useReducer, useRef, useState } from "react"
+import { type SetStateAction, useReducer, useRef, useState } from "react"
 import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { useDrag } from "#app/common/useDrag.js"
@@ -17,8 +17,7 @@ import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { TokenMapGrid } from "./TokenMapGrid.tsx"
-
-export const ZoomContext = createContext(1)
+import { ZoomContext } from "./ZoomContext.tsx"
 
 export function TokenMapViewport({
 	children,

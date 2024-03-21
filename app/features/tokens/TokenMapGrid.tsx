@@ -4,7 +4,7 @@ import { expect } from "#app/common/expect.ts"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { withMergedClassName } from "#app/ui/withMergedClassName.js"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { ZoomContext } from "./TokenMapViewport.tsx"
+import { ZoomContext } from "./ZoomContext.tsx"
 
 export function TokenMapGrid(props: ComponentPropsWithoutRef<"canvas">) {
 	const room = useRoom()

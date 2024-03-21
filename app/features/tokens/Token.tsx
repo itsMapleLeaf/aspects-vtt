@@ -9,7 +9,7 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { ZoomContext } from "./TokenMapViewport.tsx"
+import { ZoomContext } from "./ZoomContext.tsx"
 
 export function Token({
 	character,
