@@ -5,14 +5,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "dev",
-			"type": "node",
+			"name": "Launch Edge",
 			"request": "launch",
-			"skipFiles": ["<node_internals>/**"],
-			"runtimeExecutable": "pnpm",
-			"runtimeArgs": ["dev:remix"],
-			"preLaunchTask": "dev convex",
-			"console": "integratedTerminal"
+			"type": "msedge",
+			"url": "http://localhost:5173",
+			"webRoot": "${workspaceFolder}",
+			"preLaunchTask": "npm run dev"
 		}
 	]
 }
