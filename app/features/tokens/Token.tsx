@@ -87,7 +87,7 @@ export function Token({
 		>
 			<div
 				ref={refs.setReference}
-				className="relative size-full rounded outline outline-[length:calc(1/var(--scale)*3px)] outline-transparent data-[selected=true]:outline-primary-700"
+				className="relative size-full rounded outline outline-[length:calc(clamp(3px,1/var(--scale)*3px,8px))] outline-transparent data-[selected=true]:outline-primary-700"
 				data-selected={selected}
 			>
 				<button

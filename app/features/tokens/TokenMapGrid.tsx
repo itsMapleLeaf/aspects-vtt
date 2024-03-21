@@ -10,7 +10,7 @@ export function TokenMapGrid(props: ComponentPropsWithoutRef<"canvas">) {
 	const room = useRoom()
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const zoom = use(ZoomContext)
-	const lineWidth = 1 / zoom
+	const lineWidth = Math.max(1 / zoom, 1)
 
 	// useEffect(() => {
 	// 	const canvas = expect(canvasRef.current, "canvas ref not set")
@@ -22,8 +22,8 @@ export function TokenMapGrid(props: ComponentPropsWithoutRef<"canvas">) {
 		const context = expect(canvas.getContext("2d"), "failed to get canvas context")
 		const { width, height } = canvas
 
-		context.strokeStyle = "white"
-		context.lineWidth = 1 / zoom
+		context.strokeStyle = "black"
+		context.lineWidth = lineWidth
 
 		context.clearRect(0, 0, width, height)
 		context.beginPath()
@@ -39,7 +39,7 @@ export function TokenMapGrid(props: ComponentPropsWithoutRef<"canvas">) {
 		}
 
 		context.stroke()
-	}, [room.mapCellSize, zoom])
+	}, [room.mapCellSize, lineWidth])
 
 	useEffect(() => {
 		// debounce to reduce draw calls
