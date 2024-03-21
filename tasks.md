@@ -91,6 +91,7 @@
   - [ ] limit aspect skills based on experience
   - [ ] turn character sidebar into a drawer / overlay
   - [ ] allow users to set a crop region for the token
+  - [ ] when the token of a private character is selected, show an empty state
 - token map
   - [ ] client-side logarhythmic background brightness slider
   - [ ] client-side logarhythmic grid brightness slider
