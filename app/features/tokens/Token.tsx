@@ -1,7 +1,8 @@
 import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useRef } from "react"
+import { type CSSProperties, useRef } from "react"
+import { twMerge } from "tailwind-merge"
 import { useDrag } from "#app/common/useDrag.js"
 import { Vector } from "#app/common/vector.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
@@ -102,15 +103,42 @@ export function Token({
 					{character.name}
 				</p>
 
-				{/* TODO: decide  if and how I want to show stress bars */}
-				{/* <div className="-translate-x-1/2 -translate-y-2 pointer-events-none absolute bottom-full left-1/2 z-10 h-2.5 w-10 rounded border border-red-500 p-px opacity-50">
-                <div
-                    className="h-full origin-left rounded-sm bg-red-600"
-                    style={{
-                        scale: `${1 - character.damage / (20 + character.strength)} 1`,
-                    }}
-                />
-            </div> */}
+				<div className="-translate-x-1/2 -translate-y-1.5 pointer-events-none absolute bottom-full left-1/2 z-10 flex w-11 flex-col gap-1.5">
+					{[
+						{
+							ratio: character.damageRatio,
+							className: twMerge(
+								"[--end-color:theme(colors.red.500)] [--start-color:theme(colors.yellow.500)]",
+							),
+						},
+						{
+							ratio: character.fatigueRatio,
+							className: twMerge(
+								"[--end-color:theme(colors.purple.500)] [--start-color:theme(colors.green.400)]",
+							),
+						},
+					]
+						.flatMap((item) =>
+							item.ratio != null && item.ratio > 0 ? { ...item, ratio: item.ratio } : [],
+						)
+						.map((item, i) => (
+							<div
+								key={i}
+								className={twMerge(
+									"h-2 w-full rounded-sm border border-current text-[color-mix(in_oklch,var(--start-color),var(--end-color)_var(--ratio))] transition-colors",
+									item.className,
+								)}
+								style={{ "--ratio": `${item.ratio * 100}%` } as CSSProperties}
+							>
+								<div
+									className="h-full origin-left bg-current transition-[background-color,scale]"
+									style={{
+										scale: `var(--ratio) 1`,
+									}}
+								/>
+							</div>
+						))}
+				</div>
 			</div>
 		</div>
 	)

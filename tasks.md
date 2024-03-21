@@ -56,11 +56,12 @@
 - tokens
   - [x] fix name tag blocking clicks
   - [x] translucent to the owner when hidden
-  - [ ] show damage and fatigue bars, where the owner can see all of them and players can only see their own
+  - [x] show damage and fatigue bars, where the owner can see all of them and players can only see their own
 - map
   - [ ] conform to background image size
   - [ ] configure cell size in pixels
   - [ ] zooming
+  - [ ] client-side logarhythmic background brightness slider
 - characters
   - [x] pronouns field
   - [x] show stress thresholds
