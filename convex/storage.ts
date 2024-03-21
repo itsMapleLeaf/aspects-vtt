@@ -23,8 +23,10 @@ export async function replaceFile(
 	current: Nullish<Id<"_storage">>,
 	next: Nullish<Id<"_storage">>,
 ) {
-	if (next !== undefined && current !== next && current) {
-		await ctx.storage.delete(current)
+	if (next !== undefined && current !== next) {
+		if (current) {
+			await ctx.storage.delete(current)
+		}
 		return next
 	}
 	return current
