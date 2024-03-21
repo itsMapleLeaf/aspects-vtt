@@ -82,11 +82,12 @@ export function Token({
 				width: room.mapCellSize,
 				height: room.mapCellSize,
 				translate: `${visualPosition.x}px ${visualPosition.y}px`,
+				...{ "--scale": zoom },
 			}}
 		>
 			<div
 				ref={refs.setReference}
-				className="relative size-full outline outline-2 outline-transparent data-[selected=true]:outline-primary-600"
+				className="relative size-full rounded outline outline-[length:calc(1/var(--scale)*3px)] outline-transparent data-[selected=true]:outline-primary-700"
 				data-selected={selected}
 			>
 				<button
