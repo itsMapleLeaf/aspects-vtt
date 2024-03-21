@@ -92,7 +92,7 @@ export function Token({
 			>
 				<button
 					type="button"
-					className="relative flex size-full items-center justify-center"
+					className="peer relative flex size-full items-center justify-center"
 					ref={ref}
 				>
 					<UploadedImage
