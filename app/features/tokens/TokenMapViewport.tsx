@@ -1,7 +1,9 @@
 import { useConvex, useMutation } from "convex/react"
 import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
-import { type SetStateAction, useReducer, useRef, useState } from "react"
+import { type SetStateAction, createContext, useReducer, useRef, useState } from "react"
+import { expect } from "#app/common/expect.js"
+import { clamp } from "#app/common/math.js"
 import { useDrag } from "#app/common/useDrag.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.ts"
@@ -11,21 +13,28 @@ import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.js"
 import { panel } from "#app/ui/styles.ts"
 import { api } from "#convex/_generated/api.js"
+import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { TokenMapGrid } from "./TokenMapGrid.tsx"
 
+export const ZoomContext = createContext(1)
+
 export function TokenMapViewport({
 	children,
-	background,
 	onBackdropClick,
 }: {
 	children: React.ReactNode
-	background?: React.ReactNode
 	onBackdropClick?: () => void
 }) {
 	const room = useRoom()
 	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
+
+	const [zoomFactor, setZoomFactor] = useState(0)
+	const zoomMultiple = 1.2
+	const zoom = zoomMultiple ** zoomFactor
+	const extent = Vector.from(room.mapCellSize * 5 * zoom) // how much further outside the viewport the map can be
+
 	const mapDimensions = Vector.from(room.mapDimensions)
 	const viewportRef = useRef<HTMLDivElement>(null)
 
@@ -44,8 +53,8 @@ export function TokenMapViewport({
 
 	function clampOffset(offset: Vector) {
 		const topLeft = Vector.zero
-		const bottomRight = mapDimensions.minus(viewportSize).clampTopLeft(Vector.zero)
-		return offset.clamp(topLeft, bottomRight)
+		const bottomRight = mapDimensions.times(zoom).minus(viewportSize).clampTopLeft(Vector.zero)
+		return offset.clamp(topLeft.minus(extent), bottomRight.plus(extent))
 	}
 
 	const drag = useDrag(viewportRef, {
@@ -84,23 +93,45 @@ export function TokenMapViewport({
 					</FormField>
 				)}
 			</div>
-			<div className={panel("relative size-full select-none overflow-clip")} ref={viewportRef}>
+			<div
+				className={panel("relative size-full select-none overflow-clip bg-primary-200/25")}
+				ref={viewportRef}
+				onWheel={(event) => {
+					const newZoomFactor = clamp(zoomFactor - Math.sign(event.deltaY), -10, 10)
+					const newZoom = zoomMultiple ** newZoomFactor
+
+					const viewportRect = expect(
+						viewportRef.current,
+						"viewport ref not set",
+					).getBoundingClientRect()
+					const viewportTopLeft = Vector.from(viewportRect.left, viewportRect.top)
+
+					const currentMouseOffset = Vector.from(event.clientX, event.clientY).minus(
+						viewportTopLeft.minus(offset),
+					)
+
+					const shift = currentMouseOffset.dividedBy(zoom).times(newZoom).minus(currentMouseOffset)
+
+					setZoomFactor(newZoomFactor)
+					setOffsetState((state) => state.plus(shift))
+				}}
+			>
 				<div
-					className="absolute top-0 left-0"
-					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
+					className="absolute top-0 left-0 origin-top-left transition-[translate,scale] ease-out"
+					style={{ translate: `${-offset.x}px ${-offset.y}px`, scale: zoom }}
 				>
-					<div style={mapDimensions.toObject("width", "height")} className="relative">
-						{background}
-					</div>
-				</div>
-				<TokenMapGrid offsetX={-offset.x} offsetY={-offset.y} />
-				<div
-					className="absolute top-0 left-0"
-					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
-				>
-					<div style={mapDimensions.toObject("width", "height")} className="relative">
+					<UploadedImage
+						id={room.mapImageId}
+						className="absolute top-0 left-0"
+						style={mapDimensions.toObject("width", "height")}
+					/>
+					<ZoomContext.Provider value={zoom}>
+						<TokenMapGrid
+							className="absolute top-0 left-0 opacity-25"
+							style={mapDimensions.toObject("width", "height")}
+						/>
 						{children}
-					</div>
+					</ZoomContext.Provider>
 				</div>
 			</div>
 		</div>

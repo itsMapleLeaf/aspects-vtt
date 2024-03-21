@@ -1,55 +1,50 @@
-import { useCallback, useEffect, useRef } from "react"
+import { type ComponentPropsWithoutRef, use, useCallback, useEffect, useRef } from "react"
+import { timeoutEffect } from "#app/common/async.js"
 import { expect } from "#app/common/expect.ts"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
+import { withMergedClassName } from "#app/ui/withMergedClassName.js"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { ZoomContext } from "./TokenMapViewport.tsx"
 
-export function TokenMapGrid({
-	offsetX,
-	offsetY,
-}: {
-	offsetX: number
-	offsetY: number
-}) {
+export function TokenMapGrid(props: ComponentPropsWithoutRef<"canvas">) {
 	const room = useRoom()
 	const canvasRef = useRef<HTMLCanvasElement>(null)
+	const zoom = use(ZoomContext)
+	const lineWidth = 1 / zoom
+
+	// useEffect(() => {
+	// 	const canvas = expect(canvasRef.current, "canvas ref not set")
+	// 	const context = expect(canvas.getContext("2d"), "failed to get canvas context")
+	// }, [lineWidth])
 
 	const draw = useCallback(() => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
 		const context = expect(canvas.getContext("2d"), "failed to get canvas context")
-
-		context.clearRect(0, 0, canvas.width, canvas.height)
-
-		context.save()
+		const { width, height } = canvas
 
 		context.strokeStyle = "white"
-		context.globalAlpha = 0.2
+		context.lineWidth = 1 / zoom
 
+		context.clearRect(0, 0, width, height)
 		context.beginPath()
 
-		for (let x = offsetX % room.mapCellSize; x <= canvas.width; x += room.mapCellSize) {
-			context.moveTo(...pixelCoords(x, 0))
-			context.lineTo(...pixelCoords(x, canvas.height))
+		for (let x = 0; x <= width; x += room.mapCellSize) {
+			context.moveTo(x, 0)
+			context.lineTo(x, height)
 		}
 
-		for (let y = offsetY % room.mapCellSize; y <= canvas.height; y += room.mapCellSize) {
-			context.moveTo(...pixelCoords(0, y))
-			context.lineTo(...pixelCoords(canvas.width, y))
+		for (let y = 0; y <= height; y += room.mapCellSize) {
+			context.moveTo(0, y)
+			context.lineTo(width, y)
 		}
 
 		context.stroke()
-
-		context.restore()
-
-		// context.save()
-		// context.fillStyle = "white"
-		// context.font = "16px sans-serif"
-		// context.textBaseline = "top"
-		// context.fillText(`offset: ${Math.round(offsetX)}, ${Math.round(offsetY)}`, 10, 10)
-		// context.restore()
-	}, [offsetX, offsetY, room.mapCellSize])
+	}, [room.mapCellSize, zoom])
 
 	useEffect(() => {
-		draw()
+		// debounce to reduce draw calls
+		return timeoutEffect(300, draw)
+		// draw()
 	}, [draw])
 
 	useResizeObserver(canvasRef, (entry) => {
@@ -59,7 +54,12 @@ export function TokenMapGrid({
 		draw()
 	})
 
-	return <canvas ref={canvasRef} className="pointer-events-none relative size-full" />
+	return (
+		<canvas
+			{...withMergedClassName(props, "pointer-events-none relative size-full")}
+			ref={canvasRef}
+		/>
+	)
 }
 
 function pixelCoords<T extends readonly number[]>(...input: readonly [...T]): readonly [...T] {

@@ -5,3 +5,7 @@ export function clamp(value: number, min: number, max: number): number {
 export function roundToNearest(value: number, multiple: number): number {
 	return Math.round(value / multiple) * multiple
 }
+
+export function mod(a: number, b: number): number {
+	return ((a % b) + b) % b
+}

@@ -1,5 +1,4 @@
 import { useQuery } from "convex/react"
-import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { useRoom } from "../rooms/roomContext.tsx"
@@ -16,16 +15,7 @@ export function TokenMap({
 	const room = useRoom()
 	const characters = useQuery(api.characters.listTokens, { roomId: room._id })
 	return (
-		<TokenMapViewport
-			background={
-				room.mapImageId && (
-					<UploadedImage
-						id={room.mapImageId}
-						className="absolute inset-0 size-full object-contain object-left-top brightness-75"
-					/>
-				)
-			}
-		>
+		<TokenMapViewport>
 			{characters?.data?.map((character) => (
 				<Token
 					key={character._id}

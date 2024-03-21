@@ -1,7 +1,7 @@
 import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type CSSProperties, useRef } from "react"
+import { type CSSProperties, use, useRef } from "react"
 import { twMerge } from "tailwind-merge"
 import { useDrag } from "#app/common/useDrag.js"
 import { Vector } from "#app/common/vector.ts"
@@ -9,6 +9,7 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { ZoomContext } from "./TokenMapViewport.tsx"
 
 export function Token({
 	character,
@@ -20,6 +21,7 @@ export function Token({
 	onSelect: () => void
 }) {
 	const room = useRoom()
+	const zoom = use(ZoomContext)
 
 	const updateCharacter = useMutation(api.characters.update).withOptimisticUpdate((store, args) => {
 		const characters = store.getQuery(api.characters.listTokens, { roomId: room._id })
@@ -44,7 +46,7 @@ export function Token({
 				updateCharacter({
 					id: character._id,
 					tokenPosition: Vector.from(character.tokenPosition)
-						.plus(distance.dividedBy(room.mapCellSize))
+						.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize))
 						.clamp(
 							Vector.zero,
 							Vector.from(room.mapDimensions).dividedBy(room.mapCellSize).minus(1),
@@ -56,7 +58,7 @@ export function Token({
 
 	let visualPosition = Vector.from(character.tokenPosition).times(room.mapCellSize)
 	if (drag && selected) {
-		visualPosition = visualPosition.plus(drag.distance)
+		visualPosition = visualPosition.plus(drag.distance.dividedBy(zoom))
 	}
 
 	const { refs, floatingStyles } = useFloating({
@@ -74,7 +76,8 @@ export function Token({
 
 	return (
 		<div
-			className="absolute top-0 left-0"
+			className="absolute top-0 left-0 transition-[translate] ease-out data-[dragging=true]:duration-0"
+			data-dragging={!!drag}
 			style={{
 				width: room.mapCellSize,
 				height: room.mapCellSize,
@@ -101,9 +104,14 @@ export function Token({
 					<Lucide.EyeOff className="absolute size-8 opacity-0 transition-opacity peer-data-[faded=true]:opacity-100" />
 				</button>
 
-				<p className="-translate-x-1/2 pointer-events-none absolute top-full left-1/2 w-max max-w-48 translate-y-2 text-balance rounded bg-primary-100/75 p-1.5 leading-none opacity-0 empty:hidden [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100">
-					{character.name}
-				</p>
+				<div
+					style={{ scale: 1 / zoom }}
+					className="pointer-events-none absolute inset-x-0 top-full flex origin-top justify-center text-balance p-2 opacity-0 transition-[scale] ease-out [button:hover~&]:opacity-100 group-data-[selected=true]:opacity-100"
+				>
+					<p className="rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 empty:hidden">
+						{character.name}
+					</p>
+				</div>
 
 				<div className="-translate-x-1/2 -translate-y-1.5 pointer-events-none absolute bottom-full left-1/2 z-10 flex w-11 flex-col gap-1.5">
 					{[

@@ -13,7 +13,7 @@ export default defineConfig({
 				v3_relativeSplatPath: true,
 				v3_throwAbortReason: true,
 			},
-			presets: [vercelPreset()].filter(Boolean),
+			presets: [process.env.VERCEL && vercelPreset()].filter(Boolean),
 		}),
 		remixRoutes(),
 		inspect(),

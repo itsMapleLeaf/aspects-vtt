@@ -66,6 +66,10 @@ export class Vector {
 		return this.map(Math.ceil)
 	}
 
+	toString(): string {
+		return `(${this.x}, ${this.y})`
+	}
+
 	roundedTo(multiple: number): Vector {
 		return this.map((n) => Math.round(n / multiple) * multiple)
 	}

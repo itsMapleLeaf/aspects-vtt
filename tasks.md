@@ -61,7 +61,7 @@
 - map
   - [x] conform to background image size
   - [x] configure cell size in pixels
-  - [ ] zooming
+  - [x] zooming
 - characters
   - [x] pronouns field
   - [x] show stress thresholds
@@ -93,6 +93,8 @@
 - token map
   - [ ] client-side logarhythmic background brightness slider
   - [ ] client-side logarhythmic grid brightness slider
+  - [ ] persist viewport position and zoom level
+  - [ ] drag inertia
   - [ ] right click menu on tokens with shortcuts for convenience
   - [ ] token deselection to hide side panel
   - [ ] measuring distance
