@@ -55,7 +55,8 @@
   - [x] notes field
 - tokens
   - [x] fix name tag blocking clicks
-  - [ ] semi-translucent to the owner when hidden
+  - [ ] translucent to the owner when hidden
+  - [ ] show damage and fatigue bars, where the owner can see all of them and players can only see their own
 - map
   - [ ] conform to background image size
   - [ ] configure cell size in pixels
@@ -85,6 +86,7 @@
   - [ ] experience field
   - [ ] limit aspect skills based on experience
   - [ ] turn character sidebar into a drawer / overlay
+  - [ ] allow users to set a crop region for the token
 - token map
   - [ ] token deselection to hide side panel
   - [ ] measuring distance
