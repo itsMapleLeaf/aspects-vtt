@@ -80,13 +80,19 @@ export function CharacterForm(props: {
 		)
 	}
 
-	function renderNumberField(key: keyof PickByValue<Character, number>, label = startCase(key)) {
+	function renderNumberField(
+		key: keyof PickByValue<Character, number>,
+		max?: number,
+		label = [startCase(key), max].filter(Boolean).join(" / "),
+	) {
 		return (
 			<FormField label={label} htmlFor={inputId(key)}>
 				<Input
 					id={inputId(key)}
 					type="number"
 					value={character[key]}
+					min={0}
+					max={max}
 					onChange={(event) => updateValues({ [key]: event.target.valueAsNumber })}
 				/>
 			</FormField>
@@ -177,11 +183,8 @@ export function CharacterForm(props: {
 			<ImageInput character={character} />
 
 			<div className="flex gap-2 *:flex-1">
-				{renderNumberField("damage", `Damage / ${character.strength + character.mobility}`)}
-				{renderNumberField(
-					"fatigue",
-					`Fatigue / ${character.sense + character.intellect + character.wit}`,
-				)}
+				{renderNumberField("damage", character.strength + character.mobility)}
+				{renderNumberField("fatigue", character.sense + character.intellect + character.wit)}
 				{renderNumberField("currency")}
 			</div>
 
