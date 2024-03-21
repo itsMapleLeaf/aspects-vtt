@@ -1,10 +1,12 @@
 import { useConvex, useMutation } from "convex/react"
 import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
-import { type SetStateAction, useReducer, useRef, useState } from "react"
+import { type SetStateAction, useRef, useState } from "react"
+import { z } from "zod"
 import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { useDrag } from "#app/common/useDrag.js"
+import { useLocalStorage } from "#app/common/useLocalStorage.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.ts"
 import { Button } from "#app/ui/Button.tsx"
@@ -29,7 +31,7 @@ export function TokenMapViewport({
 	const room = useRoom()
 	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
 
-	const [zoomFactor, setZoomFactor] = useState(0)
+	const [zoomFactor, setZoomFactor] = useLocalStorage("viewport:zoom", 0, z.number())
 	const zoomMultiple = 1.2
 	const zoom = zoomMultiple ** zoomFactor
 	const extent = Vector.from(room.mapCellSize * 5 * zoom) // how much further outside the viewport the map can be
@@ -42,13 +44,18 @@ export function TokenMapViewport({
 		setViewportSize(Vector.from(info.contentRect.width, info.contentRect.height)),
 	)
 
-	const [offsetState, setOffsetState] = useReducer(
-		(current: Vector, next: SetStateAction<Vector>) => {
-			const offset = typeof next === "function" ? next(current) : next
-			return clampOffset(offset)
-		},
-		Vector.zero,
+	const [offsetState, setOffsetStateInternal] = useLocalStorage(
+		"viewport:offset",
+		Vector.zero.xy,
+		z.object({ x: z.number(), y: z.number() }),
 	)
+
+	function setOffsetState(action: SetStateAction<Vector>) {
+		setOffsetStateInternal((state) => {
+			const newState = action instanceof Function ? action(Vector.from(state)) : action
+			return clampOffset(newState).xy
+		})
+	}
 
 	function clampOffset(offset: Vector) {
 		const topLeft = Vector.zero
@@ -61,11 +68,13 @@ export function TokenMapViewport({
 			onBackdropClick?.()
 		},
 		onFinish({ distance }) {
-			setOffsetState((state) => state.minus(distance))
+			setOffsetState((state) => Vector.from(state).minus(distance))
 		},
 	})
 
-	const offset = clampOffset(offsetState.minus(drag?.current.minus(drag.start) ?? Vector.zero))
+	const offset = clampOffset(
+		Vector.from(offsetState).minus(drag?.current.minus(drag.start) ?? Vector.zero),
+	)
 
 	return (
 		<div className="flex size-full flex-col gap-2">

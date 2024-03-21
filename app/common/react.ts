@@ -16,8 +16,9 @@ export function useIsomorphicValue<ClientValue = undefined, ServerValue = undefi
 	server?: () => ServerValue
 }) {
 	return useSyncExternalStore<ClientValue | ServerValue | undefined>(
-		() => () => {},
+		noopSubscribe,
 		() => options.client?.(),
 		() => options.server?.(),
 	)
 }
+const noopSubscribe = () => () => {}

@@ -57,6 +57,7 @@
   - [x] fix name tag blocking clicks
   - [x] translucent to the owner when hidden
   - [x] show damage and fatigue bars, where the owner can see all of them and players can only see their own
+  - [ ] arrow keys to move token
 - map
   - [x] conform to background image size
   - [x] configure cell size in pixels
@@ -67,6 +68,7 @@
   - [x] separate visibility for character browser and tokens + let players browse visible characters
   - [x] hide fields for players that don't have permission to edit them
   - [ ] duplicate button
+  - [ ] update checkbox and select values immediately
 - dice
   - [x] roll boost and snag dice with attributes
   - [ ] give a special appearance for boost and snag dice
@@ -92,7 +94,7 @@
 - token map
   - [ ] client-side logarhythmic background brightness slider
   - [ ] client-side logarhythmic grid brightness slider
-  - [ ] persist viewport position and zoom level
+  - [x] persist viewport position and zoom level
   - [ ] drag inertia
   - [ ] right click menu on tokens with shortcuts for convenience
   - [ ] token deselection to hide side panel
