@@ -102,12 +102,24 @@ async function getRoomBySlug(ctx: QueryCtx, args: { slug: string }) {
 }
 
 async function generateUniqueSlug(ctx: QueryCtx) {
+	const isSlugTaken = async (slug: string) => {
+		try {
+			await getRoomBySlug(ctx, { slug })
+			return true
+		} catch (error) {
+			if (error instanceof ConvexError && error.message === "Room not found") {
+				return false
+			}
+			throw error
+		}
+	}
+
 	let slug
 	let attempts = 0
 	do {
 		slug = generateSlug()
 		attempts++
-	} while ((await getRoomBySlug(ctx, { slug })) == null && attempts < 10)
+	} while ((await isSlugTaken(slug)) && attempts < 10)
 	return slug ?? raise(new Error("Failed to generate unique slug"))
 }
 
