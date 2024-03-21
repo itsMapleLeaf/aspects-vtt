@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react"
 import { expect } from "#app/common/expect.ts"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
-import { cellSize } from "./TokenMap.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 
 export function TokenMapGrid({
 	offsetX,
@@ -10,6 +10,7 @@ export function TokenMapGrid({
 	offsetX: number
 	offsetY: number
 }) {
+	const room = useRoom()
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 
 	const draw = useCallback(() => {
@@ -25,12 +26,12 @@ export function TokenMapGrid({
 
 		context.beginPath()
 
-		for (let x = offsetX % cellSize; x <= canvas.width; x += cellSize) {
+		for (let x = offsetX % room.mapCellSize; x <= canvas.width; x += room.mapCellSize) {
 			context.moveTo(...pixelCoords(x, 0))
 			context.lineTo(...pixelCoords(x, canvas.height))
 		}
 
-		for (let y = offsetY % cellSize; y <= canvas.height; y += cellSize) {
+		for (let y = offsetY % room.mapCellSize; y <= canvas.height; y += room.mapCellSize) {
 			context.moveTo(...pixelCoords(0, y))
 			context.lineTo(...pixelCoords(canvas.width, y))
 		}
@@ -45,7 +46,7 @@ export function TokenMapGrid({
 		// context.textBaseline = "top"
 		// context.fillText(`offset: ${Math.round(offsetX)}, ${Math.round(offsetY)}`, 10, 10)
 		// context.restore()
-	}, [offsetX, offsetY])
+	}, [offsetX, offsetY, room.mapCellSize])
 
 	useEffect(() => {
 		draw()

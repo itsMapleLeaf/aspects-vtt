@@ -15,7 +15,7 @@ export function Loading({
 		>
 			<div
 				className={twMerge(
-					"grid animate-spin grid-cols-2 grid-rows-2 gap-[12%] [animation-timing-function:ease]",
+					"grid aspect-square animate-spin grid-cols-2 grid-rows-2 gap-[12%] [animation-timing-function:ease]",
 					size === "sm" && "size-6",
 					size === "md" && "size-12",
 				)}

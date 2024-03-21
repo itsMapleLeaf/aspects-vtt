@@ -10,7 +10,6 @@ import { panel } from "#app/ui/styles.ts"
 import { api } from "#convex/_generated/api.js"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { cellSize, mapSize } from "./TokenMap.tsx"
 import { TokenMapGrid } from "./TokenMapGrid.tsx"
 
 export function TokenMapViewport({
@@ -22,6 +21,9 @@ export function TokenMapViewport({
 	background?: React.ReactNode
 	onBackdropClick?: () => void
 }) {
+	const room = useRoom()
+	const mapDimensions = Vector.from(room.mapDimensions)
+	const mapCellSize = Vector.from(room.mapCellSize)
 	const viewportRef = useRef<HTMLDivElement>(null)
 
 	const [viewportSize, setViewportSize] = useState(Vector.zero)
@@ -39,7 +41,7 @@ export function TokenMapViewport({
 
 	function clampOffset(offset: Vector) {
 		const topLeft = Vector.zero
-		const bottomRight = mapSize.times(cellSize).minus(viewportSize).clampTopLeft(Vector.zero)
+		const bottomRight = mapDimensions.minus(viewportSize).clampTopLeft(Vector.zero)
 		return offset.clamp(topLeft, bottomRight)
 	}
 
@@ -69,7 +71,7 @@ export function TokenMapViewport({
 					className="absolute top-0 left-0"
 					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
 				>
-					<div style={mapSize.times(cellSize).toObject("width", "height")} className="relative">
+					<div style={mapDimensions.toObject("width", "height")} className="relative">
 						{background}
 					</div>
 				</div>
@@ -78,7 +80,7 @@ export function TokenMapViewport({
 					className="absolute top-0 left-0"
 					style={{ translate: `${-offset.x}px ${-offset.y}px` }}
 				>
-					<div style={mapSize.times(cellSize).toObject("width", "height")} className="relative">
+					<div style={mapDimensions.toObject("width", "height")} className="relative">
 						{children}
 					</div>
 				</div>
@@ -91,37 +93,57 @@ function BackgroundButton() {
 	const room = useRoom()
 	const updateRoom = useMutation(api.rooms.update)
 	const backgroundImageInputRef = useRef<HTMLInputElement>(null)
-	const [isUploading, setIsUploading] = useState(false)
+	const [pending, setPending] = useState(false)
 	const convex = useConvex()
 
 	return (
 		<>
 			<Button
 				text="Set Background"
-				icon={isUploading ? <Loading /> : <Lucide.Image />}
+				icon={pending ? <Loading size="sm" className="p-0" /> : <Lucide.Image />}
 				onClick={() => {
 					backgroundImageInputRef.current?.click()
 				}}
-				disabled={isUploading}
+				disabled={pending}
 			/>
 			<input
 				type="file"
-				accept="image/*"
+				accept="image/png,image/jpeg,image/gif,image/webp"
 				ref={backgroundImageInputRef}
 				className="hidden"
 				onChange={async (event: React.ChangeEvent<HTMLInputElement>) => {
 					const file = event.target.files?.[0]
 					if (!file) return
 
-					setIsUploading(true)
+					setPending(true)
 					try {
-						const imageId = await uploadImage(file, convex)
-						await updateRoom({ id: room._id, mapImageId: imageId })
+						const mapDimensions = await new Promise<{ width: number; height: number }>(
+							(resolve, reject) => {
+								const image = new Image()
+								image.src = URL.createObjectURL(file)
+								image.onload = () => {
+									resolve({ width: image.width, height: image.height })
+								}
+								image.onerror = () =>
+									reject(new Error(`Failed to get dimensions from image "${file.name}"`))
+							},
+						)
+
+						const mapImageId = await uploadImage(file, convex)
+
+						await updateRoom({
+							id: room._id,
+							mapImageId,
+							mapDimensions,
+						})
+					} catch (error) {
+						console.error(error)
+						alert("Failed to upload image")
 					} finally {
-						setIsUploading(false)
+						setPending(false)
 					}
 				}}
-				disabled={isUploading}
+				disabled={pending}
 			/>
 		</>
 	)

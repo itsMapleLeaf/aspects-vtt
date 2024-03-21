@@ -20,7 +20,9 @@ export const get = query({
 			: undefined
 
 		return {
-			...pick(room, ["_id", "_creationTime", "name", "mapImageId"]),
+			mapDimensions: { width: 1000, height: 1000 },
+			mapCellSize: 50,
+			...pick(room, ["_id", "_creationTime", "name", "mapImageId", "mapDimensions", "mapCellSize"]),
 			isOwner,
 			players,
 		}
@@ -56,9 +58,12 @@ export const update = mutation({
 		id: v.id("rooms"),
 		name: v.optional(v.string()),
 		mapImageId: v.optional(v.id("_storage")),
+		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
+		mapCellSize: v.optional(v.number()),
 	},
 	handler: async (ctx, { id, ...args }) => {
-		const room = await getRoomById(ctx, id)
+		const { room } = await getRoomOwnerOnlyContext(ctx, id)
+
 		await ctx.db.patch(id, {
 			...args,
 			mapImageId: (await replaceFile(ctx, room.mapImageId, args.mapImageId)) ?? undefined,

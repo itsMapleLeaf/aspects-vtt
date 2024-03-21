@@ -16,6 +16,8 @@ export default defineSchema({
 		slug: v.string(),
 		ownerId: v.id("users"),
 		mapImageId: v.optional(v.id("_storage")),
+		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
+		mapCellSize: v.optional(v.number()),
 		players: v.array(
 			v.object({
 				userId: v.id("users"),

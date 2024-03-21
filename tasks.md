@@ -58,7 +58,7 @@
   - [x] translucent to the owner when hidden
   - [x] show damage and fatigue bars, where the owner can see all of them and players can only see their own
 - map
-  - [ ] conform to background image size
+  - [x] conform to background image size
   - [ ] configure cell size in pixels
   - [ ] zooming
   - [ ] client-side logarhythmic background brightness slider
@@ -78,6 +78,7 @@
 - rooms
   - [ ] list rooms you've joined
   - [ ] only room owner can change room background
+  - [ ] add a player list panel where you can configure players' characters
 - characters
   - [ ] open in a pop-out window
   - [ ] items
@@ -88,12 +89,15 @@
   - [ ] limit aspect skills based on experience
   - [ ] turn character sidebar into a drawer / overlay
   - [ ] allow users to set a crop region for the token
+  - [ ] disable form fields that players don't have permission to edit
 - token map
+  - [ ] right click menu on tokens with shortcuts for convenience
   - [ ] token deselection to hide side panel
   - [ ] measuring distance
   - [ ] draw lines
   - [ ] draw squares
   - [ ] add new token to center of screen and/or click to place token
+  - [ ] disallow attempted movement clientside
   - [ ] player cursors
   - [ ] custom token sizes
   - [ ] set background from drag and drop

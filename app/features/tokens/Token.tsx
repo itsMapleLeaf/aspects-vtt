@@ -9,7 +9,6 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { cellSize, mapSize } from "./TokenMap.tsx"
 
 export function Token({
 	character,
@@ -45,14 +44,17 @@ export function Token({
 				updateCharacter({
 					id: character._id,
 					tokenPosition: Vector.from(character.tokenPosition)
-						.plus(distance.dividedBy(cellSize))
-						.clamp(Vector.zero, mapSize.minus(1)).rounded.xy,
+						.plus(distance.dividedBy(room.mapCellSize))
+						.clamp(
+							Vector.zero,
+							Vector.from(room.mapDimensions).dividedBy(room.mapCellSize).minus(1),
+						).rounded.xy,
 				})
 			}
 		},
 	})
 
-	let visualPosition = Vector.from(character.tokenPosition).times(cellSize)
+	let visualPosition = Vector.from(character.tokenPosition).times(room.mapCellSize)
 	if (drag && selected) {
 		visualPosition = visualPosition.plus(drag.distance)
 	}
@@ -74,8 +76,8 @@ export function Token({
 		<div
 			className="absolute top-0 left-0"
 			style={{
-				width: cellSize,
-				height: cellSize,
+				width: room.mapCellSize,
+				height: room.mapCellSize,
 				translate: `${visualPosition.x}px ${visualPosition.y}px`,
 			}}
 		>

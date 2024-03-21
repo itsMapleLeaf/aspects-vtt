@@ -2,6 +2,7 @@ type VectorInput =
 	| [x: number, y: number]
 	| [xy: number]
 	| [xy: { x: number; y: number }]
+	| [size: { width: number; height: number }]
 	| [vector: Vector]
 
 export class Vector {
@@ -24,8 +25,11 @@ export class Vector {
 		if (args[0] instanceof Vector) {
 			return args[0]
 		}
-		if (typeof args[0] === "object") {
+		if (typeof args[0] === "object" && "x" in args[0]) {
 			return new Vector(args[0].x, args[0].y)
+		}
+		if (typeof args[0] === "object" && "width" in args[0]) {
+			return new Vector(args[0].width, args[0].height)
 		}
 		return new Vector(args[0], args[1] ?? args[0])
 	}
