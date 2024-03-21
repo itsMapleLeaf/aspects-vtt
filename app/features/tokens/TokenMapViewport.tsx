@@ -1,10 +1,13 @@
 import { useConvex, useMutation } from "convex/react"
+import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
 import { type SetStateAction, useReducer, useRef, useState } from "react"
 import { useDrag } from "#app/common/useDrag.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.ts"
 import { Button } from "#app/ui/Button.tsx"
+import { FormField } from "#app/ui/FormField.js"
+import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.js"
 import { panel } from "#app/ui/styles.ts"
 import { api } from "#convex/_generated/api.js"
@@ -22,8 +25,8 @@ export function TokenMapViewport({
 	onBackdropClick?: () => void
 }) {
 	const room = useRoom()
+	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
 	const mapDimensions = Vector.from(room.mapDimensions)
-	const mapCellSize = Vector.from(room.mapCellSize)
 	const viewportRef = useRef<HTMLDivElement>(null)
 
 	const [viewportSize, setViewportSize] = useState(Vector.zero)
@@ -58,13 +61,28 @@ export function TokenMapViewport({
 
 	return (
 		<div className="flex size-full flex-col gap-2">
-			<div className="flex flex-1 gap-[inherit]">
+			<div className="flex flex-1 flex-wrap items-end gap-[inherit]">
 				<Button
 					text="Reset View"
 					icon={<Lucide.Compass />}
 					onClick={() => setOffsetState(Vector.zero)}
 				/>
-				<BackgroundButton />
+				{room.isOwner && <BackgroundButton />}
+				{room.isOwner && (
+					<FormField label="Cell Size" htmlFor="cellSize">
+						<Input
+							id="cellSize"
+							type="number"
+							className="w-20"
+							value={updateRoomState.args?.mapCellSize ?? room.mapCellSize}
+							onChange={(event) => {
+								const value = event.currentTarget.valueAsNumber
+								if (Number.isNaN(value)) return
+								updateRoom({ id: room._id, mapCellSize: value })
+							}}
+						/>
+					</FormField>
+				)}
 			</div>
 			<div className={panel("relative size-full select-none overflow-clip")} ref={viewportRef}>
 				<div
@@ -147,4 +165,32 @@ function BackgroundButton() {
 			/>
 		</>
 	)
+}
+
+function useMutationState<Fn extends FunctionReference<"mutation">>(query: Fn) {
+	const [state, setState] = useState<
+		| { status: "initial"; args?: never; data?: never; error?: never }
+		| { status: "pending"; args: FunctionArgs<Fn>; data?: never; error?: never }
+		| { status: "success"; args?: never; data: FunctionReturnType<Fn>; error?: never }
+		| { status: "error"; args?: never; data?: never; error: unknown }
+	>({ status: "initial" })
+
+	const mutate = useMutation(query)
+	const mutationToken = useRef<symbol>()
+
+	function runMutation(args: FunctionArgs<Fn>) {
+		const token = (mutationToken.current = Symbol())
+		setState({ status: "pending", args })
+		mutate(args)
+			.then((data) => {
+				if (token !== mutationToken.current) return
+				setState({ status: "success", data })
+			})
+			.catch((error: unknown) => {
+				if (token !== mutationToken.current) return
+				setState({ status: "error", error })
+			})
+	}
+
+	return [state, runMutation] as const
 }

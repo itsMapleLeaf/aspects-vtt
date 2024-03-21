@@ -57,16 +57,17 @@
   - [x] fix name tag blocking clicks
   - [x] translucent to the owner when hidden
   - [x] show damage and fatigue bars, where the owner can see all of them and players can only see their own
+  - [ ] private characters shouldn't be selectable by players
 - map
   - [x] conform to background image size
-  - [ ] configure cell size in pixels
+  - [x] configure cell size in pixels
   - [ ] zooming
-  - [ ] client-side logarhythmic background brightness slider
 - characters
   - [x] pronouns field
   - [x] show stress thresholds
+  - [x] separate visibility for character browser and tokens + let players browse visible characters
+  - [ ] hide fields for players that don't have permission to edit them
   - [ ] duplicate button
-  - [ ] separate visibility for character browser and tokens + let players browse visible characters
 - dice
   - [x] roll boost and snag dice with attributes
   - [ ] give a special appearance for boost and snag dice
@@ -89,8 +90,9 @@
   - [ ] limit aspect skills based on experience
   - [ ] turn character sidebar into a drawer / overlay
   - [ ] allow users to set a crop region for the token
-  - [ ] disable form fields that players don't have permission to edit
 - token map
+  - [ ] client-side logarhythmic background brightness slider
+  - [ ] client-side logarhythmic grid brightness slider
   - [ ] right click menu on tokens with shortcuts for convenience
   - [ ] token deselection to hide side panel
   - [ ] measuring distance
