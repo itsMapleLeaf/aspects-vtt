@@ -113,7 +113,7 @@ export function TokenMapViewport({
 					const shift = currentMouseOffset.dividedBy(zoom).times(newZoom).minus(currentMouseOffset)
 
 					setZoomFactor(newZoomFactor)
-					setOffsetState((state) => state.plus(shift))
+					setOffsetState(offset.plus(shift))
 				}}
 			>
 				<div
