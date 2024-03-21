@@ -222,7 +222,7 @@ export const update = mutation({
 			})
 		}
 
-		if (player.characterId === character._id) {
+		if (player.characterId === character._id || character.tokenVisibleTo === "everyone") {
 			return await ctx.db.patch(
 				id,
 				omit(

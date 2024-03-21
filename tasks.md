@@ -57,7 +57,6 @@
   - [x] fix name tag blocking clicks
   - [x] translucent to the owner when hidden
   - [x] show damage and fatigue bars, where the owner can see all of them and players can only see their own
-  - [ ] private characters shouldn't be selectable by players
 - map
   - [x] conform to background image size
   - [x] configure cell size in pixels
