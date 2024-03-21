@@ -1,6 +1,8 @@
 import { useConvex, useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useEffect, useId, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
+import { expect } from "#app/common/expect.js"
+import { clamp } from "#app/common/math.js"
 import { range } from "#app/common/range.js"
 import { startCase } from "#app/common/string.js"
 import type { PickByValue } from "#app/common/types.js"
@@ -85,6 +87,29 @@ export function CharacterForm(props: {
 		max?: number,
 		label = [startCase(key), max].filter(Boolean).join(" / "),
 	) {
+		const ref = useRef<HTMLInputElement>(null)
+
+		function setValue(value: number) {
+			updateValues({
+				[key]: clamp(value, 0, max ?? Number.POSITIVE_INFINITY),
+			})
+		}
+
+		useEffect(() => {
+			const handleWheel = (event: WheelEvent) => {
+				if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
+					event.preventDefault()
+					event.stopPropagation()
+					setValue(character[key] - Math.sign(event.deltaY))
+				}
+			}
+			const element = expect(ref.current, "input ref not set")
+			element.addEventListener("wheel", handleWheel, { passive: false })
+			return () => {
+				element.removeEventListener("wheel", handleWheel)
+			}
+		})
+
 		return (
 			<FormField label={label} htmlFor={inputId(key)}>
 				<Input
@@ -93,7 +118,8 @@ export function CharacterForm(props: {
 					value={character[key]}
 					min={0}
 					max={max}
-					onChange={(event) => updateValues({ [key]: event.target.valueAsNumber })}
+					elementRef={ref}
+					onChange={(event) => setValue(event.target.valueAsNumber)}
 				/>
 			</FormField>
 		)

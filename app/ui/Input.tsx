@@ -1,11 +1,18 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
+import type React from "react"
 import { twMerge } from "tailwind-merge"
 import { omit } from "#app/common/object.js"
 import type { Overwrite } from "#app/common/types.ts"
 
 export type InputProps = Overwrite<
-	| (ComponentPropsWithoutRef<"input"> & { multiline?: false | undefined })
-	| (ComponentPropsWithoutRef<"textarea"> & { multiline: true }),
+	| (ComponentPropsWithoutRef<"input"> & {
+			multiline?: false | undefined
+			elementRef?: React.Ref<HTMLInputElement>
+	  })
+	| (ComponentPropsWithoutRef<"textarea"> & {
+			multiline: true
+			elementRef?: React.Ref<HTMLTextAreaElement>
+	  }),
 	{
 		icon?: ReactNode
 		align?: "left" | "right" | "center"
@@ -27,11 +34,16 @@ export function Input({ icon, className, align, ...props }: InputProps) {
 			{props.multiline ? (
 				<textarea
 					rows={3}
-					{...omit(props, ["multiline"])}
+					{...omit(props, ["multiline", "elementRef"])}
 					className={twMerge(inputClassNameBase, "py-1.5 leading-7")}
+					ref={props.elementRef}
 				/>
 			) : (
-				<input {...omit(props, ["multiline"])} className={twMerge(inputClassNameBase, "h-10")} />
+				<input
+					{...omit(props, ["multiline", "elementRef"])}
+					className={twMerge(inputClassNameBase, "h-10")}
+					ref={props.elementRef}
+				/>
 			)}
 		</div>
 	)
