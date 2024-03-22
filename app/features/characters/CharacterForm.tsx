@@ -225,14 +225,12 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
 				)}
 			>
 				<p className="flex-1 truncate">{value}</p>
-				<Tooltip text="Read-only">
-					<button
-						type="button"
-						className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
-					>
-						<Lucide.Ban className="size-4" />
-						<span className="sr-only">Read-only</span>
-					</button>
+				<Tooltip
+					text="Read-only"
+					className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
+				>
+					<Lucide.Ban className="size-4" />
+					<span className="sr-only">Read-only</span>
 				</Tooltip>
 			</div>
 		</FormField>

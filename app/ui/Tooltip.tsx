@@ -1,66 +1,54 @@
-import * as Floating from "@floating-ui/react-dom"
-import { useId, useState } from "react"
-import { createPortal } from "react-dom"
-import { type ElementProp, renderElementProp } from "../common/ElementProp"
+import { type ComponentPropsWithoutRef, useId, useState } from "react"
+import { Floating, FloatingProvider, FloatingReference } from "./Floating.tsx"
 
-type TooltipChildrenProps = {
-	ref: (node: HTMLElement | null) => void
-	id: string
-	tabIndex: 0
-	"aria-controls": string
-	onPointerEnter: (event: React.PointerEvent) => void
-	onPointerLeave: (event: React.PointerEvent) => void
-	onFocus: (event: React.FocusEvent) => void
-	onBlur: (event: React.FocusEvent) => void
+interface TooltipProps extends ComponentPropsWithoutRef<"button"> {
+	text: string
 }
 
-export function Tooltip({
-	text,
-	children,
-}: {
-	text: string
-	// children: React.ReactNode | ((props: TooltipChildrenProps) => React.ReactNode)
-	children: ElementProp<TooltipChildrenProps>
-}) {
-	const floating = Floating.useFloating({
-		placement: "top",
-		strategy: "fixed",
-		middleware: [Floating.offset(8), Floating.shift({ padding: 8 })],
-	})
-
-	const referenceId = useId()
+export function Tooltip({ text, ...props }: TooltipProps) {
+	const buttonId = useId()
 	const tooltipId = useId()
 	const [hover, setHover] = useState(false)
 	const [focus, setFocus] = useState(false)
 
-	const childrenProps: TooltipChildrenProps = {
-		ref: floating.refs.setReference,
-		id: referenceId,
-		tabIndex: 0,
-		"aria-controls": tooltipId,
-		onPointerEnter: () => setHover(true),
-		onPointerLeave: () => setHover(false),
-		onFocus: () => setFocus(true),
-		onBlur: () => setFocus(false),
-	}
-
 	return (
-		<>
-			{renderElementProp(children, childrenProps, <button type="button" />)}
-			{createPortal(
-				<div ref={floating.refs.setFloating} style={floating.floatingStyles}>
-					<div
-						id={tooltipId}
-						role="tooltip"
-						aria-describedby={referenceId}
-						aria-expanded={hover || focus}
-						className="pointer-events-none w-fit max-w-32 translate-y-1 rounded bg-white p-1.5 text-center text-xs font-semibold text-primary-100 opacity-0 shadow-md transition aria-expanded:translate-y-0 aria-expanded:opacity-100"
-					>
-						{text}
-					</div>
-				</div>,
-				document.body,
-			)}
-		</>
+		<FloatingProvider>
+			<FloatingReference>
+				<button
+					type="button"
+					id={buttonId}
+					tabIndex={0}
+					aria-controls={tooltipId}
+					{...props}
+					onPointerEnter={(event) => {
+						setHover(true)
+						props.onPointerEnter?.(event)
+					}}
+					onPointerLeave={(event) => {
+						setHover(false)
+						props.onPointerLeave?.(event)
+					}}
+					onFocus={(event) => {
+						setFocus(true)
+						props.onFocus?.(event)
+					}}
+					onBlur={(event) => {
+						setFocus(false)
+						props.onBlur?.(event)
+					}}
+				/>
+			</FloatingReference>
+			<Floating>
+				<div
+					id={tooltipId}
+					role="tooltip"
+					aria-describedby={buttonId}
+					aria-expanded={hover || focus}
+					className="pointer-events-none w-fit max-w-32 translate-y-1 rounded bg-white px-2 py-1 text-center text-xs font-semibold text-primary-100 opacity-0 shadow-md transition aria-expanded:translate-y-0 aria-expanded:opacity-100"
+				>
+					{text}
+				</div>
+			</Floating>
+		</FloatingProvider>
 	)
 }
