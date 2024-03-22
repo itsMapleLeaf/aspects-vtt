@@ -1,4 +1,5 @@
-import { autoUpdate, offset, shift, useFloating } from "@floating-ui/react-dom"
+import { useMergeRefs } from "@floating-ui/react"
+import { type UseFloatingOptions, autoUpdate, offset, useFloating } from "@floating-ui/react-dom"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type CSSProperties, use, useRef } from "react"
@@ -9,7 +10,7 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { ZoomContext } from "./ZoomContext.tsx"
+import { ZoomContext } from "./context.tsx"
 
 export function Token({
 	character,
@@ -38,8 +39,8 @@ export function Token({
 		)
 	})
 
-	const ref = useRef<HTMLButtonElement>(null)
-	const drag = useDrag(ref, {
+	const buttonRef = useRef<HTMLButtonElement>(null)
+	const drag = useDrag(buttonRef, {
 		onStart: () => onSelect(),
 		onFinish: ({ distance }) => {
 			if (selected) {
@@ -61,61 +62,77 @@ export function Token({
 		visualPosition = visualPosition.plus(drag.distance.dividedBy(zoom))
 	}
 
-	const { refs, floatingStyles } = useFloating({
-		placement: "right",
-		strategy: "fixed",
-		middleware: [
-			offset(8),
-			shift({
-				crossAxis: true,
-				padding: 16,
-			}),
-		],
+	const baseFloatingOptions: UseFloatingOptions = {
+		strategy: "absolute",
+		middleware: [offset(8)],
 		whileElementsMounted: (...args) => autoUpdate(...args, { animationFrame: true }),
+		// whileElementsMounted: autoUpdate,
+	}
+
+	const floatingName = useFloating({
+		...baseFloatingOptions,
+		placement: "bottom",
 	})
+
+	const floatingMeters = useFloating({
+		...baseFloatingOptions,
+		placement: "top",
+	})
+
+	const mergedButtonRef = useMergeRefs([
+		floatingName.refs.setReference,
+		floatingMeters.refs.setReference,
+		buttonRef,
+	])
 
 	return (
 		<div
-			className="absolute left-0 top-0 transition-[translate] ease-out data-[dragging=true]:duration-0"
 			data-dragging={!!drag}
-			style={{
-				width: room.mapCellSize,
-				height: room.mapCellSize,
-				translate: `${visualPosition.x}px ${visualPosition.y}px`,
-				...{ "--scale": zoom },
-			}}
+			className="group contents *:translate-x-[--x] *:translate-y-[--y] *:transition *:ease-out *:data-[dragging=true]:duration-0"
+			style={
+				{
+					"--x": `${visualPosition.x}px`,
+					"--y": `${visualPosition.y}px`,
+					"--scale": 1 / zoom,
+				} as CSSProperties
+			}
 		>
-			<div
-				ref={refs.setReference}
-				className="relative size-full rounded outline outline-[length:calc(clamp(3px,1/var(--scale)*3px,8px))] outline-transparent data-[selected=true]:outline-primary-700"
+			<button
+				type="button"
 				data-selected={selected}
+				className="flex items-center justify-center rounded outline outline-[length:calc(clamp(3px,var(--scale)*3px,8px))] outline-transparent data-[selected=true]:outline-primary-700 "
+				style={{ width: room.mapCellSize, height: room.mapCellSize }}
+				ref={mergedButtonRef}
 			>
-				<button
-					type="button"
-					className="peer relative flex size-full items-center justify-center"
-					ref={ref}
-				>
-					<UploadedImage
-						id={character.imageId}
-						emptyIcon={<Lucide.Ghost />}
-						draggable={false}
-						className="peer size-full transition-opacity data-[faded=true]:opacity-50"
-						data-faded={room.isOwner && character.tokenVisibleTo !== "everyone"}
-					/>
-					<Lucide.EyeOff className="absolute size-8 opacity-0 transition-opacity peer-data-[faded=true]:opacity-100" />
-				</button>
+				<UploadedImage
+					id={character.imageId}
+					emptyIcon={<Lucide.Ghost />}
+					draggable={false}
+					className="peer size-full transition-opacity data-[faded=true]:opacity-50"
+					data-faded={room.isOwner && character.tokenVisibleTo !== "everyone"}
+				/>
+				<Lucide.EyeOff className="absolute size-8 opacity-0 transition-opacity peer-data-[faded=true]:opacity-100" />
+			</button>
 
-				<div
-					style={{ scale: 1 / zoom }}
-					data-selected={selected}
-					className="pointer-events-none absolute inset-x-0 top-full flex origin-top justify-center text-balance p-2 opacity-0 transition-[scale] ease-out peer-hover:opacity-100 data-[selected=true]:opacity-100"
-				>
-					<p className="rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 empty:hidden">
-						{character.name}
-					</p>
+			{selected && (
+				<div className="pointer-events-none relative z-10">
+					<div ref={floatingName.refs.setFloating} style={floatingName.floatingStyles}>
+						<p
+							data-selected={selected}
+							className="max-w-32 origin-top scale-[--scale] text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
+						>
+							{character.name}
+						</p>
+					</div>
 				</div>
+			)}
 
-				<div className="pointer-events-none absolute bottom-full left-1/2 z-10 flex w-3/4 -translate-x-1/2 -translate-y-1.5 flex-col gap-1.5">
+			<div className="pointer-events-none relative z-10 scale-[--scale]">
+				<div
+					ref={floatingMeters.refs.setFloating}
+					style={floatingMeters.floatingStyles}
+					className="flex w-24  flex-col gap-1.5"
+				>
 					{[
 						{
 							ratio: character.damageRatio,

@@ -62,6 +62,7 @@
   - [x] conform to background image size
   - [x] configure cell size in pixels
   - [x] zooming
+  - [ ] have the map fill the entire screen, then turn the dice roller and character sheet into overlay panels
 - characters
   - [x] pronouns field
   - [x] show stress thresholds
@@ -69,7 +70,8 @@
   - [x] hide fields for players that don't have permission to edit them
   - [x] duplicate button
 - dice
-  - [x] roll boost and snag dice with attributes
+  - [x] roll snag dice from stress
+  - [ ] show popover to add boost/snag dice
   - [ ] give a special appearance for boost and snag dice
   - [ ] show the effect, base, boost, and snag values
 - quick reference button to show a modal for lists of things

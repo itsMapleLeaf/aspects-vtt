@@ -19,7 +19,7 @@ import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { TokenMapGrid } from "./TokenMapGrid.tsx"
-import { ZoomContext } from "./ZoomContext.tsx"
+import { ViewportElementContext, ZoomContext } from "./context.tsx"
 
 export function TokenMapViewport({
 	children,
@@ -37,10 +37,10 @@ export function TokenMapViewport({
 	const extent = Vector.from(room.mapCellSize * 5 * zoom) // how much further outside the viewport the map can be
 
 	const mapDimensions = Vector.from(room.mapDimensions)
-	const viewportRef = useRef<HTMLDivElement>(null)
+	const [viewport, viewportRef] = useState<HTMLDivElement | null>()
 
 	const [viewportSize, setViewportSize] = useState(Vector.zero)
-	useResizeObserver(viewportRef, (info) =>
+	useResizeObserver(viewport, (info) =>
 		setViewportSize(Vector.from(info.contentRect.width, info.contentRect.height)),
 	)
 
@@ -63,7 +63,7 @@ export function TokenMapViewport({
 		return offset.clamp(topLeft.minus(extent), bottomRight.plus(extent))
 	}
 
-	const drag = useDrag(viewportRef, {
+	const drag = useDrag(viewport, {
 		onStart(event) {
 			onBackdropClick?.()
 		},
@@ -108,10 +108,7 @@ export function TokenMapViewport({
 					const newZoomFactor = clamp(zoomFactor - Math.sign(event.deltaY), -10, 10)
 					const newZoom = zoomMultiple ** newZoomFactor
 
-					const viewportRect = expect(
-						viewportRef.current,
-						"viewport ref not set",
-					).getBoundingClientRect()
+					const viewportRect = expect(viewport, "viewport ref not set").getBoundingClientRect()
 					const viewportTopLeft = Vector.from(viewportRect.left, viewportRect.top)
 
 					const currentMouseOffset = Vector.from(event.clientX, event.clientY).minus(
@@ -126,7 +123,7 @@ export function TokenMapViewport({
 			>
 				<div
 					data-dragging={!!drag}
-					className="absolute left-0 top-0 origin-top-left transition-[translate,scale] ease-out data-[dragging=true]:duration-75"
+					className="absolute left-0 top-0 isolate origin-top-left transition-[translate,scale] ease-out data-[dragging=true]:duration-75"
 					style={{ translate: `${-offset.x}px ${-offset.y}px`, scale: zoom }}
 				>
 					<UploadedImage
@@ -139,7 +136,9 @@ export function TokenMapViewport({
 							className="absolute left-0 top-0 opacity-25"
 							style={mapDimensions.toObject("width", "height")}
 						/>
-						{children}
+						<ViewportElementContext.Provider value={viewport}>
+							{children}
+						</ViewportElementContext.Provider>
 					</ZoomContext.Provider>
 				</div>
 			</div>

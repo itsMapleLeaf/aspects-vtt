@@ -24,6 +24,7 @@
 		"@ariakit/react": "^0.4.4",
 		"@clerk/remix": "4.0.0-beta.34",
 		"@clerk/themes": "2.0.0-beta.5",
+		"@floating-ui/react": "0.26.9",
 		"@floating-ui/react-dom": "2.0.8",
 		"@fontsource-variable/manrope": "5.0.19",
 		"@remix-run/node": "^2.8.1",
