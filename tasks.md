@@ -62,7 +62,7 @@
   - [x] conform to background image size
   - [x] configure cell size in pixels
   - [x] zooming
-  - [ ] have the map fill the entire screen, then turn the dice roller and character sheet into overlay panels
+  - [ ] have the map fill the entire screen, then turn the dice roller and character sheet into overlay panels and add a background shade on the header
 - characters
   - [x] pronouns field
   - [x] show stress thresholds
@@ -85,6 +85,8 @@
   - [ ] only room owner can change room background
   - [ ] add a player list panel where you can configure players' characters
 - characters
+  - [ ] swap the select for some sort of character avatar grid view
+  - [ ] on each character item, show an EyeOff icon if the character is private
   - [ ] open in a pop-out window
   - [ ] items
   - [ ] show a warning when dice aren't unique
