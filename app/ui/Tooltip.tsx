@@ -1,6 +1,7 @@
 import * as Floating from "@floating-ui/react-dom"
-import { cloneElement, isValidElement, useId, useState } from "react"
+import { useId, useState } from "react"
 import { createPortal } from "react-dom"
+import { type ElementProp, renderElementProp } from "../common/ElementProp"
 
 type TooltipChildrenProps = {
 	ref: (node: HTMLElement | null) => void
@@ -18,7 +19,8 @@ export function Tooltip({
 	children,
 }: {
 	text: string
-	children: React.ReactNode | ((props: TooltipChildrenProps) => React.ReactNode)
+	// children: React.ReactNode | ((props: TooltipChildrenProps) => React.ReactNode)
+	children: ElementProp<TooltipChildrenProps>
 }) {
 	const floating = Floating.useFloating({
 		placement: "top",
@@ -44,14 +46,7 @@ export function Tooltip({
 
 	return (
 		<>
-			{isValidElement<TooltipChildrenProps>(children) ?
-				cloneElement(children, childrenProps)
-			: typeof children === "function" ?
-				children(childrenProps)
-			:	<button type="button" {...childrenProps}>
-					{children}
-				</button>
-			}
+			{renderElementProp(children, childrenProps, <button type="button" />)}
 			{createPortal(
 				<div ref={floating.refs.setFloating} style={floating.floatingStyles}>
 					<div

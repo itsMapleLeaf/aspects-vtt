@@ -16,10 +16,10 @@ import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
+import { Tooltip } from "../../ui/Tooltip.tsx"
 import { diceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { Tooltip } from "./Tooltip.tsx"
 
 type Character =
 	| ResultQueryData<typeof api.characters.list>[number]
