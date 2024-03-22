@@ -19,6 +19,7 @@ import type { ResultQueryData } from "#convex/resultResponse.js"
 import { diceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { Tooltip } from "./Tooltip.tsx"
 
 type Character =
 	| ResultQueryData<typeof api.characters.list>[number]
@@ -142,16 +143,18 @@ export function CharacterForm(props: { character: Character }) {
 				<ImageInput character={character} />
 			:	<UploadedImage id={character.imageId} className="aspect-square w-full" />}
 
-			{isCharacterOwner ?
-				<div className="flex gap-2 *:flex-1">
-					{renderTextField("name")}
-					{renderTextField("pronouns")}
-				</div>
-			:	<FormField label="Pronouns">
-					<p className={panel("flex h-10 items-center px-3")}>{character.pronouns}</p>
-				</FormField>
-			}
-
+			<div className="flex gap-2 *:min-w-0 *:flex-1">
+				{isCharacterOwner ?
+					<>
+						{renderTextField("name")}
+						{renderTextField("pronouns")}
+					</>
+				:	<>
+						<ReadOnlyField label="Name" value={character.name} />
+						<ReadOnlyField label="Pronouns" value={character.pronouns} />
+					</>
+				}
+			</div>
 			{room.isOwner && (
 				<>
 					<FormField label="Player" htmlFor={inputId("player")}>
@@ -187,25 +190,50 @@ export function CharacterForm(props: { character: Character }) {
 				</>
 			)}
 
-			{isCharacterOwner && (
+			<div className="flex gap-2 *:flex-1">
+				{renderNumberField("damage", character.strength + character.mobility)}
+				{renderNumberField("fatigue", character.sense + character.intellect + character.wit)}
+				{renderNumberField("currency")}
+			</div>
+
+			{isCharacterOwner ?
 				<>
-					<div className="flex gap-2 *:flex-1">
-						{renderNumberField("damage", character.strength + character.mobility)}
-						{renderNumberField("fatigue", character.sense + character.intellect + character.wit)}
-						{renderNumberField("currency")}
-					</div>
 					{renderDiceField("strength", "damage")}
 					{renderDiceField("sense", "fatigue")}
 					{renderDiceField("mobility", "damage")}
 					{renderDiceField("intellect", "fatigue")}
 					{renderDiceField("wit", "fatigue")}
 				</>
-			)}
+			:	(["strength", "sense", "mobility", "intellect", "wit"] as const).map((key) => (
+					<ReadOnlyField key={key} label={startCase(key)} value={`d${character[key]}`} />
+				))
+			}
 
-			{room.isOwner ?
-				renderMultilineTextField("ownerNotes", "Notes")
-			:	renderMultilineTextField("playerNotes", "Notes")}
+			{renderMultilineTextField("playerNotes", room.isOwner ? "Player Notes" : "Notes")}
+			{room.isOwner && renderMultilineTextField("ownerNotes", "Owner Notes")}
 		</div>
+	)
+}
+
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+	return (
+		<FormField label={label}>
+			<div
+				className={panel(
+					"flex h-10 items-center justify-between gap-1.5 bg-primary-300/30 pl-3 pr-2",
+				)}
+			>
+				<p className="flex-1 truncate">{value}</p>
+				<Tooltip text="Read-only">
+					<button
+						type="button"
+						className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
+					>
+						<Lucide.Ban className="size-4" />
+					</button>
+				</Tooltip>
+			</div>
+		</FormField>
 	)
 }
 

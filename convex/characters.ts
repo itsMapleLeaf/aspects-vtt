@@ -138,7 +138,9 @@ export const listTokens = query({
 			.map((character) => ({ ...defaultProperties, ...character }))
 			.map((character) => ({
 				...pick(character, ["_id", "name", "imageId", "tokenPosition", "tokenVisibleTo"]),
-				...((isOwner || character._id === player?.characterId) && {
+				...((isOwner ||
+					character._id === player?.characterId ||
+					character.visibleTo === "everyone") && {
 					damageRatio: clamp(character.damage / (character.strength + character.mobility), 0, 1),
 					fatigueRatio: clamp(
 						character.fatigue / (character.sense + character.intellect + character.wit),
