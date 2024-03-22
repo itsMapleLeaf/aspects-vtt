@@ -265,7 +265,8 @@ export const remove = mutation({
 		const character = (await ctx.db.get(args.id)) ?? raise(new ConvexError("Character not found"))
 		await getRoomOwnerOnlyContext(ctx, character.roomId)
 		if (character.imageId) {
-			await ctx.storage.delete(character.imageId)
+			// todo: check if image is used by other characters before deleting
+			// await ctx.storage.delete(character.imageId).catch(() => {})
 		}
 		await ctx.db.delete(args.id)
 	},
