@@ -125,7 +125,8 @@ export function TokenMapViewport({
 				}}
 			>
 				<div
-					className="absolute left-0 top-0 origin-top-left transition-[translate,scale] ease-out"
+					data-dragging={!!drag}
+					className="absolute left-0 top-0 origin-top-left transition-[translate,scale] ease-out data-[dragging=true]:duration-75"
 					style={{ translate: `${-offset.x}px ${-offset.y}px`, scale: zoom }}
 				>
 					<UploadedImage
