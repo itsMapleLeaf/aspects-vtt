@@ -120,7 +120,8 @@ export function CharacterForm(props: { character: Character }) {
 					/>
 					<Button
 						icon={<Lucide.Dices />}
-						title={`Roll ${label}`}
+						text="Roll"
+						aria-label={`Roll ${label} for ${character.name}`}
 						onClick={async () => {
 							await createDiceRoll({
 								roomId: room._id,
@@ -230,6 +231,7 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
 						className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
 					>
 						<Lucide.Ban className="size-4" />
+						<span className="sr-only">Read-only</span>
 					</button>
 				</Tooltip>
 			</div>
@@ -295,6 +297,7 @@ function CheckboxField({
 				<input
 					className="peer size-full appearance-none rounded border-2 border-primary-400 bg-primary-100 transition checked:bg-primary-300/50 hover:bg-primary-200 checked:hover:bg-primary-300 active:border-primary-600 active:duration-0"
 					id={id}
+					aria-label={label}
 					type="checkbox"
 					checked={checked}
 					onChange={onChange}
@@ -317,6 +320,7 @@ function ImageInput({
 	const update = useMutation(api.characters.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
 	const convex = useConvex()
+	const inputId = useId()
 
 	async function upload(file: File) {
 		setStatus("uploading")
@@ -333,38 +337,42 @@ function ImageInput({
 	}
 
 	return (
-		<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-dashed border-primary-300 bg-primary-200/50 transition hover:bg-primary-200/75">
-			{status === "idle" && (
-				<UploadedImage
-					id={character.imageId}
-					emptyIcon={<Lucide.ImagePlus />}
-					className="size-full"
-				/>
-			)}
-			{status === "uploading" && <Loading />}
-			{status === "error" && <Lucide.FileX2 />}
-			<input
-				type="file"
-				className="absolute inset-0 opacity-0"
-				accept="image/*"
-				onChange={(event) => {
-					const file = event.target.files?.[0]
-					event.target.value = ""
-					if (file) {
-						upload(file)
-					}
-				}}
-			/>
-			{character.imageId && (
-				<Button
-					icon={<Lucide.Trash />}
-					title="Remove image"
-					onClick={async () => {
-						await update({ id: character._id, imageId: null })
+		<FormField label="Image" htmlFor={inputId}>
+			<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-dashed border-primary-300 bg-primary-200/50 transition hover:bg-primary-200/75">
+				{status === "idle" && (
+					<UploadedImage
+						id={character.imageId}
+						emptyIcon={<Lucide.ImagePlus />}
+						className="size-full"
+					/>
+				)}
+				{status === "uploading" && <Loading />}
+				{status === "error" && <Lucide.FileX2 />}
+				<input
+					id={inputId}
+					aria-label="Upload image"
+					type="file"
+					className="absolute inset-0 opacity-0"
+					accept="image/*"
+					onChange={(event) => {
+						const file = event.target.files?.[0]
+						event.target.value = ""
+						if (file) {
+							upload(file)
+						}
 					}}
-					className="absolute right-0 top-0 m-2"
 				/>
-			)}
-		</div>
+				{character.imageId && (
+					<Button
+						icon={<Lucide.Trash />}
+						title="Remove image"
+						onClick={async () => {
+							await update({ id: character._id, imageId: null })
+						}}
+						className="absolute right-0 top-0 m-2"
+					/>
+				)}
+			</div>
+		</FormField>
 	)
 }
