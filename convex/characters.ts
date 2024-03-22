@@ -3,6 +3,7 @@ import { raise } from "#app/common/errors.js"
 import { clamp } from "#app/common/math.js"
 import { omit, pick } from "#app/common/object.js"
 import { randomInt, randomItem } from "#app/common/random.js"
+import { Vector } from "#app/common/vector.js"
 import { characterNames } from "#app/features/characters/characterNames.ts"
 import { mutation, query } from "./_generated/server.js"
 import { nullish } from "./helpers.js"
@@ -175,6 +176,22 @@ export const create = mutation({
 			mobility,
 			intellect,
 			wit,
+		})
+	},
+})
+
+export const duplicate = mutation({
+	args: {
+		id: v.id("characters"),
+	},
+	handler: async (ctx, args) => {
+		const character = (await ctx.db.get(args.id)) ?? raise(new ConvexError("Character not found"))
+		await getRoomOwnerOnlyContext(ctx, character.roomId)
+
+		return await ctx.db.insert("characters", {
+			...omit(character, ["_id", "_creationTime"]),
+			name: `${character.name} (Copy)`,
+			tokenPosition: Vector.from(character.tokenPosition ?? Vector.zero).plus(1, 0).xy,
 		})
 	},
 })

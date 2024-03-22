@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "convex/react"
+import * as Lucide from "lucide-react"
 import { useEffect, useState } from "react"
 import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
@@ -8,6 +9,7 @@ import { DiceRollForm } from "#app/features/dice/DiceRollForm.tsx"
 import { DiceRollList } from "#app/features/dice/DiceRollList.tsx"
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
+import { Button } from "#app/ui/Button.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
@@ -61,6 +63,12 @@ export default function RoomIndexRoute() {
 								/>
 							</div>
 							<RoomOwnerOnly>
+								{character && (
+									<DuplicateCharacterButton
+										character={character}
+										onDuplicate={setCurrentCharacterId}
+									/>
+								)}
 								{character && <DeleteCharacterButton character={character} />}
 								<CreateCharacterButton onCreate={setCurrentCharacterId} />
 							</RoomOwnerOnly>
@@ -74,5 +82,24 @@ export default function RoomIndexRoute() {
 				}
 			</main>
 		</div>
+	)
+}
+
+function DuplicateCharacterButton({
+	character,
+	onDuplicate,
+}: {
+	character: { _id: Id<"characters"> }
+	onDuplicate: (newCharacterId: Id<"characters">) => void
+}) {
+	const duplicate = useMutation(api.characters.duplicate)
+	return (
+		<Button
+			icon={<Lucide.Copy />}
+			title="Duplicate Character"
+			onClick={async () => {
+				onDuplicate(await duplicate({ id: character._id }))
+			}}
+		/>
 	)
 }

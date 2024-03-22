@@ -67,7 +67,7 @@
   - [x] show stress thresholds
   - [x] separate visibility for character browser and tokens + let players browse visible characters
   - [x] hide fields for players that don't have permission to edit them
-  - [ ] duplicate button
+  - [x] duplicate button
 - dice
   - [x] roll boost and snag dice with attributes
   - [ ] give a special appearance for boost and snag dice
