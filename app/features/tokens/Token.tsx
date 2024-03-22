@@ -115,7 +115,7 @@ export function Token({
 					</p>
 				</div>
 
-				<div className="pointer-events-none absolute bottom-full left-1/2 z-10 flex w-11 -translate-x-1/2 -translate-y-1.5 flex-col gap-1.5">
+				<div className="pointer-events-none absolute bottom-full left-1/2 z-10 flex w-3/4 -translate-x-1/2 -translate-y-1.5 flex-col gap-1.5">
 					{[
 						{
 							ratio: character.damageRatio,
