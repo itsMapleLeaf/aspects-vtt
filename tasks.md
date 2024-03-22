@@ -45,6 +45,7 @@
     - [x] add or remove characters
     - [x] make characters public or private
     - [x] show/hide tokens
+  - [ ] chat
 - players
   - [x] add `players` property to room
   - [x] when a player joins a room, add their user ID to the list
@@ -57,7 +58,6 @@
   - [x] fix name tag blocking clicks
   - [x] translucent to the owner when hidden
   - [x] show damage and fatigue bars, where the owner can see all of them and players can only see their own
-  - [ ] arrow keys to move token
 - map
   - [x] conform to background image size
   - [x] configure cell size in pixels
@@ -68,15 +68,16 @@
   - [x] separate visibility for character browser and tokens + let players browse visible characters
   - [x] hide fields for players that don't have permission to edit them
   - [ ] duplicate button
-  - [ ] update checkbox and select values immediately
 - dice
   - [x] roll boost and snag dice with attributes
   - [ ] give a special appearance for boost and snag dice
   - [ ] show the effect, base, boost, and snag values
+- quick reference button to show a modal for lists of things
+  - [ ] general skills
+  - [ ] combat actions
 
 ## features
 
-- [ ] show a list of usable actions/skills somewhere (the dice roller probably)
 - rooms
   - [ ] list rooms you've joined
   - [ ] only room owner can change room background
@@ -94,8 +95,10 @@
   - [ ] when the token of a private character is selected, show an empty state
 - token map
   - [ ] client-side logarhythmic background brightness slider
+  - [ ] update checkbox and select values immediately
   - [ ] client-side logarhythmic grid brightness slider
   - [x] persist viewport position and zoom level
+  - [ ] arrow keys to move token
   - [ ] drag inertia
   - [ ] right click menu on tokens with shortcuts for convenience
   - [ ] token deselection to hide side panel
