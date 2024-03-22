@@ -190,7 +190,6 @@ export const duplicate = mutation({
 
 		return await ctx.db.insert("characters", {
 			...omit(character, ["_id", "_creationTime"]),
-			name: `${character.name} (Copy)`,
 			tokenPosition: Vector.from(character.tokenPosition ?? Vector.zero).plus(1, 0).xy,
 		})
 	},
