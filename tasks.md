@@ -71,9 +71,9 @@
   - [x] duplicate button
 - dice
   - [x] roll snag dice from stress
-  - [ ] show popover to add boost/snag dice
-  - [ ] give a special appearance for boost and snag dice
-  - [ ] show the effect, base, boost, and snag values
+  - [x] give a special appearance for boost and snag dice
+  - [x] show the effect, boost, and snag values
+  - [ ] show popover to add boost/snag dice on attribute rolls
 - quick reference button to show a modal for lists of things
   - [ ] general skills
   - [ ] combat actions
@@ -119,8 +119,12 @@
   - [ ] move camera when dragging token to edge of viewport
   - [ ] non-character tokens
   - [ ] focus viewport on token when a character is selected on the sidebar
+  - [ ] controls for token movement permission: make it so we can prevent players from moving their own tokens at specific times
 - dice
   - [ ] improve dice button layout
+  - [ ] reroll dice rolls
+  - [ ] reroll individual dice
+  - [ ] add/remove dice to existing rolls
 - [x] move health & fatigue to tokens
 
 ## ideas
