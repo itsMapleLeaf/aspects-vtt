@@ -1,3 +1,4 @@
+import containerQueries from "@tailwindcss/container-queries"
 import type { Config } from "tailwindcss"
 import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
@@ -18,12 +19,21 @@ export default {
 		},
 	},
 	plugins: [
+		containerQueries,
 		animate,
 		plugin(function customPreflight(api) {
-			api.addBase({
-				":root": {
-					"--hue": "280",
-					// "--chroma": "35%",
+			api.addComponents({
+				".flex-center-col": {
+					display: "flex",
+					flexDirection: "column",
+					justifyContent: "center",
+					alignItems: "center",
+				},
+				".flex-center-row": {
+					display: "flex",
+					flexDirection: "row",
+					justifyContent: "center",
+					alignItems: "center",
 				},
 			})
 		}),
