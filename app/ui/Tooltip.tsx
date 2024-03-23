@@ -44,6 +44,11 @@ export function Tooltip({ text, placement, ...props }: TooltipProps) {
 						setFocus(false)
 						props.onBlur?.(event)
 					}}
+					// we don't want to keep focus after clicking
+					onClick={(event) => {
+						setFocus(false)
+						props.onClick?.(event)
+					}}
 				/>
 			</FloatingReference>
 			{transition.mounted && (
@@ -52,7 +57,7 @@ export function Tooltip({ text, placement, ...props }: TooltipProps) {
 						id={tooltipId}
 						role="tooltip"
 						aria-expanded={transition.enter}
-						className="w-fit max-w-32 translate-y-1 rounded bg-white px-2 py-1 text-center text-xs font-semibold text-primary-100 opacity-0 shadow-md shadow-black/50 transition aria-expanded:translate-y-0 aria-expanded:opacity-100"
+						className="w-fit max-w-32 translate-y-1 rounded bg-white px-2 py-0.5 text-center text-sm font-semibold text-primary-100 opacity-0 shadow-md shadow-black/50 transition aria-expanded:translate-y-0 aria-expanded:opacity-100"
 						ref={transition.ref}
 					>
 						{text}
