@@ -94,7 +94,16 @@ export function DiceRollForm() {
 					onChange={(event) => setLabel(event.target.value)}
 					className="flex-1"
 				/>
-				<Button type="button" icon={<Lucide.X />} text="Clear" disabled={totalDice < 1} />
+				<Button
+					type="button"
+					icon={<Lucide.X />}
+					text="Clear"
+					disabled={totalDice < 1}
+					onClick={() => {
+						setDiceCounts({})
+						setLabel("")
+					}}
+				/>
 				<Button type="submit" icon={<Lucide.Dices />} text="Roll" disabled={totalDice < 1} />
 			</div>
 		</form>
