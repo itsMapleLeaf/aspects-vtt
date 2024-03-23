@@ -17,7 +17,7 @@ export const defaultFloatingOptions = {
 			padding: 8,
 		}),
 	],
-	whileElementsMounted: (...args) => FloatingUI.autoUpdate(...args, { animationFrame: true }),
+	whileElementsMounted: FloatingUI.autoUpdate,
 } satisfies FloatingUI.UseFloatingOptions
 
 const FloatingContext = React.createContext<FloatingUI.UseFloatingReturn | null>(null)
