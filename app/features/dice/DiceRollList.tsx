@@ -1,11 +1,12 @@
 import { type PaginatedQueryItem, usePaginatedQuery } from "convex/react"
 import { formatDistanceToNow } from "date-fns"
-import type { CSSProperties } from "react"
+import { HelpCircle } from "lucide-react"
 import { Virtuoso } from "react-virtuoso"
 import { Loading } from "#app/ui/Loading.tsx"
+import { Tooltip } from "#app/ui/Tooltip.js"
 import { api } from "#convex/_generated/api.js"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { defaultDiceKind, diceKindsBySide } from "./diceKinds"
+import { diceKinds, diceKindsByName } from "./diceKinds"
 
 export function DiceRollList() {
 	const room = useRoom()
@@ -17,7 +18,7 @@ export function DiceRollList() {
 	)
 	return (
 		<Virtuoso
-			style={{ height: "100%" }}
+			style={{ height: "100%", willChange: "transform" }}
 			data={list.results}
 			itemContent={(_index, roll) => (
 				<div className="pb-2 animate-in fade-in">
@@ -39,16 +40,24 @@ export function DiceRollList() {
 }
 
 function DiceRollSummary({ roll }: { roll: PaginatedQueryItem<typeof api.diceRolls.list> }) {
+	const diceResultsByKindName = new Map<string, (typeof roll)["dice"]>()
+	for (const die of roll.dice) {
+		const dice = diceResultsByKindName.get(die.name) ?? []
+		dice.push(die)
+		diceResultsByKindName.set(die.name, dice)
+	}
 	return (
 		<li
 			key={roll._id}
-			className="flex flex-col gap-1 rounded border border-primary-300 bg-primary-200 px-3 py-2"
+			className="flex flex-col gap-1 rounded border border-primary-300 bg-primary-200/50 px-3 py-2"
 		>
 			<h3 className="text-xl/tight font-light empty:hidden">{roll.label}</h3>
 			<ul className="-mx-1.5 flex flex-wrap">
-				{roll.dice.map((die) => (
-					<DiceRollIcon key={die.key} die={die} />
-				))}
+				{diceKinds
+					.flatMap((kind) => diceResultsByKindName.get(kind.name) ?? [])
+					.map((die) => (
+						<DiceRollIcon key={die.key} die={die} />
+					))}
 			</ul>
 			<p className="leading-tight text-primary-600">
 				rolled by{" "}
@@ -61,19 +70,24 @@ function DiceRollSummary({ roll }: { roll: PaginatedQueryItem<typeof api.diceRol
 	)
 }
 
-function DiceRollIcon({ die }: { die: { sides: number; outcome: number } }) {
-	const kind = diceKindsBySide.get(die.sides) ?? defaultDiceKind
-	const style = { "--text-offset": `${kind.textOffset}px` } as CSSProperties
+function DiceRollIcon({
+	die,
+}: {
+	die: PaginatedQueryItem<typeof api.diceRolls.list>["dice"][number]
+}) {
+	const kind = diceKindsByName.get(die.name)
 	return (
-		<div className="relative flex items-center justify-center">
-			<div className="*:size-16 *:fill-primary-300 *:stroke-1">{kind.icon}</div>
-			<div
-				style={style}
-				className="absolute flex translate-y-[--text-offset] flex-col items-center"
-			>
-				<p className="text-xl/none font-medium">{die.outcome}</p>
-				<p className="text-sm/none text-primary-800">d{die.sides}</p>
-			</div>
+		<div className="*:size-12">
+			{kind == null ?
+				<Tooltip text={`Unknown dice type "${die.name}"`}>
+					<HelpCircle />
+				</Tooltip>
+			:	kind.faces[die.result - 1]?.element ?? (
+					<Tooltip text={`Unknown face "${die.result}" on d${die.name}`}>
+						<HelpCircle />
+					</Tooltip>
+				)
+			}
 		</div>
 	)
 }

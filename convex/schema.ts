@@ -1,7 +1,7 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
-import { diceRollCreatePayload } from "./diceRolls.ts"
+import { diceRollProperties } from "./diceRolls.ts"
 import { nullish } from "./helpers.ts"
 
 export default defineSchema({
@@ -29,13 +29,13 @@ export default defineSchema({
 		.index("by_owner", ["ownerId"]),
 
 	diceRolls: defineTable({
-		...diceRollCreatePayload,
+		...diceRollProperties,
 		rolledBy: v.id("users"),
 		dice: v.array(
 			v.object({
 				key: v.string(),
-				sides: v.number(),
-				outcome: v.number(),
+				name: v.string(),
+				result: v.number(),
 			}),
 		),
 	}).index("by_room", ["roomId"]),

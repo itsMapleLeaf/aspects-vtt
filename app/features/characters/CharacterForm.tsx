@@ -3,7 +3,6 @@ import * as Lucide from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
 import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
-import { range } from "#app/common/range.js"
 import { startCase } from "#app/common/string.js"
 import type { PickByValue } from "#app/common/types.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
@@ -17,7 +16,7 @@ import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { Tooltip } from "../../ui/Tooltip.tsx"
-import { diceKinds } from "../dice/diceKinds.tsx"
+import { numericDiceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
@@ -110,9 +109,9 @@ export function CharacterForm(props: { character: Character }) {
 				<div className="flex gap-2">
 					<Select
 						id={inputId(key)}
-						options={diceKinds.map((kind) => ({
-							label: `d${kind.sides}`,
-							value: kind.sides,
+						options={numericDiceKinds.map((kind) => ({
+							label: kind.name,
+							value: kind.faces.length,
 						}))}
 						value={character[key]}
 						onChange={(value) => updateValues({ [key]: value })}
@@ -127,8 +126,8 @@ export function CharacterForm(props: { character: Character }) {
 								roomId: room._id,
 								label: `${character.name}: ${label}`,
 								dice: [
-									{ sides: character[key] },
-									...range.array(character[stressKey]).map(() => ({ sides: 6 })),
+									{ name: `d${character[key]}`, count: 1 },
+									{ name: "snag", count: character[stressKey] },
 								],
 							})
 						}}
