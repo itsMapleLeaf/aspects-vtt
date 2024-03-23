@@ -1,8 +1,7 @@
 import { paginationOptsValidator } from "convex/server"
 import { v } from "convex/values"
-import { roll } from "#app/common/random.js"
+import { expect } from "#app/common/expect.js"
 import { range } from "#app/common/range.js"
-import { diceKindsByName } from "#app/features/dice/diceKinds.js"
 import { mutation, query } from "./_generated/server.js"
 import { getIdentityUser } from "./auth.js"
 
@@ -48,31 +47,22 @@ export const list = query({
 export const create = mutation({
 	args: {
 		...diceRollProperties,
-		dice: v.array(v.object({ name: v.string(), count: v.number() })),
+		dice: v.array(v.object({ name: v.string(), sides: v.number(), count: v.number() })),
 	},
 	handler: async (ctx, { dice, ...data }) => {
 		const user = await getIdentityUser(ctx)
 
-		function* rollDice() {
-			for (const [index, { name, count }] of dice.entries()) {
-				const kind = diceKindsByName.get(name)
-				if (!kind) {
-					console.error(`Unknown dice type "${name}" at index ${index}`)
-					continue
-				}
-				for (const _ of range(count)) {
-					yield {
-						key: crypto.randomUUID(),
-						name: kind.name,
-						result: roll(kind.faces.length),
-					}
-				}
-			}
-		}
+		const rolledDice = dice
+			.flatMap((input) => range.array(input.count).map(() => input))
+			.map(({ name, sides }) => ({
+				key: crypto.randomUUID(),
+				name,
+				result: (expect(crypto.getRandomValues(new Uint32Array(1))[0], "what") % sides) + 1,
+			}))
 
 		return await ctx.db.insert("diceRolls", {
 			...data,
-			dice: [...rollDice()],
+			dice: rolledDice,
 			rolledBy: user._id,
 		})
 	},

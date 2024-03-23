@@ -16,7 +16,7 @@ import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { Tooltip } from "../../ui/Tooltip.tsx"
-import { numericDiceKinds } from "../dice/diceKinds.tsx"
+import { numericDiceKinds, snagDiceKind } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
@@ -126,8 +126,8 @@ export function CharacterForm(props: { character: Character }) {
 								roomId: room._id,
 								label: `${character.name}: ${label}`,
 								dice: [
-									{ name: `d${character[key]}`, count: 1 },
-									{ name: "snag", count: character[stressKey] },
+									{ name: `d${character[key]}`, sides: character[key], count: 1 },
+									{ name: "snag", sides: snagDiceKind.faces.length, count: character[stressKey] },
 								],
 							})
 						}}

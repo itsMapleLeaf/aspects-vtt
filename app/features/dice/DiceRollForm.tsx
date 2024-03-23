@@ -30,10 +30,14 @@ export function DiceRollForm() {
 					await createDiceRoll({
 						roomId: room._id,
 						label,
-						dice: Object.entries(diceCounts).map(([name, count]) => ({ name, count })),
+						dice: diceKinds
+							.map((kind) => ({
+								name: kind.name,
+								sides: kind.faces.length,
+								count: diceCounts[kind.name] ?? 0,
+							}))
+							.filter(({ count }) => count > 0),
 					})
-					setDiceCounts({})
-					setLabel("")
 				} catch (error) {
 					alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
 				}
@@ -46,12 +50,15 @@ export function DiceRollForm() {
 					.map(({ kind, count }) => (
 						<li
 							key={kind.name}
-							className={panel("flex items-center justify-center gap-2 px-3 py-1")}
+							data-selected={count > 0}
+							className={panel(
+								"flex items-center justify-center gap-2 px-3 py-1 transition data-[selected=false]:opacity-50",
+							)}
 						>
 							<div className="flex flex-col">
 								<button
 									type="button"
-									title={`Add a d${kind.name}`}
+									title={`Add a ${kind.name}`}
 									className="-m-2 flex items-center justify-center p-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
 									onClick={() => updateDiceCount(kind.name, 1)}
 								>
@@ -59,7 +66,7 @@ export function DiceRollForm() {
 								</button>
 								<button
 									type="button"
-									title={`Add a d${kind.name}`}
+									title={`Add a ${kind.name}`}
 									className="-mx-2 flex items-center justify-center px-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
 									onClick={() => updateDiceCount(kind.name, -1)}
 								>
@@ -71,8 +78,8 @@ export function DiceRollForm() {
 
 							<button
 								type="button"
-								className="transition *:size-12 hover:brightness-75 active:brightness-125 active:duration-0"
-								title={`Click to add a d${kind.name}, right-click to remove`}
+								className="transition *:size-12 hover:brightness-75 active:brightness-125 active:duration-0 "
+								title={`Click to add a ${kind.name}, right-click to remove`}
 								onClick={() => updateDiceCount(kind.name, 1)}
 								onContextMenu={(event) => {
 									event.preventDefault()
