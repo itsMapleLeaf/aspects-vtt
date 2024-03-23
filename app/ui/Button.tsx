@@ -26,7 +26,7 @@ export type ButtonProps = ButtonPropsAsButton | ButtonPropsAsElement
 export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 	const [onClickPending, setOnClickPending] = useState(false)
 	const status = useFormStatus()
-	const pending = (status.pending && props.type === "button") || onClickPending
+	const pending = (status.pending && props.type === "submit") || onClickPending
 
 	const className = buttonStyle({ size })
 
