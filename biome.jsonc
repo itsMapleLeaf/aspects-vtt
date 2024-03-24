@@ -17,6 +17,9 @@
 			"correctness": {
 				"noUnusedImports": "warn",
 			},
+			"performance": {
+				"noDelete": "off",
+			},
 			"suspicious": {
 				"noArrayIndexKey": "off",
 				"noAssignInExpressions": "off",
