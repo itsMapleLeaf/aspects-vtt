@@ -107,6 +107,7 @@ export const list = query({
 			.map((character) => ({
 				...defaultProperties,
 				_id: character._id,
+				roomId: character.roomId,
 				playerId: character.playerId,
 				...((character.visibleTo === "everyone" || character._id === player?.characterId) &&
 					pick(character, playerPropertyKeys)),
@@ -210,7 +211,7 @@ export const getPlayerCharacter = query({
 
 		return {
 			...defaultProperties,
-			...pick(character, ["_id", ...keys(playerProperties)]),
+			...pick(character, ["_id", "roomId", ...keys(playerProperties)]),
 			playerId: player.userId,
 		}
 	}),

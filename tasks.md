@@ -73,7 +73,7 @@
   - [x] roll snag dice from stress
   - [x] give a special appearance for boost and snag dice
   - [x] show the effect, boost, and snag values
-  - [ ] show popover to add boost/snag dice on attribute rolls
+  - [x] show popover to add boost/snag dice on attribute rolls
 - quick reference button to show a modal for lists of things
   - [ ] general skills
   - [ ] combat actions

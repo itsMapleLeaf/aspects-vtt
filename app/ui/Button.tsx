@@ -40,7 +40,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 					<Loading size="sm" />
 				:	icon}
 			</span>
-			<span data-size={size} className="relative flex-1 text-left empty:hidden">
+			<span data-size={size} className="relative empty:hidden">
 				{text}
 			</span>
 		</>
@@ -73,7 +73,7 @@ export interface ButtonStyleProps {
 
 export function buttonStyle({ size = "md" }: ButtonStyleProps) {
 	return twMerge(
-		"flex items-center gap-2",
+		"flex-center-row gap-2",
 
 		size === "sm" && "h-8 px-2",
 		size === "md" && "h-10 px-3",
