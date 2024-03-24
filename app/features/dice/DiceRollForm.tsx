@@ -1,11 +1,11 @@
-import { useMutation } from "convex/react"
-import { ConvexError } from "convex/values"
-import * as Lucide from "lucide-react"
-import { useState } from "react"
 import { Button } from "#app/ui/Button.tsx"
 import { Input } from "#app/ui/Input.tsx"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
+import { useMutation } from "convex/react"
+import { ConvexError } from "convex/values"
+import * as Lucide from "lucide-react"
+import { useState } from "react"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { type DiceKind, diceKinds } from "./diceKinds"
 
@@ -52,7 +52,7 @@ export function DiceRollForm() {
 							key={kind.name}
 							data-selected={count > 0}
 							className={panel(
-								"flex items-center justify-center gap-2 px-3 py-1 transition data-[selected=false]:opacity-50",
+								"flex items-center justify-center gap-2 px-3 py-1 transition *:data-[selected=false]:opacity-50",
 							)}
 						>
 							<div className="flex flex-col">

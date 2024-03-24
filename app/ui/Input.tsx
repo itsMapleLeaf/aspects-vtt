@@ -1,8 +1,9 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react"
-import type React from "react"
-import { twMerge } from "tailwind-merge"
 import { omit } from "#app/common/object.js"
 import type { Overwrite } from "#app/common/types.ts"
+import type React from "react"
+import type { ComponentPropsWithoutRef, ReactNode } from "react"
+import { twMerge } from "tailwind-merge"
+import { panel } from "./styles.ts"
 
 export type InputProps = Overwrite<
 	| (ComponentPropsWithoutRef<"input"> & {
@@ -20,11 +21,13 @@ export type InputProps = Overwrite<
 >
 
 export function Input({ icon, className, align, ...props }: InputProps) {
-	const inputClassNameBase = twMerge(
-		"w-full min-w-0 rounded border border-primary-300 bg-primary-300/30 pl-8 pr-3 transition peer-empty:pl-3",
-		align === "left" && "text-left",
-		align === "right" && "text-right",
-		align === "center" && "text-center",
+	const inputClassNameBase = panel(
+		twMerge(
+			"w-full min-w-0 rounded border border-primary-300 bg-primary-200 pl-8 pr-3 transition peer-empty:pl-3",
+			align === "left" && "text-left",
+			align === "right" && "text-right",
+			align === "center" && "text-center",
+		),
 	)
 	return (
 		<div className={twMerge("group relative flex w-full items-center", className)}>

@@ -1,11 +1,12 @@
+import { Loading } from "#app/ui/Loading.tsx"
+import { Tooltip } from "#app/ui/Tooltip.js"
+import { panel } from "#app/ui/styles.js"
+import { api } from "#convex/_generated/api.js"
 import { type PaginatedQueryItem, usePaginatedQuery } from "convex/react"
 import { formatDistanceToNow } from "date-fns"
 import { HelpCircle } from "lucide-react"
 import { Fragment } from "react"
 import { Virtuoso } from "react-virtuoso"
-import { Loading } from "#app/ui/Loading.tsx"
-import { Tooltip } from "#app/ui/Tooltip.js"
-import { api } from "#convex/_generated/api.js"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "./diceKinds"
 
@@ -57,10 +58,7 @@ function DiceRollSummary({ roll }: { roll: PaginatedQueryItem<typeof api.diceRol
 	}
 
 	return (
-		<li
-			key={roll._id}
-			className="flex flex-col gap-2 rounded border border-primary-300 bg-primary-200/50 px-3 py-2"
-		>
+		<li key={roll._id} className={panel("flex flex-col gap-2 bg-primary-200 px-3 py-2")}>
 			<h3 className="text-2xl font-light empty:hidden">{roll.label}</h3>
 
 			<dl className="flex gap-[3px] text-lg">

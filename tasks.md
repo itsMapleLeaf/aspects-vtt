@@ -62,7 +62,7 @@
   - [x] conform to background image size
   - [x] configure cell size in pixels
   - [x] zooming
-  - [ ] have the map fill the entire screen, then turn the dice roller and character sheet into overlay panels and add a background shade on the header
+  - [x] have the map fill the entire screen, then turn the dice roller and character sheet into overlay panels and add a background shade on the header
 - characters
   - [x] pronouns field
   - [x] show stress thresholds

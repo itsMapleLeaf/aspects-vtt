@@ -1,5 +1,6 @@
 import { vitePlugin as remix } from "@remix-run/dev"
 import { vercelPreset } from "@vercel/remix/vite"
+import { flatRoutes } from "remix-flat-routes"
 import { remixRoutes } from "remix-routes/vite.js"
 import { visualizer } from "rollup-plugin-visualizer"
 import { defineConfig } from "vite"
@@ -14,6 +15,7 @@ export default defineConfig({
 				v3_throwAbortReason: true,
 			},
 			presets: [process.env.VERCEL && vercelPreset()].filter(Boolean),
+			routes: async (defineRoutes) => flatRoutes("routes", defineRoutes),
 		}),
 		remixRoutes(),
 		inspect(),

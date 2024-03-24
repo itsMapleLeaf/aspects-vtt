@@ -1,8 +1,9 @@
+import type { Disallowed, StrictOmit } from "#app/common/types.ts"
 import { type ComponentPropsWithoutRef, type ReactElement, cloneElement, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
-import type { Disallowed, StrictOmit } from "#app/common/types.ts"
 import { Loading } from "./Loading.tsx"
+import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName"
 
 interface ButtonPropsBase extends ButtonStyleProps {
@@ -93,5 +94,7 @@ export function buttonStyle({ size = "md" }: ButtonStyleProps) {
 		"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
 
 		"disabled:opacity-50",
+
+		panel(),
 	)
 }

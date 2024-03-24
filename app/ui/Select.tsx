@@ -1,7 +1,8 @@
+import type { Overwrite } from "#app/common/types.ts"
 import * as Lucide from "lucide-react"
 import type { ComponentPropsWithoutRef } from "react"
 import { twMerge } from "tailwind-merge"
-import type { Overwrite } from "#app/common/types.ts"
+import { panel } from "./styles.ts"
 
 export function Select<T extends string | number | null>({
 	options,
@@ -26,7 +27,7 @@ export function Select<T extends string | number | null>({
 		<div className={twMerge("relative flex flex-row items-center", className)}>
 			<select
 				{...props}
-				className="block h-10 w-full appearance-none rounded border border-primary-300 bg-primary-200 pl-9"
+				className={panel("block h-10 w-full appearance-none pl-9")}
 				value={valueIndex}
 				onChange={(event) => {
 					const index = Number(event.target.value)
