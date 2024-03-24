@@ -107,7 +107,7 @@ export function TokenMapViewport({
 			>
 				<UploadedImage
 					id={room.mapImageId}
-					className="absolute left-0 top-0"
+					className="absolute left-0 top-0 brightness-75"
 					style={mapDimensions.toObject("width", "height")}
 				/>
 				<ZoomContext.Provider value={zoom}>
