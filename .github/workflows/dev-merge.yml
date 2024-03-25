@@ -11,11 +11,8 @@ concurrency: dev-to-main
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: read
-      pull-requests: write
-
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
