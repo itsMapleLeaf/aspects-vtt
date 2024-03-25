@@ -1,0 +1,26 @@
+name: Prod Deploy PR
+
+on:
+  push:
+    branches:
+      - dev
+
+concurrency: dev-to-main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: create PR from dev to main"
+          branch: dev
+          base: main
+          title: Deploy to Production
+          body: Merge this PR to deploy to production.
