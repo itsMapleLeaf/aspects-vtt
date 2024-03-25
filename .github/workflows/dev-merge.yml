@@ -1,6 +1,7 @@
 name: Prod Deploy PR
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - dev
