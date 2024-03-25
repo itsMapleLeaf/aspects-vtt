@@ -42,8 +42,8 @@ dependencies:
     specifier: 1.10.0
     version: 1.10.0(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307)
   convex-helpers:
-    specifier: 0.1.26
-    version: 0.1.26(convex@1.10.0)(react@18.3.0-canary-338dddc08-20240307)(zod@3.22.4)
+    specifier: 0.1.27
+    version: 0.1.27(convex@1.10.0)(react@18.3.0-canary-338dddc08-20240307)(zod@3.22.4)
   date-fns:
     specifier: 3.6.0
     version: 3.6.0
@@ -2618,8 +2618,8 @@ packages:
   /convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  /convex-helpers@0.1.26(convex@1.10.0)(react@18.3.0-canary-338dddc08-20240307)(zod@3.22.4):
-    resolution: {integrity: sha512-zjIoiSX3BXKQ3h5OeDkOr9XxmPGdjg7lCaqn5nrmTbAomeSD8JZwv+jc4hfaAm3zPvk6Fk1pVskWm7DyJtC1hw==}
+  /convex-helpers@0.1.27(convex@1.10.0)(react@18.3.0-canary-338dddc08-20240307)(zod@3.22.4):
+    resolution: {integrity: sha512-Oc3xluBNd+rxy+Lok/X9QjaYmJddAZyMbOSE5OsFWsOulGqOp99PYAnngAYA0T/1Uw/D4j1bet2ql+nZLMtICg==}
     peerDependencies:
       convex: ^1.10.0
       hono: ^4.0.5
