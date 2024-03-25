@@ -23,7 +23,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Deploy to Production
           body: Merge this PR to deploy to production.
-          commit-message: "[ci] create prod deploy PR"
           base: dev
-          branch: main
+          commit-message: "[ci] create prod deploy PR"
           delete-branch: false
