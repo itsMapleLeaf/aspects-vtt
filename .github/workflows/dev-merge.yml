@@ -21,8 +21,9 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: create PR from dev to main"
-          branch: dev
-          base: main
           title: Deploy to Production
           body: Merge this PR to deploy to production.
+          commit-message: "[ci] create prod deploy PR"
+          base: dev
+          branch: main
+          delete-branch: false
