@@ -1,36 +1,16 @@
 # Tasks
 
-## mvp
-
-- [x] add convex
-- [x] set username
-- [x] dice rolls
-- character sheets
-  - [x] name
-  - [x] text fields
-  - [x] image
-  - [x] number fields
-  - [x] multiline text fields
-  - [x] dice fields
-  - [x] createdBy (in database)
-  - [x] buttons next to dice fields to roll them, automatically includes fatigue
-- token grid
-  - [x] infinite grid
-  - [x] left-click and drag to move viewport
-  - [x] add a `mapTokens` table to the database
-  - [x] add token properties to characters
-  - [x] rendering database tokens
-  - [x] rendering character tokens
-  - [x] drag token to move it
-  - [x] add token from character
-  - [x] remove token
-  - [x] configurable token-level health and fatigue
-  - [x] link tokens to characters - each token uses the character's values as fallbacks, but can be set individually
-  - [x] button to set background image from upload
-  - [x] hide menu while dragging token
-  - [x] hide token tags unless selected
-
 ## priority
+
+- [ ] button to toggle left sidebar
+- [ ] hide right sidebar when token is deselected
+- [ ] auto-expanding textareas
+- [ ] chat
+
+- quick reference button to show a modal for lists of things
+
+  - [ ] general skills
+  - [ ] combat actions
 
 - general axiom:
   - the only difference between the player and the GM is what the player can see and control
@@ -45,7 +25,6 @@
     - [x] add or remove characters
     - [x] make characters public or private
     - [x] show/hide tokens
-  - [ ] chat
 - players
   - [x] add `players` property to room
   - [x] when a player joins a room, add their user ID to the list
@@ -74,9 +53,6 @@
   - [x] give a special appearance for boost and snag dice
   - [x] show the effect, boost, and snag values
   - [x] show popover to add boost/snag dice on attribute rolls
-- quick reference button to show a modal for lists of things
-  - [ ] general skills
-  - [ ] combat actions
 
 ## features
 
@@ -126,6 +102,36 @@
   - [ ] reroll individual dice
   - [ ] add/remove dice to existing rolls
 - [x] move health & fatigue to tokens
+
+## mvp
+
+- [x] add convex
+- [x] set username
+- [x] dice rolls
+- character sheets
+  - [x] name
+  - [x] text fields
+  - [x] image
+  - [x] number fields
+  - [x] multiline text fields
+  - [x] dice fields
+  - [x] createdBy (in database)
+  - [x] buttons next to dice fields to roll them, automatically includes fatigue
+- token grid
+  - [x] infinite grid
+  - [x] left-click and drag to move viewport
+  - [x] add a `mapTokens` table to the database
+  - [x] add token properties to characters
+  - [x] rendering database tokens
+  - [x] rendering character tokens
+  - [x] drag token to move it
+  - [x] add token from character
+  - [x] remove token
+  - [x] configurable token-level health and fatigue
+  - [x] link tokens to characters - each token uses the character's values as fallbacks, but can be set individually
+  - [x] button to set background image from upload
+  - [x] hide menu while dragging token
+  - [x] hide token tags unless selected
 
 ## ideas
 
