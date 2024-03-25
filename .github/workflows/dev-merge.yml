@@ -1,3 +1,4 @@
+# https://github.com/peter-evans/create-pull-request/blob/v6/docs/examples.md#keep-a-branch-up-to-date-with-another
 name: Prod Deploy PR
 
 on:
@@ -16,6 +17,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Reset branch
+        run: |
+          git fetch origin dev:dev
+          git reset --hard dev
 
       - name: Create PR
         uses: peter-evans/create-pull-request@v6
@@ -23,7 +31,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Deploy to Production
           body: Merge this PR to deploy to production.
-          base: main
           branch: dev
           commit-message: "[ci] create prod deploy PR"
           delete-branch: false
