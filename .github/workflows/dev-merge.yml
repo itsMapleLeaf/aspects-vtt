@@ -9,8 +9,12 @@ on:
 concurrency: dev-to-main
 
 jobs:
-  build:
+  create-pull-request:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout code
