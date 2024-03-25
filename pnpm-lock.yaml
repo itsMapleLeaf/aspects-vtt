@@ -12,8 +12,8 @@ dependencies:
     specifier: 4.0.0-beta.34
     version: 4.0.0-beta.34(@remix-run/react@2.8.1)(@remix-run/server-runtime@2.8.1)(eslint@8.57.0)(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307)(typescript@5.4.3)
   '@clerk/themes':
-    specifier: 2.0.0-beta.5
-    version: 2.0.0-beta.5(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307)
+    specifier: 2.0.0-snapshot.v68dabd484
+    version: 2.0.0-snapshot.v68dabd484(react@18.3.0-canary-338dddc08-20240307)
   '@floating-ui/react':
     specifier: 0.26.9
     version: 0.26.9(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307)
@@ -651,15 +651,13 @@ packages:
       swr: 2.2.0(react@18.3.0-canary-338dddc08-20240307)
     dev: false
 
-  /@clerk/themes@2.0.0-beta.5(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307):
-    resolution: {integrity: sha512-+OKzl6U9GnClYIifimQY31iq9OU7C+2WeSZDv4WoOhxSsUArt6LxLzt7/xXX8ZqGoW2Ac5MctPqVVdroi+Q6jw==}
-    engines: {node: '>=18.17.0'}
+  /@clerk/themes@2.0.0-snapshot.v68dabd484(react@18.3.0-canary-338dddc08-20240307):
+    resolution: {integrity: sha512-vC3Rci3sweXvGGbVD7f92zbMxNZ0hnQdGK4nMIYS/2dcEvEeEtWDzThd38aTrzy50QQGLOYr/3n/5RQ8cVZJbA==}
+    engines: {node: '>=18.18.0'}
     peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
+      react: '>=16'
     dependencies:
       react: 18.3.0-canary-338dddc08-20240307
-      react-dom: 18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307)
     dev: false
 
   /@clerk/types@4.0.0-beta.20:
