@@ -1,11 +1,18 @@
 import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { useDrag } from "#app/common/useDrag.js"
-import { useLocalStorage } from "#app/common/useLocalStorage.js"
+import { useLocalStorage, useLocalStorageState } from "#app/common/useLocalStorage.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.ts"
 import { panel } from "#app/ui/styles.ts"
-import { type SetStateAction, useImperativeHandle, useState } from "react"
+import {
+	type SetStateAction,
+	useEffect,
+	useImperativeHandle,
+	useReducer,
+	useRef,
+	useState,
+} from "react"
 import { z } from "zod"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
@@ -27,83 +34,100 @@ export function TokenMapViewport({
 }) {
 	const room = useRoom()
 
-	const [zoomFactor, setZoomFactor] = useLocalStorage("viewport:zoom", 0, z.number())
+	const [zoomFactor, setZoomFactor] = useLocalStorageState("viewport:zoom", 0, z.number())
 	const zoomMultiple = 1.2
 	const zoom = zoomMultiple ** zoomFactor
-	const extent = Vector.from(room.mapCellSize * 5 * zoom) // how much further outside the viewport the map can be
 
 	const mapDimensions = Vector.from(room.mapDimensions)
-	const [viewport, viewportRef] = useState<HTMLDivElement | null>()
+	const [containerElement, containerRef] = useState<HTMLDivElement | null>()
 
-	const [viewportSize, setViewportSize] = useState(Vector.zero)
-	useResizeObserver(viewport, (info) =>
-		setViewportSize(Vector.from(info.contentRect.width, info.contentRect.height)),
-	)
+	const [containerSize, setContainerSize] = useState(Vector.zero)
+	useResizeObserver(containerElement, (info) => setContainerSize(Vector.fromSize(info.contentRect)))
 
-	const [offsetState, setOffsetStateInternal] = useLocalStorage(
+	const [offset, setOffset] = useLocalStorage(
 		"viewport:offset",
-		Vector.zero.xy,
 		z.object({ x: z.number(), y: z.number() }),
+		useReducer(
+			(state: { x: number; y: number }, action: SetStateAction<{ x: number; y: number }>) => {
+				const newState = action instanceof Function ? action(state) : action
+				const zoomedMapDimensions = mapDimensions.times(zoom)
+				return Vector.from(newState).clamp(
+					containerSize.dividedBy(2).minus(zoomedMapDimensions),
+					containerSize.dividedBy(2),
+				).xy
+			},
+			Vector.zero.xy,
+		),
 	)
-
-	function setOffsetState(action: SetStateAction<Vector>) {
-		setOffsetStateInternal((state) => {
-			const newState = action instanceof Function ? action(Vector.from(state)) : action
-			return clampOffset(newState).xy
-		})
-	}
-
-	function clampOffset(offset: Vector) {
-		const topLeft = Vector.zero
-		const bottomRight = mapDimensions.times(zoom).minus(viewportSize).clampTopLeft(Vector.zero)
-		return offset.clamp(topLeft.minus(extent), bottomRight.plus(extent))
-	}
 
 	useImperativeHandle(controllerRef, () => ({
 		resetView() {
 			setZoomFactor(0)
-			setOffsetState(Vector.zero)
+			setOffset(Vector.zero)
 		},
 	}))
 
-	const drag = useDrag(viewport, {
+	const drag = useDrag(containerElement, {
 		onStart(event) {
 			onBackdropClick?.()
 		},
 		onFinish({ distance }) {
-			setOffsetState((state) => Vector.from(state).minus(distance))
+			setOffset((state) => Vector.from(state).plus(distance))
 		},
 	})
 
-	const offset = clampOffset(
-		Vector.from(offsetState).minus(drag?.current.minus(drag.start) ?? Vector.zero),
-	)
+	let translation = Vector.from(offset)
+	if (drag) {
+		translation = translation.plus(drag.distance)
+	}
+
+	const transformRef = useRef<HTMLDivElement | null>(null)
+	{
+		const currentTranslationRef = useRef(translation)
+		const currentZoomRef = useRef(zoom)
+		useAnimationCallback((delta) => {
+			const stiffness = 30
+
+			currentTranslationRef.current = currentTranslationRef.current.lerp(
+				translation,
+				1 - 0.5 ** (delta * stiffness),
+			)
+			currentZoomRef.current = lerp(currentZoomRef.current, zoom, 1 - 0.5 ** (delta * stiffness))
+
+			const element = expect(transformRef.current, "transform ref not set")
+			element.style.translate = `${currentTranslationRef.current.x}px ${currentTranslationRef.current.y}px`
+			element.style.scale = String(currentZoomRef.current)
+		})
+	}
 
 	return (
 		<div
 			className={panel("relative size-full select-none overflow-clip bg-primary-200/25")}
-			ref={viewportRef}
+			ref={containerRef}
 			onWheel={(event) => {
 				const newZoomFactor = clamp(zoomFactor - Math.sign(event.deltaY), -10, 10)
 				const newZoom = zoomMultiple ** newZoomFactor
 
-				const viewportRect = expect(viewport, "viewport ref not set").getBoundingClientRect()
+				const viewportRect = expect(
+					containerElement,
+					"viewport ref not set",
+				).getBoundingClientRect()
 				const viewportTopLeft = Vector.from(viewportRect.left, viewportRect.top)
 
 				const currentMouseOffset = Vector.from(event.clientX, event.clientY).minus(
-					viewportTopLeft.minus(offset),
+					viewportTopLeft.plus(translation),
 				)
 
-				const shift = currentMouseOffset.dividedBy(zoom).times(newZoom).minus(currentMouseOffset)
+				const shift = currentMouseOffset.times(newZoom / zoom).minus(currentMouseOffset)
 
 				setZoomFactor(newZoomFactor)
-				setOffsetState(offset.plus(shift))
+				setOffset(translation.minus(shift))
 			}}
 		>
 			<div
 				data-dragging={!!drag}
-				className="absolute left-0 top-0 isolate origin-top-left transition-[translate,scale] ease-out data-[dragging=true]:duration-75"
-				style={{ translate: `${-offset.x}px ${-offset.y}px`, scale: zoom }}
+				className="absolute left-0 top-0 isolate origin-top-left"
+				ref={transformRef}
 			>
 				<UploadedImage
 					id={room.mapImageId}
@@ -120,4 +144,33 @@ export function TokenMapViewport({
 			</div>
 		</div>
 	)
+}
+
+function useAnimationCallback(callback: (deltaTime: number) => void) {
+	const callbackRef = useRef(callback)
+	useEffect(() => {
+		callbackRef.current = callback
+	})
+
+	useEffect(() => {
+		let running = true
+		void (async () => {
+			let time = await waitForAnimationFrame()
+			while (running) {
+				const currentTime = await waitForAnimationFrame()
+				const deltaTime = (currentTime - time) / 1000
+				time = currentTime
+				callbackRef.current(deltaTime)
+			}
+		})()
+		return () => {
+			running = false
+		}
+	}, [])
+}
+
+const waitForAnimationFrame = () => new Promise<number>((resolve) => requestAnimationFrame(resolve))
+
+function lerp(a: number, b: number, t: number) {
+	return a + (b - a) * t
 }

@@ -8,27 +8,30 @@ type JsonValue =
 	| JsonValue[]
 	| { [key: string]: JsonValue | undefined }
 
-export function useLocalStorage<T extends JsonValue>(
+export function useLocalStorageState<T extends JsonValue>(
 	key: string,
 	initialValue: T,
 	schema: {
 		parse: (input: unknown) => T
 	},
 ) {
-	const [value, setValue] = useState(initialValue)
+	return useLocalStorage(key, schema, useState(initialValue))
+}
+
+export function useLocalStorage<Value extends JsonValue, SetValue extends (value: Value) => void>(
+	key: string,
+	schema: { parse: (input: unknown) => Value },
+	[value, setValue]: [Value, SetValue],
+) {
 	const [initialized, setInitialized] = useState(false)
 
 	if (!initialized && typeof window !== "undefined") {
 		try {
 			const item = window.localStorage.getItem(key)
-			if (item) {
+			if (item != null) {
 				setValue(schema.parse(JSON.parse(item)))
-			} else {
-				setValue(initialValue)
 			}
-		} catch {
-			setValue(initialValue)
-		}
+		} catch {}
 		setInitialized(true)
 	}
 
@@ -41,5 +44,5 @@ export function useLocalStorage<T extends JsonValue>(
 		}
 	}, [key, value, initialized])
 
-	return [value ?? initialValue, setValue] as const
+	return [value, setValue] as const
 }

@@ -34,6 +34,15 @@ export class Vector {
 		return new Vector(args[0], args[1] ?? args[0])
 	}
 
+	static fromSize(
+		...args: [width: number, height: number] | [size: { width: number; height: number }]
+	): Vector {
+		if (args.length === 2) {
+			return new Vector(args[0], args[1])
+		}
+		return new Vector(args[0].width, args[0].height)
+	}
+
 	get xy(): { x: number; y: number } {
 		return { x: this.x, y: this.y }
 	}
@@ -99,6 +108,10 @@ export class Vector {
 	manhattanDistanceTo(...input: VectorInput): number {
 		const b = Vector.from(...input)
 		return Math.abs(this.x - b.x) + Math.abs(this.y - b.y)
+	}
+
+	lerp(other: Vector, t: number): Vector {
+		return this.plus(other.minus(this).times(t))
 	}
 
 	map(fn: (n: number) => number): Vector {
