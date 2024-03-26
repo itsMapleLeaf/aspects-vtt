@@ -64,7 +64,7 @@ export default function RoomIndexRoute() {
 				</TokenMapViewport>
 			</div>
 
-			<div className="-m-4 bg-gradient-to-b from-black/80 via-black/30 to-transparent p-4">
+			<div className="-mx-4 -mt-4 border-b border-primary-300 bg-primary-100/75 p-4 backdrop-blur">
 				<AppHeader>
 					<UserButton />
 				</AppHeader>
