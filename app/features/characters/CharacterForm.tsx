@@ -11,6 +11,7 @@ import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { Select } from "#app/ui/Select.js"
+import { TextArea } from "#app/ui/TextArea.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
@@ -32,7 +33,6 @@ export function CharacterForm(props: { character: Character }) {
 	const [updates, setUpdates] = useState<Partial<Character>>()
 	const character = { ...props.character, ...updates }
 	const isCharacterOwner = room.isOwner || character.playerId === user?.data?._id
-	const createDiceRoll = useMutation(api.diceRolls.create)
 
 	useEffect(() => {
 		if (!updates) return
@@ -56,7 +56,7 @@ export function CharacterForm(props: { character: Character }) {
 	const baseId = useId()
 	const inputId = (name: string) => `${baseId}:${name}`
 
-	function renderTextField(key: keyof PickByValue<Character, string>, label = startCase(key)) {
+	function renderInputField(key: keyof PickByValue<Character, string>, label = startCase(key)) {
 		return (
 			<FormField label={label} htmlFor={inputId(key)}>
 				<Input
@@ -68,16 +68,14 @@ export function CharacterForm(props: { character: Character }) {
 		)
 	}
 
-	function renderMultilineTextField(
-		key: keyof PickByValue<Character, string>,
-		label = startCase(key),
-	) {
+	function renderTextAreaField(key: keyof PickByValue<Character, string>, label = startCase(key)) {
 		return (
 			<FormField label={label} htmlFor={inputId(key)}>
-				<Input
+				<TextArea
 					id={inputId(key)}
+					minRows={3}
+					maxRows={16}
 					value={character[key]}
-					multiline
 					onChange={(event) => updateValues({ [key]: event.target.value })}
 				/>
 			</FormField>
@@ -137,8 +135,8 @@ export function CharacterForm(props: { character: Character }) {
 			<div className="flex gap-2 *:min-w-0 *:flex-1">
 				{isCharacterOwner ?
 					<>
-						{renderTextField("name")}
-						{renderTextField("pronouns")}
+						{renderInputField("name")}
+						{renderInputField("pronouns")}
 					</>
 				:	<>
 						<ReadOnlyField label="Name" value={character.name} />
@@ -200,8 +198,8 @@ export function CharacterForm(props: { character: Character }) {
 				))
 			}
 
-			{renderMultilineTextField("playerNotes", room.isOwner ? "Player Notes" : "Notes")}
-			{room.isOwner && renderMultilineTextField("ownerNotes", "Owner Notes")}
+			{renderTextAreaField("playerNotes", room.isOwner ? "Player Notes" : "Notes")}
+			{room.isOwner && renderTextAreaField("ownerNotes", "Owner Notes")}
 		</div>
 	)
 }

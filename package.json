@@ -42,6 +42,7 @@
 		"random-word-slugs": "0.1.7",
 		"react": "18.3.0-canary-338dddc08-20240307",
 		"react-dom": "18.3.0-canary-338dddc08-20240307",
+		"react-textarea-autosize": "8.5.3",
 		"react-virtuoso": "4.7.4",
 		"remix-routes": "1.7.2",
 		"tailwind-merge": "2.2.2",
