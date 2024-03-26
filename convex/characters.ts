@@ -228,13 +228,23 @@ export const update = mutation({
 		const { room, player, isOwner } = await getRoomPlayerContext(ctx, character.roomId)
 
 		if (isOwner) {
-			if (playerId) {
+			if (playerId !== undefined) {
+				const players =
+					playerId === null ?
+						room.players.map((player) => ({
+							...player,
+							characterId: null,
+						}))
+					:	room.players.map((player) => ({
+							...player,
+							characterId: player.userId === playerId ? id : null,
+						}))
+
 				await ctx.db.patch(room._id, {
-					players: room.players.map((player) =>
-						player.userId === playerId ? { ...player, characterId: id } : player,
-					),
+					players,
 				})
 			}
+
 			return await ctx.db.patch(id, {
 				...args,
 				imageId: await replaceFile(ctx, character.imageId, args.imageId),
