@@ -1,10 +1,12 @@
 import { useConvex, useMutation, useQuery } from "convex/react"
+import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
 import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { startCase } from "#app/common/string.js"
-import type { PickByValue } from "#app/common/types.js"
+import type { PickByValue, StrictOmit } from "#app/common/types.js"
+import { useMutationState } from "#app/common/useMutationState.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
 import { FormField } from "#app/ui/FormField.js"
@@ -29,28 +31,12 @@ export type Character =
 export function CharacterForm(props: { character: Character }) {
 	const room = useRoom()
 	const user = useQuery(api.auth.user)
-	const updateCharacter = useMutation(api.characters.update)
-	const [updates, setUpdates] = useState<Partial<Character>>()
-	const character = { ...props.character, ...updates }
+	const [updateCharacterState, updateCharacter] = useMutationState(api.characters.update)
+	const character = { ...props.character, ...updateCharacterState.args }
 	const isCharacterOwner = room.isOwner || character.playerId === user?.data?._id
 
-	useEffect(() => {
-		if (!updates) return
-
-		let cancelled = false
-		const id = setTimeout(async () => {
-			await updateCharacter({ ...updates, id: character._id })
-			if (!cancelled) setUpdates(undefined)
-		}, 300)
-
-		return () => {
-			clearTimeout(id)
-			cancelled = true
-		}
-	}, [updates, character._id, updateCharacter])
-
-	function updateValues(values: Partial<typeof character>) {
-		setUpdates((prev) => ({ ...prev, ...values }))
+	function updateValues(args: StrictOmit<FunctionArgs<typeof api.characters.update>, "id">) {
+		updateCharacter({ ...args, id: character._id })
 	}
 
 	const baseId = useId()
