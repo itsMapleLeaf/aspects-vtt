@@ -22,7 +22,7 @@ export function AttributeDiceRollButton({
 	attributeKey: keyof PickByValue<Character, number>
 	stress: number
 }) {
-	const createDiceRoll = useMutation(api.diceRolls.create)
+	const createMessage = useMutation(api.messages.create)
 	const attributeValue = character[attributeKey]
 	const stressKind = snagDiceKind
 	const label = `${character.name}: ${startCase(attributeKey)}`
@@ -41,9 +41,9 @@ export function AttributeDiceRollButton({
 					text="Roll"
 					aria-label={`Roll ${startCase(attributeKey)} for ${character.name}`}
 					onClick={async () => {
-						await createDiceRoll({
+						await createMessage({
 							roomId: character.roomId,
-							label,
+							content: label,
 							dice: baseDice,
 						}).catch((error) => {
 							alert(
@@ -73,9 +73,9 @@ export function AttributeDiceRollButton({
 					text="Roll"
 					icon={<Lucide.Dices />}
 					onClick={async () => {
-						await createDiceRoll({
+						await createMessage({
 							roomId: character.roomId,
-							label,
+							content: label,
 							dice: [
 								...baseDice,
 								{ name: "boost", sides: boostDiceKind.faces.length, count: addedBoostDice },

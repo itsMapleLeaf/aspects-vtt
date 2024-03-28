@@ -9,7 +9,7 @@ import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
 import { CreateCharacterButton } from "#app/features/characters/CreateCharacterButton.tsx"
 import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterButton.tsx"
 import { DiceRollForm } from "#app/features/dice/DiceRollForm.tsx"
-import { DiceRollList } from "#app/features/dice/DiceRollList.tsx"
+import { MessageList } from "#app/features/messages/MessageList.js"
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
 import { Token } from "#app/features/tokens/Token.tsx"
@@ -80,7 +80,7 @@ export default function RoomIndexRoute() {
 				>
 					<DiceRollForm />
 					<div className="min-h-0 flex-1">
-						<DiceRollList />
+						<MessageList />
 					</div>
 				</div>
 

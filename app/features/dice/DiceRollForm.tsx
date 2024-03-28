@@ -1,11 +1,11 @@
-import { Button } from "#app/ui/Button.tsx"
-import { Input } from "#app/ui/Input.tsx"
-import { panel } from "#app/ui/styles.js"
-import { api } from "#convex/_generated/api.js"
 import { useMutation } from "convex/react"
 import { ConvexError } from "convex/values"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { Button } from "#app/ui/Button.tsx"
+import { Input } from "#app/ui/Input.tsx"
+import { panel } from "#app/ui/styles.js"
+import { api } from "#convex/_generated/api.js"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { type DiceKind, diceKinds } from "./diceKinds"
 
@@ -13,7 +13,7 @@ export function DiceRollForm() {
 	const room = useRoom()
 	const [label, setLabel] = useState("")
 	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})
-	const createDiceRoll = useMutation(api.diceRolls.create)
+	const createMessage = useMutation(api.messages.create)
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
 
 	const updateDiceCount = (name: string, delta: number) => {
@@ -27,9 +27,9 @@ export function DiceRollForm() {
 		<form
 			action={async () => {
 				try {
-					await createDiceRoll({
+					await createMessage({
 						roomId: room._id,
-						label,
+						content: label,
 						dice: diceKinds
 							.map((kind) => ({
 								name: kind.name,
