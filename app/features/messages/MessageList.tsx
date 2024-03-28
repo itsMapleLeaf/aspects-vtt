@@ -1,34 +1,53 @@
-import { Loading } from "#app/ui/Loading.tsx"
-import { Tooltip } from "#app/ui/Tooltip.js"
-import { panel } from "#app/ui/styles.js"
-import { api } from "#convex/_generated/api.js"
 import { type PaginatedQueryItem, usePaginatedQuery } from "convex/react"
 import { formatDistanceToNow } from "date-fns"
 import { HelpCircle } from "lucide-react"
 import { Fragment } from "react"
 import { Virtuoso } from "react-virtuoso"
+import { Loading } from "#app/ui/Loading.tsx"
+import { Tooltip } from "#app/ui/Tooltip.js"
+import { panel } from "#app/ui/styles.js"
+import { api } from "#convex/_generated/api.js"
+import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "./diceKinds"
 
-export function DiceRollList() {
+export function MessageList() {
 	const room = useRoom()
-	const numItems = 20
+
+	const listItemCount = 20
 	const list = usePaginatedQuery(
-		api.diceRolls.list,
+		api.messages.list,
 		{ roomId: room._id },
-		{ initialNumItems: numItems },
+		{ initialNumItems: listItemCount },
 	)
+
 	return (
 		<Virtuoso
 			style={{ height: "100%", willChange: "transform" }}
 			data={list.results}
-			itemContent={(_index, roll) => (
+			itemContent={(_index, message) => (
 				<div className="pb-2 animate-in fade-in">
-					<DiceRollSummary roll={roll} />
+					<div className={panel("flex flex-col gap-1.5 p-3")}>
+						{message.content && <p className="text-lg empty:hidden">{message.content}</p>}
+						{message.diceRoll && (
+							<div className={panel("bg-primary-100/50 px-3 py-2")}>
+								<DiceRollSummary roll={message.diceRoll} />
+							</div>
+						)}
+						<aside className="flex gap-0.5 text-sm font-medium leading-tight tracking-wide text-primary-600">
+							{message.user?.character?.name ?
+								<>
+									<span className="text-primary-900">{message.user.character.name}</span> (
+									{message.user.name})
+								</>
+							:	<span>{message.user?.name}</span>}
+							<span className="first:hidden">•</span>
+							{formatDistanceToNow(new Date(message._creationTime), { addSuffix: true })}
+						</aside>
+					</div>
 				</div>
 			)}
 			defaultItemHeight={135}
-			endReached={() => list.loadMore(numItems)}
+			endReached={() => list.loadMore(listItemCount)}
 			components={{
 				Footer: () =>
 					list.status === "Exhausted" ?
@@ -41,8 +60,10 @@ export function DiceRollList() {
 	)
 }
 
-function DiceRollSummary({ roll }: { roll: PaginatedQueryItem<typeof api.diceRolls.list> }) {
-	const diceResultsByKindName = new Map<string, (typeof roll)["dice"]>()
+type DiceRoll = NonNullable<PaginatedQueryItem<typeof api.messages.list>["diceRoll"]>
+
+function DiceRollSummary({ roll }: { roll: DiceRoll }) {
+	const diceResultsByKindName = new Map<string, DiceRoll["dice"]>()
 	for (const die of roll.dice) {
 		const dice = diceResultsByKindName.get(die.name) ?? []
 		dice.push(die)
@@ -58,10 +79,8 @@ function DiceRollSummary({ roll }: { roll: PaginatedQueryItem<typeof api.diceRol
 	}
 
 	return (
-		<li key={roll._id} className={panel("flex flex-col gap-2 bg-primary-200 px-3 py-2")}>
-			<h3 className="text-2xl font-light empty:hidden">{roll.label}</h3>
-
-			<dl className="flex gap-[3px] text-lg">
+		<div>
+			<dl className="flex gap-[2px]">
 				{diceStats
 					.map((stat) => ({ stat, value: Math.max(0, statValues.get(stat) ?? 0) }))
 					.filter(({ value }) => value > 0)
@@ -79,31 +98,20 @@ function DiceRollSummary({ roll }: { roll: PaginatedQueryItem<typeof api.diceRol
 						</Fragment>
 					))}
 			</dl>
-
 			<ul className="-mx-1.5 flex flex-wrap">
 				{diceKinds
 					.flatMap((kind) => diceResultsByKindName.get(kind.name) ?? [])
 					.map((die) => (
-						<DiceRollIcon key={die.key} die={die} />
+						<li key={die.key}>
+							<DiceRollIcon die={die} />
+						</li>
 					))}
 			</ul>
-
-			<p className="text-sm leading-tight tracking-wide text-primary-600">
-				rolled by{" "}
-				<strong className="font-medium text-primary-800">
-					{roll.rolledBy ? roll.rolledBy.name : <span className="opacity-50">unknown user</span>}
-				</strong>{" "}
-				{formatDistanceToNow(new Date(roll._creationTime), { addSuffix: true })}
-			</p>
-		</li>
+		</div>
 	)
 }
 
-function DiceRollIcon({
-	die,
-}: {
-	die: PaginatedQueryItem<typeof api.diceRolls.list>["dice"][number]
-}) {
+function DiceRollIcon({ die }: { die: DiceRoll["dice"][number] }) {
 	const kind = diceKindsByName.get(die.name)
 	return (
 		<div className="*:size-12">

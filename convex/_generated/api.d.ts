@@ -16,9 +16,9 @@ import type {
 } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as characters from "../characters.js";
-import type * as diceRolls from "../diceRolls.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
+import type * as messages from "../messages.js";
 import type * as resultResponse from "../resultResponse.js";
 import type * as rooms from "../rooms.js";
 import type * as storage from "../storage.js";
@@ -34,9 +34,9 @@ import type * as storage from "../storage.js";
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   characters: typeof characters;
-  diceRolls: typeof diceRolls;
   helpers: typeof helpers;
   http: typeof http;
+  messages: typeof messages;
   resultResponse: typeof resultResponse;
   rooms: typeof rooms;
   storage: typeof storage;
