@@ -78,7 +78,6 @@ export function CharacterForm(props: { character: Character }) {
 			<FormField label={label} htmlFor={inputId(key)}>
 				<NumberInput
 					value={character[key]}
-					max={max}
 					onChangeValue={(value) => updateValues({ [key]: value })}
 				/>
 			</FormField>
