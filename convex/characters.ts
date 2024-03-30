@@ -228,14 +228,13 @@ export const update = mutation({
 
 		if (isOwner) {
 			if (playerId !== undefined) {
-				let players = room.players
-					// unset any player's characterId that is set to this character
-					.map((player) => {
-						if (player.characterId === id) {
-							return { ...player, characterId: null }
-						}
-						return player
-					})
+				// unset any player's characterId that is set to this character
+				let players = room.players.map((player) => {
+					if (player.characterId === id) {
+						return { ...player, characterId: null }
+					}
+					return player
+				})
 
 				if (playerId !== null) {
 					// set the new player's characterId
