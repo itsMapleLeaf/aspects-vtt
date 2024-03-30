@@ -1,0 +1,35 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        script: [lint, typecheck]
+      fail-fast: false
+    name: ${{ matrix.script }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run ${{ matrix.script }}
+        run: pnpm run ${{ matrix.script }}
