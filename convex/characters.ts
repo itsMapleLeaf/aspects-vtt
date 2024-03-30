@@ -226,6 +226,8 @@ export const update = mutation({
 		const character = (await ctx.db.get(id)) ?? raise(new ConvexError("Character not found"))
 		const { room, player, isOwner } = await getRoomPlayerContext(ctx, character.roomId)
 
+		console.log(args, playerId, player, isOwner)
+
 		if (isOwner) {
 			if (playerId !== undefined) {
 				const players =
@@ -244,23 +246,11 @@ export const update = mutation({
 				})
 			}
 
-			return await ctx.db.patch(id, {
-				...args,
-				imageId: args.imageId,
-			})
+			return await ctx.db.patch(id, args)
 		}
 
 		if (player.characterId === character._id || character.tokenVisibleTo === "everyone") {
-			return await ctx.db.patch(
-				id,
-				omit(
-					{
-						...args,
-						imageId: args.imageId,
-					},
-					keys(roomOwnerProperties),
-				),
-			)
+			return await ctx.db.patch(id, args)
 		}
 
 		throw new ConvexError("You don't have permission to edit this character.")
