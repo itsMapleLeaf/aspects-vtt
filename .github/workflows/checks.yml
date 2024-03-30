@@ -12,9 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        script: [lint, typecheck]
+        script:
+          - name: lint
+            needs-build: false
+          - name: typecheck
+            needs-build: true
       fail-fast: false
-    name: ${{ matrix.script }}
+    name: ${{ matrix.script.name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,5 +35,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run ${{ matrix.script }}
-        run: pnpm run ${{ matrix.script }}
+      - name: Build
+        if: ${{ matrix.script.needs-build }}
+        run: pnpm build
+
+      - name: Run ${{ matrix.script.name }}
+        run: pnpm run ${{ matrix.script.name }}
