@@ -9,7 +9,6 @@ import { mutation, query } from "./_generated/server.js"
 import { nullish } from "./helpers.js"
 import { withResultResponse } from "./resultResponse.js"
 import { getRoomContext, getRoomOwnerOnlyContext, getRoomPlayerContext } from "./rooms.js"
-import { replaceFile } from "./storage.js"
 
 const visibleToValidator = v.union(v.literal("owner"), v.literal("everyone"))
 
@@ -247,7 +246,7 @@ export const update = mutation({
 
 			return await ctx.db.patch(id, {
 				...args,
-				imageId: await replaceFile(ctx, character.imageId, args.imageId),
+				imageId: args.imageId,
 			})
 		}
 
@@ -257,7 +256,7 @@ export const update = mutation({
 				omit(
 					{
 						...args,
-						imageId: await replaceFile(ctx, character.imageId, args.imageId),
+						imageId: args.imageId,
 					},
 					keys(roomOwnerProperties),
 				),
