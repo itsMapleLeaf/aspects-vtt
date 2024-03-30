@@ -61,21 +61,26 @@ export const create = mutation({
 		content: v.optional(v.string()),
 		dice: v.optional(v.array(v.object({ name: v.string(), sides: v.number(), count: v.number() }))),
 	},
-	async handler(ctx, { dice, ...args }) {
+	async handler(ctx, { dice = [], content = "", ...args }) {
 		const user = await getIdentityUser(ctx)
 
 		const diceRolls = dice
-			?.flatMap((input) => range.array(input.count).map(() => input))
+			.flatMap((input) => range.array(input.count).map(() => input))
 			.map(({ name, sides }) => ({
 				key: crypto.randomUUID(),
 				name,
 				result: (expect(crypto.getRandomValues(new Uint32Array(1))[0], "what") % sides) + 1,
 			}))
 
+		if (content.trim() === "" && diceRolls.length === 0) {
+			throw new ConvexError("Message cannot be empty.")
+		}
+
 		return await ctx.db.insert("messages", {
 			...args,
+			content,
 			userId: user._id,
-			diceRoll: diceRolls && { dice: diceRolls },
+			diceRoll: diceRolls.length > 0 ? { dice: diceRolls } : undefined,
 		})
 	},
 })
