@@ -1,8 +1,8 @@
+import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import type { Nullish, Overwrite } from "#app/common/types.ts"
 import { clientEnv } from "#app/env.ts"
 import { withMergedClassName } from "#app/ui/withMergedClassName.js"
 import type { Id } from "#convex/_generated/dataModel.js"
-import type { ComponentPropsWithoutRef, ReactNode } from "react"
 
 type UploadedImageProps = Overwrite<
 	ComponentPropsWithoutRef<"div">,

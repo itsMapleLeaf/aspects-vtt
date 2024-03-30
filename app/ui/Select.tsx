@@ -1,7 +1,7 @@
-import type { Overwrite } from "#app/common/types.ts"
 import * as Lucide from "lucide-react"
 import type { ComponentPropsWithoutRef } from "react"
 import { twMerge } from "tailwind-merge"
+import type { Overwrite } from "#app/common/types.ts"
 import { panel } from "./styles.ts"
 
 export function Select<T extends string | number | null>({

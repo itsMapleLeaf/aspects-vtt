@@ -1,11 +1,11 @@
-import { RoomProvider } from "#app/features/rooms/roomContext.js"
-import { Button } from "#app/ui/Button.js"
-import { Loading } from "#app/ui/Loading.js"
-import { api } from "#convex/_generated/api.js"
 import { Link, Outlet, useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { $params, $path } from "remix-routes"
+import { RoomProvider } from "#app/features/rooms/roomContext.js"
+import { Button } from "#app/ui/Button.js"
+import { Loading } from "#app/ui/Loading.js"
+import { api } from "#convex/_generated/api.js"
 
 export default function RoomRoute() {
 	const { slug } = $params("/rooms/:slug", useParams())
