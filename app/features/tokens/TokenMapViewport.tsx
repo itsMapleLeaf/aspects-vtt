@@ -1,10 +1,3 @@
-import { expect } from "#app/common/expect.js"
-import { clamp } from "#app/common/math.js"
-import { useDrag } from "#app/common/useDrag.js"
-import { useLocalStorage, useLocalStorageState } from "#app/common/useLocalStorage.js"
-import { useResizeObserver } from "#app/common/useResizeObserver.js"
-import { Vector } from "#app/common/vector.ts"
-import { panel } from "#app/ui/styles.ts"
 import {
 	type SetStateAction,
 	useEffect,
@@ -14,6 +7,13 @@ import {
 	useState,
 } from "react"
 import { z } from "zod"
+import { expect } from "#app/common/expect.js"
+import { clamp } from "#app/common/math.js"
+import { useDrag } from "#app/common/useDrag.js"
+import { useLocalStorage, useLocalStorageState } from "#app/common/useLocalStorage.js"
+import { useResizeObserver } from "#app/common/useResizeObserver.js"
+import { Vector } from "#app/common/vector.ts"
+import { panel } from "#app/ui/styles.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { TokenMapGrid } from "./TokenMapGrid.tsx"

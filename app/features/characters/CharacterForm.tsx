@@ -9,6 +9,7 @@ import type { PickByValue, StrictOmit } from "#app/common/types.js"
 import { useMutationState } from "#app/common/useMutationState.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
+import { CheckboxField } from "#app/ui/CheckboxField.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
@@ -148,7 +149,6 @@ export function CharacterForm(props: { character: Character }) {
 					</FormField>
 					<CheckboxField
 						label="Public"
-						id={inputId("visibleTo")}
 						checked={character.visibleTo === "everyone"}
 						onChange={(event) =>
 							updateValues({ visibleTo: event.currentTarget.checked ? "everyone" : "owner" })
@@ -156,7 +156,6 @@ export function CharacterForm(props: { character: Character }) {
 					/>
 					<CheckboxField
 						label="Show Token"
-						id={inputId("tokenVisibleTo")}
 						checked={character.tokenVisibleTo === "everyone"}
 						onChange={(event) =>
 							updateValues({ tokenVisibleTo: event.currentTarget.checked ? "everyone" : "owner" })
@@ -249,38 +248,6 @@ export function NumberInput({ value, max, onChangeValue }: NumberInputProps) {
 			elementRef={ref}
 			onChange={(event) => setValue(event.target.valueAsNumber)}
 		/>
-	)
-}
-
-function CheckboxField({
-	label,
-	id,
-	checked,
-	onChange,
-}: {
-	label: string
-	id: string
-	checked: boolean
-	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-}) {
-	return (
-		<FormField label={label} htmlFor={id} className="flex-row-reverse justify-end gap-1.5">
-			<div className="relative flex size-5 items-center justify-center overflow-clip">
-				<input
-					className="peer size-full appearance-none rounded border-2 border-primary-400 bg-primary-100 transition checked:bg-primary-300/50 hover:bg-primary-200 checked:hover:bg-primary-300 active:border-primary-600 active:duration-0"
-					id={id}
-					aria-label={label}
-					type="checkbox"
-					checked={checked}
-					onChange={onChange}
-				/>
-				<Lucide.X
-					className="pointer-events-none invisible absolute size-5 text-primary-700 peer-checked:visible"
-					strokeWidth={3}
-					absoluteStrokeWidth
-				/>
-			</div>
-		</FormField>
 	)
 }
 

@@ -1,9 +1,9 @@
-import { theme } from "#app/theme.js"
 import containerQueries from "@tailwindcss/container-queries"
 import type { Config } from "tailwindcss"
 import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
+import { theme } from "#app/theme.js"
 
 export default {
 	content: ["app/**/*.{ts,tsx}"],

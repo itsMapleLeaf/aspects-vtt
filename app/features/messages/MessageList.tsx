@@ -28,7 +28,7 @@ export function MessageList() {
 				<div className="pb-2 animate-in fade-in">
 					<div className={panel("flex flex-col gap-1.5 p-3")}>
 						{message.content && <p className="text-lg empty:hidden">{message.content}</p>}
-						{message.diceRoll && (
+						{message.diceRoll && message.diceRoll.dice.length > 0 && (
 							<div className={panel("bg-primary-100/50 px-3 py-2")}>
 								<DiceRollSummary roll={message.diceRoll} />
 							</div>
