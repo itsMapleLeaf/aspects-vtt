@@ -20,7 +20,7 @@ import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { Tooltip } from "../../ui/Tooltip.tsx"
-import { numericDiceKinds } from "../dice/diceKinds.tsx"
+import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
@@ -94,7 +94,7 @@ export function CharacterForm(props: { character: Character }) {
 				<div className="flex gap-2">
 					<Select
 						id={inputId(key)}
-						options={numericDiceKinds.map((kind) => ({
+						options={statDiceKinds.map((kind) => ({
 							label: kind.name,
 							value: kind.faces.length,
 						}))}

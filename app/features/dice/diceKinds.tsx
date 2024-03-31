@@ -24,7 +24,7 @@ export type DiceFace = {
 	modifyStats: ReadonlyMap<DiceStat, number>
 }
 
-export const numericDiceKinds: DiceKind[] = [
+export const statDiceKinds: DiceKind[] = [
 	defineNumeric({
 		faceCount: 4,
 		icon: <Lucide.Triangle />,
@@ -47,6 +47,10 @@ export const numericDiceKinds: DiceKind[] = [
 		faceCount: 20,
 		icon: <Lucide.Hexagon />,
 	}),
+]
+
+export const numericDiceKinds: DiceKind[] = [
+	...statDiceKinds,
 	defineNumeric({
 		faceCount: 100,
 		icon: <Lucide.Octagon />,
@@ -84,7 +88,7 @@ function defineNumeric({
 	return {
 		name,
 		element: (
-			<div className="flex-center-col @container relative text-primary-700">
+			<div className="flex-center-col relative text-primary-700 @container">
 				<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">{icon}</div>
 				<p className={twMerge("absolute text-[length:28cqw] font-semibold", textClassName)}>
 					d{faceCount}
@@ -96,7 +100,7 @@ function defineNumeric({
 				<Tooltip
 					text={`${name}: ${n}`}
 					placement="top"
-					className="@container flex-center-col relative transition *:pointer-events-none hover:brightness-150 data-[max=true]:text-primary-700"
+					className="flex-center-col relative transition @container *:pointer-events-none hover:brightness-150 data-[max=true]:text-primary-700"
 					data-max={n === faceCount}
 				>
 					<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">{icon}</div>
