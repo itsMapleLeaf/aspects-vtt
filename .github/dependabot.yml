@@ -13,6 +13,15 @@ updates:
     groups:
       npm-dependencies:
         patterns: ["*"]
+    ignore:
+      - dependency-name: react
+        versions: ["< 19.0.0"]
+      - dependency-name: react-dom
+        versions: ["< 19.0.0"]
+      - dependency-name: "@clerk/remix"
+        versions: ["< 4.0.0"]
+      - dependency-name: "@clerk/themes"
+        versions: ["< 2.0.0"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
