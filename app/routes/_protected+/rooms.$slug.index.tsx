@@ -3,11 +3,11 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Fragment, useEffect, useRef, useState } from "react"
 import { useMutationState } from "#app/common/useMutationState.js"
-import { generalSkills } from "#app/data/generalSkills.js"
 import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
 import { CreateCharacterButton } from "#app/features/characters/CreateCharacterButton.tsx"
 import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterButton.tsx"
+import { GeneralSkills } from "#app/features/characters/generalSkills.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
@@ -203,7 +203,7 @@ function QuickReferenceButton() {
 							<span>General Skills</span>
 						</summary>
 						<dl>
-							{generalSkills.map((skill) => (
+							{GeneralSkills.map((skill) => (
 								<Fragment key={skill.name}>
 									<dt className="text-lg font-semibold">{skill.name}</dt>
 									<dd className="mb-2">{skill.description}</dd>
