@@ -2,9 +2,9 @@ import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import { raise } from "#app/common/errors.js"
 import { pick } from "#app/common/object.js"
+import { UserModel } from "./UserModel.js"
 import type { Doc, Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
-import { getIdentityUser } from "./auth.js"
 import { withResultResponse } from "./resultResponse.js"
 import { replaceFile } from "./storage.js"
 
@@ -13,12 +13,18 @@ export const get = query({
 	handler: withResultResponse(async (ctx, args) => {
 		const { room, isOwner } = await createRoomContext(ctx, await getRoomBySlug(ctx, args))
 
-		const players =
-			isOwner ?
-				await Promise.all(room.players.map((player) => ctx.db.get(player.userId))).then((players) =>
-					players.filter(Boolean).map((player) => pick(player, ["_id", "name", "avatarUrl"])),
-				)
-			:	undefined
+		let players
+		if (isOwner) {
+			players = await Promise.all(
+				room.players.map(async (player) => {
+					const user = await UserModel.fromClerkId(ctx, player.userId)
+					return user?.data
+				}),
+			)
+			players = players
+				.filter(Boolean)
+				.map((player) => pick(player, ["clerkId", "name", "avatarUrl"]))
+		}
 
 		return {
 			mapDimensions: { width: 1000, height: 1000 },
@@ -32,22 +38,22 @@ export const get = query({
 
 export const list = query({
 	handler: withResultResponse(async (ctx: QueryCtx) => {
-		const user = await getIdentityUser(ctx)
+		const user = await UserModel.fromIdentity(ctx)
 		return await ctx.db
 			.query("rooms")
-			.withIndex("by_owner", (q) => q.eq("ownerId", user._id))
+			.withIndex("by_owner", (q) => q.eq("ownerId", user.data.clerkId))
 			.collect()
 	}),
 })
 
 export const create = mutation({
 	handler: async (ctx) => {
-		const user = await getIdentityUser(ctx)
+		const user = await UserModel.fromIdentity(ctx)
 		const slug = await generateUniqueSlug(ctx)
 		await ctx.db.insert("rooms", {
 			name: slug,
 			slug,
-			ownerId: user._id,
+			ownerId: user.data.clerkId,
 			players: [],
 		})
 		return { slug }
@@ -85,11 +91,11 @@ export const join = mutation({
 		id: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
-		const user = await getIdentityUser(ctx)
+		const user = await UserModel.fromIdentity(ctx)
 		const room = await getRoomById(ctx, args.id)
-		if (!room.players.some((player) => player.userId === user._id)) {
+		if (!room.players.some((player) => player.userId === user.data.clerkId)) {
 			await ctx.db.patch(args.id, {
-				players: [...room.players, { userId: user._id }],
+				players: [...room.players, { userId: user.data.clerkId }],
 			})
 		}
 	},
@@ -134,9 +140,9 @@ export async function getRoomContext(ctx: QueryCtx, roomId: Id<"rooms">) {
 }
 
 async function createRoomContext(ctx: QueryCtx, room: Doc<"rooms">) {
-	const user = await getIdentityUser(ctx)
-	const isOwner = room.ownerId === user._id
-	const player = room.players.find((player) => player.userId === user._id)
+	const user = await UserModel.fromIdentity(ctx)
+	const isOwner = room.ownerId === user.data.clerkId
+	const player = room.players.find((player) => player.userId === user.data.clerkId)
 	return { room: room, user: user, player, isOwner }
 }
 

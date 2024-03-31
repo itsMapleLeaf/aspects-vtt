@@ -1,3 +1,4 @@
+import { brandedString } from "convex-helpers/validators"
 import { ConvexError, type Infer, v } from "convex/values"
 import { raise } from "#app/common/errors.js"
 import { clamp } from "#app/common/math.js"
@@ -220,7 +221,7 @@ export const update = mutation({
 	args: {
 		...characterProperties,
 		id: v.id("characters"),
-		playerId: nullish(v.id("users")),
+		playerId: nullish(brandedString("clerkId")),
 	},
 	handler: async (ctx, { id, playerId, ...args }) => {
 		const character = (await ctx.db.get(id)) ?? raise(new ConvexError("Character not found"))

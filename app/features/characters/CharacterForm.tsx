@@ -34,7 +34,7 @@ export function CharacterForm(props: { character: Character }) {
 	const user = useQuery(api.auth.user)
 	const [updateCharacterState, updateCharacter] = useMutationState(api.characters.update)
 	const character = { ...props.character, ...updateCharacterState.args }
-	const isCharacterOwner = room.isOwner || character.playerId === user?.data?._id
+	const isCharacterOwner = room.isOwner || character.playerId === user?.data?.clerkId
 
 	function updateValues(args: StrictOmit<FunctionArgs<typeof api.characters.update>, "id">) {
 		updateCharacter({ ...args, id: character._id })
@@ -137,8 +137,10 @@ export function CharacterForm(props: { character: Character }) {
 							id={inputId("player")}
 							options={[
 								{ label: "None", value: null },
-								...(room.players?.map((player) => ({ label: player.name, value: player._id })) ??
-									[]),
+								...(room.players?.map((player) => ({
+									label: player.name,
+									value: player.clerkId,
+								})) ?? []),
 							]}
 							value={character.playerId}
 							onChange={(value) => {
