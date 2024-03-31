@@ -23,6 +23,7 @@ import type * as resultResponse from "../resultResponse.js";
 import type * as rooms from "../rooms.js";
 import type * as storage from "../storage.js";
 import type * as UserModel from "../UserModel.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   rooms: typeof rooms;
   storage: typeof storage;
   UserModel: typeof UserModel;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
