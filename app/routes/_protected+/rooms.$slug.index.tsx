@@ -2,7 +2,7 @@ import { UserButton } from "@clerk/remix"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Fragment, useEffect, useRef, useState } from "react"
-import { useMutationState } from "#app/common/useMutationState.js"
+import { useAsyncState } from "#app/common/useAsyncState.js"
 import { Vector } from "#app/common/vector.js"
 import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
@@ -160,7 +160,7 @@ function DuplicateCharacterButton({
 
 function CellSizeField() {
 	const room = useRoom()
-	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
+	const [updateRoomState, updateRoom] = useAsyncState(useMutation(api.rooms.update))
 	return (
 		<FormField label="Cell Size" htmlFor="cellSize">
 			<Input

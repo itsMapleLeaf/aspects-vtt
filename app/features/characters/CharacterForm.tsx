@@ -6,7 +6,7 @@ import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { startCase } from "#app/common/string.js"
 import type { PickByValue, StrictOmit } from "#app/common/types.js"
-import { useMutationState } from "#app/common/useMutationState.js"
+import { useAsyncState } from "#app/common/useAsyncState.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
 import { CheckboxField } from "#app/ui/CheckboxField.js"
@@ -29,7 +29,7 @@ export type Character = ResultQueryData<typeof api.characters.list>[number]
 
 export function CharacterForm(props: { character: Character }) {
 	const room = useRoom()
-	const [updateCharacterState, updateCharacter] = useMutationState(api.characters.update)
+	const [updateCharacterState, updateCharacter] = useAsyncState(useMutation(api.characters.update))
 	const character = { ...props.character, ...updateCharacterState.args }
 	const isCharacterOwner = room.isOwner || character.isPlayer
 

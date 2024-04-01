@@ -1,10 +1,11 @@
 import { useMergeRefs } from "@floating-ui/react"
 import { type UseFloatingOptions, autoUpdate, offset, useFloating } from "@floating-ui/react-dom"
+import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type CSSProperties, use, useRef } from "react"
 import { twMerge } from "tailwind-merge"
+import { useAsyncState } from "#app/common/useAsyncState.js"
 import { useDrag } from "#app/common/useDrag.js"
-import { useMutationState } from "#app/common/useMutationState.js"
 import { Vector } from "#app/common/vector.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
@@ -26,7 +27,7 @@ export function Token({
 	const room = useRoom()
 	const zoom = use(ZoomContext)
 
-	const [updateCharacterState, updateCharacter] = useMutationState(api.characters.update)
+	const [updateCharacterState, updateCharacter] = useAsyncState(useMutation(api.characters.update))
 	const tokenPosition = Vector.from(updateCharacterState.args?.tokenPosition ?? props.tokenPosition)
 
 	const buttonRef = useRef<HTMLButtonElement>(null)
