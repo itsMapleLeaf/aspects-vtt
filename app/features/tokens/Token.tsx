@@ -5,7 +5,7 @@ import * as Lucide from "lucide-react"
 import { type CSSProperties, use, useRef } from "react"
 import { twMerge } from "tailwind-merge"
 import { useDrag } from "#app/common/useDrag.js"
-import { Vector } from "#app/common/vector.ts"
+import type { Vector } from "#app/common/vector.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
@@ -46,12 +46,8 @@ export function Token({
 			if (selected) {
 				updateCharacter({
 					id: character._id,
-					tokenPosition: tokenPosition
-						.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize))
-						.clamp(
-							Vector.zero,
-							Vector.from(room.mapDimensions).dividedBy(room.mapCellSize).minus(1),
-						).rounded.xy,
+					tokenPosition: tokenPosition.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize))
+						.rounded.xy,
 				})
 			}
 		},
@@ -88,7 +84,7 @@ export function Token({
 	return (
 		<div
 			data-dragging={!!drag}
-			className="group contents *:translate-x-[--x] *:translate-y-[--y] *:transition *:ease-out *:data-[dragging=true]:duration-0"
+			className="group contents *:absolute *:left-0 *:top-0 *:translate-x-[--x] *:translate-y-[--y] *:transition *:ease-out *:data-[dragging=true]:duration-0"
 			style={
 				{
 					"--x": `${visualPosition.x}px`,
