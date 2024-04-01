@@ -20,9 +20,9 @@ dependencies:
   '@floating-ui/react-dom':
     specifier: 2.0.8
     version: 2.0.8(react-dom@18.3.0-canary-338dddc08-20240307)(react@18.3.0-canary-338dddc08-20240307)
-  '@fontsource-variable/manrope':
-    specifier: 5.0.19
-    version: 5.0.19
+  '@fontsource-variable/nunito':
+    specifier: 5.0.18
+    version: 5.0.18
   '@remix-run/node':
     specifier: ^2.8.1
     version: 2.8.1(typescript@5.4.3)
@@ -1292,8 +1292,8 @@ packages:
     resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
     dev: false
 
-  /@fontsource-variable/manrope@5.0.19:
-    resolution: {integrity: sha512-1WQ1NFnS3tfZ+ZQ3nNJ6sQGpIr6RWhq/wTovlcTlmvVrd53lnmITSolq6vBSEgVef6DWNFUehEvodDcyL3O6EA==}
+  /@fontsource-variable/nunito@5.0.18:
+    resolution: {integrity: sha512-DaAMnvCuwxv2tCjUIGudvayzO3jjsDEH2DcqcgwRZnjBp5RZRynYkV4aBmvMkQ+Grzpm7MMTqNltiLcJxqSeAQ==}
     dev: false
 
   /@humanwhocodes/config-array@0.11.14:

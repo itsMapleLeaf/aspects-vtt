@@ -11,7 +11,7 @@ export default {
 		extend: {
 			...theme,
 			fontFamily: {
-				sans: ["Manrope Variable", ...defaultTheme.fontFamily.sans],
+				sans: ["Nunito Variable", ...defaultTheme.fontFamily.sans],
 			},
 			boxShadowColor: {
 				DEFAULT: `rgba(0,0,0,0.5)`,

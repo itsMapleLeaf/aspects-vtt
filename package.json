@@ -26,7 +26,7 @@
 		"@clerk/themes": "2.0.0-beta.5",
 		"@floating-ui/react": "0.26.9",
 		"@floating-ui/react-dom": "2.0.8",
-		"@fontsource-variable/manrope": "5.0.19",
+		"@fontsource-variable/nunito": "5.0.18",
 		"@remix-run/node": "^2.8.1",
 		"@remix-run/react": "^2.8.1",
 		"@remix-run/serve": "^2.8.1",
