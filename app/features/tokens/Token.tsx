@@ -14,28 +14,28 @@ import { ZoomContext } from "./context.tsx"
 
 export function Token({
 	character,
+	tokenPosition,
 	selected,
 	onSelect,
 }: {
-	character: ResultQueryData<typeof api.characters.listTokens>[number]
+	character: ResultQueryData<typeof api.characters.list>[number]
+	tokenPosition: Vector
 	selected: boolean
 	onSelect: () => void
 }) {
 	const room = useRoom()
 	const zoom = use(ZoomContext)
 
+	// TODO: use useMutationState
 	const updateCharacter = useMutation(api.characters.update).withOptimisticUpdate((store, args) => {
-		const characters = store.getQuery(api.characters.listTokens, { roomId: room._id })
-		if (!characters?.data) return
+		const characters = store.getQuery(api.characters.list, { roomId: room._id })
+		if (!characters) return
 		store.setQuery(
-			api.characters.listTokens,
+			api.characters.list,
 			{ roomId: room._id },
-			{
-				ok: true,
-				data: characters.data.map((c) =>
-					c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? c.tokenPosition } : c,
-				),
-			},
+			characters.map((c) =>
+				c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? c.tokenPosition } : c,
+			),
 		)
 	})
 
@@ -46,7 +46,7 @@ export function Token({
 			if (selected) {
 				updateCharacter({
 					id: character._id,
-					tokenPosition: Vector.from(character.tokenPosition)
+					tokenPosition: tokenPosition
 						.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize))
 						.clamp(
 							Vector.zero,
@@ -57,7 +57,7 @@ export function Token({
 		},
 	})
 
-	let visualPosition = Vector.from(character.tokenPosition).times(room.mapCellSize)
+	let visualPosition = tokenPosition.times(room.mapCellSize)
 	if (drag && selected) {
 		visualPosition = visualPosition.plus(drag.distance.dividedBy(zoom))
 	}
@@ -119,9 +119,9 @@ export function Token({
 					<div ref={floatingName.refs.setFloating} style={floatingName.floatingStyles}>
 						<p
 							data-selected={selected}
-							className="max-w-32 origin-top scale-[--scale] text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
+							className="max-w-48 origin-top scale-[--scale] text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
 						>
-							{character.name}
+							{character.name} {character.pronouns && `(${character.pronouns})`}
 						</p>
 					</div>
 				</div>

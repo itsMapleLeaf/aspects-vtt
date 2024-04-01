@@ -1,39 +1,24 @@
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
-import { raise } from "#app/common/errors.js"
-import { pick } from "#app/common/object.js"
+import { Result } from "#app/common/Result.js"
+import { range } from "#app/common/range.js"
+import { RoomModel } from "./RoomModel.js"
 import { UserModel } from "./UserModel.js"
-import type { Doc, Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { withResultResponse } from "./resultResponse.js"
-import { replaceFile } from "./storage.js"
 
 export const get = query({
 	args: { slug: v.string() },
-	handler: withResultResponse(async (ctx, args) => {
-		const { room, isOwner } = await createRoomContext(ctx, await getRoomBySlug(ctx, args))
-
-		let players
-		if (isOwner) {
-			players = await Promise.all(
-				room.players.map(async (player) => {
-					const user = await UserModel.fromClerkId(ctx, player.userId)
-					return user?.data
-				}),
-			)
-			players = players
-				.filter(Boolean)
-				.map((player) => pick(player, ["clerkId", "name", "avatarUrl"]))
-		}
-
-		return {
-			mapDimensions: { width: 1000, height: 1000 },
-			mapCellSize: 50,
-			...pick(room, ["_id", "_creationTime", "name", "mapImageId", "mapDimensions", "mapCellSize"]),
-			isOwner,
-			players,
-		}
-	}),
+	handler: async (ctx, args) => {
+		return await Result.fn(async () => {
+			const room = await RoomModel.fromSlug(ctx, args.slug).unwrap()
+			return {
+				...room.data,
+				isOwner: await room.isOwner(),
+				players: await room.getClientPlayers(),
+			}
+		}).json()
+	},
 })
 
 export const list = query({
@@ -50,13 +35,24 @@ export const create = mutation({
 	handler: async (ctx) => {
 		const user = await UserModel.fromIdentity(ctx)
 		const slug = await generateUniqueSlug(ctx)
+
 		await ctx.db.insert("rooms", {
 			name: slug,
 			slug,
 			ownerId: user.data.clerkId,
 			players: [],
 		})
+
 		return { slug }
+
+		async function generateUniqueSlug(ctx: QueryCtx): Promise<string> {
+			for (const _attempt of range(10)) {
+				const slug = generateSlug()
+				const existing = await RoomModel.fromSlug(ctx, slug)
+				if (!existing.value) return slug
+			}
+			throw new ConvexError("Failed to generate a unique slug")
+		}
 	},
 })
 
@@ -69,20 +65,16 @@ export const update = mutation({
 		mapCellSize: v.optional(v.number()),
 	},
 	handler: async (ctx, { id, ...args }) => {
-		const { room } = await getRoomOwnerOnlyContext(ctx, id)
-
-		await ctx.db.patch(id, {
-			...args,
-			mapImageId: (await replaceFile(ctx, room.mapImageId, args.mapImageId)) ?? undefined,
-		})
+		const room = await RoomModel.fromId(ctx, id).unwrap()
+		await room.update(ctx, args)
 	},
 })
 
 export const remove = mutation({
 	args: { id: v.id("rooms") },
 	handler: async (ctx, args) => {
-		await getRoomOwnerOnlyContext(ctx, args.id)
-		return await ctx.db.delete(args.id)
+		const room = await RoomModel.fromId(ctx, args.id).unwrap()
+		await room.delete(ctx)
 	},
 })
 
@@ -91,73 +83,7 @@ export const join = mutation({
 		id: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
-		const user = await UserModel.fromIdentity(ctx)
-		const room = await getRoomById(ctx, args.id)
-		if (!room.players.some((player) => player.userId === user.data.clerkId)) {
-			await ctx.db.patch(args.id, {
-				players: [...room.players, { userId: user.data.clerkId }],
-			})
-		}
+		const room = await RoomModel.fromId(ctx, args.id).unwrap()
+		await room.join(ctx)
 	},
 })
-
-async function getRoomById(ctx: QueryCtx, roomId: Id<"rooms">) {
-	return (await ctx.db.get(roomId)) ?? raise(new ConvexError("Room not found"))
-}
-
-async function getRoomBySlug(ctx: QueryCtx, args: { slug: string }) {
-	const room = await ctx.db
-		.query("rooms")
-		.withIndex("by_slug", (q) => q.eq("slug", args.slug))
-		.unique()
-	return room ?? raise(new ConvexError("Room not found"))
-}
-
-async function generateUniqueSlug(ctx: QueryCtx) {
-	const isSlugTaken = async (slug: string) => {
-		try {
-			await getRoomBySlug(ctx, { slug })
-			return true
-		} catch (error) {
-			if (error instanceof ConvexError && error.message === "Room not found") {
-				return false
-			}
-			throw error
-		}
-	}
-
-	let slug
-	let attempts = 0
-	do {
-		slug = generateSlug()
-		attempts++
-	} while ((await isSlugTaken(slug)) && attempts < 10)
-	return slug ?? raise(new Error("Failed to generate unique slug"))
-}
-
-export async function getRoomContext(ctx: QueryCtx, roomId: Id<"rooms">) {
-	return await createRoomContext(ctx, await getRoomById(ctx, roomId))
-}
-
-async function createRoomContext(ctx: QueryCtx, room: Doc<"rooms">) {
-	const user = await UserModel.fromIdentity(ctx)
-	const isOwner = room.ownerId === user.data.clerkId
-	const player = room.players.find((player) => player.userId === user.data.clerkId)
-	return { room: room, user: user, player, isOwner }
-}
-
-export async function getRoomOwnerOnlyContext(ctx: QueryCtx, roomId: Id<"rooms">) {
-	const { isOwner, ...context } = await getRoomContext(ctx, roomId)
-	if (!isOwner) {
-		throw new ConvexError("You don't have permission to access this room.")
-	}
-	return context
-}
-
-export async function getRoomPlayerContext(ctx: QueryCtx, roomId: Id<"rooms">) {
-	const { player, ...context } = await getRoomContext(ctx, roomId)
-	if (!player) {
-		throw new Error("Player object not found")
-	}
-	return { ...context, player }
-}

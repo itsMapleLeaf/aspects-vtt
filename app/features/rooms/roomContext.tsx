@@ -1,14 +1,15 @@
+import type { FunctionReturnType } from "convex/server"
 import { createContext, useContext } from "react"
 import type { api } from "#convex/_generated/api.js"
-import type { ResultQueryData } from "#convex/resultResponse.js"
 
-type Room = ResultQueryData<typeof api.rooms.get>
+type Room = NonNullable<FunctionReturnType<typeof api.rooms.get>["value"]>
 
-const RoomContext = createContext<Room | undefined>(undefined)
+const empty = Symbol("empty")
+const RoomContext = createContext<Room | typeof empty>(empty)
 
 export function useRoom() {
 	const room = useContext(RoomContext)
-	if (!room) {
+	if (room === empty) {
 		throw new Error("useRoom must be used within a RoomProvider")
 	}
 	return room

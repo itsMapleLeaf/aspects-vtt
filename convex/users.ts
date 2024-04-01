@@ -1,10 +1,10 @@
 import { internalMutation } from "./_generated/server"
-import type { BrandedString } from "./helpers.ts"
+import type { Branded } from "./helpers.ts"
 
 export const migrateUserIdsToClerkIds = internalMutation({
 	async handler(ctx, args) {
 		for await (const user of ctx.db.query("users")) {
-			const userId = user._id as string as BrandedString<"clerkId">
+			const userId = user._id as string as Branded<"clerkId">
 
 			for await (const room of ctx.db
 				.query("rooms")

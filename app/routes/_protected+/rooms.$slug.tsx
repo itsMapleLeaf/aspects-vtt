@@ -15,8 +15,11 @@ export default function RoomRoute() {
 			<div className="flex h-dvh flex-col items-center justify-center">
 				<Loading />
 			</div>
-		: !room.ok ?
-			<main className="flex flex-col gap-4">
+		: room.ok ?
+			<RoomProvider room={room.value}>
+				<Outlet />
+			</RoomProvider>
+		:	<main className="flex flex-col gap-4">
 				<p>{room.error}</p>
 				<Button
 					text="Return to home"
@@ -25,8 +28,5 @@ export default function RoomRoute() {
 					className="self-start"
 				/>
 			</main>
-		:	<RoomProvider room={room.data}>
-				<Outlet />
-			</RoomProvider>
 	)
 }

@@ -1,4 +1,6 @@
 import { useQuery } from "convex/react"
+import { Fragment } from "react/jsx-runtime"
+import { Vector } from "#app/common/vector.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { useRoom } from "../rooms/roomContext.tsx"
@@ -13,18 +15,22 @@ export function TokenMap({
 	onSelectedCharacterChange?: (id: Id<"characters">) => void
 }) {
 	const room = useRoom()
-	const characters = useQuery(api.characters.listTokens, { roomId: room._id })
+	const characters = useQuery(api.characters.list, { roomId: room._id })
 	return (
 		<TokenMapViewport>
-			{characters?.data?.map((character) => (
-				<Token
-					key={character._id}
-					character={character}
-					selected={selectedCharacterId === character._id}
-					onSelect={() => {
-						onSelectedCharacterChange?.(character._id)
-					}}
-				/>
+			{characters?.map((character) => (
+				<Fragment key={character._id}>
+					{character.tokenPosition ?
+						<Token
+							character={character}
+							tokenPosition={Vector.from(character.tokenPosition)}
+							selected={selectedCharacterId === character._id}
+							onSelect={() => {
+								onSelectedCharacterChange?.(character._id)
+							}}
+						/>
+					:	null}
+				</Fragment>
 			))}
 		</TokenMapViewport>
 	)

@@ -2,7 +2,7 @@ import { ConvexError } from "convex/values"
 import type { PartialKeys, StrictOmit } from "#app/common/types.js"
 import type { Doc } from "./_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "./_generated/server"
-import type { BrandedString } from "./helpers.ts"
+import type { Branded } from "./helpers.ts"
 
 export type UserData = PartialKeys<StrictOmit<Doc<"users">, "_creationTime">, "_id">
 
@@ -13,7 +13,7 @@ export class UserModel {
 		this.data = data
 	}
 
-	static async fromClerkId(ctx: QueryCtx, clerkId: BrandedString<"clerkId">) {
+	static async fromClerkId(ctx: QueryCtx, clerkId: Branded<"clerkId">) {
 		const data = await ctx.db
 			.query("users")
 			.withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
@@ -27,7 +27,7 @@ export class UserModel {
 			throw new ConvexError("Not logged in")
 		}
 
-		const clerkId = identity.subject as BrandedString<"clerkId">
+		const clerkId = identity.subject as Branded<"clerkId">
 
 		let data
 

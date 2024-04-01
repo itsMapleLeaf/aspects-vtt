@@ -1,8 +1,7 @@
-import { brandedString } from "convex-helpers/validators"
+import { brandedString, nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
-import { nullish } from "./helpers.ts"
 
 export default defineSchema({
 	users: defineTable({
@@ -21,7 +20,7 @@ export default defineSchema({
 		players: v.array(
 			v.object({
 				userId: brandedString("clerkId"),
-				characterId: nullish(v.id("characters")),
+				characterId: nullable(v.id("characters")),
 			}),
 		),
 	})
