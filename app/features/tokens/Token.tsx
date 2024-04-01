@@ -1,11 +1,11 @@
 import { useMergeRefs } from "@floating-ui/react"
 import { type UseFloatingOptions, autoUpdate, offset, useFloating } from "@floating-ui/react-dom"
-import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type CSSProperties, use, useRef } from "react"
 import { twMerge } from "tailwind-merge"
 import { useDrag } from "#app/common/useDrag.js"
-import type { Vector } from "#app/common/vector.ts"
+import { useMutationState } from "#app/common/useMutationState.js"
+import { Vector } from "#app/common/vector.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
@@ -14,9 +14,9 @@ import { ZoomContext } from "./context.tsx"
 
 export function Token({
 	character,
-	tokenPosition,
 	selected,
 	onSelect,
+	...props
 }: {
 	character: ResultQueryData<typeof api.characters.list>[number]
 	tokenPosition: Vector
@@ -26,18 +26,8 @@ export function Token({
 	const room = useRoom()
 	const zoom = use(ZoomContext)
 
-	// TODO: use useMutationState
-	const updateCharacter = useMutation(api.characters.update).withOptimisticUpdate((store, args) => {
-		const characters = store.getQuery(api.characters.list, { roomId: room._id })
-		if (!characters) return
-		store.setQuery(
-			api.characters.list,
-			{ roomId: room._id },
-			characters.map((c) =>
-				c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? c.tokenPosition } : c,
-			),
-		)
-	})
+	const [updateCharacterState, updateCharacter] = useMutationState(api.characters.update)
+	const tokenPosition = Vector.from(updateCharacterState.args?.tokenPosition ?? props.tokenPosition)
 
 	const buttonRef = useRef<HTMLButtonElement>(null)
 	const drag = useDrag(buttonRef, {
