@@ -16,7 +16,7 @@
 		"dev:convex": "convex dev --tail-logs",
 		"preview": "dotenv -c -- remix-serve ./build/server/index.js",
 		"lint": "biome check .",
-		"format": "biome check . --apply-unsafe",
+		"format": "biome check . --apply-unsafe && prettier --write .",
 		"typecheck": "tsc"
 	},
 	"dependencies": {
