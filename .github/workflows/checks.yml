@@ -20,18 +20,18 @@ jobs:
       fail-fast: false
     name: ${{ matrix.script.name }}
     steps:
-      - name: Checkout
+      - name: "🛒"
         uses: actions/checkout@v4
 
-      - name: Setup bun
+      - name: "🍞"
         uses: oven-sh/setup-bun@v1
 
-      - name: Install dependencies
+      - name: "📥"
         run: bun install
 
-      - name: Build
+      - name: "🛠️"
         if: ${{ matrix.script.needs-build }}
         run: bun run build
 
-      - name: Run ${{ matrix.script.name }}
+      - name: "▶️"
         run: bun run ${{ matrix.script.name }}
