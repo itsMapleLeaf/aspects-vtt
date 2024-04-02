@@ -20,12 +20,14 @@
 		{
 			"label": "tsc: watch",
 			"command": "bunx",
-			"args": ["tsc", "--watch", "--noEmit"],
+			"args": ["tsc", "--watch"],
 			"problemMatcher": ["$tsc-watch"],
-			"group": "build",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
 			"runOptions": {
-				"runOn": "folderOpen",
-				"instanceLimit": 1
+				"runOn": "folderOpen"
 			}
 		}
 	]
