@@ -23,21 +23,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v1
 
       - name: Install dependencies
-        run: pnpm install
+        run: bun install
 
       - name: Build
         if: ${{ matrix.script.needs-build }}
-        run: pnpm build
+        run: bun run build
 
       - name: Run ${{ matrix.script.name }}
-        run: pnpm run ${{ matrix.script.name }}
+        run: bun run ${{ matrix.script.name }}
