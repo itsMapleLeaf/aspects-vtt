@@ -19,9 +19,8 @@
 		},
 		{
 			"label": "tsc: watch",
-			"type": "typescript",
-			"tsconfig": "tsconfig.json",
-			"option": "watch",
+			"command": "bunx",
+			"args": ["tsc", "--watch", "--noEmit"],
 			"problemMatcher": ["$tsc-watch"],
 			"group": "build",
 			"runOptions": {
