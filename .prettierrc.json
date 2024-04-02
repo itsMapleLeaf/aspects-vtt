@@ -7,7 +7,7 @@
 	"tailwindFunctions": ["twMerge", "withMergedClassName"],
 	"overrides": [
 		{
-			"files": ["pnpm-lock.yaml", "convex/_generated/**"],
+			"files": ["pnpm-lock.yaml", "convex/_generated/**", "patches/**"],
 			"options": {
 				"requirePragma": true
 			}
