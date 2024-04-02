@@ -10,7 +10,6 @@
 		"#convex/*": "./convex/*"
 	},
 	"scripts": {
-		"postinstall": "bun scripts/copy-patches.ts",
 		"build": "remix vite:build",
 		"dev": "run-p --print-label --race 'dev:*'",
 		"dev:remix": "remix vite:dev",
