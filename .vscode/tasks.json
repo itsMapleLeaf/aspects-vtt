@@ -2,6 +2,22 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "dev",
+			"command": "bun",
+			"args": ["run", "dev"],
+			"isBackground": true,
+			"problemMatcher": [
+				{
+					"pattern": { "regexp": "." },
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": "Local:\\s*http://",
+						"endsPattern": "Local:\\s*http://"
+					}
+				}
+			]
+		},
+		{
 			"label": "tsc: watch",
 			"type": "typescript",
 			"tsconfig": "tsconfig.json",
@@ -11,36 +27,6 @@
 			"runOptions": {
 				"runOn": "folderOpen",
 				"instanceLimit": 1
-			},
-			"presentation": {
-				"echo": true,
-				"reveal": "never",
-				"focus": false,
-				"panel": "shared",
-				"showReuseMessage": true,
-				"clear": false
-			}
-		},
-		{
-			"label": "npm run build",
-			"type": "npm",
-			"script": "build",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
-		},
-		{
-			"label": "npm run dev",
-			"type": "npm",
-			"script": "dev",
-			"isBackground": true,
-			"problemMatcher": {
-				"pattern": { "regexp": "" },
-				"background": {
-					"beginsPattern": "aspects-vtt@ dev",
-					"endsPattern": "Local:\\s*http://localhost:"
-				}
 			}
 		}
 	]

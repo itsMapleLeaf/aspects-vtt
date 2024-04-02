@@ -10,7 +10,7 @@
 			"type": "msedge",
 			"url": "http://localhost:5173",
 			"webRoot": "${workspaceFolder}",
-			"preLaunchTask": "npm run dev"
+			"preLaunchTask": "dev"
 		}
 	]
 }
