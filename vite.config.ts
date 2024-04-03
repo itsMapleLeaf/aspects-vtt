@@ -20,5 +20,24 @@ export default defineConfig({
 		remixRoutes(),
 		inspect(),
 		visualizer({ emitFile: true, filename: "build/stats.html" }),
+		{
+			name: "clerk-globals-workaround",
+			config(config, env) {
+				if (env.isSsrBuild) {
+					return {
+						ssr: {
+							noExternal: [/^@clerk/, "swr"],
+						},
+					}
+				}
+			},
+		},
 	],
+	build: {
+		rollupOptions: {
+			output: {
+				banner: `import {installGlobals} from '@remix-run/node'; installGlobals();`,
+			},
+		},
+	},
 })
