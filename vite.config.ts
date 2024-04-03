@@ -28,16 +28,16 @@ export default defineConfig({
 						ssr: {
 							noExternal: [/^@clerk/, "swr"],
 						},
+						build: {
+							rollupOptions: {
+								output: {
+									banner: `import {installGlobals} from '@remix-run/node'; installGlobals();`,
+								},
+							},
+						},
 					}
 				}
 			},
 		},
 	],
-	build: {
-		rollupOptions: {
-			output: {
-				banner: `import {installGlobals} from '@remix-run/node'; installGlobals();`,
-			},
-		},
-	},
 })
