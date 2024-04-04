@@ -12,10 +12,11 @@ import { nullish } from "./helpers.js"
 const visibleToValidator = v.union(v.literal("owner"), v.literal("everyone"))
 
 export const characterProperties = {
-	// basic profile info
+	// profile
 	name: v.optional(v.string()),
 	pronouns: v.optional(v.string()),
 	imageId: v.optional(v.union(v.id("_storage"), v.null())),
+	race: v.optional(v.string()),
 
 	// stats
 	damage: v.optional(v.number()),
@@ -46,10 +47,18 @@ export const list = query({
 		roomId: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
-		const room = await RoomModel.fromId(ctx, args.roomId)
-		const models = await room.value?.getCharacters()
-		const results = await Promise.all(models?.map((c) => c.getVisibleData()) ?? [])
-		return results.filter(Boolean)
+		const { value: room } = await RoomModel.fromId(ctx, args.roomId)
+		const models = await room?.getCharacters()
+		return await Promise.all(
+			models?.map(async (model) => {
+				const player = room?.getPlayerByCharacter(model.data._id)
+				return {
+					...model.data,
+					isPlayer: await model.isAssignedToIdentityUser(),
+					playerId: player?.userId,
+				}
+			}) ?? [],
+		)
 	},
 })
 

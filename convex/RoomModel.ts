@@ -55,6 +55,10 @@ export class RoomModel {
 		}
 	}
 
+	getPlayerByCharacter(characterId: Id<"characters">) {
+		return this.data.players.find((player) => player.characterId === characterId)
+	}
+
 	async getIdentityPlayer() {
 		const user = await UserModel.fromIdentity(this.ctx)
 		return this.data.players.find((player) => player.userId === user.data.clerkId)
