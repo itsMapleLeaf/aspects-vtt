@@ -24,6 +24,7 @@ import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
+import { Races, RacesByName } from "./races.ts"
 
 export type Character = ResultQueryData<typeof api.characters.list>[number]
 
@@ -32,6 +33,7 @@ export function CharacterForm(props: { character: Character }) {
 	const [updateCharacterState, updateCharacter] = useAsyncState(useMutation(api.characters.update))
 	const character = { ...props.character, ...updateCharacterState.args }
 	const isCharacterOwner = room.isOwner || character.isPlayer
+	const race = (character.race && RacesByName.get(character.race)) || undefined
 
 	function updateValues(args: StrictOmit<FunctionArgs<typeof api.characters.update>, "id">) {
 		updateCharacter({ ...args, id: character._id })
@@ -187,6 +189,39 @@ export function CharacterForm(props: { character: Character }) {
 						),
 				)
 			}
+
+			{isCharacterOwner ?
+				<FormField label="Race" htmlFor={inputId("race")}>
+					<Select
+						id={inputId("race")}
+						options={[
+							{ label: "None", value: null },
+							...Races.map((race) => ({ value: race.name, label: race.name })),
+						]}
+						value={character.race ?? null}
+						onChange={(value) => {
+							updateValues({ race: value ?? undefined })
+						}}
+					/>
+				</FormField>
+			:	<ReadOnlyField
+					label="Race"
+					value={(character.race && RacesByName.get(character.race)?.name) || "N/A"}
+				/>
+			}
+
+			{race && (
+				<FormField label="Skills">
+					<ul className={panel("grid gap-3 text-wrap p-3")}>
+						{race.abilities.map((ability) => (
+							<li key={ability.name}>
+								<h3 className="text-lg/tight font-light">{ability.name}</h3>
+								<p className="text-sm font-medium text-primary-800">{ability.description}</p>
+							</li>
+						))}
+					</ul>
+				</FormField>
+			)}
 
 			{renderTextAreaField("playerNotes", room.isOwner ? "Player Notes" : "Notes")}
 			{room.isOwner && renderTextAreaField("ownerNotes", "Owner Notes")}
