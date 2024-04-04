@@ -33,7 +33,7 @@ export function MessageList() {
 								<DiceRollSummary roll={message.diceRoll} />
 							</div>
 						)}
-						<aside className="flex gap-0.5 text-sm font-medium leading-tight tracking-wide text-primary-600">
+						<aside className="flex gap-1 text-sm font-medium leading-tight tracking-wide text-primary-600">
 							{message.user?.character?.name ?
 								<>
 									<span className="text-primary-900">{message.user.character.name}</span> (
@@ -80,14 +80,15 @@ function DiceRollSummary({ roll }: { roll: DiceRoll }) {
 
 	return (
 		<div>
-			<dl className="flex gap-[2px]">
+			<dl className="flex gap-1.5">
 				{diceStats
-					.map((stat) => ({ stat, value: Math.max(0, statValues.get(stat) ?? 0) }))
+					.filter((stat) => statValues.has(stat))
+					.map((stat) => ({ stat, value: Math.max(stat.min ?? 0, statValues.get(stat) ?? 0) }))
 					.filter(({ value }) => value > 0)
 					.map(({ stat, value }, index) => (
 						<Fragment key={stat.name}>
 							{index > 0 && (
-								<span className="opacity-30" aria-hidden>
+								<span className="text-primary-400" aria-hidden>
 									•
 								</span>
 							)}
@@ -116,11 +117,11 @@ function DiceRollIcon({ die }: { die: DiceRoll["dice"][number] }) {
 	return (
 		<div className="*:size-12">
 			{kind == null ?
-				<Tooltip text={`Unknown dice type "${die.name}"`}>
+				<Tooltip text={`Unknown dice type "${die.name}"`} className="flex-center-col">
 					<HelpCircle />
 				</Tooltip>
 			:	kind.faces[die.result - 1]?.element ?? (
-					<Tooltip text={`Unknown face "${die.result}" on d${die.name}`}>
+					<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
 						<HelpCircle />
 					</Tooltip>
 				)

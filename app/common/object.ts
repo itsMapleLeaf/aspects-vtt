@@ -1,9 +1,9 @@
 import type { Simplify, StrictOmit } from "./types.ts"
 
-export function pick<T, K extends keyof T>(obj: T, keys: K[]): Simplify<Pick<T, K>> {
+export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Simplify<Pick<T, K>> {
 	const result = {} as Pick<T, K>
 	for (const key of keys) {
-		if (obj[key] !== undefined) {
+		if (key in obj) {
 			result[key] = obj[key]
 		}
 	}

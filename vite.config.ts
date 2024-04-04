@@ -21,19 +21,19 @@ export default defineConfig({
 		inspect(),
 		visualizer({ emitFile: true, filename: "build/stats.html" }),
 		{
-			name: "remix-globals-clerk-fix",
+			name: "clerk-globals-workaround",
 			config(config, env) {
 				if (env.isSsrBuild) {
 					return {
+						ssr: {
+							noExternal: [/^@clerk/, "swr"],
+						},
 						build: {
 							rollupOptions: {
 								output: {
-									banner: `import { installGlobals } from "@remix-run/node";installGlobals();`,
+									banner: `import {installGlobals} from '@remix-run/node'; installGlobals();`,
 								},
 							},
-						},
-						ssr: {
-							noExternal: [/^@clerk/],
 						},
 					}
 				}

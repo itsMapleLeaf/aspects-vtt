@@ -1,4 +1,4 @@
-import "@fontsource-variable/manrope"
+import "@fontsource-variable/nunito"
 import "./root.css"
 
 import { ClerkApp, useAuth, useUser } from "@clerk/remix"

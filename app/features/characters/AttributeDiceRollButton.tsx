@@ -4,34 +4,29 @@ import { ConvexError } from "convex/values"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { clamp } from "#app/common/math.js"
-import { startCase } from "#app/common/string.js"
-import type { PickByValue } from "#app/common/types.js"
 import { Button } from "#app/ui/Button.tsx"
 import { FormField } from "#app/ui/FormField.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import { boostDiceKind, snagDiceKind } from "../dice/diceKinds.tsx"
-import type { Character } from "./CharacterForm.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 
 export function AttributeDiceRollButton({
-	character,
-	attributeKey,
+	attributeValue,
+	buttonLabel,
+	messageContent,
 	stress,
 }: {
-	character: Character
-	attributeKey: keyof PickByValue<Character, number>
+	attributeValue: number
+	buttonLabel: string
+	messageContent: string
 	stress: number
 }) {
+	const room = useRoom()
 	const createMessage = useMutation(api.messages.create)
-	const attributeValue = character[attributeKey]
-	const stressKind = snagDiceKind
-	const label = `${character.name}: ${startCase(attributeKey)}`
-	const baseDice = [
-		{ name: `d${attributeValue}`, sides: attributeValue, count: 1 },
-		{ name: stressKind.name, sides: stressKind.faces.length, count: stress },
-	]
-	const [addedBoostDice, setAddedBoostDice] = useState(0)
-	const [addedSnagDice, setAddedSnagDice] = useState(0)
+	const baseDice = [{ name: `d${attributeValue}`, sides: attributeValue, count: 1 }]
+	const [boostCount = 0, setBoostCount] = useState<number>()
+	const [snagCount = stress, setSnagCount] = useState<number>()
 
 	return (
 		<Ariakit.HovercardProvider placement="left" timeout={350}>
@@ -39,12 +34,15 @@ export function AttributeDiceRollButton({
 				<Button
 					icon={<Lucide.Dices />}
 					text="Roll"
-					aria-label={`Roll ${startCase(attributeKey)} for ${character.name}`}
+					aria-label={buttonLabel}
 					onClick={async () => {
 						await createMessage({
-							roomId: character.roomId,
-							content: label,
-							dice: baseDice,
+							roomId: room._id,
+							content: messageContent,
+							dice: [
+								...baseDice,
+								{ name: snagDiceKind.name, sides: snagDiceKind.faces.length, count: stress },
+							],
 						}).catch((error) => {
 							alert(
 								error instanceof ConvexError ? error.message : "Something went wrong, try again.",
@@ -63,10 +61,10 @@ export function AttributeDiceRollButton({
 			>
 				<div className="flex gap-2 *:flex-1">
 					<FormField label="Boost Dice">
-						<CounterInput value={addedBoostDice} onChange={setAddedBoostDice} />
+						<CounterInput value={boostCount} onChange={setBoostCount} />
 					</FormField>
 					<FormField label="Snag Dice">
-						<CounterInput value={addedSnagDice} onChange={setAddedSnagDice} />
+						<CounterInput value={snagCount} onChange={setSnagCount} />
 					</FormField>
 				</div>
 				<Button
@@ -74,20 +72,20 @@ export function AttributeDiceRollButton({
 					icon={<Lucide.Dices />}
 					onClick={async () => {
 						await createMessage({
-							roomId: character.roomId,
-							content: label,
+							roomId: room._id,
+							content: messageContent,
 							dice: [
 								...baseDice,
-								{ name: "boost", sides: boostDiceKind.faces.length, count: addedBoostDice },
-								{ name: "snag", sides: snagDiceKind.faces.length, count: addedSnagDice },
+								{ name: "boost", sides: boostDiceKind.faces.length, count: boostCount },
+								{ name: "snag", sides: snagDiceKind.faces.length, count: snagCount },
 							],
 						}).catch((error) => {
 							alert(
 								error instanceof ConvexError ? error.message : "Something went wrong, try again.",
 							)
 						})
-						setAddedBoostDice(0)
-						setAddedSnagDice(0)
+						setBoostCount(undefined)
+						setSnagCount(undefined)
 					}}
 				/>
 			</Ariakit.Hovercard>

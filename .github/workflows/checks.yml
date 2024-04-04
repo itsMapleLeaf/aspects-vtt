@@ -20,24 +20,18 @@ jobs:
       fail-fast: false
     name: ${{ matrix.script.name }}
     steps:
-      - name: Checkout
+      - name: "🛒"
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+      - name: "🍞"
+        uses: oven-sh/setup-bun@v1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 20
-          cache: pnpm
+      - name: "📥"
+        run: bun install
 
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
+      - name: "🛠️"
         if: ${{ matrix.script.needs-build }}
-        run: pnpm build
+        run: bun run build
 
-      - name: Run ${{ matrix.script.name }}
-        run: pnpm run ${{ matrix.script.name }}
+      - name: "▶️"
+        run: bun run ${{ matrix.script.name }}

@@ -3,8 +3,8 @@ import { ConvexError, v } from "convex/values"
 import { expect } from "#app/common/expect.js"
 import { pick } from "#app/common/object.js"
 import { range } from "#app/common/range.js"
+import { UserModel } from "./UserModel.js"
 import { internalMutation, mutation, query } from "./_generated/server.js"
-import { getIdentityUser } from "./auth.js"
 
 export const migrateDiceRolls = internalMutation({
 	async handler(ctx, args) {
@@ -39,13 +39,13 @@ export const list = query({
 			...result,
 			page: await Promise.all(
 				result.page.map(async ({ userId, ...message }) => {
-					const user = await ctx.db.get(userId)
+					const user = await UserModel.fromClerkId(ctx, userId)
 					const player = room?.players.find((player) => player.userId === userId)
 					const character = player?.characterId && (await ctx.db.get(player.characterId))
 					return {
 						...message,
 						user: user && {
-							...pick(user, ["name", "avatarUrl"]),
+							...pick(user.data, ["name", "avatarUrl"]),
 							character: character && pick(character, ["name"]),
 						},
 					}
@@ -62,7 +62,7 @@ export const create = mutation({
 		dice: v.optional(v.array(v.object({ name: v.string(), sides: v.number(), count: v.number() }))),
 	},
 	async handler(ctx, { dice = [], content = "", ...args }) {
-		const user = await getIdentityUser(ctx)
+		const user = await UserModel.fromIdentity(ctx)
 
 		const diceRolls = dice
 			.flatMap((input) => range.array(input.count).map(() => input))
@@ -79,7 +79,7 @@ export const create = mutation({
 		return await ctx.db.insert("messages", {
 			...args,
 			content,
-			userId: user._id,
+			userId: user.data.clerkId,
 			diceRoll: diceRolls.length > 0 ? { dice: diceRolls } : undefined,
 		})
 	},
@@ -90,12 +90,12 @@ export const remove = mutation({
 		id: v.id("messages"),
 	},
 	async handler(ctx, { id }) {
-		const user = await getIdentityUser(ctx)
+		const user = await UserModel.fromIdentity(ctx)
 
 		const message = await ctx.db.get(id)
 		if (!message) return
 
-		if (message.userId !== user._id) {
+		if (message.userId !== user.data.clerkId) {
 			throw new ConvexError("You don't have permission to do that.")
 		}
 

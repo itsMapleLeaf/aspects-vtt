@@ -1,4 +1,4 @@
-import { useConvex, useMutation, useQuery } from "convex/react"
+import { useConvex, useMutation } from "convex/react"
 import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
@@ -6,7 +6,7 @@ import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { startCase } from "#app/common/string.js"
 import type { PickByValue, StrictOmit } from "#app/common/types.js"
-import { useMutationState } from "#app/common/useMutationState.js"
+import { useAsyncState } from "#app/common/useAsyncState.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
 import { CheckboxField } from "#app/ui/CheckboxField.js"
@@ -20,21 +20,20 @@ import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { Tooltip } from "../../ui/Tooltip.tsx"
-import { numericDiceKinds } from "../dice/diceKinds.tsx"
+import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
+import { Races, RacesByName } from "./races.ts"
 
-export type Character =
-	| ResultQueryData<typeof api.characters.list>[number]
-	| ResultQueryData<typeof api.characters.getPlayerCharacter>
+export type Character = ResultQueryData<typeof api.characters.list>[number]
 
 export function CharacterForm(props: { character: Character }) {
 	const room = useRoom()
-	const user = useQuery(api.auth.user)
-	const [updateCharacterState, updateCharacter] = useMutationState(api.characters.update)
+	const [updateCharacterState, updateCharacter] = useAsyncState(useMutation(api.characters.update))
 	const character = { ...props.character, ...updateCharacterState.args }
-	const isCharacterOwner = room.isOwner || character.playerId === user?.data?._id
+	const isCharacterOwner = room.isOwner || character.isPlayer
+	const race = (character.race && RacesByName.get(character.race)) || undefined
 
 	function updateValues(args: StrictOmit<FunctionArgs<typeof api.characters.update>, "id">) {
 		updateCharacter({ ...args, id: character._id })
@@ -74,12 +73,11 @@ export function CharacterForm(props: { character: Character }) {
 		max?: number,
 		label = [startCase(key), max].filter(Boolean).join(" / "),
 	) {
+		const value = character[key]
+		if (value === undefined) return null
 		return (
 			<FormField label={label} htmlFor={inputId(key)}>
-				<NumberInput
-					value={character[key]}
-					onChangeValue={(value) => updateValues({ [key]: value })}
-				/>
+				<NumberInput value={value} onChangeValue={(value) => updateValues({ [key]: value })} />
 			</FormField>
 		)
 	}
@@ -89,23 +87,26 @@ export function CharacterForm(props: { character: Character }) {
 		stressKey: "damage" | "fatigue",
 	) {
 		const label = startCase(key)
+		const value = character[key]
+		if (value === undefined) return null
 		return (
 			<FormField label={label} htmlFor={inputId(key)}>
 				<div className="flex gap-2">
 					<Select
 						id={inputId(key)}
-						options={numericDiceKinds.map((kind) => ({
+						options={statDiceKinds.map((kind) => ({
 							label: kind.name,
 							value: kind.faces.length,
 						}))}
-						value={character[key]}
+						value={value}
 						onChange={(value) => updateValues({ [key]: value })}
 						className="flex-1"
 					/>
 					<AttributeDiceRollButton
-						character={character}
-						attributeKey={key}
-						stress={character[stressKey]}
+						attributeValue={value}
+						buttonLabel={`Roll ${label} for ${character.name}`}
+						messageContent={`${character.name}: ${label}`}
+						stress={character[stressKey] ?? 0}
 					/>
 				</div>
 			</FormField>
@@ -125,8 +126,8 @@ export function CharacterForm(props: { character: Character }) {
 						{renderInputField("pronouns")}
 					</>
 				:	<>
-						<ReadOnlyField label="Name" value={character.name} />
-						<ReadOnlyField label="Pronouns" value={character.pronouns} />
+						{character.name && <ReadOnlyField label="Name" value={character.name} />}
+						{character.pronouns && <ReadOnlyField label="Pronouns" value={character.pronouns} />}
 					</>
 				}
 			</div>
@@ -137,8 +138,10 @@ export function CharacterForm(props: { character: Character }) {
 							id={inputId("player")}
 							options={[
 								{ label: "None", value: null },
-								...(room.players?.map((player) => ({ label: player.name, value: player._id })) ??
-									[]),
+								...(room.players?.map((player) => ({
+									label: player.name,
+									value: player.clerkId,
+								})) ?? []),
 							]}
 							value={character.playerId}
 							onChange={(value) => {
@@ -146,26 +149,28 @@ export function CharacterForm(props: { character: Character }) {
 							}}
 						/>
 					</FormField>
-					<CheckboxField
-						label="Public"
-						checked={character.visibleTo === "everyone"}
-						onChange={(event) =>
-							updateValues({ visibleTo: event.currentTarget.checked ? "everyone" : "owner" })
-						}
-					/>
-					<CheckboxField
-						label="Show Token"
-						checked={character.tokenVisibleTo === "everyone"}
-						onChange={(event) =>
-							updateValues({ tokenVisibleTo: event.currentTarget.checked ? "everyone" : "owner" })
-						}
-					/>
+					<div className="flex flex-wrap gap-3">
+						<CheckboxField
+							label="Public"
+							checked={character.visibleTo === "everyone"}
+							onChange={(event) =>
+								updateValues({ visibleTo: event.currentTarget.checked ? "everyone" : "owner" })
+							}
+						/>
+						<CheckboxField
+							label="Show Token"
+							checked={character.tokenVisibleTo === "everyone"}
+							onChange={(event) =>
+								updateValues({ tokenVisibleTo: event.currentTarget.checked ? "everyone" : "owner" })
+							}
+						/>
+					</div>
 				</>
 			)}
 
 			<div className="flex gap-2 *:flex-1">
-				{renderNumberField("damage", character.strength + character.mobility)}
-				{renderNumberField("fatigue", character.sense + character.intellect + character.wit)}
+				{renderNumberField("damage", character.damageThreshold)}
+				{renderNumberField("fatigue", character.fatigueThreshold)}
 				{renderNumberField("currency")}
 			</div>
 
@@ -177,10 +182,46 @@ export function CharacterForm(props: { character: Character }) {
 					{renderDiceField("intellect", "fatigue")}
 					{renderDiceField("wit", "fatigue")}
 				</>
-			:	(["strength", "sense", "mobility", "intellect", "wit"] as const).map((key) => (
-					<ReadOnlyField key={key} label={startCase(key)} value={`d${character[key]}`} />
-				))
+			:	(["strength", "sense", "mobility", "intellect", "wit"] as const).map(
+					(key) =>
+						character[key] && (
+							<ReadOnlyField key={key} label={startCase(key)} value={`d${character[key]}`} />
+						),
+				)
 			}
+
+			{isCharacterOwner ?
+				<FormField label="Race" htmlFor={inputId("race")}>
+					<Select
+						id={inputId("race")}
+						options={[
+							{ label: "None", value: null },
+							...Races.map((race) => ({ value: race.name, label: race.name })),
+						]}
+						value={character.race ?? null}
+						onChange={(value) => {
+							updateValues({ race: value ?? undefined })
+						}}
+					/>
+				</FormField>
+			:	<ReadOnlyField
+					label="Race"
+					value={(character.race && RacesByName.get(character.race)?.name) || "N/A"}
+				/>
+			}
+
+			{race && (
+				<FormField label="Skills">
+					<ul className={panel("grid gap-3 text-wrap p-3")}>
+						{race.abilities.map((ability) => (
+							<li key={ability.name}>
+								<h3 className="text-lg/tight font-light">{ability.name}</h3>
+								<p className="text-sm font-medium text-primary-800">{ability.description}</p>
+							</li>
+						))}
+					</ul>
+				</FormField>
+			)}
 
 			{renderTextAreaField("playerNotes", room.isOwner ? "Player Notes" : "Notes")}
 			{room.isOwner && renderTextAreaField("ownerNotes", "Owner Notes")}
@@ -253,7 +294,7 @@ export function NumberInput({ value, max, onChangeValue }: NumberInputProps) {
 function ImageInput({
 	character,
 }: {
-	character: { _id: Id<"characters">; imageId: Id<"_storage"> | null }
+	character: { _id: Id<"characters">; imageId?: Id<"_storage"> | null }
 }) {
 	const update = useMutation(api.characters.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")

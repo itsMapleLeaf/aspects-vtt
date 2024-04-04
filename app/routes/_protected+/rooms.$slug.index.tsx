@@ -2,12 +2,13 @@ import { UserButton } from "@clerk/remix"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Fragment, useEffect, useRef, useState } from "react"
-import { useMutationState } from "#app/common/useMutationState.js"
-import { generalSkills } from "#app/data/generalSkills.js"
+import { useAsyncState } from "#app/common/useAsyncState.js"
+import { Vector } from "#app/common/vector.js"
 import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
 import { CreateCharacterButton } from "#app/features/characters/CreateCharacterButton.tsx"
 import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterButton.tsx"
+import { GeneralSkills } from "#app/features/characters/generalSkills.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
@@ -36,16 +37,14 @@ export default function RoomIndexRoute() {
 	}, [room._id, join])
 
 	const characters = useQuery(api.characters.list, { roomId: room._id })
-	const playerCharacter = useQuery(api.characters.getPlayerCharacter, { roomId: room._id })
-	const tokens = useQuery(api.characters.listTokens, { roomId: room._id })
+	const playerCharacter = characters?.find((character) => character.isPlayer)
 
-	const defaultCharacterId = room.isOwner ? characters?.data?.[0]?._id : playerCharacter?.data?._id
+	const defaultCharacterId = room.isOwner ? characters?.[0]?._id : playerCharacter?._id
 	const [currentCharacterId = defaultCharacterId, setCurrentCharacterId] =
 		useState<Id<"characters">>()
 
 	const character =
-		characters?.data?.find((character) => character._id === currentCharacterId) ??
-		characters?.data?.[0]
+		characters?.find((character) => character._id === currentCharacterId) ?? characters?.[0]
 
 	const viewportRef = useRef<ViewportController>(null)
 
@@ -53,15 +52,20 @@ export default function RoomIndexRoute() {
 		<div className="isolate flex h-dvh flex-col gap-4 p-4">
 			<div className="fixed inset-0 -z-10">
 				<TokenMapViewport controllerRef={viewportRef}>
-					{tokens?.data?.map((character) => (
-						<Token
-							key={character._id}
-							character={character}
-							selected={currentCharacterId === character._id}
-							onSelect={() => {
-								setCurrentCharacterId(character._id)
-							}}
-						/>
+					{characters?.map((character) => (
+						<Fragment key={character._id}>
+							{character.tokenPosition ?
+								<Token
+									key={character._id}
+									character={character}
+									tokenPosition={Vector.from(character.tokenPosition)}
+									selected={currentCharacterId === character._id}
+									onSelect={() => {
+										setCurrentCharacterId(character._id)
+									}}
+								/>
+							:	null}
+						</Fragment>
 					))}
 				</TokenMapViewport>
 			</div>
@@ -84,7 +88,7 @@ export default function RoomIndexRoute() {
 					</div>
 				</div>
 
-				<div className={"flex flex-wrap items-end gap-[inherit] self-end drop-shadow"}>
+				<div className="flex flex-1 flex-wrap items-end justify-center gap-[inherit] self-end drop-shadow">
 					{room.isOwner && <CellSizeField />}
 					{room.isOwner && <SetMapBackgroundButton />}
 					<Button
@@ -99,8 +103,6 @@ export default function RoomIndexRoute() {
 					<div className="flex max-w-[360px] flex-1 flex-col items-center justify-center">
 						<Loading />
 					</div>
-				: !characters.ok ?
-					<p>Failed to load characters: {characters.error}</p>
 				:	<div
 						className={panel(
 							"flex max-w-[360px] flex-1 flex-col gap-2 rounded-md bg-primary-100/75 p-2 shadow-md shadow-black/50 backdrop-blur",
@@ -109,7 +111,7 @@ export default function RoomIndexRoute() {
 						<div className="flex gap-2">
 							<div className="flex-1">
 								<CharacterSelect
-									characters={characters.data}
+									characters={characters}
 									selected={currentCharacterId}
 									onChange={setCurrentCharacterId}
 								/>
@@ -158,7 +160,7 @@ function DuplicateCharacterButton({
 
 function CellSizeField() {
 	const room = useRoom()
-	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
+	const [updateRoomState, updateRoom] = useAsyncState(useMutation(api.rooms.update))
 	return (
 		<FormField label="Cell Size" htmlFor="cellSize">
 			<Input
@@ -203,7 +205,7 @@ function QuickReferenceButton() {
 							<span>General Skills</span>
 						</summary>
 						<dl>
-							{generalSkills.map((skill) => (
+							{GeneralSkills.map((skill) => (
 								<Fragment key={skill.name}>
 									<dt className="text-lg font-semibold">{skill.name}</dt>
 									<dd className="mb-2">{skill.description}</dd>

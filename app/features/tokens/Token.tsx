@@ -4,6 +4,7 @@ import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type CSSProperties, use, useRef } from "react"
 import { twMerge } from "tailwind-merge"
+import { useAsyncState } from "#app/common/useAsyncState.js"
 import { useDrag } from "#app/common/useDrag.js"
 import { Vector } from "#app/common/vector.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
@@ -16,28 +17,18 @@ export function Token({
 	character,
 	selected,
 	onSelect,
+	...props
 }: {
-	character: ResultQueryData<typeof api.characters.listTokens>[number]
+	character: ResultQueryData<typeof api.characters.list>[number]
+	tokenPosition: Vector
 	selected: boolean
 	onSelect: () => void
 }) {
 	const room = useRoom()
 	const zoom = use(ZoomContext)
 
-	const updateCharacter = useMutation(api.characters.update).withOptimisticUpdate((store, args) => {
-		const characters = store.getQuery(api.characters.listTokens, { roomId: room._id })
-		if (!characters?.data) return
-		store.setQuery(
-			api.characters.listTokens,
-			{ roomId: room._id },
-			{
-				ok: true,
-				data: characters.data.map((c) =>
-					c._id === args.id ? { ...c, tokenPosition: args.tokenPosition ?? c.tokenPosition } : c,
-				),
-			},
-		)
-	})
+	const [updateCharacterState, updateCharacter] = useAsyncState(useMutation(api.characters.update))
+	const tokenPosition = Vector.from(updateCharacterState.args?.tokenPosition ?? props.tokenPosition)
 
 	const buttonRef = useRef<HTMLButtonElement>(null)
 	const drag = useDrag(buttonRef, {
@@ -46,18 +37,14 @@ export function Token({
 			if (selected) {
 				updateCharacter({
 					id: character._id,
-					tokenPosition: Vector.from(character.tokenPosition)
-						.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize))
-						.clamp(
-							Vector.zero,
-							Vector.from(room.mapDimensions).dividedBy(room.mapCellSize).minus(1),
-						).rounded.xy,
+					tokenPosition: tokenPosition.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize))
+						.rounded.xy,
 				})
 			}
 		},
 	})
 
-	let visualPosition = Vector.from(character.tokenPosition).times(room.mapCellSize)
+	let visualPosition = tokenPosition.times(room.mapCellSize)
 	if (drag && selected) {
 		visualPosition = visualPosition.plus(drag.distance.dividedBy(zoom))
 	}
@@ -88,7 +75,7 @@ export function Token({
 	return (
 		<div
 			data-dragging={!!drag}
-			className="group contents *:translate-x-[--x] *:translate-y-[--y] *:transition *:ease-out *:data-[dragging=true]:duration-0"
+			className="group contents *:absolute *:left-0 *:top-0 *:translate-x-[--x] *:translate-y-[--y] *:transition *:ease-out *:data-[dragging=true]:duration-0"
 			style={
 				{
 					"--x": `${visualPosition.x}px`,
@@ -119,9 +106,9 @@ export function Token({
 					<div ref={floatingName.refs.setFloating} style={floatingName.floatingStyles}>
 						<p
 							data-selected={selected}
-							className="max-w-32 origin-top scale-[--scale] text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
+							className="max-w-48 origin-top scale-[--scale] text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
 						>
-							{character.name}
+							{character.name} {character.pronouns && `(${character.pronouns})`}
 						</p>
 					</div>
 				</div>

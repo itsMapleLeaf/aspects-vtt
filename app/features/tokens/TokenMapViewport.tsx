@@ -126,17 +126,17 @@ export function TokenMapViewport({
 		>
 			<div
 				data-dragging={!!drag}
-				className="absolute left-0 top-0 isolate origin-top-left"
+				className="absolute inset-0 isolate origin-top-left"
 				ref={transformRef}
 			>
 				<UploadedImage
 					id={room.mapImageId}
-					className="absolute left-0 top-0 brightness-75"
+					className="absolute inset-0 brightness-75"
 					style={mapDimensions.toObject("width", "height")}
 				/>
 				<ZoomContext.Provider value={zoom}>
 					<TokenMapGrid
-						className="absolute left-0 top-0 opacity-25"
+						className="absolute inset-0 opacity-25"
 						style={mapDimensions.toObject("width", "height")}
 					/>
 					{children}
