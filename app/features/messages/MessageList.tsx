@@ -82,7 +82,8 @@ function DiceRollSummary({ roll }: { roll: DiceRoll }) {
 		<div>
 			<dl className="flex gap-1.5">
 				{diceStats
-					.map((stat) => ({ stat, value: Math.max(0, statValues.get(stat) ?? 0) }))
+					.filter((stat) => statValues.has(stat))
+					.map((stat) => ({ stat, value: Math.max(stat.min ?? 0, statValues.get(stat) ?? 0) }))
 					.filter(({ value }) => value > 0)
 					.map(({ stat, value }, index) => (
 						<Fragment key={stat.name}>
@@ -116,11 +117,11 @@ function DiceRollIcon({ die }: { die: DiceRoll["dice"][number] }) {
 	return (
 		<div className="*:size-12">
 			{kind == null ?
-				<Tooltip text={`Unknown dice type "${die.name}"`}>
+				<Tooltip text={`Unknown dice type "${die.name}"`} className="flex-center-col">
 					<HelpCircle />
 				</Tooltip>
 			:	kind.faces[die.result - 1]?.element ?? (
-					<Tooltip text={`Unknown face "${die.result}" on d${die.name}`}>
+					<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
 						<HelpCircle />
 					</Tooltip>
 				)

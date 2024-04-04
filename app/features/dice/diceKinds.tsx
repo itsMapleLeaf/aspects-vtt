@@ -5,10 +5,11 @@ import { Tooltip } from "#app/ui/Tooltip.js"
 
 export type DiceStat = {
 	name: string
+	min?: number
 	className?: string
 }
 
-const effectStat = { name: "Effect", className: twMerge("text-primary-800") }
+const effectStat = { name: "Effect", min: 1, className: twMerge("text-primary-800") }
 const boostStat = { name: "Boost", className: twMerge("text-green-400") }
 const snagStat = { name: "Snag", className: twMerge("text-red-400") }
 export const diceStats: DiceStat[] = [effectStat, boostStat, snagStat]
@@ -127,55 +128,33 @@ function defineModifier({
 	multiplier: number
 	stat: DiceStat
 }): DiceKind {
-	const faceCount = 6
-	const doubleThreshold = faceCount
-	const singleThreshold = faceCount - 2
+	const faceCount = 4
 	return {
 		name,
 		element: (
 			<div className={twMerge("flex-center-col relative", className)}>
-				<Lucide.Square className="size-full fill-primary-200 stroke-1" />
-				<div className="absolute size-[50%] *:size-full">{icon}</div>
+				<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />
+				<div className="absolute size-[50%] translate-y-[3px] *:size-full">{icon}</div>
 			</div>
 		),
-		faces: range.array(1, 7).map((faceNumber) => {
-			let value
-			if (faceNumber >= doubleThreshold) {
-				value = 2
-			} else if (faceNumber >= singleThreshold) {
-				value = 1
-			} else {
-				value = 0
-			}
-
-			return {
-				element: (
-					<Tooltip
-						text={`${name}: ${value} (face ${faceNumber})`}
-						placement="top"
-						className={twMerge(
-							"flex-center-col relative transition [--icon-gap:9px] *:pointer-events-none hover:brightness-150",
-							className,
-						)}
-					>
-						<Lucide.Square className="size-full fill-primary-200 stroke-1" />
-						{value === 2 ?
-							<>
-								<div className="absolute left-[10px] top-[10px] size-[35%] *:size-full">{icon}</div>
-								<div className="absolute bottom-[10px] right-[10px] size-[35%] *:size-full">
-									{icon}
-								</div>
-							</>
-						: value === 1 ?
-							<div className="absolute size-[60%] *:size-full">{icon}</div>
-						:	null}
-					</Tooltip>
-				),
-				modifyStats: new Map([
-					[effectStat, value * multiplier],
-					[stat, value],
-				]),
-			}
-		}),
+		faces: range.array(1, faceCount + 1).map((face) => ({
+			element: (
+				<Tooltip
+					text={`${name}: ${face}`}
+					placement="top"
+					className={twMerge(
+						"flex-center-col relative transition @container [--icon-gap:9px] *:pointer-events-none hover:brightness-150",
+						className,
+					)}
+				>
+					<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />
+					<p className="absolute translate-y-[3px] text-[length:36cqw] font-semibold">{face}</p>
+				</Tooltip>
+			),
+			modifyStats: new Map([
+				[effectStat, face * multiplier],
+				[stat, face],
+			]),
+		})),
 	}
 }
