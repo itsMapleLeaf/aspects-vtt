@@ -147,20 +147,22 @@ export function CharacterForm(props: { character: Character }) {
 							}}
 						/>
 					</FormField>
-					<CheckboxField
-						label="Public"
-						checked={character.visibleTo === "everyone"}
-						onChange={(event) =>
-							updateValues({ visibleTo: event.currentTarget.checked ? "everyone" : "owner" })
-						}
-					/>
-					<CheckboxField
-						label="Show Token"
-						checked={character.tokenVisibleTo === "everyone"}
-						onChange={(event) =>
-							updateValues({ tokenVisibleTo: event.currentTarget.checked ? "everyone" : "owner" })
-						}
-					/>
+					<div className="flex flex-wrap gap-3">
+						<CheckboxField
+							label="Public"
+							checked={character.visibleTo === "everyone"}
+							onChange={(event) =>
+								updateValues({ visibleTo: event.currentTarget.checked ? "everyone" : "owner" })
+							}
+						/>
+						<CheckboxField
+							label="Show Token"
+							checked={character.tokenVisibleTo === "everyone"}
+							onChange={(event) =>
+								updateValues({ tokenVisibleTo: event.currentTarget.checked ? "everyone" : "owner" })
+							}
+						/>
+					</div>
 				</>
 			)}
 
