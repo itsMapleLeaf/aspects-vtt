@@ -67,8 +67,13 @@ export class CharacterModel {
 
 		const player = room.data.players.find((player) => player.characterId === this.data._id)
 
-		const damageThreshold = this.data.strength + this.data.mobility
-		const fatigueThreshold = this.data.sense + this.data.intellect + this.data.wit
+		const getThreshold = (stat: number) =>
+			stat === 20 ? 10
+			: stat === 12 ? 8
+			: 6
+
+		const damageThreshold = getThreshold(this.data.strength)
+		const fatigueThreshold = getThreshold(this.data.sense)
 
 		const damageRatio = clamp(this.data.damage / damageThreshold, 0, 1)
 		const fatigueRatio = clamp(this.data.fatigue / fatigueThreshold, 0, 1)
