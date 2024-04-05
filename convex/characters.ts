@@ -1,15 +1,13 @@
-import { brandedString } from "convex-helpers/validators"
-import { v } from "convex/values"
+import { brandedString, nullable } from "convex-helpers/validators"
+import { type Infer, v } from "convex/values"
 import { omit } from "#app/common/object.js"
 import { randomItem } from "#app/common/random.js"
 import { Vector } from "#app/common/vector.js"
 import { characterNames } from "#app/features/characters/characterNames.ts"
 import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
-import { mutation, query } from "./_generated/server.js"
-import { nullish } from "./helpers.js"
-
-const visibleToValidator = v.union(v.literal("owner"), v.literal("everyone"))
+import { UserModel } from "./UserModel.js"
+import { internalMutation, mutation, query } from "./_generated/server.js"
 
 export const characterProperties = {
 	// profile
@@ -38,27 +36,91 @@ export const characterProperties = {
 	tokenPosition: v.optional(v.object({ x: v.number(), y: v.number() })),
 
 	// visibility
-	visibleTo: v.optional(visibleToValidator),
-	tokenVisibleTo: v.optional(visibleToValidator),
+	visible: v.optional(v.boolean()),
+	nameVisible: v.optional(v.boolean()),
+	playerId: v.optional(nullable(brandedString("clerkId"))),
 }
+
+const characterDefaults: Required<{
+	[K in keyof typeof characterProperties]: Exclude<
+		Infer<(typeof characterProperties)[K]>,
+		undefined
+	>
+}> = {
+	// profile
+	name: "",
+	pronouns: "",
+	imageId: null,
+	race: "",
+
+	// stats
+	damage: 0,
+	fatigue: 0,
+	currency: 0,
+
+	// attributes
+	strength: 4,
+	sense: 4,
+	mobility: 4,
+	intellect: 4,
+	wit: 4,
+
+	// notes
+	ownerNotes: "",
+	playerNotes: "",
+
+	// token properties
+	tokenPosition: { x: 0, y: 0 },
+
+	// visibility
+	visible: false,
+	nameVisible: false,
+	playerId: null,
+}
+
+export const migrate = internalMutation({
+	async handler(ctx, args) {
+		for await (const character of ctx.db.query("characters")) {
+			await ctx.db.patch(character._id, { tokenVisibleTo: undefined, visibleTo: undefined })
+		}
+	},
+})
 
 export const list = query({
 	args: {
 		roomId: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
+		const user = await UserModel.fromIdentity(ctx)
 		const { value: room } = await RoomModel.fromId(ctx, args.roomId)
-		const models = await room?.getCharacters()
-		return await Promise.all(
-			models?.map(async (model) => {
-				const player = room?.getPlayerByCharacter(model.data._id)
-				return {
-					...model.data,
-					isPlayer: await model.isAssignedToIdentityUser(),
-					playerId: player?.userId,
-				}
-			}) ?? [],
-		)
+		const isRoomOwner = await room?.isOwner()
+
+		let query = ctx.db.query("characters")
+		if (!isRoomOwner) {
+			query = query.filter((q) =>
+				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.data.clerkId)),
+			)
+		}
+		const docs = await query.collect()
+
+		const getThreshold = (die: number) => {
+			if (die === 20) return 10
+			if (die === 12) return 8
+			return 6
+		}
+
+		return docs
+			.map((doc) => ({ ...characterDefaults, ...doc }))
+			.map((doc) => ({
+				...doc,
+				damageThreshold: getThreshold(doc.strength),
+				fatigueThreshold: getThreshold(doc.sense),
+				isOwner: isRoomOwner || doc.playerId === user.data.clerkId,
+				displayName:
+					doc.nameVisible || isRoomOwner || doc.playerId === user.data.clerkId ? doc.name : "???",
+				displayPronouns:
+					doc.nameVisible || isRoomOwner || doc.playerId === user.data.clerkId ? doc.pronouns : "",
+			}))
 	},
 })
 
@@ -103,20 +165,10 @@ export const update = mutation({
 	args: {
 		...characterProperties,
 		id: v.id("characters"),
-		playerId: nullish(brandedString("clerkId")),
 	},
-	handler: async (ctx, { id, playerId, ...args }) => {
+	handler: async (ctx, { id, ...args }) => {
 		const character = await CharacterModel.get(ctx, id).unwrap()
 		await character.update(ctx, args)
-
-		const room = await character.getRoom()
-		if (playerId !== undefined && (await room.isOwner())) {
-			if (playerId === null) {
-				await room.unsetPlayerCharacter(ctx, id)
-			} else {
-				await room.setPlayerCharacter(ctx, playerId, id)
-			}
-		}
 	},
 })
 

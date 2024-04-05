@@ -1,11 +1,9 @@
 import { useConvex, useMutation } from "convex/react"
 import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
-import { useEffect, useId, useRef, useState } from "react"
-import { expect } from "#app/common/expect.js"
-import { clamp } from "#app/common/math.js"
+import { type ReactNode, useEffect, useId, useState } from "react"
 import { startCase } from "#app/common/string.js"
-import type { PickByValue, StrictOmit } from "#app/common/types.js"
+import type { PickByValue } from "#app/common/types.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
@@ -13,7 +11,7 @@ import { CheckboxField } from "#app/ui/CheckboxField.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
-import { Select } from "#app/ui/Select.js"
+import { Select, type SelectOption, type SelectValue } from "#app/ui/Select.js"
 import { TextArea } from "#app/ui/TextArea.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
@@ -28,187 +26,73 @@ import { Races, RacesByName } from "./races.ts"
 
 export type Character = ResultQueryData<typeof api.characters.list>[number]
 
-export function CharacterForm(props: { character: Character }) {
+export function CharacterForm({ character }: { character: Character }) {
 	const room = useRoom()
-	const [updateCharacterState, updateCharacter] = useAsyncState(useMutation(api.characters.update))
-	const character = { ...props.character, ...updateCharacterState.args }
-	const isCharacterOwner = room.isOwner || character.isPlayer
 	const race = (character.race && RacesByName.get(character.race)) || undefined
-
-	function updateValues(args: StrictOmit<FunctionArgs<typeof api.characters.update>, "id">) {
-		updateCharacter({ ...args, id: character._id })
-	}
-
-	const baseId = useId()
-	const inputId = (name: string) => `${baseId}:${name}`
-
-	function renderInputField(key: keyof PickByValue<Character, string>, label = startCase(key)) {
-		return (
-			<FormField label={label} htmlFor={inputId(key)}>
-				<Input
-					id={inputId(key)}
-					value={character[key]}
-					onChange={(event) => updateValues({ [key]: event.target.value })}
-				/>
-			</FormField>
-		)
-	}
-
-	function renderTextAreaField(key: keyof PickByValue<Character, string>, label = startCase(key)) {
-		return (
-			<FormField label={label} htmlFor={inputId(key)}>
-				<TextArea
-					id={inputId(key)}
-					minRows={3}
-					maxRows={16}
-					value={character[key]}
-					onChange={(event) => updateValues({ [key]: event.target.value })}
-				/>
-			</FormField>
-		)
-	}
-
-	function renderNumberField(
-		key: keyof PickByValue<Character, number>,
-		max?: number,
-		label = [startCase(key), max].filter(Boolean).join(" / "),
-	) {
-		const value = character[key]
-		if (value === undefined) return null
-		return (
-			<FormField label={label} htmlFor={inputId(key)}>
-				<NumberInput value={value} onChangeValue={(value) => updateValues({ [key]: value })} />
-			</FormField>
-		)
-	}
-
-	function renderDiceField(
-		key: keyof PickByValue<Character, number>,
-		stressKey: "damage" | "fatigue",
-	) {
-		const label = startCase(key)
-		const value = character[key]
-		if (value === undefined) return null
-		return (
-			<FormField label={label} htmlFor={inputId(key)}>
-				<div className="flex gap-2">
-					<Select
-						id={inputId(key)}
-						options={statDiceKinds.map((kind) => ({
-							label: kind.name,
-							value: kind.faces.length,
-						}))}
-						value={value}
-						onChange={(value) => updateValues({ [key]: value })}
-						className="flex-1"
-					/>
-					<AttributeDiceRollButton
-						attributeValue={value}
-						buttonLabel={`Roll ${label} for ${character.name}`}
-						messageContent={`${character.name}: ${label}`}
-						stress={character[stressKey] ?? 0}
-					/>
-				</div>
-			</FormField>
-		)
-	}
-
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
-			{isCharacterOwner ?
-				<ImageInput character={character} />
-			:	<UploadedImage id={character.imageId} className="aspect-square w-full" />}
+			<CharacterImageField character={character} />
 
-			<div className="flex gap-2 *:min-w-0 *:flex-1">
-				{isCharacterOwner ?
-					<>
-						{renderInputField("name")}
-						{renderInputField("pronouns")}
-					</>
-				:	<>
-						{character.name && <ReadOnlyField label="Name" value={character.name} />}
-						{character.pronouns && <ReadOnlyField label="Pronouns" value={character.pronouns} />}
-					</>
-				}
-			</div>
+			{character.isOwner ?
+				<div className="flex gap-2 *:min-w-0 *:flex-1">
+					<CharacterInputField character={character} field="name" />
+					<CharacterInputField character={character} field="pronouns" />
+				</div>
+			:	<div className="flex gap-2 *:min-w-0 *:flex-1">
+					<ReadOnlyField label="Name" value={character.displayName} />
+				</div>
+			}
+
 			{room.isOwner && (
+				<CharacterSelectField
+					character={character}
+					field="playerId"
+					label="Player"
+					options={[
+						{ label: "None", value: null },
+						...room.players.map((p) => ({ label: p.name, value: p.clerkId })),
+					]}
+				/>
+			)}
+
+			{room.isOwner && (
+				<div className="flex flex-wrap gap-3">
+					<CharacterCheckboxField character={character} field="visible" />
+					<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
+				</div>
+			)}
+
+			{character.isOwner && (
+				<div className="flex gap-2 *:flex-1">
+					<CharacterNumberField
+						character={character}
+						field="damage"
+						label={`Damage / ${character.damageThreshold}`}
+					/>
+					<CharacterNumberField
+						character={character}
+						field="fatigue"
+						label={`Fatugue / ${character.fatigueThreshold}`}
+					/>
+					<CharacterNumberField character={character} field="currency" />
+				</div>
+			)}
+
+			{character.isOwner && (
 				<>
-					<FormField label="Player" htmlFor={inputId("player")}>
-						<Select
-							id={inputId("player")}
-							options={[
-								{ label: "None", value: null },
-								...(room.players?.map((player) => ({
-									label: player.name,
-									value: player.clerkId,
-								})) ?? []),
-							]}
-							value={character.playerId}
-							onChange={(value) => {
-								updateValues({ playerId: value })
-							}}
-						/>
-					</FormField>
-					<div className="flex flex-wrap gap-3">
-						<CheckboxField
-							label="Public"
-							checked={character.visibleTo === "everyone"}
-							onChange={(event) =>
-								updateValues({ visibleTo: event.currentTarget.checked ? "everyone" : "owner" })
-							}
-						/>
-						<CheckboxField
-							label="Show Token"
-							checked={character.tokenVisibleTo === "everyone"}
-							onChange={(event) =>
-								updateValues({ tokenVisibleTo: event.currentTarget.checked ? "everyone" : "owner" })
-							}
-						/>
-					</div>
+					<CharacterDiceField character={character} field="strength" stress={character.damage} />
+					<CharacterDiceField character={character} field="mobility" stress={character.damage} />
+					<CharacterDiceField character={character} field="sense" stress={character.fatigue} />
+					<CharacterDiceField character={character} field="intellect" stress={character.fatigue} />
+					<CharacterDiceField character={character} field="wit" stress={character.fatigue} />
 				</>
 			)}
 
-			<div className="flex gap-2 *:flex-1">
-				{renderNumberField("damage", character.damageThreshold)}
-				{renderNumberField("fatigue", character.fatigueThreshold)}
-				{renderNumberField("currency")}
-			</div>
-
-			{isCharacterOwner ?
-				<>
-					{renderDiceField("strength", "damage")}
-					{renderDiceField("sense", "fatigue")}
-					{renderDiceField("mobility", "damage")}
-					{renderDiceField("intellect", "fatigue")}
-					{renderDiceField("wit", "fatigue")}
-				</>
-			:	(["strength", "sense", "mobility", "intellect", "wit"] as const).map(
-					(key) =>
-						character[key] && (
-							<ReadOnlyField key={key} label={startCase(key)} value={`d${character[key]}`} />
-						),
-				)
-			}
-
-			{isCharacterOwner ?
-				<FormField label="Race" htmlFor={inputId("race")}>
-					<Select
-						id={inputId("race")}
-						options={[
-							{ label: "None", value: null },
-							...Races.map((race) => ({ value: race.name, label: race.name })),
-						]}
-						value={character.race ?? null}
-						onChange={(value) => {
-							updateValues({ race: value ?? undefined })
-						}}
-					/>
-				</FormField>
-			:	<ReadOnlyField
-					label="Race"
-					value={(character.race && RacesByName.get(character.race)?.name) || "N/A"}
-				/>
-			}
+			<CharacterSelectField
+				character={character}
+				field="race"
+				options={Races.map((race) => ({ label: race.name, value: race.name }))}
+			/>
 
 			{race && (
 				<FormField label="Skills">
@@ -223,48 +107,122 @@ export function CharacterForm(props: { character: Character }) {
 				</FormField>
 			)}
 
-			{renderTextAreaField("playerNotes", room.isOwner ? "Player Notes" : "Notes")}
-			{room.isOwner && renderTextAreaField("ownerNotes", "Owner Notes")}
+			{character.isOwner && (
+				<CharacterTextAreaField
+					character={character}
+					field="playerNotes"
+					label={room.isOwner ? "Player Notes" : "Notes"}
+				/>
+			)}
+			{room.isOwner && (
+				<CharacterTextAreaField character={character} field="ownerNotes" label="Owner Notes" />
+			)}
 		</div>
 	)
 }
 
-function ReadOnlyField({ label, value }: { label: string; value: string }) {
+/**
+ * A field on the character document which also can be updated, so it excludes computed fields, like
+ * damage thresholds
+ */
+type UpdateableCharacterField<ValueType> = Extract<
+	keyof PickByValue<Character, ValueType>,
+	keyof FunctionArgs<typeof api.characters.update>
+>
+
+function CharacterInputField({
+	character,
+	field,
+	label = startCase(field),
+}: {
+	character: Character
+	field: UpdateableCharacterField<string>
+	label?: string
+}) {
+	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const inputId = useId()
+	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
-		<FormField label={label}>
-			<div
-				className={panel(
-					"flex h-10 items-center justify-between gap-1.5 bg-primary-300/30 pl-3 pr-2",
-				)}
-			>
-				<p className="flex-1 truncate">{value}</p>
-				<Tooltip
-					text="Read-only"
-					className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
-				>
-					<Lucide.Ban className="size-4" />
-					<span className="sr-only">Read-only</span>
-				</Tooltip>
-			</div>
-		</FormField>
+		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+			<FormField label={label} htmlFor={inputId}>
+				<Input
+					id={inputId}
+					value={value}
+					onChange={(event) => update({ id: character._id, [field]: event.target.value })}
+				/>
+			</FormField>
+		</CharacterReadOnlyGuard>
 	)
 }
 
-type NumberInputProps = {
-	value: number
-	max?: number
-	onChangeValue: (value: number) => void
+function CharacterTextAreaField({
+	character,
+	field,
+	label = startCase(field),
+}: {
+	character: Character
+	field: UpdateableCharacterField<string>
+	label?: string
+}) {
+	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const inputId = useId()
+	const value = state.args?.[field] ?? character[field] ?? ""
+	return (
+		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+			<FormField label={label} htmlFor={inputId}>
+				<TextArea
+					id={inputId}
+					value={value}
+					onChange={(event) => update({ id: character._id, [field]: event.target.value })}
+				/>
+			</FormField>
+		</CharacterReadOnlyGuard>
+	)
 }
 
-export function NumberInput({ value, max, onChangeValue }: NumberInputProps) {
-	const ref = useRef<HTMLInputElement>(null)
+function CharacterCheckboxField({
+	character,
+	field,
+	label = startCase(field),
+}: {
+	character: Character
+	field: UpdateableCharacterField<boolean>
+	label?: string
+}) {
+	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const value = state.args?.[field] ?? character[field] ?? false
+	return (
+		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+			<CheckboxField
+				label={label}
+				checked={value}
+				onChange={(event) => update({ id: character._id, [field]: event.target.checked })}
+			/>
+		</CharacterReadOnlyGuard>
+	)
+}
+
+function CharacterNumberField({
+	character,
+	field,
+	label = startCase(field),
+}: {
+	character: Character
+	field: UpdateableCharacterField<number>
+	label?: string
+}) {
+	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const value = state.args?.[field] ?? character[field] ?? 0
+	const [inputElement, inputRef] = useState<HTMLInputElement | null>()
+	const inputId = useId()
 
 	function setValue(newValue: number) {
-		const clampedValue = clamp(newValue, 0, max ?? Number.POSITIVE_INFINITY)
-		onChangeValue(clampedValue)
+		update({ id: character._id, [field]: newValue })
 	}
 
 	useEffect(() => {
+		if (!inputElement) return
+
 		const handleWheel = (event: WheelEvent) => {
 			if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
 				event.preventDefault()
@@ -272,26 +230,97 @@ export function NumberInput({ value, max, onChangeValue }: NumberInputProps) {
 				setValue(value - Math.sign(event.deltaY))
 			}
 		}
-		const element = expect(ref.current, "input ref not set")
-		element.addEventListener("wheel", handleWheel, { passive: false })
+		inputElement.addEventListener("wheel", handleWheel, { passive: false })
 		return () => {
-			element.removeEventListener("wheel", handleWheel)
+			inputElement.removeEventListener("wheel", handleWheel)
 		}
 	})
 
 	return (
-		<Input
-			type="number"
-			value={value}
-			min={0}
-			max={max}
-			elementRef={ref}
-			onChange={(event) => setValue(event.target.valueAsNumber)}
-		/>
+		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+			<FormField label={label} htmlFor={inputId}>
+				<Input
+					type="number"
+					id={inputId}
+					elementRef={inputRef}
+					min={0}
+					value={value}
+					onChange={(event) => setValue(event.target.valueAsNumber)}
+				/>
+			</FormField>
+		</CharacterReadOnlyGuard>
 	)
 }
 
-function ImageInput({
+function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue>>({
+	character,
+	field,
+	label = startCase(field),
+	options,
+}: {
+	character: Character
+	field: Field
+	label?: string
+	options: SelectOption<Character[Field]>[]
+}) {
+	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const inputId = useId()
+	const value = state.args?.[field] ?? character[field]
+	return (
+		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+			<FormField label={label} htmlFor={inputId}>
+				<Select
+					value={value}
+					options={options}
+					onChange={(value) => update({ id: character._id, [field]: value })}
+				/>
+			</FormField>
+		</CharacterReadOnlyGuard>
+	)
+}
+
+function CharacterDiceField({
+	character,
+	field,
+	stress,
+	label = startCase(field),
+}: {
+	character: Character
+	field: UpdateableCharacterField<number>
+	stress?: number
+	label?: string
+}) {
+	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const value = state.args?.[field] ?? character[field]
+	const inputId = useId()
+
+	return (
+		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+			<FormField label={label} htmlFor={inputId}>
+				<div className="flex gap-2">
+					<Select
+						id={inputId}
+						options={statDiceKinds.map((kind) => ({
+							label: kind.name,
+							value: kind.faces.length,
+						}))}
+						value={value}
+						onChange={(value) => update({ id: character._id, [field]: value })}
+						className="flex-1"
+					/>
+					<AttributeDiceRollButton
+						attributeValue={value}
+						buttonLabel={`Roll ${label} for ${character.name}`}
+						messageContent={`${character.name}: ${label}`}
+						stress={stress ?? 0}
+					/>
+				</div>
+			</FormField>
+		</CharacterReadOnlyGuard>
+	)
+}
+
+function CharacterImageField({
 	character,
 }: {
 	character: { _id: Id<"characters">; imageId?: Id<"_storage"> | null }
@@ -351,6 +380,41 @@ function ImageInput({
 						className="absolute right-0 top-0 m-2"
 					/>
 				)}
+			</div>
+		</FormField>
+	)
+}
+
+function CharacterReadOnlyGuard({
+	character,
+	label,
+	value,
+	children,
+}: {
+	character: Character
+	label: string
+	value: ReactNode
+	children: React.ReactNode
+}) {
+	return character.isOwner ? children : <ReadOnlyField label={label} value={value} />
+}
+
+function ReadOnlyField({ label, value }: { label: string; value: ReactNode }) {
+	return (
+		<FormField label={label}>
+			<div
+				className={panel(
+					"flex h-10 items-center justify-between gap-1.5 bg-primary-300/30 pl-3 pr-2",
+				)}
+			>
+				<p className="flex-1 truncate">{value}</p>
+				<Tooltip
+					text="Read-only"
+					className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
+				>
+					<Lucide.Ban className="size-4" />
+					<span className="sr-only">Read-only</span>
+				</Tooltip>
 			</div>
 		</FormField>
 	)

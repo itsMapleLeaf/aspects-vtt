@@ -30,21 +30,27 @@ import type { Id } from "#convex/_generated/dataModel.js"
 
 export default function RoomIndexRoute() {
 	const room = useRoom()
+	const user = useQuery(api.auth.user)
+	const player = room.players.find((p) => p.clerkId === user?.data?.clerkId)
+	const hasJoined = !!player
 
 	const join = useMutation(api.rooms.join)
 	useEffect(() => {
-		join({ id: room._id })
-	}, [room._id, join])
+		if (!hasJoined) join({ id: room._id })
+	}, [room._id, join, hasJoined])
 
 	const characters = useQuery(api.characters.list, { roomId: room._id })
-	const playerCharacter = characters?.find((character) => character.isPlayer)
+	const playerCharacter = characters?.find((character) => character.isOwner)
 
 	const defaultCharacterId = room.isOwner ? characters?.[0]?._id : playerCharacter?._id
-	const [currentCharacterId = defaultCharacterId, setCurrentCharacterId] =
-		useState<Id<"characters">>()
+
+	let [selectedCharacterId, setSelectedCharacterId] = useState<Id<"characters">>()
+	if (characters?.every((c) => c._id !== selectedCharacterId)) {
+		selectedCharacterId = defaultCharacterId
+	}
 
 	const character =
-		characters?.find((character) => character._id === currentCharacterId) ?? characters?.[0]
+		characters?.find((character) => character._id === selectedCharacterId) ?? characters?.[0]
 
 	const viewportRef = useRef<ViewportController>(null)
 
@@ -53,19 +59,15 @@ export default function RoomIndexRoute() {
 			<div className="fixed inset-0 -z-10">
 				<TokenMapViewport controllerRef={viewportRef}>
 					{characters?.map((character) => (
-						<Fragment key={character._id}>
-							{character.tokenPosition ?
-								<Token
-									key={character._id}
-									character={character}
-									tokenPosition={Vector.from(character.tokenPosition)}
-									selected={currentCharacterId === character._id}
-									onSelect={() => {
-										setCurrentCharacterId(character._id)
-									}}
-								/>
-							:	null}
-						</Fragment>
+						<Token
+							key={character._id}
+							character={character}
+							tokenPosition={Vector.from(character.tokenPosition)}
+							selected={selectedCharacterId === character._id}
+							onSelect={() => {
+								setSelectedCharacterId(character._id)
+							}}
+						/>
 					))}
 				</TokenMapViewport>
 			</div>
@@ -110,21 +112,26 @@ export default function RoomIndexRoute() {
 					>
 						<div className="flex gap-2">
 							<div className="flex-1">
-								<CharacterSelect
-									characters={characters}
-									selected={currentCharacterId}
-									onChange={setCurrentCharacterId}
-								/>
+								{selectedCharacterId ?
+									<CharacterSelect
+										characters={characters}
+										selected={selectedCharacterId}
+										onChange={setSelectedCharacterId}
+									/>
+								:	<p className="flex h-10 flex-row items-center px-2 opacity-60">
+										No characters found.
+									</p>
+								}
 							</div>
 							<RoomOwnerOnly>
 								{character && (
 									<DuplicateCharacterButton
 										character={character}
-										onDuplicate={setCurrentCharacterId}
+										onDuplicate={setSelectedCharacterId}
 									/>
 								)}
 								{character && <DeleteCharacterButton character={character} />}
-								<CreateCharacterButton onCreate={setCurrentCharacterId} />
+								<CreateCharacterButton onCreate={setSelectedCharacterId} />
 							</RoomOwnerOnly>
 						</div>
 						<div className="min-h-0 flex-1">
