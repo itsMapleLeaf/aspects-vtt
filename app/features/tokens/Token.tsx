@@ -103,11 +103,11 @@ export function Token({
 			</button>
 
 			{selected && (
-				<div className="pointer-events-none relative z-10">
+				<div className="pointer-events-none relative z-10 scale-[--scale]">
 					<div ref={floatingName.refs.setFloating} style={floatingName.floatingStyles}>
 						<p
 							data-selected={selected}
-							className="max-w-48 origin-top scale-[--scale] text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
+							className="max-w-48 origin-top text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
 						>
 							{character.displayName}{" "}
 							{character.displayPronouns && `(${character.displayPronouns})`}
