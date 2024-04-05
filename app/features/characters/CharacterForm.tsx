@@ -31,7 +31,9 @@ export function CharacterForm({ character }: { character: Character }) {
 	const race = (character.race && RacesByName.get(character.race)) || undefined
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
-			<CharacterImageField character={character} />
+			{character.isOwner ?
+				<CharacterImageField character={character} />
+			:	<UploadedImage id={character.imageId} />}
 
 			{character.isOwner ?
 				<div className="flex gap-2 *:min-w-0 *:flex-1">
