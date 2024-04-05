@@ -20,7 +20,7 @@ export default defineSchema({
 		players: v.array(
 			v.object({
 				userId: brandedString("clerkId"),
-				characterId: nullable(v.id("characters")),
+				characterId: v.optional(nullable(v.id("characters"))),
 			}),
 		),
 	})
@@ -52,7 +52,11 @@ export default defineSchema({
 	}).index("by_room", ["roomId"]),
 
 	characters: defineTable({
-		roomId: v.id("rooms"),
 		...characterProperties,
+		roomId: v.id("rooms"),
+
+		// deprecated
+		tokenVisibleTo: v.optional(v.string()),
+		visibleTo: v.optional(v.string()),
 	}).index("by_room", ["roomId"]),
 })

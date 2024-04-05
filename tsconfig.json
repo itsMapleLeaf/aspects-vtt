@@ -1,38 +1,32 @@
 {
 	"compilerOptions": {
-		"allowJs": true,
 		"allowImportingTsExtensions": true,
+		"allowJs": true,
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
 		"lib": ["DOM", "DOM.Iterable", "ES2022"],
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
+		"module": "Preserve",
+		"moduleDetection": "force",
 		"noEmit": true,
 		"noUncheckedIndexedAccess": true,
+		// convex doesn't support package.json `imports` yet
+		"paths": {
+			"#app/*": ["./app/*"]
+		},
+		"preserveWatchOutput": true,
 		"skipLibCheck": true,
 		"strict": true,
 		"target": "ESNext",
 		"types": [
+			"node",
 			"@remix-run/node",
 			"vite/client",
 			"react/canary",
 			"react-dom/canary",
 			"@total-typescript/ts-reset"
 		],
-
-		// convex doesn't support package.json `imports` yet
-		"paths": {
-			"#app/*": ["./app/*"]
-		}
+		"verbatimModuleSyntax": true
 	},
-	"include": [
-		"**/*.ts",
-		"**/*.tsx",
-		"**/.server/**/*.ts",
-		"**/.server/**/*.tsx",
-		"**/.client/**/*.ts",
-		"**/.client/**/*.tsx"
-	],
-	"exclude": ["node_modules", "dist", "convex/_generated"]
+	"exclude": ["node_modules", "build", "convex/_generated"]
 }

@@ -4,6 +4,7 @@ import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type CSSProperties, use, useRef } from "react"
 import { twMerge } from "tailwind-merge"
+import { clamp } from "#app/common/math.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { useDrag } from "#app/common/useDrag.js"
 import { Vector } from "#app/common/vector.ts"
@@ -96,64 +97,67 @@ export function Token({
 					emptyIcon={<Lucide.Ghost />}
 					draggable={false}
 					className="peer size-full transition-opacity data-[faded=true]:opacity-50"
-					data-faded={room.isOwner && character.tokenVisibleTo !== "everyone"}
+					data-faded={!character.visible}
 				/>
 				<Lucide.EyeOff className="absolute size-8 opacity-0 transition-opacity peer-data-[faded=true]:opacity-100" />
 			</button>
 
 			{selected && (
-				<div className="pointer-events-none relative z-10">
+				<div className="pointer-events-none relative z-10 scale-[--scale]">
 					<div ref={floatingName.refs.setFloating} style={floatingName.floatingStyles}>
 						<p
 							data-selected={selected}
-							className="max-w-48 origin-top scale-[--scale] text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
+							className="max-w-48 origin-top text-balance rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
 						>
-							{character.name} {character.pronouns && `(${character.pronouns})`}
+							{character.displayName}{" "}
+							{character.displayPronouns && `(${character.displayPronouns})`}
 						</p>
 					</div>
 				</div>
 			)}
 
 			<div className="pointer-events-none relative z-10 scale-[--scale]">
-				<div
-					ref={floatingMeters.refs.setFloating}
-					style={floatingMeters.floatingStyles}
-					className="flex w-24  flex-col gap-1.5"
-				>
-					{[
-						{
-							ratio: character.damageRatio,
-							className: twMerge(
-								"[--end-color:theme(colors.red.500)] [--start-color:theme(colors.yellow.500)]",
-							),
-						},
-						{
-							ratio: character.fatigueRatio,
-							className: twMerge(
-								"[--end-color:theme(colors.purple.500)] [--start-color:theme(colors.green.400)]",
-							),
-						},
-					]
-						.map((item) => ({ ...item, ratio: item.ratio ?? 0 }))
-						.filter((item) => item.ratio > 0)
-						.map((item, i) => (
-							<div
-								key={i}
-								className={twMerge(
-									"h-2 w-full rounded-sm border border-current text-[color-mix(in_oklch,var(--start-color),var(--end-color)_var(--ratio))] transition-colors",
-									item.className,
-								)}
-								style={{ "--ratio": `${item.ratio * 100}%` } as CSSProperties}
-							>
+				{character.isOwner && (
+					<div
+						ref={floatingMeters.refs.setFloating}
+						style={floatingMeters.floatingStyles}
+						className="flex w-24  flex-col gap-1.5"
+					>
+						{[
+							{
+								ratio: clamp(character.damage / character.damageThreshold, 0, 1),
+								className: twMerge(
+									"[--end-color:theme(colors.red.500)] [--start-color:theme(colors.yellow.500)]",
+								),
+							},
+							{
+								ratio: clamp(character.fatigue / character.fatigueThreshold, 0, 1),
+								className: twMerge(
+									"[--end-color:theme(colors.purple.500)] [--start-color:theme(colors.green.400)]",
+								),
+							},
+						]
+							.map((item) => ({ ...item, ratio: item.ratio ?? 0 }))
+							.filter((item) => item.ratio > 0)
+							.map((item, i) => (
 								<div
-									className="h-full origin-left bg-current transition-[background-color,scale]"
-									style={{
-										scale: `var(--ratio) 1`,
-									}}
-								/>
-							</div>
-						))}
-				</div>
+									key={i}
+									className={twMerge(
+										"h-2 w-full rounded-sm border border-current text-[color-mix(in_oklch,var(--start-color),var(--end-color)_var(--ratio))] transition-colors",
+										item.className,
+									)}
+									style={{ "--ratio": `${item.ratio * 100}%` } as CSSProperties}
+								>
+									<div
+										className="h-full origin-left bg-current transition-[background-color,scale]"
+										style={{
+											scale: `var(--ratio) 1`,
+										}}
+									/>
+								</div>
+							))}
+					</div>
+				)}
 			</div>
 		</div>
 	)
