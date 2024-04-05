@@ -42,6 +42,7 @@ export function CharacterForm({ character }: { character: Character }) {
 				</div>
 			:	<div className="flex gap-2 *:min-w-0 *:flex-1">
 					<ReadOnlyField label="Name" value={character.displayName} />
+					<ReadOnlyField label="Pronouns" value={character.displayPronouns} />
 				</div>
 			}
 
