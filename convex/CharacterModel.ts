@@ -76,6 +76,16 @@ export class CharacterModel {
 		if (!isMember) {
 			throw new ConvexError("You don't have permission to update this character.")
 		}
+
+		if (updates.playerId) {
+			// unset other characters' playerId if they're set to this one
+			for await (const otherOwnedCharacter of ctx.db
+				.query("characters")
+				.filter((q) => q.eq(q.field("playerId"), updates.playerId))) {
+				await ctx.db.patch(otherOwnedCharacter._id, { playerId: null })
+			}
+		}
+
 		await ctx.db.patch(this.data._id, updates)
 	}
 
