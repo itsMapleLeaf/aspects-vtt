@@ -2,6 +2,7 @@ import { useConvex, useMutation } from "convex/react"
 import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useEffect, useId, useState } from "react"
+import { toNearestPositiveInt } from "#app/common/numbers.js"
 import { startCase } from "#app/common/string.js"
 import type { PickByValue } from "#app/common/types.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
@@ -220,7 +221,7 @@ function CharacterNumberField({
 	const inputId = useId()
 
 	function setValue(newValue: number) {
-		update({ id: character._id, [field]: toPositiveFiniteInt(newValue) })
+		update({ id: character._id, [field]: toNearestPositiveInt(newValue) })
 	}
 
 	useEffect(() => {
@@ -253,14 +254,6 @@ function CharacterNumberField({
 			</FormField>
 		</CharacterReadOnlyGuard>
 	)
-}
-
-function toPositiveFiniteInt(input: unknown) {
-	let result = Number(input)
-	if (!Number.isFinite(input)) {
-		result = 0
-	}
-	return Math.max(0, Math.round(result))
 }
 
 function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue>>({
