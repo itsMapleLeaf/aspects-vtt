@@ -220,10 +220,7 @@ function CharacterNumberField({
 	const inputId = useId()
 
 	function setValue(newValue: number) {
-		if (!Number.isFinite(newValue)) {
-			newValue = 0
-		}
-		update({ id: character._id, [field]: Math.max(0, Math.round(newValue)) })
+		update({ id: character._id, [field]: toPositiveFiniteInt(newValue) })
 	}
 
 	useEffect(() => {
@@ -256,6 +253,14 @@ function CharacterNumberField({
 			</FormField>
 		</CharacterReadOnlyGuard>
 	)
+}
+
+function toPositiveFiniteInt(input: unknown) {
+	let result = Number(input)
+	if (!Number.isFinite(input)) {
+		result = 0
+	}
+	return Math.max(0, Math.round(result))
 }
 
 function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue>>({
