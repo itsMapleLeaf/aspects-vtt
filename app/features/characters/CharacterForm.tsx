@@ -220,7 +220,10 @@ function CharacterNumberField({
 	const inputId = useId()
 
 	function setValue(newValue: number) {
-		update({ id: character._id, [field]: newValue })
+		if (!Number.isFinite(newValue)) {
+			newValue = 0
+		}
+		update({ id: character._id, [field]: Math.max(0, Math.round(newValue)) })
 	}
 
 	useEffect(() => {
