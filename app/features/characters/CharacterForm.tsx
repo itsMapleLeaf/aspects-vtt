@@ -107,25 +107,29 @@ export function CharacterForm({ character }: { character: Character }) {
 				options={notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []}
 			/>
 
-			<CharacterSelectField
-				character={character}
-				field="coreAspect"
-				label="Core Aspect"
-				options={notionData?.aspects.map((r) => ({ label: r.name, value: r.name })) ?? []}
-			/>
+			{character.isOwner && (
+				<CharacterSelectField
+					character={character}
+					field="coreAspect"
+					label="Core Aspect"
+					options={notionData?.aspects.map((r) => ({ label: r.name, value: r.name })) ?? []}
+				/>
+			)}
 
-			<FormField label="Skills">
-				<div className="grid gap-2">
-					<AspectSkillsSelectorButton
-						character={character}
-						text="Manage Aspect Skills"
-						icon={<Lucide.Zap />}
-					/>
-					<div className={panel("p-3")}>
-						<DefinitionList items={[coreAspect?.ability].concat(race?.abilities, aspectSkills)} />
+			{character.isOwner && (
+				<FormField label="Skills">
+					<div className="grid gap-2">
+						<AspectSkillsSelectorButton
+							character={character}
+							text="Manage Aspect Skills"
+							icon={<Lucide.Zap />}
+						/>
+						<div className={panel("p-3")}>
+							<DefinitionList items={[coreAspect?.ability].concat(race?.abilities, aspectSkills)} />
+						</div>
 					</div>
-				</div>
-			</FormField>
+				</FormField>
+			)}
 
 			{character.isOwner && (
 				<CharacterTextAreaField
