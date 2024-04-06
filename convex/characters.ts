@@ -16,6 +16,7 @@ export const characterProperties = {
 	imageId: v.optional(v.union(v.id("_storage"), v.null())),
 	race: v.optional(v.string()),
 	coreAspect: v.optional(nullable(brandedString("aspectName"))),
+	aspectSkills: v.optional(v.array(brandedString("aspectSkillName"))),
 
 	// stats
 	damage: v.optional(v.number()),
@@ -116,10 +117,30 @@ export const update = mutation({
 	args: {
 		...characterProperties,
 		id: v.id("characters"),
+		aspectSkills: v.optional(
+			v.union(
+				v.object({ add: brandedString("aspectSkillName") }),
+				v.object({ remove: brandedString("aspectSkillName") }),
+			),
+		),
 	},
-	handler: async (ctx, { id, ...args }) => {
+	handler: async (ctx, { id, aspectSkills, ...args }) => {
 		const character = await CharacterModel.get(ctx, id).unwrap()
-		await character.update(ctx, args)
+
+		let newAspectSkills
+		if (aspectSkills) {
+			if ("add" in aspectSkills) {
+				newAspectSkills = [...character.data.aspectSkills, aspectSkills.add]
+			}
+			if ("remove" in aspectSkills) {
+				newAspectSkills = character.data.aspectSkills.filter((name) => name !== aspectSkills.remove)
+			}
+		}
+
+		await character.update(ctx, {
+			...args,
+			...(newAspectSkills && { aspectSkills: newAspectSkills }),
+		})
 	},
 })
 

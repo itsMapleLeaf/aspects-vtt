@@ -11,11 +11,11 @@ interface ButtonPropsBase extends ButtonStyleProps {
 	text?: string
 }
 
-interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
+export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
 }
 
-interface ButtonPropsAsElement
+export interface ButtonPropsAsElement
 	extends Disallowed<StrictOmit<ComponentPropsWithoutRef<"button">, "className">>,
 		ButtonPropsBase {
 	element: ReactElement

@@ -23,6 +23,7 @@ import { Tooltip } from "../../ui/Tooltip.tsx"
 import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { AspectSkillsSelectorButton } from "./AspectSkillsSelectorButton.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 
 export type Character = ResultQueryData<typeof api.characters.list>[number]
@@ -32,6 +33,11 @@ export function CharacterForm({ character }: { character: Character }) {
 	const notionData = useQuery(api.notionImports.get)
 	const race = notionData?.races.find((r) => r.name === character.race)
 	const coreAspect = notionData?.aspects.find((it) => it.name === character.coreAspect)
+
+	const aspectSkillsByName = new Map(notionData?.aspectSkills.map((skill) => [skill.name, skill]))
+	const aspectSkills = character.aspectSkills
+		.map((name) => aspectSkillsByName.get(name))
+		.filter(Boolean)
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
@@ -109,8 +115,15 @@ export function CharacterForm({ character }: { character: Character }) {
 			/>
 
 			<FormField label="Skills">
-				<div className={panel("p-3")}>
-					<DefinitionList items={[coreAspect?.ability].concat(race?.abilities)} />
+				<div className="grid gap-2">
+					<AspectSkillsSelectorButton
+						character={character}
+						text="Manage Aspect Skills"
+						icon={<Lucide.Zap />}
+					/>
+					<div className={panel("p-3")}>
+						<DefinitionList items={[coreAspect?.ability].concat(race?.abilities, aspectSkills)} />
+					</div>
 				</div>
 			</FormField>
 

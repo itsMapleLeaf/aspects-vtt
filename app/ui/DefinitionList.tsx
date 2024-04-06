@@ -10,7 +10,9 @@ export function DefinitionList({ items }: DefinitionListProps) {
 			{items?.filter(Boolean)?.map((item, index) => (
 				<div key={index}>
 					<dt className="text-lg/tight font-light">{item.name}</dt>
-					<dd className="text-sm font-medium text-primary-800">{item.description}</dd>
+					<dd className="whitespace-pre-line text-pretty font-medium text-primary-800">
+						{item.description}
+					</dd>
 				</div>
 			))}
 		</dl>

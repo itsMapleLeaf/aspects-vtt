@@ -20,6 +20,7 @@ const characterDefaults: Required<{
 	imageId: null,
 	race: "",
 	coreAspect: null,
+	aspectSkills: [],
 
 	// stats
 	damage: 0,

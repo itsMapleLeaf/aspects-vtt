@@ -56,7 +56,7 @@ export function ModalPanel({ title, description, children, ...props }: ModalPane
 				if (event.target === event.currentTarget) store.hide()
 			}}
 		>
-			<div className={panel("m-auto divide-y divide-primary-300 shadow-lg")}>
+			<div className={panel("m-auto divide-y divide-primary-300 shadow-lg shadow-black/50")}>
 				<header className="flex items-center gap-3 bg-black/25 p-3">
 					<div className="flex-1">
 						<DialogHeading className="text-2xl/tight font-light">{title}</DialogHeading>
