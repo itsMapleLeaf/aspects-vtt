@@ -102,7 +102,13 @@ export default function RoomIndexRoute() {
 						onClick={() => viewportRef.current?.resetView()}
 					/>
 
-					<PopoverButton icon={<Lucide.Info />} text="Combat">
+					<PopoverButton icon={<Lucide.Hammer />} text="General Skills">
+						<DefinitionList
+							items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name))}
+						/>
+					</PopoverButton>
+
+					<PopoverButton icon={<Lucide.Swords />} text="Combat">
 						<ul className="flex list-inside list-disc flex-col gap-1.5">
 							<li>Make one action (requires a dice roll)</li>
 							<li>Take 1 fatigue → one extra action</li>
@@ -112,10 +118,78 @@ export default function RoomIndexRoute() {
 						</ul>
 					</PopoverButton>
 
-					<PopoverButton icon={<Lucide.Info />} text="General Skills">
-						<DefinitionList
-							items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name))}
-						/>
+					<PopoverButton icon={<Lucide.HeartCrack />} text="Critical Injuries">
+						<div className="-my-3 *:mb-3">
+							<section>
+								<h3 className="-mx-3 mb-3 border-b border-primary-300 bg-primary-100 p-4 text-lg font-bold">
+									Damage
+								</h3>
+								<DefinitionList
+									items={[
+										{
+											name: "Internal Bleeding",
+											description: "Any time you take damage, double it.",
+										},
+										{
+											name: "Broken Bone",
+											description: "Subtract 1d12 movement each turn to a minimum of 1.",
+										},
+										{
+											name: "Concussion",
+											description:
+												"Double the modifier value of snag dice for Sense, Intellect, and Wit rolls.",
+										},
+										{
+											name: "Dislocation",
+											description:
+												"Subtract 1d12 from the effect of your strength and mobility rolls.",
+										},
+										{
+											name: "Pulled Muscle",
+											description: "Immediately take 1d6 additional damage.",
+										},
+										{
+											name: "Overexerted",
+											description: "All of your action rolls use a 1d4.",
+										},
+									]}
+								/>
+							</section>
+
+							<section>
+								<h3 className=" -mx-3 mb-3 border-y border-primary-300 bg-primary-100 p-4 text-lg font-bold">
+									Fatigue
+								</h3>
+								<DefinitionList
+									items={[
+										{
+											name: "Crippling Migraine",
+											description: "You must take one fatigue before making any action.",
+										},
+										{
+											name: "Panic Attack",
+											description: "Immediately take 1d6 hits of fatigue.",
+										},
+										{
+											name: "Neural Stunlock",
+											description: "Double the modifier value of snag dice for intellect rolls.",
+										},
+										{
+											name: "Exhaustion",
+											description: "The effect of your wit and intellect rolls is 1.",
+										},
+										{
+											name: "Confusion",
+											description: "Your sense, intellect, and wit rolls use a 1d4.",
+										},
+										{
+											name: "Sensory Overload",
+											description: "The effect of your sense rolls is 1.",
+										},
+									]}
+								/>
+							</section>
+						</div>
 					</PopoverButton>
 				</div>
 
