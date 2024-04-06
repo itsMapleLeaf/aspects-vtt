@@ -15,6 +15,7 @@ export const characterProperties = {
 	pronouns: v.optional(v.string()),
 	imageId: v.optional(v.union(v.id("_storage"), v.null())),
 	race: v.optional(v.string()),
+	coreAspect: v.optional(nullable(brandedString("aspectName"))),
 
 	// stats
 	damage: v.optional(v.number()),

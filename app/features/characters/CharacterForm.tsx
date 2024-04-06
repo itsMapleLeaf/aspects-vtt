@@ -1,4 +1,4 @@
-import { useConvex, useMutation } from "convex/react"
+import { useConvex, useMutation, useQuery } from "convex/react"
 import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useEffect, useId, useState } from "react"
@@ -9,6 +9,7 @@ import { useAsyncState } from "#app/common/useAsyncState.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
 import { CheckboxField } from "#app/ui/CheckboxField.js"
+import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
@@ -23,13 +24,15 @@ import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
-import { Races, RacesByName } from "./races.ts"
 
 export type Character = ResultQueryData<typeof api.characters.list>[number]
 
 export function CharacterForm({ character }: { character: Character }) {
 	const room = useRoom()
-	const race = (character.race && RacesByName.get(character.race)) || undefined
+	const notionData = useQuery(api.notionImports.get)
+	const race = notionData?.races.find((r) => r.name === character.race)
+	const coreAspect = notionData?.aspects.find((it) => it.name === character.coreAspect)
+
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
 			{character.isOwner ?
@@ -95,21 +98,21 @@ export function CharacterForm({ character }: { character: Character }) {
 			<CharacterSelectField
 				character={character}
 				field="race"
-				options={Races.map((race) => ({ label: race.name, value: race.name }))}
+				options={notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []}
 			/>
 
-			{race && (
-				<FormField label="Skills">
-					<ul className={panel("grid gap-3 text-wrap p-3")}>
-						{race.abilities.map((ability) => (
-							<li key={ability.name}>
-								<h3 className="text-lg/tight font-light">{ability.name}</h3>
-								<p className="text-sm font-medium text-primary-800">{ability.description}</p>
-							</li>
-						))}
-					</ul>
-				</FormField>
-			)}
+			<CharacterSelectField
+				character={character}
+				field="coreAspect"
+				label="Core Aspect"
+				options={notionData?.aspects.map((r) => ({ label: r.name, value: r.name })) ?? []}
+			/>
+
+			<FormField label="Skills">
+				<div className={panel("p-3")}>
+					<DefinitionList items={[coreAspect?.ability].concat(race?.abilities)} />
+				</div>
+			</FormField>
 
 			{character.isOwner && (
 				<CharacterTextAreaField

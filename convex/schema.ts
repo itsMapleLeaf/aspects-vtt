@@ -2,6 +2,7 @@ import { brandedString, nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
+import { notionImportProperties } from "./notionImports.ts"
 
 export default defineSchema({
 	users: defineTable({
@@ -59,4 +60,6 @@ export default defineSchema({
 		tokenVisibleTo: v.optional(v.string()),
 		visibleTo: v.optional(v.string()),
 	}).index("by_room", ["roomId"]),
+
+	notionImports: defineTable(notionImportProperties),
 })

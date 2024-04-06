@@ -17,9 +17,12 @@ import type {
 import type * as auth from "../auth.js";
 import type * as CharacterModel from "../CharacterModel.js";
 import type * as characters from "../characters.js";
+import type * as crons from "../crons.js";
+import type * as env from "../env.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
+import type * as notionImports from "../notionImports.js";
 import type * as resultResponse from "../resultResponse.js";
 import type * as RoomModel from "../RoomModel.js";
 import type * as rooms from "../rooms.js";
@@ -39,9 +42,12 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   CharacterModel: typeof CharacterModel;
   characters: typeof characters;
+  crons: typeof crons;
+  env: typeof env;
   helpers: typeof helpers;
   http: typeof http;
   messages: typeof messages;
+  notionImports: typeof notionImports;
   resultResponse: typeof resultResponse;
   RoomModel: typeof RoomModel;
   rooms: typeof rooms;

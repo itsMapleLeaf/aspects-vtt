@@ -1,14 +1,14 @@
+import type { PopoverDisclosureProps } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { Fragment, useEffect, useRef, useState } from "react"
+import { type ReactElement, useEffect, useRef, useState } from "react"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { Vector } from "#app/common/vector.js"
 import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
 import { CreateCharacterButton } from "#app/features/characters/CreateCharacterButton.tsx"
 import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterButton.tsx"
-import { GeneralSkills } from "#app/features/characters/generalSkills.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
@@ -20,6 +20,7 @@ import {
 } from "#app/features/tokens/TokenMapViewport.tsx"
 import { AppHeader } from "#app/ui/AppHeader.js"
 import { Button } from "#app/ui/Button.js"
+import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
@@ -53,6 +54,8 @@ export default function RoomIndexRoute() {
 		characters?.find((character) => character._id === selectedCharacterId) ?? characters?.[0]
 
 	const viewportRef = useRef<ViewportController>(null)
+
+	const notionData = useQuery(api.notionImports.get)
 
 	return (
 		<div className="isolate flex h-dvh flex-col gap-4 p-4">
@@ -98,7 +101,22 @@ export default function RoomIndexRoute() {
 						icon={<Lucide.Compass />}
 						onClick={() => viewportRef.current?.resetView()}
 					/>
-					<QuickReferenceButton />
+
+					<PopoverButton icon={<Lucide.Info />} text="Combat">
+						<ul className="flex list-inside list-disc flex-col gap-1.5">
+							<li>Make one action (requires a dice roll)</li>
+							<li>Take 1 fatigue → one extra action</li>
+							<li>
+								Move meters <abbr title="less than or equal to">≤</abbr> mobility
+							</li>
+						</ul>
+					</PopoverButton>
+
+					<PopoverButton icon={<Lucide.Info />} text="General Skills">
+						<DefinitionList
+							items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name))}
+						/>
+					</PopoverButton>
 				</div>
 
 				{characters === undefined ?
@@ -185,42 +203,17 @@ function CellSizeField() {
 	)
 }
 
-function QuickReferenceButton() {
+function PopoverButton({
+	children,
+	text,
+	icon,
+	...props
+}: PopoverDisclosureProps & { text: string; icon: ReactElement }) {
 	return (
 		<Popover>
-			<Button text="Quick Reference" icon={<Lucide.Info />} element={<PopoverTrigger />} />
-			<PopoverPanel className="w-screen max-w-[360px]">
-				<div className="flex max-h-[480px]  flex-col gap-4 overflow-y-auto p-3">
-					<details open className="group">
-						<summary className="mb-1.5 flex select-none list-none items-center gap-2 text-2xl font-semibold transition hover:text-primary-700">
-							<Lucide.ChevronRight className="group-open:rotate-90" />
-							<span>Combat</span>
-						</summary>
-						<ul className="list-inside list-disc">
-							<li>Make one action (requires a dice roll)</li>
-							<li>Make one minor action (doesn't require a roll)</li>
-							<li>
-								Move meters <abbr title="less than or equal to">≤</abbr> mobility
-							</li>
-							<li>Trade action for minor action</li>
-							<li>Take 1 fatigue → one extra action</li>
-						</ul>
-					</details>
-					<details open className="group">
-						<summary className="mb-1.5 flex select-none list-none items-center gap-2 text-2xl font-semibold transition hover:text-primary-700">
-							<Lucide.ChevronRight className="group-open:rotate-90" />
-							<span>General Skills</span>
-						</summary>
-						<dl>
-							{GeneralSkills.map((skill) => (
-								<Fragment key={skill.name}>
-									<dt className="text-lg font-semibold">{skill.name}</dt>
-									<dd className="mb-2">{skill.description}</dd>
-								</Fragment>
-							))}
-						</dl>
-					</details>
-				</div>
+			<Button icon={icon} text={text} element={<PopoverTrigger {...props} />} />
+			<PopoverPanel className="max-h-[480px] w-screen max-w-[360px] overflow-y-auto p-3">
+				{children}
 			</PopoverPanel>
 		</Popover>
 	)

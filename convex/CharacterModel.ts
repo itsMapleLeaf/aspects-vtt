@@ -19,6 +19,7 @@ const characterDefaults: Required<{
 	pronouns: "",
 	imageId: null,
 	race: "",
+	coreAspect: null,
 
 	// stats
 	damage: 0,
