@@ -107,7 +107,7 @@ export function Token({
 					<div ref={floatingName.refs.setFloating} style={floatingName.floatingStyles}>
 						<div
 							data-selected={selected}
-							className="origin-top rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
+							className="origin-top whitespace-nowrap rounded bg-primary-100/75 px-2 py-1.5 text-center leading-6 opacity-0 transition-transform ease-out empty:hidden data-[selected=true]:opacity-100"
 						>
 							<p>{character.displayName}</p>
 							<p>{character.displayPronouns && `(${character.displayPronouns})`}</p>
