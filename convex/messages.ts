@@ -3,6 +3,7 @@ import { ConvexError, v } from "convex/values"
 import { expect } from "#app/common/expect.js"
 import { pick } from "#app/common/object.js"
 import { range } from "#app/common/range.js"
+import { CharacterModel } from "./CharacterModel.js"
 import { UserModel } from "./UserModel.js"
 import { internalMutation, mutation, query } from "./_generated/server.js"
 
@@ -27,8 +28,6 @@ export const list = query({
 		paginationOpts: paginationOptsValidator,
 	},
 	async handler(ctx, args) {
-		const room = await ctx.db.get(args.roomId)
-
 		const result = await ctx.db
 			.query("messages")
 			.withIndex("by_room", (q) => q.eq("roomId", args.roomId))
@@ -40,13 +39,13 @@ export const list = query({
 			page: await Promise.all(
 				result.page.map(async ({ userId, ...message }) => {
 					const user = await UserModel.fromClerkId(ctx, userId)
-					const player = room?.players.find((player) => player.userId === userId)
-					const character = player?.characterId && (await ctx.db.get(player.characterId))
+					const { value: character } = await CharacterModel.fromPlayerId(ctx, userId)
+					const data = await character?.getComputedData()
 					return {
 						...message,
 						user: user && {
 							...pick(user.data, ["name", "avatarUrl"]),
-							character: character && pick(character, ["name"]),
+							character: data && pick(data, ["displayName", "displayPronouns"]),
 						},
 					}
 				}),

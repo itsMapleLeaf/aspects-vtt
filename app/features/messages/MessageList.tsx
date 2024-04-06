@@ -33,16 +33,18 @@ export function MessageList() {
 								<DiceRollSummary roll={message.diceRoll} />
 							</div>
 						)}
-						<aside className="flex gap-1 text-sm font-medium leading-tight tracking-wide text-primary-600">
-							{message.user?.character?.name ?
-								<>
-									<span className="text-primary-900">{message.user.character.name}</span> (
-									{message.user.name})
-								</>
-							:	<span>{message.user?.name}</span>}
-							<span className="first:hidden">•</span>
-							{formatDistanceToNow(new Date(message._creationTime), { addSuffix: true })}
-						</aside>
+						<div className="text-sm font-medium leading-tight tracking-wide">
+							{message.user?.character && (
+								<p className="text-primary-900">
+									{message.user.character.displayName} ({message.user.character.displayPronouns})
+								</p>
+							)}
+							<p className="flex gap-1 text-primary-600">
+								<span>{message.user?.name}</span>
+								<span className="first:hidden">•</span>
+								{formatDistanceToNow(new Date(message._creationTime), { addSuffix: true })}
+							</p>
+						</div>
 					</div>
 				</div>
 			)}

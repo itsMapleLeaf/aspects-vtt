@@ -1,5 +1,5 @@
 import { brandedString, nullable } from "convex-helpers/validators"
-import { type Infer, v } from "convex/values"
+import { v } from "convex/values"
 import { omit } from "#app/common/object.js"
 import { randomItem } from "#app/common/random.js"
 import { Vector } from "#app/common/vector.js"
@@ -41,43 +41,6 @@ export const characterProperties = {
 	playerId: v.optional(nullable(brandedString("clerkId"))),
 }
 
-const characterDefaults: Required<{
-	[K in keyof typeof characterProperties]: Exclude<
-		Infer<(typeof characterProperties)[K]>,
-		undefined
-	>
-}> = {
-	// profile
-	name: "",
-	pronouns: "",
-	imageId: null,
-	race: "",
-
-	// stats
-	damage: 0,
-	fatigue: 0,
-	currency: 0,
-
-	// attributes
-	strength: 4,
-	sense: 4,
-	mobility: 4,
-	intellect: 4,
-	wit: 4,
-
-	// notes
-	ownerNotes: "",
-	playerNotes: "",
-
-	// token properties
-	tokenPosition: { x: 0, y: 0 },
-
-	// visibility
-	visible: false,
-	nameVisible: false,
-	playerId: null,
-}
-
 export const migrate = internalMutation({
 	async handler(ctx, args) {
 		for await (const character of ctx.db.query("characters")) {
@@ -103,24 +66,11 @@ export const list = query({
 		}
 		const docs = await query.collect()
 
-		const getThreshold = (die: number) => {
-			if (die === 20) return 10
-			if (die === 12) return 8
-			return 6
-		}
-
-		return docs
-			.map((doc) => ({ ...characterDefaults, ...doc }))
-			.map((doc) => ({
-				...doc,
-				damageThreshold: getThreshold(doc.strength),
-				fatigueThreshold: getThreshold(doc.sense),
-				isOwner: isRoomOwner || doc.playerId === user.data.clerkId,
-				displayName:
-					doc.nameVisible || isRoomOwner || doc.playerId === user.data.clerkId ? doc.name : "???",
-				displayPronouns:
-					doc.nameVisible || isRoomOwner || doc.playerId === user.data.clerkId ? doc.pronouns : "",
-			}))
+		return await Promise.all(
+			docs
+				.map((doc) => new CharacterModel(ctx, doc))
+				.map(async (model) => await model.getComputedData()),
+		)
 	},
 })
 
