@@ -85,7 +85,7 @@ export function CharacterForm({ character }: { character: Character }) {
 					<CharacterNumberField
 						character={character}
 						field="fatigue"
-						label={`Fatugue / ${character.fatigueThreshold}`}
+						label={`Fatigue / ${character.fatigueThreshold}`}
 					/>
 					<CharacterNumberField character={character} field="currency" />
 				</div>
