@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.4",
-    "@clerk/remix": "4.0.0-beta.39",
-    "@clerk/themes": "2.0.0-beta.8",
+    "@clerk/remix": "4.0.0-beta.40",
+    "@clerk/themes": "2.0.0-beta.9",
     "@floating-ui/react": "0.26.9",
     "@floating-ui/react-dom": "2.0.8",
     "@fontsource-variable/nunito": "5.0.18",
