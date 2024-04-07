@@ -266,7 +266,7 @@ function CharacterNumberField({
 				<Input
 					type="number"
 					id={inputId}
-					elementRef={inputRef}
+					ref={inputRef}
 					min={0}
 					value={value}
 					onChange={(event) => setValue(event.target.valueAsNumber)}

@@ -16,7 +16,10 @@ export function DeleteCharacterButton({
 			{(store) => (
 				<>
 					<Button icon={<Lucide.Trash />} element={<ModalButton title="Delete Character" />} />
-					<ModalPanel title="Delete Character">
+					<ModalPanel
+						title="Delete Character"
+						className="grid place-items-center gap-2 text-pretty p-2 text-center"
+					>
 						<p>
 							Are you sure you want to delete <strong>{character.name}</strong>? This cannot be
 							undone!

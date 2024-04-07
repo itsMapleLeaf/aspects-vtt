@@ -1,3 +1,4 @@
+import { Focusable } from "@ariakit/react"
 import { useMutation, useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
 import * as Lucide from "lucide-react"
@@ -34,19 +35,22 @@ export function AspectSkillsSelectorButton({
 	return (
 		<Modal>
 			<Button {...props} element={<ModalButton />} />
-			<ModalPanel title="Manage Aspect Skills">
-				<div className="flex h-[calc(100dvh-theme(spacing.12))] max-h-[720px] w-[calc(100vw-theme(spacing.12))] max-w-lg flex-col gap-2 ">
-					<Input
-						type="search"
-						placeholder="Type a skill name or aspect name"
-						value={search}
-						onChange={(event) => setSearch(event.target.value)}
-					/>
-					<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-						{aspectSkills.map((skill) => (
-							<AspectSkillItem key={skill.name} skill={skill} character={character} />
-						))}
-					</div>
+			<ModalPanel title="Manage Aspect Skills" fullHeight className="flex flex-col gap-2 p-2">
+				<Focusable
+					autoFocus
+					render={
+						<Input
+							type="search"
+							placeholder="Type a skill name or aspect name"
+							value={search}
+							onChange={(event) => setSearch(event.target.value)}
+						/>
+					}
+				/>
+				<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+					{aspectSkills.map((skill) => (
+						<AspectSkillItem key={skill.name} skill={skill} character={character} />
+					))}
 				</div>
 			</ModalPanel>
 		</Modal>

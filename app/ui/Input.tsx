@@ -1,23 +1,24 @@
-import type React from "react"
-import type { ComponentPropsWithoutRef, ReactNode } from "react"
+import { type ComponentPropsWithoutRef, type ForwardedRef, type ReactNode, forwardRef } from "react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
 import { panel } from "./styles.ts"
 
 export interface InputProps extends ComponentPropsWithoutRef<"input">, InputStyleProps {
-	elementRef?: React.Ref<HTMLInputElement>
 	icon?: ReactNode
 }
 
-export function Input({ icon, className, align, elementRef, ...props }: InputProps) {
+export const Input = forwardRef(function Input(
+	{ icon, className, align, ...props }: InputProps,
+	ref: ForwardedRef<HTMLInputElement>,
+) {
 	return (
 		<div className={twMerge("group relative flex w-full items-center", className)}>
 			<div className="peer pointer-events-none absolute left-2 opacity-50 transition *:size-5 group-focus-within:opacity-100">
 				{icon}
 			</div>
-			<input {...props} className={inputStyle({ align }, "h-10")} ref={elementRef} />
+			<input {...props} className={inputStyle({ align }, "h-10")} ref={ref} />
 		</div>
 	)
-}
+})
 
 export interface InputStyleProps {
 	align?: "left" | "right" | "center"

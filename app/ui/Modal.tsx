@@ -10,12 +10,11 @@ import {
 	DialogProvider,
 	type DialogProviderProps,
 	type DialogStore,
-	useDialogContext,
 	useDialogStore,
 } from "@ariakit/react"
 import { LucideX } from "lucide-react"
 import type { ComponentPropsWithoutRef } from "react"
-import { raise } from "#app/common/errors.ts"
+import { twMerge } from "tailwind-merge"
 import type { StrictOmit } from "#app/common/types.ts"
 import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName.ts"
@@ -40,34 +39,42 @@ export function ModalButton(props: DialogDisclosureProps) {
 export interface ModalPanelProps extends StrictOmit<DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
 	description?: React.ReactNode
+	size?: "sm" | "md" | "lg"
+	className?: string
+	fullHeight?: boolean
 }
 
-export function ModalPanel({ title, description, children, ...props }: ModalPanelProps) {
-	const store =
-		useDialogContext() ??
-		raise(`<${ModalPanel.name} /> must be used within a <${Modal.name} />`, ModalPanel)
-
+export function ModalPanel({
+	title,
+	description,
+	children,
+	size,
+	className,
+	fullHeight,
+	...props
+}: ModalPanelProps) {
 	return (
 		<Dialog
+			backdrop={
+				<div className="bg-black/50 opacity-0 backdrop-blur transition-opacity data-[enter]:opacity-100" />
+			}
 			{...props}
-			backdrop={<div className="bg-black/50 backdrop-blur" />}
-			className="fixed inset-0 flex flex-col overflow-y-auto"
-			onClick={(event) => {
-				if (event.target === event.currentTarget) store.hide()
-			}}
+			className={panel(
+				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-lg flex-col shadow-lg shadow-black/50  [--gutter:2rem] [--height:calc(min(100%-var(--gutter),48rem))] ",
+				"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
+				fullHeight ? "h-[--height]" : "h-min max-h-[--height]",
+			)}
 		>
-			<div className={panel("m-auto divide-y divide-primary-300 shadow-lg shadow-black/50")}>
-				<header className="flex items-center gap-3 bg-black/25 p-3">
-					<div className="flex-1">
-						<DialogHeading className="text-2xl/tight font-light">{title}</DialogHeading>
-						{description && <DialogDescription>{description}</DialogDescription>}
-					</div>
-					<DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
-						<LucideX />
-					</DialogDismiss>
-				</header>
-				<main className="flex flex-col gap-3 p-3">{children}</main>
+			<div className="flex min-h-0 items-center gap-3 border-b border-primary-300 bg-black/25 p-3">
+				<div className="flex-1">
+					<DialogHeading className="text-2xl/tight font-light">{title}</DialogHeading>
+					{description && <DialogDescription>{description}</DialogDescription>}
+				</div>
+				<DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
+					<LucideX />
+				</DialogDismiss>
 			</div>
+			<div className={twMerge("min-h-0 flex-1 overflow-y-auto", className)}>{children}</div>
 		</Dialog>
 	)
 }
