@@ -12,6 +12,7 @@ import { Modal, ModalButton, ModalPanel } from "#app/ui/Modal.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Doc } from "#convex/_generated/dataModel.js"
+import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
 
 export function AspectSkillsSelectorButton({
 	character,
@@ -36,6 +37,7 @@ export function AspectSkillsSelectorButton({
 		<Modal>
 			<Button {...props} element={<ModalButton />} />
 			<ModalPanel title="Manage Aspect Skills" fullHeight className="flex flex-col gap-2 p-2">
+				<CharacterExperienceDisplay character={character} className="font-bold" />
 				<Focusable
 					autoFocus
 					render={

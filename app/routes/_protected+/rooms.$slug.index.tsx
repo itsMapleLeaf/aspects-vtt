@@ -32,6 +32,8 @@ import type { Id } from "#convex/_generated/dataModel.js"
 
 export default function RoomIndexRoute() {
 	const room = useRoom()
+	const [updateRoomState, updateRoom] = useAsyncState(useMutation(api.rooms.update))
+
 	const user = useQuery(api.auth.user)
 	const player = room.players.find((p) => p.clerkId === user?.data?.clerkId)
 	const hasJoined = !!player
@@ -191,6 +193,20 @@ export default function RoomIndexRoute() {
 									]}
 								/>
 							</section>
+						</div>
+					</PopoverButton>
+
+					<PopoverButton icon={<Lucide.Wrench />} text="Room Settings">
+						<div className="grid gap-2">
+							<FormField label="Experience">
+								<Input
+									type="number"
+									value={updateRoomState.args?.experience ?? room.experience}
+									min={0}
+									step={5}
+									onChange={(e) => updateRoom({ id: room._id, experience: Number(e.target.value) })}
+								/>
+							</FormField>
 						</div>
 					</PopoverButton>
 				</div>
