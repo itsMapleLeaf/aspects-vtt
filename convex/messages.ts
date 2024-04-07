@@ -4,8 +4,8 @@ import { expect } from "#app/common/expect.js"
 import { pick } from "#app/common/object.js"
 import { range } from "#app/common/range.js"
 import { CharacterModel } from "./CharacterModel.js"
-import { UserModel } from "./UserModel.js"
 import { internalMutation, mutation, query } from "./_generated/server.js"
+import { getUserFromClerkId, getUserFromIdentity } from "./users.js"
 
 export const migrateDiceRolls = internalMutation({
 	async handler(ctx, args) {
@@ -38,13 +38,13 @@ export const list = query({
 			...result,
 			page: await Promise.all(
 				result.page.map(async ({ userId, ...message }) => {
-					const user = await UserModel.fromClerkId(ctx, userId)
+					const user = await getUserFromClerkId(ctx, userId).getValueOrNull()
 					const { value: character } = await CharacterModel.fromPlayerId(ctx, userId)
 					const data = await character?.getComputedData()
 					return {
 						...message,
 						user: user && {
-							...pick(user.data, ["name", "avatarUrl"]),
+							...pick(user, ["name", "avatarUrl"]),
 							character: data && pick(data, ["displayName", "displayPronouns"]),
 						},
 					}
@@ -61,7 +61,7 @@ export const create = mutation({
 		dice: v.optional(v.array(v.object({ name: v.string(), sides: v.number(), count: v.number() }))),
 	},
 	async handler(ctx, { dice = [], content = "", ...args }) {
-		const user = await UserModel.fromIdentity(ctx)
+		const user = await getUserFromIdentity(ctx).getValueOrThrow()
 
 		const diceRolls = dice
 			.flatMap((input) => range.array(input.count).map(() => input))
@@ -78,7 +78,7 @@ export const create = mutation({
 		return await ctx.db.insert("messages", {
 			...args,
 			content,
-			userId: user.data.clerkId,
+			userId: user.clerkId,
 			diceRoll: diceRolls.length > 0 ? { dice: diceRolls } : undefined,
 		})
 	},
@@ -89,12 +89,12 @@ export const remove = mutation({
 		id: v.id("messages"),
 	},
 	async handler(ctx, { id }) {
-		const user = await UserModel.fromIdentity(ctx)
+		const user = await getUserFromIdentity(ctx).getValueOrThrow()
 
 		const message = await ctx.db.get(id)
 		if (!message) return
 
-		if (message.userId !== user.data.clerkId) {
+		if (message.userId !== user.clerkId) {
 			throw new ConvexError("You don't have permission to do that.")
 		}
 

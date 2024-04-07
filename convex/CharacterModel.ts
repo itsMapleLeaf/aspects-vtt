@@ -2,11 +2,11 @@ import type { WithoutSystemFields } from "convex/server"
 import { ConvexError, type Infer } from "convex/values"
 import { Result } from "#app/common/Result.js"
 import { RoomModel } from "./RoomModel.ts"
-import { UserModel } from "./UserModel.ts"
 import type { Doc, Id } from "./_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "./_generated/server"
 import type { characterProperties } from "./characters"
 import type { Branded } from "./helpers.ts"
+import { getUserFromIdentity } from "./users.ts"
 
 const characterDefaults: Required<{
 	[K in keyof typeof characterProperties]: Exclude<
@@ -101,8 +101,8 @@ export class CharacterModel {
 	async getComputedData() {
 		const room = await this.getRoom()
 		const isRoomOwner = await room.isOwner()
-		const user = await UserModel.fromIdentity(this.ctx)
-		const isCharacterOwner = isRoomOwner || this.data.playerId === user.data.clerkId
+		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
+		const isCharacterOwner = isRoomOwner || this.data.playerId === user.clerkId
 		const canSeeName = this.data.nameVisible || isCharacterOwner
 		return {
 			...this.data,

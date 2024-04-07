@@ -15,22 +15,40 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 		return new Result(fn)
 	}
 
+	async resolve(): Promise<ResultData<T>> {
+		return Promise.resolve(this.fn()).then(
+			(value) => ({ ok: true, value, error: null }),
+			(error) => ({ ok: false, value: null, error }),
+		)
+	}
+
+	async getValueOrThrow() {
+		return await this.fn()
+	}
+
+	async getValueOrNull() {
+		try {
+			return await this.fn()
+		} catch {
+			return null
+		}
+	}
+
+	/** @deprecated Use {@link getValueOrThrow} instead */
 	async unwrap() {
 		return await this.fn()
 	}
 
-	async resolve(): Promise<ResultData<T>> {
-		return Promise.resolve(this.fn()).then(
-			(value) => ({ ok: true, value, error: null }),
-			(error) => ({ ok: false, value: null, error: new ResultError(error) }),
-		)
-	}
-
-	async json(): Promise<ResultJson<T>> {
+	async resolveJson(): Promise<ResultJson<T>> {
 		const result = await this.resolve()
 		return result.ok ?
 				{ ok: true, value: result.value, error: null }
 			:	{ ok: false, value: null, error: result.error.message }
+	}
+
+	/** @deprecated Use {@link resolveJson} instead */
+	async json(): Promise<ResultJson<T>> {
+		return await this.resolveJson()
 	}
 
 	// biome-ignore lint/suspicious/noThenProperty: intentionally implementing PromiseLike
