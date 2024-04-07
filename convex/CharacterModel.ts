@@ -112,11 +112,6 @@ export class CharacterModel {
 		}
 	}
 
-	async isAssignedToIdentityUser() {
-		const room = await this.getRoom()
-		return room.data.players.some((player) => player.characterId === this.data._id)
-	}
-
 	async update(ctx: MutationCtx, updates: Partial<WithoutSystemFields<Doc<"characters">>>) {
 		const room = await this.getRoom()
 		const isMember = (await room.isOwner()) || (await room.getIdentityPlayer()) != null

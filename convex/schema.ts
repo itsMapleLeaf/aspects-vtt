@@ -18,15 +18,25 @@ export default defineSchema({
 		mapImageId: v.optional(v.id("_storage")),
 		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
 		mapCellSize: v.optional(v.number()),
-		players: v.array(
-			v.object({
-				userId: brandedString("clerkId"),
-				characterId: v.optional(nullable(v.id("characters"))),
-			}),
+		players: v.optional(
+			v.array(
+				v.object({
+					userId: brandedString("clerkId"),
+					characterId: v.optional(nullable(v.id("characters"))),
+				}),
+			),
 		),
 	})
 		.index("by_slug", ["slug"])
 		.index("by_owner", ["ownerId"]),
+
+	players: defineTable({
+		roomId: v.id("rooms"),
+		userId: brandedString("clerkId"),
+	})
+		.index("by_room", ["roomId"])
+		.index("by_user", ["userId"])
+		.index("by_room_and_user", ["roomId", "userId"]),
 
 	messages: defineTable({
 		roomId: v.id("rooms"),
