@@ -6,28 +6,36 @@
 			"command": "bun",
 			"args": ["run", "dev"],
 			"isBackground": true,
+			"icon": { "id": "run" },
 			"problemMatcher": [
 				{
-					"pattern": { "regexp": "." },
+					"pattern": {
+						"regexp": "."
+					},
 					"background": {
-						"activeOnStart": true,
-						"beginsPattern": "Local:\\s*http://",
-						"endsPattern": "Local:\\s*http://"
+						"activeOnStart": false,
+						"beginsPattern": "$^",
+						"endsPattern": "Local:\\s*http://.*"
 					}
 				}
 			]
 		},
 		{
 			"label": "tsc: watch",
-			"command": "bunx",
-			"args": ["tsc", "--watch"],
+			"type": "shell",
+			"icon": { "id": "tools" },
+			// running node directly as a workaround for bun sometimes breaking problemMatcher
+			"command": "node",
+			"args": ["node_modules/typescript/bin/tsc", "--watch"],
 			"problemMatcher": ["$tsc-watch"],
+			"isBackground": true,
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
 			"runOptions": {
-				"runOn": "folderOpen"
+				"runOn": "folderOpen",
+				"instanceLimit": 1
 			}
 		}
 	]
