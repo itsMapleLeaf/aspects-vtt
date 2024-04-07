@@ -1,5 +1,5 @@
 import { UserButton } from "@clerk/remix"
-import { Link, useNavigate } from "@remix-run/react"
+import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import { ConvexError } from "convex/values"
 import { LucideHome, LucidePlus } from "lucide-react"
@@ -14,10 +14,11 @@ export default function CreateRoomRoute() {
 	const rooms = useQuery(api.rooms.list)
 	const createRoom = useMutation(api.rooms.create)
 	const navigate = useNavigate()
+	const currentUrl = useHref(useLocation())
 	return (
 		<div className="grid gap-4 p-4">
 			<AppHeader>
-				<UserButton />
+				<UserButton afterSignOutUrl={currentUrl} />
 			</AppHeader>
 			<main>
 				{rooms === undefined ?

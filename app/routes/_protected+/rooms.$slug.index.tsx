@@ -1,5 +1,6 @@
 import type { PopoverDisclosureProps } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
+import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactElement, useEffect, useRef, useState } from "react"
@@ -52,10 +53,11 @@ export default function RoomIndexRoute() {
 
 	const character =
 		characters?.find((character) => character._id === selectedCharacterId) ?? characters?.[0]
-
 	const viewportRef = useRef<ViewportController>(null)
 
 	const notionData = useQuery(api.notionImports.get)
+
+	const currentUrl = useHref(useLocation())
 
 	return (
 		<div className="isolate flex h-dvh flex-col gap-4 p-4">
@@ -77,7 +79,7 @@ export default function RoomIndexRoute() {
 
 			<div className="-mx-4 -mt-4 border-b border-primary-300 bg-primary-100/75 p-4 backdrop-blur">
 				<AppHeader>
-					<UserButton />
+					<UserButton afterSignOutUrl={currentUrl} />
 				</AppHeader>
 			</div>
 
