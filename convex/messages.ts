@@ -8,8 +8,11 @@ import { internalMutation, mutation, query } from "./_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "./users.js"
 
 export const migrateDiceRolls = internalMutation({
-	async handler(ctx, args) {
+	async handler(ctx) {
+		let migrated = 0
 		for await (const roll of ctx.db.query("diceRolls")) {
+			console.log("migrating", roll._id)
+			migrated += 1
 			await ctx.db.insert("messages", {
 				roomId: roll.roomId,
 				userId: roll.rolledBy,
@@ -18,7 +21,9 @@ export const migrateDiceRolls = internalMutation({
 					dice: roll.dice,
 				},
 			})
+			await ctx.db.delete(roll._id)
 		}
+		console.log(`migrated ${migrated} dice rolls`)
 	},
 })
 
