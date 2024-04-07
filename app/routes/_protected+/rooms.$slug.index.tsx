@@ -196,19 +196,23 @@ export default function RoomIndexRoute() {
 						</div>
 					</PopoverButton>
 
-					<PopoverButton icon={<Lucide.Wrench />} text="Room Settings">
-						<div className="grid gap-2">
-							<FormField label="Experience">
-								<Input
-									type="number"
-									value={updateRoomState.args?.experience ?? room.experience}
-									min={0}
-									step={5}
-									onChange={(e) => updateRoom({ id: room._id, experience: Number(e.target.value) })}
-								/>
-							</FormField>
-						</div>
-					</PopoverButton>
+					<RoomOwnerOnly>
+						<PopoverButton icon={<Lucide.Wrench />} text="Room Settings">
+							<div className="grid gap-2">
+								<FormField label="Experience">
+									<Input
+										type="number"
+										value={updateRoomState.args?.experience ?? room.experience}
+										min={0}
+										step={5}
+										onChange={(e) =>
+											updateRoom({ id: room._id, experience: Number(e.target.value) })
+										}
+									/>
+								</FormField>
+							</div>
+						</PopoverButton>
+					</RoomOwnerOnly>
 				</div>
 
 				{characters === undefined ?
