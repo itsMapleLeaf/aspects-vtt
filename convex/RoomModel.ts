@@ -1,12 +1,9 @@
 import type { WithoutSystemFields } from "convex/server"
-import { ConvexError, type GenericId } from "convex/values"
+import { ConvexError } from "convex/values"
 import { Result } from "#app/common/Result.js"
-import { pick } from "#app/common/object.js"
-import { CharacterModel } from "./CharacterModel.js"
 import { UserModel } from "./UserModel.js"
 import type { Doc, Id } from "./_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "./_generated/server.js"
-import type { Branded } from "./helpers.js"
 
 export class RoomModel {
 	private readonly ctx
@@ -55,13 +52,21 @@ export class RoomModel {
 		}
 	}
 
-	getPlayerByCharacter(characterId: Id<"characters">) {
-		return this.data.players.find((player) => player.characterId === characterId)
+	async getPlayers() {
+		return await this.ctx.db
+			.query("players")
+			.withIndex("by_room", (q) => q.eq("roomId", this.data._id))
+			.collect()
 	}
 
 	async getIdentityPlayer() {
 		const user = await UserModel.fromIdentity(this.ctx)
-		return this.data.players.find((player) => player.userId === user.data.clerkId)
+		return this.ctx.db
+			.query("players")
+			.withIndex("by_room_and_user", (q) =>
+				q.eq("roomId", this.data._id).eq("userId", user.data.clerkId),
+			)
+			.first()
 	}
 
 	async getClientPlayers() {
@@ -69,18 +74,9 @@ export class RoomModel {
 			return []
 		}
 
-		const players = await Promise.all(
-			this.data.players.map(async (player) => {
-				const user = await UserModel.fromClerkId(this.ctx, player.userId)
-				return (
-					user && {
-						...pick(user?.data, ["name", "avatarUrl", "clerkId"]),
-						characterId: player.characterId,
-					}
-				)
-			}),
-		)
-		return players.filter(Boolean)
+		const players = this.ctx.db
+			.query("players")
+			.withIndex("by_room", (q) => q.eq("roomId", this.data._id))
 	}
 
 	async update(ctx: MutationCtx, args: Partial<WithoutSystemFields<Doc<"rooms">>>) {
@@ -101,48 +97,9 @@ export class RoomModel {
 	async join(ctx: MutationCtx) {
 		const user = await UserModel.fromIdentity(ctx)
 
-		const hasPlayer = this.data.players.some((player) => player.userId === user.data.clerkId)
-		if (hasPlayer) {
-			return this
-		}
+		const existing = await this.getIdentityPlayer()
+		if (existing) return
 
-		const players = [...this.data.players, { userId: user.data.clerkId, characterId: null }]
-		await ctx.db.patch(this.data._id, { players })
-		return new RoomModel(this.ctx, { ...this.data, players })
-	}
-
-	async getCharacters() {
-		const characters = await this.ctx.db
-			.query("characters")
-			.withIndex("by_room", (q) => q.eq("roomId", this.data._id))
-			.collect()
-		return characters.map((data) => new CharacterModel(this.ctx, data))
-	}
-
-	async setPlayerCharacter(
-		ctx: MutationCtx,
-		userId: Branded<"clerkId">,
-		characterId: Id<"characters"> | null,
-	) {
-		const players = this.data.players.map((player) => {
-			if (player.userId === userId) {
-				return { ...player, characterId }
-			}
-			if (player.characterId === characterId) {
-				return { ...player, characterId: null }
-			}
-			return player
-		})
-		await this.update(ctx, { players })
-	}
-
-	async unsetPlayerCharacter(ctx: MutationCtx, characterId: GenericId<"characters">) {
-		const players = this.data.players.map((player) => {
-			if (player.characterId === characterId) {
-				return { ...player, characterId: null }
-			}
-			return player
-		})
-		await this.update(ctx, { players })
+		await ctx.db.insert("players", { userId: user.data.clerkId, roomId: this.data._id })
 	}
 }

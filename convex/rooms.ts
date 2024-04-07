@@ -4,18 +4,40 @@ import { Result } from "#app/common/Result.js"
 import { range } from "#app/common/range.js"
 import { RoomModel } from "./RoomModel.js"
 import { UserModel } from "./UserModel.js"
-import { type QueryCtx, mutation, query } from "./_generated/server.js"
+import { type QueryCtx, internalMutation, mutation, query } from "./_generated/server.js"
 import { withResultResponse } from "./resultResponse.js"
+
+export const migratePlayers = internalMutation({
+	async handler(ctx) {
+		for await (const room of ctx.db.query("rooms")) {
+			for (const player of room.players ?? []) {
+				await ctx.db.insert("players", { userId: player.userId, roomId: room._id })
+			}
+			await ctx.db.patch(room._id, { players: undefined })
+		}
+	},
+})
 
 export const get = query({
 	args: { slug: v.string() },
 	handler: async (ctx, args) => {
 		return await Result.fn(async () => {
 			const room = await RoomModel.fromSlug(ctx, args.slug).unwrap()
+			const players = await room.getPlayers()
+			const playerUsers = await Promise.all(
+				players.map(async (player) => {
+					const user = await ctx.db
+						.query("users")
+						.withIndex("by_clerk_id", (q) => q.eq("clerkId", player.userId))
+						.first()
+					if (!user) return null
+					return { name: user.name, clerkId: user.clerkId, avatarUrl: user.avatarUrl }
+				}),
+			)
 			return {
 				...room.data,
 				isOwner: await room.isOwner(),
-				players: await room.getClientPlayers(),
+				players: playerUsers.filter(Boolean),
 			}
 		}).json()
 	},
@@ -25,15 +47,13 @@ export const list = query({
 	handler: withResultResponse(async (ctx: QueryCtx) => {
 		const user = await UserModel.fromIdentity(ctx)
 
-		// there's no filter for checking if a value is in an array,
-		// so filtering in code! lol
-		// this is probably where I introduce a `player` table which links users to rooms
-		const rooms = await ctx.db.query("rooms").fullTableScan().collect()
-		return rooms.filter(
-			(room) =>
-				room.ownerId === user.data.clerkId ||
-				room.players.some((player) => player.userId === user.data.clerkId),
-		)
+		const memberships = await ctx.db
+			.query("players")
+			.withIndex("by_user", (q) => q.eq("userId", user.data.clerkId))
+			.collect()
+
+		const rooms = await Promise.all(memberships.map((player) => ctx.db.get(player.roomId)))
+		return rooms.filter(Boolean)
 	}),
 })
 
