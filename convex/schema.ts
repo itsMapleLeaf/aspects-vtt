@@ -57,10 +57,6 @@ export default defineSchema({
 	characters: defineTable({
 		...characterProperties,
 		roomId: v.id("rooms"),
-
-		// deprecated
-		tokenVisibleTo: v.optional(v.string()),
-		visibleTo: v.optional(v.string()),
 	}).index("by_room", ["roomId"]),
 
 	notionImports: defineTable(notionImportProperties),

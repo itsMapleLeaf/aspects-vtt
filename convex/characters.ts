@@ -7,7 +7,7 @@ import { characterNames } from "#app/features/characters/characterNames.ts"
 import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
 import { UserModel } from "./UserModel.js"
-import { internalMutation, mutation, query } from "./_generated/server.js"
+import { mutation, query } from "./_generated/server.js"
 
 export const characterProperties = {
 	// profile
@@ -42,14 +42,6 @@ export const characterProperties = {
 	nameVisible: v.optional(v.boolean()),
 	playerId: v.optional(nullable(brandedString("clerkId"))),
 }
-
-export const migrate = internalMutation({
-	async handler(ctx, args) {
-		for await (const character of ctx.db.query("characters")) {
-			await ctx.db.patch(character._id, { tokenVisibleTo: undefined, visibleTo: undefined })
-		}
-	},
-})
 
 export const list = query({
 	args: {
