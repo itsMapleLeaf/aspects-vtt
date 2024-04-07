@@ -25,6 +25,7 @@ export const get = query({
 			)
 			return {
 				...room.data,
+				experience: room.data.experience ?? 0,
 				isOwner: await room.isOwner(),
 				players: playerUsers.filter(Boolean),
 			}
@@ -77,6 +78,7 @@ export const update = mutation({
 		mapImageId: v.optional(v.id("_storage")),
 		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
 		mapCellSize: v.optional(v.number()),
+		experience: v.optional(v.number()),
 	},
 	handler: async (ctx, { id, ...args }) => {
 		const room = await RoomModel.fromId(ctx, id).unwrap()

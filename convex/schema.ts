@@ -18,6 +18,7 @@ export default defineSchema({
 		mapImageId: v.optional(v.id("_storage")),
 		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
 		mapCellSize: v.optional(v.number()),
+		experience: v.optional(v.number()),
 	})
 		.index("by_slug", ["slug"])
 		.index("by_owner", ["ownerId"]),

@@ -18,15 +18,14 @@ import { TextArea } from "#app/ui/TextArea.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
-import type { ResultQueryData } from "#convex/resultResponse.js"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { AspectSkillsSelectorButton } from "./AspectSkillsSelectorButton.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
-
-export type Character = ResultQueryData<typeof api.characters.list>[number]
+import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
+import type { Character } from "./types.ts"
 
 export function CharacterForm({ character }: { character: Character }) {
 	const room = useRoom()
@@ -117,7 +116,10 @@ export function CharacterForm({ character }: { character: Character }) {
 			)}
 
 			{character.isOwner && (
-				<FormField label="Skills">
+				<FormField
+					label="Skills"
+					description={<CharacterExperienceDisplay character={character} />}
+				>
 					<div className="grid gap-2">
 						<AspectSkillsSelectorButton
 							character={character}

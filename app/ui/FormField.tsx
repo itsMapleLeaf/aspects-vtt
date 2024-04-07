@@ -3,11 +3,13 @@ import { twMerge } from "tailwind-merge"
 
 export function FormField({
 	label,
+	description,
 	htmlFor,
 	className,
 	children,
 }: {
 	label: ReactNode
+	description?: ReactNode
 	htmlFor?: string
 	className?: string
 	children: React.ReactNode
@@ -16,12 +18,13 @@ export function FormField({
 		<div className={twMerge("flex flex-col", className)}>
 			{isValidElement(label) ?
 				label
-			:	<div className="select-none text-sm/6 font-bold">
+			:	<div className="select-none font-bold leading-6">
 					{htmlFor ?
 						<label htmlFor={htmlFor}>{label}</label>
 					:	label}
 				</div>
 			}
+			{description && <div className="text-sm/6 font-bold text-primary-700">{description}</div>}
 			{children}
 		</div>
 	)
