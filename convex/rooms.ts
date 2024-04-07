@@ -24,10 +24,16 @@ export const get = query({
 export const list = query({
 	handler: withResultResponse(async (ctx: QueryCtx) => {
 		const user = await UserModel.fromIdentity(ctx)
-		return await ctx.db
-			.query("rooms")
-			.withIndex("by_owner", (q) => q.eq("ownerId", user.data.clerkId))
-			.collect()
+
+		// there's no filter for checking if a value is in an array,
+		// so filtering in code! lol
+		// this is probably where I introduce a `player` table which links users to rooms
+		const rooms = await ctx.db.query("rooms").fullTableScan().collect()
+		return rooms.filter(
+			(room) =>
+				room.ownerId === user.data.clerkId ||
+				room.players.some((player) => player.userId === user.data.clerkId),
+		)
 	}),
 })
 
