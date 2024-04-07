@@ -4,19 +4,8 @@ import { Result } from "#app/common/Result.js"
 import { range } from "#app/common/range.js"
 import { RoomModel } from "./RoomModel.js"
 import { UserModel } from "./UserModel.js"
-import { type QueryCtx, internalMutation, mutation, query } from "./_generated/server.js"
+import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { withResultResponse } from "./resultResponse.js"
-
-export const migratePlayers = internalMutation({
-	async handler(ctx) {
-		for await (const room of ctx.db.query("rooms")) {
-			for (const player of room.players ?? []) {
-				await ctx.db.insert("players", { userId: player.userId, roomId: room._id })
-			}
-			await ctx.db.patch(room._id, { players: undefined })
-		}
-	},
-})
 
 export const get = query({
 	args: { slug: v.string() },
@@ -66,7 +55,6 @@ export const create = mutation({
 			name: slug,
 			slug,
 			ownerId: user.data.clerkId,
-			players: [],
 		})
 
 		return { slug }
