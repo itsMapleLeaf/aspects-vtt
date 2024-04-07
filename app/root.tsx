@@ -8,6 +8,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexReactClient, useConvexAuth, useMutation, useQuery } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
+import { isEqual } from "lodash-es"
 import { useEffect } from "react"
 import { api } from "#convex/_generated/api.js"
 import { clientEnv } from "./env.ts"
@@ -67,46 +68,26 @@ export default ClerkApp(App, {
 })
 
 function ConvexAuthGuard({ children }: { children: React.ReactNode }) {
-	const updateUser = useMutation(api.auth.setup)
 	const { isLoading, isAuthenticated } = useConvexAuth()
 	const { user } = useUser()
-	const convexUser = useQuery(api.auth.user)
+	const currentUser = useQuery(api.auth.user)
+	const updateUser = useMutation(api.auth.setup)
 
-	// there's definitely a better way to do this, but i have a brain skill issue
 	useEffect(() => {
-		if (!isAuthenticated) return
+		const isReady = user && isAuthenticated && currentUser !== undefined
+		if (!isReady) return
 
-		let name = convexUser?.data?.name
-		let avatarUrl = convexUser?.data?.avatarUrl
-		let shouldUpdate = false
-
-		if (user?.username && user.username !== name) {
-			name = user.username
-			shouldUpdate = true
+		const newUser = {
+			name: user.username || user.firstName || user.id,
+			avatarUrl: user.imageUrl,
+		}
+		if (isEqual(currentUser.data, newUser)) {
+			console.log("User properties are the same, update skipped")
+			return
 		}
 
-		if (user?.imageUrl && user.imageUrl !== avatarUrl) {
-			avatarUrl = user.imageUrl
-			shouldUpdate = true
-		}
-
-		if (!name) {
-			console.warn("User has no name")
-			name = "Unnamed User"
-			shouldUpdate = true
-		}
-
-		if (shouldUpdate) {
-			updateUser({ name, avatarUrl })
-		}
-	}, [
-		user?.username,
-		user?.imageUrl,
-		convexUser?.data?.avatarUrl,
-		convexUser?.data?.name,
-		isAuthenticated,
-		updateUser,
-	])
+		updateUser(newUser)
+	}, [user, isAuthenticated, updateUser, currentUser])
 
 	return isLoading ? <Loading fill="screen" /> : children
 }
