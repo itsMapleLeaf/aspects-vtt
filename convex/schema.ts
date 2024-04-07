@@ -1,4 +1,4 @@
-import { brandedString, nullable } from "convex-helpers/validators"
+import { brandedString } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
@@ -18,14 +18,6 @@ export default defineSchema({
 		mapImageId: v.optional(v.id("_storage")),
 		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
 		mapCellSize: v.optional(v.number()),
-		players: v.optional(
-			v.array(
-				v.object({
-					userId: brandedString("clerkId"),
-					characterId: v.optional(nullable(v.id("characters"))),
-				}),
-			),
-		),
 	})
 		.index("by_slug", ["slug"])
 		.index("by_owner", ["ownerId"]),
