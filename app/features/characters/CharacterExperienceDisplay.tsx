@@ -19,7 +19,18 @@ export function CharacterExperienceDisplay({
 		.map((name) => aspectSkillsByName.get(name))
 		.filter(Boolean)
 
-	const usedExperience = aspectSkills.reduce((total, skill) => total + skill.aspects.length * 10, 0)
+	// core skills are the first two character's starter skills matching the character's core aspect,
+	// and don't count towards the character's experience
+	const { coreAspect } = character
+	const coreAspectSkills = new Set(
+		coreAspect ?
+			aspectSkills.filter((skill) => skill.aspects.includes(coreAspect)).slice(0, 2)
+		:	[],
+	)
+
+	const usedExperience = aspectSkills
+		.filter((skill) => !coreAspectSkills.has(skill))
+		.reduce((total, skill) => total + skill.aspects.length * 10, 0)
 
 	return (
 		<span
