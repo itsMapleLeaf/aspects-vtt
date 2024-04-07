@@ -42,19 +42,6 @@ export default defineSchema({
 		),
 	}).index("by_room", ["roomId"]),
 
-	diceRolls: defineTable({
-		roomId: v.id("rooms"),
-		label: v.optional(v.string()),
-		rolledBy: brandedString("clerkId"),
-		dice: v.array(
-			v.object({
-				key: v.string(),
-				name: v.string(),
-				result: v.number(),
-			}),
-		),
-	}).index("by_room", ["roomId"]),
-
 	characters: defineTable({
 		...characterProperties,
 		roomId: v.id("rooms"),

@@ -4,28 +4,8 @@ import { expect } from "#app/common/expect.js"
 import { pick } from "#app/common/object.js"
 import { range } from "#app/common/range.js"
 import { CharacterModel } from "./CharacterModel.js"
-import { internalMutation, mutation, query } from "./_generated/server.js"
+import { mutation, query } from "./_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "./users.js"
-
-export const migrateDiceRolls = internalMutation({
-	async handler(ctx) {
-		let migrated = 0
-		for await (const roll of ctx.db.query("diceRolls")) {
-			console.log("migrating", roll._id)
-			migrated += 1
-			await ctx.db.insert("messages", {
-				roomId: roll.roomId,
-				userId: roll.rolledBy,
-				content: roll.label,
-				diceRoll: {
-					dice: roll.dice,
-				},
-			})
-			await ctx.db.delete(roll._id)
-		}
-		console.log(`migrated ${migrated} dice rolls`)
-	},
-})
 
 export const list = query({
 	args: {
