@@ -1,6 +1,5 @@
-import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/remix"
+import { ClerkLoading, SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/remix"
 import { Outlet, useHref, useLocation } from "@remix-run/react"
-import { AuthLoading } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Button } from "#app/ui/Button.js"
 import { Loading } from "#app/ui/Loading.js"
@@ -11,12 +10,6 @@ export default function ProtectedLayoutRoute() {
 	const currentUrl = useHref(useLocation())
 	return (
 		<>
-			<AuthLoading>
-				<div className="flex-center-col h-dvh">
-					<Loading />
-				</div>
-			</AuthLoading>
-
 			<SignedOut>
 				<AppHeaderLayout>
 					<main>
@@ -25,6 +18,9 @@ export default function ProtectedLayoutRoute() {
 							message="You must be signed in to continue."
 							actions={
 								<>
+									<ClerkLoading>
+										<Loading size="sm" />
+									</ClerkLoading>
 									<SignInButton mode="modal" redirectUrl={currentUrl}>
 										<Button icon={<Lucide.LogIn />} text="Sign in" />
 									</SignInButton>
@@ -37,7 +33,6 @@ export default function ProtectedLayoutRoute() {
 					</main>
 				</AppHeaderLayout>
 			</SignedOut>
-
 			<SignedIn>
 				<Outlet />
 			</SignedIn>
