@@ -3,9 +3,8 @@ import { generateSlug } from "random-word-slugs"
 import { Result } from "#app/common/Result.js"
 import { range } from "#app/common/range.js"
 import { RoomModel } from "./RoomModel.js"
-import { UserModel } from "./UserModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
-import { withResultResponse } from "./resultResponse.js"
+import { getUserFromIdentity } from "./users.js"
 
 export const get = query({
 	args: { slug: v.string() },
@@ -34,28 +33,32 @@ export const get = query({
 })
 
 export const list = query({
-	handler: withResultResponse(async (ctx: QueryCtx) => {
-		const user = await UserModel.fromIdentity(ctx)
+	handler: async (ctx: QueryCtx) => {
+		const { value: user, error: userError } = await getUserFromIdentity(ctx)
+		if (!user) {
+			console.warn("Attempted to list rooms without a user.", userError.cause)
+			return []
+		}
 
 		const memberships = await ctx.db
 			.query("players")
-			.withIndex("by_user", (q) => q.eq("userId", user.data.clerkId))
+			.withIndex("by_user", (q) => q.eq("userId", user.clerkId))
 			.collect()
 
 		const rooms = await Promise.all(memberships.map((player) => ctx.db.get(player.roomId)))
 		return rooms.filter(Boolean)
-	}),
+	},
 })
 
 export const create = mutation({
 	handler: async (ctx) => {
-		const user = await UserModel.fromIdentity(ctx)
+		const user = await getUserFromIdentity(ctx).getValueOrThrow()
 		const slug = await generateUniqueSlug(ctx)
 
 		await ctx.db.insert("rooms", {
 			name: slug,
 			slug,
-			ownerId: user.data.clerkId,
+			ownerId: user.clerkId,
 		})
 
 		return { slug }

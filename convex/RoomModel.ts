@@ -1,9 +1,9 @@
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError } from "convex/values"
 import { Result } from "#app/common/Result.js"
-import { UserModel } from "./UserModel.js"
 import type { Doc, Id } from "./_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "./_generated/server.js"
+import { getUserFromIdentity } from "./users.js"
 
 export class RoomModel {
 	private readonly ctx
@@ -42,8 +42,8 @@ export class RoomModel {
 	}
 
 	async isOwner() {
-		const user = await UserModel.fromIdentity(this.ctx)
-		return this.data.ownerId === user.data.clerkId
+		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
+		return this.data.ownerId === user.clerkId
 	}
 
 	async assertOwned() {
@@ -60,11 +60,11 @@ export class RoomModel {
 	}
 
 	async getIdentityPlayer() {
-		const user = await UserModel.fromIdentity(this.ctx)
+		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
 		return this.ctx.db
 			.query("players")
 			.withIndex("by_room_and_user", (q) =>
-				q.eq("roomId", this.data._id).eq("userId", user.data.clerkId),
+				q.eq("roomId", this.data._id).eq("userId", user.clerkId),
 			)
 			.first()
 	}
@@ -95,11 +95,11 @@ export class RoomModel {
 	}
 
 	async join(ctx: MutationCtx) {
-		const user = await UserModel.fromIdentity(ctx)
+		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
 
 		const existing = await this.getIdentityPlayer()
 		if (existing) return
 
-		await ctx.db.insert("players", { userId: user.data.clerkId, roomId: this.data._id })
+		await ctx.db.insert("players", { userId: user.clerkId, roomId: this.data._id })
 	}
 }

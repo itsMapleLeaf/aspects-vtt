@@ -35,7 +35,7 @@ export default function RoomIndexRoute() {
 	const [updateRoomState, updateRoom] = useAsyncState(useMutation(api.rooms.update))
 
 	const user = useQuery(api.auth.user)
-	const player = room.players.find((p) => p.clerkId === user?.data?.clerkId)
+	const player = room.players.find((p) => p.clerkId === user?.value?.clerkId)
 	const hasJoined = !!player
 
 	const join = useMutation(api.rooms.join)

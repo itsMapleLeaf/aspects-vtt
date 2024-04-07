@@ -6,8 +6,8 @@ import { Vector } from "#app/common/vector.js"
 import { characterNames } from "#app/features/characters/characterNames.ts"
 import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
-import { UserModel } from "./UserModel.js"
 import { mutation, query } from "./_generated/server.js"
+import { getUserFromIdentity } from "./users.js"
 
 export const characterProperties = {
 	// profile
@@ -48,18 +48,23 @@ export const list = query({
 		roomId: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
-		const user = await UserModel.fromIdentity(ctx)
+		const { value: user, error: userError } = await getUserFromIdentity(ctx)
+		if (!user) {
+			console.warn("Attempted to list characters without a user.", userError.cause)
+			return []
+		}
+
 		const { value: room } = await RoomModel.fromId(ctx, args.roomId)
 		const isRoomOwner = await room?.isOwner()
 
 		let query = ctx.db.query("characters")
 		if (!isRoomOwner) {
 			query = query.filter((q) =>
-				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.data.clerkId)),
+				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.clerkId)),
 			)
 		}
-		const docs = await query.collect()
 
+		const docs = await query.collect()
 		return await Promise.all(
 			docs
 				.map((doc) => new CharacterModel(ctx, doc))

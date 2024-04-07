@@ -81,7 +81,7 @@ function ConvexAuthGuard({ children }: { children: React.ReactNode }) {
 			name: user.username || user.firstName || user.id,
 			avatarUrl: user.imageUrl,
 		}
-		if (isEqual(currentUser.data, newUser)) {
+		if (isEqual(currentUser, newUser)) {
 			console.log("User properties are the same, update skipped")
 			return
 		}

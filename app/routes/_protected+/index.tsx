@@ -23,10 +23,8 @@ export default function CreateRoomRoute() {
 			<main>
 				{rooms === undefined ?
 					<Loading />
-				: !rooms.ok ?
-					<p>Failed to load rooms: {rooms.error}</p>
 				:	<ul className="mb-2 grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-2">
-						{rooms.data.map((room) => (
+						{rooms.map((room) => (
 							<li key={room._id}>
 								<Link
 									to={$path("/rooms/:slug", { slug: room.slug })}
