@@ -7,7 +7,6 @@ export const migrate = internalMutation(async (ctx) => {
 				position: character.tokenPosition ?? { x: 0, y: 0 },
 				visible: character.visible ?? false,
 			},
-			tokenPosition: undefined,
 		})
 	}
 })
