@@ -24,6 +24,7 @@ export function useAsyncState<Args, Return>(fn: (args: Args) => Return) {
 			}
 		} catch (error) {
 			if (!controller.signal.aborted) {
+				console.error(error)
 				setState({ status: "error", error: new Error(undefined, { cause: error }) })
 			}
 		}

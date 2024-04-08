@@ -13,11 +13,16 @@ const middleMouseButton = 4
 export function useDrag(
 	ref: HTMLElement | null | undefined | { readonly current: HTMLElement | null | undefined },
 	{
+		shouldStart = () => true,
 		onStart,
 		onFinish,
 	}: {
+		shouldStart?: (info: {
+			event: PointerEvent
+			buttons: { left: boolean; middle: boolean; right: boolean }
+		}) => boolean
 		onStart?: (event: PointerEvent) => void
-		onFinish: ({ distance }: { distance: Vector }) => void
+		onFinish?: ({ distance }: { distance: Vector }) => void
 	},
 ) {
 	const [state, setState] = useState<DragState>()
@@ -28,7 +33,15 @@ export function useDrag(
 		if (state) return
 
 		const handleDragStart = (event: PointerEvent) => {
-			if (event.buttons & leftMouseButton) {
+			const info = {
+				event,
+				buttons: {
+					left: !!(event.buttons & leftMouseButton),
+					middle: !!(event.buttons & middleMouseButton),
+					right: !!(event.buttons & rightMouseButton),
+				},
+			}
+			if (shouldStart(info)) {
 				event.stopPropagation()
 				const position = Vector.from(event.clientX, event.clientY)
 				setState({
@@ -61,7 +74,7 @@ export function useDrag(
 		const handleDragFinish = (event: Event) => {
 			event.preventDefault()
 			const distance = state.current.minus(state.start)
-			onFinish({ distance })
+			onFinish?.({ distance })
 			setState(undefined)
 		}
 

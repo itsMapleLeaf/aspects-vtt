@@ -117,7 +117,8 @@ export class CharacterModel {
 
 	async update(ctx: MutationCtx, updates: Partial<WithoutSystemFields<Doc<"characters">>>) {
 		const room = await this.getRoom()
-		const isMember = (await room.isOwner()) || (await room.getIdentityPlayer()) != null
+		const isMember =
+			(await room.isOwner()) || (await room.getIdentityPlayer().getValueOrNull()) != null
 		if (!isMember) {
 			throw new ConvexError("You don't have permission to update this character.")
 		}

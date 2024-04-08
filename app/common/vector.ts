@@ -43,6 +43,14 @@ export class Vector {
 		return new Vector(args[0].width, args[0].height)
 	}
 
+	static topLeftMost(a: Vector, b: Vector): Vector {
+		return Vector.from(Math.min(a.x, b.x), Math.min(a.y, b.y))
+	}
+
+	static bottomRightMost(a: Vector, b: Vector): Vector {
+		return Vector.from(Math.max(a.x, b.x), Math.max(a.y, b.y))
+	}
+
 	get xy(): { x: number; y: number } {
 		return { x: this.x, y: this.y }
 	}
@@ -75,12 +83,24 @@ export class Vector {
 		return this.map(Math.ceil)
 	}
 
+	get abs(): Vector {
+		return this.map(Math.abs)
+	}
+
 	toString(): string {
 		return `(${this.x}, ${this.y})`
 	}
 
 	roundedTo(multiple: number): Vector {
 		return this.map((n) => Math.round(n / multiple) * multiple)
+	}
+
+	floorTo(multiple: number): Vector {
+		return this.map((n) => Math.floor(n / multiple) * multiple)
+	}
+
+	ceilingTo(multiple: number): Vector {
+		return this.map((n) => Math.ceil(n / multiple) * multiple)
 	}
 
 	plus(...input: VectorInput): Vector {

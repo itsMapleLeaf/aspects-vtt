@@ -3,6 +3,7 @@ import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
 import { notionImportProperties } from "./notionImports.ts"
+import { rectangleProperties } from "./rectangles.ts"
 
 export default defineSchema({
 	users: defineTable({
@@ -49,4 +50,9 @@ export default defineSchema({
 	}).index("by_room", ["roomId"]),
 
 	notionImports: defineTable(notionImportProperties),
+
+	rectangles: defineTable({
+		...rectangleProperties,
+		roomId: v.id("rooms"),
+	}).index("by_roomId", ["roomId"]),
 })
