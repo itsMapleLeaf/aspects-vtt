@@ -1,4 +1,4 @@
-import { brandedString } from "convex-helpers/validators"
+import { brandedString, deprecated } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
@@ -45,9 +45,7 @@ export default defineSchema({
 	characters: defineTable({
 		...characterProperties,
 		roomId: v.id("rooms"),
-
-		// deprecated
-		tokenPosition: v.optional(v.object({ x: v.number(), y: v.number() })),
+		tokenPosition: deprecated,
 	}).index("by_room", ["roomId"]),
 
 	notionImports: defineTable(notionImportProperties),

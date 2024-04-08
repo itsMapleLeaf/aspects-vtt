@@ -22,11 +22,13 @@ import type * as env from "../env.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
+import type * as migrations from "../migrations.js";
 import type * as notionImports from "../notionImports.js";
 import type * as resultResponse from "../resultResponse.js";
 import type * as RoomModel from "../RoomModel.js";
 import type * as rooms from "../rooms.js";
 import type * as storage from "../storage.js";
+import type * as token from "../token.js";
 import type * as users from "../users.js";
 
 /**
@@ -46,11 +48,13 @@ declare const fullApi: ApiFromModules<{
   helpers: typeof helpers;
   http: typeof http;
   messages: typeof messages;
+  migrations: typeof migrations;
   notionImports: typeof notionImports;
   resultResponse: typeof resultResponse;
   RoomModel: typeof RoomModel;
   rooms: typeof rooms;
   storage: typeof storage;
+  token: typeof token;
   users: typeof users;
 }>;
 export declare const api: FilterApi<
