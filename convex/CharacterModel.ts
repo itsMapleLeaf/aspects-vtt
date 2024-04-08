@@ -39,7 +39,10 @@ const characterDefaults: Required<{
 	playerNotes: "",
 
 	// token properties
-	tokenPosition: { x: 0, y: 0 },
+	token: {
+		position: { x: 0, y: 0 },
+		visible: false,
+	},
 
 	// visibility
 	visible: false,

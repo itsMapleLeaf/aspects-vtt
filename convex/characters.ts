@@ -7,6 +7,7 @@ import { characterNames } from "#app/features/characters/characterNames.ts"
 import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
 import { mutation, query } from "./_generated/server.js"
+import { tokenValidator } from "./token.js"
 import { getUserFromIdentity } from "./users.js"
 
 export const characterProperties = {
@@ -35,7 +36,7 @@ export const characterProperties = {
 	playerNotes: v.optional(v.string()),
 
 	// token properties
-	tokenPosition: v.optional(v.object({ x: v.number(), y: v.number() })),
+	token: v.optional(tokenValidator),
 
 	// visibility
 	visible: v.optional(v.boolean()),

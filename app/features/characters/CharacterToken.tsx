@@ -12,16 +12,14 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { ZoomContext } from "./context.tsx"
+import { ZoomContext } from "../tokens/context.tsx"
 
-export function Token({
+export function CharacterToken({
 	character,
 	selected,
 	onSelect,
-	...props
 }: {
 	character: ResultQueryData<typeof api.characters.list>[number]
-	tokenPosition: Vector
 	selected: boolean
 	onSelect: () => void
 }) {
@@ -29,7 +27,9 @@ export function Token({
 	const zoom = use(ZoomContext)
 
 	const [updateCharacterState, updateCharacter] = useAsyncState(useMutation(api.characters.update))
-	const tokenPosition = Vector.from(updateCharacterState.args?.tokenPosition ?? props.tokenPosition)
+	const tokenPosition = Vector.from(
+		updateCharacterState.args?.token?.position ?? character.token.position,
+	)
 
 	const buttonRef = useRef<HTMLButtonElement>(null)
 	const drag = useDrag(buttonRef, {
@@ -38,8 +38,10 @@ export function Token({
 			if (selected) {
 				updateCharacter({
 					id: character._id,
-					tokenPosition: tokenPosition.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize))
-						.rounded.xy,
+					token: {
+						...character.token,
+						position: tokenPosition.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize)),
+					},
 				})
 			}
 		},

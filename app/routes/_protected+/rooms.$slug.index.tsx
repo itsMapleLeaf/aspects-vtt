@@ -5,16 +5,15 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactElement, useEffect, useRef, useState } from "react"
 import { useAsyncState } from "#app/common/useAsyncState.js"
-import { Vector } from "#app/common/vector.js"
 import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
+import { CharacterToken } from "#app/features/characters/CharacterToken.js"
 import { CreateCharacterButton } from "#app/features/characters/CreateCharacterButton.tsx"
 import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterButton.tsx"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
-import { Token } from "#app/features/tokens/Token.tsx"
 import {
 	TokenMapViewport,
 	type ViewportController,
@@ -66,10 +65,9 @@ export default function RoomIndexRoute() {
 			<div className="fixed inset-0 -z-10">
 				<TokenMapViewport controllerRef={viewportRef}>
 					{characters?.map((character) => (
-						<Token
+						<CharacterToken
 							key={character._id}
 							character={character}
-							tokenPosition={Vector.from(character.tokenPosition)}
 							selected={selectedCharacterId === character._id}
 							onSelect={() => {
 								setSelectedCharacterId(character._id)
