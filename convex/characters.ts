@@ -2,7 +2,6 @@ import { brandedString, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { omit } from "#app/common/object.js"
 import { randomItem } from "#app/common/random.js"
-import { Vector } from "#app/common/vector.js"
 import { characterNames } from "#app/features/characters/characterNames.ts"
 import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
@@ -103,10 +102,13 @@ export const duplicate = mutation({
 		id: v.id("characters"),
 	},
 	handler: async (ctx, args) => {
-		const character = await CharacterModel.get(ctx, args.id).unwrap()
+		const { data } = await CharacterModel.get(ctx, args.id).unwrap()
 		return await ctx.db.insert("characters", {
-			...omit(character.data, ["_id", "_creationTime"]),
-			tokenPosition: Vector.from(character.data.tokenPosition ?? Vector.zero).plus(1, 0).xy,
+			...omit(data, ["_id", "_creationTime"]),
+			token: {
+				...data.token,
+				position: { x: data.token.position.x + 1, y: data.token.position.y },
+			},
 		})
 	},
 })
