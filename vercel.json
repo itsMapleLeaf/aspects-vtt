@@ -1,4 +1,4 @@
 {
 	"installCommand": "bun upgrade && bun install",
-	"buildCommand": "bunx convex deploy --cmd \"bun run build\" --cmd-url-env-var-name VITE_CONVEX_URL"
+	"buildCommand": "bunx convex deploy --cmd \"bun run build\" --cmd-url-env-var-name VITE_CONVEX_URL && bunx convex run migrations:migrate"
 }
