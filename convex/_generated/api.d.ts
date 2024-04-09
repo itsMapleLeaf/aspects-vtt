@@ -24,6 +24,7 @@ import type * as http from "../http.js";
 import type * as messages from "../messages.js";
 import type * as migrations from "../migrations.js";
 import type * as notionImports from "../notionImports.js";
+import type * as rectangles from "../rectangles.js";
 import type * as resultResponse from "../resultResponse.js";
 import type * as RoomModel from "../RoomModel.js";
 import type * as rooms from "../rooms.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   migrations: typeof migrations;
   notionImports: typeof notionImports;
+  rectangles: typeof rectangles;
   resultResponse: typeof resultResponse;
   RoomModel: typeof RoomModel;
   rooms: typeof rooms;
