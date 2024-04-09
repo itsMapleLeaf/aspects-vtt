@@ -23,7 +23,7 @@ export default {
 		animate,
 		plugin(function customPreflight(api) {
 			api.addComponents({
-				".flex-center-col": {
+				".flex-center, .flex-center-col": {
 					display: "flex",
 					flexDirection: "column",
 					justifyContent: "center",
