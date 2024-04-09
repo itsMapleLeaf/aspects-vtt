@@ -71,6 +71,12 @@ export class CharacterModel {
 			...docWithDefaults,
 			damageThreshold,
 			fatigueThreshold,
+
+			// temporary until implementing token toolbars to actually toggle visibility
+			token: {
+				...docWithDefaults.token,
+				visible: docWithDefaults.visible,
+			},
 		}
 	}
 
