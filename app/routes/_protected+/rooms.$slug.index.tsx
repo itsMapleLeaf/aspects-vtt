@@ -171,7 +171,7 @@ function ToolbarSeparator() {
 function CombatDetails() {
 	return (
 		<ul className="flex list-inside list-disc flex-col gap-1.5">
-			<li>Make one action (requires a dice roll)</li>
+			<li>Make one action</li>
 			<li>Take 1 fatigue → one extra action</li>
 			<li>
 				Move meters <abbr title="less than or equal to">≤</abbr> mobility
