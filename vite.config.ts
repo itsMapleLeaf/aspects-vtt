@@ -21,5 +21,4 @@ export default defineConfig({
 		inspect(),
 		visualizer({ emitFile: true, filename: "build/stats.html" }),
 	],
-	logLevel: "warn", // https://github.com/oven-sh/bun/issues/9811
 })
