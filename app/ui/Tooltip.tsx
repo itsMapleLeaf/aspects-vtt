@@ -6,12 +6,14 @@ import {
 	FloatingReference,
 } from "./Floating.tsx"
 
-interface TooltipProps extends ComponentPropsWithoutRef<"button"> {
-	text: string
+export interface TooltipProps extends ComponentPropsWithoutRef<"button"> {
+	text: React.ReactNode
 	placement?: FloatingProviderProps["placement"]
+	middleware?: FloatingProviderProps["middleware"]
+	buttonRef?: React.Ref<HTMLButtonElement>
 }
 
-export function Tooltip({ text, placement, ...props }: TooltipProps) {
+export function Tooltip({ text, placement, middleware, buttonRef, ...props }: TooltipProps) {
 	const [hover, setHover] = useState(false)
 	const [focus, setFocus] = useState(false)
 	const transition = useTransitionState(hover || focus)
@@ -19,7 +21,7 @@ export function Tooltip({ text, placement, ...props }: TooltipProps) {
 	const tooltipId = useId()
 
 	return (
-		<FloatingProvider placement={placement}>
+		<FloatingProvider placement={placement} middleware={middleware}>
 			<FloatingReference>
 				<button
 					type="button"
@@ -28,6 +30,7 @@ export function Tooltip({ text, placement, ...props }: TooltipProps) {
 					aria-controls={tooltipId}
 					tabIndex={0}
 					{...props}
+					ref={buttonRef}
 					onPointerEnter={(event) => {
 						setHover(true)
 						props.onPointerEnter?.(event)

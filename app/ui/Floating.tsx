@@ -8,10 +8,6 @@ export const defaultFloatingOptions = {
 	strategy: "fixed",
 	middleware: [
 		FloatingUI.offset(8),
-		FloatingUI.autoPlacement({
-			allowedPlacements: ["top", "bottom"],
-			autoAlignment: false,
-		}),
 		FloatingUI.shift({
 			crossAxis: true,
 			padding: 8,

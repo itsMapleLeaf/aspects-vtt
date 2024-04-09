@@ -9,7 +9,6 @@ import { DeleteCharacterButton } from "#app/features/characters/DeleteCharacterB
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
 import { Button } from "#app/ui/Button.js"
 import { Loading } from "#app/ui/Loading.tsx"
-import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 
@@ -28,11 +27,7 @@ export function CharactersPanel() {
 	useListener(selectCharacterEvent, setSelectedCharacterId)
 
 	return (
-		<div
-			className={panel(
-				"flex max-w-[360px] flex-1 flex-col gap-2 rounded-md bg-primary-100/75 p-2 shadow-md shadow-black/50 backdrop-blur",
-			)}
-		>
+		<div className="flex h-full flex-col gap-2 p-2">
 			<div className="flex gap-2">
 				<div className="flex-1">
 					{characters === undefined ?
