@@ -94,7 +94,7 @@ export function TokenMap({
 					}
 				>
 					{selected === rectangle._id && <TokenSelectionOutline />}
-					<div className="absolute inset-0 rounded border-[3px] border-blue-400" />
+					<div className="absolute inset-0 rounded border-[3px] border-blue-400 bg-blue-400/10" />
 				</TokenElement>
 			))}
 
