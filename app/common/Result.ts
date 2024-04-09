@@ -18,7 +18,7 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 	async resolve(): Promise<ResultData<T>> {
 		return Promise.resolve(this.fn()).then(
 			(value) => ({ ok: true, value, error: null }),
-			(error) => ({ ok: false, value: null, error }),
+			(error) => ({ ok: false, value: null, error: new ResultError(error) }),
 		)
 	}
 
