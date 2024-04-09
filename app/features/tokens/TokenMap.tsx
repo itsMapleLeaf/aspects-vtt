@@ -16,6 +16,7 @@ import {
 } from "#app/features/tokens/TokenMapViewport.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import { selectCharacterEvent } from "../characters/CharactersPanel.tsx"
 import { OffsetContext, ZoomContext } from "./context.tsx"
 
 export function TokenMap({
@@ -102,7 +103,10 @@ export function TokenMap({
 					key={character._id}
 					token={character.token}
 					size={Vector.from(room.mapCellSize * zoom)}
-					onPointerDown={() => setSelected(character._id)}
+					onPointerDown={() => {
+						setSelected(character._id)
+						selectCharacterEvent.emit(character._id)
+					}}
 					onMove={(position) =>
 						updateCharacter({
 							id: character._id,
