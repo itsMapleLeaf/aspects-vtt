@@ -28,7 +28,7 @@ export default function RoomIndexRoute() {
 	const [drawingArea, setDrawingArea] = useState(false)
 	return (
 		<div className="isolate flex h-dvh flex-col gap-4 p-4">
-			<JoinRoom />
+			<JoinRoomEffect />
 			<div className="fixed inset-0 -z-10">
 				<TokenMap
 					viewportRef={viewportRef}
@@ -157,7 +157,7 @@ export default function RoomIndexRoute() {
 	)
 }
 
-function JoinRoom() {
+function JoinRoomEffect() {
 	const room = useRoom()
 	const user = useQuery(api.auth.user)
 	const join = useMutation(api.rooms.join)
