@@ -13,3 +13,7 @@ export function roundToNearest(value: number, multiple: number): number {
 export function mod(a: number, b: number): number {
 	return ((a % b) + b) % b
 }
+
+export function lerp(a: number, b: number, t: number) {
+	return a + (b - a) * t
+}

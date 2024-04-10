@@ -1,4 +1,5 @@
 import { ColorSpace, OKLCH, sRGB, serialize, to } from "colorjs.io/fn"
+import { lerp } from "./common/math.ts"
 
 ColorSpace.register(OKLCH)
 ColorSpace.register(sRGB)
@@ -25,8 +26,4 @@ function generateOklchPalette(args: { hue: number; minChroma: number; maxChroma:
 		})
 	}
 	return colors
-}
-
-function lerp(a: number, b: number, t: number) {
-	return a + (b - a) * t
 }
