@@ -4,7 +4,7 @@ import * as Lucide from "lucide-react"
 import { Button } from "#app/ui/Button.js"
 import { Loading } from "#app/ui/Loading.js"
 import { AppHeaderLayout } from "../../ui/AppHeaderLayout"
-import { EmptyState } from "../../ui/EmptyState"
+import { EmptyStatePanel } from "../../ui/EmptyState"
 
 export default function ProtectedLayoutRoute() {
 	const currentUrl = useHref(useLocation())
@@ -13,7 +13,7 @@ export default function ProtectedLayoutRoute() {
 			<SignedOut>
 				<AppHeaderLayout>
 					<main>
-						<EmptyState
+						<EmptyStatePanel
 							icon={<Lucide.Lock />}
 							message="You must be signed in to continue."
 							actions={

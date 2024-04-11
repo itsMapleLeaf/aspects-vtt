@@ -1,9 +1,28 @@
+import { nullable } from "convex-helpers/validators"
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import { range } from "#app/common/range.js"
+import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { getUserFromIdentity } from "./users.js"
+
+export const roomProperties = {
+	name: v.optional(v.string()),
+	mapImageId: v.optional(v.id("_storage")),
+	mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
+	mapCellSize: v.optional(v.number()),
+	experience: v.optional(v.number()),
+	combat: v.optional(
+		nullable(
+			v.object({
+				members: v.array(v.id("characters")),
+				currentMemberIndex: v.number(),
+				currentRoundNumber: v.number(),
+			}),
+		),
+	),
+}
 
 export const get = query({
 	args: { slug: v.string() },
@@ -11,6 +30,7 @@ export const get = query({
 		return await RoomModel.fromSlug(ctx, args.slug)
 			.map(async (room) => {
 				const players = await room.getPlayers()
+
 				const playerUsers = await Promise.all(
 					players.map(async (player) => {
 						const user = await ctx.db
@@ -21,11 +41,23 @@ export const get = query({
 						return { name: user.name, clerkId: user.clerkId, avatarUrl: user.avatarUrl }
 					}),
 				)
+
 				return {
 					...room.data,
 					experience: room.data.experience ?? 0,
 					isOwner: await room.isOwner(),
 					players: playerUsers.filter(Boolean),
+					combat: room.data.combat && {
+						...room.data.combat,
+						members: (
+							await Promise.all(
+								room.data.combat.members.map(async (memberId) => {
+									const model = await CharacterModel.get(ctx, memberId).getValueOrNull()
+									return model?.getComputedData()
+								}),
+							)
+						).filter(Boolean),
+					},
 				}
 			})
 			.resolveJson()
@@ -77,11 +109,7 @@ export const create = mutation({
 export const update = mutation({
 	args: {
 		id: v.id("rooms"),
-		name: v.optional(v.string()),
-		mapImageId: v.optional(v.id("_storage")),
-		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
-		mapCellSize: v.optional(v.number()),
-		experience: v.optional(v.number()),
+		...roomProperties,
 	},
 	handler: async (ctx, { id, ...args }) => {
 		const room = await RoomModel.fromId(ctx, id).getValueOrThrow()

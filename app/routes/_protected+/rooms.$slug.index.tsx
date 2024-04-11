@@ -9,6 +9,7 @@ import { useAsyncState } from "#app/common/useAsyncState.js"
 import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
+import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
@@ -55,6 +56,11 @@ export default function RoomIndexRoute() {
 						<CharactersPanel />
 					</div>
 				</ToolbarPopoverButton>
+				<ToolbarPopoverButton text="Combat Initiative" icon={<Lucide.ListStart />}>
+					<div className="p-4">
+						<CombatInitiative />
+					</div>
+				</ToolbarPopoverButton>
 
 				<ToolbarSeparator />
 
@@ -64,7 +70,7 @@ export default function RoomIndexRoute() {
 					</div>
 				</ToolbarPopoverButton>
 
-				<ToolbarPopoverButton text="Combat" icon={<Lucide.Swords />}>
+				<ToolbarPopoverButton text="Combat Info" icon={<Lucide.Swords />}>
 					<div className="p-4">
 						<CombatDetails />
 					</div>

@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+	button {
+		cursor: unset;
+	}
+
 	:focus {
 		outline: none;
 	}

@@ -1,13 +1,14 @@
 import type { ReactNode } from "react"
+import { twMerge } from "tailwind-merge"
 
-export function EmptyState({
+export function EmptyStatePanel({
 	icon,
 	message,
 	actions,
 }: {
 	icon: ReactNode
 	message: string
-	actions: React.ReactNode
+	actions?: React.ReactNode
 }) {
 	return (
 		<div className="px-4 py-16">
@@ -19,5 +20,27 @@ export function EmptyState({
 				<div className="flex-center-row flex-wrap gap-2">{actions}</div>
 			</section>
 		</div>
+	)
+}
+
+export function EmptyState({
+	icon,
+	message,
+	actions,
+	className,
+}: {
+	icon: ReactNode
+	message: string
+	actions?: React.ReactNode
+	className?: string
+}) {
+	return (
+		<section className={twMerge("flex-center-col mx-auto w-full max-w-screen-sm gap-4", className)}>
+			<div aria-hidden className="text-primary-500 opacity-60 *:size-16">
+				{icon}
+			</div>
+			<p className="text-xl font-light">{message}</p>
+			<div className="flex-center-row flex-wrap gap-2">{actions}</div>
+		</section>
 	)
 }
