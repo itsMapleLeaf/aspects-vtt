@@ -57,7 +57,7 @@ export const list = query({
 		const { value: room } = await RoomModel.fromId(ctx, args.roomId)
 		const isRoomOwner = await room?.isOwner()
 
-		let query = ctx.db.query("characters")
+		let query = ctx.db.query("characters").withIndex("by_room", (q) => q.eq("roomId", args.roomId))
 		if (!isRoomOwner) {
 			query = query.filter((q) =>
 				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.clerkId)),
