@@ -1,3 +1,4 @@
+import * as Ariakit from "@ariakit/react"
 import { usePopoverStore } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import * as FloatingUI from "@floating-ui/react-dom"
@@ -50,11 +51,6 @@ export default function RoomIndexRoute() {
 			</div>
 
 			<Toolbar>
-				<ToolbarPopoverButton id="chat" text="Chat" icon={<Lucide.MessageCircle />}>
-					<div className="h-[960px]">
-						<MessagesPanel />
-					</div>
-				</ToolbarPopoverButton>
 				<ToolbarPopoverButton id="characters" text="Characters" icon={<Lucide.VenetianMask />}>
 					<div className="h-[960px]">
 						<CharactersPanel />
@@ -116,6 +112,23 @@ export default function RoomIndexRoute() {
 					</ToolbarPopoverButton>
 				</RoomOwnerOnly>
 			</Toolbar>
+
+			<div className="flex-center-row fixed inset-y-0 right-2 gap-2">
+				<Ariakit.DisclosureProvider>
+					<Button
+						icon={<Lucide.SidebarClose className="group-aria-expanded:-scale-x-100" />}
+						className="group opacity-50 hover:opacity-100"
+						element={<Ariakit.Disclosure title="Show Chat" />}
+					/>
+					<Ariakit.DisclosureContent
+						className={panel(
+							"h-[960px] max-h-[calc(100dvh-4rem)] w-[360px] translate-y-2 bg-primary-100/75 opacity-0 backdrop-blur-sm transition data-[enter]:translate-x-0 data-[enter]:translate-y-0 data-[enter]:opacity-100",
+						)}
+					>
+						<MessagesPanel />
+					</Ariakit.DisclosureContent>
+				</Ariakit.DisclosureProvider>
+			</div>
 
 			<CombatTurnBanner />
 		</>
