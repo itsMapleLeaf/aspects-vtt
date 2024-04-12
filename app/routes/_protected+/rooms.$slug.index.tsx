@@ -1,3 +1,4 @@
+import { usePopoverStore } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import * as FloatingUI from "@floating-ui/react-dom"
 import { useHref, useLocation } from "@remix-run/react"
@@ -46,17 +47,21 @@ export default function RoomIndexRoute() {
 			</div>
 
 			<Toolbar>
-				<ToolbarPopoverButton text="Chat" icon={<Lucide.MessageCircle />}>
+				<ToolbarPopoverButton id="chat" text="Chat" icon={<Lucide.MessageCircle />}>
 					<div className="h-[960px]">
 						<MessagesPanel />
 					</div>
 				</ToolbarPopoverButton>
-				<ToolbarPopoverButton text="Characters" icon={<Lucide.VenetianMask />}>
+				<ToolbarPopoverButton id="characters" text="Characters" icon={<Lucide.VenetianMask />}>
 					<div className="h-[960px]">
 						<CharactersPanel />
 					</div>
 				</ToolbarPopoverButton>
-				<ToolbarPopoverButton text="Combat Initiative" icon={<Lucide.ListStart />}>
+				<ToolbarPopoverButton
+					id="combatInitiative"
+					text="Combat Initiative"
+					icon={<Lucide.ListStart />}
+				>
 					<div className="p-4">
 						<CombatInitiative />
 					</div>
@@ -64,19 +69,23 @@ export default function RoomIndexRoute() {
 
 				<ToolbarSeparator />
 
-				<ToolbarPopoverButton text="General Skills" icon={<Lucide.Hammer />}>
+				<ToolbarPopoverButton id="generalSkills" text="General Skills" icon={<Lucide.Hammer />}>
 					<div className="p-4">
 						<GeneralSkillsList />
 					</div>
 				</ToolbarPopoverButton>
 
-				<ToolbarPopoverButton text="Combat Info" icon={<Lucide.Swords />}>
+				<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
 					<div className="p-4">
 						<CombatDetails />
 					</div>
 				</ToolbarPopoverButton>
 
-				<ToolbarPopoverButton text="Critical Injuries" icon={<Lucide.HeartCrack />}>
+				<ToolbarPopoverButton
+					id="criticalInjuries"
+					text="Critical Injuries"
+					icon={<Lucide.HeartCrack />}
+				>
 					<div className="p-4">
 						<CriticalInjuryDetails />
 					</div>
@@ -99,7 +108,7 @@ export default function RoomIndexRoute() {
 				<ToolbarSeparator />
 
 				<RoomOwnerOnly>
-					<ToolbarPopoverButton text="Settings" icon={<Lucide.Cog />}>
+					<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Cog />}>
 						<RoomSettingsForm />
 					</ToolbarPopoverButton>
 				</RoomOwnerOnly>
@@ -108,10 +117,21 @@ export default function RoomIndexRoute() {
 	)
 }
 
-const ToolbarRefContext = createContext<RefObject<HTMLDivElement>>({ current: null })
+const ToolbarContext = createContext<{
+	ref: RefObject<HTMLDivElement>
+	popoverId: string | undefined
+	open: (id: string) => void
+	close: () => void
+}>({
+	ref: { current: null },
+	popoverId: undefined,
+	open: () => {},
+	close: () => {},
+})
 
 function Toolbar(props: { children: React.ReactNode }) {
 	const ref = useRef<HTMLDivElement>(null)
+	const [popoverId, setPopoverId] = useState<string>()
 	return (
 		<nav
 			aria-label="Toolbar"
@@ -120,7 +140,11 @@ function Toolbar(props: { children: React.ReactNode }) {
 				"fixed inset-y-0 left-2 my-auto flex h-max flex-col gap-1 rounded-md bg-primary-100/75 p-2 shadow-md shadow-black/50 backdrop-blur",
 			)}
 		>
-			<ToolbarRefContext.Provider value={ref}>{props.children}</ToolbarRefContext.Provider>
+			<ToolbarContext.Provider
+				value={{ ref, popoverId, open: setPopoverId, close: () => setPopoverId(undefined) }}
+			>
+				{props.children}
+			</ToolbarContext.Provider>
 		</nav>
 	)
 }
@@ -148,21 +172,29 @@ function ToolbarButton(props: TooltipProps & { icon: React.ReactNode }) {
 }
 
 function ToolbarPopoverButton(props: {
+	id: string
 	text: string
 	icon: React.ReactNode
 	children: React.ReactNode
 }) {
-	const toolbarRef = use(ToolbarRefContext)
+	const context = use(ToolbarContext)
+
+	const popoverStore = usePopoverStore({
+		open: context.popoverId === props.id,
+		setOpen: (open) => (open ? context.open(props.id) : context.close()),
+	})
+
 	return (
-		<Popover placement="right">
+		<Popover placement="right" store={popoverStore}>
 			<PopoverTrigger
 				render={({ ref, ...rest }) => <ToolbarButton {...rest} {...props} buttonRef={ref} />}
 			/>
 			<PopoverPanel
 				gutter={8}
 				autoFocusOnHide={false}
-				getAnchorRect={() => toolbarRef.current?.getBoundingClientRect() ?? null}
-				className="max-h-[calc(100dvh-2rem)] w-[420px] overflow-y-auto"
+				hideOnInteractOutside={false}
+				getAnchorRect={() => context.ref.current?.getBoundingClientRect() ?? null}
+				className="relative max-h-[calc(100dvh-2rem)] w-[420px] bg-primary-100/75 backdrop-blur-sm"
 			>
 				{props.children}
 			</PopoverPanel>
