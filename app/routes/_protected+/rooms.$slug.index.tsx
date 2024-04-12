@@ -6,8 +6,10 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type RefObject, createContext, use, useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
+import { useListener } from "#app/common/emitter.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
+import { selectCharacterEvent } from "#app/features/characters/events.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
@@ -16,6 +18,7 @@ import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundBut
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
 import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
 import { AppHeader } from "#app/ui/AppHeader.js"
+import { Button } from "#app/ui/Button.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField } from "#app/ui/FormField.js"
 import { Input } from "#app/ui/Input.js"
@@ -113,6 +116,8 @@ export default function RoomIndexRoute() {
 					</ToolbarPopoverButton>
 				</RoomOwnerOnly>
 			</Toolbar>
+
+			<CombatTurnBanner />
 		</>
 	)
 }
@@ -132,6 +137,7 @@ const ToolbarContext = createContext<{
 function Toolbar(props: { children: React.ReactNode }) {
 	const ref = useRef<HTMLDivElement>(null)
 	const [popoverId, setPopoverId] = useState<string>()
+	useListener(selectCharacterEvent, () => setPopoverId("characters"))
 	return (
 		<nav
 			aria-label="Toolbar"
@@ -194,9 +200,15 @@ function ToolbarPopoverButton(props: {
 				autoFocusOnHide={false}
 				hideOnInteractOutside={false}
 				getAnchorRect={() => context.ref.current?.getBoundingClientRect() ?? null}
-				className="relative max-h-[calc(100dvh-2rem)] w-[420px] bg-primary-100/75 backdrop-blur-sm"
+				className="relative max-h-[calc(100dvh-2rem)] w-[360px] bg-primary-100/75 backdrop-blur-sm"
 			>
 				{props.children}
+				<Button
+					icon={<Lucide.X />}
+					title="Close"
+					onClick={() => context.close()}
+					className="absolute inset-y-0 left-[calc(100%+0.5rem)] my-auto opacity-50 hover:opacity-100"
+				/>
 			</PopoverPanel>
 		</Popover>
 	)
@@ -354,6 +366,22 @@ function RoomSettingsForm() {
 					onChange={(e) => updateRoom({ id: room._id, experience: Number(e.target.value) })}
 				/>
 			</FormField>
+		</div>
+	)
+}
+
+function CombatTurnBanner() {
+	const room = useRoom()
+	const isTurn = !room.isOwner && room.combat?.members[room.combat.currentMemberIndex]?.isOwner
+	return (
+		<div
+			className={panel(
+				"flex-center fixed inset-x-0 top-20 mx-auto max-w-sm translate-y-2 p-3 text-center opacity-0 shadow-md shadow-black/50 transition",
+				isTurn && "translate-y-0 opacity-100",
+			)}
+		>
+			<h2 className="text-2xl font-light">It's your turn!</h2>
+			<p>What will you do?</p>
 		</div>
 	)
 }

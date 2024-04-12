@@ -52,7 +52,7 @@ export function CombatInitiative() {
 							)}
 						>
 							<div className="grid gap-1 px-3 py-2">
-								<h4 className="text-2xl font-light">{member.name}</h4>
+								<h4 className="text-2xl font-light">{member.displayName}</h4>
 								<p className="flex gap-3">
 									<Tooltip text="Damage" className="flex gap-1">
 										<Lucide.HeartCrack className="text-red-400" />
@@ -68,13 +68,15 @@ export function CombatInitiative() {
 									</Tooltip>
 								</p>
 							</div>
-							<button
-								type="button"
-								className="p-2 opacity-50 transition-opacity hover:opacity-100"
-								onClick={() => actions.removeMember({ id: room._id, characterId: member._id })}
-							>
-								<Lucide.X />
-							</button>
+							<RoomOwnerOnly>
+								<button
+									type="button"
+									className="p-2 opacity-50 transition-opacity hover:opacity-100"
+									onClick={() => actions.removeMember({ id: room._id, characterId: member._id })}
+								>
+									<Lucide.X />
+								</button>
+							</RoomOwnerOnly>
 						</li>
 					))}
 				</ol>

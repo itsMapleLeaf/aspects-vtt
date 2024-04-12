@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
-import { Emitter, useListener } from "#app/common/emitter.js"
+import { useListener } from "#app/common/emitter.js"
 import { CharacterForm } from "#app/features/characters/CharacterForm.tsx"
 import { CharacterSelect } from "#app/features/characters/CharacterSelect.tsx"
 import { CreateCharacterButton } from "#app/features/characters/CreateCharacterButton.tsx"
@@ -11,8 +11,7 @@ import { Button } from "#app/ui/Button.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
-
-export const selectCharacterEvent = new Emitter<Id<"characters">>()
+import { selectCharacterEvent } from "./events"
 
 export function CharactersPanel() {
 	const room = useRoom()
