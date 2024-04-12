@@ -5,7 +5,6 @@ import { type Ref, use, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import { useMutationState } from "#app/common/convex.js"
-import { useAsyncState } from "#app/common/useAsyncState.js"
 import { useDrag } from "#app/common/useDrag.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
@@ -36,7 +35,7 @@ export function TokenMap({
 	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const updateCharacter = useMutation(api.characters.update)
 
-	const [createRectangleState, createRectangle] = useAsyncState(useMutation(api.rectangles.create))
+	const [createRectangleState, createRectangle] = useMutationState(api.rectangles.create)
 	const [updateRectangleState, updateRectangle] = useMutationState(api.rectangles.update)
 	const [removeRectangleState, removeRectangle] = useMutationState(api.rectangles.remove)
 
