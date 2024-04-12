@@ -27,6 +27,7 @@ import type * as notionImports from "../notionImports.js";
 import type * as rectangles from "../rectangles.js";
 import type * as resultResponse from "../resultResponse.js";
 import type * as RoomModel from "../RoomModel.js";
+import type * as rooms_combat from "../rooms/combat.js";
 import type * as rooms from "../rooms.js";
 import type * as storage from "../storage.js";
 import type * as token from "../token.js";
@@ -54,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   rectangles: typeof rectangles;
   resultResponse: typeof resultResponse;
   RoomModel: typeof RoomModel;
+  "rooms/combat": typeof rooms_combat;
   rooms: typeof rooms;
   storage: typeof storage;
   token: typeof token;

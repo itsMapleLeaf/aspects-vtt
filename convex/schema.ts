@@ -4,6 +4,7 @@ import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
 import { notionImportProperties } from "./notionImports.ts"
 import { rectangleProperties } from "./rectangles.ts"
+import { roomProperties } from "./rooms.ts"
 
 export default defineSchema({
 	users: defineTable({
@@ -13,13 +14,9 @@ export default defineSchema({
 	}).index("by_clerk_id", ["clerkId"]),
 
 	rooms: defineTable({
-		name: v.string(),
 		slug: v.string(),
 		ownerId: brandedString("clerkId"),
-		mapImageId: v.optional(v.id("_storage")),
-		mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
-		mapCellSize: v.optional(v.number()),
-		experience: v.optional(v.number()),
+		...roomProperties,
 	})
 		.index("by_slug", ["slug"])
 		.index("by_owner", ["ownerId"]),
