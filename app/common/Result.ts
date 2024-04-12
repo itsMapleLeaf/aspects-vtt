@@ -2,7 +2,7 @@ import type { Awaitable } from "./types.ts"
 
 export type ResultData<T> =
 	| { ok: true; value: T; error: null }
-	| { ok: false; value: null; error: ResultError }
+	| { ok: false; value: null; error: unknown }
 
 export type ResultJson<T> =
 	| { ok: true; value: T; error: null }
@@ -15,18 +15,24 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 		return new Result(fn)
 	}
 
-	async resolve(): Promise<ResultData<T>> {
-		return Promise.resolve(this.fn()).then(
-			(value) => ({ ok: true, value, error: null }),
-			(error) => ({ ok: false, value: null, error: new ResultError(error) }),
-		)
+	map<U>(fn: (value: Awaited<T>) => Awaitable<U>): Result<U> {
+		return Result.fn(async () => fn(await this.fn()))
 	}
 
-	async getValueOrThrow() {
+	async resolve(): Promise<ResultData<T>> {
+		try {
+			const value = await this.fn()
+			return { ok: true, value, error: null }
+		} catch (error) {
+			return { ok: false, value: null, error }
+		}
+	}
+
+	async getValueOrThrow(): Promise<T> {
 		return await this.fn()
 	}
 
-	async getValueOrNull() {
+	async getValueOrNull(): Promise<T | null> {
 		try {
 			return await this.fn()
 		} catch {
@@ -34,21 +40,15 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 		}
 	}
 
-	/** @deprecated Use {@link getValueOrThrow} instead */
-	async unwrap() {
-		return await this.fn()
-	}
-
 	async resolveJson(): Promise<ResultJson<T>> {
 		const result = await this.resolve()
 		return result.ok ?
 				{ ok: true, value: result.value, error: null }
-			:	{ ok: false, value: null, error: result.error.message }
-	}
-
-	/** @deprecated Use {@link resolveJson} instead */
-	async json(): Promise<ResultJson<T>> {
-		return await this.resolveJson()
+			:	{
+					ok: false,
+					value: null,
+					error: result.error instanceof Error ? result.error.message : String(result.error),
+				}
 	}
 
 	// biome-ignore lint/suspicious/noThenProperty: intentionally implementing PromiseLike
@@ -57,11 +57,5 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 		onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null | undefined,
 	): PromiseLike<TResult1 | TResult2> {
 		return this.resolve().then(onfulfilled, onrejected)
-	}
-}
-
-export class ResultError extends Error {
-	constructor(cause: unknown) {
-		super("Result failed", { cause })
 	}
 }

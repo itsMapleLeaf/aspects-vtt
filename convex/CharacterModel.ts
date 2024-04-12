@@ -104,7 +104,7 @@ export class CharacterModel {
 	}
 
 	async getRoom() {
-		return await RoomModel.fromId(this.ctx, this.data.roomId).unwrap()
+		return await RoomModel.fromId(this.ctx, this.data.roomId).getValueOrThrow()
 	}
 
 	async getComputedData() {

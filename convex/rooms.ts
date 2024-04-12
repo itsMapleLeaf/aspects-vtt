@@ -1,6 +1,5 @@
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
-import { Result } from "#app/common/Result.js"
 import { range } from "#app/common/range.js"
 import { RoomModel } from "./RoomModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
@@ -9,26 +8,27 @@ import { getUserFromIdentity } from "./users.js"
 export const get = query({
 	args: { slug: v.string() },
 	handler: async (ctx, args) => {
-		return await Result.fn(async () => {
-			const room = await RoomModel.fromSlug(ctx, args.slug).unwrap()
-			const players = await room.getPlayers()
-			const playerUsers = await Promise.all(
-				players.map(async (player) => {
-					const user = await ctx.db
-						.query("users")
-						.withIndex("by_clerk_id", (q) => q.eq("clerkId", player.userId))
-						.first()
-					if (!user) return null
-					return { name: user.name, clerkId: user.clerkId, avatarUrl: user.avatarUrl }
-				}),
-			)
-			return {
-				...room.data,
-				experience: room.data.experience ?? 0,
-				isOwner: await room.isOwner(),
-				players: playerUsers.filter(Boolean),
-			}
-		}).json()
+		return await RoomModel.fromSlug(ctx, args.slug)
+			.map(async (room) => {
+				const players = await room.getPlayers()
+				const playerUsers = await Promise.all(
+					players.map(async (player) => {
+						const user = await ctx.db
+							.query("users")
+							.withIndex("by_clerk_id", (q) => q.eq("clerkId", player.userId))
+							.first()
+						if (!user) return null
+						return { name: user.name, clerkId: user.clerkId, avatarUrl: user.avatarUrl }
+					}),
+				)
+				return {
+					...room.data,
+					experience: room.data.experience ?? 0,
+					isOwner: await room.isOwner(),
+					players: playerUsers.filter(Boolean),
+				}
+			})
+			.resolveJson()
 	},
 })
 
@@ -36,7 +36,7 @@ export const list = query({
 	handler: async (ctx: QueryCtx) => {
 		const { value: user, error: userError } = await getUserFromIdentity(ctx)
 		if (!user) {
-			console.warn("Attempted to list rooms without a user.", userError.cause)
+			console.warn("Attempted to list rooms without a user.", userError)
 			return []
 		}
 
@@ -84,7 +84,7 @@ export const update = mutation({
 		experience: v.optional(v.number()),
 	},
 	handler: async (ctx, { id, ...args }) => {
-		const room = await RoomModel.fromId(ctx, id).unwrap()
+		const room = await RoomModel.fromId(ctx, id).getValueOrThrow()
 		await room.update(ctx, args)
 	},
 })
@@ -92,7 +92,7 @@ export const update = mutation({
 export const remove = mutation({
 	args: { id: v.id("rooms") },
 	handler: async (ctx, args) => {
-		const room = await RoomModel.fromId(ctx, args.id).unwrap()
+		const room = await RoomModel.fromId(ctx, args.id).getValueOrThrow()
 		await room.delete(ctx)
 	},
 })
@@ -102,7 +102,7 @@ export const join = mutation({
 		id: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
-		const room = await RoomModel.fromId(ctx, args.id).unwrap()
+		const room = await RoomModel.fromId(ctx, args.id).getValueOrThrow()
 		await room.join(ctx)
 	},
 })

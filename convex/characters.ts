@@ -50,7 +50,7 @@ export const list = query({
 	handler: async (ctx, args) => {
 		const { value: user, error: userError } = await getUserFromIdentity(ctx)
 		if (!user) {
-			console.warn("Attempted to list characters without a user.", userError.cause)
+			console.warn("Attempted to list characters without a user.", userError)
 			return []
 		}
 
@@ -78,7 +78,7 @@ export const create = mutation({
 		roomId: v.id("rooms"),
 	},
 	handler: async (ctx, args) => {
-		const room = await RoomModel.fromId(ctx, args.roomId).unwrap()
+		const room = await RoomModel.fromId(ctx, args.roomId).getValueOrThrow()
 		await room.assertOwned()
 
 		const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
@@ -102,7 +102,7 @@ export const duplicate = mutation({
 		id: v.id("characters"),
 	},
 	handler: async (ctx, args) => {
-		const { data } = await CharacterModel.get(ctx, args.id).unwrap()
+		const { data } = await CharacterModel.get(ctx, args.id).getValueOrThrow()
 		return await ctx.db.insert("characters", {
 			...omit(data, ["_id", "_creationTime"]),
 			token: {
@@ -125,7 +125,7 @@ export const update = mutation({
 		),
 	},
 	handler: async (ctx, { id, aspectSkills, ...args }) => {
-		const character = await CharacterModel.get(ctx, id).unwrap()
+		const character = await CharacterModel.get(ctx, id).getValueOrThrow()
 
 		let newAspectSkills
 		if (aspectSkills) {
@@ -149,7 +149,7 @@ export const remove = mutation({
 		id: v.id("characters"),
 	},
 	handler: async (ctx, args) => {
-		const character = await CharacterModel.get(ctx, args.id).unwrap()
+		const character = await CharacterModel.get(ctx, args.id).getValueOrThrow()
 		await character.delete(ctx)
 	},
 })

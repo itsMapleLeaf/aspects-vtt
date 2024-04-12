@@ -60,8 +60,7 @@ export class RoomModel {
 	}
 
 	getIdentityPlayer() {
-		return Result.fn(async () => {
-			const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
+		return getUserFromIdentity(this.ctx).map((user) => {
 			return this.ctx.db
 				.query("players")
 				.withIndex("by_room_and_user", (q) =>
