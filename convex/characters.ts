@@ -102,12 +102,12 @@ export const duplicate = mutation({
 		id: v.id("characters"),
 	},
 	handler: async (ctx, args) => {
-		const { data } = await CharacterModel.get(ctx, args.id).getValueOrThrow()
+		const { doc } = await CharacterModel.get(ctx, args.id).getValueOrThrow()
 		return await ctx.db.insert("characters", {
-			...omit(data, ["_id", "_creationTime"]),
-			token: {
-				...data.token,
-				position: { x: data.token.position.x + 1, y: data.token.position.y },
+			...omit(doc, ["_id", "_creationTime"]),
+			token: doc.token && {
+				...doc.token,
+				position: { x: doc.token.position.x + 1, y: doc.token.position.y },
 			},
 		})
 	},

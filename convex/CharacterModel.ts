@@ -57,6 +57,7 @@ const getThreshold = (stat: number) =>
 
 export class CharacterModel {
 	readonly ctx
+	readonly doc
 	readonly data
 
 	constructor(ctx: QueryCtx, doc: Doc<"characters">) {
@@ -66,6 +67,8 @@ export class CharacterModel {
 
 		const damageThreshold = getThreshold(docWithDefaults.strength)
 		const fatigueThreshold = getThreshold(docWithDefaults.sense)
+
+		this.doc = doc
 
 		this.data = {
 			...docWithDefaults,
