@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from "convex/react"
 import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
-import { type Ref, use, useRef, useState } from "react"
+import { type Ref, use, useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import { twMerge } from "tailwind-merge"
 import { useMutationState } from "#app/common/convex.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { useDrag } from "#app/common/useDrag.js"
@@ -94,7 +96,8 @@ export function TokenMap({
 					}
 				>
 					{selected === rectangle._id && <TokenSelectionOutline />}
-					<div className="absolute inset-0 rounded border-[3px] border-blue-400 bg-blue-400/10" />
+					<div className="absolute inset-0 rounded border-[3px] border-blue-400 bg-blue-400/20" />
+					<SizeTooltipArea size={Vector.fromSize(rectangle.size)} className="text-blue-100" />
 				</TokenElement>
 			))}
 
@@ -177,7 +180,7 @@ function AreaPlacement({
 		async onFinish() {
 			createRectangle({
 				roomId: room._id,
-				size: bottomRight.minus(topLeft).plus(1).abs.toObject("width", "height"),
+				size: rectSize.toObject("width", "height"),
 				token: {
 					position: topLeft.xy,
 					visible: true,
@@ -197,6 +200,8 @@ function AreaPlacement({
 		.dividedBy(zoom * room.mapCellSize).floor
 
 	const translation = topLeft.times(zoom * room.mapCellSize).plus(offset)
+
+	const rectSize = bottomRight.minus(topLeft).plus(1).abs
 
 	const dimensions = bottomRight
 		.minus(topLeft)
@@ -219,7 +224,76 @@ function AreaPlacement({
 					width: dimensions.x,
 					height: dimensions.y,
 				}}
-			/>
+			>
+				{drag && <SizeLabel size={rectSize} className="text-primary-800" />}
+			</div>
+		</div>
+	)
+}
+
+function SizeLabel({
+	size,
+	revealOnHover,
+	className,
+}: {
+	size: Vector
+	revealOnHover?: boolean
+	className?: string
+}) {
+	return (
+		<div className={twMerge("pointer-events-[] group flex-center relative size-full", className)}>
+			<p
+				className={twMerge(
+					"rounded-md bg-black/50 px-2 py-1.5 text-2xl/none font-medium",
+					revealOnHover && "opacity-0 transition group-hover:opacity-100",
+				)}
+			>
+				{size.x}x{size.y}
+			</p>
+		</div>
+	)
+}
+
+/** Shows a tooltip with the size of the token next to the cursor */
+function SizeTooltipArea({ size, className }: { size: Vector; className?: string }) {
+	const [mouse, setMouse] = useState(Vector.zero)
+	const [isOver, setIsOver] = useState(false)
+
+	const containerRef = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		const handleMouseMove = (event: PointerEvent) => {
+			if (!containerRef.current) return
+			const rect = containerRef.current.getBoundingClientRect()
+			const position = Vector.from(event.clientX, event.clientY)
+			setMouse(position)
+			setIsOver(
+				event.target === containerRef.current &&
+					position.x > rect.left &&
+					position.x < rect.right &&
+					position.y > rect.top &&
+					position.y < rect.bottom,
+			)
+		}
+
+		document.addEventListener("pointermove", handleMouseMove)
+		return () => document.removeEventListener("pointermove", handleMouseMove)
+	}, [])
+
+	return (
+		<div ref={containerRef} className={twMerge("absolute inset-0", className)}>
+			{createPortal(
+				<p
+					className={twMerge(
+						"fixed left-4 top-4 rounded-md bg-black/50 px-2 py-1.5 text-2xl/none font-medium opacity-0 transition-opacity",
+						isOver && "opacity-100",
+					)}
+					style={{ transform: `translate(${mouse.x}px, ${mouse.y}px)` }}
+				>
+					{size.x}x{size.y}
+				</p>,
+				document.body,
+			)}
 		</div>
 	)
 }

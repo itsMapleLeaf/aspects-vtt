@@ -19,18 +19,18 @@ export function TokenElement({
 	size: Vector
 	children: React.ReactNode
 	attachments?: React.ReactNode
-	onPointerDown: () => void
-	onMove: (newGridPosition: Vector) => Promise<unknown>
+	onPointerDown?: () => void
+	onMove?: (newGridPosition: Vector) => Promise<unknown>
 }) {
 	const room = useRoom()
 	const offset = use(OffsetContext)
 	const zoom = use(ZoomContext)
-	const [moveState, move] = useAsyncState(onMove)
+	const [moveState, move] = useAsyncState((newPosition: Vector) => onMove?.(newPosition))
 	const tokenPosition = Vector.from(moveState.args ?? token.position)
 
 	const buttonRef = useRef<HTMLButtonElement>(null)
 	const drag = useDrag(buttonRef, {
-		onStart: () => onPointerDown(),
+		onStart: () => onPointerDown?.(),
 		onFinish: ({ distance }) => {
 			move(tokenPosition.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize)).rounded)
 		},
