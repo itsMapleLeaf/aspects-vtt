@@ -210,6 +210,7 @@ function ToolbarPopoverButton(props: {
 			/>
 			<PopoverPanel
 				gutter={8}
+				autoFocusOnShow={false}
 				autoFocusOnHide={false}
 				hideOnInteractOutside={false}
 				getAnchorRect={() => context.ref.current?.getBoundingClientRect() ?? null}
