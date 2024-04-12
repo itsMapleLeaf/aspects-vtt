@@ -207,7 +207,7 @@ function ToolbarPopoverButton(props: {
 					icon={<Lucide.X />}
 					title="Close"
 					onClick={() => context.close()}
-					className="absolute inset-y-0 left-[calc(100%+0.5rem)] my-auto opacity-50 hover:opacity-100"
+					className="absolute inset-y-0 left-[calc(100%+0.5rem)] my-auto aspect-square opacity-50 hover:opacity-100"
 				/>
 			</PopoverPanel>
 		</Popover>
