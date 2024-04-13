@@ -65,11 +65,14 @@ export const list = query({
 		}
 
 		const docs = await query.collect()
-		return await Promise.all(
+
+		const results = await Promise.all(
 			docs
 				.map((doc) => new CharacterModel(ctx, doc))
 				.map(async (model) => await model.getComputedData()),
 		)
+
+		return results.sort((a, b) => a.name.localeCompare(b.name))
 	},
 })
 
