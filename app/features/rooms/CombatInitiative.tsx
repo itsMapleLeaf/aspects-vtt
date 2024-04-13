@@ -104,7 +104,7 @@ export function CombatInitiative() {
 					<div className="grid auto-cols-fr grid-flow-col gap-3">
 						{characters && (
 							<Menu placement="bottom">
-								<MenuButton render={<Button icon={<Lucide.Plus />} text="Add Member" />} />
+								<Button icon={<Lucide.Plus />} text="Add Member" element={<MenuButton />} />
 								<MenuPanel>
 									{characters
 										.filter((character) => !combatMembersById.has(character._id))
