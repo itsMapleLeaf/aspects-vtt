@@ -110,10 +110,21 @@ export const update = mutation({
 	args: {
 		id: v.id("rooms"),
 		...roomProperties,
+		combat: v.optional(
+			v.object({
+				members: v.array(v.id("characters")),
+			}),
+		),
 	},
 	handler: async (ctx, { id, ...args }) => {
 		const room = await RoomModel.fromId(ctx, id).getValueOrThrow()
-		await room.update(ctx, args)
+		await room.update(ctx, {
+			...args,
+			combat: room.data.combat && {
+				...room.data.combat,
+				members: args.combat?.members ?? room.data.combat.members,
+			},
+		})
 	},
 })
 

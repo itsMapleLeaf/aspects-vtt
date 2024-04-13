@@ -10,6 +10,36 @@ import { api } from "#convex/_generated/api.js"
 
 export function CombatInitiative() {
 	const room = useRoom()
+
+	const updateRoom = useMutation(api.rooms.update).withOptimisticUpdate((store, args) => {
+		for (const query of store.getAllQueries(api.rooms.get)) {
+			const room = query.value?.value
+			if (!room) continue
+			if (room._id !== args.id) continue
+
+			const membersById = new Map(room.combat?.members.map((member) => [member._id, member]))
+			const newMembers = args.combat?.members?.map((id) => membersById.get(id)).filter(Boolean)
+
+			store.setQuery(
+				api.rooms.get,
+				{ slug: room.slug },
+				{
+					ok: true as const,
+					value: {
+						...room,
+						...args,
+						combat: room.combat && {
+							...room.combat,
+							members: newMembers ?? [],
+						},
+					},
+					error: null,
+				},
+			)
+			return
+		}
+	})
+
 	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const combatMembersById = new Map(room.combat?.members.map((member) => [member._id, member]))
 
@@ -23,7 +53,8 @@ export function CombatInitiative() {
 		removeMember: useMutation(api.rooms.combat.removeMember),
 	}
 
-	return room.combat == null ?
+	const combat = room.combat
+	return combat == null ?
 			<EmptyState
 				icon={<Lucide.ListStart />}
 				message="Combat is currently inactive."
@@ -40,16 +71,36 @@ export function CombatInitiative() {
 		:	<section className="grid gap-3">
 				<h3 className="-mb-2 text-3xl font-light">Combat</h3>
 				<p className="text-sm font-bold uppercase tracking-wide text-primary-800">
-					Round {room.combat.currentRoundNumber}
+					Round {combat.currentRoundNumber}
 				</p>
 				<ol className="grid gap-3">
-					{room.combat.members.map((member, index) => (
+					{combat.members.map((member, index) => (
 						<li
 							key={member._id}
 							className={panel(
 								"flex justify-between",
-								room.combat?.currentMemberIndex !== index && "opacity-50",
+								combat?.currentMemberIndex !== index && "opacity-50",
 							)}
+							draggable
+							onDragStart={(e) => e.dataTransfer.setData("text/plain", member._id)}
+							onDragEnd={(e) => e.preventDefault()}
+							onDragOver={(e) => e.preventDefault()}
+							onDrop={(e) => {
+								e.preventDefault()
+								const newMembers = [...combat.members]
+								const droppedId = e.dataTransfer.getData("text/plain")
+								if (!droppedId) return
+								const droppedMember = newMembers.find((member) => member._id === droppedId)
+								if (!droppedMember) return
+
+								const droppedMemberIndex = newMembers.indexOf(droppedMember)
+								newMembers.splice(droppedMemberIndex, 1)
+								newMembers.splice(index, 0, droppedMember)
+								updateRoom({
+									id: room._id,
+									combat: { members: newMembers.map((member) => member._id) },
+								})
+							}}
 						>
 							<div className="grid gap-1 px-3 py-2">
 								<h4 className="text-2xl font-light">{member.displayName}</h4>
@@ -91,9 +142,7 @@ export function CombatInitiative() {
 							text="Back"
 							icon={<Lucide.ChevronsLeft />}
 							onClick={() => actions.back({ id: room._id })}
-							disabled={
-								room.combat.currentMemberIndex === 0 && room.combat.currentRoundNumber === 1
-							}
+							disabled={combat.currentMemberIndex === 0 && combat.currentRoundNumber === 1}
 						/>
 						<Button
 							text="Advance"
