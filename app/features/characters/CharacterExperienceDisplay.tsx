@@ -42,7 +42,7 @@ export function CharacterExperienceDisplay({
 				className,
 			)}
 		>
-			Experience: {usedExperience} / {room.experience}
+			Experience: {room.experience - usedExperience} / {room.experience}
 		</span>
 	)
 }
