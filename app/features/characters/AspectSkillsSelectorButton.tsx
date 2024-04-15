@@ -42,7 +42,7 @@ export function AspectSkillsSelectorButton({
 	)
 
 	const getCost = (skill: ApiAspectSkill, index: number) =>
-		index <= 1 ? 0 : (Math.max(0, index - 2) + 1) * 5 + (skill.aspects.length - 1) * 10
+		index <= 1 ? 0 : skill.aspects.length * 10 + Math.max(0, index - 2) * 5
 
 	const usedExperience = [...addedAspectSkills.values()]
 		.map((name) => aspectSkillsByName.get(name))
@@ -62,6 +62,9 @@ export function AspectSkillsSelectorButton({
 	const searchResults = matchSorter(notionData?.aspectSkills ?? [], search, {
 		keys: ["name", "aspects", "description"],
 	})
+	searchResults
+		.sort((a, b) => a.name.localeCompare(b.name))
+		.sort((a, b) => a.aspects.length - b.aspects.length)
 
 	const groups = groupBy(searchResults, (skill) =>
 		addedAspectSkills.has(skill.name) ? "learned"
@@ -88,8 +91,13 @@ export function AspectSkillsSelectorButton({
 				<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
 					{groups
 						.get("learned")
-						?.map((skill) => (
-							<AspectSkillItem key={skill.name} skill={skill} character={character} />
+						?.map((skill, index) => (
+							<AspectSkillItem
+								key={skill.name}
+								skill={skill}
+								character={character}
+								cost={getCost(skill, index)}
+							/>
 						))}
 					{groups
 						.get("available")
