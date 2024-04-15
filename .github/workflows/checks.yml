@@ -17,6 +17,8 @@ jobs:
             needs-build: false
           - name: typecheck
             needs-build: true
+          - name: test
+            needs-build: false
       fail-fast: false
     name: ${{ matrix.script.name }}
     steps:
