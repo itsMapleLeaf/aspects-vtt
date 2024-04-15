@@ -7,7 +7,7 @@ import { CheckboxField } from "#app/ui/CheckboxField.js"
 import { Input } from "#app/ui/Input.tsx"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
-import { type DiceKind, diceKinds } from "../dice/diceKinds.tsx"
+import { type DiceKind, diceKinds, getDiceKindApiInput } from "../dice/diceKinds.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function MessageForm() {
@@ -36,11 +36,7 @@ export function MessageForm() {
 						roomId: room._id,
 						content: content,
 						dice: diceKinds
-							.map((kind) => ({
-								name: kind.name,
-								sides: kind.faces.length,
-								count: diceCounts[kind.name] ?? 0,
-							}))
+							.map((kind) => getDiceKindApiInput(kind, diceCounts[kind.name] ?? 0))
 							.filter(({ count }) => count > 0),
 					})
 					setContent("")

@@ -2,6 +2,7 @@ import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
 import { range } from "#app/common/range.js"
 import { Tooltip } from "#app/ui/Tooltip.js"
+import type { DiceInput } from "#convex/messages.js"
 
 export type DiceStat = {
 	name: string
@@ -18,11 +19,21 @@ export type DiceKind = {
 	name: string
 	element: JSX.Element
 	faces: DiceFace[]
+	explodes: boolean
 }
 
 export type DiceFace = {
 	element: JSX.Element
 	modifyStats: ReadonlyMap<DiceStat, number>
+}
+
+export function getDiceKindApiInput(kind: DiceKind, count: number): DiceInput {
+	return {
+		name: kind.name,
+		sides: kind.faces.length,
+		count,
+		explodes: kind.explodes,
+	}
 }
 
 export const statDiceKinds: DiceKind[] = [
@@ -88,6 +99,7 @@ function defineNumeric({
 	const name = `d${faceCount}`
 	return {
 		name,
+		explodes: true,
 		element: (
 			<div className="flex-center-col relative text-primary-700 @container">
 				<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">{icon}</div>
@@ -131,6 +143,7 @@ function defineModifier({
 	const faceCount = 4
 	return {
 		name,
+		explodes: false,
 		element: (
 			<div className={twMerge("flex-center-col relative", className)}>
 				<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />

@@ -2,6 +2,7 @@ import { brandedString, deprecated } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
+import { diceRollValidator } from "./messages.ts"
 import { notionImportProperties } from "./notionImports.ts"
 import { rectangleProperties } from "./rectangles.ts"
 import { roomProperties } from "./rooms.ts"
@@ -33,11 +34,7 @@ export default defineSchema({
 		roomId: v.id("rooms"),
 		userId: brandedString("clerkId"),
 		content: v.optional(v.string()),
-		diceRoll: v.optional(
-			v.object({
-				dice: v.array(v.object({ key: v.string(), name: v.string(), result: v.number() })),
-			}),
-		),
+		diceRoll: v.optional(diceRollValidator),
 	}).index("by_room", ["roomId"]),
 
 	characters: defineTable({

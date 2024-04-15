@@ -1,11 +1,15 @@
 import { paginationOptsValidator } from "convex/server"
-import { ConvexError, v } from "convex/values"
+import { ConvexError, type Infer, v } from "convex/values"
 import { expect } from "#app/common/expect.js"
 import { pick } from "#app/common/object.js"
 import { range } from "#app/common/range.js"
 import { CharacterModel } from "./CharacterModel.js"
 import { mutation, query } from "./_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "./users.js"
+
+export const diceRollValidator = v.object({
+	dice: v.array(v.object({ key: v.string(), name: v.string(), result: v.number() })),
+})
 
 export const list = query({
 	args: {
@@ -39,25 +43,43 @@ export const list = query({
 	},
 })
 
+const diceInputValidator = v.object({
+	name: v.string(),
+	sides: v.number(),
+	count: v.number(),
+	explodes: v.boolean(),
+})
+
+export type DiceInput = Infer<typeof diceInputValidator>
+
 export const create = mutation({
 	args: {
 		roomId: v.id("rooms"),
 		content: v.optional(v.string()),
-		dice: v.optional(v.array(v.object({ name: v.string(), sides: v.number(), count: v.number() }))),
+		dice: v.optional(v.array(diceInputValidator)),
 	},
 	async handler(ctx, { dice = [], content = "", ...args }) {
 		const user = await getUserFromIdentity(ctx).getValueOrThrow()
+		const diceInputCount = dice.reduce((total, input) => total + input.count, 0)
 
-		const diceRolls = dice
-			.flatMap((input) => range.array(input.count).map(() => input))
-			.map(({ name, sides }) => ({
-				key: crypto.randomUUID(),
-				name,
-				result: (expect(crypto.getRandomValues(new Uint32Array(1))[0], "what") % sides) + 1,
-			}))
-
-		if (content.trim() === "" && diceRolls.length === 0) {
+		if (content.trim() === "" && diceInputCount === 0) {
 			throw new ConvexError("Message cannot be empty.")
+		}
+
+		const diceRolls: Infer<typeof diceRollValidator>["dice"] = []
+
+		const addDiceRoll = (name: string, sides: number, explodes: boolean) => {
+			const result = getRandomNumber(sides)
+			diceRolls.push({ key: crypto.randomUUID(), name, result })
+			if (explodes && result === sides) {
+				addDiceRoll(name, sides, explodes)
+			}
+		}
+
+		for (const input of dice) {
+			for (const _ of range(input.count)) {
+				addDiceRoll(input.name, input.sides, input.explodes)
+			}
 		}
 
 		return await ctx.db.insert("messages", {
@@ -86,3 +108,11 @@ export const remove = mutation({
 		await ctx.db.delete(id)
 	},
 })
+
+const getRandomNumber = (() => {
+	const output = new Uint32Array(1)
+	return function getRandomNumber(max: number) {
+		crypto.getRandomValues(output)
+		return (expect(output[0], "what") % max) + 1
+	}
+})()

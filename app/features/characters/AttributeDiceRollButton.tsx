@@ -3,12 +3,18 @@ import { useMutation } from "convex/react"
 import { ConvexError } from "convex/values"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { Button } from "#app/ui/Button.tsx"
 import { FormField } from "#app/ui/FormField.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
-import { boostDiceKind, snagDiceKind } from "../dice/diceKinds.tsx"
+import {
+	boostDiceKind,
+	getDiceKindApiInput,
+	snagDiceKind,
+	statDiceKinds,
+} from "../dice/diceKinds.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function AttributeDiceRollButton({
@@ -24,7 +30,11 @@ export function AttributeDiceRollButton({
 }) {
 	const room = useRoom()
 	const createMessage = useMutation(api.messages.create)
-	const baseDice = [{ name: `d${attributeValue}`, sides: attributeValue, count: 1 }]
+	const attributeDie = expect(
+		statDiceKinds.find((kind) => kind.faces.length === attributeValue),
+		`couldn't find a d${attributeValue} dice kind`,
+	)
+	const baseDice = [getDiceKindApiInput(attributeDie, 1)]
 	const [boostCount = 0, setBoostCount] = useState<number>()
 	const [snagCount = stress, setSnagCount] = useState<number>()
 
@@ -39,10 +49,7 @@ export function AttributeDiceRollButton({
 						await createMessage({
 							roomId: room._id,
 							content: messageContent,
-							dice: [
-								...baseDice,
-								{ name: snagDiceKind.name, sides: snagDiceKind.faces.length, count: stress },
-							],
+							dice: [...baseDice, getDiceKindApiInput(snagDiceKind, stress)],
 						}).catch((error) => {
 							alert(
 								error instanceof ConvexError ? error.message : "Something went wrong, try again.",
@@ -76,8 +83,8 @@ export function AttributeDiceRollButton({
 							content: messageContent,
 							dice: [
 								...baseDice,
-								{ name: "boost", sides: boostDiceKind.faces.length, count: boostCount },
-								{ name: "snag", sides: snagDiceKind.faces.length, count: snagCount },
+								getDiceKindApiInput(boostDiceKind, boostCount),
+								getDiceKindApiInput(snagDiceKind, snagCount),
 							],
 						}).catch((error) => {
 							alert(
