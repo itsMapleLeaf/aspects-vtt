@@ -41,20 +41,23 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
-			{character.isOwner ?
+			{character.isOwner ? (
 				<CharacterImageField character={character} />
-			:	<UploadedImage id={character.imageId} />}
+			) : (
+				<UploadedImage id={character.imageId} />
+			)}
 
-			{character.isOwner ?
+			{character.isOwner ? (
 				<div className="flex gap-2 *:min-w-0 *:flex-1">
 					<CharacterInputField character={character} field="name" />
 					<CharacterInputField character={character} field="pronouns" />
 				</div>
-			:	<div className="flex gap-2 *:min-w-0 *:flex-1">
+			) : (
+				<div className="flex gap-2 *:min-w-0 *:flex-1">
 					<ReadOnlyField label="Name" value={character.displayName} />
 					<ReadOnlyField label="Pronouns" value={character.displayPronouns} />
 				</div>
-			}
+			)}
 
 			{room.isOwner && (
 				<CharacterSelectField

@@ -1,67 +1,57 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.6.1/schema.json",
-	"files": {
-		"ignore": ["convex/_generated", "patches"],
-	},
-	"organizeImports": {
-		"enabled": true,
-	},
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"recommended": true,
 			"a11y": {
 				"noAutofocus": "off",
-				"useKeyWithClickEvents": "off",
+				"useKeyWithClickEvents": "off"
 			},
 			"correctness": {
-				"noUnusedImports": "warn",
+				"noUnusedImports": "warn"
 			},
 			"performance": {
-				"noDelete": "off",
+				"noDelete": "off"
 			},
 			"suspicious": {
 				"noArrayIndexKey": "off",
 				"noAssignInExpressions": "off",
-				"noImplicitAnyLet": "off",
+				"noImplicitAnyLet": "off"
 			},
 			"style": {
-				"useImportType": "warn",
+				"useImportType": "error",
 				"noUnusedTemplateLiteral": "off",
 				"noParameterAssign": "off",
 				"useConsistentArrayType": "warn",
-				"useNodejsImportProtocol": "warn",
-			},
-			"nursery": {
-				"useJsxKeyInIterable": "error",
-				// "useSortedClasses": {
-				// 	"level": "warn",
-				// 	"options": { "attributes": ["className"], "functions": ["twMerge"] },
-				// },
-			},
-		},
+				"useNodejsImportProtocol": "error"
+			}
+		}
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"formatter": {
+		"enabled": true,
+		"lineWidth": 100
 	},
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
-		"useIgnoreFile": true,
+		"useIgnoreFile": true
 	},
 	"javascript": {
 		"formatter": {
-			"semicolons": "asNeeded",
-		},
+			"semicolons": "asNeeded"
+		}
 	},
-	"json": {
-		"parser": {
-			"allowComments": true,
-			"allowTrailingCommas": true,
-		},
-		"formatter": {
-			"trailingCommas": "none",
-		},
-	},
-	"formatter": {
-		"enabled": false,
-		"lineWidth": 100,
-	},
+	"overrides": [
+		{
+			"include": ["package.json"],
+			"formatter": {
+				// match bun
+				"indentStyle": "space"
+			}
+		}
+	]
 }

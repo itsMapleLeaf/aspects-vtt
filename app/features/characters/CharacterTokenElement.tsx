@@ -35,9 +35,9 @@ export function CharacterTokenElement(props: {
 			attachments={
 				<TokenLabel
 					text={
-						props.character.nameVisible ?
-							`${props.character.displayName}\n(${props.character.displayPronouns})`
-						:	"???"
+						props.character.nameVisible
+							? `${props.character.displayName}\n(${props.character.displayPronouns})`
+							: "???"
 					}
 				/>
 			}
@@ -178,13 +178,17 @@ function ContestedRollForm({ opponent, onRoll }: { opponent: ApiCharacter; onRol
 						}
 						await Promise.all([
 							createAttributeRollMessage({
-								content: `${opponent.nameVisible ? opponent.displayName : "???"}: ${values.opponentAttribute?.name ?? "Strength"}`,
+								content: `${opponent.nameVisible ? opponent.displayName : "???"}: ${
+									values.opponentAttribute?.name ?? "Strength"
+								}`,
 								attributeValue: opponent[values.opponentAttribute?.key ?? "strength"],
 								boostCount: values.opponentBoostCount,
 								snagCount: values.opponentSnagCount,
 							}),
 							createAttributeRollMessage({
-								content: `${selfCharacter.nameVisible ? selfCharacter.displayName : "???"}: ${values.selfAttribute?.name ?? "Strength"}`,
+								content: `${selfCharacter.nameVisible ? selfCharacter.displayName : "???"}: ${
+									values.selfAttribute?.name ?? "Strength"
+								}`,
 								attributeValue: selfCharacter[values.selfAttribute?.key ?? "strength"],
 								boostCount: values.selfBoostCount,
 								snagCount: values.selfSnagCount,

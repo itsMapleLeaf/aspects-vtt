@@ -29,15 +29,17 @@ export function CharactersPanel() {
 		<div className="flex h-full flex-col gap-2 p-2">
 			<div className="flex gap-2">
 				<div className="flex-1">
-					{characters === undefined ?
+					{characters === undefined ? (
 						<Loading />
-					: character ?
+					) : character ? (
 						<CharacterSelect
 							characters={characters}
 							selected={character._id}
 							onChange={setSelectedCharacterId}
 						/>
-					:	<p className="flex h-10 flex-row items-center px-2 opacity-60">No characters found.</p>}
+					) : (
+						<p className="flex h-10 flex-row items-center px-2 opacity-60">No characters found.</p>
+					)}
 				</div>
 				<RoomOwnerOnly>
 					{character && (
@@ -48,9 +50,7 @@ export function CharactersPanel() {
 				</RoomOwnerOnly>
 			</div>
 			<div className="min-h-0 flex-1">
-				{character ?
-					<CharacterForm character={character} />
-				:	undefined}
+				{character ? <CharacterForm character={character} /> : undefined}
 			</div>
 		</div>
 	)

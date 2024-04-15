@@ -52,11 +52,11 @@ export function AspectSkillsSelectorButton({
 	const availableExperience = room.experience - usedExperience
 
 	const isPurchaseable = (skill: ApiAspectSkill, index: number) =>
-		index <= 1 ?
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
-			skill.aspects.length === 1 && skill.aspects.includes(character.coreAspect!)
-		:	getCost(skill, index) <= availableExperience &&
-			skill.aspects.some((aspect) => aspects.has(aspect))
+		index <= 1
+			? // biome-ignore lint/style/noNonNullAssertion: <explanation>
+				skill.aspects.length === 1 && skill.aspects.includes(character.coreAspect!)
+			: getCost(skill, index) <= availableExperience &&
+				skill.aspects.some((aspect) => aspects.has(aspect))
 
 	const [search, setSearch] = useState("")
 	const searchResults = matchSorter(notionData?.aspectSkills ?? [], search, {
@@ -66,11 +66,11 @@ export function AspectSkillsSelectorButton({
 		.sort((a, b) => a.name.localeCompare(b.name))
 		.sort((a, b) => a.aspects.length - b.aspects.length)
 
-	const groups = groupBy(searchResults, (skill) =>
-		addedAspectSkills.has(skill.name) ? "learned"
-		: isPurchaseable(skill, addedAspectSkills.size) ? "available"
-		: "unavailable",
-	)
+	const groups = groupBy(searchResults, (skill) => {
+		if (addedAspectSkills.has(skill.name)) return "learned"
+		if (isPurchaseable(skill, addedAspectSkills.size)) return "available"
+		return "unavailable"
+	})
 
 	return (
 		<Modal>
@@ -89,37 +89,31 @@ export function AspectSkillsSelectorButton({
 					}
 				/>
 				<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-					{groups
-						.get("learned")
-						?.map((skill, index) => (
-							<AspectSkillItem
-								key={skill.name}
-								skill={skill}
-								character={character}
-								cost={getCost(skill, index)}
-							/>
-						))}
-					{groups
-						.get("available")
-						?.map((skill) => (
-							<AspectSkillItem
-								key={skill.name}
-								skill={skill}
-								character={character}
-								cost={getCost(skill, addedAspectSkills.size)}
-							/>
-						))}
-					{groups
-						.get("unavailable")
-						?.map((skill) => (
-							<AspectSkillItem
-								key={skill.name}
-								skill={skill}
-								character={character}
-								cost={getCost(skill, addedAspectSkills.size)}
-								disabled
-							/>
-						))}
+					{groups.get("learned")?.map((skill, index) => (
+						<AspectSkillItem
+							key={skill.name}
+							skill={skill}
+							character={character}
+							cost={getCost(skill, index)}
+						/>
+					))}
+					{groups.get("available")?.map((skill) => (
+						<AspectSkillItem
+							key={skill.name}
+							skill={skill}
+							character={character}
+							cost={getCost(skill, addedAspectSkills.size)}
+						/>
+					))}
+					{groups.get("unavailable")?.map((skill) => (
+						<AspectSkillItem
+							key={skill.name}
+							skill={skill}
+							character={character}
+							cost={getCost(skill, addedAspectSkills.size)}
+							disabled
+						/>
+					))}
 				</div>
 			</ModalPanel>
 		</Modal>
@@ -168,9 +162,7 @@ function AspectSkillItem({
 					))}
 				</ul>
 			</div>
-			{isAdded ?
-				<Lucide.Minus />
-			:	<Lucide.Plus />}
+			{isAdded ? <Lucide.Minus /> : <Lucide.Plus />}
 		</button>
 	)
 }

@@ -43,9 +43,7 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 				data-size={size}
 				className="relative -mx-1 *:size-5 empty:hidden *:data-[size=lg]:size-8"
 			>
-				{pending ?
-					<Loading size="sm" />
-				:	icon}
+				{pending ? <Loading size="sm" /> : icon}
 			</span>
 			<span data-size={size} className="relative empty:hidden">
 				{text}
@@ -53,25 +51,27 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		</>
 	)
 
-	return "element" in props ?
-			cloneElement(props.element, {
-				className: twMerge(className, props.className),
-				children: children,
-			})
-		:	<button
-				type="button"
-				disabled={pending}
-				{...withMergedClassName(props, "cursor-default", className)}
-				onClick={async (event) => {
-					setOnClickPending(true)
-					try {
-						await props.onClick?.(event)
-					} catch {}
-					setOnClickPending(false)
-				}}
-			>
-				{children}
-			</button>
+	return "element" in props ? (
+		cloneElement(props.element, {
+			className: twMerge(className, props.className),
+			children: children,
+		})
+	) : (
+		<button
+			type="button"
+			disabled={pending}
+			{...withMergedClassName(props, "cursor-default", className)}
+			onClick={async (event) => {
+				setOnClickPending(true)
+				try {
+					await props.onClick?.(event)
+				} catch {}
+				setOnClickPending(false)
+			}}
+		>
+			{children}
+		</button>
+	)
 }
 
 export interface ButtonStyleProps {

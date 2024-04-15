@@ -1,9 +1,7 @@
 export function clamp(value: number, min: number, max: number): number {
-	return (
-		value > max ? max
-		: value < min ? min
-		: value
-	)
+	if (value < min) return min
+	if (value > max) return max
+	return value
 }
 
 export function roundToNearest(value: number, multiple: number): number {

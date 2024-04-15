@@ -52,11 +52,11 @@ export function MessageList() {
 			endReached={() => list.loadMore(listItemCount)}
 			components={{
 				Footer: () =>
-					list.status === "Exhausted" ?
-						null
-					:	<div className="flex justify-center p-4">
+					list.status === "Exhausted" ? null : (
+						<div className="flex justify-center p-4">
 							<Loading />
-						</div>,
+						</div>
+					),
 			}}
 		/>
 	)
@@ -118,16 +118,17 @@ function DiceRollIcon({ die }: { die: DiceRoll["dice"][number] }) {
 	const kind = diceKindsByName.get(die.name)
 	return (
 		<div className="*:size-12">
-			{kind == null ?
+			{kind == null ? (
 				<Tooltip text={`Unknown dice type "${die.name}"`} className="flex-center-col">
 					<HelpCircle />
 				</Tooltip>
-			:	kind.faces[die.result - 1]?.element ?? (
+			) : (
+				kind.faces[die.result - 1]?.element ?? (
 					<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
 						<HelpCircle />
 					</Tooltip>
 				)
-			}
+			)}
 		</div>
 	)
 }

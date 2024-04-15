@@ -55,8 +55,9 @@ export const list = query({
 		}
 
 		const roomId = ctx.db.normalizeId("rooms", args.roomId)
-		const { value: room } =
-			roomId ? await RoomModel.fromId(ctx, roomId) : await RoomModel.fromSlug(ctx, args.roomId)
+		const { value: room } = roomId
+			? await RoomModel.fromId(ctx, roomId)
+			: await RoomModel.fromSlug(ctx, args.roomId)
 		if (!room) {
 			return []
 		}

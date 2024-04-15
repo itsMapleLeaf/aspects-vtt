@@ -47,15 +47,15 @@ export function TokenMap({
 		)
 		// optimistic create
 		.concat(
-			createRectangleState.args ?
-				[
-					{
-						...createRectangleState.args,
-						_id: "new" as Id<"rectangles">,
-						_creationTime: Date.now(),
-					},
-				]
-			:	[],
+			createRectangleState.args
+				? [
+						{
+							...createRectangleState.args,
+							_id: "new" as Id<"rectangles">,
+							_creationTime: Date.now(),
+						},
+					]
+				: [],
 		)
 
 	const [selected, setSelected] = useState<Id<"characters"> | Id<"rectangles">>()

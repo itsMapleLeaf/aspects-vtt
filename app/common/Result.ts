@@ -42,9 +42,9 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 
 	async resolveJson(): Promise<ResultJson<T>> {
 		const result = await this.resolve()
-		return result.ok ?
-				{ ok: true, value: result.value, error: null }
-			:	{
+		return result.ok
+			? { ok: true, value: result.value, error: null }
+			: {
 					ok: false,
 					value: null,
 					error: result.error instanceof Error ? result.error.message : String(result.error),

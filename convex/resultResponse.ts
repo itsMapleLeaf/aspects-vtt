@@ -5,8 +5,11 @@ export type ResultResponse<T> =
 	| { ok: true; data: T; error?: undefined }
 	| { ok: false; data?: undefined; error: string }
 
-export type ResultResponseData<T extends ResultResponse<unknown>> =
-	T extends ResultResponse<infer U> ? NonNullable<U> : T
+export type ResultResponseData<T extends ResultResponse<unknown>> = T extends ResultResponse<
+	infer U
+>
+	? NonNullable<U>
+	: T
 
 export type ResultQueryData<T extends FunctionReference<"query">> = ResultResponseData<
 	FunctionReturnType<T>

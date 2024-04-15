@@ -21,9 +21,10 @@ export default function CreateRoomRoute() {
 				<UserButton afterSignOutUrl={currentUrl} />
 			</AppHeader>
 			<main>
-				{rooms === undefined ?
+				{rooms === undefined ? (
 					<Loading />
-				:	<ul className="mb-2 grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-2">
+				) : (
+					<ul className="mb-2 grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-2">
 						{rooms.map((room) => (
 							<li key={room._id}>
 								<Link
@@ -38,7 +39,7 @@ export default function CreateRoomRoute() {
 							</li>
 						))}
 					</ul>
-				}
+				)}
 				<Button
 					icon={<LucidePlus />}
 					text="Create Room"
