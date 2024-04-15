@@ -94,13 +94,11 @@ export function AttributeDiceRollButton({
 }
 
 function CounterInput({
-	id,
 	value,
 	min = 0,
 	max = Number.POSITIVE_INFINITY,
 	onChange,
 }: {
-	id?: string
 	value: number
 	min?: number
 	max?: number
