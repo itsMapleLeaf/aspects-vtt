@@ -10,7 +10,7 @@ import { mutation, query } from "../_generated/server.js"
 
 export const roomCombatValidator = v.object({
 	members: v.array(v.id("characters")),
-	currentMemberId: nullable(v.id("characters")),
+	currentMemberId: v.optional(nullable(v.id("characters"))),
 	currentRoundNumber: v.number(),
 	currentMemberIndex: deprecated,
 })
