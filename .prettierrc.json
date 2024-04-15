@@ -11,6 +11,12 @@
 			"options": {
 				"requirePragma": true
 			}
+		},
+		{
+			"files": ["package.json"],
+			"options": {
+				"useTabs": false
+			}
 		}
 	]
 }
