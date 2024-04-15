@@ -1,25 +1,44 @@
 import type { FunctionReturnType } from "convex/server"
-import { createContext, useContext } from "react"
+import { createContext } from "react"
+import { empty, useNonEmptyContext } from "#app/common/context.js"
 import type { api } from "#convex/_generated/api.js"
+import type { Id } from "#convex/_generated/dataModel.js"
 
-type Room = NonNullable<FunctionReturnType<typeof api.rooms.get>["value"]>
+export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.get>["value"]>
+const RoomContext = createContext<ApiRoom | typeof empty>(empty)
 
-const empty = Symbol("empty")
-const RoomContext = createContext<Room | typeof empty>(empty)
+export type ApiCharacter = FunctionReturnType<typeof api.characters.list>[number]
 
-export function useRoom() {
-	const room = useContext(RoomContext)
-	if (room === empty) {
-		throw new Error("useRoom must be used within a RoomProvider")
-	}
-	return room
-}
+const CharacterContext = createContext<ApiCharacter[] | typeof empty>(empty)
 
-export function RoomProvider({ children, room }: { children: React.ReactNode; room: Room }) {
-	return <RoomContext.Provider value={room}>{children}</RoomContext.Provider>
+export function RoomProvider(props: {
+	children: React.ReactNode
+	room: ApiRoom
+	characters: ApiCharacter[]
+}) {
+	return (
+		<RoomContext.Provider value={props.room}>
+			<CharacterContext.Provider value={props.characters}>
+				{props.children}
+			</CharacterContext.Provider>
+		</RoomContext.Provider>
+	)
 }
 
 export function RoomOwnerOnly({ children }: { children: React.ReactNode }) {
 	const room = useRoom()
 	return room.isOwner && children
+}
+
+export function useRoom() {
+	return useNonEmptyContext(RoomContext)
+}
+
+export function useCharacters() {
+	return useNonEmptyContext(CharacterContext)
+}
+
+export function useCharacter(id: Id<"characters">) {
+	const characters = useCharacters()
+	return characters.find((c) => c._id === id)
 }

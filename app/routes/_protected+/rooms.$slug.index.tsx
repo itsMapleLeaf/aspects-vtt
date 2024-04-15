@@ -14,7 +14,7 @@ import { selectCharacterEvent } from "#app/features/characters/events.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
-import { RoomOwnerOnly, useRoom } from "#app/features/rooms/roomContext.js"
+import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
 import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
@@ -386,7 +386,9 @@ function RoomSettingsForm() {
 
 function CombatTurnBanner() {
 	const room = useRoom()
-	const isTurn = !room.isOwner && room.combat?.members[room.combat.currentMemberIndex]?.isOwner
+	const characters = useCharacters()
+	const isTurn =
+		!room.isOwner && characters.find((c) => c._id === room.combat?.currentMemberId)?.isOwner
 	return (
 		<div
 			className={panel(

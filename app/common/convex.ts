@@ -1,5 +1,6 @@
+import type { OptimisticLocalStore } from "convex/browser"
 import { useMutation } from "convex/react"
-import type { FunctionReference } from "convex/server"
+import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
 import { useRef } from "react"
 import { useAsyncState } from "./useAsyncState.ts"
 
@@ -13,4 +14,17 @@ export function useStableQueryValue<T>(value: T): readonly [value: T, pending: b
 
 export function useMutationState<F extends FunctionReference<"mutation", "public">>(funcRef: F) {
 	return useAsyncState(useMutation(funcRef))
+}
+export function applyOptimisticQueryUpdates<Query extends FunctionReference<"query", "public">>(
+	store: OptimisticLocalStore,
+	query: Query,
+	update: (
+		current: FunctionReturnType<Query>,
+		args: FunctionArgs<Query>,
+	) => FunctionReturnType<Query>,
+) {
+	for (const entry of store.getAllQueries(query)) {
+		if (entry.value === undefined) continue
+		store.setQuery(query, entry.args, update(entry.value, entry.args))
+	}
 }

@@ -45,7 +45,7 @@ export const characterProperties = {
 
 export const list = query({
 	args: {
-		roomId: v.id("rooms"),
+		roomId: v.string(),
 	},
 	handler: async (ctx, args) => {
 		const { value: user, error: userError } = await getUserFromIdentity(ctx)
@@ -54,10 +54,18 @@ export const list = query({
 			return []
 		}
 
-		const { value: room } = await RoomModel.fromId(ctx, args.roomId)
-		const isRoomOwner = await room?.isOwner()
+		const roomId = ctx.db.normalizeId("rooms", args.roomId)
+		const { value: room } =
+			roomId ? await RoomModel.fromId(ctx, roomId) : await RoomModel.fromSlug(ctx, args.roomId)
+		if (!room) {
+			return []
+		}
 
-		let query = ctx.db.query("characters").withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+		let query = ctx.db
+			.query("characters")
+			.withIndex("by_room", (q) => q.eq("roomId", room.data._id))
+
+		const isRoomOwner = await room.isOwner()
 		if (!isRoomOwner) {
 			query = query.filter((q) =>
 				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.clerkId)),
@@ -67,9 +75,7 @@ export const list = query({
 		const docs = await query.collect()
 
 		const results = await Promise.all(
-			docs
-				.map((doc) => new CharacterModel(ctx, doc))
-				.map(async (model) => await model.getComputedData()),
+			docs.map((doc) => new CharacterModel(ctx, doc)).map((model) => model.getComputedData()),
 		)
 
 		return results.sort((a, b) => a.name.localeCompare(b.name))

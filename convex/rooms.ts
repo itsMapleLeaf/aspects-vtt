@@ -1,8 +1,6 @@
-import { nullable } from "convex-helpers/validators"
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import { range } from "#app/common/range.js"
-import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { getUserFromIdentity } from "./users.js"
@@ -13,15 +11,6 @@ export const roomProperties = {
 	mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
 	mapCellSize: v.optional(v.number()),
 	experience: v.optional(v.number()),
-	combat: v.optional(
-		nullable(
-			v.object({
-				members: v.array(v.id("characters")),
-				currentMemberIndex: v.number(),
-				currentRoundNumber: v.number(),
-			}),
-		),
-	),
 }
 
 export const get = query({
@@ -47,17 +36,6 @@ export const get = query({
 					experience: room.data.experience ?? 0,
 					isOwner: await room.isOwner(),
 					players: playerUsers.filter(Boolean),
-					combat: room.data.combat && {
-						...room.data.combat,
-						members: (
-							await Promise.all(
-								room.data.combat.members.map(async (memberId) => {
-									const model = await CharacterModel.get(ctx, memberId).getValueOrNull()
-									return model?.getComputedData()
-								}),
-							)
-						).filter(Boolean),
-					},
 				}
 			})
 			.resolveJson()
