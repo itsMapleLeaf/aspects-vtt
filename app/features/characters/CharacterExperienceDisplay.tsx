@@ -2,13 +2,13 @@ import { useQuery } from "convex/react"
 import { twMerge } from "tailwind-merge"
 import { api } from "#convex/_generated/api.js"
 import { useRoom } from "../rooms/roomContext.tsx"
-import type { Character } from "./types.ts"
+import type { ApiCharacter } from "./types.ts"
 
 export function CharacterExperienceDisplay({
 	character,
 	className,
 }: {
-	character: Character
+	character: ApiCharacter
 	className?: string
 }) {
 	const room = useRoom()

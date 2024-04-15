@@ -1,42 +1,24 @@
 import * as Ariakit from "@ariakit/react"
-import { useMutation } from "convex/react"
-import { ConvexError } from "convex/values"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
-import { expect } from "#app/common/expect.js"
 import { clamp } from "#app/common/math.js"
 import { Button } from "#app/ui/Button.tsx"
-import { FormField } from "#app/ui/FormField.js"
+import { FormField } from "#app/ui/Form.js"
 import { panel } from "#app/ui/styles.js"
-import { api } from "#convex/_generated/api.js"
-import {
-	boostDiceKind,
-	getDiceKindApiInput,
-	snagDiceKind,
-	statDiceKinds,
-} from "../dice/diceKinds.tsx"
-import { useRoom } from "../rooms/roomContext.tsx"
+import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function AttributeDiceRollButton({
 	attributeValue,
 	buttonLabel,
 	messageContent,
-	stress,
 }: {
 	attributeValue: number
 	buttonLabel: string
 	messageContent: string
-	stress: number
 }) {
-	const room = useRoom()
-	const createMessage = useMutation(api.messages.create)
-	const attributeDie = expect(
-		statDiceKinds.find((kind) => kind.faces.length === attributeValue),
-		`couldn't find a d${attributeValue} dice kind`,
-	)
-	const baseDice = [getDiceKindApiInput(attributeDie, 1)]
-	const [boostCount = 0, setBoostCount] = useState<number>()
-	const [snagCount = stress, setSnagCount] = useState<number>()
+	const createAttributeRollMessage = useCreateAttributeRollMessage()
+	const [boostCount, setBoostCount] = useState(0)
+	const [snagCount, setSnagCount] = useState(0)
 
 	return (
 		<Ariakit.HovercardProvider placement="left" timeout={350}>
@@ -46,14 +28,9 @@ export function AttributeDiceRollButton({
 					text="Roll"
 					aria-label={buttonLabel}
 					onClick={async () => {
-						await createMessage({
-							roomId: room._id,
+						await createAttributeRollMessage({
 							content: messageContent,
-							dice: [...baseDice, getDiceKindApiInput(snagDiceKind, stress)],
-						}).catch((error) => {
-							alert(
-								error instanceof ConvexError ? error.message : "Something went wrong, try again.",
-							)
+							attributeValue,
 						})
 					}}
 				/>
@@ -78,21 +55,14 @@ export function AttributeDiceRollButton({
 					text="Roll"
 					icon={<Lucide.Dices />}
 					onClick={async () => {
-						await createMessage({
-							roomId: room._id,
+						await createAttributeRollMessage({
 							content: messageContent,
-							dice: [
-								...baseDice,
-								getDiceKindApiInput(boostDiceKind, boostCount),
-								getDiceKindApiInput(snagDiceKind, snagCount),
-							],
-						}).catch((error) => {
-							alert(
-								error instanceof ConvexError ? error.message : "Something went wrong, try again.",
-							)
+							attributeValue,
+							boostCount,
+							snagCount,
 						})
-						setBoostCount(undefined)
-						setSnagCount(undefined)
+						setBoostCount(0)
+						setSnagCount(0)
 					}}
 				/>
 			</Ariakit.Hovercard>

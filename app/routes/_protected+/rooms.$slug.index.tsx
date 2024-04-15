@@ -1,7 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import { usePopoverStore } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
-import * as FloatingUI from "@floating-ui/react-dom"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
@@ -21,7 +20,7 @@ import type { ViewportController } from "#app/features/tokens/TokenMapViewport.t
 import { AppHeader } from "#app/ui/AppHeader.js"
 import { Button } from "#app/ui/Button.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
-import { FormField } from "#app/ui/FormField.js"
+import { FormField } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
 import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
 import { Tooltip, type TooltipProps } from "#app/ui/Tooltip.js"
@@ -168,24 +167,17 @@ function Toolbar(props: { children: React.ReactNode }) {
 	)
 }
 
-function ToolbarButton(props: TooltipProps & { icon: React.ReactNode }) {
+function ToolbarButton({ icon, ...props }: TooltipProps & { icon: React.ReactNode }) {
 	return (
 		<Tooltip
 			placement="right"
-			middleware={[
-				FloatingUI.offset(16),
-				FloatingUI.shift({
-					crossAxis: true,
-					padding: 8,
-				}),
-			]}
 			{...props}
 			className={twMerge(
 				"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6  hover:bg-primary-100 hover:opacity-100",
 				props.className,
 			)}
 		>
-			{props.icon}
+			{icon}
 		</Tooltip>
 	)
 }

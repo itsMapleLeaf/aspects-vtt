@@ -19,7 +19,7 @@ export function TokenElement({
 	size: Vector
 	children: React.ReactNode
 	attachments?: React.ReactNode
-	onPointerDown?: () => void
+	onPointerDown?: (event: PointerEvent) => void
 	onMove?: (newGridPosition: Vector) => Promise<unknown>
 }) {
 	const room = useRoom()
@@ -30,7 +30,7 @@ export function TokenElement({
 
 	const buttonRef = useRef<HTMLButtonElement>(null)
 	const drag = useDrag(buttonRef, {
-		onStart: () => onPointerDown?.(),
+		onStart: (event) => onPointerDown?.(event),
 		onFinish: ({ distance }) => {
 			move(tokenPosition.plus(distance.dividedBy(zoom).dividedBy(room.mapCellSize)).rounded)
 		},

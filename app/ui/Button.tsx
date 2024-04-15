@@ -1,4 +1,10 @@
-import { type ComponentPropsWithoutRef, type ReactElement, cloneElement, useState } from "react"
+import {
+	type ComponentPropsWithoutRef,
+	type ReactElement,
+	type ReactNode,
+	cloneElement,
+	useState,
+} from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import type { Disallowed, StrictOmit } from "#app/common/types.ts"
@@ -8,7 +14,7 @@ import { withMergedClassName } from "./withMergedClassName"
 
 interface ButtonPropsBase extends ButtonStyleProps {
 	icon: ReactElement | undefined
-	text?: string
+	text?: ReactNode
 }
 
 export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {

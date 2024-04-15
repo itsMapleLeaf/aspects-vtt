@@ -3,11 +3,10 @@ import { createContext } from "react"
 import { empty, useNonEmptyContext } from "#app/common/context.js"
 import type { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import type { ApiCharacter } from "../characters/types.ts"
 
 export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.get>["value"]>
 const RoomContext = createContext<ApiRoom | typeof empty>(empty)
-
-export type ApiCharacter = FunctionReturnType<typeof api.characters.list>[number]
 
 const CharacterContext = createContext<ApiCharacter[] | typeof empty>(empty)
 

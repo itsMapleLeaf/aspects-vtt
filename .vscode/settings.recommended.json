@@ -15,6 +15,9 @@
 		"source.organizeImports.biome": "explicit"
 	},
 	"tailwindCSS.experimental.classRegex": [
-		["(?:twMerge|withMergedClassName)\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+		"(?:twMerge|withMergedClassName|twc)\\.[^`]+`([^`]*)`",
+		"(?:twMerge|withMergedClassName|twc)\\(.*?\\).*?`([^`]*)",
+		["(?:twMerge|withMergedClassName|twc)\\.[^`]+\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+		["(?:twMerge|withMergedClassName|twc)\\(.*?\\).*?\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
 	]
 }

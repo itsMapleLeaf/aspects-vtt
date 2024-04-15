@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "convex/react"
 import type { FunctionArgs } from "convex/server"
-import * as Lucide from "lucide-react"
 import { type Ref, use, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { twMerge } from "tailwind-merge"
@@ -8,7 +7,6 @@ import { useMutationState } from "#app/common/convex.js"
 import { useDrag } from "#app/common/useDrag.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
-import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { useRoom } from "#app/features/rooms/roomContext.js"
 import { TokenElement } from "#app/features/tokens/TokenElement.tsx"
 import {
@@ -17,6 +15,7 @@ import {
 } from "#app/features/tokens/TokenMapViewport.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import { CharacterTokenElement } from "../characters/CharacterTokenElement.tsx"
 import { selectCharacterEvent } from "../characters/events.ts"
 import { OffsetContext, ZoomContext } from "./context.tsx"
 
@@ -101,42 +100,21 @@ export function TokenMap({
 			))}
 
 			{characters?.map((character) => (
-				<TokenElement
+				<CharacterTokenElement
 					key={character._id}
-					token={character.token}
-					size={Vector.from(room.mapCellSize * zoom)}
-					onPointerDown={() => {
+					character={character}
+					selected={selected === character._id}
+					onSelect={() => {
 						setSelected(character._id)
 						selectCharacterEvent.emit(character._id)
 					}}
-					onMove={(position) =>
-						updateCharacter({
+					onMove={async (position) => {
+						await updateCharacter({
 							id: character._id,
 							token: { ...character.token, position: position.xy },
 						})
-					}
-					attachments={
-						<p
-							data-selected={selected === character._id}
-							className="absolute left-1/2 top-full z-10 w-max -translate-x-1/2 translate-y-2 whitespace-nowrap rounded bg-black/75 px-2 py-1.5 text-center font-medium leading-tight text-white opacity-0 transition data-[selected=true]:opacity-100 [div:has(button:hover)~div>&]:opacity-100"
-						>
-							{character.nameVisible ?
-								<>
-									{character.displayName}
-									<br />({character.displayPronouns})
-								</>
-							:	"???"}
-						</p>
-					}
-				>
-					{selected === character._id && <TokenSelectionOutline />}
-					<UploadedImage
-						id={character.imageId}
-						emptyIcon={<Lucide.Ghost />}
-						data-hidden={!character.token.visible}
-						className="relative size-full transition-opacity data-[hidden=true]:opacity-50"
-					/>
-				</TokenElement>
+					}}
+				/>
 			))}
 
 			{drawingArea && (
@@ -156,7 +134,15 @@ export function TokenMap({
 	)
 }
 
-function TokenSelectionOutline() {
+export function TokenLabel(props: { text: string }) {
+	return (
+		<p className="absolute left-1/2 top-full z-10 w-max -translate-x-1/2 translate-y-2 whitespace-nowrap rounded bg-black/75 px-2 py-1.5 text-center font-medium leading-tight text-white opacity-0 transition data-[selected=true]:opacity-100 [div:has(button:hover)~div>&]:opacity-100">
+			{props.text}
+		</p>
+	)
+}
+
+export function TokenSelectionOutline() {
 	return (
 		<div className="absolute inset-0 rounded bg-primary-600/25 outline outline-[3px] outline-primary-700" />
 	)

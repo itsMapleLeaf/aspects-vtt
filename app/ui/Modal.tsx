@@ -64,6 +64,7 @@ export function ModalPanel({
 				"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				fullHeight ? "h-[--height]" : "h-min max-h-[--height]",
 			)}
+			unmountOnHide
 		>
 			<div className="flex min-h-0 items-center gap-3 border-b border-primary-300 bg-black/25 p-3">
 				<div className="flex-1">

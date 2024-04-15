@@ -45,6 +45,7 @@
     "react": "19.0.0-canary-95e6f032c-20240401",
     "react-dom": "19.0.0-canary-95e6f032c-20240401",
     "react-textarea-autosize": "8.5.3",
+    "react-twc": "1.4.1",
     "react-virtuoso": "4.7.4",
     "remix-routes": "1.7.2",
     "tailwind-merge": "2.2.2",

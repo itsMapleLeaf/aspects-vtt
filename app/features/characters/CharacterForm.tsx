@@ -1,7 +1,7 @@
 import { useConvex, useMutation, useQuery } from "convex/react"
 import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
-import { type ReactNode, useEffect, useId, useState } from "react"
+import { type ReactNode, useId, useState } from "react"
 import { toNearestPositiveInt } from "#app/common/numbers.js"
 import { startCase } from "#app/common/string.js"
 import type { PickByValue } from "#app/common/types.js"
@@ -10,9 +10,10 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { Button } from "#app/ui/Button.tsx"
 import { CheckboxField } from "#app/ui/CheckboxField.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
-import { FormField } from "#app/ui/FormField.js"
+import { FormField } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.tsx"
+import { NumberField } from "#app/ui/NumberField.js"
 import { Select, type SelectOption, type SelectValue } from "#app/ui/Select.js"
 import { TextArea } from "#app/ui/TextArea.js"
 import { panel } from "#app/ui/styles.js"
@@ -25,9 +26,9 @@ import { useRoom } from "../rooms/roomContext.tsx"
 import { AspectSkillsSelectorButton } from "./AspectSkillsSelectorButton.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
-import type { Character } from "./types.ts"
+import type { ApiAttribute, ApiCharacter } from "./types.ts"
 
-export function CharacterForm({ character }: { character: Character }) {
+export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
 	const notionData = useQuery(api.notionImports.get)
 	const race = notionData?.races.find((r) => r.name === character.race)
@@ -92,11 +93,11 @@ export function CharacterForm({ character }: { character: Character }) {
 
 			{character.isOwner && (
 				<>
-					<CharacterDiceField character={character} field="strength" stress={character.damage} />
-					<CharacterDiceField character={character} field="mobility" stress={character.damage} />
-					<CharacterDiceField character={character} field="sense" stress={character.fatigue} />
-					<CharacterDiceField character={character} field="intellect" stress={character.fatigue} />
-					<CharacterDiceField character={character} field="wit" stress={character.fatigue} />
+					<CharacterDiceField character={character} field="strength" />
+					<CharacterDiceField character={character} field="mobility" />
+					<CharacterDiceField character={character} field="sense" />
+					<CharacterDiceField character={character} field="intellect" />
+					<CharacterDiceField character={character} field="wit" />
 				</>
 			)}
 
@@ -152,7 +153,7 @@ export function CharacterForm({ character }: { character: Character }) {
  * damage thresholds
  */
 type UpdateableCharacterField<ValueType> = Extract<
-	keyof PickByValue<Character, ValueType>,
+	keyof PickByValue<ApiCharacter, ValueType>,
 	keyof FunctionArgs<typeof api.characters.update>
 >
 
@@ -161,7 +162,7 @@ function CharacterInputField({
 	field,
 	label = startCase(field),
 }: {
-	character: Character
+	character: ApiCharacter
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
@@ -186,7 +187,7 @@ function CharacterTextAreaField({
 	field,
 	label = startCase(field),
 }: {
-	character: Character
+	character: ApiCharacter
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
@@ -211,7 +212,7 @@ function CharacterCheckboxField({
 	field,
 	label = startCase(field),
 }: {
-	character: Character
+	character: ApiCharacter
 	field: UpdateableCharacterField<boolean>
 	label?: string
 }) {
@@ -233,47 +234,20 @@ function CharacterNumberField({
 	field,
 	label = startCase(field),
 }: {
-	character: Character
+	character: ApiCharacter
 	field: UpdateableCharacterField<number>
 	label?: string
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.update))
 	const value = state.args?.[field] ?? character[field] ?? 0
-	const [inputElement, inputRef] = useState<HTMLInputElement | null>()
-	const inputId = useId()
 
 	function setValue(newValue: number) {
 		update({ id: character._id, [field]: toNearestPositiveInt(newValue) })
 	}
 
-	useEffect(() => {
-		if (!inputElement) return
-
-		const handleWheel = (event: WheelEvent) => {
-			if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
-				event.preventDefault()
-				event.stopPropagation()
-				setValue(value - Math.sign(event.deltaY))
-			}
-		}
-		inputElement.addEventListener("wheel", handleWheel, { passive: false })
-		return () => {
-			inputElement.removeEventListener("wheel", handleWheel)
-		}
-	})
-
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
-			<FormField label={label} htmlFor={inputId}>
-				<Input
-					type="number"
-					id={inputId}
-					ref={inputRef}
-					min={0}
-					value={value}
-					onChange={(event) => setValue(event.target.valueAsNumber)}
-				/>
-			</FormField>
+			<NumberField label={label} value={value} onChange={setValue} />
 		</CharacterReadOnlyGuard>
 	)
 }
@@ -284,10 +258,10 @@ function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue
 	label = startCase(field),
 	options,
 }: {
-	character: Character
+	character: ApiCharacter
 	field: Field
 	label?: string
-	options: SelectOption<Character[Field]>[]
+	options: SelectOption<ApiCharacter[Field]>[]
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.update))
 	const inputId = useId()
@@ -308,12 +282,10 @@ function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue
 function CharacterDiceField({
 	character,
 	field,
-	stress,
 	label = startCase(field),
 }: {
-	character: Character
-	field: UpdateableCharacterField<number>
-	stress?: number
+	character: ApiCharacter
+	field: ApiAttribute["key"]
 	label?: string
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.update))
@@ -338,7 +310,6 @@ function CharacterDiceField({
 						attributeValue={value}
 						buttonLabel={`Roll ${label} for ${character.name}`}
 						messageContent={`${character.name}: ${label}`}
-						stress={stress ?? 0}
 					/>
 				</div>
 			</FormField>
@@ -417,7 +388,7 @@ function CharacterReadOnlyGuard({
 	value,
 	children,
 }: {
-	character: Character
+	character: ApiCharacter
 	label: string
 	value: ReactNode
 	children: React.ReactNode
