@@ -51,9 +51,9 @@ const characterDefaults: Required<{
 }
 
 const getThreshold = (stat: number) =>
-	stat === 20 ? 10
-	: stat === 12 ? 8
-	: 6
+	stat === 20 ? 16
+	: stat === 12 ? 14
+	: 12
 
 export class CharacterModel {
 	readonly ctx
