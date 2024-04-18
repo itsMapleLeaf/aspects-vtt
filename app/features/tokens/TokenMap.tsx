@@ -85,7 +85,7 @@ export function TokenMap({
 					token={rectangle.token}
 					size={Vector.fromSize(rectangle.size).times(room.mapCellSize * zoom)}
 					onPointerDown={() => setSelected(rectangle._id)}
-					onMove={(position) =>
+					onMoveFinish={(position) =>
 						updateRectangle({
 							id: rectangle._id,
 							token: { ...rectangle.token, position: position.xy },

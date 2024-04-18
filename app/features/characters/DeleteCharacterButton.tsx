@@ -7,15 +7,21 @@ import type { Id } from "#convex/_generated/dataModel.js"
 
 export function DeleteCharacterButton({
 	character,
+	text,
 }: {
 	character: { _id: Id<"characters">; name: string }
+	text?: string
 }) {
 	const remove = useMutation(api.characters.remove)
 	return (
 		<Modal>
 			{(store) => (
 				<>
-					<Button icon={<Lucide.Trash />} element={<ModalButton title="Delete Character" />} />
+					<Button
+						icon={<Lucide.Trash />}
+						text={text}
+						element={<ModalButton title="Delete Character" />}
+					/>
 					<ModalPanel
 						title="Delete Character"
 						className="grid place-items-center gap-2 text-pretty p-2 text-center"

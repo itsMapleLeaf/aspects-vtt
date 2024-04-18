@@ -15,6 +15,7 @@ export function useDrag(
 	{
 		shouldStart = () => true,
 		onStart,
+		onDrag,
 		onFinish,
 	}: {
 		shouldStart?: (info: {
@@ -22,6 +23,7 @@ export function useDrag(
 			buttons: { left: boolean; middle: boolean; right: boolean }
 		}) => boolean
 		onStart?: (event: PointerEvent) => void
+		onDrag?: (event: PointerEvent) => void
 		onFinish?: ({ distance }: { distance: Vector }) => void
 	},
 ) {
@@ -63,8 +65,9 @@ export function useDrag(
 		if (!element) return
 		if (!state) return
 
-		const handleDrag = (event: MouseEvent) => {
+		const handleDrag = (event: PointerEvent) => {
 			event.preventDefault()
+			onDrag?.(event)
 			setState({
 				...state,
 				current: Vector.from(event.clientX, event.clientY),

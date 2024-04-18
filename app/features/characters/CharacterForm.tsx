@@ -80,16 +80,8 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 
 			{character.isOwner && (
 				<div className="flex gap-2 *:flex-1">
-					<CharacterNumberField
-						character={character}
-						field="damage"
-						label={`Damage / ${character.damageThreshold}`}
-					/>
-					<CharacterNumberField
-						character={character}
-						field="fatigue"
-						label={`Fatigue / ${character.fatigueThreshold}`}
-					/>
+					<CharacterDamageField character={character} />
+					<CharacterFatigueField character={character} />
 					<CharacterNumberField character={character} field="currency" />
 				</div>
 			)}
@@ -148,6 +140,34 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				<CharacterTextAreaField character={character} field="ownerNotes" label="Owner Notes" />
 			)}
 		</div>
+	)
+}
+
+export function CharacterDamageField({
+	character,
+}: {
+	character: ApiCharacter
+}) {
+	return (
+		<CharacterNumberField
+			character={character}
+			field="damage"
+			label={`Damage / ${character.damageThreshold}`}
+		/>
+	)
+}
+
+export function CharacterFatigueField({
+	character,
+}: {
+	character: ApiCharacter
+}) {
+	return (
+		<CharacterNumberField
+			character={character}
+			field="fatigue"
+			label={`Fatigue / ${character.fatigueThreshold}`}
+		/>
 	)
 }
 

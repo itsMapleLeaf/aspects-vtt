@@ -1,21 +1,31 @@
 import * as Ariakit from "@ariakit/react"
-import { useQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { Vector } from "#app/common/vector.js"
 import { editCharacterEvent } from "#app/features/characters/events.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
-import { useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
+import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { TokenElement } from "#app/features/tokens/TokenElement.tsx"
 import { Button } from "#app/ui/Button.js"
 import { ContextMenu } from "#app/ui/ContextMenu.js"
 import { FormActions, FormField, FormLayout, FormRow } from "#app/ui/Form.js"
-import { menuItemStyle, menuPanelStyle } from "#app/ui/Menu.js"
+import {
+	Menu,
+	MenuButton,
+	MenuItem,
+	MenuPanel,
+	menuItemStyle,
+	menuPanelStyle,
+} from "#app/ui/Menu.js"
 import { Modal, ModalPanel } from "#app/ui/Modal.js"
 import { NumberField } from "#app/ui/NumberField.js"
+import { translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { ApiAttribute, ApiCharacter } from "../characters/types.ts"
 import { TokenLabel, TokenSelectionOutline } from "../tokens/TokenMap.tsx"
+import { CharacterDamageField, CharacterFatigueField } from "./CharacterForm.tsx"
+import { DeleteCharacterButton } from "./DeleteCharacterButton.tsx"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function CharacterTokenElement(props: {
@@ -25,17 +35,28 @@ export function CharacterTokenElement(props: {
 	onMove: (position: Vector) => Promise<unknown>
 }) {
 	const room = useRoom()
+	const duplicateCharacter = useMutation(api.characters.duplicate)
+	const [moving, setMoving] = useState(false)
+	const popoverStore = Ariakit.usePopoverStore({
+		open: props.selected && !moving,
+	})
 	return (
 		<TokenElement
 			token={props.character.token}
 			size={Vector.from(room.mapCellSize)}
 			onPointerDown={(event) => {
-				if (event.button === 0) props.onSelect()
+				if (event.button === 0) {
+					props.onSelect()
+					setMoving(true)
+				}
 			}}
 			onDoubleClick={(event) => {
 				editCharacterEvent.emit(props.character._id)
 			}}
-			onMove={props.onMove}
+			onMoveFinish={async (...args) => {
+				setMoving(false)
+				await props.onMove(...args)
+			}}
 			attachments={
 				<TokenLabel
 					text={
@@ -47,15 +68,71 @@ export function CharacterTokenElement(props: {
 			}
 		>
 			{props.selected && <TokenSelectionOutline />}
-			<CharacterContextMenu character={props.character}>
-				<UploadedImage
-					id={props.character.imageId}
-					emptyIcon={<Lucide.Ghost />}
-					data-hidden={!props.character.token.visible}
-					className="relative size-full transition-opacity data-[hidden=true]:opacity-50"
-				/>
-			</CharacterContextMenu>
+			<UploadedImage
+				id={props.character.imageId}
+				emptyIcon={<Lucide.Ghost />}
+				data-hidden={!props.character.token.visible}
+				className="relative size-full transition-opacity data-[hidden=true]:opacity-50"
+			/>
+			<Ariakit.PopoverProvider store={popoverStore}>
+				<Ariakit.PopoverAnchor className="absolute inset-0" />
+				<Ariakit.Popover
+					portal
+					hideOnInteractOutside={false}
+					unmountOnHide
+					gutter={8}
+					className={translucentPanel("w-[20rem]")}
+				>
+					<FormLayout>
+						<div className="flex items-end gap-2">
+							<div className="flex flex-1 gap-2 *:flex-1">
+								<CharacterDamageField character={props.character} />
+								<CharacterFatigueField character={props.character} />
+							</div>
+							{room.isOwner ? null : <RollAttributeButton character={props.character} />}
+						</div>
+						<RoomOwnerOnly>
+							<FormRow className="*:basis-0">
+								<RollAttributeButton character={props.character} />
+								<Button
+									title="Copy Character"
+									icon={<Lucide.Copy />}
+									onClick={() => duplicateCharacter({ id: props.character._id })}
+								/>
+								<DeleteCharacterButton character={props.character} />
+							</FormRow>
+						</RoomOwnerOnly>
+					</FormLayout>
+				</Ariakit.Popover>
+			</Ariakit.PopoverProvider>
 		</TokenElement>
+	)
+}
+
+function RollAttributeButton(props: {
+	character: ApiCharacter
+}) {
+	const createAttributeRollMessage = useCreateAttributeRollMessage()
+	const notionImports = useQuery(api.notionImports.get)
+	return (
+		<Menu placement="bottom">
+			<Button icon={<Lucide.Dices />} element={<MenuButton title="Roll Attribute" />} />
+			<MenuPanel>
+				{notionImports?.attributes?.map((attribute) => (
+					<MenuItem
+						key={attribute.key}
+						onClick={() =>
+							createAttributeRollMessage({
+								content: `${props.character.name}: ${attribute.name}`,
+								attributeValue: props.character[attribute.key],
+							})
+						}
+					>
+						{attribute.name}
+					</MenuItem>
+				))}
+			</MenuPanel>
+		</Menu>
 	)
 }
 
