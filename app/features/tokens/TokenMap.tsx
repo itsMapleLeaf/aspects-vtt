@@ -16,7 +16,6 @@ import {
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { CharacterTokenElement } from "../characters/CharacterTokenElement.tsx"
-import { selectCharacterEvent } from "../characters/events.ts"
 import { OffsetContext, ZoomContext } from "./context.tsx"
 
 export function TokenMap({
@@ -106,7 +105,6 @@ export function TokenMap({
 					selected={selected === character._id}
 					onSelect={() => {
 						setSelected(character._id)
-						selectCharacterEvent.emit(character._id)
 					}}
 					onMove={async (position) => {
 						await updateCharacter({

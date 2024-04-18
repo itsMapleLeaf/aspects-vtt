@@ -3,6 +3,7 @@ import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { Vector } from "#app/common/vector.js"
+import { editCharacterEvent } from "#app/features/characters/events.ts"
 import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { TokenElement } from "#app/features/tokens/TokenElement.tsx"
@@ -30,6 +31,9 @@ export function CharacterTokenElement(props: {
 			size={Vector.from(room.mapCellSize)}
 			onPointerDown={(event) => {
 				if (event.button === 0) props.onSelect()
+			}}
+			onDoubleClick={(event) => {
+				editCharacterEvent.emit(props.character._id)
 			}}
 			onMove={props.onMove}
 			attachments={

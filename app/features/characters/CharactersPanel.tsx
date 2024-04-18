@@ -11,7 +11,7 @@ import { Button } from "#app/ui/Button.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
-import { selectCharacterEvent } from "./events"
+import { editCharacterEvent } from "./events"
 
 export function CharactersPanel() {
 	const room = useRoom()
@@ -23,7 +23,7 @@ export function CharactersPanel() {
 	const character =
 		characters?.find((character) => character._id === selectedCharacterId) ?? defaultCharacter
 
-	useListener(selectCharacterEvent, setSelectedCharacterId)
+	useListener(editCharacterEvent, setSelectedCharacterId)
 
 	return (
 		<div className="flex h-full flex-col gap-2 p-2">

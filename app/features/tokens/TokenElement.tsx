@@ -13,6 +13,7 @@ export function TokenElement({
 	children,
 	attachments,
 	onPointerDown,
+	onDoubleClick,
 	onMove,
 }: {
 	token: Token
@@ -20,6 +21,7 @@ export function TokenElement({
 	children: React.ReactNode
 	attachments?: React.ReactNode
 	onPointerDown?: (event: PointerEvent) => void
+	onDoubleClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 	onMove?: (newGridPosition: Vector) => Promise<unknown>
 }) {
 	const room = useRoom()
@@ -53,7 +55,12 @@ export function TokenElement({
 					transformOrigin: "left top",
 				}}
 			>
-				<button type="button" ref={buttonRef} className="pointer-events-auto size-full">
+				<button
+					type="button"
+					ref={buttonRef}
+					className="pointer-events-auto size-full"
+					onDoubleClick={onDoubleClick}
+				>
 					{children}
 				</button>
 				<div className="absolute inset-0 flex items-center justify-center">

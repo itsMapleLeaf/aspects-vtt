@@ -9,7 +9,7 @@ import { twMerge } from "tailwind-merge"
 import { useListener } from "#app/common/emitter.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
-import { selectCharacterEvent } from "#app/features/characters/events.js"
+import { editCharacterEvent } from "#app/features/characters/events.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
@@ -24,7 +24,7 @@ import { FormField } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
 import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
 import { Tooltip, type TooltipProps } from "#app/ui/Tooltip.js"
-import { panel } from "#app/ui/styles.js"
+import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 
 export default function RoomIndexRoute() {
@@ -43,94 +43,117 @@ export default function RoomIndexRoute() {
 				/>
 			</div>
 
-			<div className="flex-center-col h-16 items-stretch border-b border-primary-300 bg-primary-100/75 px-4 shadow shadow-black/50 backdrop-blur">
-				<AppHeader>
-					<UserButton afterSignOutUrl={currentUrl} />
-				</AppHeader>
-			</div>
+			<div
+				className={translucentPanel(
+					"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
+				)}
+			>
+				<AppHeader
+					end={<UserButton afterSignOutUrl={currentUrl} />}
+					center={
+						<Toolbar>
+							<CharactersToolbarButton />
 
-			<Toolbar>
-				<ToolbarPopoverButton id="characters" text="Characters" icon={<Lucide.VenetianMask />}>
-					<div className="h-[960px]">
-						<CharactersPanel />
-					</div>
-				</ToolbarPopoverButton>
-				<ToolbarPopoverButton
-					id="combatInitiative"
-					text="Combat Initiative"
-					icon={<Lucide.ListStart />}
-				>
-					<div className="p-4">
-						<CombatInitiative />
-					</div>
-				</ToolbarPopoverButton>
+							<ToolbarDialogButton
+								text="Chat & Dice"
+								icon={<Lucide.MessageSquareMore />}
+								defaultOpen
+							>
+								<ToolbarDialogContent
+									className={
+										"fixed bottom-0 right-0 top-16 w-[24rem] transition translate-x-4 p-2 opacity-0 data-[enter]:translate-x-0 data-[enter]:opacity-100"
+									}
+								>
+									<div className={translucentPanel("h-full")}>
+										<MessagesPanel />
+									</div>
+								</ToolbarDialogContent>
+							</ToolbarDialogButton>
 
-				<ToolbarSeparator />
+							<ToolbarPopoverButton
+								id="combatInitiative"
+								text="Combat Initiative"
+								icon={<Lucide.ListStart />}
+							>
+								<div className="p-4">
+									<CombatInitiative />
+								</div>
+							</ToolbarPopoverButton>
 
-				<ToolbarPopoverButton id="generalSkills" text="General Skills" icon={<Lucide.Hammer />}>
-					<div className="p-4">
-						<GeneralSkillsList />
-					</div>
-				</ToolbarPopoverButton>
+							<ToolbarSeparator />
 
-				<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
-					<div className="p-4">
-						<CombatDetails />
-					</div>
-				</ToolbarPopoverButton>
+							<ToolbarButton
+								text="Draw Area"
+								icon={<Lucide.SquareDashedMousePointer />}
+								onClick={() => setDrawingArea(true)}
+							/>
 
-				<ToolbarPopoverButton
-					id="criticalInjuries"
-					text="Critical Injuries"
-					icon={<Lucide.HeartCrack />}
-				>
-					<div className="p-4">
-						<CriticalInjuryDetails />
-					</div>
-				</ToolbarPopoverButton>
+							<ToolbarButton
+								text="Reset View"
+								icon={<Lucide.Compass />}
+								onClick={() => viewportRef.current?.resetView()}
+							/>
 
-				<ToolbarSeparator />
+							<ToolbarSeparator />
 
-				<ToolbarButton
-					text="Draw Area"
-					icon={<Lucide.SquareDashedMousePointer />}
-					onClick={() => setDrawingArea(true)}
+							<ToolbarPopoverButton
+								id="generalSkills"
+								text="General Skills"
+								icon={<Lucide.Hammer />}
+							>
+								<div className="p-4">
+									<GeneralSkillsList />
+								</div>
+							</ToolbarPopoverButton>
+
+							<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
+								<div className="p-4">
+									<CombatDetails />
+								</div>
+							</ToolbarPopoverButton>
+
+							<ToolbarPopoverButton
+								id="criticalInjuries"
+								text="Critical Injuries"
+								icon={<Lucide.HeartCrack />}
+							>
+								<div className="p-4">
+									<CriticalInjuryDetails />
+								</div>
+							</ToolbarPopoverButton>
+
+							<ToolbarSeparator />
+
+							<RoomOwnerOnly>
+								<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Settings />}>
+									<RoomSettingsForm />
+								</ToolbarPopoverButton>
+							</RoomOwnerOnly>
+						</Toolbar>
+					}
 				/>
-
-				<ToolbarButton
-					text="Reset View"
-					icon={<Lucide.Compass />}
-					onClick={() => viewportRef.current?.resetView()}
-				/>
-
-				<ToolbarSeparator />
-
-				<RoomOwnerOnly>
-					<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Cog />}>
-						<RoomSettingsForm />
-					</ToolbarPopoverButton>
-				</RoomOwnerOnly>
-			</Toolbar>
-
-			<div className="flex-center-row fixed inset-y-0 right-2 gap-2">
-				<Ariakit.DisclosureProvider>
-					<Button
-						icon={<Lucide.SidebarClose className="group-aria-expanded:-scale-x-100" />}
-						className="group opacity-50 hover:opacity-100"
-						element={<Ariakit.Disclosure title="Show Chat" />}
-					/>
-					<Ariakit.DisclosureContent
-						className={panel(
-							"h-[960px] max-h-[calc(100dvh-4rem)] w-[360px] translate-y-2 bg-primary-100/75 opacity-0 backdrop-blur-sm transition data-[enter]:translate-x-0 data-[enter]:translate-y-0 data-[enter]:opacity-100",
-						)}
-					>
-						<MessagesPanel />
-					</Ariakit.DisclosureContent>
-				</Ariakit.DisclosureProvider>
 			</div>
 
 			<CombatTurnBanner />
 		</>
+	)
+}
+
+function CharactersToolbarButton() {
+	const store = Ariakit.useDialogStore({ defaultOpen: true })
+	useListener(editCharacterEvent, () => store.show())
+	return (
+		<ToolbarDialogButton text="Characters" icon={<Lucide.Users2 />} store={store}>
+			<ToolbarDialogContent
+				className={
+					"fixed bottom-0 left-0 top-16 w-[24rem] transition -translate-x-4 p-2 opacity-0 data-[enter]:translate-x-0 data-[enter]:opacity-100"
+				}
+			>
+				<div className={translucentPanel("h-full")}>
+					<CharactersPanel />
+				</div>
+			</ToolbarDialogContent>
+		</ToolbarDialogButton>
 	)
 }
 
@@ -149,15 +172,8 @@ const ToolbarContext = createContext<{
 function Toolbar(props: { children: React.ReactNode }) {
 	const ref = useRef<HTMLDivElement>(null)
 	const [popoverId, setPopoverId] = useState<string>()
-	useListener(selectCharacterEvent, () => setPopoverId("characters"))
 	return (
-		<nav
-			aria-label="Toolbar"
-			ref={ref}
-			className={panel(
-				"fixed inset-y-0 left-2 my-auto flex h-max flex-col gap-1 rounded-md bg-primary-100/75 p-2 shadow-md shadow-black/50 backdrop-blur",
-			)}
-		>
+		<nav aria-label="Toolbar" ref={ref} className="flex gap-1 p-1">
 			<ToolbarContext.Provider
 				value={{ ref, popoverId, open: setPopoverId, close: () => setPopoverId(undefined) }}
 			>
@@ -167,16 +183,16 @@ function Toolbar(props: { children: React.ReactNode }) {
 	)
 }
 
+function toolbarButtonStyle(className?: string) {
+	return twMerge(
+		"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6  hover:bg-primary-100 hover:opacity-100",
+		className,
+	)
+}
+
 function ToolbarButton({ icon, ...props }: TooltipProps & { icon: React.ReactNode }) {
 	return (
-		<Tooltip
-			placement="right"
-			{...props}
-			className={twMerge(
-				"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6  hover:bg-primary-100 hover:opacity-100",
-				props.className,
-			)}
-		>
+		<Tooltip placement="bottom" {...props} className={toolbarButtonStyle(props.className)}>
 			{icon}
 		</Tooltip>
 	)
@@ -196,7 +212,7 @@ function ToolbarPopoverButton(props: {
 	})
 
 	return (
-		<Popover placement="right" store={popoverStore}>
+		<Popover placement="bottom" store={popoverStore}>
 			<PopoverTrigger
 				render={({ ref, ...rest }) => <ToolbarButton {...rest} {...props} buttonRef={ref} />}
 			/>
@@ -220,8 +236,38 @@ function ToolbarPopoverButton(props: {
 	)
 }
 
+function ToolbarDialogButton({
+	children,
+	store,
+	defaultOpen,
+	...props
+}: {
+	text: string
+	icon: React.ReactNode
+	children: React.ReactNode
+	store?: Ariakit.DialogStore
+	defaultOpen?: boolean
+}) {
+	return (
+		<Ariakit.DialogProvider store={store} defaultOpen={store ? undefined : defaultOpen}>
+			<Ariakit.DialogDisclosure
+				render={({ ref, ...rest }) => <ToolbarButton {...rest} {...props} buttonRef={ref} />}
+			/>
+			{children}
+		</Ariakit.DialogProvider>
+	)
+}
+
+function ToolbarDialogContent(props: Ariakit.DialogProps) {
+	return (
+		<Ariakit.Dialog portal modal={false} hideOnInteractOutside={false} unmountOnHide {...props} />
+	)
+}
+
 function ToolbarSeparator() {
-	return <hr className="border-primary-300 first:hidden last:hidden" />
+	return (
+		<div className="shrink-0 basis-px self-stretch bg-primary-300/75 first:hidden last:hidden" />
+	)
 }
 
 function CombatDetails() {
@@ -275,7 +321,7 @@ function CriticalInjuryDetails() {
 			</section>
 
 			<section>
-				<h3 className=" -mx-3 mb-3 border-y border-primary-300 bg-primary-100 p-4 text-lg font-bold">
+				<h3 className="-mx-3 mb-3 border-y border-primary-300 bg-primary-100 p-4 text-lg font-bold">
 					Fatigue
 				</h3>
 				<DefinitionList

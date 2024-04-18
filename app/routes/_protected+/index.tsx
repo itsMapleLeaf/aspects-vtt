@@ -17,9 +17,7 @@ export default function CreateRoomRoute() {
 	const currentUrl = useHref(useLocation())
 	return (
 		<div className="grid gap-4 p-4">
-			<AppHeader>
-				<UserButton afterSignOutUrl={currentUrl} />
-			</AppHeader>
+			<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
 			<main>
 				{rooms === undefined ? (
 					<Loading />
