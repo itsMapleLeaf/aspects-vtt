@@ -1,4 +1,4 @@
-import { getManyFrom } from "convex-helpers/server/relationships.js"
+import { getManyFrom } from "convex-helpers/server/relationships"
 import { partial } from "convex-helpers/validators"
 import { ConvexError, v } from "convex/values"
 import { Result } from "#app/common/Result.js"
