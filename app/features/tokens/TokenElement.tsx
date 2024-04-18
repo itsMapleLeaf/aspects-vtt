@@ -45,7 +45,7 @@ export function TokenElement({
 		<div className="pointer-events-none">
 			<div
 				data-dragging={!!drag}
-				className="absolute left-0 top-0 rounded transition-[transform,width,height] ease-out data-[dragging=true]:duration-0"
+				className="absolute left-0 top-0 rounded ease-out data-[dragging=true]:duration-0"
 				style={{
 					width: size.x * zoom,
 					height: size.y * zoom,
@@ -65,7 +65,7 @@ export function TokenElement({
 			</div>
 			<div
 				data-dragging={!!drag}
-				className="absolute left-0 top-0 z-10 rounded transition-[transform,width,height] ease-out data-[dragging=true]:duration-0"
+				className="absolute left-0 top-0 z-10 rounded ease-out data-[dragging=true]:duration-0"
 				style={{
 					width: size.x * zoom,
 					height: size.y * zoom,

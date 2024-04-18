@@ -125,7 +125,7 @@ export function TokenMapViewport({
 		>
 			<UploadedImage
 				id={room.mapImageId}
-				className="absolute left-0 top-0 brightness-75 transition-[transform,width,height] ease-out"
+				className="absolute left-0 top-0 brightness-75 ease-out"
 				style={{
 					width: mapDimensions.x,
 					height: mapDimensions.y,
@@ -136,7 +136,7 @@ export function TokenMapViewport({
 			<ZoomContext.Provider value={zoom}>
 				<OffsetContext.Provider value={translation}>
 					<TokenMapGrid
-						className="absolute left-0 top-0 opacity-25 transition-[transform,width,height] ease-out"
+						className="absolute left-0 top-0 opacity-25 ease-out"
 						style={{
 							width: mapDimensions.x,
 							height: mapDimensions.y,
