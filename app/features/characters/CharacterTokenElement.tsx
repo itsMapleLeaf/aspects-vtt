@@ -35,7 +35,7 @@ export function CharacterTokenElement(props: {
 			attachments={
 				<TokenLabel
 					text={
-						props.character.nameVisible
+						props.character.isOwner || props.character.nameVisible
 							? `${props.character.displayName}\n(${props.character.displayPronouns})`
 							: "???"
 					}
