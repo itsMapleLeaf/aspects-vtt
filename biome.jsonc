@@ -1,5 +1,8 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"files": {
+		"ignore": ["convex/_generated/**"]
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -34,6 +37,11 @@
 	"formatter": {
 		"enabled": true,
 		"lineWidth": 100
+	},
+	"json": {
+		"parser": {
+			"allowComments": true
+		}
 	},
 	"vcs": {
 		"enabled": true,
