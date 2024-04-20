@@ -47,12 +47,7 @@ export function MessageForm() {
 			}}
 			className="flex flex-col gap-2"
 		>
-			<details className="group">
-				<summary className="flex cursor-default select-none items-center gap-1 transition hover:text-primary-700">
-					<Lucide.ChevronRight className="cursor-default select-none transition group-open:rotate-90" />{" "}
-					Dice
-				</summary>
-
+			<Collapse title="Dice">
 				<div className="mt-2 flex flex-col gap-2">
 					<ul className="flex flex-wrap gap-2">
 						{diceKinds
@@ -88,7 +83,7 @@ export function MessageForm() {
 
 									<button
 										type="button"
-										className="transition *:size-12 hover:brightness-75 active:brightness-125 active:duration-0 "
+										className="transition *:size-12 hover:brightness-75 active:brightness-125 active:duration-0"
 										title={`Click to add a ${kind.name}, right-click to remove`}
 										onClick={() => updateDiceCount(kind.name, 1)}
 										onContextMenu={(event) => {
@@ -119,7 +114,7 @@ export function MessageForm() {
 						}}
 					/>
 				</div>
-			</details>
+			</Collapse>
 
 			<div className="flex gap-[inherit]">
 				<Input
@@ -138,5 +133,17 @@ export function MessageForm() {
 				/>
 			</div>
 		</form>
+	)
+}
+
+function Collapse({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
+	return (
+		<details className="group">
+			<summary className="flex cursor-default select-none items-center gap-1 transition hover:text-primary-700">
+				<Lucide.ChevronRight className="cursor-default select-none transition group-open:rotate-90" />
+				{title}
+			</summary>
+			{children}
+		</details>
 	)
 }
