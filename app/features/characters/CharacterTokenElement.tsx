@@ -101,6 +101,7 @@ export function CharacterTokenElement(props: {
 								/>
 								<DeleteCharacterButton character={props.character} />
 								<ToggleVisibleButton character={props.character} />
+								<ToggleNameVisibleButton character={props.character} />
 							</FormRow>
 						</RoomOwnerOnly>
 					</FormLayout>
@@ -354,12 +355,28 @@ function ToggleVisibleButton(props: { character: ApiCharacter }) {
 	const updateCharacter = useMutation(api.characters.update)
 	return (
 		<Button
-			title="Toggle Visibility"
-			icon={props.character.token.visible ? <Lucide.Eye /> : <Lucide.EyeOff />}
+			title="Toggle Token Visibility"
+			icon={props.character.token.visible ? <Lucide.Image /> : <Lucide.ImageOff />}
 			onClick={async () => {
 				await updateCharacter({
 					id: props.character._id,
 					visible: !props.character.token.visible,
+				})
+			}}
+		/>
+	)
+}
+
+function ToggleNameVisibleButton(props: { character: ApiCharacter }) {
+	const updateCharacter = useMutation(api.characters.update)
+	return (
+		<Button
+			title="Toggle Name Visibility"
+			icon={props.character.nameVisible ? <Lucide.Eye /> : <Lucide.EyeOff />}
+			onClick={async () => {
+				await updateCharacter({
+					id: props.character._id,
+					nameVisible: !props.character.nameVisible,
 				})
 			}}
 		/>
