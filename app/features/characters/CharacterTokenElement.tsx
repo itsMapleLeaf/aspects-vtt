@@ -100,6 +100,7 @@ export function CharacterTokenElement(props: {
 									onClick={() => duplicateCharacter({ id: props.character._id })}
 								/>
 								<DeleteCharacterButton character={props.character} />
+								<ToggleVisibleButton character={props.character} />
 							</FormRow>
 						</RoomOwnerOnly>
 					</FormLayout>
@@ -346,5 +347,21 @@ function Select<T extends string>(props: {
 				))}
 			</Ariakit.SelectPopover>
 		</Ariakit.SelectProvider>
+	)
+}
+
+function ToggleVisibleButton(props: { character: ApiCharacter }) {
+	const updateCharacter = useMutation(api.characters.update)
+	return (
+		<Button
+			title="Toggle Visibility"
+			icon={props.character.token.visible ? <Lucide.Eye /> : <Lucide.EyeOff />}
+			onClick={async () => {
+				await updateCharacter({
+					id: props.character._id,
+					visible: !props.character.token.visible,
+				})
+			}}
+		/>
 	)
 }
