@@ -31,3 +31,11 @@ export function withMovedItem<T>(array: readonly T[], fromIndex: number, toIndex
 export function indexLooped<T>(array: readonly T[], index: number) {
 	return array[mod(index, array.length)]
 }
+
+export function chunk<T>(array: readonly T[], chunkSize: number): T[][] {
+	const result: T[][] = []
+	for (let i = 0; i < array.length; i += chunkSize) {
+		result.push(array.slice(i, i + chunkSize))
+	}
+	return result
+}

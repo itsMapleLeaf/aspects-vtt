@@ -4,6 +4,7 @@ import { type Ref, use, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import { useMutationState } from "#app/common/convex.js"
+import { useListener } from "#app/common/emitter.js"
 import { useDrag } from "#app/common/useDrag.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
@@ -13,6 +14,7 @@ import {
 	TokenMapViewport,
 	type ViewportController,
 } from "#app/features/tokens/TokenMapViewport.tsx"
+import { tokenSelectedEvent } from "#app/features/tokens/events.ts"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { CharacterTokenElement } from "../characters/CharacterTokenElement.tsx"
@@ -58,6 +60,10 @@ export function TokenMap({
 		)
 
 	const [selected, setSelected] = useState<Id<"characters"> | Id<"rectangles">>()
+
+	useListener(tokenSelectedEvent, (id) => {
+		setSelected(id)
+	})
 
 	useWindowEvent("keydown", (event) => {
 		// don't do anything if an input is focused

@@ -3,12 +3,14 @@ import { formatDistanceToNow } from "date-fns"
 import { HelpCircle } from "lucide-react"
 import { Fragment } from "react"
 import { Virtuoso } from "react-virtuoso"
+import { chunk } from "#app/common/array.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { Tooltip } from "#app/ui/Tooltip.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
-import { useRoom } from "../rooms/roomContext.tsx"
+import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { tokenSelectedEvent } from "../tokens/events.ts"
 
 export function MessageList() {
 	const room = useRoom()
@@ -27,7 +29,11 @@ export function MessageList() {
 			itemContent={(_index, message) => (
 				<div className="pb-2 animate-in fade-in">
 					<div className={panel("flex flex-col gap-1.5 p-3")}>
-						{message.content && <p className="text-lg empty:hidden">{message.content}</p>}
+						{message.content && (
+							<p className="text-lg empty:hidden">
+								<MessageContent content={message.content} />
+							</p>
+						)}
 						{message.diceRoll && message.diceRoll.dice.length > 0 && (
 							<div className={panel("bg-primary-100/50 px-3 py-2")}>
 								<DiceRollSummary roll={message.diceRoll} />
@@ -130,5 +136,33 @@ function DiceRollIcon({ die }: { die: DiceRoll["dice"][number] }) {
 				)
 			)}
 		</div>
+	)
+}
+
+function MessageContent({ content }: { content: string }) {
+	return chunk(content.split(/(<@[\da-z]+>)/gi), 2).map(([text, mention], index) => {
+		const characterId = mention ? mention.slice(2, mention.length - 1) : undefined
+		return (
+			<Fragment key={index}>
+				<span>{text}</span>
+				{characterId && <Mention characterId={characterId} />}
+			</Fragment>
+		)
+	})
+}
+
+function Mention({ characterId }: { characterId: string }) {
+	const character = useCharacters().find((c) => c._id === characterId)
+	return (
+		<button
+			type="button"
+			className="inline-block rounded border border-primary-500 bg-primary-700/25 px-1.5 py-1 leading-none transition hover:bg-primary-700/50 active:bg-primary-700/75 active:duration-0"
+			onClick={() => {
+				if (!character) return
+				tokenSelectedEvent.emit(character._id)
+			}}
+		>
+			{character ? character.displayName : "unknown character"}
+		</button>
 	)
 }
