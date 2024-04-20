@@ -9,7 +9,7 @@ export function DeleteCharacterButton({
 	character,
 	text,
 }: {
-	character: { _id: Id<"characters">; name: string }
+	character: { _id: Id<"characters">; displayName: string }
 	text?: string
 }) {
 	const remove = useMutation(api.characters.remove)
@@ -17,24 +17,20 @@ export function DeleteCharacterButton({
 		<Modal>
 			{(store) => (
 				<>
-					<Button
-						icon={<Lucide.Trash />}
-						text={text}
-						element={<ModalButton title="Delete Character" />}
-					/>
+					<Button icon={<Lucide.Trash />} text={text} element={<ModalButton title="Delete" />} />
 					<ModalPanel
 						title="Delete Character"
 						className="grid place-items-center gap-2 text-pretty p-2 text-center"
 					>
 						<p>
-							Are you sure you want to delete <strong>{character.name}</strong>? This cannot be
-							undone!
+							Are you sure you want to delete <strong>{character.displayName}</strong>? This cannot
+							be undone!
 						</p>
 						<ModalActions>
 							<Button icon={<Lucide.X />} text="No, keep character" element={<ModalDismiss />} />
 							<Button
 								icon={<Lucide.Trash />}
-								text={`Yes, delete ${character.name}`}
+								text={`Yes, delete ${character.displayName}`}
 								onClick={async () => {
 									await remove({ id: character._id })
 									store.hide()

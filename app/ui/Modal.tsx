@@ -13,7 +13,7 @@ import {
 	useDialogStore,
 } from "@ariakit/react"
 import { LucideX } from "lucide-react"
-import type { ComponentPropsWithoutRef } from "react"
+import { type ComponentPropsWithoutRef, forwardRef } from "react"
 import { twMerge } from "tailwind-merge"
 import type { StrictOmit } from "#app/common/types.ts"
 import { panel } from "./styles.ts"
@@ -32,9 +32,9 @@ export function Modal({ children, ...props }: ModalProps) {
 	)
 }
 
-export function ModalButton(props: DialogDisclosureProps) {
-	return <DialogDisclosure {...props} />
-}
+export const ModalButton = forwardRef<HTMLButtonElement, DialogDisclosureProps>((props, ref) => (
+	<DialogDisclosure {...props} ref={ref} />
+))
 
 export interface ModalPanelProps extends StrictOmit<DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
@@ -84,6 +84,6 @@ export function ModalActions(props: ComponentPropsWithoutRef<"div">) {
 	return <div {...withMergedClassName(props, "flex justify-end gap-2")} />
 }
 
-export function ModalDismiss(props: DialogDismissProps) {
-	return <DialogDismiss {...props} />
-}
+export const ModalDismiss = forwardRef<HTMLButtonElement, DialogDismissProps>((props, ref) => (
+	<DialogDismiss {...props} ref={ref} />
+))

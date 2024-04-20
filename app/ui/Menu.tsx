@@ -1,4 +1,5 @@
 import * as Ariakit from "@ariakit/react"
+import { forwardRef } from "react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
 import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName.ts"
@@ -7,9 +8,9 @@ export function Menu(props: Ariakit.MenuProviderProps) {
 	return <Ariakit.MenuProvider {...props} />
 }
 
-export function MenuButton(props: Ariakit.MenuButtonProps) {
-	return <Ariakit.MenuButton {...props} />
-}
+export const MenuButton = forwardRef<HTMLButtonElement, Ariakit.MenuButtonProps>((props, ref) => (
+	<Ariakit.MenuButton {...props} ref={ref} />
+))
 
 export function menuPanelStyle(...classes: ClassNameValue[]) {
 	return panel(

@@ -9,12 +9,14 @@ import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import type { Disallowed, StrictOmit } from "#app/common/types.ts"
 import { Loading } from "./Loading.tsx"
+import { TooltipAnchor, TooltipContent, TooltipProvider } from "./Tooltip.tsx"
 import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName"
 
 interface ButtonPropsBase extends ButtonStyleProps {
 	icon: ReactElement | undefined
 	text?: ReactNode
+	tooltip?: ReactNode
 }
 
 export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
@@ -30,7 +32,7 @@ export interface ButtonPropsAsElement
 
 export type ButtonProps = ButtonPropsAsButton | ButtonPropsAsElement
 
-export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
+export function Button({ text, icon, tooltip, size = "md", ...props }: ButtonProps) {
 	const [onClickPending, setOnClickPending] = useState(false)
 	const status = useFormStatus()
 	const pending = (status.pending && props.type === "submit") || onClickPending
@@ -51,26 +53,38 @@ export function Button({ text, icon, size = "md", ...props }: ButtonProps) {
 		</>
 	)
 
-	return "element" in props ? (
-		cloneElement(props.element, {
-			className: twMerge(className, props.className),
-			children: children,
-		})
-	) : (
-		<button
-			type="button"
-			disabled={pending}
-			{...withMergedClassName(props, "cursor-default", className)}
-			onClick={async (event) => {
-				setOnClickPending(true)
-				try {
-					await props.onClick?.(event)
-				} catch {}
-				setOnClickPending(false)
-			}}
-		>
-			{children}
-		</button>
+	const element =
+		"element" in props ? (
+			cloneElement(props.element, {
+				className: twMerge(className, props.className),
+				children: children,
+			})
+		) : (
+			<button
+				type="button"
+				disabled={pending}
+				{...withMergedClassName(props, "cursor-default", className)}
+				onClick={async (event) => {
+					setOnClickPending(true)
+					try {
+						await props.onClick?.(event)
+					} catch {}
+					setOnClickPending(false)
+				}}
+			>
+				{children}
+			</button>
+		)
+
+	if (!tooltip) {
+		return element
+	}
+
+	return (
+		<TooltipProvider>
+			<TooltipAnchor render={element} />
+			<TooltipContent>{tooltip}</TooltipContent>
+		</TooltipProvider>
 	)
 }
 

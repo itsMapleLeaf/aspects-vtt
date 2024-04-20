@@ -95,7 +95,7 @@ export function CharacterTokenElement(props: {
 							<FormRow className="*:basis-0">
 								<RollAttributeButton character={props.character} />
 								<Button
-									title="Copy Character"
+									tooltip="Duplicate"
 									icon={<Lucide.Copy />}
 									onClick={() => duplicateCharacter({ id: props.character._id })}
 								/>
@@ -118,7 +118,7 @@ function RollAttributeButton(props: {
 	const notionImports = useQuery(api.notionImports.get)
 	return (
 		<Menu placement="bottom">
-			<Button icon={<Lucide.Dices />} element={<MenuButton title="Roll Attribute" />} />
+			<Button tooltip="Roll Attribute" icon={<Lucide.Dices />} element={<MenuButton />} />
 			<MenuPanel>
 				{notionImports?.attributes?.map((attribute) => (
 					<MenuItem
@@ -355,7 +355,7 @@ function ToggleVisibleButton(props: { character: ApiCharacter }) {
 	const updateCharacter = useMutation(api.characters.update)
 	return (
 		<Button
-			title="Toggle Token Visibility"
+			tooltip={props.character.token.visible ? "Hide Token" : "Show Token"}
 			icon={props.character.token.visible ? <Lucide.Image /> : <Lucide.ImageOff />}
 			onClick={async () => {
 				await updateCharacter({
@@ -371,7 +371,7 @@ function ToggleNameVisibleButton(props: { character: ApiCharacter }) {
 	const updateCharacter = useMutation(api.characters.update)
 	return (
 		<Button
-			title="Toggle Name Visibility"
+			tooltip={props.character.nameVisible ? "Hide Name" : "Show Name"}
 			icon={props.character.nameVisible ? <Lucide.Eye /> : <Lucide.EyeOff />}
 			onClick={async () => {
 				await updateCharacter({
