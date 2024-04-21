@@ -40,6 +40,11 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 		}
 	}
 
+	async getValueOrDefault(defaultValue: T): Promise<T> {
+		const { ok, value } = await this.resolve()
+		return ok ? value : defaultValue
+	}
+
 	async resolveJson(): Promise<ResultJson<T>> {
 		const result = await this.resolve()
 		return result.ok
