@@ -97,8 +97,10 @@ export const importData = internalAction({
 					const abilityParagraph =
 						paragraphs.at(-1)?.replace(/^basic ability:\s*/i, "") ?? raise("Page has no content")
 					const [abilityName, abilityDescription] = abilityParagraph.split(/\s*-\s*/)
+					const name = getPropertyText(page.properties, "Name") as Branded<"aspectName">
+					console.info(`Imported aspect ${name}`)
 					return {
-						name: getPropertyText(page.properties, "Name") as Branded<"aspectName">,
+						name: name,
 						description: paragraphs.slice(0, -1).join("\n\n"),
 						ability: {
 							name: abilityName ?? raise("no ability name"),
@@ -113,6 +115,7 @@ export const importData = internalAction({
 					assertIsFullPage(page)
 					const name = getPropertyText(page.properties, "Name")
 					const aspectDocs = await getRelatedPages(page.properties, "Aspects")
+					console.info(`Imported aspect skill ${name}`)
 					return {
 						name: name as Branded<"aspectSkillName">,
 						description: getPropertyText(page.properties, "Description"),
@@ -127,6 +130,7 @@ export const importData = internalAction({
 				attributeList.results.map(async (page) => {
 					assertIsFullPage(page)
 					const name = getPropertyText(page.properties, "Name")
+					console.info(`Imported attribute ${name}`)
 					return {
 						name: name as Branded<"attributeName">,
 						description: await fetchBlockChildrenContent(page.id),
@@ -141,6 +145,7 @@ export const importData = internalAction({
 				generalSkillsList.results.map(async (page) => {
 					assertIsFullPage(page)
 					const name = getPropertyText(page.properties, "Name")
+					console.info(`Imported general skill ${name}`)
 					return {
 						name: name as Branded<"generalSkillName">,
 						description: await fetchBlockChildrenContent(page.id),
@@ -164,6 +169,8 @@ export const importData = internalAction({
 									description: description ?? raise(`no ability description`),
 								}
 							})
+
+						console.info(`Imported race ${name}`)
 
 						return {
 							name: name as Branded<"raceName">,
