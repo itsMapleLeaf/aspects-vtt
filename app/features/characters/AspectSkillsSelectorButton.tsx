@@ -38,15 +38,18 @@ export function AspectSkillsSelectorButton({
 	)
 
 	const aspects = new Set(
-		[...addedAspectSkills].flatMap((skill) => aspectSkillsByName.get(skill)?.aspects ?? []),
+		Iterator.from(addedAspectSkills).flatMap(
+			(skill) => aspectSkillsByName.get(skill)?.aspects ?? [],
+		),
 	)
 
 	const getCost = (skill: ApiAspectSkill, index: number) =>
 		index <= 1 ? 0 : skill.aspects.length * 10 + Math.max(0, index - 2) * 5
 
-	const usedExperience = [...addedAspectSkills.values()]
+	const usedExperience = addedAspectSkills
+		.values()
 		.map((name) => aspectSkillsByName.get(name))
-		.filter(Boolean)
+		.filter((skill): skill is ApiAspectSkill => skill !== undefined)
 		.reduce((total, skill, index) => total + getCost(skill, index), 0)
 
 	const availableExperience = room.experience - usedExperience
@@ -111,7 +114,7 @@ export function AspectSkillsSelectorButton({
 							skill={skill}
 							character={character}
 							cost={getCost(skill, addedAspectSkills.size)}
-							disabled
+							disabled={!room.isOwner}
 						/>
 					))}
 				</div>
