@@ -8,6 +8,7 @@ import { notionImportProperties } from "./notionImports.ts"
 import { rectangleProperties } from "./rectangles.ts"
 import { roomProperties } from "./rooms.ts"
 import { roomCombatValidator } from "./rooms/combat.ts"
+import { sceneProperties } from "./scenes.ts"
 
 export default defineSchema({
 	users: defineTable({
@@ -52,4 +53,6 @@ export default defineSchema({
 		...rectangleProperties,
 		roomId: v.id("rooms"),
 	}).index("by_roomId", ["roomId"]),
+
+	scenes: defineTable(sceneProperties).index("by_room", ["roomId"]),
 })

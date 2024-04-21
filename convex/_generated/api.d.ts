@@ -29,6 +29,7 @@ import type * as resultResponse from "../resultResponse.js";
 import type * as RoomModel from "../RoomModel.js";
 import type * as rooms_combat from "../rooms/combat.js";
 import type * as rooms from "../rooms.js";
+import type * as scenes from "../scenes.js";
 import type * as storage from "../storage.js";
 import type * as token from "../token.js";
 import type * as users from "../users.js";
@@ -57,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   RoomModel: typeof RoomModel;
   "rooms/combat": typeof rooms_combat;
   rooms: typeof rooms;
+  scenes: typeof scenes;
   storage: typeof storage;
   token: typeof token;
   users: typeof users;

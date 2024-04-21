@@ -1,7 +1,9 @@
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
+import { Result } from "#app/common/Result.js"
 import { range } from "#app/common/range.js"
 import { RoomModel } from "./RoomModel.js"
+import type { Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { getUserFromIdentity } from "./users.js"
 
@@ -123,3 +125,10 @@ export const join = mutation({
 		await room.join(ctx)
 	},
 })
+
+export function requireRoomOwner(ctx: QueryCtx, roomId: Id<"rooms">) {
+	return Result.fn(async () => {
+		const room = await RoomModel.fromId(ctx, roomId).getValueOrThrow()
+		await room.assertOwned()
+	})
+}
