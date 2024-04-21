@@ -90,8 +90,7 @@ export const importData = internalAction({
 
 		await ctx.runMutation(internal.notionImports.create, {
 			aspects: await Promise.all(
-				aspectsList.results.map(async (page) => {
-					assertIsFullPage(page)
+				aspectsList.results.map(asFullPage).map(async (page) => {
 					const content = await fetchBlockChildrenContent(page.id)
 					const paragraphs = content.split("\n\n")
 					const abilityParagraph =
@@ -111,8 +110,7 @@ export const importData = internalAction({
 			),
 
 			aspectSkills: await Promise.all(
-				aspectSkillsList.results.map(async (page) => {
-					assertIsFullPage(page)
+				aspectSkillsList.results.map(asFullPage).map(async (page) => {
 					const name = getPropertyText(page.properties, "Name")
 					const aspectDocs = await getRelatedPages(page.properties, "Aspects")
 					console.info(`Imported aspect skill ${name}`)
@@ -127,8 +125,7 @@ export const importData = internalAction({
 			),
 
 			attributes: await Promise.all(
-				attributeList.results.map(async (page) => {
-					assertIsFullPage(page)
+				attributeList.results.map(asFullPage).map(async (page) => {
 					const name = getPropertyText(page.properties, "Name")
 					console.info(`Imported attribute ${name}`)
 					return {
@@ -142,8 +139,7 @@ export const importData = internalAction({
 			),
 
 			generalSkills: await Promise.all(
-				generalSkillsList.results.map(async (page) => {
-					assertIsFullPage(page)
+				generalSkillsList.results.map(asFullPage).map(async (page) => {
 					const name = getPropertyText(page.properties, "Name")
 					console.info(`Imported general skill ${name}`)
 					return {
@@ -155,8 +151,7 @@ export const importData = internalAction({
 
 			races: (
 				await Promise.all(
-					racesList.results.map(async (page) => {
-						assertIsFullPage(page)
+					racesList.results.map(asFullPage).map(async (page) => {
 						const name = getPropertyText(page.properties, "Name")
 
 						const abilities = getPropertyText(page.properties, "Abilities")
@@ -197,12 +192,11 @@ export const create = internalMutation({
 	},
 })
 
-function assertIsFullPage(
-	page: QueryDatabaseResponse["results"][number],
-): asserts page is PageObjectResponse {
+function asFullPage(page: QueryDatabaseResponse["results"][number]): PageObjectResponse {
 	if (!isFullPage(page)) {
 		throw new Error(`Expected full page, got ${JSON.stringify(page)}`)
 	}
+	return page
 }
 
 function getRichTextContent(items: RichTextItemResponse[]) {
@@ -235,22 +229,17 @@ async function fetchBlockChildrenContent(parentId: string): Promise<string> {
 	const blocks = await client.blocks.children.list({ block_id: parentId })
 
 	const textBlocks = await Promise.all(
-		blocks.results.map(async (block) => {
-			if (!isFullBlock(block)) {
-				return null
-			}
+		blocks.results.filter(isFullBlock).map(async (block) => {
 			if (block.has_children) {
 				return await fetchBlockChildrenContent(block.id)
 			}
-			switch (block.type) {
-				case "paragraph":
-					return getRichTextContent(block.paragraph.rich_text)
-				default:
-					return ""
+			if (block.type === "paragraph") {
+				return getRichTextContent(block.paragraph.rich_text)
 			}
+			return ""
 		}),
 	)
-	return textBlocks.filter(Boolean).join("\n\n")
+	return textBlocks.join("\n\n")
 }
 
 function createNotionClient() {
