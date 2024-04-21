@@ -1,11 +1,12 @@
 import * as Ariakit from "@ariakit/react"
 import { usePopoverStore } from "@ariakit/react"
 import * as Lucide from "lucide-react"
+import * as React from "react"
 import { type RefObject, createContext, use, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { Button } from "#app/ui/Button.js"
 import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
-import { Tooltip, type TooltipProps } from "#app/ui/Tooltip.js"
+import { TooltipAnchor, TooltipContent, TooltipProvider } from "#app/ui/Tooltip.js"
 
 const ToolbarContext = createContext<{
 	ref: RefObject<HTMLDivElement>
@@ -32,19 +33,35 @@ export function Toolbar(props: { children: React.ReactNode }) {
 		</nav>
 	)
 }
+
 function toolbarButtonStyle(className?: string) {
 	return twMerge(
 		"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6  hover:bg-primary-100 hover:opacity-100",
 		className,
 	)
 }
-export function ToolbarButton({ icon, ...props }: TooltipProps & { icon: React.ReactNode }) {
+
+export const ToolbarButton = React.forwardRef(function ToolbarButton(
+	{
+		text,
+		icon,
+		...props
+	}: Ariakit.TooltipAnchorProps & {
+		text: React.ReactNode
+		icon: React.ReactNode
+	},
+	ref: React.ForwardedRef<HTMLDivElement>,
+) {
 	return (
-		<Tooltip placement="bottom" {...props} className={toolbarButtonStyle(props.className)}>
-			{icon}
-		</Tooltip>
+		<TooltipProvider placement="bottom">
+			<TooltipAnchor {...props} className={toolbarButtonStyle(props.className)} ref={ref}>
+				{icon}
+			</TooltipAnchor>
+			<TooltipContent>{text}</TooltipContent>
+		</TooltipProvider>
 	)
-}
+})
+
 export function ToolbarPopoverButton(props: {
 	id: string
 	text: string
@@ -60,9 +77,7 @@ export function ToolbarPopoverButton(props: {
 
 	return (
 		<Popover placement="bottom" store={popoverStore}>
-			<PopoverTrigger
-				render={({ ref, ...rest }) => <ToolbarButton {...rest} {...props} buttonRef={ref} />}
-			/>
+			<PopoverTrigger render={<ToolbarButton icon={props.icon} text={props.text} />} />
 			<PopoverPanel
 				gutter={8}
 				autoFocusOnShow={false}
@@ -82,11 +97,13 @@ export function ToolbarPopoverButton(props: {
 		</Popover>
 	)
 }
+
 export function ToolbarDialogButton({
 	children,
 	store,
 	defaultOpen,
-	...props
+	icon,
+	text,
 }: {
 	text: string
 	icon: React.ReactNode
@@ -96,18 +113,18 @@ export function ToolbarDialogButton({
 }) {
 	return (
 		<Ariakit.DialogProvider store={store} defaultOpen={store ? undefined : defaultOpen}>
-			<Ariakit.DialogDisclosure
-				render={({ ref, ...rest }) => <ToolbarButton {...rest} {...props} buttonRef={ref} />}
-			/>
+			<Ariakit.DialogDisclosure render={<ToolbarButton icon={icon} text={text} />} />
 			{children}
 		</Ariakit.DialogProvider>
 	)
 }
+
 export function ToolbarDialogContent(props: Ariakit.DialogProps) {
 	return (
 		<Ariakit.Dialog portal modal={false} hideOnInteractOutside={false} unmountOnHide {...props} />
 	)
 }
+
 export function ToolbarSeparator() {
 	return (
 		<div className="shrink-0 basis-px self-stretch bg-primary-300/75 first:hidden last:hidden" />

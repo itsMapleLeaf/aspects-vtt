@@ -21,9 +21,7 @@ export function TooltipProvider(props: Ariakit.TooltipProviderProps) {
 	return <Ariakit.TooltipProvider {...props} />
 }
 
-export const TooltipAnchor = React.forwardRef<HTMLDivElement, Ariakit.TooltipAnchorProps>(
-	(props, ref) => <Ariakit.TooltipAnchor {...props} ref={ref} />,
-)
+export const TooltipAnchor = Ariakit.TooltipAnchor
 
 export const TooltipContent = React.forwardRef<HTMLDivElement, Ariakit.TooltipProps>(
 	(props, ref) => (
