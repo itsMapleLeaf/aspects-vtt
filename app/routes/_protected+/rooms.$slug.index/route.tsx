@@ -1,11 +1,9 @@
 import * as Ariakit from "@ariakit/react"
-import { usePopoverStore } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type RefObject, createContext, use, useEffect, useRef, useState } from "react"
-import { twMerge } from "tailwind-merge"
+import { useEffect, useRef, useState } from "react"
 import { useListener } from "#app/common/emitter.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
@@ -18,14 +16,19 @@ import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundBut
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
 import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
 import { AppHeader } from "#app/ui/AppHeader.js"
-import { Button } from "#app/ui/Button.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
-import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
-import { Tooltip, type TooltipProps } from "#app/ui/Tooltip.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
+import {
+	Toolbar,
+	ToolbarButton,
+	ToolbarDialogButton,
+	ToolbarDialogContent,
+	ToolbarPopoverButton,
+	ToolbarSeparator,
+} from "./Toolbar"
 
 export default function RoomIndexRoute() {
 	const currentUrl = useHref(useLocation())
@@ -154,119 +157,6 @@ function CharactersToolbarButton() {
 				</div>
 			</ToolbarDialogContent>
 		</ToolbarDialogButton>
-	)
-}
-
-const ToolbarContext = createContext<{
-	ref: RefObject<HTMLDivElement>
-	popoverId: string | undefined
-	open: (id: string) => void
-	close: () => void
-}>({
-	ref: { current: null },
-	popoverId: undefined,
-	open: () => {},
-	close: () => {},
-})
-
-function Toolbar(props: { children: React.ReactNode }) {
-	const ref = useRef<HTMLDivElement>(null)
-	const [popoverId, setPopoverId] = useState<string>()
-	return (
-		<nav aria-label="Toolbar" ref={ref} className="flex gap-1 p-1">
-			<ToolbarContext.Provider
-				value={{ ref, popoverId, open: setPopoverId, close: () => setPopoverId(undefined) }}
-			>
-				{props.children}
-			</ToolbarContext.Provider>
-		</nav>
-	)
-}
-
-function toolbarButtonStyle(className?: string) {
-	return twMerge(
-		"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6  hover:bg-primary-100 hover:opacity-100",
-		className,
-	)
-}
-
-function ToolbarButton({ icon, ...props }: TooltipProps & { icon: React.ReactNode }) {
-	return (
-		<Tooltip placement="bottom" {...props} className={toolbarButtonStyle(props.className)}>
-			{icon}
-		</Tooltip>
-	)
-}
-
-function ToolbarPopoverButton(props: {
-	id: string
-	text: string
-	icon: React.ReactNode
-	children: React.ReactNode
-}) {
-	const context = use(ToolbarContext)
-
-	const popoverStore = usePopoverStore({
-		open: context.popoverId === props.id,
-		setOpen: (open) => (open ? context.open(props.id) : context.close()),
-	})
-
-	return (
-		<Popover placement="bottom" store={popoverStore}>
-			<PopoverTrigger
-				render={({ ref, ...rest }) => <ToolbarButton {...rest} {...props} buttonRef={ref} />}
-			/>
-			<PopoverPanel
-				gutter={8}
-				autoFocusOnShow={false}
-				autoFocusOnHide={false}
-				hideOnInteractOutside={false}
-				getAnchorRect={() => context.ref.current?.getBoundingClientRect() ?? null}
-				className="relative max-h-[calc(100dvh-2rem)] w-[360px] bg-primary-100/75 backdrop-blur-sm"
-			>
-				{props.children}
-				<Button
-					icon={<Lucide.X />}
-					title="Close"
-					onClick={() => context.close()}
-					className="absolute inset-y-0 left-[calc(100%+0.5rem)] my-auto aspect-square opacity-50 hover:opacity-100"
-				/>
-			</PopoverPanel>
-		</Popover>
-	)
-}
-
-function ToolbarDialogButton({
-	children,
-	store,
-	defaultOpen,
-	...props
-}: {
-	text: string
-	icon: React.ReactNode
-	children: React.ReactNode
-	store?: Ariakit.DialogStore
-	defaultOpen?: boolean
-}) {
-	return (
-		<Ariakit.DialogProvider store={store} defaultOpen={store ? undefined : defaultOpen}>
-			<Ariakit.DialogDisclosure
-				render={({ ref, ...rest }) => <ToolbarButton {...rest} {...props} buttonRef={ref} />}
-			/>
-			{children}
-		</Ariakit.DialogProvider>
-	)
-}
-
-function ToolbarDialogContent(props: Ariakit.DialogProps) {
-	return (
-		<Ariakit.Dialog portal modal={false} hideOnInteractOutside={false} unmountOnHide {...props} />
-	)
-}
-
-function ToolbarSeparator() {
-	return (
-		<div className="shrink-0 basis-px self-stretch bg-primary-300/75 first:hidden last:hidden" />
 	)
 }
 
