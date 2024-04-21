@@ -2,8 +2,8 @@ import { v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "#convex/_generated/server.js"
-import { requireRoomOwner } from "#convex/rooms.js"
 import { requireDoc } from "./helpers.ts"
+import { requireRoomOwner } from "./rooms.ts"
 import { sceneCharacterProperties } from "./scenes/characters.ts"
 
 const sceneUpdateProperties = {

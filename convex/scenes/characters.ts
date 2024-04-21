@@ -2,7 +2,7 @@ import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { pick } from "#app/common/object.js"
 import { mutation } from "#convex/_generated/server.js"
-import { requireDoc } from "#convex/helpers.js"
+import { requireDoc } from "../helpers.ts"
 import { requireSceneRoomOwner } from "../scenes.ts"
 
 const sceneCharacterUpdateProperties = {
