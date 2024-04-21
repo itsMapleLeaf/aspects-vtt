@@ -49,7 +49,7 @@ export function AspectSkillsSelectorButton({
 	const usedExperience = addedAspectSkills
 		.values()
 		.map((name) => aspectSkillsByName.get(name))
-		.filter((skill): skill is ApiAspectSkill => skill !== undefined)
+		.filter((skill) => skill != null)
 		.reduce((total, skill, index) => total + getCost(skill, index), 0)
 
 	const availableExperience = room.experience - usedExperience
