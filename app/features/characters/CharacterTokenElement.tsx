@@ -35,11 +35,7 @@ export function CharacterTokenElement(props: {
 	onMove: (position: Vector) => Promise<unknown>
 }) {
 	const room = useRoom()
-	const duplicateCharacter = useMutation(api.characters.duplicate)
 	const [moving, setMoving] = useState(false)
-	const popoverStore = Ariakit.usePopoverStore({
-		open: props.selected && !moving,
-	})
 	return (
 		<TokenElement
 			token={props.character.token}
@@ -68,46 +64,59 @@ export function CharacterTokenElement(props: {
 			}
 		>
 			{props.selected && <TokenSelectionOutline />}
-			<UploadedImage
-				id={props.character.imageId}
-				emptyIcon={<Lucide.Ghost />}
-				data-hidden={!props.character.token.visible}
-				className="relative size-full transition-opacity data-[hidden=true]:opacity-50"
-			/>
-			<Ariakit.PopoverProvider store={popoverStore}>
-				<Ariakit.PopoverAnchor className="absolute inset-0" />
-				<Ariakit.Popover
-					portal
-					hideOnInteractOutside={false}
-					unmountOnHide
-					gutter={8}
-					className={translucentPanel("w-[20rem]")}
-				>
-					<FormLayout>
-						<div className="flex items-end gap-2">
-							<div className="flex flex-1 gap-2 *:flex-1">
-								<CharacterDamageField character={props.character} />
-								<CharacterFatigueField character={props.character} />
-							</div>
-							{room.isOwner ? null : <RollAttributeButton character={props.character} />}
-						</div>
-						<RoomOwnerOnly>
-							<FormRow className="*:basis-0">
-								<RollAttributeButton character={props.character} />
-								<Button
-									tooltip="Duplicate"
-									icon={<Lucide.Copy />}
-									onClick={() => duplicateCharacter({ id: props.character._id })}
-								/>
-								<DeleteCharacterButton character={props.character} />
-								<ToggleVisibleButton character={props.character} />
-								<ToggleNameVisibleButton character={props.character} />
-							</FormRow>
-						</RoomOwnerOnly>
-					</FormLayout>
-				</Ariakit.Popover>
-			</Ariakit.PopoverProvider>
+			<CharacterQuickMenu character={props.character} open={props.selected && !moving} />
+			<CharacterContextMenu character={props.character}>
+				<UploadedImage
+					id={props.character.imageId}
+					emptyIcon={<Lucide.Ghost />}
+					data-hidden={!props.character.token.visible}
+					className="relative size-full transition-opacity data-[hidden=true]:opacity-50"
+				/>
+			</CharacterContextMenu>
 		</TokenElement>
+	)
+}
+
+function CharacterQuickMenu(props: { character: ApiCharacter; open: boolean }) {
+	const duplicateCharacter = useMutation(api.characters.duplicate)
+	const room = useRoom()
+	const popoverStore = Ariakit.usePopoverStore({
+		open: props.open,
+	})
+	return (
+		<Ariakit.PopoverProvider store={popoverStore}>
+			<Ariakit.PopoverAnchor className="absolute inset-0" />
+			<Ariakit.Popover
+				portal
+				hideOnInteractOutside={false}
+				unmountOnHide
+				gutter={8}
+				className={translucentPanel("w-[20rem]")}
+			>
+				<FormLayout>
+					<div className="flex items-end gap-2">
+						<FormRow>
+							<CharacterDamageField character={props.character} />
+							<CharacterFatigueField character={props.character} />
+						</FormRow>
+						{room.isOwner ? null : <RollAttributeButton character={props.character} />}
+					</div>
+					<RoomOwnerOnly>
+						<FormRow>
+							<RollAttributeButton character={props.character} />
+							<Button
+								tooltip="Duplicate"
+								icon={<Lucide.Copy />}
+								onClick={() => duplicateCharacter({ id: props.character._id })}
+							/>
+							<DeleteCharacterButton character={props.character} />
+							<ToggleVisibleButton character={props.character} />
+							<ToggleNameVisibleButton character={props.character} />
+						</FormRow>
+					</RoomOwnerOnly>
+				</FormLayout>
+			</Ariakit.Popover>
+		</Ariakit.PopoverProvider>
 	)
 }
 
@@ -163,7 +172,7 @@ function CharacterContextMenu(props: { character: ApiCharacter; children?: React
 						}
 					>
 						<ModalPanelContent>
-						<ContestedRollForm opponent={props.character} onRoll={() => store.hide()} />
+							<ContestedRollForm opponent={props.character} onRoll={() => store.hide()} />
 						</ModalPanelContent>
 					</ModalPanel>
 				</>
