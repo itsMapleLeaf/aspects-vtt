@@ -40,7 +40,7 @@ export function MenuItem({ text, icon, ...props }: MenuItemProps) {
 		<Button
 			text={text}
 			icon={icon}
-			className="cursor-default border-none"
+			className="cursor-default justify-start border-none text-left"
 			element={<Ariakit.MenuItem {...props} />}
 		/>
 	)

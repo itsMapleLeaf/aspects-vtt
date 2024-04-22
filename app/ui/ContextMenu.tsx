@@ -30,10 +30,12 @@ export function ContextMenu(props: ContextMenuProps) {
 			<Menu store={store}>
 				<MenuPanel modal getAnchorRect={() => pointer}>
 					{props.options.map((option) => (
-						<MenuItem key={option.label} onClick={option.onClick}>
-							<span className="*:size-6">{option.icon}</span>
-							<span>{option.label}</span>
-						</MenuItem>
+						<MenuItem
+							key={option.label}
+							icon={option.icon}
+							text={option.label}
+							onClick={option.onClick}
+						/>
 					))}
 				</MenuPanel>
 			</Menu>

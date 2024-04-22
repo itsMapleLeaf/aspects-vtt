@@ -16,6 +16,7 @@ import { Tooltip } from "#app/ui/Tooltip.old.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import { UploadedImage } from "../images/UploadedImage.tsx"
 
 export function CombatInitiative() {
 	const { combat, ...room } = useRoom()
@@ -137,12 +138,12 @@ export function CombatInitiative() {
 									.map((character) => (
 										<MenuItem
 											key={character._id}
+											icon={<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />}
+											text={character.name}
 											onClick={() =>
 												actions.addMember({ id: room._id, characterId: character._id })
 											}
-										>
-											{character.name}
-										</MenuItem>
+										/>
 									))}
 							</MenuPanel>
 						</Menu>

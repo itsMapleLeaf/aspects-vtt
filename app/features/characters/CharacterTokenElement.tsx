@@ -132,15 +132,15 @@ function RollAttributeButton(props: {
 				{notionImports?.attributes?.map((attribute) => (
 					<MenuItem
 						key={attribute.key}
+						icon={undefined}
+						text={attribute.name}
 						onClick={() =>
 							createAttributeRollMessage({
 								content: `${props.character.name}: ${attribute.name}`,
 								attributeValue: props.character[attribute.key],
 							})
 						}
-					>
-						{attribute.name}
-					</MenuItem>
+					/>
 				))}
 			</MenuPanel>
 		</Menu>
