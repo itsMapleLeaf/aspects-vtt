@@ -1,35 +1,13 @@
 import * as Ariakit from "@ariakit/react"
-import { usePopoverStore } from "@ariakit/react"
-import * as Lucide from "lucide-react"
 import * as React from "react"
-import { type RefObject, createContext, use, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
-import { Button } from "#app/ui/Button.js"
 import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
 import { Tooltip } from "#app/ui/Tooltip.js"
 
-const ToolbarContext = createContext<{
-	ref: RefObject<HTMLDivElement>
-	popoverId: string | undefined
-	open: (id: string) => void
-	close: () => void
-}>({
-	ref: { current: null },
-	popoverId: undefined,
-	open: () => {},
-	close: () => {},
-})
-
 export function Toolbar(props: { children: React.ReactNode }) {
-	const ref = useRef<HTMLDivElement>(null)
-	const [popoverId, setPopoverId] = useState<string>()
 	return (
-		<nav aria-label="Toolbar" ref={ref} className="flex gap-1 p-1">
-			<ToolbarContext.Provider
-				value={{ ref, popoverId, open: setPopoverId, close: () => setPopoverId(undefined) }}
-			>
-				{props.children}
-			</ToolbarContext.Provider>
+		<nav aria-label="Toolbar" className="flex gap-1 p-1">
+			{props.children}
 		</nav>
 	)
 }
@@ -64,31 +42,16 @@ export function ToolbarPopoverButton(props: {
 	icon: React.ReactNode
 	children: React.ReactNode
 }) {
-	const context = use(ToolbarContext)
-
-	const popoverStore = usePopoverStore({
-		open: context.popoverId === props.id,
-		setOpen: (open) => (open ? context.open(props.id) : context.close()),
-	})
-
 	return (
-		<Popover placement="bottom" store={popoverStore}>
+		<Popover placement="bottom">
 			<PopoverTrigger render={<ToolbarButton icon={props.icon} text={props.text} />} />
 			<PopoverPanel
-				gutter={8}
+				gutter={24}
 				autoFocusOnShow={false}
 				autoFocusOnHide={false}
-				hideOnInteractOutside={false}
-				getAnchorRect={() => context.ref.current?.getBoundingClientRect() ?? null}
-				className="relative max-h-[calc(100dvh-2rem)] w-[360px] bg-primary-100/75 backdrop-blur-sm"
+				className="relative max-h-[calc(100dvh-8rem)] w-[360px] overflow-y-auto bg-primary-100/75 backdrop-blur-sm"
 			>
 				{props.children}
-				<Button
-					icon={<Lucide.X />}
-					title="Close"
-					onClick={() => context.close()}
-					className="absolute inset-y-0 left-[calc(100%+0.5rem)] my-auto aspect-square opacity-50 hover:opacity-100"
-				/>
 			</PopoverPanel>
 		</Popover>
 	)
