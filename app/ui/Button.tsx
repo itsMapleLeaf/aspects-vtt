@@ -9,7 +9,7 @@ import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import type { Disallowed, StrictOmit } from "#app/common/types.ts"
 import { Loading } from "./Loading.tsx"
-import { TooltipAnchor, TooltipContent, TooltipProvider } from "./Tooltip.tsx"
+import { TooltipAnchor, TooltipContent, TooltipProvider } from "./Tooltip.old.tsx"
 import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName"
 

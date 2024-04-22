@@ -1,7 +1,7 @@
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
 import { range } from "#app/common/range.js"
-import { Tooltip } from "#app/ui/Tooltip.js"
+import { Tooltip } from "#app/ui/Tooltip.old.js"
 import type { DiceInput } from "#convex/messages.js"
 
 export type DiceStat = {

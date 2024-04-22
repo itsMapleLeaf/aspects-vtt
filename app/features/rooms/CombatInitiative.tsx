@@ -12,7 +12,7 @@ import {
 import { Button } from "#app/ui/Button.js"
 import { EmptyState } from "#app/ui/EmptyState.js"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "#app/ui/Menu.js"
-import { Tooltip } from "#app/ui/Tooltip.js"
+import { Tooltip } from "#app/ui/Tooltip.old.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"

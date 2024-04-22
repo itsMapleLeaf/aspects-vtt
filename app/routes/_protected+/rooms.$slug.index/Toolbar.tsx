@@ -6,7 +6,7 @@ import { type RefObject, createContext, use, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { Button } from "#app/ui/Button.js"
 import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
-import { TooltipAnchor, TooltipContent, TooltipProvider } from "#app/ui/Tooltip.js"
+import { Tooltip } from "#app/ui/Tooltip.js"
 
 const ToolbarContext = createContext<{
 	ref: RefObject<HTMLDivElement>
@@ -50,15 +50,14 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
 		text: React.ReactNode
 		icon: React.ReactNode
 	},
-	ref: React.ForwardedRef<HTMLDivElement>,
+	ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
 	return (
-		<TooltipProvider placement="bottom">
-			<TooltipAnchor {...props} className={toolbarButtonStyle(props.className)} ref={ref}>
+		<Tooltip content={text} placement="bottom" {...props}>
+			<button type="button" className={toolbarButtonStyle(props.className)} ref={ref}>
 				{icon}
-			</TooltipAnchor>
-			<TooltipContent>{text}</TooltipContent>
-		</TooltipProvider>
+			</button>
+		</Tooltip>
 	)
 })
 
