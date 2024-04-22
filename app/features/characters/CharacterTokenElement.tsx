@@ -18,7 +18,7 @@ import {
 	menuItemStyle,
 	menuPanelStyle,
 } from "#app/ui/Menu.js"
-import { Modal, ModalPanel } from "#app/ui/Modal.js"
+import { Modal, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
 import { NumberField } from "#app/ui/NumberField.js"
 import { translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
@@ -138,7 +138,7 @@ function RollAttributeButton(props: {
 	)
 }
 
-function CharacterContextMenu(props: { character: ApiCharacter; children: React.ReactNode }) {
+function CharacterContextMenu(props: { character: ApiCharacter; children?: React.ReactNode }) {
 	return (
 		<Modal>
 			{(store) => (
@@ -162,7 +162,9 @@ function CharacterContextMenu(props: { character: ApiCharacter; children: React.
 							</>
 						}
 					>
+						<ModalPanelContent>
 						<ContestedRollForm opponent={props.character} onRoll={() => store.hide()} />
+						</ModalPanelContent>
 					</ModalPanel>
 				</>
 			)}

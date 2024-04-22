@@ -14,9 +14,9 @@ import {
 } from "@ariakit/react"
 import { LucideX } from "lucide-react"
 import { type ComponentPropsWithoutRef, forwardRef } from "react"
-import { twMerge } from "tailwind-merge"
 import type { StrictOmit } from "#app/common/types.ts"
 import { panel } from "./styles.ts"
+import { twc } from "./twc.ts"
 import { withMergedClassName } from "./withMergedClassName.ts"
 
 interface ModalProps extends StrictOmit<DialogProviderProps, "children"> {
@@ -39,7 +39,6 @@ export const ModalButton = forwardRef<HTMLButtonElement, DialogDisclosureProps>(
 export interface ModalPanelProps extends StrictOmit<DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
 	description?: React.ReactNode
-	size?: "sm" | "md" | "lg"
 	className?: string
 	fullHeight?: boolean
 }
@@ -48,7 +47,6 @@ export function ModalPanel({
 	title,
 	description,
 	children,
-	size,
 	className,
 	fullHeight,
 	...props
@@ -63,6 +61,7 @@ export function ModalPanel({
 				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col shadow-lg shadow-black/50  [--gutter:2rem] [--height:calc(min(100%-var(--gutter),64rem))] ",
 				"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				fullHeight ? "h-[--height]" : "h-min max-h-[--height]",
+				className,
 			)}
 			unmountOnHide
 		>
@@ -75,10 +74,12 @@ export function ModalPanel({
 					<LucideX />
 				</DialogDismiss>
 			</div>
-			<div className={twMerge("min-h-0 flex-1 overflow-y-auto", className)}>{children}</div>
+			{children}
 		</Dialog>
 	)
 }
+
+export const ModalPanelContent = twc.div`min-h-0 flex-1 overflow-y-auto`
 
 export function ModalActions(props: ComponentPropsWithoutRef<"div">) {
 	return <div {...withMergedClassName(props, "flex justify-end gap-2")} />

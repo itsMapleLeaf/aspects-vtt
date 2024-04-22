@@ -9,7 +9,7 @@ import type { StrictOmit } from "#app/common/types.js"
 import { useAsyncState } from "#app/common/useAsyncState.js"
 import { Button, type ButtonPropsAsElement } from "#app/ui/Button.js"
 import { Input } from "#app/ui/Input.js"
-import { Modal, ModalButton, ModalPanel } from "#app/ui/Modal.js"
+import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Doc } from "#convex/_generated/dataModel.js"
@@ -78,46 +78,48 @@ export function AspectSkillsSelectorButton({
 	return (
 		<Modal>
 			<Button {...props} element={<ModalButton />} />
-			<ModalPanel title="Manage Aspect Skills" fullHeight className="flex flex-col gap-2 p-2">
-				<CharacterExperienceDisplay character={character} className="font-bold" />
-				<Focusable
-					autoFocus
-					render={
-						<Input
-							type="search"
-							placeholder="Type a skill name or aspect name"
-							value={search}
-							onChange={(event) => setSearch(event.target.value)}
-						/>
-					}
-				/>
-				<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-					{groups.get("learned")?.map((skill, index) => (
-						<AspectSkillItem
-							key={skill.name}
-							skill={skill}
-							character={character}
-							cost={getCost(skill, index)}
-						/>
-					))}
-					{groups.get("available")?.map((skill) => (
-						<AspectSkillItem
-							key={skill.name}
-							skill={skill}
-							character={character}
-							cost={getCost(skill, addedAspectSkills.size)}
-						/>
-					))}
-					{groups.get("unavailable")?.map((skill) => (
-						<AspectSkillItem
-							key={skill.name}
-							skill={skill}
-							character={character}
-							cost={getCost(skill, addedAspectSkills.size)}
-							disabled={!room.isOwner}
-						/>
-					))}
-				</div>
+			<ModalPanel title="Manage Aspect Skills" fullHeight>
+				<ModalPanelContent className="flex flex-col gap-2 p-2">
+					<CharacterExperienceDisplay character={character} className="font-bold" />
+					<Focusable
+						autoFocus
+						render={
+							<Input
+								type="search"
+								placeholder="Type a skill name or aspect name"
+								value={search}
+								onChange={(event) => setSearch(event.target.value)}
+							/>
+						}
+					/>
+					<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+						{groups.get("learned")?.map((skill, index) => (
+							<AspectSkillItem
+								key={skill.name}
+								skill={skill}
+								character={character}
+								cost={getCost(skill, index)}
+							/>
+						))}
+						{groups.get("available")?.map((skill) => (
+							<AspectSkillItem
+								key={skill.name}
+								skill={skill}
+								character={character}
+								cost={getCost(skill, addedAspectSkills.size)}
+							/>
+						))}
+						{groups.get("unavailable")?.map((skill) => (
+							<AspectSkillItem
+								key={skill.name}
+								skill={skill}
+								character={character}
+								cost={getCost(skill, addedAspectSkills.size)}
+								disabled={!room.isOwner}
+							/>
+						))}
+					</div>
+				</ModalPanelContent>
 			</ModalPanel>
 		</Modal>
 	)
