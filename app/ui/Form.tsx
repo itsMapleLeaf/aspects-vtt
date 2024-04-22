@@ -4,7 +4,7 @@ import { twc } from "./twc.ts"
 
 export const FormLayout = twc.form`flex flex-col gap-3 p-3`
 
-export const FormRow = twc.div`flex flex-wrap gap-3 *:flex-1 *:basis-36`
+export const FormRow = twc.div`flex flex-wrap gap-3 *:flex-1`
 
 export const FormActions = twc.div`flex flex-wrap justify-end gap-3`
 
