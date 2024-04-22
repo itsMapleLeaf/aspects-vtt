@@ -10,12 +10,12 @@ import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
 import { editCharacterEvent } from "#app/features/characters/events.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
+import { CanvasMap } from "#app/features/rooms/CanvasMap.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { SceneList } from "#app/features/scenes/SceneList.js"
 import { useScene } from "#app/features/scenes/context.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
-import { TokenMap } from "#app/features/tokens/TokenMap.js"
 import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
 import { AppHeader } from "#app/ui/AppHeader.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
@@ -43,11 +43,12 @@ export default function RoomIndexRoute() {
 			<JoinRoomEffect />
 
 			<div className="fixed inset-0 -z-10">
-				<TokenMap
+				{/* <TokenMap
 					viewportRef={viewportRef}
 					drawingArea={drawingArea}
 					onFinishDrawingArea={() => setDrawingArea(false)}
-				/>
+				/> */}
+				<CanvasMap />
 			</div>
 
 			<div

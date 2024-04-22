@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { expect } from "#app/common/expect.ts"
 import type { Nullish } from "#app/common/types.ts"
+import { Vector } from "./vector.ts"
 
 export function useResizeObserver(
 	ref: Nullish<React.RefObject<Element> | Element>,
@@ -21,4 +22,10 @@ export function useResizeObserver(
 		observer.observe(element)
 		return () => observer.disconnect()
 	}, [ref])
+}
+
+export function useSize(ref: Nullish<React.RefObject<Element> | Element>) {
+	const [size, setSize] = useState(Vector.zero)
+	useResizeObserver(ref, (entry) => setSize(Vector.fromSize(entry.contentRect)))
+	return size
 }

@@ -41,18 +41,9 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 				text="Set Background"
 				className="w-full"
 				pending={state.status === "pending"}
-				onClick={async () => {
+				onClick={() => {
 					const input = expect(inputRef.current, "input ref not set")
 					input.click()
-
-					await new Promise((resolve) => input.addEventListener("input", resolve))
-
-					const file = input.files?.[0]
-					input.value = ""
-
-					if (file) {
-						await updateSceneBackground(file)
-					}
 				}}
 				onDragOver={(event) => {
 					event.preventDefault()
@@ -69,6 +60,13 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 				accept="image/png,image/jpeg,image/gif,image/webp"
 				ref={inputRef}
 				className="hidden"
+				onInput={(event) => {
+					const file = event.currentTarget.files?.[0]
+					event.currentTarget.value = ""
+					if (file) {
+						updateSceneBackground(file)
+					}
+				}}
 			/>
 		</>
 	)

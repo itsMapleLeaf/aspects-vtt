@@ -1,4 +1,4 @@
-type VectorInput =
+export type VectorInput =
 	| [x: number, y: number]
 	| [xy: number]
 	| [xy: { x: number; y: number }]
@@ -53,6 +53,10 @@ export class Vector {
 
 	get xy(): { x: number; y: number } {
 		return { x: this.x, y: this.y }
+	}
+
+	get tuple(): readonly [number, number] {
+		return [this.x, this.y]
 	}
 
 	get length(): number {
