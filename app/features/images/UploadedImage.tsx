@@ -1,8 +1,8 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import type { Nullish, Overwrite } from "#app/common/types.ts"
-import { clientEnv } from "#app/env.ts"
 import { withMergedClassName } from "#app/ui/withMergedClassName.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import { getApiImageUrl } from "./getApiImageUrl"
 
 type UploadedImageProps = Overwrite<
 	ComponentPropsWithoutRef<"div">,
@@ -13,7 +13,7 @@ type UploadedImageProps = Overwrite<
 >
 
 export function UploadedImage({ id, emptyIcon, ...props }: UploadedImageProps) {
-	const imageUrl = id ? getImageUrl(id) : undefined
+	const imageUrl = id ? getApiImageUrl(id) : undefined
 	return (
 		<div
 			{...withMergedClassName(
@@ -35,10 +35,4 @@ export function UploadedImage({ id, emptyIcon, ...props }: UploadedImageProps) {
 			)}
 		</div>
 	)
-}
-
-function getImageUrl(id: Id<"_storage">) {
-	const url = new URL("/image", clientEnv.VITE_CONVEX_URL.replace(/\.cloud[\/]*$/, ".site"))
-	url.searchParams.set("id", id)
-	return url.href
 }

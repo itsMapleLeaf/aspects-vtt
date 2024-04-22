@@ -3,19 +3,17 @@ import { timeoutEffect } from "#app/common/async.js"
 import { expect } from "#app/common/expect.ts"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { withMergedClassName } from "#app/ui/withMergedClassName.js"
-import { useRoom } from "../rooms/roomContext.tsx"
+import type { Doc } from "#convex/_generated/dataModel.js"
 import { ZoomContext } from "./context.tsx"
 
-export function TokenMapGrid(props: ComponentPropsWithoutRef<"canvas">) {
-	const room = useRoom()
+interface TokenMapGridProps extends ComponentPropsWithoutRef<"canvas"> {
+	scene: Doc<"scenes">
+}
+
+export function TokenMapGrid(props: TokenMapGridProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const zoom = use(ZoomContext)
 	const lineWidth = Math.max(1 / zoom, 1)
-
-	// useEffect(() => {
-	// 	const canvas = expect(canvasRef.current, "canvas ref not set")
-	// 	const context = expect(canvas.getContext("2d"), "failed to get canvas context")
-	// }, [lineWidth])
 
 	const draw = useCallback(() => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
@@ -28,18 +26,18 @@ export function TokenMapGrid(props: ComponentPropsWithoutRef<"canvas">) {
 		context.clearRect(0, 0, width, height)
 		context.beginPath()
 
-		for (let x = 0; x <= width; x += room.mapCellSize) {
+		for (let x = 0; x <= width; x += props.scene.cellSize) {
 			context.moveTo(x, 0)
 			context.lineTo(x, height)
 		}
 
-		for (let y = 0; y <= height; y += room.mapCellSize) {
+		for (let y = 0; y <= height; y += props.scene.cellSize) {
 			context.moveTo(0, y)
 			context.lineTo(width, y)
 		}
 
 		context.stroke()
-	}, [room.mapCellSize, lineWidth])
+	}, [props.scene.cellSize, lineWidth])
 
 	useEffect(() => {
 		// debounce to reduce draw calls

@@ -4,8 +4,8 @@ import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { useMutationState } from "#app/common/convex.js"
 import { useListener } from "#app/common/emitter.js"
-import { useAsyncState } from "#app/common/useAsyncState.js"
 import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
 import { editCharacterEvent } from "#app/features/characters/events.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
@@ -13,12 +13,13 @@ import { MessageList } from "#app/features/messages/MessageList.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { SceneList } from "#app/features/scenes/SceneList.js"
+import { useScene } from "#app/features/scenes/context.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
 import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
 import { AppHeader } from "#app/ui/AppHeader.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
-import { FormField } from "#app/ui/Form.js"
+import { FormField, FormLayout, FormRow } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
@@ -33,6 +34,7 @@ import {
 } from "./Toolbar"
 
 export default function RoomIndexRoute() {
+	const scene = useScene()
 	const currentUrl = useHref(useLocation())
 	const viewportRef = useRef<ViewportController>(null)
 	const [drawingArea, setDrawingArea] = useState(false)
@@ -149,6 +151,10 @@ export default function RoomIndexRoute() {
 					}
 				/>
 			</div>
+
+			<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
+				{scene?.name}
+			</h2>
 
 			<CombatTurnBanner />
 		</>
@@ -295,23 +301,45 @@ function GeneralSkillsList() {
 
 function RoomSettingsForm() {
 	const room = useRoom()
-	const [updateRoomState, updateRoom] = useAsyncState(useMutation(api.rooms.update))
+	const scene = useScene()
+	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
+	const [updateSceneState, updateScene] = useMutationState(api.scenes.update)
 	return (
-		<div className="grid gap-2">
-			<SetMapBackgroundButton />
-			<FormField label="Cell Size" htmlFor="cellSize">
-				<Input
-					id="cellSize"
-					type="number"
-					className="w-20"
-					value={updateRoomState.args?.mapCellSize ?? room.mapCellSize}
-					onChange={(event) => {
-						const value = event.currentTarget.valueAsNumber
-						if (Number.isNaN(value)) return
-						updateRoom({ id: room._id, mapCellSize: Math.max(value, 1) })
-					}}
-				/>
-			</FormField>
+		<FormLayout className="grid gap-2">
+			{scene && (
+				<>
+					<FormField label="Scene Name" htmlFor="sceneName">
+						<Input
+							id="sceneName"
+							type="text"
+							className="w-full"
+							value={updateSceneState.args?.name ?? scene.name}
+							onChange={(event) => {
+								const value = event.currentTarget.value
+								updateScene({ id: scene._id, name: value })
+							}}
+						/>
+					</FormField>
+					<FormRow className="items-end">
+						<FormField label="Cell Size" htmlFor="cellSize">
+							<Input
+								id="cellSize"
+								type="number"
+								className="w-20"
+								value={updateSceneState.args?.cellSize ?? scene.cellSize}
+								onChange={(event) => {
+									const value = event.currentTarget.valueAsNumber
+									if (Number.isNaN(value)) return
+									updateScene({ id: scene._id, cellSize: Math.max(value, 8) })
+								}}
+							/>
+						</FormField>
+						<div className="flex-1">
+							<SetMapBackgroundButton scene={scene} />
+						</div>
+					</FormRow>
+				</>
+			)}
 			<FormField label="Experience">
 				<Input
 					type="number"
@@ -321,7 +349,7 @@ function RoomSettingsForm() {
 					onChange={(e) => updateRoom({ id: room._id, experience: Number(e.target.value) })}
 				/>
 			</FormField>
-		</div>
+		</FormLayout>
 	)
 }
 
@@ -333,8 +361,8 @@ function CombatTurnBanner() {
 	return (
 		<div
 			className={panel(
-				"flex-center fixed inset-x-0 top-20 mx-auto max-w-sm translate-y-2 p-3 text-center opacity-0 shadow-md shadow-black/50 transition",
-				isTurn && "translate-y-0 opacity-100",
+				"flex-center fixed inset-x-0 top-20 mx-auto invisible max-w-sm translate-y-2 p-3 text-center opacity-0 shadow-md shadow-black/50 transition-all",
+				isTurn && "translate-y-0 opacity-100 visible",
 			)}
 		>
 			<h2 className="text-2xl font-light">It's your turn!</h2>

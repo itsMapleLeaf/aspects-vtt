@@ -17,6 +17,7 @@ interface ButtonPropsBase extends ButtonStyleProps {
 	icon: ReactNode
 	text?: ReactNode
 	tooltip?: ReactNode
+	pending?: boolean
 }
 
 export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
@@ -32,10 +33,17 @@ export interface ButtonPropsAsElement
 
 export type ButtonProps = ButtonPropsAsButton | ButtonPropsAsElement
 
-export function Button({ text, icon, tooltip, size = "md", ...props }: ButtonProps) {
+export function Button({
+	text,
+	icon,
+	tooltip,
+	size = "md",
+	pending: pendingProp,
+	...props
+}: ButtonProps) {
 	const [onClickPending, setOnClickPending] = useState(false)
 	const status = useFormStatus()
-	const pending = (status.pending && props.type === "submit") || onClickPending
+	const pending = pendingProp || (status.pending && props.type === "submit") || onClickPending
 
 	const className = buttonStyle({ size })
 

@@ -1,3 +1,4 @@
+import { deprecated } from "convex-helpers/validators"
 import { ConvexError, v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import { Result } from "#app/common/Result.js"
@@ -13,9 +14,9 @@ export const roomProperties = {
 	currentScene: v.optional(v.id("scenes")),
 
 	// todo: deprecate
-	mapImageId: v.optional(v.id("_storage")),
-	mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
-	mapCellSize: v.optional(v.number()),
+	mapImageId: deprecated,
+	mapDimensions: deprecated,
+	mapCellSize: deprecated,
 }
 
 export const get = query({

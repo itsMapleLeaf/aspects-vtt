@@ -1,67 +1,74 @@
 import { useConvex, useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useRef, useState } from "react"
+import { useRef } from "react"
+import { loadImage } from "#app/common/dom.js"
+import { expect } from "#app/common/expect.js"
+import { useAsyncState } from "#app/common/useAsyncState.js"
 import { Button } from "#app/ui/Button.tsx"
-import { Loading } from "#app/ui/Loading.js"
 import { api } from "#convex/_generated/api.js"
+import type { Doc } from "#convex/_generated/dataModel.js"
 import { uploadImage } from "../images/uploadImage.ts"
-import { useRoom } from "../rooms/roomContext.tsx"
 
-export function SetMapBackgroundButton() {
-	const room = useRoom()
-	const updateRoom = useMutation(api.rooms.update)
-	const backgroundImageInputRef = useRef<HTMLInputElement>(null)
-	const [pending, setPending] = useState(false)
+export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
+	const updateScene = useMutation(api.scenes.update)
+	const inputRef = useRef<HTMLInputElement>(null)
 	const convex = useConvex()
+
+	const [state, updateSceneBackground] = useAsyncState(async function updateSceneBackground(
+		file: File,
+	) {
+		try {
+			const image = await loadImage(URL.createObjectURL(file))
+			const imageId = await uploadImage(file, convex)
+			await updateScene({
+				id: scene._id,
+				background: imageId,
+				backgroundDimensions: {
+					x: image.width,
+					y: image.height,
+				},
+			})
+		} catch (error) {
+			console.error(error)
+			alert("Failed to upload image")
+		}
+	})
 
 	return (
 		<>
 			<Button
+				icon={<Lucide.ImagePlus />}
 				text="Set Background"
-				icon={pending ? <Loading size="sm" className="p-0" /> : <Lucide.Image />}
-				onClick={() => {
-					backgroundImageInputRef.current?.click()
+				className="w-full"
+				pending={state.status === "pending"}
+				onClick={async () => {
+					const input = expect(inputRef.current, "input ref not set")
+					input.click()
+
+					await new Promise((resolve) => input.addEventListener("input", resolve))
+
+					const file = input.files?.[0]
+					input.value = ""
+
+					if (file) {
+						await updateSceneBackground(file)
+					}
 				}}
-				disabled={pending}
+				onDragOver={(event) => {
+					event.preventDefault()
+					event.dataTransfer.dropEffect = "move"
+				}}
+				onDrop={async (event) => {
+					event.preventDefault()
+					const file = expect(event.dataTransfer.files[0], "file not set")
+					await updateSceneBackground(file)
+				}}
 			/>
 			<input
 				type="file"
 				accept="image/png,image/jpeg,image/gif,image/webp"
-				ref={backgroundImageInputRef}
+				ref={inputRef}
 				className="hidden"
-				onChange={async (event: React.ChangeEvent<HTMLInputElement>) => {
-					const file = event.target.files?.[0]
-					if (!file) return
-
-					setPending(true)
-					try {
-						const mapDimensions = await new Promise<{ width: number; height: number }>(
-							(resolve, reject) => {
-								const image = new Image()
-								image.src = URL.createObjectURL(file)
-								image.onload = () => {
-									resolve({ width: image.width, height: image.height })
-								}
-								image.onerror = () =>
-									reject(new Error(`Failed to get dimensions from image "${file.name}"`))
-							},
-						)
-
-						const mapImageId = await uploadImage(file, convex)
-
-						await updateRoom({
-							id: room._id,
-							mapImageId,
-							mapDimensions,
-						})
-					} catch (error) {
-						console.error(error)
-						alert("Failed to upload image")
-					} finally {
-						setPending(false)
-					}
-				}}
-				disabled={pending}
 			/>
 		</>
 	)

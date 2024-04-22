@@ -7,7 +7,7 @@ import { MoreMenu } from "#app/ui/MoreMenu.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
-import { UploadedImage } from "../images/UploadedImage.tsx"
+import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function SceneList() {
@@ -39,10 +39,22 @@ export function SceneList() {
 								modal?.hide()
 							}}
 						>
-							<div className={panel("w-full aspect-[4/3] overflow-clip flex-center")}>
-								{scene.background ? <UploadedImage id={scene.background} /> : null}
+							<div
+								style={{
+									backgroundImage: scene.background
+										? `url(${getApiImageUrl(scene.background)})`
+										: undefined,
+								}}
+								className={panel(
+									"w-full aspect-[4/3] overflow-clip flex-center bg-cover bg-center",
+								)}
+							>
 								{updateRoomState.status === "pending" &&
-									updateRoomState.args.currentScene === scene._id && <Loading />}
+								updateRoomState.args.currentScene === scene._id ? (
+									<Loading />
+								) : scene.background == null ? (
+									<Lucide.ImageOff className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
+								) : null}
 							</div>
 							<p className="text-pretty px-2 py-1.5 text-center text-xl/tight font-light">
 								{scene.name}

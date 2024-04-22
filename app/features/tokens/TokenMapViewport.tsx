@@ -7,8 +7,8 @@ import { useLocalStorageState } from "#app/common/useLocalStorage.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.ts"
 import { panel } from "#app/ui/styles.ts"
+import type { Doc } from "#convex/_generated/dataModel.js"
 import { UploadedImage } from "../images/UploadedImage.tsx"
-import { useRoom } from "../rooms/roomContext.tsx"
 import { TokenMapGrid } from "./TokenMapGrid.tsx"
 import { OffsetContext, ZoomContext } from "./context.tsx"
 
@@ -19,22 +19,22 @@ export type ViewportController = {
 const zoomMultiple = 1.2
 
 export function TokenMapViewport({
+	scene,
 	children,
 	controllerRef,
 	offsetDraggingDisabled,
 	onBackdropClick,
 }: {
+	scene: Doc<"scenes">
 	children: React.ReactNode
 	controllerRef?: React.Ref<ViewportController>
 	offsetDraggingDisabled?: boolean
 	onBackdropClick?: () => void
 }) {
-	const room = useRoom()
-
 	const [zoomLevel, setZoomLevel] = useLocalStorageState("viewport:zoom", 0, z.number())
 	const zoom = zoomMultiple ** zoomLevel
 
-	const mapDimensions = Vector.from(room.mapDimensions)
+	const mapDimensions = Vector.from(scene.backgroundDimensions ?? Vector.from(70 * 20))
 	const [containerElement, containerRef] = useState<HTMLDivElement | null>()
 
 	const [containerSize, setContainerSize] = useState(Vector.zero)
@@ -124,7 +124,7 @@ export function TokenMapViewport({
 			}}
 		>
 			<UploadedImage
-				id={room.mapImageId}
+				id={scene?.background}
 				className="absolute left-0 top-0 brightness-75 ease-out"
 				style={{
 					width: mapDimensions.x,
@@ -135,15 +135,18 @@ export function TokenMapViewport({
 			/>
 			<ZoomContext.Provider value={zoom}>
 				<OffsetContext.Provider value={translation}>
-					<TokenMapGrid
-						className="absolute left-0 top-0 opacity-25 ease-out"
-						style={{
-							width: mapDimensions.x,
-							height: mapDimensions.y,
-							transform: `translate(${translation.x}px, ${translation.y}px) scale(${zoom})`,
-							transformOrigin: "left top",
-						}}
-					/>
+					{scene && (
+						<TokenMapGrid
+							scene={scene}
+							className="absolute left-0 top-0 opacity-25 ease-out"
+							style={{
+								width: mapDimensions.x,
+								height: mapDimensions.y,
+								transform: `translate(${translation.x}px, ${translation.y}px) scale(${zoom})`,
+								transformOrigin: "left top",
+							}}
+						/>
+					)}
 					{children}
 				</OffsetContext.Provider>
 			</ZoomContext.Provider>
