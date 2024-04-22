@@ -14,7 +14,7 @@ import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName"
 
 interface ButtonPropsBase extends ButtonStyleProps {
-	icon: ReactElement | undefined
+	icon: ReactNode
 	text?: ReactNode
 	tooltip?: ReactNode
 }

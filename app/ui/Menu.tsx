@@ -1,8 +1,8 @@
 import * as Ariakit from "@ariakit/react"
 import { forwardRef } from "react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
+import { Button } from "./Button.tsx"
 import { panel } from "./styles.ts"
-import { withMergedClassName } from "./withMergedClassName.ts"
 
 export function Menu(props: Ariakit.MenuProviderProps) {
 	return <Ariakit.MenuProvider {...props} />
@@ -14,7 +14,7 @@ export const MenuButton = forwardRef<HTMLButtonElement, Ariakit.MenuButtonProps>
 
 export function menuPanelStyle(...classes: ClassNameValue[]) {
 	return panel(
-		"grid translate-y-2 gap-1 p-1 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
+		"grid translate-y-2 gap-1 p-1 opacity-0 transition shadow-black/50 shadow-md data-[enter]:translate-y-0 data-[enter]:opacity-100",
 		classes,
 	)
 }
@@ -30,6 +30,18 @@ export function menuItemStyle(...classes: ClassNameValue[]) {
 	)
 }
 
-export function MenuItem(props: Ariakit.MenuItemProps) {
-	return <Ariakit.MenuItem {...withMergedClassName(props, menuItemStyle())} />
+interface MenuItemProps extends Ariakit.MenuItemProps {
+	text: string
+	icon: React.ReactNode
+}
+
+export function MenuItem({ text, icon, ...props }: MenuItemProps) {
+	return (
+		<Button
+			text={text}
+			icon={icon}
+			className="cursor-default border-none"
+			element={<Ariakit.MenuItem {...props} />}
+		/>
+	)
 }

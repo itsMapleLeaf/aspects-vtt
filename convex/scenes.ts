@@ -37,7 +37,13 @@ export const create = mutation({
 	async handler(ctx, args) {
 		await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
 		return await ctx.db.insert("scenes", {
-			name: generateSlug(2),
+			name: generateSlug(2, {
+				categories: {
+					noun: ["place"],
+					adjective: ["appearance", "color", "condition", "shapes", "size", "sounds"],
+				},
+				format: "title",
+			}),
 			background: null,
 			roomId: args.roomId,
 			cellSize: 70,
