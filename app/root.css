@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-	button {
+	button, [role=button] {
 		cursor: unset;
 	}
 
