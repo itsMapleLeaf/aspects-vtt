@@ -70,6 +70,19 @@ export const create = mutation({
 	},
 })
 
+export const duplicate = mutation({
+	args: {
+		id: v.id("scenes"),
+	},
+	async handler(ctx, args) {
+		const { _id, _creationTime, ...properties } = await requireSceneRoomOwner(
+			ctx,
+			args.id,
+		).getValueOrThrow()
+		return await ctx.db.insert("scenes", properties)
+	},
+})
+
 export const update = mutation({
 	args: {
 		...partial(sceneUpdateProperties),
@@ -95,5 +108,6 @@ export const remove = mutation({
 export function requireSceneRoomOwner(ctx: QueryCtx, id: Id<"scenes">) {
 	return requireDoc(ctx, id, "scenes").map(async (scene) => {
 		await requireRoomOwner(ctx, scene.roomId)
+		return scene
 	})
 }

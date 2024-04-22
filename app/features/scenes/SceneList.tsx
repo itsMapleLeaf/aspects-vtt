@@ -16,9 +16,15 @@ export function SceneList() {
 	const [createSceneState, createScene] = useMutationState(api.scenes.create)
 	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
 	const removeScene = useMutation(api.scenes.remove)
+	const duplicateScene = useMutation(api.scenes.duplicate)
 	const modal = useModalContext()
 
 	const moreMenuOptions = (sceneId: Id<"scenes">) => [
+		{
+			text: "Duplicate",
+			icon: <Lucide.Copy />,
+			onClick: () => duplicateScene({ id: sceneId }),
+		},
 		{
 			text: "Delete",
 			icon: <Lucide.Trash />,
