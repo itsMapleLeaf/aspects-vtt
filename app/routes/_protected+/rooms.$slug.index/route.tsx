@@ -12,6 +12,7 @@ import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
+import { SceneList } from "#app/features/scenes/SceneList.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
 import { TokenMap } from "#app/features/tokens/TokenMap.js"
 import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
@@ -19,6 +20,7 @@ import { AppHeader } from "#app/ui/AppHeader.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
+import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import {
@@ -55,7 +57,34 @@ export default function RoomIndexRoute() {
 					end={<UserButton afterSignOutUrl={currentUrl} />}
 					center={
 						<Toolbar>
+							<RoomOwnerOnly>
+								<Modal>
+									<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
+									<ModalPanel title="Scenes" className="max-w-screen-lg">
+										<ModalPanelContent className="p-3">
+											<SceneList />
+										</ModalPanelContent>
+									</ModalPanel>
+								</Modal>
+							</RoomOwnerOnly>
+
 							<CharactersToolbarButton />
+
+							<ToolbarSeparator />
+
+							<ToolbarButton
+								text="Draw Area"
+								icon={<Lucide.SquareDashedMousePointer />}
+								onClick={() => setDrawingArea(true)}
+							/>
+
+							<ToolbarButton
+								text="Reset View"
+								icon={<Lucide.Compass />}
+								onClick={() => viewportRef.current?.resetView()}
+							/>
+
+							<ToolbarSeparator />
 
 							<ToolbarDialogButton
 								text="Chat & Dice"
@@ -82,22 +111,6 @@ export default function RoomIndexRoute() {
 									<CombatInitiative />
 								</div>
 							</ToolbarPopoverButton>
-
-							<ToolbarSeparator />
-
-							<ToolbarButton
-								text="Draw Area"
-								icon={<Lucide.SquareDashedMousePointer />}
-								onClick={() => setDrawingArea(true)}
-							/>
-
-							<ToolbarButton
-								text="Reset View"
-								icon={<Lucide.Compass />}
-								onClick={() => viewportRef.current?.resetView()}
-							/>
-
-							<ToolbarSeparator />
 
 							<ToolbarPopoverButton
 								id="generalSkills"

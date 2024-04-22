@@ -1,3 +1,4 @@
+import { nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import type { Id } from "#convex/_generated/dataModel.js"
@@ -8,6 +9,7 @@ import { sceneCharacterProperties } from "./scenes/characters.ts"
 
 const sceneUpdateProperties = {
 	name: v.string(),
+	background: nullable(v.id("_storage")),
 	cellSize: v.number(),
 }
 
@@ -36,6 +38,7 @@ export const create = mutation({
 		await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
 		return await ctx.db.insert("scenes", {
 			name: generateSlug(2),
+			background: null,
 			roomId: args.roomId,
 			cellSize: 70,
 			characterTokens: [],

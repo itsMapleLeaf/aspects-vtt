@@ -41,25 +41,22 @@ function toolbarButtonStyle(className?: string) {
 	)
 }
 
-export const ToolbarButton = React.forwardRef(function ToolbarButton(
-	{
-		text,
-		icon,
-		...props
-	}: Ariakit.TooltipAnchorProps & {
-		text: React.ReactNode
-		icon: React.ReactNode
+export interface ToolbarButtonProps extends React.ComponentPropsWithoutRef<"button"> {
+	text: string
+	icon: React.ReactNode
+}
+
+export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
+	function ToolbarButton({ text, icon, ...props }, ref) {
+		return (
+			<Tooltip content={text} placement="bottom">
+				<button type="button" className={toolbarButtonStyle(props.className)} {...props} ref={ref}>
+					{icon}
+				</button>
+			</Tooltip>
+		)
 	},
-	ref: React.ForwardedRef<HTMLButtonElement>,
-) {
-	return (
-		<Tooltip content={text} placement="bottom" {...props}>
-			<button type="button" className={toolbarButtonStyle(props.className)} ref={ref}>
-				{icon}
-			</button>
-		</Tooltip>
-	)
-})
+)
 
 export function ToolbarPopoverButton(props: {
 	id: string

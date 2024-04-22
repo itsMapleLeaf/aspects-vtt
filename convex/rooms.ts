@@ -9,10 +9,13 @@ import { getUserFromIdentity } from "./users.js"
 
 export const roomProperties = {
 	name: v.optional(v.string()),
+	experience: v.optional(v.number()),
+	currentScene: v.optional(v.id("scenes")),
+
+	// todo: deprecate
 	mapImageId: v.optional(v.id("_storage")),
 	mapDimensions: v.optional(v.object({ width: v.number(), height: v.number() })),
 	mapCellSize: v.optional(v.number()),
-	experience: v.optional(v.number()),
 }
 
 export const get = query({

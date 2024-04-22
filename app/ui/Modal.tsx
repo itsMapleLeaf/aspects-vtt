@@ -10,6 +10,7 @@ import {
 	DialogProvider,
 	type DialogProviderProps,
 	type DialogStore,
+	useDialogContext,
 	useDialogStore,
 } from "@ariakit/react"
 import { LucideX } from "lucide-react"
@@ -65,7 +66,7 @@ export function ModalPanel({
 			)}
 			unmountOnHide
 		>
-			<div className="flex min-h-0 items-center gap-3 border-b border-primary-300 bg-black/25 p-3">
+			<div className="flex items-center gap-3 border-b border-primary-300 bg-black/25 p-3">
 				<div className="flex-1">
 					<DialogHeading className="text-2xl/tight font-light">{title}</DialogHeading>
 					{description && <DialogDescription>{description}</DialogDescription>}
@@ -88,3 +89,7 @@ export function ModalActions(props: ComponentPropsWithoutRef<"div">) {
 export const ModalDismiss = forwardRef<HTMLButtonElement, DialogDismissProps>((props, ref) => (
 	<DialogDismiss {...props} ref={ref} />
 ))
+
+export function useModalContext() {
+	return useDialogContext()
+}
