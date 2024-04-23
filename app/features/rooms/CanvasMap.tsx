@@ -1,12 +1,11 @@
 import * as React from "react"
-import { loadImage } from "#app/common/dom.js"
 import { expect } from "#app/common/expect.js"
 import { mod } from "#app/common/math.js"
-import type { Falsy } from "#app/common/types.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
-import { Vector, type VectorInput } from "#app/common/vector.js"
+import { useImage } from "../../common/useImage.ts"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useScene } from "../scenes/context.tsx"
+import { Camera } from "./Camera.tsx"
 
 export function CanvasMap() {
 	const scene = useScene()
@@ -120,61 +119,4 @@ function isolateDraws(context: CanvasRenderingContext2D, fn: () => void) {
 	context.save()
 	fn()
 	context.restore()
-}
-
-function useImage(src: string | Falsy) {
-	const [image, setImage] = React.useState<HTMLImageElement>()
-	React.useEffect(() => {
-		if (!src) return
-		const controller = new AbortController()
-		loadImage(src, controller.signal).then((image) => {
-			setImage(image)
-		})
-		return () => {
-			controller.abort()
-		}
-	}, [src])
-	return image
-}
-
-interface CameraState {
-	position: Vector
-	zoomTick: number
-}
-
-class Camera {
-	static readonly zoomBase = 1.3
-	static readonly zoomTickLimit = 10
-
-	readonly #state: CameraState = {
-		position: Vector.zero,
-		zoomTick: 0,
-	}
-
-	constructor(state?: CameraState) {
-		this.#state = state ?? this.#state
-	}
-
-	get position(): Vector {
-		return this.#state.position
-	}
-
-	get zoomTick(): number {
-		return this.#state.zoomTick
-	}
-
-	get translation(): Vector {
-		return this.position.times(this.scale)
-	}
-
-	get scale(): number {
-		return Camera.zoomBase ** this.zoomTick
-	}
-
-	movedBy(...delta: VectorInput): Camera {
-		return new Camera({
-			...this.#state,
-			position: this.#state.position.plus(...delta),
-		})
-	}
 }
