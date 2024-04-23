@@ -6,11 +6,13 @@ import * as Lucide from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useMutationState } from "#app/common/convex.js"
 import { useListener } from "#app/common/emitter.js"
+import { expect } from "#app/common/expect.js"
 import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
 import { editCharacterEvent } from "#app/features/characters/events.js"
+import { UploadedImage } from "#app/features/images/UploadedImage.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
-import { CanvasMap } from "#app/features/rooms/CanvasMap.js"
+import { CanvasMap, defineCanvasMapDropAction } from "#app/features/rooms/CanvasMap.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { SceneList } from "#app/features/scenes/SceneList.js"
@@ -22,6 +24,7 @@ import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField, FormLayout, FormRow } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
+import { ScrollArea } from "#app/ui/ScrollArea.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import {
@@ -48,7 +51,7 @@ export default function RoomIndexRoute() {
 					drawingArea={drawingArea}
 					onFinishDrawingArea={() => setDrawingArea(false)}
 				/> */}
-				<CanvasMap />
+				{scene && <CanvasMap scene={scene} />}
 			</div>
 
 			<div
@@ -70,8 +73,6 @@ export default function RoomIndexRoute() {
 									</ModalPanel>
 								</Modal>
 							</RoomOwnerOnly>
-
-							<CharactersToolbarButton />
 
 							<ToolbarSeparator />
 
@@ -157,8 +158,57 @@ export default function RoomIndexRoute() {
 				{scene?.name}
 			</h2>
 
+			<aside className="fixed bottom-0 left-0 top-16 p-2">
+				<ScrollArea className={panel("h-full w-28")}>
+					<div className="p-2">
+						<CharacterList />
+					</div>
+				</ScrollArea>
+			</aside>
+
 			<CombatTurnBanner />
 		</>
+	)
+}
+
+function CharacterList() {
+	const scene = useScene()
+	const characters = useCharacters()
+
+	return (
+		<ul className="flex h-full flex-col gap-3">
+			{characters.map((character) => (
+				<li key={character._id}>
+					<button
+						type="button"
+						className="flex w-full flex-col items-stretch gap-2"
+						draggable
+						onDragStart={(event) => {
+							const image = expect(
+								event.currentTarget.querySelector("[data-image]"),
+								"couldn't find drag image",
+							)
+							const rect = image.getBoundingClientRect()
+							event.dataTransfer.setDragImage(image, rect.width / 2, rect.height / 2)
+							event.dataTransfer.setData(
+								"text/plain",
+								JSON.stringify(
+									defineCanvasMapDropAction({
+										type: "addCharacter",
+										characterId: character._id,
+									}),
+								),
+							)
+						}}
+					>
+						<div className={panel("overflow-clip aspect-square")} data-image>
+							<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />
+						</div>
+						<p className="text-pretty text-center text-sm/none">{character.name}</p>
+					</button>
+				</li>
+			))}
+		</ul>
 	)
 }
 

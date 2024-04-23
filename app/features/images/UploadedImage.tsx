@@ -15,12 +15,7 @@ type UploadedImageProps = Overwrite<
 export function UploadedImage({ id, emptyIcon, ...props }: UploadedImageProps) {
 	const imageUrl = id ? getApiImageUrl(id) : undefined
 	return (
-		<div
-			{...withMergedClassName(
-				props,
-				"flex items-center justify-center bg-contain bg-center bg-no-repeat",
-			)}
-		>
+		<div {...withMergedClassName(props, "flex items-center justify-center")}>
 			{imageUrl ? (
 				<img
 					src={imageUrl}

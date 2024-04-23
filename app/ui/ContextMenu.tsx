@@ -6,6 +6,7 @@ export interface ContextMenuProps {
 	options: ContextMenuOption[]
 	children: React.ReactNode
 	className?: string
+	disabled?: boolean
 }
 
 export interface ContextMenuOption {
@@ -17,6 +18,20 @@ export interface ContextMenuOption {
 export function ContextMenu(props: ContextMenuProps) {
 	const store = Ariakit.useMenuStore()
 	const [pointer, setPointer] = useState({ x: 0, y: 0 })
+
+	if (props.disabled) {
+		return (
+			<div
+				className={props.className}
+				onContextMenu={(event) => {
+					event.preventDefault()
+				}}
+			>
+				{props.children}
+			</div>
+		)
+	}
+
 	return (
 		<div
 			className={props.className}

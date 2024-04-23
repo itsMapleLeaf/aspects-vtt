@@ -1,7 +1,9 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { pick } from "#app/common/object.js"
-import { mutation } from "#convex/_generated/server.js"
+import { CharacterModel } from "#convex/CharacterModel.ts"
+import { RoomModel } from "#convex/RoomModel.ts"
+import { mutation, query } from "#convex/_generated/server.js"
 import { requireDoc } from "../helpers.ts"
 import { requireSceneRoomOwner } from "../scenes.ts"
 
@@ -14,6 +16,41 @@ export const sceneCharacterProperties = {
 	...sceneCharacterUpdateProperties,
 	characterId: v.id("characters"),
 }
+
+export const list = query({
+	args: {
+		sceneId: v.id("scenes"),
+	},
+	async handler(ctx, args) {
+		const scene = await requireDoc(ctx, args.sceneId, "scenes").getValueOrThrow()
+
+		const room = await RoomModel.fromId(ctx, scene.roomId).getValueOrNull()
+		if (!room) {
+			console.warn(
+				`Attempt to list character tokens from scene ${args.sceneId} with nonexistent room`,
+			)
+			return []
+		}
+
+		const characters = (
+			await Promise.all(
+				scene.characterTokens.map(async (token) => {
+					const model = await CharacterModel.get(ctx, token.characterId).getValueOrNull()
+					return {
+						token,
+						character: await model?.getComputedData(),
+					}
+				}),
+			)
+		).flatMap((it) => (it.character ? [{ ...it, character: it.character }] : []))
+
+		if (await room.isOwner()) {
+			return characters
+		}
+
+		return characters.filter((character) => character.token.visible)
+	},
+})
 
 export const add = mutation({
 	args: {
