@@ -9,6 +9,10 @@ export class Camera {
 	static readonly zoomBase = 1.3
 	static readonly zoomTickLimit = 10
 
+	static getScale(zoomTick: number): number {
+		return Camera.zoomBase ** zoomTick
+	}
+
 	readonly #state: CameraState = {
 		position: Vector.zero,
 		zoomTick: 0,
@@ -31,13 +35,30 @@ export class Camera {
 	}
 
 	get scale(): number {
-		return Camera.zoomBase ** this.zoomTick
+		return Camera.getScale(this.zoomTick)
 	}
 
 	movedBy(...delta: VectorInput): Camera {
 		return new Camera({
 			...this.#state,
 			position: this.#state.position.plus(...delta),
+		})
+	}
+
+	zoomedBy(delta: number, pivot: Vector): Camera {
+		const newZoomTick = this.zoomTick + delta
+		if (newZoomTick <= -Camera.zoomTickLimit || newZoomTick >= Camera.zoomTickLimit) {
+			return this
+		}
+
+		const currentScale = this.scale
+		const newScale = Camera.getScale(this.zoomTick + delta)
+		const shift = pivot.minus(pivot.times(newScale / currentScale))
+
+		return new Camera({
+			...this.#state,
+			position: this.position.plus(shift),
+			zoomTick: this.#state.zoomTick + delta,
 		})
 	}
 }

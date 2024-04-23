@@ -2,6 +2,7 @@ import * as React from "react"
 import { expect } from "#app/common/expect.js"
 import { mod } from "#app/common/math.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
+import { Vector } from "#app/common/vector.js"
 import { useImage } from "../../common/useImage.ts"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useScene } from "../scenes/context.tsx"
@@ -24,18 +25,15 @@ export function CanvasMap() {
 				context.globalAlpha = 0.5
 				context.drawImage(
 					backgroundImage,
-					...camera.translation.times(-1).tuple,
-					canvas.width,
-					canvas.height,
-					0,
-					0,
-					canvas.width,
-					canvas.height,
+					...camera.position.dividedBy(camera.scale).times(-1).tuple,
+					...Vector.fromSize(canvas).dividedBy(camera.scale).tuple,
+					...Vector.zero.tuple,
+					...Vector.fromSize(canvas).tuple,
 				)
 			})
 		}
 
-		const cellSize = scene?.cellSize ?? 0
+		const cellSize = (scene?.cellSize ?? 0) * camera.scale
 		if (cellSize >= 4) {
 			isolateDraws(context, () => {
 				context.strokeStyle = "black"
@@ -110,6 +108,18 @@ export function CanvasMap() {
 					document.addEventListener("blur", handleUp)
 					document.addEventListener("contextmenu", handleContextMenu)
 				}
+			}}
+			onWheel={(event) => {
+				const delta = Math.sign(event.deltaY)
+				if (delta === 0) return
+
+				const rect = event.currentTarget.getBoundingClientRect()
+
+				const pivot = Vector.from(event.clientX, event.clientY)
+					.minus(rect.left, rect.top)
+					.minus(camera.position)
+
+				setCamera((camera) => camera.zoomedBy(delta * -1, pivot))
 			}}
 		/>
 	)
