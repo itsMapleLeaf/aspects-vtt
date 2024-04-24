@@ -2,9 +2,11 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import * as React from "react"
 import { z } from "zod"
+import { Rect } from "#app/common/Rect.js"
 import { expect } from "#app/common/expect.js"
 import { mod } from "#app/common/math.js"
 import { useObservable } from "#app/common/observable.js"
+import { randomItem } from "#app/common/random.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector, type VectorInput } from "#app/common/vector.js"
 import { ContextMenu, type ContextMenuOption } from "#app/ui/ContextMenu.js"
@@ -41,7 +43,10 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useMutation(api.scenes.tokens.update)
 
-	const draw = React.useCallback(() => {
+	const getAreaRect = () =>
+		Rect.fromCorners(mapCursorRef.current, areaStart ?? mapCursorRef.current)
+
+	const draw = () => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
 		const context = expect(canvas.getContext("2d"), "canvas not supported")
 		const cellSize = (scene?.cellSize ?? 0) * camera.scale
@@ -87,11 +92,10 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 
 		if (areaToolEnabled) {
 			isolateDraws(context, () => {
-				const a = mapCursorRef.current
-				const b = areaStart ?? mapCursorRef.current
+				const rect = getAreaRect()
 
-				const topLeft = Vector.topLeftMost(a, b)
-				const bottomRight = Vector.bottomRightMost(a, b)
+				const topLeft = rect.topLeft.floorTo(scene?.cellSize ?? 0)
+				const bottomRight = rect.bottomRight.ceilingTo(scene?.cellSize ?? 0)
 
 				const position = topLeft
 					.floorTo(scene?.cellSize ?? 0)
@@ -103,23 +107,27 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 					.minus(bottomRight.ceilingTo(scene?.cellSize ?? 0))
 					.abs.times(camera.scale)
 
-				context.fillStyle = "white"
-				context.strokeStyle = "white"
-				context.lineWidth = 4
-				context.lineJoin = "round"
-
-				context.globalAlpha = 0.5
-				context.fillRect(...position.tuple, ...size.tuple)
-
-				context.globalAlpha = 1
-				context.strokeRect(...position.tuple, ...size.tuple)
+				drawRect(context, new Rect(position, size))
 			})
 		}
-	}, [scene?.cellSize, backgroundImage, camera, areaToolEnabled, areaStart])
+	}
+
+	function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
+		context.fillStyle = "white"
+		context.strokeStyle = "white"
+		context.lineWidth = 4
+		context.lineJoin = "round"
+
+		context.globalAlpha = 0.5
+		context.fillRect(...rect.tuple)
+
+		context.globalAlpha = 1
+		context.strokeRect(...rect.tuple)
+	}
 
 	React.useEffect(() => {
 		draw()
-	}, [draw])
+	})
 
 	useResizeObserver(canvasRef, (entry) => {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
@@ -128,14 +136,14 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 		draw()
 	})
 
-	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
+	const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
 		if (areaToolEnabled) {
 			mapCursorRef.current = windowCoordsToMapCoords(Vector.from(event.clientX, event.clientY))
 			draw()
 		}
 	}
 
-	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
+	const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
 		if (areaToolEnabled && event.button === 0) {
 			setAreaStart(windowCoordsToMapCoords(Vector.from(event.clientX, event.clientY)))
 			return
@@ -146,8 +154,19 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 		})
 	}
 
-	const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
+	const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
 		if (areaToolEnabled && event.button === 0) {
+			const rect = getAreaRect()
+			const { x: width, y: height } = rect.size //.times(camera.scale)
+			addToken({
+				sceneId: scene._id,
+				position: rect.position.xy,
+				area: {
+					width,
+					height,
+					color: randomItem(["red", "orange", "yellow", "green", "blue", "purple"]),
+				},
+			})
 			setAreaStart(undefined)
 		}
 	}
@@ -202,7 +221,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 		return true
 	}
 
-	const handleDrop = async (event: React.DragEvent<HTMLCanvasElement>) => {
+	const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
 		try {
 			event.preventDefault()
 
@@ -247,7 +266,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 		}
 	}
 
-	const handleWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
+	const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
 		const delta = Math.sign(event.deltaY)
 		if (delta === 0) return
 
@@ -264,23 +283,22 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 		Vector.from(...input).times(scene.cellSize * camera.scale)
 
 	return (
-		<div className="relative size-full">
-			<canvas
-				className="absolute inset-0 size-full"
-				ref={canvasRef}
-				onContextMenu={(event) => {
-					event.preventDefault()
-				}}
-				onPointerMove={handlePointerMove}
-				onPointerDown={handlePointerDown}
-				onPointerUp={handlePointerUp}
-				onWheel={handleWheel}
-				onDragOver={(event) => {
-					event.preventDefault()
-					event.dataTransfer.dropEffect = "move"
-				}}
-				onDrop={handleDrop}
-			/>
+		<div
+			className="relative size-full"
+			onContextMenu={(event) => {
+				event.preventDefault()
+			}}
+			onPointerMove={handlePointerMove}
+			onPointerDown={handlePointerDown}
+			onPointerUp={handlePointerUp}
+			onWheel={handleWheel}
+			onDragOver={(event) => {
+				event.preventDefault()
+				event.dataTransfer.dropEffect = "move"
+			}}
+			onDrop={handleDrop}
+		>
+			<canvas className="absolute inset-0 size-full" ref={canvasRef} />
 			{tokens?.map((token) => (
 				<TokenElement key={token.key} token={token} scene={scene} camera={camera}>
 					{token.character && (
@@ -291,6 +309,19 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 								className="size-full"
 							/>
 						</div>
+					)}
+					{token.area && (
+						<div
+							className="rounded border-2 border-blue-500 bg-blue-500/25"
+							style={Rect.fromCorners(
+								Vector.from(token.position).floorTo(scene.cellSize),
+								Vector.from(token.position)
+									.plus(Vector.fromSize(token.area))
+									.ceilingTo(scene.cellSize),
+							)
+								.size.times(camera.scale)
+								.toObject("width", "height")}
+						/>
 					)}
 				</TokenElement>
 			))}

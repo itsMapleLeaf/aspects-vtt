@@ -1,4 +1,4 @@
-import { brandedString } from "convex-helpers/validators"
+import { brandedString, literals } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { omit } from "#app/common/object.js"
 import { CharacterModel } from "#convex/CharacterModel.ts"
@@ -12,6 +12,13 @@ export const sceneTokenProperties = {
 	position: v.object({ x: v.number(), y: v.number() }),
 	visible: v.boolean(),
 	characterId: v.optional(v.id("characters")),
+	area: v.optional(
+		v.object({
+			width: v.number(),
+			height: v.number(),
+			color: literals("red", "orange", "yellow", "green", "blue", "purple"),
+		}),
+	),
 }
 
 export type ApiToken = Awaited<ReturnType<typeof list>>[number]
