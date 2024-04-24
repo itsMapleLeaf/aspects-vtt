@@ -12,7 +12,7 @@ import { editCharacterEvent } from "#app/features/characters/events.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
-import { CanvasMap, defineCanvasMapDropAction } from "#app/features/rooms/CanvasMap.js"
+import { CanvasMap, defineCanvasMapDropData } from "#app/features/rooms/CanvasMap.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { SceneList } from "#app/features/scenes/SceneList.js"
@@ -194,8 +194,7 @@ function CharacterList() {
 							event.dataTransfer.setData(
 								"text/plain",
 								JSON.stringify(
-									defineCanvasMapDropAction({
-										type: "addCharacter",
+									defineCanvasMapDropData({
 										characterId: character._id,
 									}),
 								),

@@ -1,4 +1,4 @@
-import { type Validator, v } from "convex/values"
+import { type PropertyValidators, type Validator, v } from "convex/values"
 import { Result } from "#app/common/Result.js"
 import { raise } from "#app/common/errors.js"
 import type { Id, TableNames } from "#convex/_generated/dataModel.js"
@@ -18,4 +18,17 @@ export function requireDoc<TableName extends TableNames>(
 		const doc = await ctx.db.get(id)
 		return doc ?? raise(new Error(`document not found: ${tableName}.${id}`))
 	})
+}
+
+export function partial<T extends PropertyValidators>(obj: T) {
+	return Object.fromEntries(
+		Object.entries(obj).map(([key, validator]) => [
+			key,
+			validator.isOptional ? validator : v.optional(validator),
+		]),
+	) as unknown as {
+		[K in keyof T]: T[K] extends Validator<infer V, false, infer F>
+			? Validator<V | undefined, true, F>
+			: T[K]
+	}
 }

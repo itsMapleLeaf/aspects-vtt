@@ -1,4 +1,4 @@
-import { nullable, partial } from "convex-helpers/validators"
+import { deprecated, nullable, partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import type { Id } from "#convex/_generated/dataModel.js"
@@ -6,7 +6,7 @@ import { type QueryCtx, mutation, query } from "#convex/_generated/server.js"
 import { RoomModel } from "./RoomModel.ts"
 import { requireDoc } from "./helpers.ts"
 import { requireRoomOwner } from "./rooms.ts"
-import { sceneCharacterProperties } from "./scenes/characters.ts"
+import { sceneTokenProperties } from "./scenes/tokens.ts"
 
 const sceneUpdateProperties = {
 	name: v.string(),
@@ -18,7 +18,8 @@ const sceneUpdateProperties = {
 export const sceneProperties = {
 	...sceneUpdateProperties,
 	roomId: v.id("rooms"),
-	characterTokens: v.array(v.object(sceneCharacterProperties)),
+	tokens: v.optional(v.array(v.object(sceneTokenProperties))),
+	characterTokens: deprecated,
 }
 
 export const list = query({
@@ -56,16 +57,15 @@ export const create = mutation({
 		await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
 		return await ctx.db.insert("scenes", {
 			name: generateSlug(2, {
+				format: "title",
 				categories: {
 					noun: ["place"],
 					adjective: ["appearance", "color", "condition", "shapes", "size", "sounds"],
 				},
-				format: "title",
 			}),
 			background: null,
 			roomId: args.roomId,
 			cellSize: 70,
-			characterTokens: [],
 		})
 	},
 })
