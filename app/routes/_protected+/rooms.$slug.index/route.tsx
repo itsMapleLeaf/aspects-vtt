@@ -1,14 +1,18 @@
-import * as Ariakit from "@ariakit/react"
+import {
+	Disclosure,
+	DisclosureContent,
+	DisclosureProvider,
+	useDisclosureStore,
+} from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { z } from "zod"
 import { useMutationState } from "#app/common/convex.js"
-import { useListener } from "#app/common/emitter.js"
 import { expect } from "#app/common/expect.js"
-import { CharactersPanel } from "#app/features/characters/CharactersPanel.js"
-import { editCharacterEvent } from "#app/features/characters/events.js"
+import { useLocalStorageState } from "#app/common/useLocalStorage.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
@@ -20,6 +24,7 @@ import { useScene } from "#app/features/scenes/context.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
 import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
 import { AppHeader } from "#app/ui/AppHeader.js"
+import { Button } from "#app/ui/Button.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField, FormLayout, FormRow } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
@@ -28,14 +33,7 @@ import { ScrollArea } from "#app/ui/ScrollArea.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import { ValidatedInput } from "../../../ui/ValidatedInput"
-import {
-	Toolbar,
-	ToolbarButton,
-	ToolbarDialogButton,
-	ToolbarDialogContent,
-	ToolbarPopoverButton,
-	ToolbarSeparator,
-} from "./Toolbar"
+import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./Toolbar"
 
 export default function RoomIndexRoute() {
 	const scene = useScene()
@@ -46,14 +44,7 @@ export default function RoomIndexRoute() {
 		<>
 			<JoinRoomEffect />
 
-			<div className="fixed inset-0 -z-10">
-				{/* <TokenMap
-					viewportRef={viewportRef}
-					drawingArea={drawingArea}
-					onFinishDrawingArea={() => setDrawingArea(false)}
-				/> */}
-				{scene && <CanvasMap scene={scene} />}
-			</div>
+			<div className="fixed inset-0 -z-10">{scene && <CanvasMap scene={scene} />}</div>
 
 			<div
 				className={translucentPanel(
@@ -90,22 +81,6 @@ export default function RoomIndexRoute() {
 							/>
 
 							<ToolbarSeparator />
-
-							<ToolbarDialogButton
-								text="Chat & Dice"
-								icon={<Lucide.MessageSquareMore />}
-								defaultOpen
-							>
-								<ToolbarDialogContent
-									className={
-										"fixed bottom-0 right-0 top-16 w-[24rem] transition translate-x-4 p-2 opacity-0 data-[enter]:translate-x-0 data-[enter]:opacity-100"
-									}
-								>
-									<div className={translucentPanel("h-full")}>
-										<MessagesPanel />
-									</div>
-								</ToolbarDialogContent>
-							</ToolbarDialogButton>
 
 							<ToolbarPopoverButton
 								id="combatInitiative"
@@ -155,78 +130,56 @@ export default function RoomIndexRoute() {
 				/>
 			</div>
 
-			<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
+			<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
 				{scene?.name}
 			</h2>
 
-			<aside className="fixed bottom-0 left-0 top-16 p-2">
-				<ScrollArea className={panel("h-full w-28")}>
-					<div className="p-2">
-						<CharacterList />
-					</div>
-				</ScrollArea>
-			</aside>
-
+			<CharacterListPanel />
+			<MessagesPanel />
 			<CombatTurnBanner />
 		</>
 	)
 }
 
-function CharacterList() {
-	const scene = useScene()
+function CharacterListPanel() {
 	const characters = useCharacters()
-
 	return (
-		<ul className="flex h-full flex-col gap-3">
-			{characters.map((character) => (
-				<li key={character._id}>
-					<button
-						type="button"
-						className="flex w-full flex-col items-stretch gap-2"
-						draggable
-						onDragStart={(event) => {
-							const image = expect(
-								event.currentTarget.querySelector("[data-image]"),
-								"couldn't find drag image",
-							)
-							const rect = image.getBoundingClientRect()
-							event.dataTransfer.setDragImage(image, rect.width / 2, rect.height / 2)
-							event.dataTransfer.setData(
-								"text/plain",
-								JSON.stringify(
-									defineCanvasMapDropData({
-										characterId: character._id,
-									}),
-								),
-							)
-						}}
-					>
-						<div className={panel("overflow-clip aspect-square")} data-image>
-							<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />
-						</div>
-						<p className="text-pretty text-center text-sm/none">{character.name}</p>
-					</button>
-				</li>
-			))}
-		</ul>
-	)
-}
-
-function CharactersToolbarButton() {
-	const store = Ariakit.useDialogStore({ defaultOpen: true })
-	useListener(editCharacterEvent, () => store.show())
-	return (
-		<ToolbarDialogButton text="Characters" icon={<Lucide.Users2 />} store={store}>
-			<ToolbarDialogContent
-				className={
-					"fixed bottom-0 left-0 top-16 w-[24rem] transition -translate-x-4 p-2 opacity-0 data-[enter]:translate-x-0 data-[enter]:opacity-100"
-				}
-			>
-				<div className={translucentPanel("h-full")}>
-					<CharactersPanel />
-				</div>
-			</ToolbarDialogContent>
-		</ToolbarDialogButton>
+		<ToggleableSidebar name="Characters" side="left">
+			<ScrollArea className={translucentPanel("h-full w-28 p-2")}>
+				<ul className="flex h-full flex-col gap-3">
+					{characters.map((character) => (
+						<li key={character._id}>
+							<button
+								type="button"
+								className="flex w-full flex-col items-stretch gap-2"
+								draggable
+								onDragStart={(event) => {
+									const image = expect(
+										event.currentTarget.querySelector("[data-image]"),
+										"couldn't find drag image",
+									)
+									const rect = image.getBoundingClientRect()
+									event.dataTransfer.setDragImage(image, rect.width / 2, rect.height / 2)
+									event.dataTransfer.setData(
+										"text/plain",
+										JSON.stringify(
+											defineCanvasMapDropData({
+												characterId: character._id,
+											}),
+										),
+									)
+								}}
+							>
+								<div className={panel("overflow-clip aspect-square")} data-image>
+									<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />
+								</div>
+								<p className="text-pretty text-center text-sm/none">{character.name}</p>
+							</button>
+						</li>
+					))}
+				</ul>
+			</ScrollArea>
+		</ToggleableSidebar>
 	)
 }
 
@@ -332,11 +285,50 @@ function JoinRoomEffect() {
 
 function MessagesPanel() {
 	return (
-		<div className="flex h-full flex-1 flex-col gap-2 rounded-md p-2">
-			<MessageForm />
-			<div className="min-h-0 flex-1">
-				<MessageList />
-			</div>
+		<ToggleableSidebar name="Messages & Dice" side="right">
+			<aside className={translucentPanel("flex h-full w-80 flex-col gap-2 p-2")}>
+				<MessageForm />
+				<div className="min-h-0 flex-1">
+					<MessageList />
+				</div>
+			</aside>
+		</ToggleableSidebar>
+	)
+}
+
+function ToggleableSidebar({
+	name,
+	side,
+	children,
+}: {
+	name: string
+	side: "left" | "right"
+	children: React.ReactNode
+}) {
+	const [open, setOpen] = useLocalStorageState(`sidebar:${name}`, true, z.boolean().catch(true))
+	const store = useDisclosureStore({ open, setOpen })
+	const isOpen = store.useState("open")
+
+	const Icon = isOpen ? Lucide.SidebarClose : Lucide.SidebarOpen
+	return (
+		<div
+			data-side={side}
+			className="group/sidebar-panel fixed bottom-0 top-16 flex w-96 justify-end gap-2 p-2 data-[side=left]:left-0 data-[side=right]:right-0 data-[side=left]:flex-row-reverse"
+		>
+			<DisclosureProvider store={store}>
+				<Button
+					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
+					element={<Disclosure title={isOpen ? `Hide ${name}` : `Show ${name}`} />}
+				/>
+				<DisclosureContent
+					className={translucentPanel(
+						"h-full opacity-0 data-[enter]:opacity-100 transition data-[enter]:translate-x-0",
+						side === "right" ? "translate-x-4" : "-translate-x-4",
+					)}
+				>
+					{children}
+				</DisclosureContent>
+			</DisclosureProvider>
 		</div>
 	)
 }
