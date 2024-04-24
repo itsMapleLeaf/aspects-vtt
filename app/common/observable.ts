@@ -1,11 +1,15 @@
-import React from "react"
+import * as React from "react"
 
 export class Observable<T> {
 	#value: T
 	#subscribers = new Set<(value: T) => void>()
 
-	constructor(value: T) {
+	private constructor(value: T) {
 		this.#value = value
+	}
+
+	static of<T>(value: T) {
+		return new Observable(value)
 	}
 
 	static empty<T>() {
@@ -16,7 +20,7 @@ export class Observable<T> {
 		return this.#value
 	}
 
-	set value(value: T) {
+	set(value: T) {
 		this.#value = value
 		for (const callback of this.#subscribers) {
 			callback(value)
@@ -33,7 +37,9 @@ export class Observable<T> {
 }
 
 export function useObservable<T>(observable: Observable<T>) {
-	const [value, setValue] = React.useState(observable.value)
-	React.useEffect(() => observable.subscribe(setValue), [observable])
-	return value
+	return React.useSyncExternalStore(
+		(onChange) => observable.subscribe(onChange),
+		() => observable.value,
+		() => observable.value,
+	)
 }

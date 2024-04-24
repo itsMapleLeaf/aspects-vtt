@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-export class Emitter<T> {
+export class Emitter<T = void> {
 	#listeners = new Set<(value: T) => void>()
 
 	on(listener: (value: T) => void) {

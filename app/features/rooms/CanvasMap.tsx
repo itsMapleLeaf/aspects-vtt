@@ -4,6 +4,7 @@ import * as React from "react"
 import { z } from "zod"
 import { expect } from "#app/common/expect.js"
 import { mod } from "#app/common/math.js"
+import { useObservable } from "#app/common/observable.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector, type VectorInput } from "#app/common/vector.js"
 import { ContextMenu, type ContextMenuOption } from "#app/ui/ContextMenu.js"
@@ -16,6 +17,7 @@ import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { Camera } from "./Camera.tsx"
 import { useRoom } from "./roomContext.tsx"
+import { AreaToolEnabled } from "./state.ts"
 
 const canvasMapDropDataSchema = z.object({
 	tokenKey: z.custom<Branded<"token">>().optional(),
@@ -27,9 +29,14 @@ export function defineCanvasMapDropData(input: z.output<typeof canvasMapDropData
 }
 
 export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
+	const areaToolEnabled = useObservable(AreaToolEnabled)
+	const [areaStart, setAreaStart] = React.useState<Vector>()
+
 	const canvasRef = React.useRef<HTMLCanvasElement>(null)
 	const backgroundImage = useImage(scene?.background && getApiImageUrl(scene.background))
 	const [camera, setCamera] = React.useState(new Camera())
+	const mapCursorRef = React.useRef(Vector.zero)
+
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
 	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useMutation(api.scenes.tokens.update)
@@ -77,7 +84,38 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 				context.stroke()
 			})
 		}
-	}, [scene?.cellSize, backgroundImage, camera])
+
+		if (areaToolEnabled) {
+			isolateDraws(context, () => {
+				const a = mapCursorRef.current
+				const b = areaStart ?? mapCursorRef.current
+
+				const topLeft = Vector.topLeftMost(a, b)
+				const bottomRight = Vector.bottomRightMost(a, b)
+
+				const position = topLeft
+					.floorTo(scene?.cellSize ?? 0)
+					.times(camera.scale)
+					.plus(camera.position)
+
+				const size = topLeft
+					.floorTo(scene?.cellSize ?? 0)
+					.minus(bottomRight.ceilingTo(scene?.cellSize ?? 0))
+					.abs.times(camera.scale)
+
+				context.fillStyle = "white"
+				context.strokeStyle = "white"
+				context.lineWidth = 4
+				context.lineJoin = "round"
+
+				context.globalAlpha = 0.5
+				context.fillRect(...position.tuple, ...size.tuple)
+
+				context.globalAlpha = 1
+				context.strokeRect(...position.tuple, ...size.tuple)
+			})
+		}
+	}, [scene?.cellSize, backgroundImage, camera, areaToolEnabled, areaStart])
 
 	React.useEffect(() => {
 		draw()
@@ -90,37 +128,78 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 		draw()
 	})
 
+	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
+		if (areaToolEnabled) {
+			mapCursorRef.current = windowCoordsToMapCoords(Vector.from(event.clientX, event.clientY))
+			draw()
+		}
+	}
+
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
+		if (areaToolEnabled && event.button === 0) {
+			setAreaStart(windowCoordsToMapCoords(Vector.from(event.clientX, event.clientY)))
+			return
+		}
+
+		captureDrag(event, 2, (event) => {
+			setCamera((camera) => camera.movedBy(event.movementX, event.movementY))
+		})
+	}
+
+	const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
+		if (areaToolEnabled && event.button === 0) {
+			setAreaStart(undefined)
+		}
+	}
+
+	function windowCoordsToMapCoords(windowCoords: Vector): Vector {
+		const canvasRect = canvasRef.current?.getBoundingClientRect() ?? { left: 0, top: 0 }
+		return windowCoords
+			.minus(canvasRect.left, canvasRect.top)
+			.minus(camera.position)
+			.dividedBy(camera.scale)
+	}
+
+	function captureDrag(
+		event: { button: number; preventDefault(): void },
+		button: number,
+		handleMove: (event: PointerEvent) => void,
+		onFinish?: () => void,
+	) {
+		if (event.button !== button) {
+			return false
+		}
+
 		event.preventDefault()
 
-		if (event.button === 2) {
-			const handleMove = (event: PointerEvent) => {
-				setCamera((camera) => camera.movedBy(event.movementX, event.movementY))
-			}
-
-			const handleContextMenu = (event: Event) => {
-				event.preventDefault()
-			}
-
-			const handleUp = (event: Event) => {
-				event.preventDefault()
-
-				// delay to allow context menu handler to run
-				setTimeout(() => {
-					document.removeEventListener("pointermove", handleMove)
-					document.removeEventListener("pointerup", handleUp)
-					document.removeEventListener("pointercancel", handleUp)
-					document.removeEventListener("blur", handleUp)
-					document.removeEventListener("contextmenu", handleContextMenu)
-				})
-			}
-
-			document.addEventListener("pointermove", handleMove)
-			document.addEventListener("pointerup", handleUp)
-			document.addEventListener("pointercancel", handleUp)
-			document.addEventListener("blur", handleUp)
-			document.addEventListener("contextmenu", handleContextMenu)
+		const handleContextMenu = (event: Event) => {
+			event.preventDefault()
 		}
+
+		const handleUp = (event: PointerEvent | FocusEvent) => {
+			const isUp = event instanceof FocusEvent || event.button === button
+			if (!isUp) return
+
+			event.preventDefault()
+			onFinish?.()
+
+			// delay to allow context menu handler to run
+			setTimeout(() => {
+				document.removeEventListener("pointermove", handleMove)
+				document.removeEventListener("pointerup", handleUp)
+				document.removeEventListener("pointercancel", handleUp)
+				document.removeEventListener("blur", handleUp)
+				document.removeEventListener("contextmenu", handleContextMenu)
+			})
+		}
+
+		document.addEventListener("pointermove", handleMove)
+		document.addEventListener("pointerup", handleUp)
+		document.addEventListener("pointercancel", handleUp)
+		document.addEventListener("blur", handleUp)
+		document.addEventListener("contextmenu", handleContextMenu)
+
+		return true
 	}
 
 	const handleDrop = async (event: React.DragEvent<HTMLCanvasElement>) => {
@@ -192,7 +271,9 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 				onContextMenu={(event) => {
 					event.preventDefault()
 				}}
+				onPointerMove={handlePointerMove}
 				onPointerDown={handlePointerDown}
+				onPointerUp={handlePointerUp}
 				onWheel={handleWheel}
 				onDragOver={(event) => {
 					event.preventDefault()

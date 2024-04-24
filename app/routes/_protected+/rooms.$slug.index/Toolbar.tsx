@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import * as React from "react"
-import { twMerge } from "tailwind-merge"
+import { type ClassNameValue, twMerge } from "tailwind-merge"
 import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
 import { Tooltip } from "#app/ui/Tooltip.js"
 
@@ -12,23 +12,29 @@ export function Toolbar(props: { children: React.ReactNode }) {
 	)
 }
 
-function toolbarButtonStyle(className?: string) {
+function toolbarButtonStyle(...classes: ClassNameValue[]) {
 	return twMerge(
-		"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6  hover:bg-primary-100 hover:opacity-100",
-		className,
+		"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6 hover:opacity-75",
+		...classes,
 	)
 }
 
 export interface ToolbarButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 	text: string
 	icon: React.ReactNode
+	active?: boolean
 }
 
 export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-	function ToolbarButton({ text, icon, ...props }, ref) {
+	function ToolbarButton({ text, icon, active, ...props }, ref) {
 		return (
 			<Tooltip content={text} placement="bottom">
-				<button type="button" className={toolbarButtonStyle(props.className)} {...props} ref={ref}>
+				<button
+					type="button"
+					className={toolbarButtonStyle(active && "opacity-100 text-primary-700", props.className)}
+					{...props}
+					ref={ref}
+				>
 					{icon}
 				</button>
 			</Tooltip>

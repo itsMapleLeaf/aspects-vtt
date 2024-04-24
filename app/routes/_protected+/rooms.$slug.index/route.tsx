@@ -8,10 +8,11 @@ import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { z } from "zod"
 import { useMutationState } from "#app/common/convex.js"
 import { expect } from "#app/common/expect.js"
+import { useObservable } from "#app/common/observable.js"
 import { useLocalStorageState } from "#app/common/useLocalStorage.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
@@ -19,6 +20,7 @@ import { MessageList } from "#app/features/messages/MessageList.js"
 import { CanvasMap, defineCanvasMapDropData } from "#app/features/rooms/CanvasMap.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
+import { AreaToolEnabled } from "#app/features/rooms/state.js"
 import { SceneList } from "#app/features/scenes/SceneList.js"
 import { useScene } from "#app/features/scenes/context.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
@@ -39,7 +41,6 @@ export default function RoomIndexRoute() {
 	const scene = useScene()
 	const currentUrl = useHref(useLocation())
 	const viewportRef = useRef<ViewportController>(null)
-	const [drawingArea, setDrawingArea] = useState(false)
 	return (
 		<>
 			<JoinRoomEffect />
@@ -68,11 +69,7 @@ export default function RoomIndexRoute() {
 
 							<ToolbarSeparator />
 
-							<ToolbarButton
-								text="Draw Area"
-								icon={<Lucide.SquareDashedMousePointer />}
-								onClick={() => setDrawingArea(true)}
-							/>
+							<DrawAreaButton />
 
 							<ToolbarButton
 								text="Reset View"
@@ -138,6 +135,18 @@ export default function RoomIndexRoute() {
 			<MessagesPanel />
 			<CombatTurnBanner />
 		</>
+	)
+}
+
+function DrawAreaButton() {
+	const enabled = useObservable(AreaToolEnabled)
+	return (
+		<ToolbarButton
+			text="Draw Area"
+			icon={<Lucide.SquareDashedMousePointer />}
+			active={enabled}
+			onClick={() => AreaToolEnabled.set(!enabled)}
+		/>
 	)
 }
 
@@ -313,11 +322,12 @@ function ToggleableSidebar({
 	return (
 		<div
 			data-side={side}
-			className="group/sidebar-panel fixed bottom-0 top-16 flex w-96 justify-end gap-2 p-2 data-[side=left]:left-0 data-[side=right]:right-0 data-[side=left]:flex-row-reverse"
+			className="group/sidebar-panel pointer-events-none fixed bottom-0 top-16 flex justify-end gap-2 p-2 *:pointer-events-auto data-[side=left]:left-0 data-[side=right]:right-0 data-[side=left]:flex-row-reverse"
 		>
 			<DisclosureProvider store={store}>
 				<Button
 					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
+					className="shadow-md shadow-black/25"
 					element={<Disclosure title={isOpen ? `Hide ${name}` : `Show ${name}`} />}
 				/>
 				<DisclosureContent
