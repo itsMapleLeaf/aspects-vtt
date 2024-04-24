@@ -27,6 +27,7 @@ import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "#app/ui/Modal
 import { ScrollArea } from "#app/ui/ScrollArea.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
+import { ValidatedInput } from "../../../ui/ValidatedInput"
 import {
 	Toolbar,
 	ToolbarButton,
@@ -373,15 +374,17 @@ function RoomSettingsForm() {
 					</FormField>
 					<FormRow className="items-end">
 						<FormField label="Cell Size" htmlFor="cellSize">
-							<Input
+							<ValidatedInput
 								id="cellSize"
-								type="number"
+								placeholder="70"
 								className="w-20"
 								value={updateSceneState.args?.cellSize ?? scene.cellSize}
-								onChange={(event) => {
-									const value = event.currentTarget.valueAsNumber
-									if (Number.isNaN(value)) return
-									updateScene({ id: scene._id, cellSize: Math.max(value, 8) })
+								parse={(input) => {
+									const value = Number(input)
+									return Number.isInteger(value) && value >= 8 ? value : undefined
+								}}
+								onChangeValid={(value) => {
+									updateScene({ id: scene._id, cellSize: value })
 								}}
 							/>
 						</FormField>
@@ -392,12 +395,14 @@ function RoomSettingsForm() {
 				</>
 			)}
 			<FormField label="Experience">
-				<Input
-					type="number"
+				<ValidatedInput
+					placeholder="420"
 					value={updateRoomState.args?.experience ?? room.experience}
-					min={0}
-					step={5}
-					onChange={(e) => updateRoom({ id: room._id, experience: Number(e.target.value) })}
+					parse={(input) => {
+						const value = Number(input)
+						return Number.isInteger(value) && value >= 0 ? value : undefined
+					}}
+					onChangeValid={(value) => updateRoom({ id: room._id, experience: value })}
 				/>
 			</FormField>
 		</FormLayout>
