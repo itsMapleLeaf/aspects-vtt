@@ -75,6 +75,7 @@ export class RoomModel {
 			throw new ConvexError("You don't have permission to update this room.")
 		}
 		await ctx.db.patch(this.data._id, args)
+		// @ts-expect-error
 		return new RoomModel(this.ctx, { ...this.data, ...args })
 	}
 
