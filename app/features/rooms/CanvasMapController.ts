@@ -1,4 +1,5 @@
 import { useMutation } from "convex/react"
+import { Iterator } from "iterator-helpers-polyfill"
 import { useState } from "react"
 import * as React from "react"
 import { Rect } from "#app/common/Rect.js"
@@ -28,6 +29,10 @@ export function useCanvasMapController() {
 	const [inputMode, setInputMode] = useState<InputMode>("select")
 	const [camera, setCamera] = useState(new Camera())
 	const [container, containerRef] = useState<HTMLElement | null>()
+	const [selectedTokens, setSelectedTokens] = useState<ReadonlySet<Branded<"token">>>(
+		new Set<Branded<"token">>(),
+	)
+	const [tokenMovement, setTokenMovement] = useState<Vector>()
 	const pointer = usePointerPosition()
 
 	const [previewAreaStart, setPreviewAreaStart] = useState<Vector>()
@@ -46,7 +51,16 @@ export function useCanvasMapController() {
 
 	const inputModeHandlers = {
 		select: {
-			onPointerDown: (event: React.PointerEvent<HTMLElement>) => {},
+			onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+				if (event.button === MouseButtonLeft) {
+					const tokenKey = Iterator.from(document.elementsFromPoint(event.clientX, event.clientY))
+						.filter((it) => it instanceof HTMLElement)
+						.map((it) => it.dataset.tokenKey)
+						.find((it) => it != null)
+					setSelectedTokens(new Set([tokenKey as Branded<"token">]))
+					setTokenMovement(Vector.zero)
+				}
+			},
 			onPointerMove: (event: React.PointerEvent<HTMLElement>) => {},
 			onPointerUp: (event: React.PointerEvent<HTMLElement>) => {},
 		},
@@ -61,6 +75,28 @@ export function useCanvasMapController() {
 			onPointerUp: async (event: React.PointerEvent<HTMLElement>) => {},
 		},
 	}
+
+	useWindowEvent("pointermove", (event) => {
+		if (tokenMovement) {
+			setTokenMovement(tokenMovement.plus(event.movementX, event.movementY))
+		}
+	})
+
+	useWindowEvent("pointerup", (event) => {
+		if (event.button === MouseButtonLeft && scene && tokenMovement) {
+			for (const key of selectedTokens) {
+				const existing = scene.tokens?.find((it) => it.key === key)
+				updateToken({
+					key,
+					sceneId: scene._id,
+					position: Vector.from(existing?.position ?? Vector.zero).plus(
+						tokenMovement.dividedBy(camera.scale),
+					).xy,
+				})
+			}
+			setTokenMovement(undefined)
+		}
+	})
 
 	useWindowEvent("pointerup", async (event) => {
 		if (inputMode === "draw" && event.button === MouseButtonLeft && previewArea && scene) {
@@ -122,9 +158,11 @@ export function useCanvasMapController() {
 	return {
 		isSelectInput: inputMode === "select",
 		isDrawInput: inputMode === "draw",
+		toggleDrawInputMode,
 		camera,
 		previewArea,
-		toggleDrawInputMode,
+		selectedTokens,
+		tokenMovement,
 		containerProps: {
 			ref: containerRef,
 			onPointerDown,

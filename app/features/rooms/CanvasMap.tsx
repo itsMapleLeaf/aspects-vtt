@@ -15,7 +15,6 @@ import type { ApiToken } from "#convex/scenes/tokens.js"
 import { useImage } from "../../common/useImage.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
-import type { Camera } from "./Camera.tsx"
 import type { CanvasMapController } from "./CanvasMapController.ts"
 import { useRoom } from "./roomContext.tsx"
 
@@ -205,43 +204,49 @@ export function CanvasMap({
 			onDrop={handleDrop}
 		>
 			<canvas className="absolute inset-0 size-full" ref={canvasRef} />
-			{tokens?.map((token) => {
-				return (
-					<React.Fragment key={token.key}>
-						{token.character && (
-							<TokenElement
-								token={token}
-								scene={scene}
-								camera={camera}
-								rect={
-									new Rect(
-										Vector.from(token.position).floorTo(scene.cellSize),
-										Vector.from(scene.cellSize),
-									)
-								}
-							>
-								<div style={gridSizeToPixels(1).toObject("width", "height")}>
-									<UploadedImage
-										id={token.character.imageId}
-										emptyIcon={<Lucide.Ghost />}
-										className="size-full"
-									/>
-								</div>
-							</TokenElement>
-						)}
-						{token.area && (
-							<TokenElement
-								token={token}
-								scene={scene}
-								camera={camera}
-								rect={getTokenAreaRect(token.position, token.area)}
-							>
-								<div className="size-full rounded border-2 border-blue-500 bg-blue-500/25" />
-							</TokenElement>
-						)}
-					</React.Fragment>
-				)
-			})}
+			{tokens
+				?.sort((a, b) => {
+					const rankA = a.character ? 1 : 0
+					const rankB = b.character ? 1 : 0
+					return rankA - rankB
+				})
+				.map((token) => {
+					return (
+						<React.Fragment key={token.key}>
+							{token.character && (
+								<TokenElement
+									token={token}
+									scene={scene}
+									controller={controller}
+									rect={
+										new Rect(
+											Vector.from(token.position).roundedTo(scene.cellSize),
+											Vector.from(scene.cellSize),
+										)
+									}
+								>
+									<div style={gridSizeToPixels(1).toObject("width", "height")}>
+										<UploadedImage
+											id={token.character.imageId}
+											emptyIcon={<Lucide.Ghost />}
+											className="size-full"
+										/>
+									</div>
+								</TokenElement>
+							)}
+							{token.area && (
+								<TokenElement
+									token={token}
+									scene={scene}
+									controller={controller}
+									rect={getTokenAreaRect(token.position, token.area)}
+								>
+									<div className="size-full rounded border-2 border-blue-500 bg-blue-500/25" />
+								</TokenElement>
+							)}
+						</React.Fragment>
+					)
+				})}
 		</div>
 	)
 }
@@ -255,13 +260,13 @@ function isolateDraws(context: CanvasRenderingContext2D, fn: () => void) {
 function TokenElement({
 	token,
 	scene,
-	camera,
+	controller,
 	rect,
 	children,
 }: {
 	token: ApiToken
 	scene: Doc<"scenes">
-	camera: Camera
+	controller: CanvasMapController
 	rect: Rect
 	children: React.ReactNode
 }) {
@@ -269,9 +274,12 @@ function TokenElement({
 	const updateToken = useMutation(api.scenes.tokens.update)
 	const removeToken = useMutation(api.scenes.tokens.remove)
 
+	const isSelected = controller.selectedTokens.has(token.key)
+
 	const transformed = rect
-		.withPosition(rect.position.times(camera.scale).plus(camera.position))
-		.scaledBy(camera.scale)
+		.withPosition(rect.position.times(controller.camera.scale).plus(controller.camera.position))
+		.scaledBy(controller.camera.scale)
+		.translated((isSelected && controller.tokenMovement) || Vector.zero)
 
 	const menuOptions: ContextMenuOption[] = [
 		{
@@ -294,24 +302,12 @@ function TokenElement({
 		},
 	]
 
-	const handleDragStart = (event: React.DragEvent<HTMLButtonElement>) => {
-		const rect = event.currentTarget.getBoundingClientRect()
-		event.dataTransfer.setDragImage(event.currentTarget, rect.width / 2, rect.height / 2)
-		event.dataTransfer.setData(
-			"text/plain",
-			JSON.stringify(
-				defineCanvasMapDropData({
-					tokenKey: token.key,
-					characterId: token.characterId,
-				}),
-			),
-		)
-	}
-
 	return (
 		<div
-			className="absolute left-0 top-0 data-[visible=false]:opacity-50"
+			className="absolute left-0 top-0 rounded outline outline-2 outline-transparent data-[visible=false]:opacity-50 data-[selected=true]:outline-primary-700"
 			data-visible={token.visible}
+			data-token-key={token.key}
+			data-selected={isSelected}
 			style={{
 				translate: `${transformed.x}px ${transformed.y}px`,
 				width: transformed.width,
@@ -324,17 +320,10 @@ function TokenElement({
 				options={menuOptions}
 				className="size-full"
 			>
-				<button
-					type="button"
-					className="relative size-full"
-					draggable
-					onDragStart={handleDragStart}
-				>
-					{children}
-					{token.visible ? null : (
-						<Lucide.EyeOff className="pointer-events-none absolute inset-0 m-auto size-1/2 max-h-32 max-w-32" />
-					)}
-				</button>
+				{children}
+				{token.visible ? null : (
+					<Lucide.EyeOff className="pointer-events-none absolute inset-0 m-auto size-1/2 max-h-32 max-w-32" />
+				)}
 			</ContextMenu>
 		</div>
 	)
