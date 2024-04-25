@@ -66,8 +66,26 @@ export function useCanvasMapController() {
 					setTokenMovement(Vector.zero)
 				}
 			},
-			onPointerMove: (event: React.PointerEvent<HTMLElement>) => {},
-			onPointerUp: (event: React.PointerEvent<HTMLElement>) => {},
+			onPointerMove: (event: PointerEvent) => {
+				if (tokenMovement) {
+					setTokenMovement(tokenMovement.plus(event.movementX, event.movementY))
+				}
+			},
+			onPointerUp: (event: PointerEvent) => {
+				if (event.button === MouseButtonLeft && scene && tokenMovement) {
+					for (const key of selectedTokens) {
+						const existing = scene.tokens?.find((it) => it.key === key)
+						updateToken({
+							key,
+							sceneId: scene._id,
+							position: Vector.from(existing?.position ?? Vector.zero)
+								.plus(tokenMovement.dividedBy(camera.scale))
+								.roundedTo(scene.cellSize).xy,
+						})
+					}
+					setTokenMovement(undefined)
+				}
+			},
 		},
 		draw: {
 			onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
@@ -76,54 +94,38 @@ export function useCanvasMapController() {
 					return
 				}
 			},
-			onPointerMove: (event: React.PointerEvent<HTMLElement>) => {},
-			onPointerUp: async (event: React.PointerEvent<HTMLElement>) => {},
+			onPointerMove: (event: PointerEvent) => {},
+			onPointerUp: async (event: PointerEvent) => {
+				if (event.button === MouseButtonLeft && previewArea && scene) {
+					const worldRect = Rect.fromCorners(
+						camera.viewportToWorld(previewArea.topLeft).floorTo(scene.cellSize),
+						camera.viewportToWorld(previewArea.bottomRight).ceilingTo(scene.cellSize),
+					)
+					addToken({
+						sceneId: scene._id,
+						position: worldRect.position.xy,
+						visible: true,
+						area: {
+							width: worldRect.width,
+							height: worldRect.height,
+							color: "blue",
+						},
+					}).catch((error) => {
+						alert("Failed to create area. Check the console for details.")
+						console.error(error)
+					})
+					setPreviewAreaStart(undefined)
+				}
+			},
 		},
 	}
 
 	useWindowEvent("pointermove", (event) => {
-		if (tokenMovement) {
-			setTokenMovement(tokenMovement.plus(event.movementX, event.movementY))
-		}
+		inputModeHandlers[inputMode].onPointerMove(event)
 	})
 
 	useWindowEvent("pointerup", (event) => {
-		if (event.button === MouseButtonLeft && scene && tokenMovement) {
-			for (const key of selectedTokens) {
-				const existing = scene.tokens?.find((it) => it.key === key)
-				updateToken({
-					key,
-					sceneId: scene._id,
-					position: Vector.from(existing?.position ?? Vector.zero)
-						.plus(tokenMovement.dividedBy(camera.scale))
-						.roundedTo(scene.cellSize).xy,
-				})
-			}
-			setTokenMovement(undefined)
-		}
-	})
-
-	useWindowEvent("pointerup", async (event) => {
-		if (inputMode === "draw" && event.button === MouseButtonLeft && previewArea && scene) {
-			const worldRect = Rect.fromCorners(
-				camera.viewportToWorld(previewArea.topLeft).floorTo(scene.cellSize),
-				camera.viewportToWorld(previewArea.bottomRight).ceilingTo(scene.cellSize),
-			)
-			addToken({
-				sceneId: scene._id,
-				position: worldRect.position.xy,
-				visible: true,
-				area: {
-					width: worldRect.width,
-					height: worldRect.height,
-					color: "blue",
-				},
-			}).catch((error) => {
-				alert("Failed to create area. Check the console for details.")
-				console.error(error)
-			})
-			setPreviewAreaStart(undefined)
-		}
+		inputModeHandlers[inputMode].onPointerUp(event)
 	})
 
 	const toggleDrawInputMode = React.useCallback(() => {
@@ -137,14 +139,6 @@ export function useCanvasMapController() {
 		if (captured) return
 
 		inputModeHandlers[inputMode].onPointerDown(event)
-	}
-
-	function onPointerMove(event: React.PointerEvent<HTMLElement>) {
-		inputModeHandlers[inputMode].onPointerMove(event)
-	}
-
-	function onPointerUp(event: React.PointerEvent<HTMLElement>) {
-		inputModeHandlers[inputMode].onPointerUp(event)
 	}
 
 	function onWheel(event: React.WheelEvent<HTMLDivElement>) {
@@ -167,12 +161,10 @@ export function useCanvasMapController() {
 		camera,
 		previewArea,
 		selectedTokens,
-		tokenMovement,
+		tokenMovement: tokenMovement,
 		containerProps: {
 			ref: containerRef,
 			onPointerDown,
-			onPointerMove,
-			onPointerUp,
 			onWheel,
 		},
 	}
