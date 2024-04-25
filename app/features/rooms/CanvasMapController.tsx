@@ -64,8 +64,13 @@ function useCanvasMapControllerProvider() {
 						.filter((it) => it instanceof HTMLElement)
 						.map((it) => it.dataset.tokenKey)
 						.find((it) => it != null)
-					setSelectedTokens(new Set([tokenKey as Branded<"token">]))
-					setTokenDragStart(Vector.from(event.clientX, event.clientY))
+
+					if (tokenKey) {
+						setSelectedTokens(new Set([tokenKey as Branded<"token">]))
+						setTokenDragStart(Vector.from(event.clientX, event.clientY))
+					} else {
+						setSelectedTokens(new Set([]))
+					}
 				}
 			},
 			onPointerMove: (event: PointerEvent) => {
@@ -85,9 +90,9 @@ function useCanvasMapControllerProvider() {
 								.roundedTo(scene.cellSize).xy,
 						})
 					}
-					setTokenDragStart(undefined)
-					setTokenDragEnd(undefined)
 				}
+				setTokenDragStart(undefined)
+				setTokenDragEnd(undefined)
 			},
 		},
 		draw: {

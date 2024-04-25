@@ -303,7 +303,7 @@ function TokenElement({
 
 	return (
 		<div
-			className="absolute left-0 top-0 rounded outline outline-2 outline-transparent data-[selected=true]:outline-primary-700 data-[visible=false]:brightness-75"
+			className="absolute left-0 top-0 rounded outline outline-2 outline-transparent data-[visible=false]:opacity-50 data-[selected=true]:outline-primary-700"
 			data-visible={token.visible}
 			data-token-key={token.key}
 			data-selected={isSelected}
