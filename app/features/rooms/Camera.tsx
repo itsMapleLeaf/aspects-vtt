@@ -62,11 +62,11 @@ export class Camera {
 		})
 	}
 
-	viewportToCamera(point: Vector) {
-		return point.times(this.scale).plus(this.position)
+	viewportToWorld(point: Vector) {
+		return point.minus(this.position).dividedBy(this.scale)
 	}
 
-	cameraToViewport(point: Vector) {
-		return point.minus(this.position).dividedBy(this.scale)
+	worldToViewport(point: Vector) {
+		return point.times(this.scale).plus(this.position)
 	}
 }

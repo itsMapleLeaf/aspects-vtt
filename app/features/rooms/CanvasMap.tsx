@@ -43,7 +43,18 @@ export function CanvasMap({
 	const backgroundImage = useImage(scene?.background && getApiImageUrl(scene.background))
 	const { camera } = controller
 
-	const draw = () => {
+	React.useLayoutEffect(() => {
+		draw()
+	})
+
+	useResizeObserver(canvasRef, (entry) => {
+		const canvas = expect(canvasRef.current, "canvas ref not set")
+		canvas.width = entry.contentRect.width
+		canvas.height = entry.contentRect.height
+		draw()
+	})
+
+	function draw() {
 		const canvas = expect(canvasRef.current, "canvas ref not set")
 		const context = expect(canvas.getContext("2d"), "canvas not supported")
 		const cellSize = (scene?.cellSize ?? 0) * camera.scale
@@ -88,8 +99,21 @@ export function CanvasMap({
 		}
 
 		if (controller.previewArea) {
-			drawRect(context, controller.previewArea)
+			const { previewArea } = controller
+			drawRect(context, fitAreaToGrid(previewArea))
 		}
+	}
+
+	function fitAreaToGrid(previewArea: Rect): Rect {
+		const cellSize = scene.cellSize * camera.scale
+		return Rect.fromCorners(
+			previewArea.topLeft
+				.minus(cellSize / 2)
+				.minus(camera.position)
+				.roundedTo(cellSize)
+				.plus(camera.position),
+			previewArea.bottomRight.minus(camera.position).ceilingTo(cellSize).plus(camera.position),
+		)
 	}
 
 	function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
@@ -107,18 +131,7 @@ export function CanvasMap({
 		})
 	}
 
-	React.useLayoutEffect(() => {
-		draw()
-	})
-
-	useResizeObserver(canvasRef, (entry) => {
-		const canvas = expect(canvasRef.current, "canvas ref not set")
-		canvas.width = entry.contentRect.width
-		canvas.height = entry.contentRect.height
-		draw()
-	})
-
-	const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+	async function handleDrop(event: React.DragEvent<HTMLDivElement>) {
 		try {
 			event.preventDefault()
 
@@ -164,8 +177,9 @@ export function CanvasMap({
 		}
 	}
 
-	const gridSizeToPixels = (...input: VectorInput) =>
-		Vector.from(...input).times(scene.cellSize * camera.scale)
+	function gridSizeToPixels(...input: VectorInput) {
+		return Vector.from(...input).times(scene.cellSize * camera.scale)
+	}
 
 	return (
 		<div
@@ -195,14 +209,10 @@ export function CanvasMap({
 					{token.area && (
 						<div
 							className="rounded border-2 border-blue-500 bg-blue-500/25"
-							style={Rect.fromCorners(
-								Vector.from(token.position).floorTo(scene.cellSize),
-								Vector.from(token.position)
-									.plus(Vector.fromSize(token.area))
-									.ceilingTo(scene.cellSize),
-							)
-								.size.times(camera.scale)
-								.toObject("width", "height")}
+							style={new Rect(
+								Vector.from(token.position).roundedTo(scene.cellSize),
+								Vector.fromSize(token.area).ceilingTo(scene.cellSize).times(camera.scale),
+							).size.toObject("width", "height")}
 						/>
 					)}
 				</TokenElement>
@@ -233,7 +243,7 @@ function TokenElement({
 	const removeToken = useMutation(api.scenes.tokens.remove)
 
 	const translation = Vector.from(token.position)
-		.floorTo(scene.cellSize)
+		.roundedTo(scene.cellSize)
 		.times(camera.scale)
 		.plus(camera.position)
 

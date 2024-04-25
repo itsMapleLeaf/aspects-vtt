@@ -6,6 +6,7 @@ import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
 import { api } from "#convex/_generated/api.js"
 import type { Branded } from "#convex/helpers.js"
+import { useScene } from "../scenes/context.tsx"
 import { Camera } from "./Camera.tsx"
 
 type InputMode = "select" | "draw"
@@ -22,7 +23,9 @@ const MouseButtonRight = 2
 const MouseButtonMiddle = 1
 
 export function useCanvasMapController() {
-	const [inputMode, setInputMode] = useState<InputMode>(() => "select")
+	const scene = useScene()
+
+	const [inputMode, setInputMode] = useState<InputMode>("select")
 	const [camera, setCamera] = useState(new Camera())
 	const [container, containerRef] = useState<HTMLElement | null>()
 	const pointer = usePointerPosition()
@@ -32,22 +35,11 @@ export function useCanvasMapController() {
 	const previewArea = (() => {
 		if (inputMode !== "draw") return
 		if (!previewAreaStart) return
-		return Rect.fromCorners(
-			camera.cameraToViewport(previewAreaStart),
-			camera.cameraToViewport(pointer),
-		)
+		return Rect.fromCorners(previewAreaStart, pointer)
 	})()
 
 	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useMutation(api.scenes.tokens.update)
-
-	function windowCoordsToMapCoords(windowCoords: Vector): Vector {
-		const containerRect = container?.getBoundingClientRect() ?? { left: 0, top: 0 }
-		return windowCoords
-			.minus(containerRect.left, containerRect.top)
-			.minus(camera.position)
-			.dividedBy(camera.scale)
-	}
 
 	const inputModeHandlers = {
 		select: {
@@ -58,28 +50,37 @@ export function useCanvasMapController() {
 		draw: {
 			onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
 				if (event.button === MouseButtonLeft) {
-					setPreviewAreaStart(windowCoordsToMapCoords(Vector.from(event.clientX, event.clientY)))
+					setPreviewAreaStart(pointer)
 					return
 				}
 			},
 			onPointerMove: (event: React.PointerEvent<HTMLElement>) => {},
-			onPointerUp: (event: React.PointerEvent<HTMLElement>) => {
-				// const { x: width, y: height } = rect.size //.times(camera.scale)
-				// addToken({
-				// 	sceneId: scene._id,
-				// 	position: rect.position.xy,
-				// 	visible: true,
-				// 	area: {
-				// 		width,
-				// 		height,
-				// 		color: randomItem(["red", "orange", "yellow", "green", "blue", "purple"]),
-				// 	},
-				// })
-				console.log(previewArea)
-				setPreviewAreaStart(undefined)
-			},
+			onPointerUp: async (event: React.PointerEvent<HTMLElement>) => {},
 		},
 	}
+
+	useWindowEvent("pointerup", async () => {
+		if (inputMode === "draw" && previewArea && scene) {
+			const worldRect = Rect.fromCorners(
+				camera.viewportToWorld(previewArea.topLeft),
+				camera.viewportToWorld(previewArea.bottomRight),
+			)
+			addToken({
+				sceneId: scene._id,
+				position: worldRect.position.xy,
+				visible: true,
+				area: {
+					width: worldRect.width,
+					height: worldRect.height,
+					color: "blue",
+				},
+			}).catch((error) => {
+				alert("Failed to create area. Check the console for details.")
+				console.error(error)
+			})
+			setPreviewAreaStart(undefined)
+		}
+	})
 
 	const toggleDrawInputMode = React.useCallback(() => {
 		setInputMode((mode) => (mode === "draw" ? "select" : "draw"))
