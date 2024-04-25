@@ -61,4 +61,12 @@ export class Camera {
 			zoomTick: this.#state.zoomTick + delta,
 		})
 	}
+
+	viewportToCamera(point: Vector) {
+		return point.times(this.scale).plus(this.position)
+	}
+
+	cameraToViewport(point: Vector) {
+		return point.minus(this.position).dividedBy(this.scale)
+	}
 }

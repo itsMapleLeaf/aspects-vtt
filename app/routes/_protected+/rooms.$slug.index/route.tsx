@@ -8,19 +8,19 @@ import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
+import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { useMutationState } from "#app/common/convex.js"
 import { expect } from "#app/common/expect.js"
-import { useObservable } from "#app/common/observable.js"
 import { useLocalStorageState } from "#app/common/useLocalStorage.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
 import { CanvasMap, defineCanvasMapDropData } from "#app/features/rooms/CanvasMap.js"
+import { useCanvasMapController } from "#app/features/rooms/CanvasMapController.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
-import { AreaToolEnabled } from "#app/features/rooms/state.js"
 import { SceneList } from "#app/features/scenes/SceneList.js"
 import { useScene } from "#app/features/scenes/context.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
@@ -41,112 +41,117 @@ export default function RoomIndexRoute() {
 	const scene = useScene()
 	const currentUrl = useHref(useLocation())
 	const viewportRef = useRef<ViewportController>(null)
+	const mapController = useCanvasMapController()
+
+	const toolbar = useMemo(
+		() => (
+			<Toolbar>
+				<RoomOwnerOnly>
+					<Modal>
+						<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
+						<ModalPanel title="Scenes" className="max-w-screen-lg">
+							<ModalPanelContent className="p-3">
+								<SceneList />
+							</ModalPanelContent>
+						</ModalPanel>
+					</Modal>
+				</RoomOwnerOnly>
+
+				<ToolbarSeparator />
+
+				<ToolbarButton
+					text="Draw Area"
+					icon={<Lucide.SquareDashedMousePointer />}
+					active={mapController.isDrawInput}
+					onClick={mapController.toggleDrawInputMode}
+				/>
+
+				<ToolbarButton
+					text="Reset View"
+					icon={<Lucide.Compass />}
+					onClick={() => viewportRef.current?.resetView()}
+				/>
+
+				<ToolbarSeparator />
+
+				<ToolbarPopoverButton
+					id="combatInitiative"
+					text="Combat Initiative"
+					icon={<Lucide.ListStart />}
+				>
+					<div className="p-4">
+						<CombatInitiative />
+					</div>
+				</ToolbarPopoverButton>
+
+				<ToolbarPopoverButton id="generalSkills" text="General Skills" icon={<Lucide.Hammer />}>
+					<div className="p-4">
+						<GeneralSkillsList />
+					</div>
+				</ToolbarPopoverButton>
+
+				<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
+					<div className="p-4">
+						<CombatDetails />
+					</div>
+				</ToolbarPopoverButton>
+
+				<ToolbarPopoverButton
+					id="criticalInjuries"
+					text="Critical Injuries"
+					icon={<Lucide.HeartCrack />}
+				>
+					<div className="p-4">
+						<CriticalInjuryDetails />
+					</div>
+				</ToolbarPopoverButton>
+
+				<ToolbarSeparator />
+
+				<RoomOwnerOnly>
+					<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Settings />}>
+						<RoomSettingsForm />
+					</ToolbarPopoverButton>
+				</RoomOwnerOnly>
+			</Toolbar>
+		),
+		[mapController.isDrawInput, mapController.toggleDrawInputMode],
+	)
+
 	return (
 		<>
 			<JoinRoomEffect />
 
-			<div className="fixed inset-0 -z-10">{scene && <CanvasMap scene={scene} />}</div>
+			<div className="fixed inset-0 -z-10">
+				{scene && <CanvasMap scene={scene} controller={mapController} />}
+			</div>
 
 			<div
 				className={translucentPanel(
 					"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
 				)}
 			>
-				<AppHeader
-					end={<UserButton afterSignOutUrl={currentUrl} />}
-					center={
-						<Toolbar>
-							<RoomOwnerOnly>
-								<Modal>
-									<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
-									<ModalPanel title="Scenes" className="max-w-screen-lg">
-										<ModalPanelContent className="p-3">
-											<SceneList />
-										</ModalPanelContent>
-									</ModalPanel>
-								</Modal>
-							</RoomOwnerOnly>
-
-							<ToolbarSeparator />
-
-							<DrawAreaButton />
-
-							<ToolbarButton
-								text="Reset View"
-								icon={<Lucide.Compass />}
-								onClick={() => viewportRef.current?.resetView()}
-							/>
-
-							<ToolbarSeparator />
-
-							<ToolbarPopoverButton
-								id="combatInitiative"
-								text="Combat Initiative"
-								icon={<Lucide.ListStart />}
-							>
-								<div className="p-4">
-									<CombatInitiative />
-								</div>
-							</ToolbarPopoverButton>
-
-							<ToolbarPopoverButton
-								id="generalSkills"
-								text="General Skills"
-								icon={<Lucide.Hammer />}
-							>
-								<div className="p-4">
-									<GeneralSkillsList />
-								</div>
-							</ToolbarPopoverButton>
-
-							<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
-								<div className="p-4">
-									<CombatDetails />
-								</div>
-							</ToolbarPopoverButton>
-
-							<ToolbarPopoverButton
-								id="criticalInjuries"
-								text="Critical Injuries"
-								icon={<Lucide.HeartCrack />}
-							>
-								<div className="p-4">
-									<CriticalInjuryDetails />
-								</div>
-							</ToolbarPopoverButton>
-
-							<ToolbarSeparator />
-
-							<RoomOwnerOnly>
-								<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Settings />}>
-									<RoomSettingsForm />
-								</ToolbarPopoverButton>
-							</RoomOwnerOnly>
-						</Toolbar>
-					}
-				/>
+				<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={toolbar} />
 			</div>
 
 			<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
 				{scene?.name}
 			</h2>
 
-			<CharacterListPanel />
-			<MessagesPanel />
+			{useMemo(
+				() => (
+					<CharacterListPanel />
+				),
+				[],
+			)}
+			{useMemo(
+				() => (
+					<MessagesPanel />
+				),
+				[],
+			)}
 			<CombatTurnBanner />
 		</>
-	)
-}
-
-function DrawAreaButton() {
-	const enabled = useObservable(AreaToolEnabled)
-	return (
-		<ToolbarButton
-			text="Draw Area"
-			icon={<Lucide.SquareDashedMousePointer />}
-			active={enabled}
-			onClick={() => AreaToolEnabled.set(!enabled)}
-		/>
 	)
 }
 
@@ -331,7 +336,7 @@ function ToggleableSidebar({
 					element={<Disclosure title={isOpen ? `Hide ${name}` : `Show ${name}`} />}
 				/>
 				<DisclosureContent
-					className={translucentPanel(
+					className={twMerge(
 						"h-full opacity-0 data-[enter]:opacity-100 transition data-[enter]:translate-x-0",
 						side === "right" ? "translate-x-4" : "-translate-x-4",
 					)}

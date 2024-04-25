@@ -57,7 +57,7 @@ export const list = query({
 
 export const add = mutation({
 	args: {
-		...omit(sceneTokenProperties, ["key", "visible"]),
+		...omit(sceneTokenProperties, ["key"]),
 		sceneId: v.id("scenes"),
 	},
 	async handler(ctx, { sceneId, ...args }) {
