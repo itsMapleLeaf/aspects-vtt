@@ -3,6 +3,7 @@ import { Iterator } from "iterator-helpers-polyfill"
 import { useState } from "react"
 import * as React from "react"
 import { Rect } from "#app/common/Rect.js"
+import { createNonEmptyContext, useNonEmptyContext } from "#app/common/context.js"
 import { applyOptimisticQueryUpdates } from "#app/common/convex.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
@@ -18,13 +19,13 @@ type TokenMenu = {
 	tokenKey: Branded<"token">
 }
 
-export type CanvasMapController = ReturnType<typeof useCanvasMapController>
+export type CanvasMapController = ReturnType<typeof useCanvasMapControllerProvider>
 
 const MouseButtonLeft = 0
 const MouseButtonMiddle = 1
 const MouseButtonRight = 2
 
-export function useCanvasMapController() {
+function useCanvasMapControllerProvider() {
 	const scene = useScene()
 
 	const [inputMode, setInputMode] = useState<InputMode>("select")
@@ -33,7 +34,8 @@ export function useCanvasMapController() {
 	const [selectedTokens, setSelectedTokens] = useState<ReadonlySet<Branded<"token">>>(
 		new Set<Branded<"token">>(),
 	)
-	const [tokenMovement, setTokenMovement] = useState<Vector>()
+	const [tokenDragStart, setTokenDragStart] = useState<Vector>()
+	const [tokenDragEnd, setTokenDragEnd] = useState<Vector>()
 	const pointer = usePointerPosition()
 
 	const [previewAreaStart, setPreviewAreaStart] = useState<Vector>()
@@ -63,27 +65,28 @@ export function useCanvasMapController() {
 						.map((it) => it.dataset.tokenKey)
 						.find((it) => it != null)
 					setSelectedTokens(new Set([tokenKey as Branded<"token">]))
-					setTokenMovement(Vector.zero)
+					setTokenDragStart(Vector.from(event.clientX, event.clientY))
 				}
 			},
 			onPointerMove: (event: PointerEvent) => {
-				if (tokenMovement) {
-					setTokenMovement(tokenMovement.plus(event.movementX, event.movementY))
+				if (tokenDragStart) {
+					setTokenDragEnd(Vector.from(event.clientX, event.clientY))
 				}
 			},
 			onPointerUp: (event: PointerEvent) => {
-				if (event.button === MouseButtonLeft && scene && tokenMovement) {
+				if (event.button === MouseButtonLeft && scene && tokenDragStart && tokenDragEnd) {
 					for (const key of selectedTokens) {
 						const existing = scene.tokens?.find((it) => it.key === key)
 						updateToken({
 							key,
 							sceneId: scene._id,
 							position: Vector.from(existing?.position ?? Vector.zero)
-								.plus(tokenMovement.dividedBy(camera.scale))
+								.plus(tokenDragEnd.minus(tokenDragStart).dividedBy(camera.scale))
 								.roundedTo(scene.cellSize).xy,
 						})
 					}
-					setTokenMovement(undefined)
+					setTokenDragStart(undefined)
+					setTokenDragEnd(undefined)
 				}
 			},
 		},
@@ -161,7 +164,7 @@ export function useCanvasMapController() {
 		camera,
 		previewArea,
 		selectedTokens,
-		tokenMovement: tokenMovement,
+		tokenMovement: tokenDragEnd?.minus(tokenDragStart ?? tokenDragEnd),
 		containerProps: {
 			ref: containerRef,
 			onPointerDown,
@@ -220,4 +223,18 @@ function captureDrag(
 	document.addEventListener("contextmenu", handleContextMenu)
 
 	return true
+}
+
+const CanvasMapControllerContext = createNonEmptyContext<CanvasMapController>()
+
+export function CanvasMapControllerProvider({ children }: { children: React.ReactNode }) {
+	return (
+		<CanvasMapControllerContext.Provider value={useCanvasMapControllerProvider()}>
+			{children}
+		</CanvasMapControllerContext.Provider>
+	)
+}
+
+export function useCanvasMapController() {
+	return useNonEmptyContext(CanvasMapControllerContext)
 }

@@ -6,7 +6,7 @@ import { Rect } from "#app/common/Rect.js"
 import { expect } from "#app/common/expect.js"
 import { mod } from "#app/common/math.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
-import { Vector, type VectorInput } from "#app/common/vector.js"
+import { Vector } from "#app/common/vector.js"
 import { ContextMenu, type ContextMenuOption } from "#app/ui/ContextMenu.js"
 import { api } from "#convex/_generated/api.js"
 import type { Doc, Id } from "#convex/_generated/dataModel.js"
@@ -15,7 +15,7 @@ import type { ApiToken } from "#convex/scenes/tokens.js"
 import { useImage } from "../../common/useImage.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
-import type { CanvasMapController } from "./CanvasMapController.ts"
+import { useCanvasMapController } from "./CanvasMapController.tsx"
 import { useRoom } from "./roomContext.tsx"
 
 const canvasMapDropDataSchema = z.object({
@@ -27,20 +27,139 @@ export function defineCanvasMapDropData(input: z.output<typeof canvasMapDropData
 	return input
 }
 
-export function CanvasMap({
+export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
+	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
+
+	function getCharacterTokenRect(token: { position: { x: number; y: number } }) {
+		return new Rect(
+			Vector.from(token.position).roundedTo(scene.cellSize),
+			Vector.from(scene.cellSize),
+		)
+	}
+
+	function getAreaTokenRect(
+		position: { x: number; y: number },
+		area: { width: number; height: number },
+	): Rect {
+		const base = new Rect(Vector.from(position), Vector.fromSize(area))
+		return Rect.fromCorners(
+			base.topLeft.floorTo(scene.cellSize),
+			base.bottomRight.ceilingTo(scene.cellSize),
+		)
+	}
+
+	return (
+		<CanvasMapContainer scene={scene}>
+			<CanvasMapBackground scene={scene} />
+			{tokens
+				?.sort((a, b) => {
+					const rankA = a.character ? 1 : 0
+					const rankB = b.character ? 1 : 0
+					return rankA - rankB
+				})
+				.map((token) => (
+					<React.Fragment key={token.key}>
+						{token.character && (
+							<TokenElement token={token} scene={scene} rect={getCharacterTokenRect(token)}>
+								<UploadedImage
+									id={token.character.imageId}
+									emptyIcon={<Lucide.Ghost />}
+									className="size-full"
+								/>
+							</TokenElement>
+						)}
+						{token.area && (
+							<TokenElement
+								token={token}
+								scene={scene}
+								rect={getAreaTokenRect(token.position, token.area)}
+							>
+								<div className="size-full rounded border-2 border-blue-500 bg-blue-500/25" />
+							</TokenElement>
+						)}
+					</React.Fragment>
+				))}
+		</CanvasMapContainer>
+	)
+}
+
+function CanvasMapContainer({
 	scene,
-	controller,
-}: {
-	scene: Doc<"scenes">
-	controller: CanvasMapController
-}) {
+	children,
+}: { scene: Doc<"scenes">; children: React.ReactNode }) {
+	const controller = useCanvasMapController()
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
 	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useMutation(api.scenes.tokens.update)
 
+	async function handleDrop(event: React.DragEvent<HTMLDivElement>) {
+		try {
+			event.preventDefault()
+
+			const action = canvasMapDropDataSchema.parse(
+				JSON.parse(event.dataTransfer.getData("text/plain")),
+			)
+
+			const canvasRect = event.currentTarget.getBoundingClientRect()
+
+			const position = Vector.from(event.clientX, event.clientY)
+				.minus(canvasRect.left, canvasRect.top)
+				.minus(controller.camera.position)
+				.dividedBy(controller.camera.scale).rounded
+
+			const existingToken = tokens?.find((it) => {
+				if (action.characterId) {
+					return it.characterId === action.characterId
+				}
+				if (action.tokenKey) {
+					return it.key === action.tokenKey
+				}
+				return false
+			})
+
+			if (existingToken) {
+				await updateToken({
+					key: existingToken.key,
+					sceneId: scene._id,
+					characterId: action.characterId,
+					position: position.xy,
+				})
+			} else {
+				await addToken({
+					characterId: action.characterId,
+					sceneId: scene._id,
+					position: position.xy,
+					visible: false,
+				})
+			}
+		} catch (error) {
+			alert("Failed to update token, try again")
+			console.error(error)
+		}
+	}
+
+	return (
+		<div
+			{...controller.containerProps}
+			className="relative size-full"
+			onContextMenu={(event) => {
+				event.preventDefault()
+			}}
+			onDragOver={(event) => {
+				event.preventDefault()
+				event.dataTransfer.dropEffect = "move"
+			}}
+			onDrop={handleDrop}
+		>
+			{children}
+		</div>
+	)
+}
+
+function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 	const canvasRef = React.useRef<HTMLCanvasElement>(null)
-	const backgroundImage = useImage(scene?.background && getApiImageUrl(scene.background))
-	const { camera } = controller
+	const backgroundImage = useImage(scene.background && getApiImageUrl(scene.background))
+	const { camera, ...controller } = useCanvasMapController()
 
 	React.useLayoutEffect(() => {
 		draw()
@@ -129,148 +248,28 @@ export function CanvasMap({
 		})
 	}
 
-	async function handleDrop(event: React.DragEvent<HTMLDivElement>) {
-		try {
-			event.preventDefault()
-
-			const action = canvasMapDropDataSchema.parse(
-				JSON.parse(event.dataTransfer.getData("text/plain")),
-			)
-
-			const canvasRect = event.currentTarget.getBoundingClientRect()
-
-			const position = Vector.from(event.clientX, event.clientY)
-				.minus(canvasRect.left, canvasRect.top)
-				.minus(camera.position)
-				.dividedBy(camera.scale).rounded
-
-			const existingToken = tokens?.find((it) => {
-				if (action.characterId) {
-					return it.characterId === action.characterId
-				}
-				if (action.tokenKey) {
-					return it.key === action.tokenKey
-				}
-				return false
-			})
-
-			if (existingToken) {
-				await updateToken({
-					key: existingToken.key,
-					sceneId: scene._id,
-					characterId: action.characterId,
-					position: position.xy,
-				})
-			} else {
-				await addToken({
-					characterId: action.characterId,
-					sceneId: scene._id,
-					position: position.xy,
-					visible: false,
-				})
-			}
-		} catch (error) {
-			alert("Failed to update token, try again")
-			console.error(error)
-		}
+	function isolateDraws(context: CanvasRenderingContext2D, fn: () => void) {
+		context.save()
+		fn()
+		context.restore()
 	}
 
-	function gridSizeToPixels(...input: VectorInput) {
-		return Vector.from(...input).times(scene.cellSize * camera.scale)
-	}
-
-	function getTokenAreaRect(
-		position: { x: number; y: number },
-		area: { width: number; height: number },
-	): Rect {
-		const base = new Rect(Vector.from(position), Vector.fromSize(area))
-		return Rect.fromCorners(
-			base.topLeft.floorTo(scene.cellSize),
-			base.bottomRight.ceilingTo(scene.cellSize),
-		)
-	}
-
-	return (
-		<div
-			{...controller.containerProps}
-			className="relative size-full"
-			onContextMenu={(event) => {
-				event.preventDefault()
-			}}
-			onDragOver={(event) => {
-				event.preventDefault()
-				event.dataTransfer.dropEffect = "move"
-			}}
-			onDrop={handleDrop}
-		>
-			<canvas className="absolute inset-0 size-full" ref={canvasRef} />
-			{tokens
-				?.sort((a, b) => {
-					const rankA = a.character ? 1 : 0
-					const rankB = b.character ? 1 : 0
-					return rankA - rankB
-				})
-				.map((token) => {
-					return (
-						<React.Fragment key={token.key}>
-							{token.character && (
-								<TokenElement
-									token={token}
-									scene={scene}
-									controller={controller}
-									rect={
-										new Rect(
-											Vector.from(token.position).roundedTo(scene.cellSize),
-											Vector.from(scene.cellSize),
-										)
-									}
-								>
-									<div style={gridSizeToPixels(1).toObject("width", "height")}>
-										<UploadedImage
-											id={token.character.imageId}
-											emptyIcon={<Lucide.Ghost />}
-											className="size-full"
-										/>
-									</div>
-								</TokenElement>
-							)}
-							{token.area && (
-								<TokenElement
-									token={token}
-									scene={scene}
-									controller={controller}
-									rect={getTokenAreaRect(token.position, token.area)}
-								>
-									<div className="size-full rounded border-2 border-blue-500 bg-blue-500/25" />
-								</TokenElement>
-							)}
-						</React.Fragment>
-					)
-				})}
-		</div>
-	)
-}
-
-function isolateDraws(context: CanvasRenderingContext2D, fn: () => void) {
-	context.save()
-	fn()
-	context.restore()
+	return <canvas className="absolute inset-0 size-full" ref={canvasRef} />
 }
 
 function TokenElement({
 	token,
 	scene,
-	controller,
 	rect,
 	children,
 }: {
 	token: ApiToken
 	scene: Doc<"scenes">
-	controller: CanvasMapController
 	rect: Rect
 	children: React.ReactNode
 }) {
 	const room = useRoom()
+	const controller = useCanvasMapController()
 	const updateToken = useMutation(api.scenes.tokens.update)
 	const removeToken = useMutation(api.scenes.tokens.remove)
 
@@ -304,7 +303,7 @@ function TokenElement({
 
 	return (
 		<div
-			className="absolute left-0 top-0 rounded outline outline-2 outline-transparent data-[visible=false]:opacity-50 data-[selected=true]:outline-primary-700"
+			className="absolute left-0 top-0 rounded outline outline-2 outline-transparent data-[selected=true]:outline-primary-700 data-[visible=false]:brightness-75"
 			data-visible={token.visible}
 			data-token-key={token.key}
 			data-selected={isSelected}

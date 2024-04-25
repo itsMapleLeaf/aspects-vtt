@@ -8,7 +8,7 @@ import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { useMutationState } from "#app/common/convex.js"
@@ -24,7 +24,6 @@ import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomC
 import { SceneList } from "#app/features/scenes/SceneList.js"
 import { useScene } from "#app/features/scenes/context.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
-import type { ViewportController } from "#app/features/tokens/TokenMapViewport.tsx"
 import { AppHeader } from "#app/ui/AppHeader.js"
 import { Button } from "#app/ui/Button.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
@@ -40,118 +39,115 @@ import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "
 export default function RoomIndexRoute() {
 	const scene = useScene()
 	const currentUrl = useHref(useLocation())
-	const viewportRef = useRef<ViewportController>(null)
-	const mapController = useCanvasMapController()
-
-	const toolbar = useMemo(
-		() => (
-			<Toolbar>
-				<RoomOwnerOnly>
-					<Modal>
-						<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
-						<ModalPanel title="Scenes" className="max-w-screen-lg">
-							<ModalPanelContent className="p-3">
-								<SceneList />
-							</ModalPanelContent>
-						</ModalPanel>
-					</Modal>
-				</RoomOwnerOnly>
-
-				<ToolbarSeparator />
-
-				<ToolbarButton
-					text="Draw Area"
-					icon={<Lucide.SquareDashedMousePointer />}
-					active={mapController.isDrawInput}
-					onClick={mapController.toggleDrawInputMode}
-				/>
-
-				<ToolbarButton
-					text="Reset View"
-					icon={<Lucide.Compass />}
-					onClick={() => viewportRef.current?.resetView()}
-				/>
-
-				<ToolbarSeparator />
-
-				<ToolbarPopoverButton
-					id="combatInitiative"
-					text="Combat Initiative"
-					icon={<Lucide.ListStart />}
-				>
-					<div className="p-4">
-						<CombatInitiative />
-					</div>
-				</ToolbarPopoverButton>
-
-				<ToolbarPopoverButton id="generalSkills" text="General Skills" icon={<Lucide.Hammer />}>
-					<div className="p-4">
-						<GeneralSkillsList />
-					</div>
-				</ToolbarPopoverButton>
-
-				<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
-					<div className="p-4">
-						<CombatDetails />
-					</div>
-				</ToolbarPopoverButton>
-
-				<ToolbarPopoverButton
-					id="criticalInjuries"
-					text="Critical Injuries"
-					icon={<Lucide.HeartCrack />}
-				>
-					<div className="p-4">
-						<CriticalInjuryDetails />
-					</div>
-				</ToolbarPopoverButton>
-
-				<ToolbarSeparator />
-
-				<RoomOwnerOnly>
-					<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Settings />}>
-						<RoomSettingsForm />
-					</ToolbarPopoverButton>
-				</RoomOwnerOnly>
-			</Toolbar>
-		),
-		[mapController.isDrawInput, mapController.toggleDrawInputMode],
-	)
-
 	return (
 		<>
 			<JoinRoomEffect />
 
-			<div className="fixed inset-0 -z-10">
-				{scene && <CanvasMap scene={scene} controller={mapController} />}
-			</div>
+			{scene && (
+				<div className="fixed inset-0 -z-10">
+					<CanvasMap scene={scene} />
+				</div>
+			)}
 
 			<div
 				className={translucentPanel(
 					"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
 				)}
 			>
-				<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={toolbar} />
+				<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
 			</div>
 
 			<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
 				{scene?.name}
 			</h2>
 
-			{useMemo(
-				() => (
-					<CharacterListPanel />
-				),
-				[],
-			)}
-			{useMemo(
-				() => (
-					<MessagesPanel />
-				),
-				[],
-			)}
+			<CharacterListPanel />
+			<MessagesPanel />
 			<CombatTurnBanner />
 		</>
+	)
+}
+
+function RoomToolbar() {
+	return (
+		<Toolbar>
+			<RoomOwnerOnly>
+				<Modal>
+					<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
+					<ModalPanel title="Scenes" className="max-w-screen-lg">
+						<ModalPanelContent className="p-3">
+							<SceneList />
+						</ModalPanelContent>
+					</ModalPanel>
+				</Modal>
+			</RoomOwnerOnly>
+
+			<ToolbarSeparator />
+
+			<AreaToolButton />
+
+			<ToolbarButton
+				text="Reset View"
+				icon={<Lucide.Compass />}
+				onClick={() => {
+					// todo
+				}}
+			/>
+
+			<ToolbarSeparator />
+
+			<ToolbarPopoverButton
+				id="combatInitiative"
+				text="Combat Initiative"
+				icon={<Lucide.ListStart />}
+			>
+				<div className="p-4">
+					<CombatInitiative />
+				</div>
+			</ToolbarPopoverButton>
+
+			<ToolbarPopoverButton id="generalSkills" text="General Skills" icon={<Lucide.Hammer />}>
+				<div className="p-4">
+					<GeneralSkillsList />
+				</div>
+			</ToolbarPopoverButton>
+
+			<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
+				<div className="p-4">
+					<CombatDetails />
+				</div>
+			</ToolbarPopoverButton>
+
+			<ToolbarPopoverButton
+				id="criticalInjuries"
+				text="Critical Injuries"
+				icon={<Lucide.HeartCrack />}
+			>
+				<div className="p-4">
+					<CriticalInjuryDetails />
+				</div>
+			</ToolbarPopoverButton>
+
+			<ToolbarSeparator />
+
+			<RoomOwnerOnly>
+				<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Settings />}>
+					<RoomSettingsForm />
+				</ToolbarPopoverButton>
+			</RoomOwnerOnly>
+		</Toolbar>
+	)
+}
+
+function AreaToolButton() {
+	const mapController = useCanvasMapController()
+	return (
+		<ToolbarButton
+			text="Draw Area"
+			icon={<Lucide.SquareDashedMousePointer />}
+			active={mapController.isDrawInput}
+			onClick={mapController.toggleDrawInputMode}
+		/>
 	)
 }
 
