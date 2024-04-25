@@ -3,6 +3,7 @@ import { Iterator } from "iterator-helpers-polyfill"
 import { useState } from "react"
 import * as React from "react"
 import { Rect } from "#app/common/Rect.js"
+import { applyOptimisticQueryUpdates } from "#app/common/convex.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
 import { api } from "#convex/_generated/api.js"
@@ -20,8 +21,8 @@ type TokenMenu = {
 export type CanvasMapController = ReturnType<typeof useCanvasMapController>
 
 const MouseButtonLeft = 0
-const MouseButtonRight = 2
 const MouseButtonMiddle = 1
+const MouseButtonRight = 2
 
 export function useCanvasMapController() {
 	const scene = useScene()
@@ -47,7 +48,11 @@ export function useCanvasMapController() {
 	})()
 
 	const addToken = useMutation(api.scenes.tokens.add)
-	const updateToken = useMutation(api.scenes.tokens.update)
+	const updateToken = useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
+		applyOptimisticQueryUpdates(store, api.scenes.tokens.list, (current) =>
+			current.map((it) => (it.key === args.key ? { ...it, ...args } : it)),
+		)
+	})
 
 	const inputModeHandlers = {
 		select: {
@@ -89,9 +94,9 @@ export function useCanvasMapController() {
 				updateToken({
 					key,
 					sceneId: scene._id,
-					position: Vector.from(existing?.position ?? Vector.zero).plus(
-						tokenMovement.dividedBy(camera.scale),
-					).xy,
+					position: Vector.from(existing?.position ?? Vector.zero)
+						.plus(tokenMovement.dividedBy(camera.scale))
+						.roundedTo(scene.cellSize).xy,
 				})
 			}
 			setTokenMovement(undefined)
@@ -101,8 +106,8 @@ export function useCanvasMapController() {
 	useWindowEvent("pointerup", async (event) => {
 		if (inputMode === "draw" && event.button === MouseButtonLeft && previewArea && scene) {
 			const worldRect = Rect.fromCorners(
-				camera.viewportToWorld(previewArea.topLeft),
-				camera.viewportToWorld(previewArea.bottomRight),
+				camera.viewportToWorld(previewArea.topLeft).floorTo(scene.cellSize),
+				camera.viewportToWorld(previewArea.bottomRight).ceilingTo(scene.cellSize),
 			)
 			addToken({
 				sceneId: scene._id,
