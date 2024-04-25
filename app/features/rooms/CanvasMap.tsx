@@ -7,7 +7,8 @@ import { expect } from "#app/common/expect.js"
 import { mod } from "#app/common/math.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.js"
-import { ContextMenu, type ContextMenuOption } from "#app/ui/ContextMenu.js"
+import type { ContextMenuOption } from "#app/ui/ContextMenu.js"
+import { Menu, MenuItem, MenuPanel } from "#app/ui/Menu.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Doc, Id } from "#convex/_generated/dataModel.js"
 import type { Branded } from "#convex/helpers.js"
@@ -79,6 +80,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 						)}
 					</React.Fragment>
 				))}
+			<TokenMenu scene={scene} />
 		</CanvasMapContainer>
 	)
 }
@@ -313,17 +315,53 @@ function TokenElement({
 				height: transformed.height,
 			}}
 		>
-			<ContextMenu
-				key={token.key}
-				disabled={!room.isOwner}
-				options={menuOptions}
-				className="size-full"
-			>
-				{children}
-				{token.visible ? null : (
-					<Lucide.EyeOff className="pointer-events-none absolute inset-0 m-auto size-1/2 max-h-32 max-w-32" />
-				)}
-			</ContextMenu>
+			{children}
+			{token.visible ? null : (
+				<Lucide.EyeOff className="pointer-events-none absolute inset-0 m-auto size-1/2 max-h-32 max-w-32" />
+			)}
 		</div>
+	)
+}
+
+function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
+	const controller = useCanvasMapController()
+	const { tokenMenu } = controller
+	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
+	const token = tokenMenu && tokens?.find((it) => it.key === tokenMenu.tokenKey)
+	const updateToken = useMutation(api.scenes.tokens.update)
+	const removeToken = useMutation(api.scenes.tokens.remove)
+
+	if (!controller.tokenMenu || !token) {
+		return null
+	}
+
+	return (
+		<Menu
+			open
+			setOpen={(open) => {
+				if (open === false) controller.closeTokenMenu()
+			}}
+		>
+			<MenuPanel modal getAnchorRect={() => tokenMenu.screenPosition}>
+				<MenuItem
+					text={token.visible ? "Hide" : "Show"}
+					icon={token.visible ? <Lucide.EyeOff /> : <Lucide.Eye />}
+					onClick={() => {
+						return updateToken({
+							key: token.key,
+							sceneId: scene._id,
+							visible: !token.visible,
+						})
+					}}
+				/>
+				<MenuItem
+					text="Remove"
+					icon={<Lucide.X />}
+					onClick={() => {
+						return removeToken({ tokenKey: token.key, sceneId: scene._id })
+					}}
+				/>
+			</MenuPanel>
+		</Menu>
 	)
 }

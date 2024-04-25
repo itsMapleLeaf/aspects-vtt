@@ -15,8 +15,8 @@ import { Camera } from "./Camera.tsx"
 type InputMode = "select" | "draw"
 
 type TokenMenu = {
-	position: Vector
 	tokenKey: Branded<"token">
+	screenPosition: Vector
 }
 
 export type CanvasMapController = ReturnType<typeof useCanvasMapControllerProvider>
@@ -27,6 +27,7 @@ const MouseButtonRight = 2
 
 function useCanvasMapControllerProvider() {
 	const scene = useScene()
+	const pointer = usePointerPosition()
 
 	const [inputMode, setInputMode] = useState<InputMode>("select")
 	const [camera, setCamera] = useState(new Camera())
@@ -36,9 +37,9 @@ function useCanvasMapControllerProvider() {
 	)
 	const [tokenDragStart, setTokenDragStart] = useState<Vector>()
 	const [tokenDragEnd, setTokenDragEnd] = useState<Vector>()
-	const pointer = usePointerPosition()
-
 	const [previewAreaStart, setPreviewAreaStart] = useState<Vector>()
+	const [tokenMenu, setTokenMenu] = useState<TokenMenu>()
+	const [draggingViewport, setDraggingViewport] = useState<"init" | "dragging">()
 
 	const previewArea = (() => {
 		if (inputMode === "draw" && previewAreaStart) {
@@ -60,14 +61,12 @@ function useCanvasMapControllerProvider() {
 		select: {
 			onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
 				if (event.button === MouseButtonLeft) {
-					const tokenKey = Iterator.from(document.elementsFromPoint(event.clientX, event.clientY))
-						.filter((it) => it instanceof HTMLElement)
-						.map((it) => it.dataset.tokenKey)
-						.find((it) => it != null)
-
+					const tokenKey = findTokenElementsAtPoint(vectorFromEventClientPosition(event))
+						.take(1)
+						.toArray()[0]
 					if (tokenKey) {
 						setSelectedTokens(new Set([tokenKey as Branded<"token">]))
-						setTokenDragStart(Vector.from(event.clientX, event.clientY))
+						setTokenDragStart(vectorFromEventClientPosition(event))
 					} else {
 						setSelectedTokens(new Set([]))
 					}
@@ -75,7 +74,7 @@ function useCanvasMapControllerProvider() {
 			},
 			onPointerMove: (event: PointerEvent) => {
 				if (tokenDragStart) {
-					setTokenDragEnd(Vector.from(event.clientX, event.clientY))
+					setTokenDragEnd(vectorFromEventClientPosition(event))
 				}
 			},
 			onPointerUp: (event: PointerEvent) => {
@@ -91,6 +90,21 @@ function useCanvasMapControllerProvider() {
 						})
 					}
 				}
+
+				if (event.button === MouseButtonRight) {
+					const cursor = vectorFromEventClientPosition(event)
+					const tokenKey = findTokenElementsAtPoint(cursor).take(1).toArray()[0]
+					if (tokenKey) {
+						// run after other pointer up events which cause this to close
+						setTimeout(() => {
+							setTokenMenu({
+								tokenKey,
+								screenPosition: cursor,
+							})
+						})
+					}
+				}
+
 				setTokenDragStart(undefined)
 				setTokenDragEnd(undefined)
 			},
@@ -128,11 +142,30 @@ function useCanvasMapControllerProvider() {
 		},
 	}
 
+	function onPointerDown(event: React.PointerEvent<HTMLElement>) {
+		if (event.button === MouseButtonRight) {
+			setDraggingViewport("init")
+			return
+		}
+
+		inputModeHandlers[inputMode].onPointerDown(event)
+	}
+
 	useWindowEvent("pointermove", (event) => {
+		if (draggingViewport) {
+			setDraggingViewport("dragging")
+			setCamera((camera) => camera.movedBy(event.movementX, event.movementY))
+			return
+		}
+
 		inputModeHandlers[inputMode].onPointerMove(event)
 	})
 
 	useWindowEvent("pointerup", (event) => {
+		setDraggingViewport(undefined)
+		if (event.button === MouseButtonRight && draggingViewport === "dragging") {
+			return
+		}
 		inputModeHandlers[inputMode].onPointerUp(event)
 	})
 
@@ -140,13 +173,15 @@ function useCanvasMapControllerProvider() {
 		setInputMode((mode) => (mode === "draw" ? "select" : "draw"))
 	}, [])
 
-	function onPointerDown(event: React.PointerEvent<HTMLElement>) {
-		const captured = captureDrag(event, MouseButtonRight, (event) => {
-			setCamera((camera) => camera.movedBy(event.movementX, event.movementY))
-		})
-		if (captured) return
+	function findTokenElementsAtPoint(point: Vector) {
+		return Iterator.from(document.elementsFromPoint(point.x, point.y))
+			.filter((it) => it instanceof HTMLElement)
+			.map((it) => it.dataset.tokenKey)
+			.filter((it): it is Branded<"token"> => it != null)
+	}
 
-		inputModeHandlers[inputMode].onPointerDown(event)
+	function vectorFromEventClientPosition(event: { clientX: number; clientY: number }) {
+		return Vector.from(event.clientX, event.clientY)
 	}
 
 	function onWheel(event: React.WheelEvent<HTMLDivElement>) {
@@ -170,6 +205,10 @@ function useCanvasMapControllerProvider() {
 		previewArea,
 		selectedTokens,
 		tokenMovement: tokenDragEnd?.minus(tokenDragStart ?? tokenDragEnd),
+		tokenMenu,
+		closeTokenMenu() {
+			setTokenMenu(undefined)
+		},
 		containerProps: {
 			ref: containerRef,
 			onPointerDown,
@@ -186,48 +225,6 @@ function usePointerPosition() {
 	})
 
 	return position
-}
-
-function captureDrag(
-	event: { button: number; preventDefault(): void },
-	button: number,
-	handleMove: (event: PointerEvent) => void,
-	onFinish?: () => void,
-) {
-	if (event.button !== button) {
-		return false
-	}
-
-	event.preventDefault()
-
-	const handleContextMenu = (event: Event) => {
-		event.preventDefault()
-	}
-
-	const handleUp = (event: PointerEvent | FocusEvent) => {
-		const isUp = event instanceof FocusEvent || event.button === button
-		if (!isUp) return
-
-		event.preventDefault()
-		onFinish?.()
-
-		// delay to allow context menu handler to run
-		setTimeout(() => {
-			document.removeEventListener("pointermove", handleMove)
-			document.removeEventListener("pointerup", handleUp)
-			document.removeEventListener("pointercancel", handleUp)
-			document.removeEventListener("blur", handleUp)
-			document.removeEventListener("contextmenu", handleContextMenu)
-		})
-	}
-
-	document.addEventListener("pointermove", handleMove)
-	document.addEventListener("pointerup", handleUp)
-	document.addEventListener("pointercancel", handleUp)
-	document.addEventListener("blur", handleUp)
-	document.addEventListener("contextmenu", handleContextMenu)
-
-	return true
 }
 
 const CanvasMapControllerContext = createNonEmptyContext<CanvasMapController>()
