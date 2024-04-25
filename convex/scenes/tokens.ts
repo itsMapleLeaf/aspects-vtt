@@ -69,10 +69,7 @@ export const add = mutation({
 		}
 
 		return await ctx.db.patch(sceneId, {
-			tokens: [
-				...(scene.tokens ?? []),
-				{ ...args, key: crypto.randomUUID() as Branded<"token">, visible: false },
-			],
+			tokens: [...(scene.tokens ?? []), { ...args, key: crypto.randomUUID() as Branded<"token"> }],
 		})
 	},
 })

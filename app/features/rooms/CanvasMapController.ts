@@ -33,9 +33,12 @@ export function useCanvasMapController() {
 	const [previewAreaStart, setPreviewAreaStart] = useState<Vector>()
 
 	const previewArea = (() => {
-		if (inputMode !== "draw") return
-		if (!previewAreaStart) return
-		return Rect.fromCorners(previewAreaStart, pointer)
+		if (inputMode === "draw" && previewAreaStart) {
+			return Rect.fromCorners(previewAreaStart, pointer)
+		}
+		if (inputMode === "draw" && !previewAreaStart && scene) {
+			return new Rect(pointer, Vector.from(1))
+		}
 	})()
 
 	const addToken = useMutation(api.scenes.tokens.add)
@@ -59,8 +62,8 @@ export function useCanvasMapController() {
 		},
 	}
 
-	useWindowEvent("pointerup", async () => {
-		if (inputMode === "draw" && previewArea && scene) {
+	useWindowEvent("pointerup", async (event) => {
+		if (inputMode === "draw" && event.button === MouseButtonLeft && previewArea && scene) {
 			const worldRect = Rect.fromCorners(
 				camera.viewportToWorld(previewArea.topLeft),
 				camera.viewportToWorld(previewArea.bottomRight),

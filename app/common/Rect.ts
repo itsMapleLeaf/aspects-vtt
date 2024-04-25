@@ -1,4 +1,4 @@
-import { Vector } from "./vector.ts"
+import { Vector, type VectorInput } from "./vector.ts"
 
 export class Rect {
 	readonly position: Vector
@@ -60,5 +60,28 @@ export class Rect {
 	get tuple() {
 		const { x, y, width, height } = this
 		return [x, y, width, height] as const
+	}
+
+	withPosition(...position: VectorInput) {
+		return new Rect(Vector.from(...position), this.size)
+	}
+
+	withSize(...size: VectorInput) {
+		return new Rect(this.position, Vector.from(...size))
+	}
+
+	translated(position: Vector): Rect {
+		return new Rect(this.position.plus(position), this.size)
+	}
+
+	scaledBy(amount: number): Rect {
+		return new Rect(this.position, this.size.times(amount))
+	}
+
+	withMinimumSize(...size: VectorInput): Rect {
+		const sizeVector = Vector.from(...size)
+		return this.withSize(
+			Vector.from(Math.max(sizeVector.x, this.size.x), Math.max(sizeVector.y, this.size.y)),
+		)
 	}
 }

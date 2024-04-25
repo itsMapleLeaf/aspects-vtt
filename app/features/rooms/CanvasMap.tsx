@@ -99,21 +99,20 @@ export function CanvasMap({
 		}
 
 		if (controller.previewArea) {
-			const { previewArea } = controller
-			drawRect(context, fitAreaToGrid(previewArea))
+			drawRect(
+				context,
+				Rect.fromCorners(
+					controller.previewArea.topLeft
+						.minus(camera.position)
+						.floorTo(cellSize)
+						.plus(camera.position),
+					controller.previewArea.bottomRight
+						.minus(camera.position)
+						.ceilingTo(cellSize)
+						.plus(camera.position),
+				),
+			)
 		}
-	}
-
-	function fitAreaToGrid(previewArea: Rect): Rect {
-		const cellSize = scene.cellSize * camera.scale
-		return Rect.fromCorners(
-			previewArea.topLeft
-				.minus(cellSize / 2)
-				.minus(camera.position)
-				.roundedTo(cellSize)
-				.plus(camera.position),
-			previewArea.bottomRight.minus(camera.position).ceilingTo(cellSize).plus(camera.position),
-		)
 	}
 
 	function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
@@ -181,6 +180,17 @@ export function CanvasMap({
 		return Vector.from(...input).times(scene.cellSize * camera.scale)
 	}
 
+	function getTokenAreaRect(
+		position: { x: number; y: number },
+		area: { width: number; height: number },
+	): Rect {
+		const base = new Rect(Vector.from(position), Vector.fromSize(area))
+		return Rect.fromCorners(
+			base.topLeft.floorTo(scene.cellSize),
+			base.bottomRight.ceilingTo(scene.cellSize),
+		)
+	}
+
 	return (
 		<div
 			{...controller.containerProps}
@@ -195,28 +205,43 @@ export function CanvasMap({
 			onDrop={handleDrop}
 		>
 			<canvas className="absolute inset-0 size-full" ref={canvasRef} />
-			{tokens?.map((token) => (
-				<TokenElement key={token.key} token={token} scene={scene} camera={camera}>
-					{token.character && (
-						<div style={gridSizeToPixels(1).toObject("width", "height")}>
-							<UploadedImage
-								id={token.character.imageId}
-								emptyIcon={<Lucide.Ghost />}
-								className="size-full"
-							/>
-						</div>
-					)}
-					{token.area && (
-						<div
-							className="rounded border-2 border-blue-500 bg-blue-500/25"
-							style={new Rect(
-								Vector.from(token.position).roundedTo(scene.cellSize),
-								Vector.fromSize(token.area).ceilingTo(scene.cellSize).times(camera.scale),
-							).size.toObject("width", "height")}
-						/>
-					)}
-				</TokenElement>
-			))}
+			{tokens?.map((token) => {
+				return (
+					<React.Fragment key={token.key}>
+						{token.character && (
+							<TokenElement
+								token={token}
+								scene={scene}
+								camera={camera}
+								rect={
+									new Rect(
+										Vector.from(token.position).floorTo(scene.cellSize),
+										Vector.from(scene.cellSize),
+									)
+								}
+							>
+								<div style={gridSizeToPixels(1).toObject("width", "height")}>
+									<UploadedImage
+										id={token.character.imageId}
+										emptyIcon={<Lucide.Ghost />}
+										className="size-full"
+									/>
+								</div>
+							</TokenElement>
+						)}
+						{token.area && (
+							<TokenElement
+								token={token}
+								scene={scene}
+								camera={camera}
+								rect={getTokenAreaRect(token.position, token.area)}
+							>
+								<div className="size-full rounded border-2 border-blue-500 bg-blue-500/25" />
+							</TokenElement>
+						)}
+					</React.Fragment>
+				)
+			})}
 		</div>
 	)
 }
@@ -231,21 +256,22 @@ function TokenElement({
 	token,
 	scene,
 	camera,
+	rect,
 	children,
 }: {
 	token: ApiToken
 	scene: Doc<"scenes">
 	camera: Camera
+	rect: Rect
 	children: React.ReactNode
 }) {
 	const room = useRoom()
 	const updateToken = useMutation(api.scenes.tokens.update)
 	const removeToken = useMutation(api.scenes.tokens.remove)
 
-	const translation = Vector.from(token.position)
-		.roundedTo(scene.cellSize)
-		.times(camera.scale)
-		.plus(camera.position)
+	const transformed = rect
+		.withPosition(rect.position.times(camera.scale).plus(camera.position))
+		.scaledBy(camera.scale)
 
 	const menuOptions: ContextMenuOption[] = [
 		{
@@ -286,10 +312,24 @@ function TokenElement({
 		<div
 			className="absolute left-0 top-0 data-[visible=false]:opacity-50"
 			data-visible={token.visible}
-			style={{ translate: `${translation.x}px ${translation.y}px` }}
+			style={{
+				translate: `${transformed.x}px ${transformed.y}px`,
+				width: transformed.width,
+				height: transformed.height,
+			}}
 		>
-			<ContextMenu key={token.key} disabled={!room.isOwner} options={menuOptions}>
-				<button type="button" className="relative" draggable onDragStart={handleDragStart}>
+			<ContextMenu
+				key={token.key}
+				disabled={!room.isOwner}
+				options={menuOptions}
+				className="size-full"
+			>
+				<button
+					type="button"
+					className="relative size-full"
+					draggable
+					onDragStart={handleDragStart}
+				>
 					{children}
 					{token.visible ? null : (
 						<Lucide.EyeOff className="pointer-events-none absolute inset-0 m-auto size-1/2 max-h-32 max-w-32" />
