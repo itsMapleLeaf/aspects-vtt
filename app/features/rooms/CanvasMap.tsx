@@ -1,11 +1,12 @@
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import * as React from "react"
+import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { Rect } from "#app/common/Rect.js"
 import { hasItems } from "#app/common/collection.js"
 import { expect } from "#app/common/expect.js"
-import { mod } from "#app/common/math.js"
+import { clamp, mod } from "#app/common/math.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.js"
 import { Menu, MenuItem, MenuPanel } from "#app/ui/Menu.tsx"
@@ -53,6 +54,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 	return (
 		<CanvasMapContainer scene={scene}>
 			<CanvasMapBackground scene={scene} />
+
 			{tokens
 				?.sort((a, b) => {
 					const rankA = a.character ? 1 : 0
@@ -62,27 +64,71 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 				.map((token) => (
 					<React.Fragment key={token.key}>
 						{token.character && (
-							<TokenElement token={token} scene={scene} rect={getCharacterTokenRect(token)}>
+							<MapElement token={token} rect={getCharacterTokenRect(token)}>
 								<UploadedImage
 									id={token.character.imageId}
 									emptyIcon={<Lucide.Ghost />}
 									className="size-full"
 								/>
-							</TokenElement>
+							</MapElement>
 						)}
 						{token.area && (
-							<TokenElement
-								token={token}
-								scene={scene}
-								rect={getAreaTokenRect(token.position, token.area)}
-							>
+							<MapElement token={token} rect={getAreaTokenRect(token.position, token.area)}>
 								<div className="size-full rounded border-2 border-blue-500 bg-blue-500/25" />
-							</TokenElement>
+							</MapElement>
 						)}
 					</React.Fragment>
 				))}
+
+			{Iterator.from(tokens ?? [])
+				.map((token) => token.character && { token, character: token.character })
+				.filter((it) => it != null)
+				.map(({ token, character }) => (
+					<MapElement key={token.key} token={token} rect={getCharacterTokenRect(token)}>
+						<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
+							<Meter
+								value={character.damage / character.damageThreshold}
+								className={{
+									base: "text-green-400",
+									warning: "text-yellow-400",
+									danger: "text-red-400",
+								}}
+							/>
+							<Meter
+								value={character.fatigue / character.fatigueThreshold}
+								className={{
+									base: "text-sky-400",
+									warning: "text-indigo-400",
+									danger: "text-purple-400",
+								}}
+							/>
+						</div>
+					</MapElement>
+				))
+				.toArray()}
+
 			<TokenMenu scene={scene} />
 		</CanvasMapContainer>
+	)
+}
+
+function Meter({
+	value,
+	className,
+}: { value: number; className: { base: string; warning: string; danger: string } }) {
+	return value <= 0 ? null : (
+		<div
+			className={twMerge(
+				"h-2.5 w-16 rounded-sm border border-current shadow shadow-black/75 relative",
+				value < 0.5 ? className.base : value < 0.8 ? className.warning : className.danger,
+			)}
+		>
+			<div
+				className="absolute inset-0 origin-left bg-current"
+				style={{ scale: `${clamp(value, 0, 1)} 1` }}
+			/>
+			<div className="absolute inset-0 bg-current opacity-25" />
+		</div>
 	)
 }
 
@@ -265,14 +311,12 @@ function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 	return <canvas className="absolute inset-0 size-full" ref={canvasRef} />
 }
 
-function TokenElement({
+function MapElement({
 	token,
-	scene,
 	rect,
 	children,
 }: {
 	token: ApiToken
-	scene: Doc<"scenes">
 	rect: Rect
 	children: React.ReactNode
 }) {
