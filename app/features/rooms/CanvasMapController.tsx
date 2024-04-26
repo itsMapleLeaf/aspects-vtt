@@ -5,11 +5,13 @@ import * as React from "react"
 import { Rect } from "#app/common/Rect.js"
 import { createNonEmptyContext, useNonEmptyContext } from "#app/common/context.tsx"
 import { applyOptimisticQueryUpdates } from "#app/common/convex.js"
+import { expect } from "#app/common/expect.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
 import { api } from "#convex/_generated/api.js"
 import type { Branded } from "#convex/helpers.js"
 import { useScene } from "../scenes/context.tsx"
+import type { ApiScene } from "../scenes/types.ts"
 import { Camera } from "./Camera.tsx"
 
 type InputMode = "select" | "draw"
@@ -25,9 +27,8 @@ const MouseButtonLeft = 0
 const MouseButtonMiddle = 1
 const MouseButtonRight = 2
 
-function useCanvasMapControllerProvider() {
-	const scene = useScene()
-	const tokens = useQuery(api.scenes.tokens.list, scene ? { sceneId: scene._id } : "skip")
+function useCanvasMapControllerProvider(scene: ApiScene) {
+	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
 	const pointer = usePointerPosition()
 
 	const [inputMode, setInputMode] = useState<InputMode>("select")
@@ -41,6 +42,7 @@ function useCanvasMapControllerProvider() {
 	const [previewAreaStart, setPreviewAreaStart] = useState<Vector>()
 	const [tokenMenu, setTokenMenu] = useState<TokenMenu>()
 	const [draggingViewport, setDraggingViewport] = useState<"init" | "dragging">()
+	const [multiSelectStart, setMultiSelectStart] = useState<Vector>()
 
 	const selectedTokens = () =>
 		Iterator.from(tokens ?? []).filter((it) => selectedTokenIds.has(it.key))
@@ -54,10 +56,12 @@ function useCanvasMapControllerProvider() {
 		if (inputMode === "draw" && previewAreaStart) {
 			return Rect.fromCorners(previewAreaStart, pointer)
 		}
-		if (inputMode === "draw" && !previewAreaStart && scene) {
+		if (inputMode === "draw" && !previewAreaStart) {
 			return new Rect(pointer, Vector.from(1))
 		}
 	})()
+
+	const getMultiSelectArea = () => multiSelectStart && Rect.fromCorners(multiSelectStart, pointer)
 
 	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
@@ -70,14 +74,21 @@ function useCanvasMapControllerProvider() {
 		select: {
 			onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
 				if (event.button === MouseButtonLeft) {
-					const tokenKey = findTokenElementsAtPoint(vectorFromEventClientPosition(event))
-						.take(1)
-						.toArray()[0]
-					if (tokenKey) {
-						setSelectedTokenIds(new Set([tokenKey]))
-						setTokenDragStart(vectorFromEventClientPosition(event))
-					} else {
+					const cursorPosition = vectorFromEventClientPosition(event)
+					const tokenKey = findTokenElementsAtPoint(cursorPosition).take(1).toArray()[0]
+
+					if (!tokenKey) {
 						setSelectedTokenIds(new Set([]))
+						setMultiSelectStart(cursorPosition)
+					}
+
+					if (tokenKey && selectedTokenIds.has(tokenKey)) {
+						setTokenDragStart(cursorPosition)
+					}
+
+					if (tokenKey && !selectedTokenIds.has(tokenKey)) {
+						setSelectedTokenIds(new Set([tokenKey]))
+						setTokenDragStart(cursorPosition)
 					}
 				}
 			},
@@ -85,18 +96,37 @@ function useCanvasMapControllerProvider() {
 				if (tokenDragStart) {
 					setTokenDragEnd(vectorFromEventClientPosition(event))
 				}
+				const multiSelectArea = getMultiSelectArea()
+				if (multiSelectArea) {
+					const overlappingTokenKeys = Iterator.from(document.querySelectorAll("[data-token-key]"))
+						.filter((it) => it instanceof HTMLElement)
+						.filter((element) =>
+							Rect.from(element.getBoundingClientRect()).overlaps(multiSelectArea),
+						)
+						.map((element) =>
+							expect(element.dataset.tokenKey, "element.dataset.tokenKey is undefined"),
+						)
+						.map((it) => it as Branded<"token">)
+					setSelectedTokenIds(new Set(overlappingTokenKeys))
+				}
 			},
 			onPointerUp: (event: PointerEvent) => {
-				if (event.button === MouseButtonLeft && scene && tokenDragStart && tokenDragEnd) {
-					for (const key of selectedTokenIds) {
-						const existing = scene.tokens?.find((it) => it.key === key)
-						updateToken({
-							key,
-							sceneId: scene._id,
-							position: Vector.from(existing?.position ?? Vector.zero)
-								.plus(tokenDragEnd.minus(tokenDragStart).dividedBy(camera.scale))
-								.roundedTo(scene.cellSize).xy,
-						})
+				if (event.button === MouseButtonLeft) {
+					setTokenDragStart(undefined)
+					setTokenDragEnd(undefined)
+					setMultiSelectStart(undefined)
+
+					if (tokenDragStart && tokenDragEnd) {
+						for (const key of selectedTokenIds) {
+							const existing = scene.tokens?.find((it) => it.key === key)
+							updateToken({
+								key,
+								sceneId: scene._id,
+								position: Vector.from(existing?.position ?? Vector.zero)
+									.plus(tokenDragEnd.minus(tokenDragStart).dividedBy(camera.scale))
+									.roundedTo(scene.cellSize).xy,
+							})
+						}
 					}
 				}
 
@@ -114,9 +144,6 @@ function useCanvasMapControllerProvider() {
 						})
 					}
 				}
-
-				setTokenDragStart(undefined)
-				setTokenDragEnd(undefined)
 			},
 		},
 		draw: {
@@ -217,6 +244,7 @@ function useCanvasMapControllerProvider() {
 		selectedCharacters,
 		tokenMovement: tokenDragEnd?.minus(tokenDragStart ?? tokenDragEnd),
 		tokenMenu,
+		getMultiSelectArea,
 		closeTokenMenu() {
 			setTokenMenu(undefined)
 		},
@@ -241,10 +269,13 @@ function usePointerPosition() {
 const CanvasMapControllerContext = createNonEmptyContext<CanvasMapController>()
 
 export function CanvasMapControllerProvider({ children }: { children: React.ReactNode }) {
+	const scene = useScene()
 	return (
-		<CanvasMapControllerContext.Provider value={useCanvasMapControllerProvider()}>
-			{children}
-		</CanvasMapControllerContext.Provider>
+		scene && (
+			<CanvasMapControllerContext.Provider value={useCanvasMapControllerProvider(scene)}>
+				{children}
+			</CanvasMapControllerContext.Provider>
+		)
 	)
 }
 

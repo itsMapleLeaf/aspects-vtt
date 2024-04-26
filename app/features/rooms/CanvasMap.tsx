@@ -160,6 +160,7 @@ function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 	const canvasRef = React.useRef<HTMLCanvasElement>(null)
 	const backgroundImage = useImage(scene.background && getApiImageUrl(scene.background))
 	const { camera, ...controller } = useCanvasMapController()
+	const multiSelectArea = controller.getMultiSelectArea()
 
 	React.useLayoutEffect(() => {
 		draw()
@@ -216,6 +217,10 @@ function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 			})
 		}
 
+		if (multiSelectArea) {
+			drawRect(context, multiSelectArea)
+		}
+
 		if (controller.previewArea) {
 			drawRect(
 				context,
@@ -237,7 +242,7 @@ function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 		isolateDraws(context, () => {
 			context.fillStyle = "white"
 			context.strokeStyle = "white"
-			context.lineWidth = 4
+			context.lineWidth = 2
 			context.lineJoin = "round"
 
 			context.globalAlpha = 0.5
@@ -278,7 +283,7 @@ function TokenElement({
 
 	return (
 		<div
-			className="absolute left-0 top-0 rounded outline outline-2 outline-transparent data-[visible=false]:opacity-50 data-[selected=true]:outline-primary-700"
+			className="absolute left-0 top-0 select-none rounded outline outline-2 outline-transparent data-[visible=false]:opacity-50 data-[selected=true]:outline-primary-700"
 			data-visible={token.visible}
 			data-token-key={token.key}
 			data-selected={isSelected}
