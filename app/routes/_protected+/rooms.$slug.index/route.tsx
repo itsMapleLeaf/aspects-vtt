@@ -12,6 +12,7 @@ import * as Lucide from "lucide-react"
 import { type ComponentProps, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
+import { wrapContextApi } from "#app/common/context.js"
 import { useMutationState } from "#app/common/convex.js"
 import { useMutationAction } from "#app/common/convex.js"
 import { expect } from "#app/common/expect.js"
@@ -49,7 +50,7 @@ export default function RoomIndexRoute() {
 	const scene = useScene()
 	const currentUrl = useHref(useLocation())
 	return (
-		<>
+		<CharacterSelectionProvider>
 			<JoinRoomEffect />
 
 			{scene && (
@@ -73,7 +74,7 @@ export default function RoomIndexRoute() {
 			<CharacterListPanel />
 			<MessagesPanel />
 			<CombatTurnBanner />
-		</>
+		</CharacterSelectionProvider>
 	)
 }
 
@@ -160,16 +161,23 @@ function AreaToolButton() {
 	)
 }
 
+const [CharacterSelectionProvider, useCharacterSelection] = wrapContextApi(
+	function useCharacterSelectionProvider() {
+		const characters = useCharacters()
+		const [selected, setSelected] = useState<Id<"characters">>()
+		const selectedCharacter = characters.find((it) => it._id === selected)
+		const toggleSelected = (id: Id<"characters">) => {
+			setSelected((current) => (current === id ? undefined : id))
+		}
+		return { selectedCharacter, setSelected, toggleSelected }
+	},
+)
+
 function CharacterListPanel() {
 	const room = useRoom()
 	const characters = useCharacters()
-	const [selected, setSelected] = useState<Id<"characters">>()
-	const selectedCharacter = characters.find((it) => it._id === selected)
 	const ownedCharacters = new Set(room.isOwner ? [] : characters.filter((it) => it.isOwner))
-
-	const toggleSelected = (id: Id<"characters">) => {
-		setSelected((current) => (current === id ? undefined : id))
-	}
+	const selection = useCharacterSelection()
 
 	return (
 		<ToggleableSidebar name="Characters" side="left">
@@ -178,15 +186,12 @@ function CharacterListPanel() {
 					<ul className="flex h-full flex-col gap-3">
 						<RoomOwnerOnly>
 							<li>
-								<CreateCharacterButton afterCreate={setSelected} />
+								<CreateCharacterButton />
 							</li>
 						</RoomOwnerOnly>
 						{[...ownedCharacters].map((character) => (
 							<li key={character._id}>
-								<CharacterTile
-									character={character}
-									onClick={() => toggleSelected(character._id)}
-								/>
+								<CharacterTile character={character} />
 							</li>
 						))}
 						<li>
@@ -196,17 +201,14 @@ function CharacterListPanel() {
 							.filter((it) => !ownedCharacters.has(it))
 							.map((character) => (
 								<li key={character._id}>
-									<CharacterTile
-										character={character}
-										onClick={() => toggleSelected(character._id)}
-									/>
+									<CharacterTile character={character} />
 								</li>
 							))}
 					</ul>
 				</ScrollArea>
-				{selectedCharacter && (
+				{selection.selectedCharacter && (
 					<ScrollArea className={translucentPanel("p-3 h-full w-[350px]")}>
-						<CharacterForm character={selectedCharacter} />
+						<CharacterForm character={selection.selectedCharacter} />
 					</ScrollArea>
 				)}
 			</aside>
@@ -223,11 +225,17 @@ function CharacterTile({
 	const duplicateCharacter = useMutation(api.characters.duplicate)
 	const store = useMenuStore()
 	const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
+	const selection = useCharacterSelection()
 
 	const button = (
 		<button
 			type="button"
-			className="flex w-full flex-col items-stretch gap-2 opacity-75 transition-opacity hover:opacity-100"
+			className={twMerge(
+				"flex w-full flex-col items-stretch gap-2 transition-opacity",
+				selection.selectedCharacter?._id === character._id
+					? "text-primary-700"
+					: "opacity-75 hover:opacity-100",
+			)}
 			draggable
 			onDragStart={(event) => {
 				const image = expect(
@@ -249,6 +257,9 @@ function CharacterTile({
 				event.preventDefault()
 				setMenuPosition({ x: event.clientX, y: event.clientY })
 				store.show()
+			}}
+			onClick={() => {
+				selection.toggleSelected(character._id)
 			}}
 			{...props}
 		>
@@ -288,21 +299,18 @@ function CharacterTile({
 	)
 }
 
-function CreateCharacterButton({
-	afterCreate,
-}: {
-	afterCreate: (id: Id<"characters">) => void
-}) {
+function CreateCharacterButton() {
 	const room = useRoom()
 	const [createdId, submit, pending] = useMutationAction(api.characters.create)
+	const selection = useCharacterSelection()
 
-	const callAfterCreate = useEffectEvent((id: Id<"characters">) => {
-		afterCreate(id)
+	const handleCreated = useEffectEvent((id: Id<"characters">) => {
+		selection.setSelected(id)
 	})
 
 	useEffect(() => {
-		if (createdId) callAfterCreate(createdId)
-	}, [createdId, callAfterCreate])
+		if (createdId) handleCreated(createdId)
+	}, [createdId, handleCreated])
 
 	return (
 		<form action={() => submit({ roomId: room._id })}>
