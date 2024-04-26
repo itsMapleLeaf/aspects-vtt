@@ -8,7 +8,12 @@ import { UploadedImage } from "#app/features/images/UploadedImage.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
 import { TokenElement } from "#app/features/tokens/TokenElement.tsx"
 import { Button } from "#app/ui/Button.js"
-import { ContextMenu } from "#app/ui/ContextMenu.js"
+import {
+	ContextMenu,
+	ContextMenuItem,
+	ContextMenuPanel,
+	ContextMenuTrigger,
+} from "#app/ui/ContextMenu.js"
 import { FormActions, FormField, FormLayout, FormRow } from "#app/ui/Form.js"
 import {
 	Menu,
@@ -151,19 +156,17 @@ function CharacterContextMenu(props: { character: ApiCharacter; children?: React
 	return (
 		<Modal>
 			{(store) => (
-				<>
-					<ContextMenu
-						className="absolute inset-0 size-full"
-						options={[
-							{
-								label: "Contested roll...",
-								icon: <Lucide.Swords />,
-								onClick: () => store.show(),
-							},
-						]}
-					>
+				<ContextMenu>
+					<ContextMenuTrigger className="absolute inset-0 size-full">
 						{props.children}
-					</ContextMenu>
+					</ContextMenuTrigger>
+					<ContextMenuPanel>
+						<ContextMenuItem
+							icon={<Lucide.Swords />}
+							text="Contested roll..."
+							onClick={store.show}
+						/>
+					</ContextMenuPanel>
 					<ModalPanel
 						title={
 							<>
@@ -175,7 +178,7 @@ function CharacterContextMenu(props: { character: ApiCharacter; children?: React
 							<ContestedRollForm opponent={props.character} onRoll={() => store.hide()} />
 						</ModalPanelContent>
 					</ModalPanel>
-				</>
+				</ContextMenu>
 			)}
 		</Modal>
 	)
