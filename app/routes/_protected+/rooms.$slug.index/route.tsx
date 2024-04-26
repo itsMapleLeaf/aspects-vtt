@@ -2,6 +2,7 @@ import {
 	Disclosure,
 	DisclosureContent,
 	DisclosureProvider,
+	type DisclosureStore,
 	useDisclosureStore,
 	useMenuStore,
 } from "@ariakit/react"
@@ -9,7 +10,14 @@ import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type ComponentProps, useEffect, useState } from "react"
+import {
+	type ComponentProps,
+	type Ref,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { useMutationState } from "#app/common/convex.js"
@@ -169,9 +177,27 @@ function CharacterListPanel() {
 	const characters = useCharacters()
 	const ownedCharacters = new Set(room.isOwner ? [] : characters.filter((it) => it.isOwner))
 	const selection = useCharacterSelection()
+	const storeRef = useRef<DisclosureStore>(undefined)
+
+	useEffect(() => {
+		if (selection.selectedCharacter) {
+			storeRef.current?.show()
+		}
+	}, [selection.selectedCharacter])
 
 	return (
-		<ToggleableSidebar name="Characters" side="left">
+		<ToggleableSidebar
+			name="Characters"
+			side="left"
+			storeRef={storeRef}
+			onVisibleChange={(visible) => {
+				// just hide the character form if it's open
+				if (!visible && selection.selectedCharacter) {
+					selection.setSelected(undefined)
+					return false
+				}
+			}}
+		>
 			<aside className="flex h-full flex-row items-stretch gap-2">
 				<ScrollArea className={translucentPanel("h-full w-28 p-2")}>
 					<ul className="flex h-full flex-col gap-3">
@@ -257,7 +283,7 @@ function CharacterTile({
 			<div className={panel("overflow-clip aspect-square")} data-image>
 				<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />
 			</div>
-			<p className="text-pretty text-center text-sm/none">{character.name}</p>
+			<p className="text-pretty text-center text-sm/none">{character.displayName}</p>
 		</button>
 	)
 
@@ -434,17 +460,23 @@ function MessagesPanel() {
 function ToggleableSidebar({
 	name,
 	side,
+	storeRef,
 	children,
+	onVisibleChange,
 }: {
 	name: string
 	side: "left" | "right"
+	storeRef?: Ref<DisclosureStore | undefined>
 	children: React.ReactNode
+	onVisibleChange?: (visible: boolean) => boolean | undefined
 }) {
 	const [open, setOpen] = useLocalStorageState(`sidebar:${name}`, true, z.boolean().catch(true))
 	const store = useDisclosureStore({ open, setOpen })
 	const isOpen = store.useState("open")
-
 	const Icon = isOpen ? Lucide.SidebarClose : Lucide.SidebarOpen
+
+	useImperativeHandle(storeRef, () => store)
+
 	return (
 		<div
 			data-side={side}
@@ -454,7 +486,18 @@ function ToggleableSidebar({
 				<Button
 					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
 					className="shadow-md shadow-black/25"
-					element={<Disclosure title={isOpen ? `Hide ${name}` : `Show ${name}`} />}
+					element={
+						<Disclosure
+							title={isOpen ? `Hide ${name}` : `Show ${name}`}
+							onClick={(event) => {
+								event.preventDefault()
+								if (onVisibleChange?.(!isOpen) === false) {
+									return
+								}
+								setOpen(!isOpen)
+							}}
+						/>
+					}
 				/>
 				<DisclosureContent
 					className={twMerge(
