@@ -14,6 +14,7 @@ import { api } from "#convex/_generated/api.js"
 import { clientEnv } from "./env.ts"
 import { theme } from "./theme.ts"
 import { Loading } from "./ui/Loading.tsx"
+import { PromptProvider } from "./ui/Prompt.tsx"
 
 const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
 
@@ -34,7 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				{children}
+				<PromptProvider>{children}</PromptProvider>
 				<ScrollRestoration />
 				<Scripts />
 			</body>
