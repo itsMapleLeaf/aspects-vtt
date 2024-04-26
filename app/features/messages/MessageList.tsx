@@ -1,14 +1,23 @@
-import { type PaginatedQueryItem, usePaginatedQuery } from "convex/react"
+import { type PaginatedQueryItem, useMutation, usePaginatedQuery } from "convex/react"
 import { formatDistanceToNow } from "date-fns"
 import { HelpCircle } from "lucide-react"
+import * as Lucide from "lucide-react"
 import { Fragment } from "react"
 import { Virtuoso } from "react-virtuoso"
 import { chunk } from "#app/common/array.js"
+import {
+	ContextMenu,
+	ContextMenuItem,
+	ContextMenuPanel,
+	ContextMenuTrigger,
+} from "#app/ui/ContextMenu.js"
 import { Loading } from "#app/ui/Loading.tsx"
 import { Tooltip } from "#app/ui/Tooltip.old.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
+import type { ApiCharacter } from "../characters/types.ts"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
+import { useCanvasMapController } from "../rooms/CanvasMapController.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { tokenSelectedEvent } from "../tokens/events.ts"
 
@@ -28,30 +37,7 @@ export function MessageList() {
 			data={list.results}
 			itemContent={(_index, message) => (
 				<div className="pb-2 animate-in fade-in">
-					<div className={panel("flex flex-col gap-1.5 p-3")}>
-						{message.content && (
-							<p className="text-lg empty:hidden">
-								<MessageContent content={message.content} />
-							</p>
-						)}
-						{message.diceRoll && message.diceRoll.dice.length > 0 && (
-							<div className={panel("bg-primary-100/50 px-3 py-2")}>
-								<DiceRollSummary roll={message.diceRoll} />
-							</div>
-						)}
-						<div className="text-sm font-medium leading-tight tracking-wide">
-							{message.user?.character && (
-								<p className="text-primary-900">
-									{message.user.character.displayName} ({message.user.character.displayPronouns})
-								</p>
-							)}
-							<p className="flex gap-1 text-primary-600">
-								<span>{message.user?.name}</span>
-								<span className="first:hidden">•</span>
-								{formatDistanceToNow(new Date(message._creationTime), { addSuffix: true })}
-							</p>
-						</div>
-					</div>
+					<MessagePanel message={message} />
 				</div>
 			)}
 			defaultItemHeight={135}
@@ -65,6 +51,89 @@ export function MessageList() {
 					),
 			}}
 		/>
+	)
+}
+
+type ApiMessage = PaginatedQueryItem<typeof api.messages.list>
+
+function MessagePanel({ message }: { message: ApiMessage }) {
+	return (
+		<MessageMenu message={message}>
+			<div className={panel("flex flex-col gap-1.5 p-3")}>
+				{message.content && (
+					<p className="text-lg empty:hidden">
+						<MessageContent content={message.content} />
+					</p>
+				)}
+				{message.diceRoll && message.diceRoll.dice.length > 0 && (
+					<div className={panel("bg-primary-100/50 px-3 py-2")}>
+						<DiceRollSummary roll={message.diceRoll} />
+					</div>
+				)}
+				<div className="text-sm font-medium leading-tight tracking-wide">
+					{message.user?.character && (
+						<p className="text-primary-900">
+							{message.user.character.displayName} ({message.user.character.displayPronouns})
+						</p>
+					)}
+					<p className="flex gap-1 text-primary-600">
+						<span>{message.user?.name}</span>
+						<span className="first:hidden">•</span>
+						{formatDistanceToNow(new Date(message._creationTime), { addSuffix: true })}
+					</p>
+				</div>
+			</div>
+		</MessageMenu>
+	)
+}
+
+function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) {
+	const mapController = useCanvasMapController()
+	const updateCharacter = useMutation(api.characters.update)
+	const diceTotal = props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ?? 0
+
+	function updateCharacters(
+		getArgs: (character: ApiCharacter) => Partial<Parameters<typeof updateCharacter>[0]>,
+	) {
+		for (const character of mapController.selectedCharacters()) {
+			updateCharacter({ ...getArgs(character), id: character._id })
+		}
+	}
+
+	return (
+		<ContextMenu>
+			<ContextMenuTrigger>{props.children}</ContextMenuTrigger>
+			<ContextMenuPanel>
+				<ContextMenuItem
+					icon={<Lucide.Heart />}
+					text="Heal selected characters"
+					onClick={() => {
+						updateCharacters((it) => ({ damage: it.damage - diceTotal }))
+					}}
+				/>
+				<ContextMenuItem
+					icon={<Lucide.HeartCrack />}
+					text="Damage selected characters"
+					onClick={() => {
+						updateCharacters((it) => ({ damage: it.damage + diceTotal }))
+					}}
+				/>
+				<ContextMenuItem
+					icon={<Lucide.Zap />}
+					text="Refresh selected characters"
+					onClick={() => {
+						updateCharacters((it) => ({ fatigue: it.fatigue - diceTotal }))
+					}}
+				/>
+				<ContextMenuItem
+					icon={<Lucide.ZapOff />}
+					text="Exhaust selected characters"
+					onClick={() => {
+						updateCharacters((it) => ({ fatigue: it.fatigue + diceTotal }))
+					}}
+				/>
+			</ContextMenuPanel>
+		</ContextMenu>
 	)
 }
 

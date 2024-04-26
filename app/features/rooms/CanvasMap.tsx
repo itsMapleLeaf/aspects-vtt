@@ -7,7 +7,6 @@ import { expect } from "#app/common/expect.js"
 import { mod } from "#app/common/math.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.js"
-import type { ContextMenuOption } from "#app/ui/ContextMenu.js"
 import { Menu, MenuItem, MenuPanel } from "#app/ui/Menu.tsx"
 import { api } from "#convex/_generated/api.js"
 import type { Doc, Id } from "#convex/_generated/dataModel.js"
@@ -17,7 +16,6 @@ import { useImage } from "../../common/useImage.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useCanvasMapController } from "./CanvasMapController.tsx"
-import { useRoom } from "./roomContext.tsx"
 
 const canvasMapDropDataSchema = z.object({
 	tokenKey: z.custom<Branded<"token">>().optional(),
@@ -270,38 +268,13 @@ function TokenElement({
 	rect: Rect
 	children: React.ReactNode
 }) {
-	const room = useRoom()
 	const controller = useCanvasMapController()
-	const updateToken = useMutation(api.scenes.tokens.update)
-	const removeToken = useMutation(api.scenes.tokens.remove)
-
-	const isSelected = controller.selectedTokens.has(token.key)
+	const isSelected = controller.selectedTokens().some((it) => it.key === token.key)
 
 	const transformed = rect
 		.withPosition(rect.position.times(controller.camera.scale).plus(controller.camera.position))
 		.scaledBy(controller.camera.scale)
 		.translated((isSelected && controller.tokenMovement) || Vector.zero)
-
-	const menuOptions: ContextMenuOption[] = [
-		{
-			label: token.visible ? "Hide" : "Reveal",
-			icon: token.visible ? <Lucide.EyeOff /> : <Lucide.Eye />,
-			onClick() {
-				return updateToken({
-					key: token.key,
-					sceneId: scene._id,
-					visible: !token.visible,
-				})
-			},
-		},
-		{
-			label: "Remove",
-			icon: <Lucide.X />,
-			onClick() {
-				return removeToken({ tokenKey: token.key, sceneId: scene._id })
-			},
-		},
-	]
 
 	return (
 		<div

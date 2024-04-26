@@ -1,4 +1,4 @@
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import { useState } from "react"
 import * as React from "react"
@@ -27,12 +27,13 @@ const MouseButtonRight = 2
 
 function useCanvasMapControllerProvider() {
 	const scene = useScene()
+	const tokens = useQuery(api.scenes.tokens.list, scene ? { sceneId: scene._id } : "skip")
 	const pointer = usePointerPosition()
 
 	const [inputMode, setInputMode] = useState<InputMode>("select")
 	const [camera, setCamera] = useState(new Camera())
 	const [container, containerRef] = useState<HTMLElement | null>()
-	const [selectedTokens, setSelectedTokens] = useState<ReadonlySet<Branded<"token">>>(
+	const [selectedTokenIds, setSelectedTokenIds] = useState<ReadonlySet<Branded<"token">>>(
 		new Set<Branded<"token">>(),
 	)
 	const [tokenDragStart, setTokenDragStart] = useState<Vector>()
@@ -40,6 +41,14 @@ function useCanvasMapControllerProvider() {
 	const [previewAreaStart, setPreviewAreaStart] = useState<Vector>()
 	const [tokenMenu, setTokenMenu] = useState<TokenMenu>()
 	const [draggingViewport, setDraggingViewport] = useState<"init" | "dragging">()
+
+	const selectedTokens = () =>
+		Iterator.from(tokens ?? []).filter((it) => selectedTokenIds.has(it.key))
+
+	const selectedCharacters = () =>
+		selectedTokens()
+			.map((it) => it.character)
+			.filter((it) => it != null)
 
 	const previewArea = (() => {
 		if (inputMode === "draw" && previewAreaStart) {
@@ -65,10 +74,10 @@ function useCanvasMapControllerProvider() {
 						.take(1)
 						.toArray()[0]
 					if (tokenKey) {
-						setSelectedTokens(new Set([tokenKey]))
+						setSelectedTokenIds(new Set([tokenKey]))
 						setTokenDragStart(vectorFromEventClientPosition(event))
 					} else {
-						setSelectedTokens(new Set([]))
+						setSelectedTokenIds(new Set([]))
 					}
 				}
 			},
@@ -79,7 +88,7 @@ function useCanvasMapControllerProvider() {
 			},
 			onPointerUp: (event: PointerEvent) => {
 				if (event.button === MouseButtonLeft && scene && tokenDragStart && tokenDragEnd) {
-					for (const key of selectedTokens) {
+					for (const key of selectedTokenIds) {
 						const existing = scene.tokens?.find((it) => it.key === key)
 						updateToken({
 							key,
@@ -101,7 +110,7 @@ function useCanvasMapControllerProvider() {
 								tokenKey,
 								screenPosition: cursor,
 							})
-							setSelectedTokens(new Set([tokenKey]))
+							setSelectedTokenIds(new Set([tokenKey]))
 						})
 					}
 				}
@@ -205,6 +214,7 @@ function useCanvasMapControllerProvider() {
 		camera,
 		previewArea,
 		selectedTokens,
+		selectedCharacters,
 		tokenMovement: tokenDragEnd?.minus(tokenDragStart ?? tokenDragEnd),
 		tokenMenu,
 		closeTokenMenu() {
