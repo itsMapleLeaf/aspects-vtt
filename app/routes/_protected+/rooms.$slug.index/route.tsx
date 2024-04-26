@@ -12,6 +12,7 @@ import { useEffect } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { useMutationState } from "#app/common/convex.js"
+import { useMutationAction } from "#app/common/convex.js"
 import { expect } from "#app/common/expect.js"
 import { useLocalStorageState } from "#app/common/useLocalStorage.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.js"
@@ -29,8 +30,10 @@ import { Button } from "#app/ui/Button.js"
 import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField, FormLayout, FormRow } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
+import { Loading } from "#app/ui/Loading.js"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
 import { ScrollArea } from "#app/ui/ScrollArea.js"
+import { Tooltip } from "#app/ui/Tooltip.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import { ValidatedInput } from "../../../ui/ValidatedInput"
@@ -157,11 +160,19 @@ function CharacterListPanel() {
 		<ToggleableSidebar name="Characters" side="left">
 			<ScrollArea className={translucentPanel("h-full w-28 p-2")}>
 				<ul className="flex h-full flex-col gap-3">
+					<RoomOwnerOnly>
+						<li>
+							<CreateCharacterButton />
+						</li>
+					</RoomOwnerOnly>
+					<li>
+						<hr className="border-primary-300" />
+					</li>
 					{characters.map((character) => (
 						<li key={character._id}>
 							<button
 								type="button"
-								className="flex w-full flex-col items-stretch gap-2"
+								className="flex w-full flex-col items-stretch gap-2 opacity-75 transition-opacity hover:opacity-100"
 								draggable
 								onDragStart={(event) => {
 									const image = expect(
@@ -190,6 +201,24 @@ function CharacterListPanel() {
 				</ul>
 			</ScrollArea>
 		</ToggleableSidebar>
+	)
+}
+
+function CreateCharacterButton() {
+	const room = useRoom()
+	const [, createCharacter, pending] = useMutationAction(api.characters.create)
+	return (
+		<form action={() => createCharacter({ roomId: room._id })}>
+			<Tooltip content="Create Character" placement="right">
+				<button
+					type="submit"
+					className="flex-center aspect-square w-full opacity-75 transition-opacity hover:opacity-100"
+				>
+					{pending ? <Loading size="sm" /> : <Lucide.UserPlus2 className="size-8" />}
+					<span className="sr-only">Create Character</span>
+				</button>
+			</Tooltip>
+		</form>
 	)
 }
 
