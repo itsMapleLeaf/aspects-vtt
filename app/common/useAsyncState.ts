@@ -9,7 +9,7 @@ export type AsyncState<Args, Return> = Readonly<
 
 export function useAsyncState<Args, Return>(fn: (args: Args) => Return) {
 	const [state, setState] = useState<AsyncState<Args, Return>>({ status: "initial" })
-	const abortControllerRef = useRef<AbortController>()
+	const abortControllerRef = useRef<AbortController>(undefined)
 
 	async function run(args: Args) {
 		abortControllerRef.current?.abort()

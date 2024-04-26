@@ -27,7 +27,7 @@ export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">,
 export interface ButtonPropsAsElement
 	extends Disallowed<StrictOmit<ComponentPropsWithoutRef<"button">, "className">>,
 		ButtonPropsBase {
-	element: ReactElement
+	element: ReactElement<{ className?: string; children?: React.ReactNode }>
 	className?: string
 }
 

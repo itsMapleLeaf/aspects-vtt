@@ -17,13 +17,13 @@ export const diceStats: DiceStat[] = [effectStat, boostStat, snagStat]
 
 export type DiceKind = {
 	name: string
-	element: JSX.Element
+	element: React.ReactElement
 	faces: DiceFace[]
 	explodes: boolean
 }
 
 export type DiceFace = {
-	element: JSX.Element
+	element: React.ReactElement
 	modifyStats: ReadonlyMap<DiceStat, number>
 }
 
@@ -93,7 +93,7 @@ function defineNumeric({
 	textClassName,
 }: {
 	faceCount: number
-	icon: JSX.Element
+	icon: React.ReactElement
 	textClassName?: string
 }): DiceKind {
 	const name = `d${faceCount}`
@@ -136,7 +136,7 @@ function defineModifier({
 }: {
 	name: string
 	className: string
-	icon: JSX.Element
+	icon: React.ReactElement
 	multiplier: number
 	stat: DiceStat
 }): DiceKind {

@@ -4,10 +4,10 @@ import type { Nullish } from "#app/common/types.ts"
 import { Vector } from "./vector.ts"
 
 export function useResizeObserver(
-	ref: Nullish<React.RefObject<Element> | Element>,
+	ref: Nullish<React.RefObject<Nullish<Element>> | Element>,
 	callback: (entry: ResizeObserverEntry) => void,
 ) {
-	const callbackRef = useRef<typeof callback>()
+	const callbackRef = useRef<typeof callback>(undefined)
 	useEffect(() => {
 		callbackRef.current = callback
 	})

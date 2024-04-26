@@ -1,11 +1,4 @@
-import {
-	type ComponentPropsWithoutRef,
-	type ForwardedRef,
-	type ReactElement,
-	type ReactNode,
-	cloneElement,
-	forwardRef,
-} from "react"
+import { type ReactElement, type ReactNode, cloneElement } from "react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
 import type { Disallowed, StrictOmit } from "#app/common/types.js"
 import { panel } from "./styles.ts"
@@ -14,34 +7,31 @@ interface InputPropsBase extends InputStyleProps {
 	icon?: ReactNode
 }
 
-interface InputPropsAsInput extends InputPropsBase, ComponentPropsWithoutRef<"input"> {}
+interface InputPropsAsInput extends InputPropsBase, React.ComponentProps<"input"> {}
 
 interface InputPropsAsElement
-	extends StrictOmit<Disallowed<ComponentPropsWithoutRef<"input">>, "className">,
+	extends StrictOmit<Disallowed<React.ComponentProps<"input">>, "className">,
 		InputPropsBase {
-	element: ReactElement
+	element: ReactElement<{ className?: string }>
 	className?: string
 }
 
 export type InputProps = InputPropsAsInput | InputPropsAsElement
 
-export const Input = forwardRef(function Input(
-	{ icon, className, align, ...props }: InputProps,
-	ref: ForwardedRef<HTMLInputElement>,
-) {
+export function Input({ icon, className, align, ...props }: InputProps) {
 	return (
 		<div className={twMerge("group relative flex w-full items-center", className)}>
 			<div className="peer pointer-events-none absolute left-2 opacity-50 transition *:size-5 group-focus-within:opacity-100">
 				{icon}
 			</div>
 			{"element" in props ? (
-				cloneElement(props.element, { className: inputStyle({ align }), ref })
+				cloneElement(props.element, { className: inputStyle({ align }) })
 			) : (
-				<input {...props} className={inputStyle({ align })} ref={ref} />
+				<input {...props} className={inputStyle({ align })} />
 			)}
 		</div>
 	)
-})
+}
 
 export interface InputStyleProps {
 	align?: "left" | "right" | "center"
