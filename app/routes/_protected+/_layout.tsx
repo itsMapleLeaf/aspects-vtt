@@ -21,10 +21,10 @@ export default function ProtectedLayoutRoute() {
 									<ClerkLoading>
 										<Loading size="sm" />
 									</ClerkLoading>
-									<SignInButton mode="modal" redirectUrl={currentUrl}>
+									<SignInButton mode="modal" forceRedirectUrl={currentUrl}>
 										<Button icon={<Lucide.LogIn />} text="Sign in" />
 									</SignInButton>
-									<SignUpButton mode="modal" redirectUrl={currentUrl}>
+									<SignUpButton mode="modal" forceRedirectUrl={currentUrl}>
 										<Button icon={<Lucide.UserPlus />} text="Create account" />
 									</SignUpButton>
 								</>
