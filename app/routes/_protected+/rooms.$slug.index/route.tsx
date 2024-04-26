@@ -3,18 +3,22 @@ import {
 	DisclosureContent,
 	DisclosureProvider,
 	useDisclosureStore,
+	useMenuStore,
 } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useEffect } from "react"
+import { type ComponentProps, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { useMutationState } from "#app/common/convex.js"
 import { useMutationAction } from "#app/common/convex.js"
 import { expect } from "#app/common/expect.js"
+import { useEffectEvent } from "#app/common/react.js"
 import { useLocalStorageState } from "#app/common/useLocalStorage.js"
+import { CharacterForm } from "#app/features/characters/CharacterForm.js"
+import type { ApiCharacter } from "#app/features/characters/types.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
@@ -31,11 +35,13 @@ import { DefinitionList } from "#app/ui/DefinitionList.js"
 import { FormField, FormLayout, FormRow } from "#app/ui/Form.js"
 import { Input } from "#app/ui/Input.js"
 import { Loading } from "#app/ui/Loading.js"
+import { Menu, MenuItem, MenuPanel } from "#app/ui/Menu.js"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
 import { ScrollArea } from "#app/ui/ScrollArea.js"
 import { Tooltip } from "#app/ui/Tooltip.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
+import type { Id } from "#convex/_generated/dataModel.js"
 import { ValidatedInput } from "../../../ui/ValidatedInput"
 import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./Toolbar"
 
@@ -155,60 +161,151 @@ function AreaToolButton() {
 }
 
 function CharacterListPanel() {
+	const room = useRoom()
 	const characters = useCharacters()
+	const [selected, setSelected] = useState<Id<"characters">>()
+	const selectedCharacter = characters.find((it) => it._id === selected)
+	const ownedCharacters = new Set(room.isOwner ? [] : characters.filter((it) => it.isOwner))
+
+	const toggleSelected = (id: Id<"characters">) => {
+		setSelected((current) => (current === id ? undefined : id))
+	}
+
 	return (
 		<ToggleableSidebar name="Characters" side="left">
-			<ScrollArea className={translucentPanel("h-full w-28 p-2")}>
-				<ul className="flex h-full flex-col gap-3">
-					<RoomOwnerOnly>
+			<aside className="flex h-full flex-row items-stretch gap-2">
+				<ScrollArea className={translucentPanel("h-full w-28 p-2")}>
+					<ul className="flex h-full flex-col gap-3">
+						<RoomOwnerOnly>
+							<li>
+								<CreateCharacterButton afterCreate={setSelected} />
+							</li>
+						</RoomOwnerOnly>
+						{[...ownedCharacters].map((character) => (
+							<li key={character._id}>
+								<CharacterTile
+									character={character}
+									onClick={() => toggleSelected(character._id)}
+								/>
+							</li>
+						))}
 						<li>
-							<CreateCharacterButton />
+							<hr className="border-primary-300" />
 						</li>
-					</RoomOwnerOnly>
-					<li>
-						<hr className="border-primary-300" />
-					</li>
-					{characters.map((character) => (
-						<li key={character._id}>
-							<button
-								type="button"
-								className="flex w-full flex-col items-stretch gap-2 opacity-75 transition-opacity hover:opacity-100"
-								draggable
-								onDragStart={(event) => {
-									const image = expect(
-										event.currentTarget.querySelector("[data-image]"),
-										"couldn't find drag image",
-									)
-									const rect = image.getBoundingClientRect()
-									event.dataTransfer.setDragImage(image, rect.width / 2, rect.height / 2)
-									event.dataTransfer.setData(
-										"text/plain",
-										JSON.stringify(
-											defineCanvasMapDropData({
-												characterId: character._id,
-											}),
-										),
-									)
-								}}
-							>
-								<div className={panel("overflow-clip aspect-square")} data-image>
-									<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />
-								</div>
-								<p className="text-pretty text-center text-sm/none">{character.name}</p>
-							</button>
-						</li>
-					))}
-				</ul>
-			</ScrollArea>
+						{characters
+							.filter((it) => !ownedCharacters.has(it))
+							.map((character) => (
+								<li key={character._id}>
+									<CharacterTile
+										character={character}
+										onClick={() => toggleSelected(character._id)}
+									/>
+								</li>
+							))}
+					</ul>
+				</ScrollArea>
+				{selectedCharacter && (
+					<ScrollArea className={translucentPanel("p-3 h-full w-[350px]")}>
+						<CharacterForm character={selectedCharacter} />
+					</ScrollArea>
+				)}
+			</aside>
 		</ToggleableSidebar>
 	)
 }
 
-function CreateCharacterButton() {
+function CharacterTile({
+	character,
+	...props
+}: { character: ApiCharacter } & ComponentProps<"button">) {
 	const room = useRoom()
-	const [, createCharacter, pending] = useMutationAction(api.characters.create)
+	const removeCharacter = useMutation(api.characters.remove)
+	const duplicateCharacter = useMutation(api.characters.duplicate)
+	const store = useMenuStore()
+	const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
+
+	const button = (
+		<button
+			type="button"
+			className="flex w-full flex-col items-stretch gap-2 opacity-75 transition-opacity hover:opacity-100"
+			draggable
+			onDragStart={(event) => {
+				const image = expect(
+					event.currentTarget.querySelector("[data-image]"),
+					"couldn't find drag image",
+				)
+				const rect = image.getBoundingClientRect()
+				event.dataTransfer.setDragImage(image, rect.width / 2, rect.height / 2)
+				event.dataTransfer.setData(
+					"text/plain",
+					JSON.stringify(
+						defineCanvasMapDropData({
+							characterId: character._id,
+						}),
+					),
+				)
+			}}
+			onContextMenu={(event) => {
+				event.preventDefault()
+				setMenuPosition({ x: event.clientX, y: event.clientY })
+				store.show()
+			}}
+			{...props}
+		>
+			<div className={panel("overflow-clip aspect-square")} data-image>
+				<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />
+			</div>
+			<p className="text-pretty text-center text-sm/none">{character.name}</p>
+		</button>
+	)
+
+	if (!room.isOwner) {
+		return button
+	}
+
 	return (
-		<form action={() => createCharacter({ roomId: room._id })}>
+		<Menu store={store}>
+			{button}
+			<MenuPanel getAnchorRect={() => menuPosition}>
+				<MenuItem
+					text="Duplicate"
+					icon={<Lucide.Copy />}
+					onClick={() => {
+						duplicateCharacter({ id: character._id })
+					}}
+				/>
+				<MenuItem
+					text="Delete"
+					icon={<Lucide.Trash />}
+					onClick={() => {
+						if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
+							removeCharacter({ id: character._id })
+						}
+					}}
+				/>
+			</MenuPanel>
+		</Menu>
+	)
+}
+
+function CreateCharacterButton({
+	afterCreate,
+}: {
+	afterCreate: (id: Id<"characters">) => void
+}) {
+	const room = useRoom()
+	const [createdId, submit, pending] = useMutationAction(api.characters.create)
+
+	const callAfterCreate = useEffectEvent((id: Id<"characters">) => {
+		afterCreate(id)
+	})
+
+	useEffect(() => {
+		if (createdId) callAfterCreate(createdId)
+	}, [createdId, callAfterCreate])
+
+	return (
+		<form action={() => submit({ roomId: room._id })}>
 			<Tooltip content="Create Character" placement="right">
 				<button
 					type="submit"

@@ -1,4 +1,11 @@
-import { useEffect, useState, useSyncExternalStore } from "react"
+import {
+	useCallback,
+	useEffect,
+	useInsertionEffect,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from "react"
 import { timeoutEffect } from "./async.ts"
 
 export function useDelayedValue<T>(value: T, delay: number): T {
@@ -22,3 +29,15 @@ export function useIsomorphicValue<ClientValue = undefined, ServerValue = undefi
 	)
 }
 const noopSubscribe = () => () => {}
+
+export function useEffectEvent<Args extends unknown[], Return>(fn: (...args: Args) => Return) {
+	const ref = useRef((...args: Args): Return => {
+		throw new Error("Attempted to call effect event callback during render")
+	})
+
+	useInsertionEffect(() => {
+		ref.current = fn
+	})
+
+	return useCallback((...args: Args) => ref.current(...args), [])
+}
