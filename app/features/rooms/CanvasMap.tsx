@@ -17,6 +17,7 @@ import { useImage } from "../../common/useImage.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useCanvasMapController } from "./CanvasMapController.tsx"
+import { useRoom } from "./roomContext.tsx"
 
 const canvasMapDropDataSchema = z.object({
 	tokenKey: z.custom<Branded<"token">>().optional(),
@@ -303,17 +304,22 @@ function TokenElement({
 }
 
 function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
+	const room = useRoom()
 	const controller = useCanvasMapController()
 	const { tokenMenu } = controller
 	const updateToken = useMutation(api.scenes.tokens.update)
 	const removeToken = useMutation(api.scenes.tokens.remove)
 
-	const tokensWithVisibility = (visible: boolean) =>
-		controller.selectedTokens().filter((it) => it.visible === visible)
+	if (!room.isOwner) {
+		return null
+	}
 
 	if (!tokenMenu) {
 		return null
 	}
+
+	const tokensWithVisibility = (visible: boolean) =>
+		controller.selectedTokens().filter((it) => it.visible === visible)
 
 	return (
 		<Menu
