@@ -146,14 +146,15 @@ function Meter({
 
 function TokenLabel(props: { text: string; subText: string }) {
 	return (
-		<div className="group absolute inset-0">
-			<div className="flex-center absolute inset-x-0 top-full translate-y-2 opacity-0 transition-opacity group-hover:opacity-100">
+		<>
+			<div className="peer absolute inset-0" />
+			<div className="flex-center absolute inset-x-0 top-full translate-y-2 opacity-0 transition-opacity peer-hover:opacity-100">
 				<div className="flex-center whitespace-nowrap rounded bg-black/50 px-2.5 py-2 text-center leading-none shadow shadow-black/50">
 					<p>{props.text}</p>
 					<p className="mt-0.5 text-sm/none opacity-75 empty:hidden">{props.subText}</p>
 				</div>
 			</div>
-		</div>
+		</>
 	)
 }
 
