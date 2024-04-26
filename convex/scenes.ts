@@ -1,6 +1,5 @@
 import { deprecated, nullable, partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { generateSlug } from "random-word-slugs"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "#convex/_generated/server.js"
 import { RoomModel } from "./RoomModel.ts"
@@ -52,19 +51,13 @@ export const getCurrent = query({
 export const create = mutation({
 	args: {
 		roomId: v.id("rooms"),
+		name: v.string(),
 	},
 	async handler(ctx, args) {
 		await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
 		return await ctx.db.insert("scenes", {
-			name: generateSlug(2, {
-				format: "title",
-				categories: {
-					noun: ["place"],
-					adjective: ["appearance", "color", "condition", "shapes", "size", "sounds"],
-				},
-			}),
+			...args,
 			background: null,
-			roomId: args.roomId,
 			cellSize: 70,
 		})
 	},

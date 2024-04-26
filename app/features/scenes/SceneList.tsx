@@ -4,6 +4,7 @@ import { useMutationState } from "#app/common/convex.js"
 import { Loading } from "#app/ui/Loading.js"
 import { useModalContext } from "#app/ui/Modal.js"
 import { MoreMenu } from "#app/ui/MoreMenu.js"
+import { usePrompt } from "#app/ui/Prompt.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
@@ -18,6 +19,7 @@ export function SceneList() {
 	const removeScene = useMutation(api.scenes.remove)
 	const duplicateScene = useMutation(api.scenes.duplicate)
 	const modal = useModalContext()
+	const prompt = usePrompt()
 
 	const moreMenuOptions = (sceneId: Id<"scenes">) => [
 		{
@@ -81,7 +83,16 @@ export function SceneList() {
 					className={panel(
 						"w-full aspect-[4/3] overflow-clip flex-center hover:bg-primary-300 transition group",
 					)}
-					onClick={() => createScene({ roomId: room._id })}
+					onClick={async () => {
+						const name = await prompt({
+							title: "Scene name?",
+							inputLabel: "Name",
+							inputPlaceholder: "The Scene of All Time",
+						})
+						if (name) {
+							await createScene({ roomId: room._id, name })
+						}
+					}}
 				>
 					{createSceneState.status === "pending" ? (
 						<Loading />
