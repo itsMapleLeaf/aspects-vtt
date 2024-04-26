@@ -272,12 +272,20 @@ const CanvasMapControllerContext = createNonEmptyContext<CanvasMapController>()
 
 export function CanvasMapControllerProvider({ children }: { children: React.ReactNode }) {
 	const scene = useScene()
+	if (!scene) return null
 	return (
-		scene && (
-			<CanvasMapControllerContext.Provider value={useCanvasMapControllerProvider(scene)}>
-				{children}
-			</CanvasMapControllerContext.Provider>
-		)
+		<CanvasMapControllerProviderInner scene={scene}>{children}</CanvasMapControllerProviderInner>
+	)
+}
+
+function CanvasMapControllerProviderInner({
+	scene,
+	children,
+}: { scene: ApiScene; children: React.ReactNode }) {
+	return (
+		<CanvasMapControllerContext.Provider value={useCanvasMapControllerProvider(scene)}>
+			{children}
+		</CanvasMapControllerContext.Provider>
 	)
 }
 
