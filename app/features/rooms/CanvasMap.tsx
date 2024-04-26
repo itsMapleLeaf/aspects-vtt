@@ -68,7 +68,8 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 								<UploadedImage
 									id={token.character.imageId}
 									emptyIcon={<Lucide.Ghost />}
-									className="size-full"
+									className="size-full overflow-clip rounded shadow-md"
+									imageClassName="object-cover object-top [transform:translateZ(0)]"
 								/>
 							</MapElement>
 						)}
@@ -85,7 +86,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 				.filter((it) => it != null)
 				.map(({ token, character }) => (
 					<MapElement key={token.key} token={token} rect={getCharacterTokenRect(token)}>
-						<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
+						<div className="flex-center pointer-events-none absolute inset-x-0 bottom-full gap-1.5 pb-2">
 							<Meter
 								value={character.damage / character.damageThreshold}
 								className={{
@@ -107,6 +108,16 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 				))
 				.toArray()}
 
+			{Iterator.from(tokens ?? [])
+				.map((token) => token.character && { token, character: token.character })
+				.filter((it) => it != null)
+				.map(({ token, character }) => (
+					<MapElement key={token.key} token={token} rect={getCharacterTokenRect(token)}>
+						<TokenLabel text={character.displayName} subText={character.displayPronouns} />
+					</MapElement>
+				))
+				.toArray()}
+
 			<TokenMenu scene={scene} />
 		</CanvasMapContainer>
 	)
@@ -118,8 +129,9 @@ function Meter({
 }: { value: number; className: { base: string; warning: string; danger: string } }) {
 	return value <= 0 ? null : (
 		<div
+			aria-hidden
 			className={twMerge(
-				"h-2.5 w-16 rounded-sm border border-current shadow shadow-black/75 relative",
+				"h-2.5 w-16 rounded-sm border border-current shadow shadow-black/50 relative",
 				value < 0.5 ? className.base : value < 0.8 ? className.warning : className.danger,
 			)}
 		>
@@ -128,6 +140,19 @@ function Meter({
 				style={{ scale: `${clamp(value, 0, 1)} 1` }}
 			/>
 			<div className="absolute inset-0 bg-current opacity-25" />
+		</div>
+	)
+}
+
+function TokenLabel(props: { text: string; subText: string }) {
+	return (
+		<div className="group absolute inset-0">
+			<div className="flex-center absolute inset-x-0 top-full translate-y-2 opacity-0 transition-opacity group-hover:opacity-100">
+				<div className="flex-center whitespace-nowrap rounded bg-black/50 px-2.5 py-2 text-center leading-none shadow shadow-black/50">
+					<p>{props.text}</p>
+					<p className="mt-0.5 text-sm/none opacity-75 empty:hidden">{props.subText}</p>
+				</div>
+			</div>
 		</div>
 	)
 }
@@ -384,8 +409,8 @@ function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
 			<MenuPanel modal getAnchorRect={() => tokenMenu.screenPosition}>
 				{singleSelectedCharacter && (
 					<MenuItem
-						text="Edit"
-						icon={<Lucide.PenBox />}
+						text="View Profile"
+						icon={<Lucide.Search />}
 						onClick={() => {
 							characterSelection.setSelected(singleSelectedCharacter._id)
 						}}
