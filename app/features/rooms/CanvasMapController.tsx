@@ -94,10 +94,13 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 			},
 			onPointerMove: (event: PointerEvent) => {
 				if (tokenDragStart) {
+					event.preventDefault()
 					setTokenDragEnd(vectorFromEventClientPosition(event))
 				}
 				const multiSelectArea = getMultiSelectArea()
 				if (multiSelectArea) {
+					event.preventDefault()
+
 					const overlappingTokenKeys = Iterator.from(document.querySelectorAll("[data-token-key]"))
 						.filter((it) => it instanceof HTMLElement)
 						.filter((element) =>

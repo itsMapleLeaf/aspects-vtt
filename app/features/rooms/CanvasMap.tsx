@@ -15,6 +15,7 @@ import type { Doc, Id } from "#convex/_generated/dataModel.js"
 import type { Branded } from "#convex/helpers.js"
 import type { ApiToken } from "#convex/scenes/tokens.js"
 import { useImage } from "../../common/useImage.ts"
+import { CharacterQuickMenu } from "../characters/CharacterQuickMenu.tsx"
 import { useCharacterSelection } from "../characters/CharacterSelectionProvider.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
@@ -71,6 +72,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 									className="size-full"
 									imageClassName="rounded object-cover object-top shadow-md [transform:translateZ(0)]"
 								/>
+								<CharacterQuickMenu character={token.character} />
 							</MapElement>
 						)}
 						{token.area && (
@@ -86,7 +88,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 				.filter((it) => it != null)
 				.map(({ token, character }) => (
 					<MapElement key={token.key} token={token} rect={getCharacterTokenRect(token)}>
-						<div className="flex-center pointer-events-none absolute inset-x-0 bottom-full gap-1.5 pb-2">
+						<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
 							<Meter
 								value={character.damage / character.damageThreshold}
 								className={{
@@ -100,7 +102,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 								className={{
 									base: "text-sky-400",
 									warning: "text-indigo-400",
-									danger: "text-purple-400",
+									danger: "text-violet-400",
 								}}
 							/>
 						</div>
@@ -127,16 +129,17 @@ function Meter({
 	value,
 	className,
 }: { value: number; className: { base: string; warning: string; danger: string } }) {
-	return value <= 0 ? null : (
+	return (
 		<div
 			aria-hidden
 			className={twMerge(
-				"h-2.5 w-16 rounded-sm border border-current shadow shadow-black/50 relative",
+				"h-2.5 w-16 rounded-sm border border-current shadow shadow-black/50 relative transition-all",
 				value < 0.5 ? className.base : value < 0.8 ? className.warning : className.danger,
+				value > 0 ? "opacity-100 visible" : "opacity-0 invisible",
 			)}
 		>
 			<div
-				className="absolute inset-0 origin-left bg-current"
+				className="absolute inset-0 origin-left bg-current transition-[scale]"
 				style={{ scale: `${clamp(value, 0, 1)} 1` }}
 			/>
 			<div className="absolute inset-0 bg-current opacity-25" />
