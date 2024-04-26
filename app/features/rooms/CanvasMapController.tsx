@@ -73,7 +73,7 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 	const inputModeHandlers = {
 		select: {
 			onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
-				if (event.button === MouseButtonLeft) {
+				if (event.button === MouseButtonLeft && container?.contains(event.target as Node)) {
 					const cursorPosition = vectorFromEventClientPosition(event)
 					const tokenKey = findTokenElementsAtPoint(cursorPosition).take(1).toArray()[0]
 
@@ -130,7 +130,7 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 					}
 				}
 
-				if (event.button === MouseButtonRight) {
+				if (event.button === MouseButtonRight && container?.contains(event.target as Node)) {
 					const cursor = vectorFromEventClientPosition(event)
 					const tokenKey = findTokenElementsAtPoint(cursor).take(1).toArray()[0]
 					if (tokenKey) {
@@ -140,7 +140,9 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 								tokenKey,
 								screenPosition: cursor,
 							})
-							setSelectedTokenIds(new Set([tokenKey]))
+							if (!selectedTokenIds.has(tokenKey)) {
+								setSelectedTokenIds(new Set([tokenKey]))
+							}
 						})
 					}
 				}

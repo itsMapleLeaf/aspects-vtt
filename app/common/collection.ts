@@ -1,3 +1,5 @@
+import { Iterator } from "iterator-helpers-polyfill"
+
 export function keyedBy<Item, ResultKey>(
 	items: Iterable<Item>,
 	keyFn: (item: Item) => ResultKey,
@@ -28,4 +30,12 @@ export function groupBy<Item, ResultKey extends PropertyKey>(
 		result.set(key, items)
 	}
 	return result
+}
+
+export function isEmpty(iterable: Iterable<unknown>): iterable is Iterable<never> {
+	return Iterator.from(iterable).take(1).count() < 1
+}
+
+export function hasItems(iterable: Iterable<unknown>): boolean {
+	return !isEmpty(iterable)
 }
