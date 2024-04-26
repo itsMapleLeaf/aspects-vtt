@@ -96,13 +96,13 @@ function RoomToolbar() {
 
 			<AreaToolButton />
 
-			<ToolbarButton
+			{/* <ToolbarButton
 				text="Reset View"
 				icon={<Lucide.Compass />}
 				onClick={() => {
 					// todo
 				}}
-			/>
+			/> */}
 
 			<ToolbarSeparator />
 
