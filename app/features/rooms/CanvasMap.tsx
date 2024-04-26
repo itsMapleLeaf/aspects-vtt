@@ -68,8 +68,8 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 								<UploadedImage
 									id={token.character.imageId}
 									emptyIcon={<Lucide.Ghost />}
-									className="size-full overflow-clip rounded shadow-md"
-									imageClassName="object-cover object-top [transform:translateZ(0)]"
+									className="size-full"
+									imageClassName="rounded object-cover object-top shadow-md [transform:translateZ(0)]"
 								/>
 							</MapElement>
 						)}
