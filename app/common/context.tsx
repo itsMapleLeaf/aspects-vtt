@@ -14,3 +14,17 @@ export function useNonEmptyContext<T>(context: React.Context<T | Empty>): T {
 	}
 	return value
 }
+
+export function wrapContextApi<Props, Value>(init: (props: Props) => Value) {
+	const Context = createNonEmptyContext<Value>()
+
+	function Provider(props: Props & { children: React.ReactNode }) {
+		return <Context.Provider value={init(props)}>{props.children}</Context.Provider>
+	}
+
+	function useContextValue() {
+		return useNonEmptyContext(Context)
+	}
+
+	return [Provider, useContextValue] as const
+}
