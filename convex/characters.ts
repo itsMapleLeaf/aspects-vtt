@@ -1,11 +1,12 @@
 import { brandedString, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
+import { generateSlug } from "random-word-slugs"
 import { omit } from "#app/common/object.js"
 import { randomItem } from "#app/common/random.js"
-import { characterNames } from "#app/features/characters/characterNames.ts"
 import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
-import { mutation, query } from "./_generated/server.js"
+import type { Doc } from "./_generated/dataModel.js"
+import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import { tokenValidator } from "./token.js"
 import { getUserFromIdentity } from "./users.js"
 
@@ -91,18 +92,9 @@ export const create = mutation({
 		const room = await RoomModel.fromId(ctx, args.roomId).getValueOrThrow()
 		await room.assertOwned()
 
-		const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
-		const [strength, sense, mobility, intellect, wit] = dice.sort(() => Math.random() - 0.5)
-
 		return await ctx.db.insert("characters", {
+			...(await generateRandomCharacterProperties(ctx)),
 			roomId: args.roomId,
-			name: randomItem(characterNames) ?? "Cute Felirian",
-			pronouns: randomItem(["he/him", "she/her", "they/them"]),
-			strength,
-			sense,
-			mobility,
-			intellect,
-			wit,
 		})
 	},
 })
@@ -115,6 +107,7 @@ export const duplicate = mutation({
 		const { doc } = await CharacterModel.get(ctx, args.id).getValueOrThrow()
 		return await ctx.db.insert("characters", {
 			...omit(doc, ["_id", "_creationTime"]),
+			...(await generateRandomCharacterProperties(ctx)),
 			token: doc.token && {
 				...doc.token,
 				position: { x: doc.token.position.x + 1, y: doc.token.position.y },
@@ -163,3 +156,29 @@ export const remove = mutation({
 		await character.delete(ctx)
 	},
 })
+
+async function generateRandomCharacterProperties(ctx: QueryCtx) {
+	const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
+	const [strength, sense, mobility, intellect, wit] = dice.sort(() => Math.random() - 0.5)
+
+	const notionImports = await ctx.db.query("notionImports").order("desc").first()
+	const race = randomItem(notionImports?.races ?? [])?.name
+	const coreAspect = randomItem(notionImports?.aspects ?? [])?.name
+
+	return {
+		name: generateSlug(2, {
+			categories: {
+				noun: ["profession", "animals", "people"],
+			},
+			format: "title",
+		}),
+		pronouns: randomItem(["he/him", "she/her", "they/them"]),
+		strength,
+		sense,
+		mobility,
+		intellect,
+		wit,
+		race,
+		coreAspect,
+	} satisfies Partial<Doc<"characters">>
+}
