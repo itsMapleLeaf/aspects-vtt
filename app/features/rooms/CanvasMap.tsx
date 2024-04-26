@@ -14,6 +14,7 @@ import type { Doc, Id } from "#convex/_generated/dataModel.js"
 import type { Branded } from "#convex/helpers.js"
 import type { ApiToken } from "#convex/scenes/tokens.js"
 import { useImage } from "../../common/useImage.ts"
+import { useCharacterSelection } from "../characters/CharacterSelectionProvider.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useCanvasMapController } from "./CanvasMapController.tsx"
@@ -309,6 +310,7 @@ function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
 	const { tokenMenu } = controller
 	const updateToken = useMutation(api.scenes.tokens.update)
 	const removeToken = useMutation(api.scenes.tokens.remove)
+	const characterSelection = useCharacterSelection()
 
 	if (!room.isOwner) {
 		return null
@@ -321,6 +323,13 @@ function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
 	const tokensWithVisibility = (visible: boolean) =>
 		controller.selectedTokens().filter((it) => it.visible === visible)
 
+	const singleSelectedCharacter = (() => {
+		const [first, ...rest] = controller.selectedCharacters().take(2).toArray()
+		if (first && rest.length === 0) {
+			return first
+		}
+	})()
+
 	return (
 		<Menu
 			open
@@ -329,6 +338,15 @@ function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
 			}}
 		>
 			<MenuPanel modal getAnchorRect={() => tokenMenu.screenPosition}>
+				{singleSelectedCharacter && (
+					<MenuItem
+						text="Edit"
+						icon={<Lucide.PenBox />}
+						onClick={() => {
+							characterSelection.setSelected(singleSelectedCharacter._id)
+						}}
+					/>
+				)}
 				{hasItems(tokensWithVisibility(false)) && (
 					<MenuItem
 						text="Show"

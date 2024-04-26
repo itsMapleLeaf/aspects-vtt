@@ -12,7 +12,6 @@ import * as Lucide from "lucide-react"
 import { type ComponentProps, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
-import { wrapContextApi } from "#app/common/context.js"
 import { useMutationState } from "#app/common/convex.js"
 import { useMutationAction } from "#app/common/convex.js"
 import { expect } from "#app/common/expect.js"
@@ -43,6 +42,10 @@ import { Tooltip } from "#app/ui/Tooltip.js"
 import { panel, translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import {
+	CharacterSelectionProvider,
+	useCharacterSelection,
+} from "../../../features/characters/CharacterSelectionProvider"
 import { ValidatedInput } from "../../../ui/ValidatedInput"
 import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./Toolbar"
 
@@ -160,18 +163,6 @@ function AreaToolButton() {
 		/>
 	)
 }
-
-const [CharacterSelectionProvider, useCharacterSelection] = wrapContextApi(
-	function useCharacterSelectionProvider() {
-		const characters = useCharacters()
-		const [selected, setSelected] = useState<Id<"characters">>()
-		const selectedCharacter = characters.find((it) => it._id === selected)
-		const toggleSelected = (id: Id<"characters">) => {
-			setSelected((current) => (current === id ? undefined : id))
-		}
-		return { selectedCharacter, setSelected, toggleSelected }
-	},
-)
 
 function CharacterListPanel() {
 	const room = useRoom()
