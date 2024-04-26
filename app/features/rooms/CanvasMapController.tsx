@@ -65,7 +65,7 @@ function useCanvasMapControllerProvider() {
 						.take(1)
 						.toArray()[0]
 					if (tokenKey) {
-						setSelectedTokens(new Set([tokenKey as Branded<"token">]))
+						setSelectedTokens(new Set([tokenKey]))
 						setTokenDragStart(vectorFromEventClientPosition(event))
 					} else {
 						setSelectedTokens(new Set([]))
@@ -101,6 +101,7 @@ function useCanvasMapControllerProvider() {
 								tokenKey,
 								screenPosition: cursor,
 							})
+							setSelectedTokens(new Set([tokenKey]))
 						})
 					}
 				}
