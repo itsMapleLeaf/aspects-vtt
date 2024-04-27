@@ -303,8 +303,17 @@ function CharacterTile({
 				<MenuItem
 					text="Duplicate"
 					icon={<Lucide.Copy />}
-					onClick={() => {
-						duplicateCharacter({ id: character._id })
+					onClick={async () => {
+						const id = await duplicateCharacter({ id: character._id, randomize: false })
+						selection.setSelected(id)
+					}}
+				/>
+				<MenuItem
+					text="Duplicate (Randomized)"
+					icon={<Lucide.Shuffle />}
+					onClick={async () => {
+						const id = await duplicateCharacter({ id: character._id, randomize: true })
+						selection.setSelected(id)
 					}}
 				/>
 				<MenuItem

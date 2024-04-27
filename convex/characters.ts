@@ -104,12 +104,13 @@ export const create = mutation({
 export const duplicate = mutation({
 	args: {
 		id: v.id("characters"),
+		randomize: v.boolean(),
 	},
 	handler: async (ctx, args) => {
 		const { doc } = await CharacterModel.get(ctx, args.id).getValueOrThrow()
 		return await ctx.db.insert("characters", {
 			...omit(doc, ["_id", "_creationTime"]),
-			...(await generateRandomCharacterProperties(ctx)),
+			...(args.randomize && (await generateRandomCharacterProperties(ctx))),
 			token: doc.token && {
 				...doc.token,
 				position: { x: doc.token.position.x + 1, y: doc.token.position.y },
