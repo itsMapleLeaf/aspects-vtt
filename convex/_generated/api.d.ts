@@ -18,6 +18,7 @@ import type * as auth from "../auth.js";
 import type * as CharacterModel from "../CharacterModel.js";
 import type * as characters from "../characters.js";
 import type * as crons from "../crons.js";
+import type * as diceMacros from "../diceMacros.js";
 import type * as env from "../env.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   CharacterModel: typeof CharacterModel;
   characters: typeof characters;
   crons: typeof crons;
+  diceMacros: typeof diceMacros;
   env: typeof env;
   helpers: typeof helpers;
   http: typeof http;

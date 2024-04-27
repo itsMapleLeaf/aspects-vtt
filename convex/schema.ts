@@ -2,6 +2,7 @@ import { brandedString, deprecated } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
+import { diceMacroProperties } from "./diceMacros.ts"
 import { nullish } from "./helpers.ts"
 import { diceInputValidator, diceRollValidator } from "./messages.ts"
 import { notionImportProperties } from "./notionImports.ts"
@@ -42,6 +43,11 @@ export default defineSchema({
 		.index("by_room", ["roomId"])
 		.index("by_user", ["userId"])
 		.index("by_room_and_user", ["roomId", "userId"]),
+
+	diceMacros: defineTable({
+		...diceMacroProperties,
+		userId: brandedString("clerkId"),
+	}).index("by_room_and_user", ["roomId", "userId"]),
 
 	messages: defineTable({
 		roomId: v.id("rooms"),

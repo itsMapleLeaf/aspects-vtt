@@ -1,3 +1,4 @@
+import type { UserIdentity } from "convex/server"
 import { v } from "convex/values"
 import { Result } from "#app/common/Result.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
@@ -26,12 +27,12 @@ export const setup = mutation({
 	},
 })
 
-function getIdentity(ctx: QueryCtx) {
+export function getIdentity(ctx: QueryCtx) {
 	return Result.fn(async () => {
 		const identity = await ctx.auth.getUserIdentity()
 		if (!identity) {
 			throw new Error("Not logged in")
 		}
-		return identity
+		return identity as UserIdentity & { subject: Branded<"clerkId"> }
 	})
 }

@@ -1,32 +1,46 @@
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { ConvexError } from "convex/values"
+import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { Button } from "#app/ui/Button.tsx"
-import { CheckboxField } from "#app/ui/CheckboxField.js"
 import { Input } from "#app/ui/Input.tsx"
+import { usePrompt } from "#app/ui/Prompt.js"
+import { Tooltip } from "#app/ui/Tooltip.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
-import { type DiceKind, diceKinds, getDiceKindApiInput } from "../dice/diceKinds.tsx"
-import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import {
+	type DiceKind,
+	diceKinds,
+	diceKindsByName,
+	getDiceKindApiInput,
+} from "../dice/diceKinds.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 
 export function MessageForm() {
 	const room = useRoom()
-	const characters = useCharacters()
-
-	const [content, setContent] = useState("")
-
-	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})
-	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
-	const [keepDice, setKeepDice] = useState(false)
-
+	const prompt = usePrompt()
 	const createMessage = useMutation(api.messages.create)
 
-	const updateDiceCount = (name: string, delta: number) => {
+	const macros = useQuery(api.diceMacros.list, { roomId: room._id })
+	const createMacro = useMutation(api.diceMacros.create)
+
+	const [content, setContent] = useState("")
+	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})
+
+	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
+
+	function updateDiceCount(name: string, delta: number) {
 		setDiceCounts((dice) => ({
 			...dice,
 			[name]: Math.max((dice[name] ?? 0) + delta, 0),
 		}))
+	}
+
+	function getDiceInput() {
+		return Iterator.from(diceKinds)
+			.map((kind) => getDiceKindApiInput(kind, diceCounts[kind.name] ?? 0))
+			.filter(({ count }) => count > 0)
 	}
 
 	return (
@@ -36,21 +50,35 @@ export function MessageForm() {
 					await createMessage({
 						roomId: room._id,
 						content: content,
-						dice: diceKinds
-							.map((kind) => getDiceKindApiInput(kind, diceCounts[kind.name] ?? 0))
-							.filter(({ count }) => count > 0),
+						dice: getDiceInput().toArray(),
 					})
 					setContent("")
-					if (!keepDice) setDiceCounts({})
 				} catch (error) {
 					alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
 				}
 			}}
 			className="flex flex-col gap-2"
 		>
+			<div className="flex gap-[inherit]">
+				<Input
+					type="text"
+					aria-label="Message content"
+					placeholder="Say something!"
+					value={content}
+					onChange={(event) => setContent(event.target.value)}
+					className="flex-1"
+				/>
+				<Button
+					type="submit"
+					icon={<Lucide.Send />}
+					text="Send"
+					disabled={totalDice < 1 && content.trim() === ""}
+				/>
+			</div>
+
 			<Collapse title="Dice">
-				<div className="mt-2 flex flex-col gap-2">
-					<ul className="flex flex-wrap gap-2">
+				<div className="grid grid-cols-2 gap-2">
+					<ul className="contents">
 						{diceKinds
 							.map((kind) => ({ kind, count: diceCounts[kind.name] ?? 0 }))
 							.map(({ kind, count }) => (
@@ -98,12 +126,6 @@ export function MessageForm() {
 							))}
 					</ul>
 
-					<CheckboxField
-						label="Keep dice"
-						checked={keepDice}
-						onChange={(event) => setKeepDice(event.target.checked)}
-					/>
-
 					<Button
 						type="button"
 						icon={<Lucide.RotateCcw />}
@@ -114,25 +136,79 @@ export function MessageForm() {
 							setContent("")
 						}}
 					/>
+
+					<Button
+						type="button"
+						icon={<Lucide.Bookmark />}
+						text="Save macro"
+						disabled={totalDice < 1}
+						onClick={async () => {
+							const name = await prompt({
+								title: "Save dice macro",
+								inputLabel: "Name",
+								inputPlaceholder: "Do the cool awesome thing",
+								buttonText: "Save",
+								buttonIcon: <Lucide.Save />,
+							})
+							if (!name) return
+
+							await createMacro({
+								name,
+								roomId: room._id,
+								dice: getDiceInput().toArray(),
+							})
+						}}
+					/>
 				</div>
 			</Collapse>
 
-			<div className="flex gap-[inherit]">
-				<Input
-					type="text"
-					aria-label="Message content"
-					placeholder="Say something!"
-					value={content}
-					onChange={(event) => setContent(event.target.value)}
-					className="flex-1"
-				/>
-				<Button
-					type="submit"
-					icon={<Lucide.Send />}
-					text="Send"
-					disabled={totalDice < 1 && content.trim() === ""}
-				/>
-			</div>
+			{macros && macros.length > 0 && (
+				<Collapse title="Macros">
+					<div className="grid gap-2">
+						{macros.map((macro) => (
+							<section key={macro._id} className={panel("overflow-clip")}>
+								<header className="flex justify-between p-2">
+									<h3 className="flex-1 self-center">{macro.name}</h3>
+									<Tooltip content="Roll">
+										<Button
+											icon={<Lucide.Dices />}
+											onClick={async () => {
+												try {
+													await createMessage({
+														roomId: room._id,
+														content: content,
+														dice: macro.dice,
+													})
+													setContent("")
+												} catch (error) {
+													alert(
+														error instanceof ConvexError
+															? error.message
+															: "Something went wrong, try again.",
+													)
+												}
+											}}
+										/>
+									</Tooltip>
+								</header>
+								<ul className="flex flex-wrap gap-2 border-t border-primary-300 bg-black/25 p-2">
+									{macro.dice.map((die) =>
+										Iterator.range(die.count)
+											.map((n) => (
+												<li key={n} className="*:size-12 empty:hidden">
+													{diceKindsByName.get(die.name)?.element}
+												</li>
+											))
+											.toArray(),
+									)}
+								</ul>
+							</section>
+						))}
+					</div>
+				</Collapse>
+			)}
+
+			<hr className="border-primary-300" />
 		</form>
 	)
 }
@@ -140,11 +216,11 @@ export function MessageForm() {
 function Collapse({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
 	return (
 		<details className="group">
-			<summary className="flex cursor-default select-none items-center gap-1 transition hover:text-primary-700">
+			<summary className="flex cursor-default select-none items-center gap-1 py-1 transition hover:text-primary-700">
 				<Lucide.ChevronRight className="cursor-default select-none transition group-open:rotate-90" />
 				{title}
 			</summary>
-			{children}
+			<div className="mt-2">{children}</div>
 		</details>
 	)
 }

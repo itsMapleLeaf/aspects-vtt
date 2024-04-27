@@ -57,7 +57,7 @@ function PromptModalForm() {
 					autoFocus
 					render={
 						<Input
-							className="text-primary-100"
+							className="bg-primary-100"
 							value={value}
 							placeholder={context.currentPrompt?.inputPlaceholder}
 							onChange={(event) => setValue(event.target.value)}
