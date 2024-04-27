@@ -261,7 +261,7 @@ function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 
 		if (backgroundImage) {
 			isolateDraws(context, () => {
-				context.globalAlpha = 0.5
+				context.globalAlpha = 0.75
 				context.drawImage(
 					backgroundImage,
 					...camera.position.dividedBy(camera.scale).times(-1).tuple,
