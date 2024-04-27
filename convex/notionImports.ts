@@ -92,12 +92,13 @@ export const importData = internalAction({
 			aspects: await Promise.all(
 				aspectsList.results.map(asFullPage).map(async (page) => {
 					const content = await fetchBlockChildrenContent(page.id)
-					const paragraphs = content.split("\n\n")
+					const paragraphs = content.split("\n\n").filter(Boolean)
 					const abilityParagraph =
 						paragraphs.at(-1)?.replace(/^basic ability:\s*/i, "") ?? raise("Page has no content")
 					const [abilityName, abilityDescription] = abilityParagraph.split(/\s*-\s*/)
 					const name = getPropertyText(page.properties, "Name") as Branded<"aspectName">
 					console.info(`Imported aspect ${name}`)
+					console.log({ name, content, paragraphs, abilityParagraph })
 					return {
 						name: name,
 						description: paragraphs.slice(0, -1).join("\n\n"),
@@ -109,20 +110,29 @@ export const importData = internalAction({
 				}),
 			),
 
-			aspectSkills: await Promise.all(
-				aspectSkillsList.results.map(asFullPage).map(async (page) => {
-					const name = getPropertyText(page.properties, "Name")
-					const aspectDocs = await getRelatedPages(page.properties, "Aspects")
-					console.info(`Imported aspect skill ${name}`)
-					return {
-						name: name as Branded<"aspectSkillName">,
-						description: getPropertyText(page.properties, "Description"),
-						aspects: aspectDocs.map(
-							(doc) => getPropertyText(doc.properties, "Name") as Branded<"aspectName">,
-						),
-					}
-				}),
-			),
+			aspectSkills: (
+				await Promise.all(
+					aspectSkillsList.results.map(asFullPage).map(async (page) => {
+						const name = getPropertyText(page.properties, "Name")
+						const aspectDocs = await getRelatedPages(page.properties, "Aspects")
+						const hidden = getBooleanProperty(page.properties, "Hidden")
+						if (hidden) {
+							console.info(`Aspect skill ${name} is hidden; skipping`)
+							return
+						}
+
+						console.info(`imported aspect skill ${name}`)
+
+						return {
+							name: name as Branded<"aspectSkillName">,
+							description: getPropertyText(page.properties, "Description"),
+							aspects: aspectDocs.map(
+								(doc) => getPropertyText(doc.properties, "Name") as Branded<"aspectName">,
+							),
+						}
+					}),
+				)
+			).filter(Boolean),
 
 			attributes: await Promise.all(
 				attributeList.results.map(asFullPage).map(async (page) => {
@@ -262,4 +272,12 @@ async function getRelatedPages(properties: PageObjectResponse["properties"], nam
 		}),
 	)
 	return responses.filter(isFullPage)
+}
+
+function getBooleanProperty(properties: PageObjectResponse["properties"], name: string) {
+	const property = getPageProperty(properties, name)
+	if (property.type !== "checkbox") {
+		throw new Error(`Property "${name}" is not a checkbox property: ${JSON.stringify(property)}`)
+	}
+	return property.checkbox
 }
