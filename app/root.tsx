@@ -1,3 +1,6 @@
+import { installIntoGlobal } from "iterator-helpers-polyfill"
+installIntoGlobal()
+
 import "@fontsource-variable/nunito"
 import "./root.css"
 

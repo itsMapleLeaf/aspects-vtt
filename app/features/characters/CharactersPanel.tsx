@@ -69,7 +69,7 @@ function DuplicateCharacterButton({
 			icon={<Lucide.Copy />}
 			title="Duplicate Character"
 			onClick={async () => {
-				onDuplicate(await duplicate({ id: character._id }))
+				onDuplicate(await duplicate({ id: character._id, randomize: false }))
 			}}
 		/>
 	)

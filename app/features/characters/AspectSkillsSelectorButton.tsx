@@ -1,6 +1,7 @@
 import { Focusable } from "@ariakit/react"
 import { useMutation, useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
+import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
