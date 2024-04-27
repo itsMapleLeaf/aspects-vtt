@@ -105,20 +105,18 @@ export function ContestedRollForm({
 						}
 						await Promise.all([
 							createAttributeRollMessage({
-								content: `${opponent.nameVisible ? opponent.displayName : "???"}: ${
-									values.opponentAttribute?.name ?? "Strength"
-								}`,
-								attributeValue: opponent[values.opponentAttribute?.key ?? "strength"],
-								boostCount: values.opponentBoostCount,
-								snagCount: values.opponentSnagCount,
-							}),
-							createAttributeRollMessage({
-								content: `${selfCharacter.nameVisible ? selfCharacter.displayName : "???"}: ${
+								content: `<@${selfCharacter._id}> (Defending): ${
 									values.selfAttribute?.name ?? "Strength"
 								}`,
 								attributeValue: selfCharacter[values.selfAttribute?.key ?? "strength"],
 								boostCount: values.selfBoostCount,
 								snagCount: values.selfSnagCount,
+							}),
+							createAttributeRollMessage({
+								content: `<@${opponent._id}>: ${values.opponentAttribute?.name ?? "Strength"}`,
+								attributeValue: opponent[values.opponentAttribute?.key ?? "strength"],
+								boostCount: values.opponentBoostCount,
+								snagCount: values.opponentSnagCount,
 							}),
 						])
 						onRoll?.()

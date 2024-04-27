@@ -331,8 +331,8 @@ function CharacterDiceField({
 					/>
 					<AttributeDiceRollButton
 						attributeValue={value}
-						buttonLabel={`Roll ${label} for ${character.name}`}
-						messageContent={`${character.name}: ${label}`}
+						buttonLabel={`Roll ${label} for ${character.displayName}`}
+						messageContent={`<@${character._id}>: ${label}`}
 					/>
 				</div>
 			</FormField>

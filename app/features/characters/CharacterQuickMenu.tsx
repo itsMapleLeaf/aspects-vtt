@@ -40,8 +40,8 @@ export function CharacterQuickMenu(props: { character: ApiCharacter }) {
 				className={translucentPanel("w-[24rem]")}
 			>
 				<FormLayout>
-					<div className="flex items-end gap-2">
-						<FormRow className="grid auto-cols-fr grid-flow-col">
+					<div className="flex items-end gap-3">
+						<FormRow className="grid flex-1 auto-cols-fr grid-flow-col">
 							<CharacterDamageField character={props.character} />
 							<CharacterFatigueField character={props.character} />
 						</FormRow>
@@ -72,7 +72,7 @@ function RollAttributeButton(props: {
 						text={attribute.name}
 						onClick={() =>
 							createAttributeRollMessage({
-								content: `${props.character.name}: ${attribute.name}`,
+								content: `<@${props.character._id}>: ${attribute.name}`,
 								attributeValue: props.character[attribute.key],
 							})
 						}
