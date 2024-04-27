@@ -22,7 +22,7 @@ export function UploadedImage({ id, emptyIcon, imageClassName, ...props }: Uploa
 				<img
 					src={imageUrl}
 					alt=""
-					className={twMerge("size-full object-contain", imageClassName)}
+					className={twMerge("size-full object-contain [will-change:transform]", imageClassName)}
 					draggable={false}
 				/>
 			) : (

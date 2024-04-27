@@ -21,7 +21,9 @@ export const characterProperties = {
 
 	// stats
 	damage: v.optional(v.number()),
+	damageThreshold: v.optional(nullable(v.number())),
 	fatigue: v.optional(v.number()),
+	fatigueThreshold: v.optional(nullable(v.number())),
 	currency: v.optional(v.number()),
 
 	// attributes

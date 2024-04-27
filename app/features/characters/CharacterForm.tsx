@@ -79,10 +79,25 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			)}
 
 			{character.isOwner && (
-				<div className="flex gap-2 *:flex-1">
+				<div className="grid grid-flow-col items-end gap-2">
 					<CharacterDamageField character={character} />
 					<CharacterFatigueField character={character} />
 					<CharacterNumberField character={character} field="currency" />
+				</div>
+			)}
+
+			{character.isOwner && (
+				<div className="flex gap-2 *:flex-1">
+					<CharacterNumberField
+						character={character}
+						field="damageThreshold"
+						label="Damage Threshold"
+					/>
+					<CharacterNumberField
+						character={character}
+						field="fatigueThreshold"
+						label="Fatigue Threshold"
+					/>
 				</div>
 			)}
 
