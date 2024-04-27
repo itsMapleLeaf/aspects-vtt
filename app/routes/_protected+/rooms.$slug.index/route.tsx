@@ -280,8 +280,13 @@ function CharacterTile({
 			}}
 			{...props}
 		>
-			<div className={panel("overflow-clip aspect-square")} data-image>
-				<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />
+			<div className={panel("overflow-clip aspect-square relative flex-center")} data-image>
+				<UploadedImage
+					id={character.imageId}
+					emptyIcon={<Lucide.Ghost />}
+					className={character.visible ? "" : "opacity-50"}
+				/>
+				{character.visible ? null : <Lucide.EyeOff className="absolute size-8 opacity-50" />}
 			</div>
 			<p className="text-pretty text-center text-sm/none">{character.displayName}</p>
 		</button>

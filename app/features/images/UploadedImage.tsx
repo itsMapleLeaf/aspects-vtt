@@ -26,7 +26,7 @@ export function UploadedImage({ id, emptyIcon, imageClassName, ...props }: Uploa
 					draggable={false}
 				/>
 			) : (
-				<div className="flex size-full flex-col p-2 text-primary-600 opacity-50 *:m-auto *:aspect-square *:size-full empty:hidden">
+				<div className="flex-center size-full p-2 text-primary-600 opacity-50 *:size-full empty:hidden">
 					{emptyIcon}
 				</div>
 			)}
