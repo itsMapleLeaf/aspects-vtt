@@ -43,7 +43,7 @@ export const list = query({
 	},
 })
 
-const diceInputValidator = v.object({
+export const diceInputValidator = v.object({
 	name: v.string(),
 	sides: v.number(),
 	count: v.number(),

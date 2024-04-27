@@ -3,7 +3,7 @@ import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters.ts"
 import { nullish } from "./helpers.ts"
-import { diceRollValidator } from "./messages.ts"
+import { diceInputValidator, diceRollValidator } from "./messages.ts"
 import { notionImportProperties } from "./notionImports.ts"
 import { rectangleProperties } from "./rectangles.ts"
 import { roomProperties } from "./rooms.ts"
@@ -29,6 +29,15 @@ export default defineSchema({
 	players: defineTable({
 		roomId: v.id("rooms"),
 		userId: brandedString("clerkId"),
+		diceMacros: v.optional(
+			v.array(
+				v.object({
+					key: brandedString("diceMacro"),
+					name: v.string(),
+					dice: diceInputValidator,
+				}),
+			),
+		),
 	})
 		.index("by_room", ["roomId"])
 		.index("by_user", ["userId"])
