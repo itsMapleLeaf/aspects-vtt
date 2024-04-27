@@ -9,6 +9,7 @@ import { expect } from "#app/common/expect.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
 import { api } from "#convex/_generated/api.js"
+import type { Id } from "#convex/_generated/dataModel.js"
 import type { Branded } from "#convex/helpers.js"
 import { useScene } from "../scenes/context.tsx"
 import type { ApiScene } from "../scenes/types.ts"
@@ -247,6 +248,13 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 		previewArea,
 		selectedTokens,
 		selectedCharacters,
+		selectCharacter(id: Id<"characters">) {
+			for (const token of tokens ?? []) {
+				if (token.character?._id === id) {
+					setSelectedTokenIds(new Set([token.key]))
+				}
+			}
+		},
 		tokenMovement: tokenDragEnd?.minus(tokenDragStart ?? tokenDragEnd),
 		tokenMenu,
 		getMultiSelectArea,

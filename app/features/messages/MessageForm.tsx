@@ -2,7 +2,6 @@ import { useMutation } from "convex/react"
 import { ConvexError } from "convex/values"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
-import { randomItem } from "#app/common/random.js"
 import { Button } from "#app/ui/Button.tsx"
 import { CheckboxField } from "#app/ui/CheckboxField.js"
 import { Input } from "#app/ui/Input.tsx"
@@ -116,25 +115,6 @@ export function MessageForm() {
 						}}
 					/>
 				</div>
-			</Collapse>
-
-			<Collapse title="Actions">
-				<Button
-					text="Choose random character"
-					icon={<Lucide.Dices />}
-					onClick={async () => {
-						const character = randomItem(characters.filter((c) => c.visible))
-						if (!character) {
-							alert("No characters to choose from.")
-							return
-						}
-
-						await createMessage({
-							roomId: room._id,
-							content: `Random character: <@${character._id}>`,
-						})
-					}}
-				/>
 			</Collapse>
 
 			<div className="flex gap-[inherit]">

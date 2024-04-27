@@ -7,6 +7,7 @@ import { Rect } from "#app/common/Rect.js"
 import { hasItems } from "#app/common/collection.js"
 import { expect } from "#app/common/expect.js"
 import { clamp, mod } from "#app/common/math.js"
+import { randomItem } from "#app/common/random.js"
 import { useResizeObserver } from "#app/common/useResizeObserver.js"
 import { Vector } from "#app/common/vector.js"
 import { Menu, MenuItem, MenuPanel } from "#app/ui/Menu.tsx"
@@ -446,6 +447,18 @@ function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
 									sceneId: scene._id,
 									visible: false,
 								})
+							}
+						}}
+					/>
+				)}
+				{controller.selectedTokens().take(2).count() > 1 && (
+					<MenuItem
+						text="Choose random"
+						icon={<Lucide.Dices />}
+						onClick={() => {
+							const result = randomItem(controller.selectedCharacters().toArray())
+							if (result) {
+								controller.selectCharacter(result._id)
 							}
 						}}
 					/>
