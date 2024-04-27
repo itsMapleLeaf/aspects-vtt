@@ -5,7 +5,10 @@ import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { Button } from "#app/ui/Button.tsx"
 import { Input } from "#app/ui/Input.tsx"
+import { Modal, ModalButton, ModalPanel } from "#app/ui/Modal.js"
+import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
 import { usePrompt } from "#app/ui/Prompt.js"
+import { ScrollArea } from "#app/ui/ScrollArea.js"
 import { Tooltip } from "#app/ui/Tooltip.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
@@ -60,6 +63,94 @@ export function MessageForm() {
 			className="flex flex-col gap-2"
 		>
 			<div className="flex gap-[inherit]">
+				<Popover placement="left-start">
+					<PopoverTrigger render={<Button icon={<Lucide.Dices />} title="Dice" />} />
+					<PopoverPanel gutter={16} shift={-8}>
+						<div className="grid grid-cols-2 gap-2 p-2">
+							<ul className="contents">
+								{diceKinds
+									.map((kind) => ({ kind, count: diceCounts[kind.name] ?? 0 }))
+									.map(({ kind, count }) => (
+										<li
+											key={kind.name}
+											data-selected={count > 0}
+											className={panel(
+												"flex items-center justify-center gap-2 px-3 py-1 transition *:data-[selected=false]:opacity-50",
+											)}
+										>
+											<div className="flex flex-col">
+												<button
+													type="button"
+													title={`Add a ${kind.name}`}
+													className="-m-2 flex items-center justify-center p-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
+													onClick={() => updateDiceCount(kind.name, 1)}
+												>
+													<Lucide.ChevronUp />
+												</button>
+												<button
+													type="button"
+													title={`Add a ${kind.name}`}
+													className="-mx-2 flex items-center justify-center px-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
+													onClick={() => updateDiceCount(kind.name, -1)}
+												>
+													<Lucide.ChevronDown />
+												</button>
+											</div>
+
+											<p className="text-center text-xl font-medium tabular-nums">{count}</p>
+
+											<button
+												type="button"
+												className="transition *:size-12 hover:brightness-75 active:brightness-125 active:duration-0"
+												title={`Click to add a ${kind.name}, right-click to remove`}
+												onClick={() => updateDiceCount(kind.name, 1)}
+												onContextMenu={(event) => {
+													event.preventDefault()
+													updateDiceCount(kind.name, -1)
+												}}
+											>
+												{kind.element}
+											</button>
+										</li>
+									))}
+							</ul>
+
+							<Button
+								type="button"
+								icon={<Lucide.RotateCcw />}
+								text="Reset dice"
+								disabled={totalDice < 1}
+								onClick={() => {
+									setDiceCounts({})
+									setContent("")
+								}}
+							/>
+
+							<Button
+								type="button"
+								icon={<Lucide.Bookmark />}
+								text="Save macro"
+								disabled={totalDice < 1}
+								onClick={async () => {
+									const name = await prompt({
+										title: "Save dice macro",
+										inputLabel: "Name",
+										inputPlaceholder: "Do the cool awesome thing",
+										buttonText: "Save",
+										buttonIcon: <Lucide.Save />,
+									})
+									if (!name) return
+
+									await createMacro({
+										name,
+										roomId: room._id,
+										dice: getDiceInput().toArray(),
+									})
+								}}
+							/>
+						</div>
+					</PopoverPanel>
+				</Popover>
 				<Input
 					type="text"
 					aria-label="Message content"
@@ -76,139 +167,61 @@ export function MessageForm() {
 				/>
 			</div>
 
-			<Collapse title="Dice">
-				<div className="grid grid-cols-2 gap-2">
-					<ul className="contents">
-						{diceKinds
-							.map((kind) => ({ kind, count: diceCounts[kind.name] ?? 0 }))
-							.map(({ kind, count }) => (
-								<li
-									key={kind.name}
-									data-selected={count > 0}
-									className={panel(
-										"flex items-center justify-center gap-2 px-3 py-1 transition *:data-[selected=false]:opacity-50",
-									)}
-								>
-									<div className="flex flex-col">
-										<button
-											type="button"
-											title={`Add a ${kind.name}`}
-											className="-m-2 flex items-center justify-center p-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
-											onClick={() => updateDiceCount(kind.name, 1)}
-										>
-											<Lucide.ChevronUp />
-										</button>
-										<button
-											type="button"
-											title={`Add a ${kind.name}`}
-											className="-mx-2 flex items-center justify-center px-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
-											onClick={() => updateDiceCount(kind.name, -1)}
-										>
-											<Lucide.ChevronDown />
-										</button>
-									</div>
-
-									<p className="text-center text-xl font-medium tabular-nums">{count}</p>
-
-									<button
-										type="button"
-										className="transition *:size-12 hover:brightness-75 active:brightness-125 active:duration-0"
-										title={`Click to add a ${kind.name}, right-click to remove`}
-										onClick={() => updateDiceCount(kind.name, 1)}
-										onContextMenu={(event) => {
-											event.preventDefault()
-											updateDiceCount(kind.name, -1)
-										}}
-									>
-										{kind.element}
-									</button>
-								</li>
-							))}
-					</ul>
-
-					<Button
-						type="button"
-						icon={<Lucide.RotateCcw />}
-						text="Reset dice"
-						disabled={totalDice < 1}
-						onClick={() => {
-							setDiceCounts({})
-							setContent("")
-						}}
-					/>
-
-					<Button
-						type="button"
-						icon={<Lucide.Bookmark />}
-						text="Save macro"
-						disabled={totalDice < 1}
-						onClick={async () => {
-							const name = await prompt({
-								title: "Save dice macro",
-								inputLabel: "Name",
-								inputPlaceholder: "Do the cool awesome thing",
-								buttonText: "Save",
-								buttonIcon: <Lucide.Save />,
-							})
-							if (!name) return
-
-							await createMacro({
-								name,
-								roomId: room._id,
-								dice: getDiceInput().toArray(),
-							})
-						}}
-					/>
-				</div>
-			</Collapse>
-
 			{macros && macros.length > 0 && (
-				<Collapse title="Macros">
-					<div className="grid gap-2">
-						{macros.map((macro) => (
-							<section key={macro._id} className={panel("overflow-clip")}>
-								<header className="flex justify-between p-2">
-									<h3 className="flex-1 self-center">{macro.name}</h3>
-									<Tooltip content="Roll">
-										<Button
-											icon={<Lucide.Dices />}
-											onClick={async () => {
-												try {
-													await createMessage({
-														roomId: room._id,
-														content: content,
-														dice: macro.dice,
-													})
-													setContent("")
-												} catch (error) {
-													alert(
-														error instanceof ConvexError
-															? error.message
-															: "Something went wrong, try again.",
-													)
-												}
-											}}
-										/>
-									</Tooltip>
-								</header>
-								<ul className="flex flex-wrap gap-2 border-t border-primary-300 bg-black/25 p-2">
-									{macro.dice.map((die) =>
-										Iterator.range(die.count)
-											.map((n) => (
-												<li key={n} className="*:size-12 empty:hidden">
-													{diceKindsByName.get(die.name)?.element}
-												</li>
-											))
-											.toArray(),
-									)}
-								</ul>
-							</section>
-						))}
-					</div>
-				</Collapse>
+				<Modal>
+					{(modal) => (
+						<>
+							<ModalButton render={<Button icon={<Lucide.Bookmark />} text="Saved macros" />} />
+							<ModalPanel title="Saved macros" fullHeight>
+								<ScrollArea scrollbarPosition="inside" className="min-h-0 flex-1">
+									<div className="grid min-h-0 gap-2 p-2">
+										{macros.map((macro) => (
+											<section key={macro._id} className={panel("overflow-clip")}>
+												<header className="flex justify-between p-2">
+													<h3 className="flex-1 self-center">{macro.name}</h3>
+													<Tooltip content="Roll">
+														<Button
+															icon={<Lucide.Dices />}
+															onClick={async () => {
+																try {
+																	await createMessage({
+																		roomId: room._id,
+																		content: content,
+																		dice: macro.dice,
+																	})
+																	setContent("")
+																	modal.hide()
+																} catch (error) {
+																	alert(
+																		error instanceof ConvexError
+																			? error.message
+																			: "Something went wrong, try again.",
+																	)
+																}
+															}}
+														/>
+													</Tooltip>
+												</header>
+												<ul className="flex flex-wrap gap-2 border-t border-primary-300 bg-black/25 p-2">
+													{macro.dice.map((die) =>
+														Iterator.range(die.count)
+															.map((n) => (
+																<li key={n} className="*:size-12 empty:hidden">
+																	{diceKindsByName.get(die.name)?.element}
+																</li>
+															))
+															.toArray(),
+													)}
+												</ul>
+											</section>
+										))}
+									</div>
+								</ScrollArea>
+							</ModalPanel>
+						</>
+					)}
+				</Modal>
 			)}
-
-			<hr className="border-primary-300" />
 		</form>
 	)
 }
