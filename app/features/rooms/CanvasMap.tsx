@@ -276,7 +276,7 @@ function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 			isolateDraws(context, () => {
 				context.strokeStyle = "black"
 				context.lineWidth = 1
-				context.globalAlpha = 0.5
+				context.globalAlpha = 0.25
 
 				context.beginPath()
 
