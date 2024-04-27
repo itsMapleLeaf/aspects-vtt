@@ -44,7 +44,7 @@ export function AspectSkillsSelectorButton({
 	)
 
 	const getCost = (skill: ApiAspectSkill, index: number) =>
-		index <= 1 ? 0 : skill.aspects.length * 10 + Math.max(0, index - 2) * 5
+		index <= 1 ? 0 : skill.aspects.length * 5 + Math.max(0, index - 2) * 5
 
 	const usedExperience = addedAspectSkills
 		.values()
