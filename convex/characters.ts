@@ -16,8 +16,8 @@ export const characterProperties = {
 	pronouns: v.optional(v.string()),
 	imageId: v.optional(v.union(v.id("_storage"), v.null())),
 	race: v.optional(v.string()),
-	coreAspect: v.optional(nullable(brandedString("aspectName"))),
-	aspectSkills: v.optional(v.array(brandedString("aspectSkillName"))),
+	coreAspect: v.optional(nullable(v.string())),
+	aspectSkills: v.optional(v.array(v.string())),
 
 	// stats
 	damage: v.optional(v.number()),
@@ -124,10 +124,7 @@ export const update = mutation({
 		...characterProperties,
 		id: v.id("characters"),
 		aspectSkills: v.optional(
-			v.union(
-				v.object({ add: brandedString("aspectSkillName") }),
-				v.object({ remove: brandedString("aspectSkillName") }),
-			),
+			v.union(v.object({ add: v.string() }), v.object({ remove: v.string() })),
 		),
 	},
 	handler: async (ctx, { id, aspectSkills, ...args }) => {

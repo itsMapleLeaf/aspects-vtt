@@ -18,7 +18,8 @@ import type { Branded } from "./helpers.ts"
 export const notionImportProperties = {
 	attributes: v.array(
 		v.object({
-			name: brandedString("attributeName"),
+			id: v.optional(brandedString("attributes")),
+			name: v.string(),
 			description: v.string(),
 			key: v.union(
 				v.literal("strength"),
@@ -31,7 +32,8 @@ export const notionImportProperties = {
 	),
 	races: v.array(
 		v.object({
-			name: brandedString("raceName"),
+			id: v.optional(brandedString("races")),
+			name: v.string(),
 			description: v.string(),
 			abilities: v.array(
 				v.object({
@@ -43,7 +45,8 @@ export const notionImportProperties = {
 	),
 	aspects: v.array(
 		v.object({
-			name: brandedString("aspectName"),
+			id: v.optional(brandedString("aspects")),
+			name: v.string(),
 			description: v.string(),
 			ability: v.object({
 				name: v.string(),
@@ -53,18 +56,37 @@ export const notionImportProperties = {
 	),
 	generalSkills: v.array(
 		v.object({
-			name: brandedString("generalSkillName"),
+			id: v.optional(brandedString("generalSkills")),
+			name: v.string(),
 			description: v.string(),
 		}),
 	),
 	aspectSkills: v.array(
 		v.object({
-			name: brandedString("aspectSkillName"),
+			id: v.optional(brandedString("aspectSkills")),
+			name: v.string(),
 			description: v.string(),
 			aspects: v.array(brandedString("aspectName")),
 		}),
 	),
 }
+
+export const migrate = internalMutation(async (ctx) => {
+	for await (const item of ctx.db.query("notionImports")) {
+		const newItem = Object.fromEntries(
+			Object.entries(item).map(([key, value]) =>
+				Array.isArray(value)
+					? ([
+							key,
+							value.map((item) => ({ ...item, id: `${key}:${crypto.randomUUID()}` })),
+						] as const)
+					: ([key, value] as const),
+			),
+		)
+
+		await ctx.db.replace(item._id, newItem)
+	}
+})
 
 export const importData = internalAction({
 	async handler(ctx) {
