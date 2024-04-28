@@ -6,7 +6,10 @@ import type {
 } from "@notionhq/client/build/src/api-endpoints"
 import { brandedString } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
+import { Console, Effect, Option, pipe } from "effect"
+import { Iterator } from "iterator-helpers-polyfill"
 import { raise } from "#app/common/errors.js"
+import { lines } from "#app/common/string.js"
 import { internal } from "./_generated/api"
 import { internalAction, internalMutation, query } from "./_generated/server"
 import { convexEnv } from "./env.ts"
@@ -65,127 +68,19 @@ export const notionImportProperties = {
 
 export const importData = internalAction({
 	async handler(ctx) {
-		const client = new Client({
-			auth: convexEnv().NOTION_API_SECRET,
-		})
-
-		const [aspectsList, aspectSkillsList, generalSkillsList, racesList, attributeList] =
-			await Promise.all([
-				client.databases.query({
-					database_id: convexEnv().NOTION_ASPECTS_DATABASE_ID,
-				}),
-				client.databases.query({
-					database_id: convexEnv().NOTION_ASPECT_SKILLS_DATABASE_ID,
-				}),
-				client.databases.query({
-					database_id: convexEnv().NOTION_GENERAL_SKILLS_DATABASE_ID,
-				}),
-				client.databases.query({
-					database_id: convexEnv().NOTION_RACES_DATABASE_ID,
-				}),
-				client.databases.query({
-					database_id: convexEnv().NOTION_ATTRIBUTES_DATABASE_ID,
-				}),
-			])
-
-		await ctx.runMutation(internal.notionImports.create, {
-			aspects: await Promise.all(
-				aspectsList.results.map(asFullPage).map(async (page) => {
-					const content = await fetchBlockChildrenContent(page.id)
-					const paragraphs = content.split("\n\n").filter(Boolean)
-					const abilityParagraph =
-						paragraphs.at(-1)?.replace(/^basic ability:\s*/i, "") ?? raise("Page has no content")
-					const [abilityName, abilityDescription] = abilityParagraph.split(/\s*-\s*/)
-					const name = getPropertyText(page.properties, "Name") as Branded<"aspectName">
-					console.info(`Imported aspect ${name}`)
-					console.log({ name, content, paragraphs, abilityParagraph })
-					return {
-						name: name,
-						description: paragraphs.slice(0, -1).join("\n\n"),
-						ability: {
-							name: abilityName ?? raise("no ability name"),
-							description: abilityDescription ?? raise("no ability description"),
-						},
-					}
-				}),
+		const data = await Effect.runPromise(
+			Effect.all(
+				{
+					aspects: Effect.tryPromise(() => getAspects()),
+					aspectSkills: Effect.tryPromise(() => getAspectSkills()),
+					attributes: Effect.tryPromise(() => getAttributes()),
+					generalSkills: Effect.tryPromise(() => getGeneralSkills()),
+					races: getRaces(),
+				},
+				{ concurrency: "inherit" },
 			),
-
-			aspectSkills: (
-				await Promise.all(
-					aspectSkillsList.results.map(asFullPage).map(async (page) => {
-						const name = getPropertyText(page.properties, "Name")
-						const aspectDocs = await getRelatedPages(page.properties, "Aspects")
-						const hidden = getBooleanProperty(page.properties, "Hidden")
-						if (hidden) {
-							console.info(`Aspect skill ${name} is hidden; skipping`)
-							return
-						}
-
-						console.info(`imported aspect skill ${name}`)
-
-						return {
-							name: name as Branded<"aspectSkillName">,
-							description: getPropertyText(page.properties, "Description"),
-							aspects: aspectDocs.map(
-								(doc) => getPropertyText(doc.properties, "Name") as Branded<"aspectName">,
-							),
-						}
-					}),
-				)
-			).filter(Boolean),
-
-			attributes: await Promise.all(
-				attributeList.results.map(asFullPage).map(async (page) => {
-					const name = getPropertyText(page.properties, "Name")
-					console.info(`Imported attribute ${name}`)
-					return {
-						name: name as Branded<"attributeName">,
-						description: await fetchBlockChildrenContent(page.id),
-						key: name.toLowerCase() as Infer<
-							typeof notionImportProperties.attributes
-						>[number]["key"],
-					}
-				}),
-			),
-
-			generalSkills: await Promise.all(
-				generalSkillsList.results.map(asFullPage).map(async (page) => {
-					const name = getPropertyText(page.properties, "Name")
-					console.info(`Imported general skill ${name}`)
-					return {
-						name: name as Branded<"generalSkillName">,
-						description: await fetchBlockChildrenContent(page.id),
-					}
-				}),
-			),
-
-			races: (
-				await Promise.all(
-					racesList.results.map(asFullPage).map(async (page) => {
-						const name = getPropertyText(page.properties, "Name")
-
-						const abilities = getPropertyText(page.properties, "Abilities")
-							.split(/\s*\n\s*/)
-							.filter(Boolean)
-							.map((line) => {
-								const [name, description] = line.split(/\s*-\s*/)
-								return {
-									name: name ?? raise(`no ability name`),
-									description: description ?? raise(`no ability description`),
-								}
-							})
-
-						console.info(`Imported race ${name}`)
-
-						return {
-							name: name as Branded<"raceName">,
-							description: await fetchBlockChildrenContent(page.id),
-							abilities,
-						}
-					}),
-				)
-			).filter((item) => item.name),
-		})
+		)
+		await ctx.runMutation(internal.notionImports.create, data)
 	},
 })
 
@@ -202,9 +97,192 @@ export const create = internalMutation({
 	},
 })
 
+function createNotionClient() {
+	return Effect.try({
+		try() {
+			return new Client({
+				auth: convexEnv().NOTION_API_SECRET,
+			})
+		},
+		catch(cause) {
+			return new Error("Failed to create notion API client", { cause })
+		},
+	})
+}
+
+function getDatabasePages(databaseId: string) {
+	return Effect.gen(function* () {
+		const client = yield* createNotionClient()
+		return yield* Effect.tryPromise({
+			async try() {
+				const response = await client.databases.query({
+					database_id: databaseId,
+				})
+				return response.results.map(asFullPage)
+			},
+			catch(cause) {
+				return new Error("Failed to fetch database pages", { cause })
+			},
+		})
+	})
+}
+
+function getRaces() {
+	return Effect.gen(function* getRaces() {
+		const pages = yield* getDatabasePages(convexEnv().NOTION_RACES_DATABASE_ID)
+		const effects = pages.map(function createPageEffect(page) {
+			return pipe(
+				Effect.gen(function* parsePage() {
+					const name = (yield* Effect.filterOrFail(
+						getPropertyTextEffect(page.properties, "Name"),
+						(text) => text.trim() !== "",
+						() => new Error(`Page name is empty: ${JSON.stringify(page, null, 2)}`),
+					)) as Branded<"raceName">
+
+					const description = yield* Effect.tryPromise(() => fetchBlockChildrenContent(page.id))
+
+					const abilities = yield* Effect.forEach(
+						lines(yield* getPropertyTextEffect(page.properties, "Abilities")),
+						function parseAbility(line: string) {
+							return Effect.mapError(
+								Effect.gen(function* () {
+									const parts = line.split(/\s*-\s*/)
+									const name = yield* Option.fromNullable(parts[0])
+									const description = yield* Option.fromNullable(parts[1])
+									return { name, description }
+								}),
+								(cause) =>
+									new Error(`Race "${name}" has malformed ability line: ${line}`, { cause }),
+							)
+						},
+					)
+
+					return {
+						name,
+						description,
+						abilities,
+					}
+				}),
+				Effect.tapBoth({
+					onSuccess: (race) => Console.info(`✅ Imported race "${race.name}"`),
+					onFailure: (error) =>
+						Console.warn(`⚠️ Failed to import race. ${error.message}\n${error.stack}`),
+				}),
+			)
+		})
+		return yield* Effect.allSuccesses(Iterator.from(effects), { concurrency: "inherit" })
+	})
+}
+
+async function getGeneralSkills() {
+	const client = new Client({
+		auth: convexEnv().NOTION_API_SECRET,
+	})
+
+	const generalSkillsList = await client.databases.query({
+		database_id: convexEnv().NOTION_GENERAL_SKILLS_DATABASE_ID,
+	})
+
+	return await Promise.all(
+		generalSkillsList.results.map(asFullPage).map(async (page) => {
+			const name = getPropertyText(page.properties, "Name")
+			console.info(`Imported general skill ${name}`)
+			return {
+				name: name as Branded<"generalSkillName">,
+				description: await fetchBlockChildrenContent(page.id),
+			}
+		}),
+	)
+}
+
+async function getAttributes() {
+	const client = new Client({
+		auth: convexEnv().NOTION_API_SECRET,
+	})
+
+	const attributeList = await client.databases.query({
+		database_id: convexEnv().NOTION_ATTRIBUTES_DATABASE_ID,
+	})
+
+	return await Promise.all(
+		attributeList.results.map(asFullPage).map(async (page) => {
+			const name = getPropertyText(page.properties, "Name")
+			console.info(`Imported attribute ${name}`)
+			return {
+				name: name as Branded<"attributeName">,
+				description: await fetchBlockChildrenContent(page.id),
+				key: name.toLowerCase() as Infer<typeof notionImportProperties.attributes>[number]["key"],
+			}
+		}),
+	)
+}
+
+async function getAspectSkills() {
+	const client = new Client({
+		auth: convexEnv().NOTION_API_SECRET,
+	})
+
+	const aspectSkillsresponse = await client.databases.query({
+		database_id: convexEnv().NOTION_ASPECT_SKILLS_DATABASE_ID,
+	})
+
+	const aspectSkills = await Promise.all(
+		aspectSkillsresponse.results.map(asFullPage).map(async (page) => {
+			const name = getPropertyText(page.properties, "Name")
+			const aspectDocs = await getRelatedPages(page.properties, "Aspects")
+			const hidden = getBooleanProperty(page.properties, "Hidden")
+			if (hidden) {
+				console.info(`Aspect skill ${name} is hidden; skipping`)
+				return
+			}
+
+			console.info(`imported aspect skill ${name}`)
+
+			return {
+				name: name as Branded<"aspectSkillName">,
+				description: getPropertyText(page.properties, "Description"),
+				aspects: aspectDocs.map(
+					(doc) => getPropertyText(doc.properties, "Name") as Branded<"aspectName">,
+				),
+			}
+		}),
+	)
+	return aspectSkills.filter(Boolean)
+}
+
+async function getAspects() {
+	const client = new Client({
+		auth: convexEnv().NOTION_API_SECRET,
+	})
+
+	const aspectsList = await client.databases.query({
+		database_id: convexEnv().NOTION_ASPECTS_DATABASE_ID,
+	})
+
+	return await Promise.all(
+		aspectsList.results.map(asFullPage).map(async (page) => {
+			const content = await fetchBlockChildrenContent(page.id)
+			const paragraphs = content.split("\n\n").filter(Boolean)
+			const abilityParagraph =
+				paragraphs.at(-1)?.replace(/^basic ability:\s*/i, "") ?? raise("Page has no content")
+			const [abilityName, abilityDescription] = abilityParagraph.split(/\s*-\s*/)
+			const name = getPropertyText(page.properties, "Name") as Branded<"aspectName">
+			console.info(`Imported aspect ${name}`)
+			return {
+				name: name,
+				description: paragraphs.slice(0, -1).join("\n\n"),
+				ability: {
+					name: abilityName ?? raise("no ability name"),
+					description: abilityDescription ?? raise("no ability description"),
+				},
+			}
+		}),
+	)
+}
+
 function asFullPage(page: QueryDatabaseResponse["results"][number]): PageObjectResponse {
 	if (!isFullPage(page)) {
-		throw new Error(`Expected full page, got ${JSON.stringify(page)}`)
+		throw new Error(`Expected full page, got ${JSON.stringify(page, null, 2)}`)
 	}
 	return page
 }
@@ -225,16 +303,19 @@ function getPropertyText(properties: PageObjectResponse["properties"], name: str
 	}
 }
 
+const getPropertyTextEffect = (...args: Parameters<typeof getPropertyText>) =>
+	Effect.try(() => getPropertyText(...args))
+
 function getPageProperty(properties: PageObjectResponse["properties"], name: string) {
 	const property = properties[name]
 	if (!property) {
-		throw new Error(`Property "${name}" does not exist: ${JSON.stringify(properties)}`)
+		throw new Error(`Property "${name}" does not exist: ${JSON.stringify(properties, null, 2)}`)
 	}
 	return property
 }
 
 async function fetchBlockChildrenContent(parentId: string): Promise<string> {
-	const client = createNotionClient()
+	const client = await Effect.runPromise(createNotionClient())
 
 	const blocks = await client.blocks.children.list({ block_id: parentId })
 
@@ -252,19 +333,18 @@ async function fetchBlockChildrenContent(parentId: string): Promise<string> {
 	return textBlocks.join("\n\n")
 }
 
-function createNotionClient() {
-	return new Client({
-		auth: convexEnv().NOTION_API_SECRET,
-	})
-}
+const fetchBlockChildrenContentEffect = (...args: Parameters<typeof fetchBlockChildrenContent>) =>
+	Effect.tryPromise(() => fetchBlockChildrenContent(...args))
 
 async function getRelatedPages(properties: PageObjectResponse["properties"], name: string) {
 	const property = getPageProperty(properties, name)
 	if (property.type !== "relation") {
-		throw new Error(`Property "${name}" is not a relation property: ${JSON.stringify(property)}`)
+		throw new Error(
+			`Property "${name}" is not a relation property: ${JSON.stringify(property, null, 2)}`,
+		)
 	}
 
-	const client = createNotionClient()
+	const client = await Effect.runPromise(createNotionClient())
 
 	const responses = await Promise.all(
 		property.relation.map(({ id }) => {
@@ -277,7 +357,9 @@ async function getRelatedPages(properties: PageObjectResponse["properties"], nam
 function getBooleanProperty(properties: PageObjectResponse["properties"], name: string) {
 	const property = getPageProperty(properties, name)
 	if (property.type !== "checkbox") {
-		throw new Error(`Property "${name}" is not a checkbox property: ${JSON.stringify(property)}`)
+		throw new Error(
+			`Property "${name}" is not a checkbox property: ${JSON.stringify(property, null, 2)}`,
+		)
 	}
 	return property.checkbox
 }
