@@ -6,3 +6,15 @@ export function timeoutEffect<Args extends unknown[]>(
 	const timeout = setTimeout(callback, delay, ...args)
 	return () => clearTimeout(timeout)
 }
+
+export async function promiseAllObject<Promises extends Record<string, unknown>>(
+	promises: Promises,
+) {
+	const result: Record<string, unknown> = {}
+	await Promise.all(
+		Object.entries(promises).map(async ([key, promise]) => {
+			result[key] = await promise
+		}),
+	)
+	return result as { [K in keyof Promises]: Awaited<Promises[K]> }
+}
