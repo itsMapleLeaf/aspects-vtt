@@ -1,6 +1,7 @@
 import { brandedString, literals } from "convex-helpers/validators"
-import { v } from "convex/values"
+import { type Infer, v } from "convex/values"
 import { omit } from "#app/common/object.js"
+import type { UndefinedToOptional } from "#app/common/types.js"
 import { CharacterModel } from "#convex/CharacterModel.ts"
 import { RoomModel } from "#convex/RoomModel.ts"
 import { mutation, query } from "#convex/_generated/server.js"
@@ -69,7 +70,7 @@ export const add = mutation({
 		}
 
 		return await ctx.db.patch(sceneId, {
-			tokens: [...(scene.tokens ?? []), { ...args, key: crypto.randomUUID() as Branded<"token"> }],
+			tokens: [...(scene.tokens ?? []), createToken(args)],
 		})
 	},
 })
@@ -104,3 +105,11 @@ export const update = mutation({
 		})
 	},
 })
+
+export type CreateTokenArgs = UndefinedToOptional<{
+	[K in Exclude<keyof typeof sceneTokenProperties, "key">]: Infer<(typeof sceneTokenProperties)[K]>
+}>
+
+export function createToken(args: CreateTokenArgs) {
+	return { ...args, key: `token:${crypto.randomUUID()}` as Branded<"token"> }
+}

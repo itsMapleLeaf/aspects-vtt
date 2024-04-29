@@ -134,5 +134,6 @@ export function requireRoomOwner(ctx: QueryCtx, roomId: Id<"rooms">) {
 	return Result.fn(async () => {
 		const room = await RoomModel.fromId(ctx, roomId).getValueOrThrow()
 		await room.assertOwned()
+		return room
 	})
 }

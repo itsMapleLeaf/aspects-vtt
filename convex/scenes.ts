@@ -5,7 +5,7 @@ import { type QueryCtx, mutation, query } from "#convex/_generated/server.js"
 import { RoomModel } from "./RoomModel.ts"
 import { requireDoc } from "./helpers.ts"
 import { requireRoomOwner } from "./rooms.ts"
-import { sceneTokenProperties } from "./scenes/tokens.ts"
+import { createToken, sceneTokenProperties } from "./scenes/tokens.ts"
 
 const sceneUpdateProperties = {
 	name: v.string(),
@@ -54,11 +54,28 @@ export const create = mutation({
 		name: v.string(),
 	},
 	async handler(ctx, args) {
-		await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
+		const room = await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
+
+		const players = await ctx.db
+			.query("players")
+			.withIndex("by_room", (q) => q.eq("roomId", room.data._id))
+			.collect()
+
+		const characters = ctx.db
+			.query("characters")
+			.filter((q) => q.or(...players.map((player) => q.eq(q.field("playerId"), player.userId))))
+
 		return await ctx.db.insert("scenes", {
 			...args,
 			background: null,
 			cellSize: 70,
+			tokens: await Array.fromAsync(characters, (character, index) =>
+				createToken({
+					position: { x: index * 70, y: 0 },
+					visible: true,
+					characterId: character._id,
+				}),
+			),
 		})
 	},
 })
