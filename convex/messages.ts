@@ -1,10 +1,12 @@
 import { paginationOptsValidator } from "convex/server"
 import { ConvexError, type Infer, v } from "convex/values"
+import { Effect } from "effect"
 import { expect } from "#app/common/expect.js"
 import { pick } from "#app/common/object.js"
 import { range } from "#app/common/range.js"
 import { CharacterModel } from "./CharacterModel.js"
 import { mutation, query } from "./_generated/server.js"
+import { QueryCtxService } from "./helpers.js"
 import { getUserFromClerkId, getUserFromIdentity } from "./users.js"
 
 export const diceRollValidator = v.object({
@@ -27,7 +29,13 @@ export const list = query({
 			...result,
 			page: await Promise.all(
 				result.page.map(async ({ userId, ...message }) => {
-					const user = await getUserFromClerkId(ctx, userId).getValueOrNull()
+					const user = await Effect.runPromise(
+						getUserFromClerkId(userId).pipe(
+							QueryCtxService.provide(ctx),
+							Effect.tapError(Effect.logWarning),
+							Effect.orElseSucceed(() => null),
+						),
+					)
 					const { value: character } = await CharacterModel.fromPlayerId(ctx, userId)
 					const data = await character?.getComputedData()
 					return {

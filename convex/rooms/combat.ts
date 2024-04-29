@@ -1,19 +1,21 @@
 import { deprecated, nullable } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
+import { Effect, pipe } from "effect"
 import { indexLooped, withMovedItem } from "#app/common/array.ts"
-import { keyedByProperty } from "#app/common/collection.js"
 import { expect } from "#app/common/expect.ts"
 import { roll } from "#app/common/random.js"
 import type { Id } from "#convex/_generated/dataModel.js"
+import { QueryCtxService, getDoc } from "#convex/helpers.ts"
 import { type AttributeId, attributeIdValidator, getNotionImports } from "#convex/notionImports.ts"
 import { CharacterModel } from "../CharacterModel.ts"
 import { RoomModel } from "../RoomModel.ts"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 
-const memberValidator = v.object({
+export const memberValidator = v.object({
 	characterId: v.id("characters"),
 	initiative: nullable(v.number()),
 })
+export type CombatMember = Infer<typeof memberValidator>
 
 export const roomCombatValidator = v.object({
 	currentMemberId: v.optional(nullable(v.id("characters"))),
@@ -27,50 +29,40 @@ export const roomCombatValidator = v.object({
 export const getCombatMembers = query({
 	args: { roomId: v.id("rooms") },
 	handler: async (ctx, args) => {
-		const { value: room } = await RoomModel.fromId(ctx, args.roomId)
-		const combat = room?.data.combat
+		return Effect.runPromise(
+			pipe(
+				Effect.gen(function* () {
+					const combat = yield* getRoomCombat(args.roomId)
 
-		let members: Infer<typeof memberValidator>[] = []
-		let currentMemberId: Id<"characters"> | undefined
-		let currentMemberIndex = 0
+					// filter out member items that don't have character docs
+					const members = yield* pipe(
+						Effect.fromNullable(combat.memberObjects),
+						Effect.flatMap(Effect.filter((member) => Effect.isSuccess(getDoc(member.characterId)))),
+					)
 
-		if (room && combat?.memberObjects) {
-			const memberCharacters = await ctx.db
-				.query("characters")
-				.withIndex("by_room", (q) => q.eq("roomId", room.data._id))
-				.filter((q) =>
-					q.or(
-						...(combat.memberObjects ?? []).map((member) =>
-							q.eq(q.field("_id"), member.characterId),
-						),
-					),
-				)
-				.collect()
+					const currentMemberId = combat.currentMemberId ?? members[0]?.characterId
+					const currentMemberIndex = members.findIndex((it) => it.characterId === currentMemberId)
 
-			const memberCharactersById = keyedByProperty(memberCharacters, "_id")
-
-			const currentMemberCharacter =
-				(room.data.combat?.currentMemberId &&
-					memberCharactersById.get(room.data.combat.currentMemberId)) ||
-				memberCharacters[0]
-
-			members = combat.memberObjects.filter((member) =>
-				memberCharactersById.has(member.characterId),
-			)
-			currentMemberId = currentMemberCharacter?._id
-			if (currentMemberId) {
-				currentMemberIndex = members.findIndex(
-					(it) => it.characterId === currentMemberCharacter?._id,
-				)
-				currentMemberIndex = Math.max(currentMemberIndex, 0)
-			}
-		}
-
-		return {
-			members,
-			currentMemberId,
-			currentMemberIndex,
-		}
+					return {
+						members,
+						currentMemberId,
+						currentMemberIndex,
+					}
+				}),
+				Effect.provideService(QueryCtxService, ctx),
+				Effect.tapError((error) => {
+					if (error._tag === "CombatInactiveError") {
+						return Effect.void
+					}
+					return Effect.logWarning(error)
+				}),
+				Effect.orElseSucceed(() => ({
+					members: [],
+					currentMemberId: undefined,
+					currentMemberIndex: 0,
+				})),
+			),
+		)
 	},
 })
 
@@ -110,19 +102,6 @@ export const start = mutation({
 		})
 	},
 })
-
-async function getInitiativeRoll(
-	ctx: QueryCtx,
-	characterId: Id<"characters">,
-	initiativeAttributeId: AttributeId | null,
-) {
-	const character = await ctx.db.get(characterId)
-
-	const notionImports = await getNotionImports(ctx)
-	const attribute = notionImports?.attributes.find((it) => it.id === initiativeAttributeId)
-
-	return character && attribute ? roll(character[attribute.key] ?? 4) : null
-}
 
 export const end = mutation({
 	args: {
@@ -347,3 +326,27 @@ export const moveMember = mutation({
 		})
 	},
 })
+
+class CombatInactiveError {
+	readonly _tag = "CombatInactiveError"
+}
+
+function getRoomCombat(roomId: Id<"rooms">) {
+	return Effect.gen(function* () {
+		const room = yield* getDoc(roomId)
+		return room?.combat ?? (yield* Effect.fail(new CombatInactiveError()))
+	})
+}
+
+async function getInitiativeRoll(
+	ctx: QueryCtx,
+	characterId: Id<"characters">,
+	initiativeAttributeId: AttributeId | null,
+) {
+	const character = await ctx.db.get(characterId)
+
+	const notionImports = await getNotionImports(ctx)
+	const attribute = notionImports?.attributes.find((it) => it.id === initiativeAttributeId)
+
+	return character && attribute ? roll(character[attribute.key] ?? 4) : null
+}

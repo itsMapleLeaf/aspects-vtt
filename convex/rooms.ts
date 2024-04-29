@@ -1,12 +1,15 @@
 import { deprecated } from "convex-helpers/validators"
 import { ConvexError, v } from "convex/values"
+import { Effect } from "effect"
 import { generateSlug } from "random-word-slugs"
 import { Result } from "#app/common/Result.js"
 import { range } from "#app/common/range.js"
 import { RoomModel } from "./RoomModel.js"
 import type { Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
-import { getUserFromIdentity } from "./users.js"
+import { getDoc } from "./helpers.js"
+import { memberValidator } from "./rooms/combat.js"
+import { getUserFromIdentity, getUserFromIdentityEffect } from "./users.js"
 
 export const roomProperties = {
 	name: v.optional(v.string()),
@@ -96,7 +99,7 @@ export const update = mutation({
 		...roomProperties,
 		combat: v.optional(
 			v.object({
-				members: v.array(v.id("characters")),
+				members: v.array(memberValidator),
 			}),
 		),
 	},
@@ -106,7 +109,7 @@ export const update = mutation({
 			...args,
 			combat: room.data.combat && {
 				...room.data.combat,
-				members: args.combat?.members ?? room.data.combat.members,
+				memberObjects: args.combat?.members ?? room.data.combat.members ?? undefined,
 			},
 		})
 	},
@@ -129,6 +132,17 @@ export const join = mutation({
 		await room.join(ctx)
 	},
 })
+
+export function getRoomAsOwner(roomId: Id<"rooms">) {
+	return Effect.filterOrFail(
+		Effect.all({
+			room: getDoc(roomId),
+			user: getUserFromIdentityEffect(),
+		}),
+		({ room, user }) => room.ownerId === user.clerkId,
+		() => new ConvexError("You do not own this room."),
+	)
+}
 
 export function requireRoomOwner(ctx: QueryCtx, roomId: Id<"rooms">) {
 	return Result.fn(async () => {
