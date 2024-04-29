@@ -11,14 +11,17 @@ import { raise } from "#app/common/errors.js"
 import { prettify } from "#app/common/json.js"
 import { lines } from "#app/common/string.js"
 import { internal } from "./_generated/api"
-import { internalAction, internalMutation, query } from "./_generated/server"
+import { type QueryCtx, internalAction, internalMutation, query } from "./_generated/server"
 import { convexEnv } from "./env.ts"
 import type { Branded } from "./helpers.ts"
+
+export const attributeIdValidator = brandedString("attributes")
+export type AttributeId = Infer<typeof attributeIdValidator>
 
 export const notionImportProperties = {
 	attributes: v.array(
 		v.object({
-			id: brandedString("attributes"),
+			id: attributeIdValidator,
 			name: v.string(),
 			description: v.string(),
 			key: v.union(
@@ -88,7 +91,7 @@ export const importData = internalAction({
 
 export const get = query({
 	async handler(ctx) {
-		return await ctx.db.query("notionImports").order("desc").first()
+		return await getNotionImports(ctx)
 	},
 })
 
@@ -98,6 +101,10 @@ export const create = internalMutation({
 		await ctx.db.insert("notionImports", args)
 	},
 })
+
+export async function getNotionImports(ctx: QueryCtx) {
+	return await ctx.db.query("notionImports").order("desc").first()
+}
 
 function createNotionClient() {
 	return new Client({

@@ -1,12 +1,11 @@
-import * as Ariakit from "@ariakit/react"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { useCharacters } from "#app/features/rooms/roomContext.js"
 import { Button } from "#app/ui/Button.js"
-import { FormActions, FormField, FormLayout, FormRow } from "#app/ui/Form.js"
-import { menuItemStyle, menuPanelStyle } from "#app/ui/Menu.js"
+import { FormActions, FormLayout, FormRow } from "#app/ui/Form.js"
 import { NumberField } from "#app/ui/NumberField.js"
+import { Select } from "#app/ui/Select.js"
 import { api } from "#convex/_generated/api.js"
 import type { ApiAttribute, ApiCharacter } from "../characters/types.ts"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
@@ -147,46 +146,5 @@ function AttributeSelectField(props: {
 			}}
 			className={props.className}
 		/>
-	)
-}
-function Select<T extends string>(props: {
-	label: ReactNode
-	value: string | undefined
-	options: Array<{ label: ReactNode; value: T }>
-	placeholder?: ReactNode
-	onChange: (value: T) => void
-	className?: string
-}) {
-	return (
-		<Ariakit.SelectProvider
-			value={props.value}
-			setValue={(value) => {
-				const option = props.options.find((o) => o.value === value)
-				if (option) props.onChange(option.value)
-			}}
-		>
-			<FormField
-				label={<Ariakit.SelectLabel>{props.label}</Ariakit.SelectLabel>}
-				className={props.className}
-			>
-				<Button
-					icon={<Lucide.ChevronDown />}
-					text={
-						props.options.find((o) => o.value === props.value)?.label ?? (
-							<span className="opacity-50">{props.placeholder ?? "Choose one"}</span>
-						)
-					}
-					element={<Ariakit.Select />}
-					className="w-full flex-row-reverse justify-between"
-				/>
-			</FormField>
-			<Ariakit.SelectPopover portal gutter={8} sameWidth className={menuPanelStyle()}>
-				{props.options.map((option) => (
-					<Ariakit.SelectItem key={option.value} value={option.value} className={menuItemStyle()}>
-						{option.label}
-					</Ariakit.SelectItem>
-				))}
-			</Ariakit.SelectPopover>
-		</Ariakit.SelectProvider>
 	)
 }

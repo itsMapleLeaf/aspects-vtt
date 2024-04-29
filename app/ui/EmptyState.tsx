@@ -27,11 +27,13 @@ export function EmptyState({
 	icon,
 	message,
 	actions,
+	children,
 	className,
 }: {
 	icon: ReactNode
 	message: string
 	actions?: React.ReactNode
+	children?: React.ReactNode
 	className?: string
 }) {
 	return (
@@ -40,7 +42,8 @@ export function EmptyState({
 				{icon}
 			</div>
 			<p className="text-xl font-light">{message}</p>
-			<div className="flex-center-row flex-wrap gap-2">{actions}</div>
+			<div className="flex-center-row flex-wrap gap-2 empty:hidden">{actions}</div>
+			{children}
 		</section>
 	)
 }

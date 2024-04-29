@@ -1,66 +1,48 @@
+import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import type { ComponentPropsWithoutRef } from "react"
-import { twMerge } from "tailwind-merge"
-import type { Overwrite } from "#app/common/types.ts"
-import { panel } from "./styles.ts"
+import type { ReactNode } from "react"
+import { Button } from "#app/ui/Button.js"
+import { FormField } from "#app/ui/Form.js"
+import { menuItemStyle, menuPanelStyle } from "#app/ui/Menu.js"
 
-export type SelectValue = string | number | null
-
-export type SelectOption<T extends SelectValue> = {
-	value: T
-	label: string
-}
-
-export function Select<T extends SelectValue>({
-	options,
-	value,
-	onChange,
-	className,
-	...props
-}: Overwrite<
-	ComponentPropsWithoutRef<"select">,
-	{
-		options: SelectOption<T>[]
-		value: T
-		onChange: (value: T) => void
-	}
->) {
-	let valueIndex: number | undefined = options.findIndex((option) => option.value === value)
-	if (valueIndex === -1) {
-		valueIndex = undefined
-	}
-
+export function Select<T extends string>(props: {
+	label: ReactNode
+	value: string | undefined
+	options: Array<{ label: ReactNode; value: T }>
+	placeholder?: ReactNode
+	onChange: (value: T) => void
+	className?: string
+}) {
 	return (
-		<div className={twMerge("relative flex flex-row items-center", className)}>
-			<select
-				{...props}
-				className={panel("block h-10 w-full appearance-none pl-9")}
-				value={valueIndex ?? ""}
-				onChange={(event) => {
-					const index = Number(event.target.value)
-					const newValue = options[index]?.value
-					if (newValue === undefined) {
-						throw new Error(
-							`Invalid select value. ${JSON.stringify({
-								value: event.target.value,
-								options,
-								index,
-							})}`,
+		<Ariakit.SelectProvider
+			value={props.value}
+			setValue={(value) => {
+				const option = props.options.find((o) => o.value === value)
+				if (option) props.onChange(option.value)
+			}}
+		>
+			<FormField
+				label={<Ariakit.SelectLabel>{props.label}</Ariakit.SelectLabel>}
+				className={props.className}
+			>
+				<Button
+					icon={<Lucide.ChevronDown />}
+					text={
+						props.options.find((o) => o.value === props.value)?.label ?? (
+							<span className="opacity-50">{props.placeholder ?? "Choose one"}</span>
 						)
 					}
-					onChange?.(newValue)
-				}}
-			>
-				<option value="" disabled>
-					No option selected
-				</option>
-				{options.map((option, index) => (
-					<option key={option.value} value={index}>
+					element={<Ariakit.Select />}
+					className="w-full flex-row-reverse justify-between"
+				/>
+			</FormField>
+			<Ariakit.SelectPopover portal gutter={8} sameWidth className={menuPanelStyle()}>
+				{props.options.map((option) => (
+					<Ariakit.SelectItem key={option.value} value={option.value} className={menuItemStyle()}>
 						{option.label}
-					</option>
+					</Ariakit.SelectItem>
 				))}
-			</select>
-			<Lucide.ChevronsUpDown className="pointer-events-none absolute left-2" />
-		</div>
+			</Ariakit.SelectPopover>
+		</Ariakit.SelectProvider>
 	)
 }

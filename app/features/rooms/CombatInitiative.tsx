@@ -1,8 +1,10 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
+import { useState } from "react"
 import { withMovedItem } from "#app/common/array.js"
 import { applyOptimisticQueryUpdates } from "#app/common/convex.js"
+import type { Nullish } from "#app/common/types.js"
 import {
 	RoomOwnerOnly,
 	useCharacter,
@@ -11,7 +13,9 @@ import {
 } from "#app/features/rooms/roomContext.js"
 import { Button } from "#app/ui/Button.js"
 import { EmptyState } from "#app/ui/EmptyState.js"
+import { FormLayout } from "#app/ui/Form.js"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "#app/ui/Menu.js"
+import { Select } from "#app/ui/Select.js"
 import { Tooltip } from "#app/ui/Tooltip.old.js"
 import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
@@ -22,7 +26,7 @@ export function CombatInitiative() {
 	const { combat, ...room } = useRoom()
 	const characters = useCharacters()
 
-	const { memberIds, currentMemberId, currentMemberIndex } = useQuery(
+	const { members, currentMemberId, currentMemberIndex } = useQuery(
 		api.rooms.combat.getCombatMembers,
 		{
 			roomId: room._id,
@@ -37,7 +41,7 @@ export function CombatInitiative() {
 		(store, args) => {
 			applyOptimisticQueryUpdates(store, api.rooms.combat.getCombatMembers, (current) => ({
 				...current,
-				memberIds: withMovedItem(current.memberIds, args.fromIndex, args.toIndex),
+				members: withMovedItem(current.members, args.fromIndex, args.toIndex),
 			}))
 		},
 	)
@@ -65,45 +69,43 @@ export function CombatInitiative() {
 		removeMember: useMutation(api.rooms.combat.removeMember),
 	}
 
+	const attributes = useAttributes()
+	const initiativeAttribute = attributes.find((it) => it.id === combat?.initiativeAttribute)
+
 	if (combat == null) {
-		return (
-			<EmptyState
-				icon={<Lucide.ListStart />}
-				message="Combat is currently inactive."
-				actions={
-					<RoomOwnerOnly>
-						<Button
-							text="Start Combat"
-							icon={<Lucide.Swords />}
-							onClick={() => actions.startCombat({ id: room._id })}
-						/>
-					</RoomOwnerOnly>
-				}
-			/>
-		)
+		return <CombatEmptyState />
 	}
 
 	const isRoundStart = combat.currentRoundNumber === 1 && currentMemberIndex === 0
-	const combatMemberSet = new Set(memberIds)
+	const combatMemberIds = new Set(members?.map((it) => it.characterId))
 
 	return (
 		<section className="flex h-full flex-col gap-3">
 			<h3 className="-mb-2 text-3xl font-light">Combat</h3>
-			<p className="text-sm font-bold uppercase tracking-wide text-primary-800">
-				Round {combat.currentRoundNumber}
+			<p className="text-sm font-bold uppercase tracking-wide text-primary-700">
+				<span>Round {combat.currentRoundNumber}</span>
+				{initiativeAttribute && (
+					<>
+						<span> • </span>
+						<span>{initiativeAttribute?.name} Initiative</span>
+					</>
+				)}
 			</p>
 
 			<ol className="grid items-start gap-3" ref={animateRef}>
-				{memberIds.map((characterId, index) => (
-					<li key={characterId}>
+				{members?.map((member, index) => (
+					<li key={member.characterId}>
 						<CombatMemberItem
-							characterId={characterId}
-							isCurrent={characterId === currentMemberId}
+							characterId={member.characterId}
+							initiative={member.initiative}
+							isCurrent={member.characterId === currentMemberId}
 							index={index}
 							onDrop={(fromIndex) =>
 								moveMember({ id: room._id, fromIndex: fromIndex, toIndex: index })
 							}
-							onSetCurrentMember={(characterId) => setCurrentMember({ id: room._id, characterId })}
+							onSetCurrentMember={(characterId) =>
+								setCurrentMember({ id: room._id, characterId: member.characterId })
+							}
 						/>
 					</li>
 				))}
@@ -134,7 +136,7 @@ export function CombatInitiative() {
 							<Button icon={<Lucide.Plus />} text="Add Member" element={<MenuButton />} />
 							<MenuPanel>
 								{characters
-									.filter((character) => !combatMemberSet.has(character._id))
+									.filter((character) => !combatMemberIds.has(character._id))
 									.map((character) => (
 										<MenuItem
 											key={character._id}
@@ -161,6 +163,7 @@ export function CombatInitiative() {
 
 export function CombatMemberItem(props: {
 	characterId: Id<"characters">
+	initiative: Nullish<number>
 	isCurrent: boolean
 	index: number
 	onDrop: (fromIndex: number) => void
@@ -200,6 +203,11 @@ export function CombatMemberItem(props: {
 						</Tooltip>
 					</p>
 				)}
+				{props.initiative != null && (
+					<aside className="text-sm font-bold uppercase tracking-wide text-primary-600">
+						Initiative {props.initiative}
+					</aside>
+				)}
 			</div>
 		</>
 	)
@@ -235,4 +243,78 @@ export function CombatMemberItem(props: {
 			</button>
 		</div>
 	)
+}
+
+function CombatEmptyState() {
+	const room = useRoom()
+	const startCombat = useMutation(api.rooms.combat.start)
+	const attributes = useAttributes()
+
+	const form = useForm({
+		defaultValues: {
+			initiativeAttribute: attributes.find((it) => it.name.toLowerCase() === "mobility")?.id,
+		},
+	})
+
+	return (
+		<EmptyState icon={<Lucide.ListStart />} message="Combat is currently inactive.">
+			<RoomOwnerOnly>
+				<FormLayout className="w-full p-0">
+					<Select
+						{...form.bind("initiativeAttribute")}
+						label="Initiative Attribute"
+						options={attributes.map((it) => ({
+							label: it.name,
+							value: it.id,
+						}))}
+					/>
+					<Button
+						text="Start Combat"
+						className="self-center"
+						icon={<Lucide.Swords />}
+						onClick={async () => {
+							await startCombat({
+								id: room._id,
+								initiativeAttribute: form.values.initiativeAttribute ?? null,
+							})
+						}}
+					/>
+				</FormLayout>
+			</RoomOwnerOnly>
+		</EmptyState>
+	)
+}
+
+function useAttributes() {
+	const notionImports = useQuery(api.notionImports.get)
+	return notionImports?.attributes ?? []
+}
+
+function useForm<Values>(options: {
+	defaultValues: Partial<Values>
+}) {
+	const [values, setValues] = useState<Partial<Values>>({})
+
+	const resolvedValues = {
+		...options.defaultValues,
+		...values,
+	}
+
+	return {
+		values: resolvedValues,
+		bind<F extends keyof Values>(field: F) {
+			return {
+				value: resolvedValues[field],
+				onChange(eventOrValue: Values[F] | { target: { value: Values[F] } }) {
+					setValues((values) => {
+						const value =
+							typeof eventOrValue === "object" && eventOrValue !== null && "target" in eventOrValue
+								? eventOrValue.target.value
+								: eventOrValue
+						return { ...values, [field]: value }
+					})
+				},
+			}
+		},
+	}
 }

@@ -1,4 +1,4 @@
-import { Select } from "#app/ui/Select.tsx"
+import { Select } from "#app/ui/Select.old.js"
 import type { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ResultQueryData } from "#convex/resultResponse.js"
