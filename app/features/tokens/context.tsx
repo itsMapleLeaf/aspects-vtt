@@ -1,5 +1,5 @@
 import { createContext } from "react"
-import { Vector } from "#app/common/vector.js"
+import { Vector } from "../../common/vector.ts"
 
 export const ZoomContext = createContext(1)
 

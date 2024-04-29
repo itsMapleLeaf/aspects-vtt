@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge"
-import { AppHeader } from "#app/ui/AppHeader.js"
+import { AppHeader } from "./AppHeader.tsx"
 
 export function AppHeaderLayout({
 	className,

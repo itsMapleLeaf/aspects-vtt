@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Input, type InputProps } from "#app/ui/Input.js"
+import { Input, type InputProps } from "./Input.tsx"
 
 /**
  * An input which only calls onChange when the parse function returns a valid value,

@@ -1,6 +1,6 @@
 import * as Lucide from "lucide-react"
 import { useId } from "react"
-import { FormField } from "#app/ui/Form.js"
+import { FormField } from "./Form.tsx"
 
 export function CheckboxField({
 	label,

@@ -4,17 +4,17 @@ import { HelpCircle } from "lucide-react"
 import * as Lucide from "lucide-react"
 import { Fragment } from "react"
 import { Virtuoso } from "react-virtuoso"
-import { chunk } from "#app/common/array.js"
+import { chunk } from "../../common/array.ts"
 import {
 	ContextMenu,
 	ContextMenuItem,
 	ContextMenuPanel,
 	ContextMenuTrigger,
-} from "#app/ui/ContextMenu.js"
-import { Loading } from "#app/ui/Loading.tsx"
-import { Tooltip } from "#app/ui/Tooltip.old.js"
-import { panel } from "#app/ui/styles.js"
-import { api } from "#convex/_generated/api.js"
+} from "../../ui/ContextMenu.tsx"
+import { Loading } from "../../ui/Loading.tsx"
+import { Tooltip } from "../../ui/Tooltip.old.tsx"
+import { panel } from "../../ui/styles.ts"
+import { api } from "../../../convex/_generated/api.js"
 import type { ApiCharacter } from "../characters/types.ts"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"

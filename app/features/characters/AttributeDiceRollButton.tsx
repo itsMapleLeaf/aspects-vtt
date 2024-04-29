@@ -1,10 +1,10 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
-import { clamp } from "#app/common/math.js"
-import { Button } from "#app/ui/Button.tsx"
-import { FormField } from "#app/ui/Form.js"
-import { panel } from "#app/ui/styles.js"
+import { clamp } from "../../common/math.ts"
+import { Button } from "../../ui/Button.tsx"
+import { FormField } from "../../ui/Form.tsx"
+import { panel } from "../../ui/styles.ts"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function AttributeDiceRollButton({

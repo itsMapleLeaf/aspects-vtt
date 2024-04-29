@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Vector } from "#app/common/vector.ts"
+import { Vector } from "./vector.ts"
 
 type DragState = {
 	start: Vector

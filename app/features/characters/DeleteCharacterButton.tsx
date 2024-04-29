@@ -1,6 +1,6 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { Button } from "#app/ui/Button.tsx"
+import { Button } from "../../ui/Button.tsx"
 import {
 	Modal,
 	ModalActions,
@@ -8,9 +8,9 @@ import {
 	ModalDismiss,
 	ModalPanel,
 	ModalPanelContent,
-} from "#app/ui/Modal.tsx"
-import { api } from "#convex/_generated/api.js"
-import type { Id } from "#convex/_generated/dataModel.js"
+} from "../../ui/Modal.tsx"
+import { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 
 export function DeleteCharacterButton({
 	character,

@@ -1,7 +1,7 @@
 import type { ConvexReactClient } from "convex/react"
 import { z } from "zod"
-import { api } from "#convex/_generated/api.js"
-import type { Id } from "#convex/_generated/dataModel.js"
+import { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 
 const uploadResultSchema = z.object({
 	storageId: z.string().refine((_value): _value is Id<"_storage"> => true),

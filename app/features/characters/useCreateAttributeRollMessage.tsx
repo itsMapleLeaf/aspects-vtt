@@ -1,8 +1,8 @@
 import { useMutation } from "convex/react"
 import { ConvexError } from "convex/values"
 import { useCallback } from "react"
-import { expect } from "#app/common/expect.js"
-import { api } from "#convex/_generated/api.js"
+import { expect } from "../../common/expect.ts"
+import { api } from "../../../convex/_generated/api.js"
 import {
 	boostDiceKind,
 	getDiceKindApiInput,

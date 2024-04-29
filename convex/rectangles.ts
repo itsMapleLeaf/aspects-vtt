@@ -1,7 +1,7 @@
 import { getManyFrom } from "convex-helpers/server/relationships"
 import { partial } from "convex-helpers/validators"
 import { ConvexError, v } from "convex/values"
-import { Result } from "#app/common/Result.js"
+import { Result } from "../app/common/Result.ts"
 import { RoomModel } from "./RoomModel.ts"
 import type { Id } from "./_generated/dataModel"
 import { type QueryCtx, mutation, query } from "./_generated/server"

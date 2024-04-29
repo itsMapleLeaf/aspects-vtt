@@ -1,8 +1,8 @@
 import { type PropertyValidators, type Validator, v } from "convex/values"
-import { Result } from "#app/common/Result.js"
-import { raise } from "#app/common/errors.js"
-import type { Id, TableNames } from "#convex/_generated/dataModel.js"
-import type { QueryCtx } from "#convex/_generated/server.js"
+import { Result } from "../app/common/Result.ts"
+import { raise } from "../app/common/errors.ts"
+import type { Id, TableNames } from "./_generated/dataModel.js"
+import type { QueryCtx } from "./_generated/server.js"
 
 export type Branded<T> = string & { _: T }
 

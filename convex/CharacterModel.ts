@@ -1,6 +1,6 @@
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError, type Infer } from "convex/values"
-import { Result } from "#app/common/Result.js"
+import { Result } from "../app/common/Result.ts"
 import { RoomModel } from "./RoomModel.ts"
 import type { Doc, Id } from "./_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "./_generated/server"

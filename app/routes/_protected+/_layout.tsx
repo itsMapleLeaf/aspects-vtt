@@ -1,8 +1,8 @@
 import { ClerkLoading, SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/remix"
 import { Outlet, useHref, useLocation } from "@remix-run/react"
 import * as Lucide from "lucide-react"
-import { Button } from "#app/ui/Button.js"
-import { Loading } from "#app/ui/Loading.js"
+import { Button } from "../../ui/Button.tsx"
+import { Loading } from "../../ui/Loading.tsx"
 import { AppHeaderLayout } from "../../ui/AppHeaderLayout"
 import { EmptyStatePanel } from "../../ui/EmptyState"
 

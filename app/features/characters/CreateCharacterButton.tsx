@@ -1,8 +1,8 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { Button } from "#app/ui/Button.tsx"
-import { api } from "#convex/_generated/api.js"
-import type { Id } from "#convex/_generated/dataModel.js"
+import { Button } from "../../ui/Button.tsx"
+import { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function CreateCharacterButton({ onCreate }: { onCreate: (id: Id<"characters">) => void }) {

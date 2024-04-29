@@ -1,6 +1,6 @@
 import type { UserIdentity } from "convex/server"
 import { v } from "convex/values"
-import { Result } from "#app/common/Result.js"
+import { Result } from "../app/common/Result.ts"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
 import type { Branded } from "./helpers.js"
 import { getUserFromIdentity } from "./users.js"

@@ -1,6 +1,6 @@
 import * as React from "react"
-import { loadImage } from "#app/common/dom.js"
-import type { Falsy } from "#app/common/types.js"
+import { loadImage } from "./dom.ts"
+import type { Falsy } from "./types.ts"
 
 export function useImage(src: string | Falsy) {
 	const [image, setImage] = React.useState<HTMLImageElement>()

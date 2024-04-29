@@ -13,7 +13,7 @@ import { ConvexReactClient, useConvexAuth, useMutation, useQuery } from "convex/
 import { ConvexProviderWithClerk } from "convex/react-clerk"
 import { isEqual } from "lodash-es"
 import { useEffect } from "react"
-import { api } from "#convex/_generated/api.js"
+import { api } from "../convex/_generated/api.js"
 import { clientEnv } from "./env.ts"
 import { theme } from "./theme.ts"
 import { Loading } from "./ui/Loading.tsx"

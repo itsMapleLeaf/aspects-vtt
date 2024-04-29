@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values"
 import { Effect, pipe } from "effect"
-import { Result } from "#app/common/Result.js"
+import { Result } from "../app/common/Result.ts"
 import type { QueryCtx } from "./_generated/server.js"
 import { QueryCtxService } from "./effect.ts"
 import type { Branded } from "./helpers.ts"

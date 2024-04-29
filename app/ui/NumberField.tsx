@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from "react"
-import { expect } from "#app/common/expect.js"
-import { FormField } from "#app/ui/Form.js"
-import { Input } from "#app/ui/Input.js"
+import { expect } from "../common/expect.ts"
+import { FormField } from "./Form.tsx"
+import { Input } from "./Input.tsx"
 
 export function NumberField(props: {
 	label: string

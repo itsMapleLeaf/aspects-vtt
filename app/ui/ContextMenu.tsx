@@ -1,7 +1,7 @@
 import * as Ariakit from "@ariakit/react"
 import { type ComponentProps, createContext, use, useState } from "react"
-import { createNonEmptyContext, useNonEmptyContext } from "#app/common/context.js"
-import { Vector } from "#app/common/vector.js"
+import { createNonEmptyContext, useNonEmptyContext } from "../common/context.tsx"
+import { Vector } from "../common/vector.ts"
 import { Menu, MenuItem, MenuPanel } from "./Menu.tsx"
 
 export interface ContextMenuProps extends ComponentProps<typeof Menu> {

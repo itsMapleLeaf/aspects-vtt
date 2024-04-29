@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
-import { expect } from "#app/common/expect.ts"
-import type { Nullish } from "#app/common/types.ts"
+import { expect } from "./expect.ts"
+import type { Nullish } from "./types.ts"
 import { Vector } from "./vector.ts"
 
 export function useResizeObserver(

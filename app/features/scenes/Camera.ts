@@ -1,4 +1,4 @@
-import { Vector, type VectorInput } from "#app/common/vector.js"
+import { Vector, type VectorInput } from "../../common/vector.ts"
 
 interface CameraState {
 	position: Vector

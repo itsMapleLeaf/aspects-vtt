@@ -1,7 +1,7 @@
 import { useQuery } from "convex/react"
 import { twMerge } from "tailwind-merge"
-import { api } from "#convex/_generated/api.js"
-import type { Doc } from "#convex/_generated/dataModel.js"
+import { api } from "../../../convex/_generated/api.js"
+import type { Doc } from "../../../convex/_generated/dataModel.js"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiCharacter } from "./types.ts"
 

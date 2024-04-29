@@ -1,9 +1,9 @@
 import * as Lucide from "lucide-react"
 import { use, useRef } from "react"
-import { useAsyncState } from "#app/common/useAsyncState.js"
-import { useDrag } from "#app/common/useDrag.js"
-import { Vector } from "#app/common/vector.ts"
-import type { Token } from "#convex/token.js"
+import { useAsyncState } from "../../common/useAsyncState.ts"
+import { useDrag } from "../../common/useDrag.ts"
+import { Vector } from "../../common/vector.ts"
+import type { Token } from "../../../convex/token.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { OffsetContext, ZoomContext } from "./context.tsx"
 

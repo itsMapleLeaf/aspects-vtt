@@ -1,9 +1,9 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import type { ReactNode } from "react"
-import { Button } from "#app/ui/Button.js"
-import { FormField } from "#app/ui/Form.js"
-import { menuItemStyle, menuPanelStyle } from "#app/ui/Menu.js"
+import { Button } from "./Button.tsx"
+import { FormField } from "./Form.tsx"
+import { menuItemStyle, menuPanelStyle } from "./Menu.tsx"
 
 export function Select<T extends string>(props: {
 	label: ReactNode

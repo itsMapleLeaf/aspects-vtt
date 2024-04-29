@@ -4,8 +4,8 @@ import {
 	ContextMenuItem,
 	ContextMenuPanel,
 	ContextMenuTrigger,
-} from "#app/ui/ContextMenu.js"
-import { Modal, ModalPanel, ModalPanelContent } from "#app/ui/Modal.js"
+} from "../../ui/ContextMenu.tsx"
+import { Modal, ModalPanel, ModalPanelContent } from "../../ui/Modal.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { ContestedRollForm } from "./ContestedRollForm.tsx"
 

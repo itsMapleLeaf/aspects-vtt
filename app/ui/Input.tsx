@@ -1,6 +1,6 @@
 import { type ReactElement, type ReactNode, cloneElement } from "react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
-import type { Disallowed, StrictOmit } from "#app/common/types.js"
+import type { Disallowed, StrictOmit } from "../common/types.ts"
 import { panel } from "./styles.ts"
 
 interface InputPropsBase extends InputStyleProps {

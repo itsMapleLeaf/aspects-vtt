@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
-import { panel } from "#app/ui/styles.js"
-import { withMergedClassName } from "#app/ui/withMergedClassName.js"
+import { panel } from "./styles.ts"
+import { withMergedClassName } from "./withMergedClassName.ts"
 
 export function Popover(props: Ariakit.PopoverProviderProps) {
 	return <Ariakit.PopoverProvider {...props} />

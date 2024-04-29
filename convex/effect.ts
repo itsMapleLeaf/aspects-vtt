@@ -1,8 +1,8 @@
 import type { ValidatedFunction } from "convex/server"
 import type { ObjectType, PropertyValidators } from "convex/values"
 import { Context, Effect, pipe } from "effect"
-import type { Id, TableNames } from "#convex/_generated/dataModel.js"
-import type { MutationCtx, QueryCtx } from "#convex/_generated/server.js"
+import type { Id, TableNames } from "./_generated/dataModel.js"
+import type { MutationCtx, QueryCtx } from "./_generated/server.js"
 import { mutation, query } from "./_generated/server.js"
 
 export class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {}

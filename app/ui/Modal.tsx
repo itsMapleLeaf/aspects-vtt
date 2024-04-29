@@ -15,7 +15,7 @@ import {
 } from "@ariakit/react"
 import { LucideX } from "lucide-react"
 import { type ComponentPropsWithoutRef, forwardRef } from "react"
-import type { StrictOmit } from "#app/common/types.ts"
+import type { StrictOmit } from "../common/types.ts"
 import { panel } from "./styles.ts"
 import { twc } from "./twc.ts"
 import { withMergedClassName } from "./withMergedClassName.ts"

@@ -2,24 +2,24 @@ import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
-import { withMovedItem } from "#app/common/array.js"
-import { applyOptimisticQueryUpdates } from "#app/common/convex.js"
-import type { Nullish } from "#app/common/types.js"
+import { withMovedItem } from "../../common/array.ts"
+import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
+import type { Nullish } from "../../common/types.ts"
 import {
 	RoomOwnerOnly,
 	useCharacter,
 	useCharacters,
 	useRoom,
-} from "#app/features/rooms/roomContext.js"
-import { Button } from "#app/ui/Button.js"
-import { EmptyState } from "#app/ui/EmptyState.js"
-import { FormLayout } from "#app/ui/Form.js"
-import { Menu, MenuButton, MenuItem, MenuPanel } from "#app/ui/Menu.js"
-import { Select } from "#app/ui/Select.js"
-import { Tooltip } from "#app/ui/Tooltip.old.js"
-import { panel } from "#app/ui/styles.js"
-import { api } from "#convex/_generated/api.js"
-import type { Id } from "#convex/_generated/dataModel.js"
+} from "./roomContext.tsx"
+import { Button } from "../../ui/Button.tsx"
+import { EmptyState } from "../../ui/EmptyState.tsx"
+import { FormLayout } from "../../ui/Form.tsx"
+import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
+import { Select } from "../../ui/Select.tsx"
+import { Tooltip } from "../../ui/Tooltip.old.tsx"
+import { panel } from "../../ui/styles.ts"
+import { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 
 export function CombatInitiative() {

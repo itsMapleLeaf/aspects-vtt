@@ -10,10 +10,6 @@
 		"moduleDetection": "force",
 		"noEmit": true,
 		"noUncheckedIndexedAccess": true,
-		// convex doesn't support package.json `imports` yet
-		"paths": {
-			"#app/*": ["./app/*"]
-		},
 		"preserveWatchOutput": true,
 		"skipLibCheck": true,
 		"strict": true,

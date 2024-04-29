@@ -1,8 +1,8 @@
 import * as Ariakit from "@ariakit/react"
 import * as React from "react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
-import { Popover, PopoverPanel, PopoverTrigger } from "#app/ui/Popover.js"
-import { Tooltip } from "#app/ui/Tooltip.js"
+import { Popover, PopoverPanel, PopoverTrigger } from "../../../ui/Popover.tsx"
+import { Tooltip } from "../../../ui/Tooltip.tsx"
 
 export function Toolbar(props: { children: React.ReactNode }) {
 	return (

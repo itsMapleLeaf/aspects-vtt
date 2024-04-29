@@ -1,5 +1,5 @@
 import { Fragment } from "react"
-import type { Nullish } from "#app/common/types.js"
+import type { Nullish } from "../common/types.ts"
 
 type DefinitionListProps = {
 	items?: Nullish<Nullish<{ name: string; description: string }>[]>

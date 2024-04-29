@@ -2,7 +2,7 @@ import { getAuth } from "@clerk/remix/ssr.server"
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { Outlet, redirect } from "@remix-run/react"
 import { $path } from "remix-routes"
-import { AppHeaderLayout } from "#app/ui/AppHeaderLayout"
+import { AppHeaderLayout } from "../../ui/AppHeaderLayout.tsx"
 
 export async function loader(args: LoaderFunctionArgs) {
 	const auth = await getAuth(args)

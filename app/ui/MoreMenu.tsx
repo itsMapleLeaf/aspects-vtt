@@ -1,7 +1,7 @@
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
-import { Menu, MenuButton, MenuItem, MenuPanel } from "#app/ui/Menu.js"
-import { Tooltip } from "#app/ui/Tooltip.js"
+import { Menu, MenuButton, MenuItem, MenuPanel } from "./Menu.tsx"
+import { Tooltip } from "./Tooltip.tsx"
 
 interface MoreMenuProps {
 	options: MoreMenuOption[]

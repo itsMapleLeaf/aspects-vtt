@@ -1,7 +1,7 @@
 import * as FloatingUI from "@floating-ui/react-dom"
 import * as React from "react"
 import { createPortal } from "react-dom"
-import { type ElementProp, renderElementProp } from "#app/common/ElementProp.js"
+import { type ElementProp, renderElementProp } from "../common/ElementProp.tsx"
 
 export const defaultFloatingOptions = {
 	placement: "top",

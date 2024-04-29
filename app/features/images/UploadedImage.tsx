@@ -1,8 +1,8 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
-import type { Nullish, Overwrite } from "#app/common/types.ts"
-import { withMergedClassName } from "#app/ui/withMergedClassName.js"
-import type { Id } from "#convex/_generated/dataModel.js"
+import type { Nullish, Overwrite } from "../../common/types.ts"
+import { withMergedClassName } from "../../ui/withMergedClassName.ts"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 import { getApiImageUrl } from "./getApiImageUrl"
 
 type UploadedImageProps = Overwrite<
