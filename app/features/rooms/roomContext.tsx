@@ -10,7 +10,6 @@ import { Loading } from "#app/ui/Loading.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { ApiCharacter } from "../characters/types.ts"
-import { SceneProvider } from "../scenes/context.tsx"
 
 export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.get>["value"]>
 
@@ -33,9 +32,7 @@ export function RoomProvider({
 		</div>
 	) : room.ok ? (
 		<RoomContext.Provider value={room.value}>
-			<CharacterContext.Provider value={characters}>
-				<SceneProvider>{children}</SceneProvider>
-			</CharacterContext.Provider>
+			<CharacterContext.Provider value={characters}>{children}</CharacterContext.Provider>
 		</RoomContext.Provider>
 	) : (
 		<main className="flex flex-col gap-4">

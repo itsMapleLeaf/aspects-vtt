@@ -10,7 +10,9 @@ export function createNonEmptyContext<T>() {
 export function useNonEmptyContext<T>(context: React.Context<T | Empty>): T {
 	const value = use(context)
 	if (value === empty) {
-		throw new Error("context value not found")
+		const error = new Error("context value not found")
+		Error.captureStackTrace(error, useNonEmptyContext)
+		throw error
 	}
 	return value
 }

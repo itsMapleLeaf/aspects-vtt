@@ -8,24 +8,24 @@ import { Menu, MenuButton, MenuItem, MenuPanel } from "#app/ui/Menu.js"
 import { translucentPanel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { ApiCharacter } from "../characters/types.ts"
-import { useCanvasMapController } from "../rooms/CanvasMapController.tsx"
+import { useSceneContext } from "../scenes/SceneContext.tsx"
 import { CharacterDamageField, CharacterFatigueField } from "./CharacterForm.tsx"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function CharacterQuickMenu(props: { character: ApiCharacter }) {
 	const room = useRoom()
-	const mapController = useCanvasMapController()
+	const sceneContext = useSceneContext()
 	const duplicateCharacter = useMutation(api.characters.duplicate)
 
 	const onlySelectedCharacter = (() => {
-		const [first, second] = mapController.selectedCharacters().take(2)
+		const [first, second] = sceneContext.selectedCharacters().take(2)
 		if (first && !second) return first
 	})()
 
 	const popoverStore = Ariakit.usePopoverStore({
 		open:
-			!mapController.getMultiSelectArea() &&
-			!mapController.tokenMenu &&
+			!sceneContext.getMultiSelectArea() &&
+			!sceneContext.tokenMenu &&
 			onlySelectedCharacter?._id === props.character._id,
 	})
 

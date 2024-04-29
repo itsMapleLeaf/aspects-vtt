@@ -21,19 +21,20 @@ import { CharacterQuickMenu } from "../characters/CharacterQuickMenu.tsx"
 import { useCharacterSelection } from "../characters/CharacterSelectionProvider.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
-import { useCanvasMapController } from "./CanvasMapController.tsx"
-import { useRoom } from "./roomContext.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
+import { useSceneContext } from "./SceneContext.tsx"
+import type { ApiScene } from "./types.ts"
 
-const canvasMapDropDataSchema = z.object({
+const sceneMapDropDataSchema = z.object({
 	tokenKey: z.custom<Branded<"token">>().optional(),
 	characterId: z.custom<Id<"characters">>().optional(),
 })
 
-export function defineCanvasMapDropData(input: z.output<typeof canvasMapDropDataSchema>) {
+export function defineSceneMapDropData(input: z.output<typeof sceneMapDropDataSchema>) {
 	return input
 }
 
-export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
+export function SceneMap({ scene }: { scene: ApiScene }) {
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
 
 	function getCharacterTokenRect(token: { position: { x: number; y: number } }) {
@@ -55,8 +56,8 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 	}
 
 	return (
-		<CanvasMapContainer scene={scene}>
-			<CanvasMapBackground scene={scene} />
+		<SceneMapContainer scene={scene}>
+			<SceneMapBackground scene={scene} />
 
 			{tokens
 				?.sort((a, b) => {
@@ -123,7 +124,7 @@ export function CanvasMap({ scene }: { scene: Doc<"scenes"> }) {
 				.toArray()}
 
 			<TokenMenu scene={scene} />
-		</CanvasMapContainer>
+		</SceneMapContainer>
 	)
 }
 
@@ -163,11 +164,11 @@ function TokenLabel(props: { text: string; subText: string }) {
 	)
 }
 
-function CanvasMapContainer({
+function SceneMapContainer({
 	scene,
 	children,
 }: { scene: Doc<"scenes">; children: React.ReactNode }) {
-	const controller = useCanvasMapController()
+	const controller = useSceneContext()
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
 	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useMutation(api.scenes.tokens.update)
@@ -176,7 +177,7 @@ function CanvasMapContainer({
 		try {
 			event.preventDefault()
 
-			const action = canvasMapDropDataSchema.parse(
+			const action = sceneMapDropDataSchema.parse(
 				JSON.parse(event.dataTransfer.getData("text/plain")),
 			)
 
@@ -236,10 +237,10 @@ function CanvasMapContainer({
 	)
 }
 
-function CanvasMapBackground({ scene }: { scene: Doc<"scenes"> }) {
+function SceneMapBackground({ scene }: { scene: Doc<"scenes"> }) {
 	const canvasRef = React.useRef<HTMLCanvasElement>(null)
 	const backgroundImage = useImage(scene.background && getApiImageUrl(scene.background))
-	const { camera, ...controller } = useCanvasMapController()
+	const { camera, ...controller } = useSceneContext()
 	const multiSelectArea = controller.getMultiSelectArea()
 
 	React.useLayoutEffect(() => {
@@ -351,7 +352,7 @@ function MapElement({
 	rect: Rect
 	children: React.ReactNode
 }) {
-	const controller = useCanvasMapController()
+	const controller = useSceneContext()
 	const isSelected = controller.selectedTokens().some((it) => it.key === token.key)
 
 	const transformed = rect
@@ -381,7 +382,7 @@ function MapElement({
 
 function TokenMenu({ scene }: { scene: Doc<"scenes"> }) {
 	const room = useRoom()
-	const controller = useCanvasMapController()
+	const controller = useSceneContext()
 	const { tokenMenu } = controller
 	const updateToken = useMutation(api.scenes.tokens.update)
 	const removeToken = useMutation(api.scenes.tokens.remove)

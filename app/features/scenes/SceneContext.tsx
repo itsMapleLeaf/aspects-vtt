@@ -6,14 +6,15 @@ import { Rect } from "#app/common/Rect.js"
 import { createNonEmptyContext, useNonEmptyContext } from "#app/common/context.tsx"
 import { applyOptimisticQueryUpdates } from "#app/common/convex.js"
 import { expect } from "#app/common/expect.js"
+import type { Nullish } from "#app/common/types.js"
 import { useWindowEvent } from "#app/common/useWindowEvent.js"
 import { Vector } from "#app/common/vector.js"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import type { Branded } from "#convex/helpers.js"
-import { useScene } from "../scenes/context.tsx"
-import type { ApiScene } from "../scenes/types.ts"
-import { Camera } from "./Camera.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
+import { Camera } from "./Camera.ts"
+import type { ApiScene } from "./types.ts"
 
 type InputMode = "select" | "draw"
 
@@ -22,14 +23,14 @@ type TokenMenu = {
 	screenPosition: Vector
 }
 
-export type CanvasMapController = ReturnType<typeof useCanvasMapControllerProvider>
+export type SceneContextType = ReturnType<typeof useSceneProvider>
 
 const MouseButtonLeft = 0
 const MouseButtonMiddle = 1
 const MouseButtonRight = 2
 
-function useCanvasMapControllerProvider(scene: ApiScene) {
-	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
+function useSceneProvider(scene: Nullish<ApiScene>) {
+	const tokens = useQuery(api.scenes.tokens.list, scene ? { sceneId: scene._id } : "skip")
 	const pointer = usePointerPosition()
 
 	const [inputMode, setInputMode] = useState<InputMode>("select")
@@ -44,6 +45,13 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 	const [tokenMenu, setTokenMenu] = useState<TokenMenu>()
 	const [draggingViewport, setDraggingViewport] = useState<"init" | "dragging">()
 	const [multiSelectStart, setMultiSelectStart] = useState<Vector>()
+
+	const addToken = useMutation(api.scenes.tokens.add)
+	const updateToken = useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
+		applyOptimisticQueryUpdates(store, api.scenes.tokens.list, (current) =>
+			current.map((it) => (it.key === args.key ? { ...it, ...args } : it)),
+		)
+	})
 
 	const selectedTokens = () =>
 		Iterator.from(tokens ?? []).filter((it) => selectedTokenIds.has(it.key))
@@ -63,13 +71,6 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 	})()
 
 	const getMultiSelectArea = () => multiSelectStart && Rect.fromCorners(multiSelectStart, pointer)
-
-	const addToken = useMutation(api.scenes.tokens.add)
-	const updateToken = useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
-		applyOptimisticQueryUpdates(store, api.scenes.tokens.list, (current) =>
-			current.map((it) => (it.key === args.key ? { ...it, ...args } : it)),
-		)
-	})
 
 	const inputModeHandlers = {
 		select: {
@@ -120,7 +121,7 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 					setTokenDragEnd(undefined)
 					setMultiSelectStart(undefined)
 
-					if (tokenDragStart && tokenDragEnd) {
+					if (tokenDragStart && tokenDragEnd && scene) {
 						for (const key of selectedTokenIds) {
 							const existing = scene.tokens?.find((it) => it.key === key)
 							updateToken({
@@ -241,6 +242,7 @@ function useCanvasMapControllerProvider(scene: ApiScene) {
 	}
 
 	return {
+		scene,
 		isSelectInput: inputMode === "select",
 		isDrawInput: inputMode === "draw",
 		toggleDrawInputMode,
@@ -279,27 +281,19 @@ function usePointerPosition() {
 	return position
 }
 
-const CanvasMapControllerContext = createNonEmptyContext<CanvasMapController>()
+const SceneContext = createNonEmptyContext<SceneContextType>()
 
-export function CanvasMapControllerProvider({ children }: { children: React.ReactNode }) {
-	const scene = useScene()
-	if (!scene) return null
-	return (
-		<CanvasMapControllerProviderInner scene={scene}>{children}</CanvasMapControllerProviderInner>
-	)
+export function SceneProvider({ children }: { children: React.ReactNode }) {
+	const room = useRoom()
+	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
+	const context = useSceneProvider(scene)
+	return <SceneContext value={context}>{children}</SceneContext>
 }
 
-function CanvasMapControllerProviderInner({
-	scene,
-	children,
-}: { scene: ApiScene; children: React.ReactNode }) {
-	return (
-		<CanvasMapControllerContext.Provider value={useCanvasMapControllerProvider(scene)}>
-			{children}
-		</CanvasMapControllerContext.Provider>
-	)
+export function useSceneContext() {
+	return useNonEmptyContext(SceneContext)
 }
 
-export function useCanvasMapController() {
-	return useNonEmptyContext(CanvasMapControllerContext)
+export function useScene() {
+	return useSceneContext().scene
 }

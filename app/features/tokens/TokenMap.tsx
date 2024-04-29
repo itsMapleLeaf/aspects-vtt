@@ -18,7 +18,7 @@ import { tokenSelectedEvent } from "#app/features/tokens/events.ts"
 import { api } from "#convex/_generated/api.js"
 import type { Id } from "#convex/_generated/dataModel.js"
 import { CharacterTokenElement } from "../characters/CharacterTokenElement.tsx"
-import { useScene } from "../scenes/context.tsx"
+import { useScene } from "../scenes/SceneContext.tsx"
 import { OffsetContext, ZoomContext } from "./context.tsx"
 
 export function TokenMap({

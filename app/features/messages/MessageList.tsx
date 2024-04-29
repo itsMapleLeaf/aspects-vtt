@@ -17,8 +17,8 @@ import { panel } from "#app/ui/styles.js"
 import { api } from "#convex/_generated/api.js"
 import type { ApiCharacter } from "../characters/types.ts"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
-import { useCanvasMapController } from "../rooms/CanvasMapController.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { useSceneContext } from "../scenes/SceneContext.tsx"
 import { tokenSelectedEvent } from "../tokens/events.ts"
 
 export function MessageList() {
@@ -88,14 +88,14 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 }
 
 function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) {
-	const mapController = useCanvasMapController()
+	const sceneContext = useSceneContext()
 	const updateCharacter = useMutation(api.characters.update)
 	const diceTotal = props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ?? 0
 
 	function updateCharacters(
 		getArgs: (character: ApiCharacter) => Partial<Parameters<typeof updateCharacter>[0]>,
 	) {
-		for (const character of mapController.selectedCharacters()) {
+		for (const character of sceneContext.selectedCharacters()) {
 			updateCharacter({ ...getArgs(character), id: character._id })
 		}
 	}

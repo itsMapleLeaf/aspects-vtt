@@ -30,12 +30,12 @@ import type { ApiCharacter } from "#app/features/characters/types.js"
 import { UploadedImage } from "#app/features/images/UploadedImage.js"
 import { MessageForm } from "#app/features/messages/MessageForm.js"
 import { MessageList } from "#app/features/messages/MessageList.js"
-import { CanvasMap, defineCanvasMapDropData } from "#app/features/rooms/CanvasMap.js"
-import { useCanvasMapController } from "#app/features/rooms/CanvasMapController.js"
 import { CombatInitiative } from "#app/features/rooms/CombatInitiative.js"
 import { RoomOwnerOnly, useCharacters, useRoom } from "#app/features/rooms/roomContext.js"
+import { useSceneContext } from "#app/features/scenes/SceneContext.js"
+import { useScene } from "#app/features/scenes/SceneContext.js"
 import { SceneList } from "#app/features/scenes/SceneList.js"
-import { useScene } from "#app/features/scenes/context.js"
+import { SceneMap, defineSceneMapDropData } from "#app/features/scenes/SceneMap.js"
 import { SetMapBackgroundButton } from "#app/features/tokens/SetMapBackgroundButton.js"
 import { AppHeader } from "#app/ui/AppHeader.js"
 import { Button } from "#app/ui/Button.js"
@@ -58,18 +58,11 @@ import { ValidatedInput } from "../../../ui/ValidatedInput"
 import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./Toolbar"
 
 export default function RoomIndexRoute() {
-	const scene = useScene()
 	const currentUrl = useHref(useLocation())
 	return (
 		<CharacterSelectionProvider>
 			<JoinRoomEffect />
-
-			{scene && (
-				<div className="fixed inset-0 -z-10">
-					<CanvasMap scene={scene} />
-				</div>
-			)}
-
+			<SceneMapWrapper />
 			<div
 				className={translucentPanel(
 					"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
@@ -77,15 +70,31 @@ export default function RoomIndexRoute() {
 			>
 				<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
 			</div>
-
-			<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
-				{scene?.name}
-			</h2>
-
+			<SceneHeading />
 			<CharacterListPanel />
 			<MessagesPanel />
 			<CombatTurnBanner />
 		</CharacterSelectionProvider>
+	)
+}
+
+function SceneMapWrapper() {
+	const scene = useScene()
+	if (!scene) return
+	return (
+		<div className="fixed inset-0 -z-10">
+			<SceneMap scene={scene} />
+		</div>
+	)
+}
+
+function SceneHeading() {
+	const scene = useScene()
+	if (!scene) return
+	return (
+		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
+			{scene.name}
+		</h2>
 	)
 }
 
@@ -161,13 +170,13 @@ function RoomToolbar() {
 }
 
 function AreaToolButton() {
-	const mapController = useCanvasMapController()
+	const sceneContext = useSceneContext()
 	return (
 		<ToolbarButton
 			text="Draw Area"
 			icon={<Lucide.SquareDashedMousePointer />}
-			active={mapController.isDrawInput}
-			onClick={mapController.toggleDrawInputMode}
+			active={sceneContext.isDrawInput}
+			onClick={sceneContext.toggleDrawInputMode}
 		/>
 	)
 }
@@ -264,7 +273,7 @@ function CharacterTile({
 				event.dataTransfer.setData(
 					"text/plain",
 					JSON.stringify(
-						defineCanvasMapDropData({
+						defineSceneMapDropData({
 							characterId: character._id,
 						}),
 					),
