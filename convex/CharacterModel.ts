@@ -52,8 +52,6 @@ const characterDefaults: Required<{
 	playerId: null,
 }
 
-const getThreshold = (stat: number) => (stat === 20 ? 16 : stat === 12 ? 14 : 12)
-
 export class CharacterModel {
 	readonly ctx
 	readonly doc
@@ -68,8 +66,10 @@ export class CharacterModel {
 
 		this.data = {
 			...docWithDefaults,
-			damageThreshold: doc.damageThreshold ?? getThreshold(docWithDefaults.strength),
-			fatigueThreshold: doc.fatigueThreshold ?? getThreshold(docWithDefaults.sense),
+			damageThreshold: doc.damageThreshold ?? docWithDefaults.strength + docWithDefaults.mobility,
+			fatigueThreshold:
+				doc.fatigueThreshold ??
+				docWithDefaults.sense + docWithDefaults.intellect + docWithDefaults.wit,
 
 			// temporary until implementing token toolbars to actually toggle visibility
 			token: {
