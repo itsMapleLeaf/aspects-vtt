@@ -56,6 +56,7 @@ export function MessageForm() {
 						dice: getDiceInput().toArray(),
 					})
 					setContent("")
+					setDiceCounts({})
 				} catch (error) {
 					alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
 				}
@@ -122,7 +123,6 @@ export function MessageForm() {
 								disabled={totalDice < 1}
 								onClick={() => {
 									setDiceCounts({})
-									setContent("")
 								}}
 							/>
 
