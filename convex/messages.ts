@@ -6,7 +6,7 @@ import { pick } from "#app/common/object.js"
 import { range } from "#app/common/range.js"
 import { CharacterModel } from "./CharacterModel.js"
 import { mutation, query } from "./_generated/server.js"
-import { QueryCtxService } from "./helpers.js"
+import { QueryCtxService } from "./effect.js"
 import { getUserFromClerkId, getUserFromIdentity } from "./users.js"
 
 export const diceRollValidator = v.object({
@@ -31,7 +31,7 @@ export const list = query({
 				result.page.map(async ({ userId, ...message }) => {
 					const user = await Effect.runPromise(
 						getUserFromClerkId(userId).pipe(
-							QueryCtxService.provide(ctx),
+							Effect.provideService(QueryCtxService, ctx),
 							Effect.tapError(Effect.logWarning),
 							Effect.orElseSucceed(() => null),
 						),

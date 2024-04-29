@@ -1,5 +1,4 @@
 import { type PropertyValidators, type Validator, v } from "convex/values"
-import { Context, Effect } from "effect"
 import { Result } from "#app/common/Result.js"
 import { raise } from "#app/common/errors.js"
 import type { Id, TableNames } from "#convex/_generated/dataModel.js"
@@ -32,19 +31,4 @@ export function partial<T extends PropertyValidators>(obj: T) {
 			? Validator<V | undefined, true, F>
 			: T[K]
 	}
-}
-
-// biome-ignore lint/complexity/noStaticOnlyClass: the class still has a purpose
-export class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {
-	static provide(ctx: QueryCtx) {
-		return Effect.provideService(QueryCtxService, ctx)
-	}
-}
-
-export function getDoc<TableName extends TableNames>(id: Id<TableName>) {
-	return Effect.gen(function* () {
-		const ctx = yield* QueryCtxService
-		const doc = yield* Effect.tryPromise(() => ctx.db.get(id))
-		return yield* Effect.fromNullable(doc)
-	})
 }

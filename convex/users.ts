@@ -1,8 +1,9 @@
 import { ConvexError } from "convex/values"
-import { Effect } from "effect"
+import { Effect, pipe } from "effect"
 import { Result } from "#app/common/Result.js"
-import type { QueryCtx } from "./_generated/server"
-import { type Branded, QueryCtxService } from "./helpers.ts"
+import type { QueryCtx } from "./_generated/server.js"
+import { QueryCtxService } from "./effect.ts"
+import type { Branded } from "./helpers.ts"
 
 /** @deprecated */
 export function getUserFromIdentity(ctx: QueryCtx) {
@@ -12,7 +13,10 @@ export function getUserFromIdentity(ctx: QueryCtx) {
 			throw new ConvexError("Not logged in")
 		}
 		return await Effect.runPromise(
-			getUserFromClerkId(identity.subject as Branded<"clerkId">).pipe(QueryCtxService.provide(ctx)),
+			pipe(
+				getUserFromClerkId(identity.subject as Branded<"clerkId">),
+				Effect.provideService(QueryCtxService, ctx),
+			),
 		)
 	})
 }

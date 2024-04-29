@@ -7,7 +7,7 @@ import { range } from "#app/common/range.js"
 import { RoomModel } from "./RoomModel.js"
 import type { Id } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
-import { getDoc } from "./helpers.js"
+import { getDoc } from "./effect.js"
 import { memberValidator } from "./rooms/combat.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "./users.js"
 

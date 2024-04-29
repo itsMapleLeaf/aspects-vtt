@@ -5,11 +5,11 @@ import { indexLooped, withMovedItem } from "#app/common/array.ts"
 import { expect } from "#app/common/expect.ts"
 import { roll } from "#app/common/random.js"
 import type { Id } from "#convex/_generated/dataModel.js"
-import { QueryCtxService, getDoc } from "#convex/helpers.ts"
+import { effectQuery, getDoc } from "#convex/effect.js"
 import { type AttributeId, attributeIdValidator, getNotionImports } from "#convex/notionImports.ts"
 import { CharacterModel } from "../CharacterModel.ts"
 import { RoomModel } from "../RoomModel.ts"
-import { type QueryCtx, mutation, query } from "../_generated/server.js"
+import { type QueryCtx, mutation } from "../_generated/server.js"
 
 export const memberValidator = v.object({
 	characterId: v.id("characters"),
@@ -26,44 +26,39 @@ export const roomCombatValidator = v.object({
 	members: deprecated,
 })
 
-export const getCombatMembers = query({
+export const getCombatMembers = effectQuery({
 	args: { roomId: v.id("rooms") },
-	handler: async (ctx, args) => {
-		return Effect.runPromise(
-			pipe(
-				Effect.gen(function* () {
-					const combat = yield* getRoomCombat(args.roomId)
+	handler: (args) =>
+		Effect.gen(function* () {
+			const combat = yield* getRoomCombat(args.roomId)
 
-					// filter out member items that don't have character docs
-					const members = yield* pipe(
-						Effect.fromNullable(combat.memberObjects),
-						Effect.flatMap(Effect.filter((member) => Effect.isSuccess(getDoc(member.characterId)))),
-					)
+			// filter out member items that don't have character docs
+			const members = yield* pipe(
+				Effect.fromNullable(combat.memberObjects),
+				Effect.flatMap(Effect.filter((member) => Effect.isSuccess(getDoc(member.characterId)))),
+			)
 
-					const currentMemberId = combat.currentMemberId ?? members[0]?.characterId
-					const currentMemberIndex = members.findIndex((it) => it.characterId === currentMemberId)
+			const currentMemberId = combat.currentMemberId ?? members[0]?.characterId
+			const currentMemberIndex = members.findIndex((it) => it.characterId === currentMemberId)
 
-					return {
-						members,
-						currentMemberId,
-						currentMemberIndex,
-					}
-				}),
-				Effect.provideService(QueryCtxService, ctx),
-				Effect.tapError((error) => {
-					if (error._tag === "CombatInactiveError") {
-						return Effect.void
-					}
-					return Effect.logWarning(error)
-				}),
-				Effect.orElseSucceed(() => ({
-					members: [],
-					currentMemberId: undefined,
-					currentMemberIndex: 0,
-				})),
-			),
-		)
-	},
+			return {
+				members,
+				currentMemberId,
+				currentMemberIndex,
+			}
+		}).pipe(
+			Effect.tapError((error) => {
+				if (error._tag === "CombatInactiveError") {
+					return Effect.void
+				}
+				return Effect.logWarning(error)
+			}),
+			Effect.orElseSucceed(() => ({
+				members: [],
+				currentMemberId: undefined,
+				currentMemberIndex: 0,
+			})),
+		),
 })
 
 export const start = mutation({
