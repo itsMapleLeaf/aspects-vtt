@@ -1,14 +1,14 @@
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { Vector } from "../../common/vector.ts"
-import { editCharacterEvent } from "./events.ts"
+import type { ApiCharacter } from "../characters/types.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { TokenElement } from "../tokens/TokenElement.tsx"
-import type { ApiCharacter } from "../characters/types.ts"
 import { TokenLabel, TokenSelectionOutline } from "../tokens/TokenMap.tsx"
 import { CharacterContextMenu } from "./CharacterContextMenu.tsx"
 import { CharacterQuickMenu } from "./CharacterQuickMenu.tsx"
+import { editCharacterEvent } from "./events.ts"
 
 export function CharacterTokenElement(props: {
 	character: ApiCharacter

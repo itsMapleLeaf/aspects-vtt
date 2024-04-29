@@ -1,7 +1,7 @@
-import { Select } from "../../ui/Select.old.tsx"
 import type { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import type { ResultQueryData } from "../../../convex/resultResponse.ts"
+import { Select } from "../../ui/Select.old.tsx"
 
 export function CharacterSelect({
 	characters,

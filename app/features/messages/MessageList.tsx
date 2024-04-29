@@ -4,6 +4,7 @@ import { HelpCircle } from "lucide-react"
 import * as Lucide from "lucide-react"
 import { Fragment } from "react"
 import { Virtuoso } from "react-virtuoso"
+import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
 import {
 	ContextMenu,
@@ -14,7 +15,6 @@ import {
 import { Loading } from "../../ui/Loading.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
-import { api } from "../../../convex/_generated/api.js"
 import type { ApiCharacter } from "../characters/types.ts"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"

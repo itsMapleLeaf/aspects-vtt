@@ -3,6 +3,7 @@ import { ConvexError } from "convex/values"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { Modal, ModalButton, ModalPanel } from "../../ui/Modal.tsx"
@@ -11,7 +12,6 @@ import { usePrompt } from "../../ui/Prompt.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel } from "../../ui/styles.ts"
-import { api } from "../../../convex/_generated/api.js"
 import {
 	type DiceKind,
 	diceKinds,

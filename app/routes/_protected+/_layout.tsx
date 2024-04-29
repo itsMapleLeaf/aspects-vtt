@@ -1,10 +1,10 @@
 import { ClerkLoading, SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/remix"
 import { Outlet, useHref, useLocation } from "@remix-run/react"
 import * as Lucide from "lucide-react"
-import { Button } from "../../ui/Button.tsx"
-import { Loading } from "../../ui/Loading.tsx"
 import { AppHeaderLayout } from "../../ui/AppHeaderLayout"
+import { Button } from "../../ui/Button.tsx"
 import { EmptyStatePanel } from "../../ui/EmptyState"
+import { Loading } from "../../ui/Loading.tsx"
 
 export default function ProtectedLayoutRoute() {
 	const currentUrl = useHref(useLocation())

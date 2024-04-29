@@ -2,15 +2,11 @@ import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 import { withMovedItem } from "../../common/array.ts"
 import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
 import type { Nullish } from "../../common/types.ts"
-import {
-	RoomOwnerOnly,
-	useCharacter,
-	useCharacters,
-	useRoom,
-} from "./roomContext.tsx"
 import { Button } from "../../ui/Button.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { FormLayout } from "../../ui/Form.tsx"
@@ -18,9 +14,8 @@ import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
-import { api } from "../../../convex/_generated/api.js"
-import type { Id } from "../../../convex/_generated/dataModel.js"
 import { UploadedImage } from "../images/UploadedImage.tsx"
+import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
 
 export function CombatInitiative() {
 	const { combat, ...room } = useRoom()

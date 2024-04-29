@@ -4,12 +4,12 @@ import { Effect, pipe } from "effect"
 import { indexLooped, withMovedItem } from "../../app/common/array.ts"
 import { expect } from "../../app/common/expect.ts"
 import { roll } from "../../app/common/random.ts"
-import type { Id } from "../_generated/dataModel.js"
-import { effectQuery, getDoc } from "../effect.ts"
-import { type AttributeId, attributeIdValidator, getNotionImports } from "../notionImports.ts"
 import { CharacterModel } from "../CharacterModel.ts"
 import { RoomModel } from "../RoomModel.ts"
+import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation } from "../_generated/server.js"
+import { effectQuery, getDoc } from "../effect.ts"
+import { type AttributeId, attributeIdValidator, getNotionImports } from "../notionImports.ts"
 
 export const memberValidator = v.object({
 	characterId: v.id("characters"),

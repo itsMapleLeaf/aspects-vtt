@@ -3,23 +3,20 @@ import type { FunctionArgs } from "convex/server"
 import { type Ref, use, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { twMerge } from "tailwind-merge"
+import { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 import { useMutationState } from "../../common/convex.ts"
 import { useListener } from "../../common/emitter.ts"
 import { useDrag } from "../../common/useDrag.ts"
 import { useWindowEvent } from "../../common/useWindowEvent.ts"
 import { Vector } from "../../common/vector.ts"
-import { useRoom } from "../rooms/roomContext.tsx"
-import { TokenElement } from "./TokenElement.tsx"
-import {
-	TokenMapViewport,
-	type ViewportController,
-} from "./TokenMapViewport.tsx"
-import { tokenSelectedEvent } from "./events.ts"
-import { api } from "../../../convex/_generated/api.js"
-import type { Id } from "../../../convex/_generated/dataModel.js"
 import { CharacterTokenElement } from "../characters/CharacterTokenElement.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { useScene } from "../scenes/SceneContext.tsx"
+import { TokenElement } from "./TokenElement.tsx"
+import { TokenMapViewport, type ViewportController } from "./TokenMapViewport.tsx"
 import { OffsetContext, ZoomContext } from "./context.tsx"
+import { tokenSelectedEvent } from "./events.ts"
 
 export function TokenMap({
 	viewportRef,

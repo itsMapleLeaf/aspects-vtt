@@ -1,8 +1,8 @@
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
+import type { DiceInput } from "../../../convex/messages.ts"
 import { range } from "../../common/range.ts"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
-import type { DiceInput } from "../../../convex/messages.ts"
 
 export type DiceStat = {
 	name: string

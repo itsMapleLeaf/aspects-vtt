@@ -1,7 +1,7 @@
 import { useState } from "react"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 import { wrapContextApi } from "../../common/context.tsx"
 import { useCharacters } from "../rooms/roomContext.tsx"
-import type { Id } from "../../../convex/_generated/dataModel.js"
 
 export const [CharacterSelectionProvider, useCharacterSelection] = wrapContextApi(
 	function useCharacterSelectionProvider() {

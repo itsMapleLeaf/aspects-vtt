@@ -1,9 +1,9 @@
 import { type ComponentPropsWithoutRef, use, useCallback, useEffect, useRef } from "react"
+import type { Doc } from "../../../convex/_generated/dataModel.js"
 import { timeoutEffect } from "../../common/async.ts"
 import { expect } from "../../common/expect.ts"
 import { useResizeObserver } from "../../common/useResizeObserver.ts"
 import { withMergedClassName } from "../../ui/withMergedClassName.ts"
-import type { Doc } from "../../../convex/_generated/dataModel.js"
 import { ZoomContext } from "./context.tsx"
 
 interface TokenMapGridProps extends ComponentPropsWithoutRef<"canvas"> {

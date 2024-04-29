@@ -1,12 +1,12 @@
 import { useConvex, useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useRef } from "react"
+import { api } from "../../../convex/_generated/api.js"
+import type { Doc } from "../../../convex/_generated/dataModel.js"
 import { loadImage } from "../../common/dom.ts"
 import { expect } from "../../common/expect.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button } from "../../ui/Button.tsx"
-import { api } from "../../../convex/_generated/api.js"
-import type { Doc } from "../../../convex/_generated/dataModel.js"
 import { uploadImage } from "../images/uploadImage.ts"
 
 export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {

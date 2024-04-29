@@ -20,12 +20,18 @@ import {
 } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
+import { api } from "../../../../convex/_generated/api.js"
+import type { Id } from "../../../../convex/_generated/dataModel.js"
 import { useMutationState } from "../../../common/convex.ts"
 import { useMutationAction } from "../../../common/convex.ts"
 import { expect } from "../../../common/expect.ts"
 import { useEffectEvent } from "../../../common/react.ts"
 import { useLocalStorageState } from "../../../common/useLocalStorage.ts"
 import { CharacterForm } from "../../../features/characters/CharacterForm.tsx"
+import {
+	CharacterSelectionProvider,
+	useCharacterSelection,
+} from "../../../features/characters/CharacterSelectionProvider"
 import type { ApiCharacter } from "../../../features/characters/types.ts"
 import { UploadedImage } from "../../../features/images/UploadedImage.tsx"
 import { MessageForm } from "../../../features/messages/MessageForm.tsx"
@@ -47,14 +53,8 @@ import { Menu, MenuItem, MenuPanel } from "../../../ui/Menu.tsx"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../../ui/Modal.tsx"
 import { ScrollArea } from "../../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../../ui/Tooltip.tsx"
-import { panel, translucentPanel } from "../../../ui/styles.ts"
-import { api } from "../../../../convex/_generated/api.js"
-import type { Id } from "../../../../convex/_generated/dataModel.js"
-import {
-	CharacterSelectionProvider,
-	useCharacterSelection,
-} from "../../../features/characters/CharacterSelectionProvider"
 import { ValidatedInput } from "../../../ui/ValidatedInput"
+import { panel, translucentPanel } from "../../../ui/styles.ts"
 import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./Toolbar"
 
 export default function RoomIndexRoute() {

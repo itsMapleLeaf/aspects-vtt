@@ -1,13 +1,13 @@
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
-import { useCharacters } from "../rooms/roomContext.tsx"
+import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { FormActions, FormLayout, FormRow } from "../../ui/Form.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
 import { Select } from "../../ui/Select.tsx"
-import { api } from "../../../convex/_generated/api.js"
 import type { ApiAttribute, ApiCharacter } from "../characters/types.ts"
+import { useCharacters } from "../rooms/roomContext.tsx"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function ContestedRollForm({
