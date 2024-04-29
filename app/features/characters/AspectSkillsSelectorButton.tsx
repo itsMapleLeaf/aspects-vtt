@@ -5,6 +5,8 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
+import { api } from "../../../convex/_generated/api.js"
+import type { Doc } from "../../../convex/_generated/dataModel.js"
 import { groupBy } from "../../common/collection.ts"
 import type { StrictOmit } from "../../common/types.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
@@ -12,8 +14,6 @@ import { Button, type ButtonPropsAsElement } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../ui/Modal.tsx"
 import { panel } from "../../ui/styles.ts"
-import { api } from "../../../convex/_generated/api.js"
-import type { Doc } from "../../../convex/_generated/dataModel.js"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
 
@@ -63,12 +63,15 @@ export function AspectSkillsSelectorButton({
 				skill.aspects.some((aspect) => aspects.has(aspect))
 
 	const [search, setSearch] = useState("")
-	const searchResults = matchSorter(notionData?.aspectSkills ?? [], search, {
-		keys: ["name", "aspects", "description"],
-	})
-	searchResults
-		.sort((a, b) => a.name.localeCompare(b.name))
-		.sort((a, b) => a.aspects.length - b.aspects.length)
+	const searchResults = matchSorter(
+		(notionData?.aspectSkills ?? [])
+			.sort((a, b) => a.name.localeCompare(b.name))
+			.sort((a, b) => a.aspects.length - b.aspects.length),
+		search,
+		{
+			keys: ["name", "aspects", "description"],
+		},
+	)
 
 	const groups = groupBy(searchResults, (skill) => {
 		if (addedAspectSkills.has(skill.name)) return "learned"
