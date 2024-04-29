@@ -11,6 +11,7 @@ export type SelectOption<T extends SelectValue> = {
 	label: string
 }
 
+/** @deprecated */
 export function Select<T extends SelectValue>({
 	options,
 	value,
