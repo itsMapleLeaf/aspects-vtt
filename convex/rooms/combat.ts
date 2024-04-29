@@ -62,16 +62,18 @@ export const start = mutation({
 		const room = await RoomModel.fromId(ctx, args.id).getValueOrThrow()
 		await room.assertOwned()
 
-		const initialMembers = await ctx.db
-			.query("characters")
-			.withIndex("by_room", (q) => q.eq("roomId", room.data._id))
-			.filter((q) => q.eq(q.field("visible"), true))
-			.collect()
+		const scene = room.data.currentScene && (await ctx.db.get(room.data.currentScene))
+
+		const visibleCharacters = await Promise.all(
+			scene?.tokens?.map((token) => token.visible && token.characterId) ?? [],
+		)
+
+		const initialMemberIds = visibleCharacters.filter(Boolean)
 
 		await ctx.db.patch(room.data._id, {
 			combat: {
-				members: initialMembers.map((c) => c._id),
-				currentMemberId: initialMembers[0]?._id ?? null,
+				members: initialMemberIds,
+				currentMemberId: initialMemberIds[0] ?? null,
 				currentRoundNumber: 1,
 			},
 		})
