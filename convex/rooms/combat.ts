@@ -287,7 +287,6 @@ export const moveMember = mutation({
 		const { memberIds } = await getCombatMembers(ctx, { roomId: room.data._id })
 
 		const updated = withMovedItem(memberIds, args.fromIndex, args.toIndex)
-		console.log(memberIds, args.fromIndex, args.toIndex, updated)
 
 		await ctx.db.patch(room.data._id, {
 			combat: {

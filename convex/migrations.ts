@@ -10,7 +10,7 @@ export const migrate = internalMutation(async (ctx) => {
 				},
 				tokenPosition: undefined,
 			})
-			console.log("Migrated character", character._id, character.tokenPosition)
+			console.info("Migrated character", character._id, character.tokenPosition)
 		}
 	}
 })

@@ -20,7 +20,8 @@
 			"suspicious": {
 				"noArrayIndexKey": "off",
 				"noAssignInExpressions": "off",
-				"noImplicitAnyLet": "off"
+				"noImplicitAnyLet": "off",
+				"noConsoleLog": "error"
 			},
 			"style": {
 				"useImportType": "error",
