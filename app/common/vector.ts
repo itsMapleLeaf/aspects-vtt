@@ -1,9 +1,11 @@
 export type VectorInput =
+	| { x: number; y: number }
+	| { width: number; height: number }
 	| [x: number, y: number]
-	| [xy: number]
-	| [xy: { x: number; y: number }]
-	| [size: { width: number; height: number }]
-	| [vector: Vector]
+	| Vector
+	| number // same number for both components
+
+export type VectorInputArgs = [input: VectorInput] | [x: number, y: number]
 
 export class Vector {
 	readonly x: number
@@ -21,7 +23,7 @@ export class Vector {
 	static readonly left = new Vector(-1, 0)
 	static readonly right = new Vector(1, 0)
 
-	static from(...args: VectorInput): Vector {
+	static from(...args: VectorInputArgs): Vector {
 		if (args[0] instanceof Vector) {
 			return args[0]
 		}
@@ -31,7 +33,12 @@ export class Vector {
 		if (typeof args[0] === "object" && "width" in args[0]) {
 			return new Vector(args[0].width, args[0].height)
 		}
-		return new Vector(args[0], args[1] ?? args[0])
+		if (typeof args[0] === "number") {
+			return new Vector(args[0], args[0])
+		}
+
+		const [x, y] = args[0]
+		return new Vector(x, y)
 	}
 
 	static fromSize(
@@ -107,12 +114,12 @@ export class Vector {
 		return this.map((n) => Math.ceil(n / multiple) * multiple)
 	}
 
-	plus(...input: VectorInput): Vector {
+	plus(...input: VectorInputArgs): Vector {
 		const b = Vector.from(...input)
 		return new Vector(this.x + b.x, this.y + b.y)
 	}
 
-	minus(...input: VectorInput): Vector {
+	minus(...input: VectorInputArgs): Vector {
 		const b = Vector.from(...input)
 		return new Vector(this.x - b.x, this.y - b.y)
 	}
@@ -125,11 +132,11 @@ export class Vector {
 		return new Vector(this.x / b, this.y / b)
 	}
 
-	distanceTo(...input: VectorInput): number {
+	distanceTo(...input: VectorInputArgs): number {
 		return this.minus(...input).length
 	}
 
-	manhattanDistanceTo(...input: VectorInput): number {
+	manhattanDistanceTo(...input: VectorInputArgs): number {
 		const b = Vector.from(...input)
 		return Math.abs(this.x - b.x) + Math.abs(this.y - b.y)
 	}
@@ -142,12 +149,12 @@ export class Vector {
 		return new Vector(fn(this.x), fn(this.y))
 	}
 
-	clampTopLeft(...topLeftInput: VectorInput): Vector {
+	clampTopLeft(...topLeftInput: VectorInputArgs): Vector {
 		const topLeft = Vector.from(...topLeftInput)
 		return new Vector(Math.max(this.x, topLeft.x), Math.max(this.y, topLeft.y))
 	}
 
-	clampBottomRight(...bottomRightInput: VectorInput): Vector {
+	clampBottomRight(...bottomRightInput: VectorInputArgs): Vector {
 		const bottomRight = Vector.from(...bottomRightInput)
 		return new Vector(Math.min(this.x, bottomRight.x), Math.min(this.y, bottomRight.y))
 	}

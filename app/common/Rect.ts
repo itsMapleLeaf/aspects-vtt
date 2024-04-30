@@ -1,4 +1,4 @@
-import { Vector, type VectorInput } from "./vector.ts"
+import { Vector, type VectorInputArgs } from "./vector.ts"
 
 export type RectInput =
 	| { x: number; y: number; width: number; height: number }
@@ -83,11 +83,11 @@ export class Rect {
 		return [left, top, width, height] as const
 	}
 
-	withPosition(...position: VectorInput): Rect {
+	withPosition(...position: VectorInputArgs): Rect {
 		return new Rect(Vector.from(...position), this.size)
 	}
 
-	withSize(...size: VectorInput): Rect {
+	withSize(...size: VectorInputArgs): Rect {
 		return new Rect(this.position, Vector.from(...size))
 	}
 
@@ -99,7 +99,7 @@ export class Rect {
 		return new Rect(this.position, this.size.times(amount))
 	}
 
-	withMinimumSize(...size: VectorInput): Rect {
+	withMinimumSize(...size: VectorInputArgs): Rect {
 		const sizeVector = Vector.from(...size)
 		return this.withSize(
 			Vector.from(Math.max(sizeVector.x, this.size.x), Math.max(sizeVector.y, this.size.y)),

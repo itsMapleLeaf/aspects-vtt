@@ -1,4 +1,4 @@
-import { Vector, type VectorInput } from "../../common/vector.ts"
+import { Vector, type VectorInputArgs } from "../../common/vector.ts"
 
 interface CameraState {
 	position: Vector
@@ -38,7 +38,7 @@ export class Camera {
 		return Camera.getScale(this.zoomTick)
 	}
 
-	movedBy(...delta: VectorInput): Camera {
+	movedBy(...delta: VectorInputArgs): Camera {
 		return new Camera({
 			...this.#state,
 			position: this.#state.position.plus(...delta),
