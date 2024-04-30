@@ -10,19 +10,16 @@ import type { Branded } from "../../../convex/helpers.ts"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
 import { Rect } from "../../common/Rect.ts"
 import { hasItems } from "../../common/collection.ts"
-import { expect } from "../../common/expect.ts"
-import { clamp, mod } from "../../common/math.ts"
+import { clamp } from "../../common/math.ts"
 import { randomItem } from "../../common/random.ts"
-import { useImage } from "../../common/useImage.ts"
-import { useResizeObserver } from "../../common/useResizeObserver.ts"
 import { Vector } from "../../common/vector.ts"
 import { Menu, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { CharacterQuickMenu } from "../characters/CharacterQuickMenu.tsx"
 import { useCharacterSelection } from "../characters/CharacterSelectionProvider.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
-import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
+import { SceneMapBackground } from "./SceneMapBackground.tsx"
 import type { ApiScene } from "./types.ts"
 
 const sceneMapDropDataSchema = z.object({
@@ -235,112 +232,6 @@ function SceneMapContainer({
 			{children}
 		</div>
 	)
-}
-
-function SceneMapBackground({ scene }: { scene: Doc<"scenes"> }) {
-	const canvasRef = React.useRef<HTMLCanvasElement>(null)
-	const backgroundImage = useImage(scene.background && getApiImageUrl(scene.background))
-	const { camera, ...controller } = useSceneContext()
-	const multiSelectArea = controller.getMultiSelectArea()
-
-	React.useLayoutEffect(() => {
-		draw()
-	})
-
-	useResizeObserver(canvasRef, (entry) => {
-		const canvas = expect(canvasRef.current, "canvas ref not set")
-		canvas.width = entry.contentRect.width
-		canvas.height = entry.contentRect.height
-		draw()
-	})
-
-	function draw() {
-		const canvas = expect(canvasRef.current, "canvas ref not set")
-		const context = expect(canvas.getContext("2d"), "canvas not supported")
-		const cellSize = (scene?.cellSize ?? 0) * camera.scale
-
-		context.clearRect(0, 0, canvas.width, canvas.height)
-
-		if (backgroundImage) {
-			isolateDraws(context, () => {
-				context.globalAlpha = 0.75
-				context.drawImage(
-					backgroundImage,
-					...camera.position.dividedBy(camera.scale).times(-1).tuple,
-					...Vector.fromSize(canvas).dividedBy(camera.scale).tuple,
-					...Vector.zero.tuple,
-					...Vector.fromSize(canvas).tuple,
-				)
-			})
-		}
-
-		if (cellSize >= 4) {
-			isolateDraws(context, () => {
-				context.strokeStyle = "black"
-				context.lineWidth = 1
-				context.globalAlpha = 0.25
-
-				context.beginPath()
-
-				// vertical grid lines
-				for (let x = mod(camera.position.x, cellSize); x < canvas.width; x += cellSize) {
-					context.moveTo(x + 0.5, 0)
-					context.lineTo(x + 0.5, canvas.height)
-				}
-
-				// horizontal grid lines
-				for (let y = mod(camera.position.y, cellSize); y < canvas.height; y += cellSize) {
-					context.moveTo(0, y + 0.5)
-					context.lineTo(canvas.width, y + 0.5)
-				}
-
-				context.stroke()
-			})
-		}
-
-		if (multiSelectArea) {
-			drawRect(context, multiSelectArea)
-		}
-
-		if (controller.previewArea) {
-			drawRect(
-				context,
-				Rect.fromCorners(
-					controller.previewArea.topLeft
-						.minus(camera.position)
-						.floorTo(cellSize)
-						.plus(camera.position),
-					controller.previewArea.bottomRight
-						.minus(camera.position)
-						.ceilingTo(cellSize)
-						.plus(camera.position),
-				),
-			)
-		}
-	}
-
-	function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
-		isolateDraws(context, () => {
-			context.fillStyle = "white"
-			context.strokeStyle = "white"
-			context.lineWidth = 2
-			context.lineJoin = "round"
-
-			context.globalAlpha = 0.5
-			context.fillRect(...rect.tuple)
-
-			context.globalAlpha = 1
-			context.strokeRect(...rect.tuple)
-		})
-	}
-
-	function isolateDraws(context: CanvasRenderingContext2D, fn: () => void) {
-		context.save()
-		fn()
-		context.restore()
-	}
-
-	return <canvas className="absolute inset-0 size-full" ref={canvasRef} />
 }
 
 function MapElement({

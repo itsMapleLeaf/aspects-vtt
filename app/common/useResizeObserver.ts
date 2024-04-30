@@ -4,7 +4,7 @@ import type { Nullish } from "./types.ts"
 import { Vector } from "./vector.ts"
 
 export function useResizeObserver(
-	ref: Nullish<React.RefObject<Nullish<Element>> | Element>,
+	ref: Nullish<Element> | React.RefObject<Nullish<Element>>,
 	callback: (entry: ResizeObserverEntry) => void,
 ) {
 	const callbackRef = useRef<typeof callback>(undefined)
@@ -24,7 +24,7 @@ export function useResizeObserver(
 	}, [ref])
 }
 
-export function useSize(ref: Nullish<React.RefObject<Element> | Element>) {
+export function useSize(ref: Nullish<Element> | React.RefObject<Nullish<Element>>) {
 	const [size, setSize] = useState(Vector.zero)
 	useResizeObserver(ref, (entry) => setSize(Vector.fromSize(entry.contentRect)))
 	return size

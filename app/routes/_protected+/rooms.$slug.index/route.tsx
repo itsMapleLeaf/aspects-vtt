@@ -4,20 +4,12 @@ import {
 	DisclosureProvider,
 	type DisclosureStore,
 	useDisclosureStore,
-	useMenuStore,
 } from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import {
-	type ComponentProps,
-	type Ref,
-	useEffect,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from "react"
+import { type ComponentProps, type Ref, useEffect, useImperativeHandle, useRef } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { api } from "../../../../convex/_generated/api.js"
@@ -41,15 +33,26 @@ import { RoomOwnerOnly, useCharacters, useRoom } from "../../../features/rooms/r
 import { useSceneContext } from "../../../features/scenes/SceneContext.tsx"
 import { useScene } from "../../../features/scenes/SceneContext.tsx"
 import { SceneList } from "../../../features/scenes/SceneList.tsx"
-import { SceneMap, defineSceneMapDropData } from "../../../features/scenes/SceneMap.tsx"
+import { defineSceneMapDropData } from "../../../features/scenes/SceneMap.tsx"
+import { SceneMapBackground } from "../../../features/scenes/SceneMapBackground.tsx"
+import { SceneGrid } from "../../../features/scenes/grid.tsx"
+import { SceneTokens } from "../../../features/scenes/tokens.tsx"
+import { ViewportStore } from "../../../features/scenes/viewport.tsx"
+import { ViewportDragInput } from "../../../features/scenes/viewport.tsx"
+import { ViewportWheelInput } from "../../../features/scenes/viewport.tsx"
 import { SetMapBackgroundButton } from "../../../features/tokens/SetMapBackgroundButton.tsx"
 import { AppHeader } from "../../../ui/AppHeader.tsx"
 import { Button } from "../../../ui/Button.tsx"
+import {
+	ContextMenu,
+	ContextMenuItem,
+	ContextMenuPanel,
+	ContextMenuTrigger,
+} from "../../../ui/ContextMenu.tsx"
 import { DefinitionList } from "../../../ui/DefinitionList.tsx"
 import { FormField, FormLayout, FormRow } from "../../../ui/Form.tsx"
 import { Input } from "../../../ui/Input.tsx"
 import { Loading } from "../../../ui/Loading.tsx"
-import { Menu, MenuItem, MenuPanel } from "../../../ui/Menu.tsx"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../../ui/Modal.tsx"
 import { ScrollArea } from "../../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../../ui/Tooltip.tsx"
@@ -59,32 +62,35 @@ import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "
 
 export default function RoomIndexRoute() {
 	const currentUrl = useHref(useLocation())
+	const scene = useScene()
 	return (
 		<CharacterSelectionProvider>
-			<JoinRoomEffect />
-			<SceneMapWrapper />
-			<div
-				className={translucentPanel(
-					"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
+			<ViewportStore.Provider>
+				<JoinRoomEffect />
+				{scene && (
+					<div className="fixed inset-0 -z-10">
+						<ViewportWheelInput>
+							<SceneMapBackground scene={scene} />
+							<SceneGrid scene={scene} />
+							<ViewportDragInput>
+								<SceneTokens scene={scene} />
+							</ViewportDragInput>
+						</ViewportWheelInput>
+					</div>
 				)}
-			>
-				<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
-			</div>
-			<SceneHeading />
-			<CharacterListPanel />
-			<MessagesPanel />
-			<CombatTurnBanner />
+				<div
+					className={translucentPanel(
+						"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
+					)}
+				>
+					<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
+				</div>
+				<SceneHeading />
+				<CharacterListPanel />
+				<MessagesPanel />
+				<CombatTurnBanner />
+			</ViewportStore.Provider>
 		</CharacterSelectionProvider>
-	)
-}
-
-function SceneMapWrapper() {
-	const scene = useScene()
-	if (!scene) return
-	return (
-		<div className="fixed inset-0 -z-10">
-			<SceneMap scene={scene} />
-		</div>
 	)
 }
 
@@ -249,8 +255,6 @@ function CharacterTile({
 	const room = useRoom()
 	const removeCharacter = useMutation(api.characters.remove)
 	const duplicateCharacter = useMutation(api.characters.duplicate)
-	const store = useMenuStore()
-	const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
 	const selection = useCharacterSelection()
 
 	const button = (
@@ -279,11 +283,6 @@ function CharacterTile({
 					),
 				)
 			}}
-			onContextMenu={(event) => {
-				event.preventDefault()
-				setMenuPosition({ x: event.clientX, y: event.clientY })
-				store.show()
-			}}
 			onClick={() => {
 				selection.toggleSelected(character._id)
 			}}
@@ -306,10 +305,10 @@ function CharacterTile({
 	}
 
 	return (
-		<Menu store={store}>
-			{button}
-			<MenuPanel getAnchorRect={() => menuPosition}>
-				<MenuItem
+		<ContextMenu>
+			<ContextMenuTrigger>{button}</ContextMenuTrigger>
+			<ContextMenuPanel>
+				<ContextMenuItem
 					text="Duplicate"
 					icon={<Lucide.Copy />}
 					onClick={async () => {
@@ -317,7 +316,7 @@ function CharacterTile({
 						selection.setSelected(id)
 					}}
 				/>
-				<MenuItem
+				<ContextMenuItem
 					text="Duplicate (Randomized)"
 					icon={<Lucide.Shuffle />}
 					onClick={async () => {
@@ -325,7 +324,7 @@ function CharacterTile({
 						selection.setSelected(id)
 					}}
 				/>
-				<MenuItem
+				<ContextMenuItem
 					text="Delete"
 					icon={<Lucide.Trash />}
 					onClick={() => {
@@ -334,8 +333,8 @@ function CharacterTile({
 						}
 					}}
 				/>
-			</MenuPanel>
-		</Menu>
+			</ContextMenuPanel>
+		</ContextMenu>
 	)
 }
 

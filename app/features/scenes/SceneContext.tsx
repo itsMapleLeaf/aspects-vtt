@@ -242,7 +242,6 @@ function useSceneProvider(scene: Nullish<ApiScene>) {
 	}
 
 	return {
-		scene,
 		isSelectInput: inputMode === "select",
 		isDrawInput: inputMode === "draw",
 		toggleDrawInputMode,
@@ -281,19 +280,24 @@ function usePointerPosition() {
 	return position
 }
 
-const SceneContext = createNonEmptyContext<SceneContextType>()
+const SceneStateContext = createNonEmptyContext<SceneContextType>()
+const SceneContext = React.createContext<Nullish<ApiScene>>(undefined)
 
 export function SceneProvider({ children }: { children: React.ReactNode }) {
 	const room = useRoom()
 	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
 	const context = useSceneProvider(scene)
-	return <SceneContext value={context}>{children}</SceneContext>
+	return (
+		<SceneStateContext value={context}>
+			<SceneContext value={scene}>{children}</SceneContext>
+		</SceneStateContext>
+	)
 }
 
 export function useSceneContext() {
-	return useNonEmptyContext(SceneContext)
+	return useNonEmptyContext(SceneStateContext)
 }
 
 export function useScene() {
-	return useSceneContext().scene
+	return React.use(SceneContext)
 }
