@@ -1,39 +1,41 @@
-import { type ComponentProps, useLayoutEffect, useRef } from "react"
+import { type ComponentProps, useEffect, useRef } from "react"
 import { expect } from "../../common/expect.ts"
-import { mod } from "../../common/math.ts"
 import { useSize } from "../../common/useResizeObserver.ts"
+import type { GridWorkerMessage } from "./grid.worker.ts"
 import type { ApiScene } from "./types.ts"
 import { ViewportStore } from "./viewport.tsx"
 
+const sendMessage = (worker: Worker, message: GridWorkerMessage) => {
+	worker.postMessage(message, message.type === "init" ? [message.canvas] : [])
+}
+
 export function SceneGrid({ scene, ...props }: ComponentProps<"canvas"> & { scene: ApiScene }) {
-	const ref = useRef<HTMLCanvasElement>(null)
-	const size = useSize(ref)
+	const canvasRef = useRef<HTMLCanvasElement>(null)
+	const size = useSize(canvasRef)
 	const viewport = ViewportStore.useState()
+	const workerRef = useRef<Worker>(undefined)
 
-	useLayoutEffect(() => {
-		const canvas = expect(ref.current, "canvas ref not set")
-		const context = expect(canvas.getContext("2d"), "canvas not supported")
+	useEffect(() => {
+		if (!workerRef.current) {
+			workerRef.current = new Worker(new URL("./grid.worker.ts", import.meta.url), {
+				type: "module",
+			})
 
-		const cellSize = scene.cellSize * viewport.scale
+			const canvas = expect(canvasRef.current, "canvas ref not set")
+			const offscreen = canvas.transferControlToOffscreen()
 
-		context.clearRect(0, 0, canvas.width, canvas.height)
-
-		context.lineWidth = 1
-		context.strokeStyle = "black"
-		context.globalAlpha = 0.3
-
-		context.beginPath()
-
-		for (let x = mod(viewport.offset.x, cellSize); x < canvas.width; x += cellSize) {
-			context.moveTo(x + 0.5, 0)
-			context.lineTo(x + 0.5, canvas.height)
-		}
-		for (let y = mod(viewport.offset.y, cellSize); y < canvas.height; y += cellSize) {
-			context.moveTo(0, y + 0.5)
-			context.lineTo(canvas.width, y + 0.5)
+			sendMessage(workerRef.current, {
+				type: "init",
+				canvas: offscreen,
+			})
 		}
 
-		context.stroke()
+		sendMessage(workerRef.current, {
+			type: "render",
+			canvasSize: size.xy,
+			viewportOffset: viewport.offset.xy,
+			cellSize: scene.cellSize * viewport.scale,
+		})
 	})
 
 	return (
@@ -42,7 +44,7 @@ export function SceneGrid({ scene, ...props }: ComponentProps<"canvas"> & { scen
 			className="absolute inset-0 size-full"
 			width={size.x}
 			height={size.y}
-			ref={ref}
+			ref={canvasRef}
 		/>
 	)
 }
