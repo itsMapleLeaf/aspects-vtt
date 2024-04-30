@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react"
-import { type ComponentProps, createContext, use, useState } from "react"
+import { type ComponentProps, createContext, use, useEffect, useRef, useState } from "react"
 import { createNonEmptyContext, useNonEmptyContext } from "../common/context.tsx"
 import { Vector } from "../common/vector.ts"
 import { Menu, MenuItem, MenuPanel } from "./Menu.tsx"
@@ -52,7 +52,25 @@ export function ContextMenuTrigger(props: ComponentProps<"div">) {
 
 export function ContextMenuPanel(props: ComponentProps<typeof MenuPanel>) {
 	const pointer = use(PointerContext)
-	return <MenuPanel modal getAnchorRect={() => pointer} {...props} />
+	const store = useNonEmptyContext(StoreContext)
+	const open = store.useState("open")
+	const ref = useRef<React.ComponentRef<typeof MenuPanel>>(null)
+
+	// close on pointer down instead of pointer up
+	useEffect(() => {
+		if (!open) return
+		const handler = (event: PointerEvent) => {
+			if (!ref.current?.contains(event.target as Node)) {
+				store.hide()
+			}
+		}
+		window.addEventListener("pointerdown", handler)
+		return () => {
+			window.removeEventListener("pointerdown", handler)
+		}
+	}, [open, store.hide])
+
+	return <MenuPanel getAnchorRect={() => pointer} ref={ref} {...props} />
 }
 
 export const ContextMenuItem = MenuItem
