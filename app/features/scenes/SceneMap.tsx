@@ -69,8 +69,10 @@ export function SceneMap({ scene }: { scene: ApiScene }) {
 								<UploadedImage
 									id={token.character.imageId}
 									emptyIcon={<Lucide.Ghost />}
-									className="size-full"
-									imageClassName="rounded object-cover object-top shadow-md [transform:translateZ(0)]"
+									className={{
+										container: "size-full",
+										image: "rounded object-cover object-top shadow-md [transform:translateZ(0)]",
+									}}
 								/>
 								<CharacterQuickMenu character={token.character} />
 							</MapElement>

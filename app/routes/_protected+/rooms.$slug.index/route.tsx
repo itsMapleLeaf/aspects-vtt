@@ -68,7 +68,7 @@ export default function RoomIndexRoute() {
 			<ViewportStore.Provider>
 				<JoinRoomEffect />
 				{scene && (
-					<div className="fixed inset-0 -z-10">
+					<div className="fixed inset-0 -z-10 select-none">
 						<ViewportWheelInput>
 							<SceneMapBackground scene={scene} />
 							<SceneGrid scene={scene} />

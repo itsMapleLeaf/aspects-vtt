@@ -39,3 +39,19 @@ export function isEmpty(iterable: Iterable<unknown>): iterable is Iterable<never
 export function hasItems(iterable: Iterable<unknown>): boolean {
 	return !isEmpty(iterable)
 }
+
+export function patchBy<T>(
+	items: Iterable<T>,
+	predicate: (item: T) => unknown,
+	properties: Partial<T>,
+) {
+	return Iterator.from(items).map((it) => (predicate(it) ? { ...it, ...properties } : it))
+}
+
+export function patchByKey<T, K extends keyof T>(
+	items: Iterable<T>,
+	key: K,
+	properties: Partial<T> & Record<K, T[K]>,
+) {
+	return patchBy(items, (item) => item[key] === properties[key], properties)
+}

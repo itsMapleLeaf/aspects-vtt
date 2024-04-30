@@ -32,3 +32,9 @@ export function createStore<State, Actions, ContextValue>(options: {
 		useActions: useStoreActions,
 	}
 }
+
+export type StoreState<S> = S extends { useState(): unknown } ? ReturnType<S["useState"]> : never
+
+export type StoreActions<S> = S extends { useActions(): unknown }
+	? ReturnType<S["useActions"]>
+	: never

@@ -1,28 +1,34 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import type { Nullish, Overwrite } from "../../common/types.ts"
-import { withMergedClassName } from "../../ui/withMergedClassName.ts"
 import { getApiImageUrl } from "./getApiImageUrl"
 
 type UploadedImageProps = Overwrite<
-	ComponentPropsWithoutRef<"div">,
+	ComponentProps<"div">,
 	{
 		id?: Nullish<Id<"_storage">>
 		emptyIcon?: ReactNode
-		imageClassName?: string
+		className?: string | { container?: string; image?: string }
 	}
 >
 
-export function UploadedImage({ id, emptyIcon, imageClassName, ...props }: UploadedImageProps) {
+export function UploadedImage({ id, emptyIcon, className, ...props }: UploadedImageProps) {
 	const imageUrl = id ? getApiImageUrl(id) : undefined
+	const resolvedClassName = typeof className === "string" ? { container: className } : className
 	return (
-		<div {...withMergedClassName(props, "flex items-center justify-center")}>
+		<div
+			{...props}
+			className={twMerge("flex items-center justify-center", resolvedClassName?.container)}
+		>
 			{imageUrl ? (
 				<img
 					src={imageUrl}
 					alt=""
-					className={twMerge("size-full object-contain [will-change:transform]", imageClassName)}
+					className={twMerge(
+						"size-full object-contain [will-change:transform]",
+						resolvedClassName?.image,
+					)}
 					draggable={false}
 				/>
 			) : (
