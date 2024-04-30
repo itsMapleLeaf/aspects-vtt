@@ -67,6 +67,7 @@ export function ViewportDragInput(props: ComponentProps<"div">) {
 				pointer: {
 					buttons: [2],
 				},
+				threshold: 8,
 			},
 		},
 	)

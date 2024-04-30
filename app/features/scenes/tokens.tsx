@@ -1,5 +1,6 @@
 import { useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
+import { LucideHeart } from "lucide-react"
 import { Fragment, type ReactElement, useRef, useState } from "react"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
@@ -7,6 +8,12 @@ import { patchByKey } from "../../common/collection.ts"
 import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
 import type { StoreState } from "../../common/store.tsx"
 import { Vector } from "../../common/vector.ts"
+import {
+	ContextMenu,
+	ContextMenuItem,
+	ContextMenuPanel,
+	ContextMenuTrigger,
+} from "../../ui/ContextMenu.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import type { ApiScene } from "./types.ts"
 import { ViewportStore } from "./viewport.tsx"
@@ -86,7 +93,12 @@ function TokenBase({
 			className="absolute left-0 top-0 origin-top-left touch-none"
 			style={{ translate: `${translation.x}px ${translation.y}px`, scale: viewport.scale }}
 		>
-			<div className="relative">{children}</div>
+			<ContextMenu>
+				<ContextMenuTrigger className="relative">{children}</ContextMenuTrigger>
+				<ContextMenuPanel>
+					<ContextMenuItem text="Test" icon={<LucideHeart />} />
+				</ContextMenuPanel>
+			</ContextMenu>
 		</div>
 	)
 }
