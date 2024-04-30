@@ -24,6 +24,12 @@ export class Vector {
 	static readonly right = new Vector(1, 0)
 
 	static from(...args: VectorInputArgs): Vector {
+		if (args.length === 2) {
+			return new Vector(...args)
+		}
+		if (Array.isArray(args[0])) {
+			return new Vector(...args[0])
+		}
 		if (args[0] instanceof Vector) {
 			return args[0]
 		}
@@ -33,12 +39,7 @@ export class Vector {
 		if (typeof args[0] === "object" && "width" in args[0]) {
 			return new Vector(args[0].width, args[0].height)
 		}
-		if (typeof args[0] === "number") {
-			return new Vector(args[0], args[0])
-		}
-
-		const [x, y] = args[0]
-		return new Vector(x, y)
+		return new Vector(args[0], args[0])
 	}
 
 	static fromSize(
