@@ -1,14 +1,17 @@
 import { useGesture } from "@use-gesture/react"
-import type { ReactDOMAttributes } from "@use-gesture/react/dist/declarations/src/types"
 import { useMutation, useQuery } from "convex/react"
+import { Iterator } from "iterator-helpers-polyfill"
 import { LucideHeart } from "lucide-react"
 import { useState } from "react"
+import * as React from "react"
+import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
 import { patchByKey } from "../../common/collection.ts"
 import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
+import { clamp } from "../../common/math.ts"
 import { pick } from "../../common/object.ts"
-import type { StoreState } from "../../common/store.tsx"
+import { useWindowEvent } from "../../common/useWindowEvent.ts"
 import { Vector } from "../../common/vector.ts"
 import {
 	ContextMenu,
@@ -16,12 +19,7 @@ import {
 	ContextMenuPanel,
 	ContextMenuTrigger,
 } from "../../ui/ContextMenu.tsx"
-import {
-	DragSelectArea,
-	type DragSelectStore,
-	DragSelectable,
-	useDragSelectStore,
-} from "../../ui/DragSelect.tsx"
+import { DragSelectArea, DragSelectable, useDragSelectStore } from "../../ui/DragSelect.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import type { ApiScene } from "./types.ts"
 import { ViewportStore } from "./viewport.tsx"
@@ -60,90 +58,98 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 		},
 	)
 
+	function getTokenProps(token: ApiToken) {
+		const translate = getTokenTranslate(token)
+		return {
+			className: "absolute left-0 top-0 origin-top-left touch-none",
+			style: { translate, scale: viewport.scale },
+		}
+	}
+
+	function getTokenTranslate(token: ApiToken) {
+		return Vector.from(token.position)
+			.roundedTo(scene.cellSize)
+			.plus(dragSelectStore.isSelected(token.key) ? dragOffset : Vector.zero)
+			.times(viewport.scale)
+			.plus(viewport.offset)
+			.css.translate()
+	}
+
 	return (
 		<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
 			{tokens?.map((token) => (
-				<TokenBase
-					key={token.key}
-					{...{
-						scene,
-						token,
-						viewport,
-						bindDrag,
-						dragSelectStore,
-						offset: dragSelectStore.isSelected(token.key) ? dragOffset : Vector.zero,
-					}}
-				>
-					{token.character && (
-						<UploadedImage
-							id={token.character.imageId}
-							style={{
-								width: scene.cellSize,
-								height: scene.cellSize,
-							}}
-							className={{
-								container: "overflow-clip rounded shadow-md shadow-black/50",
-								image: "object-top object-cover",
-							}}
-						/>
-					)}
-					{token.area && (
-						<div
-							className="rounded border-4 border-blue-500 bg-blue-500/30"
-							style={pick(token.area, ["width", "height"])}
-						/>
-					)}
-				</TokenBase>
+				<div {...getTokenProps(token)} key={token.key}>
+					<TokenMenu>
+						<DragSelectable
+							{...bindDrag()}
+							className="group touch-none rounded"
+							store={dragSelectStore}
+							item={token.key}
+						>
+							{token.character && (
+								<UploadedImage
+									id={token.character.imageId}
+									style={{
+										width: scene.cellSize,
+										height: scene.cellSize,
+									}}
+									className={{
+										container: "overflow-clip rounded shadow-md shadow-black/50",
+										image: "object-top object-cover",
+									}}
+								/>
+							)}
+							{token.area && (
+								<div
+									className="rounded border-4 border-blue-500 bg-blue-500/30"
+									style={pick(token.area, ["width", "height"])}
+								/>
+							)}
+							<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+						</DragSelectable>
+					</TokenMenu>
+				</div>
 			))}
-		</DragSelectArea>
-	)
-}
-
-function TokenBase({
-	token,
-	scene,
-	viewport,
-	offset,
-	bindDrag,
-	dragSelectStore,
-	children,
-}: {
-	token: ApiToken
-	scene: ApiScene
-	viewport: StoreState<typeof ViewportStore>
-	offset: Vector
-	bindDrag: (...args: unknown[]) => ReactDOMAttributes
-	dragSelectStore: DragSelectStore<ApiToken["key"]>
-	children: React.ReactNode
-}) {
-	const translation = Vector.from(token.position)
-		.roundedTo(scene.cellSize)
-		.plus(offset)
-		.times(viewport.scale)
-		.plus(viewport.offset)
-
-	return (
-		<div
-			className="absolute left-0 top-0 origin-top-left touch-none"
-			style={{ translate: `${translation.x}px ${translation.y}px`, scale: viewport.scale }}
-		>
-			<ContextMenu>
-				<ContextMenuTrigger className="relative">
-					<DragSelectable
-						{...bindDrag()}
-						className="group touch-none rounded"
-						store={dragSelectStore}
-						item={token.key}
+			{Iterator.from(tokens ?? [])
+				?.map((token) => token.character && { token, character: token.character })
+				.filter((it) => it != null)
+				.map(({ token, character }) => (
+					<div
+						className="pointer-events-none absolute left-0 top-0 origin-top-left"
+						style={{ translate: getTokenTranslate(token) }}
+						key={token.key}
 					>
-						{children}
-						<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
-					</DragSelectable>
-				</ContextMenuTrigger>
-				<ContextMenuPanel>
-					<ContextMenuItem text="Test" icon={<LucideHeart />} />
-				</ContextMenuPanel>
-			</ContextMenu>
-		</div>
+						<div
+							className="relative"
+							style={{
+								width: scene.cellSize * viewport.scale,
+								height: scene.cellSize * viewport.scale,
+							}}
+						>
+							<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
+								<TokenMeter
+									value={character.damage / character.damageThreshold}
+									className={{
+										base: "text-yellow-400",
+										warning: "text-orange-400",
+										danger: "text-red-400",
+									}}
+								/>
+								<TokenMeter
+									value={character.fatigue / character.fatigueThreshold}
+									className={{
+										base: "text-green-400",
+										warning: "text-blue-400",
+										danger: "text-purple-400",
+									}}
+								/>
+							</div>
+							<TokenLabel text={character.displayName} subText={character.displayPronouns} />
+						</div>
+					</div>
+				))
+				.toArray()}
+		</DragSelectArea>
 	)
 }
 
@@ -153,4 +159,70 @@ function useUpdateTokenMutation() {
 			patchByKey(items, "key", args).toArray(),
 		)
 	})
+}
+
+function TokenMenu({ children }: { children: React.ReactNode }) {
+	return (
+		<ContextMenu>
+			<ContextMenuTrigger className="relative">{children}</ContextMenuTrigger>
+			<ContextMenuPanel>
+				<ContextMenuItem text="Test" icon={<LucideHeart />} />
+			</ContextMenuPanel>
+		</ContextMenu>
+	)
+}
+
+export function TokenLabel(props: { text: string; subText: string }) {
+	const [visible, setVisible] = useState(false)
+	const hoverAreaRef = React.useRef<HTMLDivElement>(null)
+
+	// this needs to ignore pointer events for dragging and other stuff to work,
+	// so we'll use a global listener and check position instead for this
+	useWindowEvent("pointermove", (event) => {
+		if (!hoverAreaRef.current) return
+		const rect = hoverAreaRef.current.getBoundingClientRect()
+		setVisible(
+			event.clientX > rect.left &&
+				event.clientX < rect.right &&
+				event.clientY > rect.top &&
+				event.clientY < rect.bottom,
+		)
+	})
+
+	return (
+		<>
+			<div className="absolute inset-0" ref={hoverAreaRef} />
+			<div
+				className="flex-center absolute inset-x-0 top-full translate-y-2 opacity-0 transition-opacity data-[visible=true]:opacity-100"
+				data-visible={visible}
+			>
+				<div className="flex-center whitespace-nowrap rounded bg-black/50 px-2.5 py-2 text-center shadow shadow-black/50">
+					<p className="text-lg/none">{props.text}</p>
+					<p className="mt-0.5 text-base/none opacity-75 empty:hidden">{props.subText}</p>
+				</div>
+			</div>
+		</>
+	)
+}
+
+export function TokenMeter({
+	value,
+	className,
+}: { value: number; className: { base: string; warning: string; danger: string } }) {
+	return (
+		<div
+			aria-hidden
+			className={twMerge(
+				"h-3 w-24 rounded border border-current shadow shadow-black/50 relative transition-all",
+				value < 0.5 ? className.base : value < 0.8 ? className.warning : className.danger,
+				value > 0 ? "opacity-100 visible" : "opacity-0 invisible",
+			)}
+		>
+			<div
+				className="absolute inset-0 origin-left bg-current transition-[scale]"
+				style={{ scale: `${clamp(value, 0, 1)} 1` }}
+			/>
+			<div className="absolute inset-0 bg-current opacity-25" />
+		</div>
+	)
 }

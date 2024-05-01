@@ -2,7 +2,6 @@ import { useMutation, useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import * as React from "react"
-import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { api } from "../../../convex/_generated/api.js"
 import type { Doc, Id } from "../../../convex/_generated/dataModel.js"
@@ -10,7 +9,6 @@ import type { Branded } from "../../../convex/helpers.ts"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
 import { Rect } from "../../common/Rect.ts"
 import { hasItems } from "../../common/collection.ts"
-import { clamp } from "../../common/math.ts"
 import { randomItem } from "../../common/random.ts"
 import { Vector } from "../../common/vector.ts"
 import { Menu, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
@@ -20,6 +18,7 @@ import { UploadedImage } from "../images/UploadedImage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { SceneMapBackground } from "./SceneMapBackground.tsx"
+import { TokenLabel, TokenMeter } from "./tokens.tsx"
 import type { ApiScene } from "./types.ts"
 
 const sceneMapDropDataSchema = z.object({
@@ -91,7 +90,7 @@ export function SceneMap({ scene }: { scene: ApiScene }) {
 				.map(({ token, character }) => (
 					<MapElement key={token.key} token={token} rect={getCharacterTokenRect(token)}>
 						<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
-							<Meter
+							<TokenMeter
 								value={character.damage / character.damageThreshold}
 								className={{
 									base: "text-green-400",
@@ -99,7 +98,7 @@ export function SceneMap({ scene }: { scene: ApiScene }) {
 									danger: "text-red-400",
 								}}
 							/>
-							<Meter
+							<TokenMeter
 								value={character.fatigue / character.fatigueThreshold}
 								className={{
 									base: "text-sky-400",
@@ -124,42 +123,6 @@ export function SceneMap({ scene }: { scene: ApiScene }) {
 
 			<TokenMenu scene={scene} />
 		</SceneMapContainer>
-	)
-}
-
-function Meter({
-	value,
-	className,
-}: { value: number; className: { base: string; warning: string; danger: string } }) {
-	return (
-		<div
-			aria-hidden
-			className={twMerge(
-				"h-2.5 w-16 rounded-sm border border-current shadow shadow-black/50 relative transition-all",
-				value < 0.5 ? className.base : value < 0.8 ? className.warning : className.danger,
-				value > 0 ? "opacity-100 visible" : "opacity-0 invisible",
-			)}
-		>
-			<div
-				className="absolute inset-0 origin-left bg-current transition-[scale]"
-				style={{ scale: `${clamp(value, 0, 1)} 1` }}
-			/>
-			<div className="absolute inset-0 bg-current opacity-25" />
-		</div>
-	)
-}
-
-function TokenLabel(props: { text: string; subText: string }) {
-	return (
-		<>
-			<div className="peer absolute inset-0" />
-			<div className="flex-center absolute inset-x-0 top-full translate-y-2 opacity-0 transition-opacity peer-hover:opacity-100">
-				<div className="flex-center whitespace-nowrap rounded bg-black/50 px-2.5 py-2 text-center leading-none shadow shadow-black/50">
-					<p>{props.text}</p>
-					<p className="mt-0.5 text-sm/none opacity-75 empty:hidden">{props.subText}</p>
-				</div>
-			</div>
-		</>
 	)
 }
 
