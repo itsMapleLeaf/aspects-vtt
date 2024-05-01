@@ -38,7 +38,10 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 				setDragOffset(Vector.from(state.movement))
 			},
 			onDragEnd: (state) => {
-				for (const token of tokens?.filter((it) => dragSelectStore.selected.has(it.key)) ?? []) {
+				setDragOffset(Vector.zero)
+				if (!tokens) return
+				for (const token of tokens) {
+					if (!dragSelectStore.selected.has(token.key)) continue
 					const position = Vector.from(token.position).plus(dragOffset).roundedTo(scene.cellSize).xy
 					updateToken({
 						sceneId: scene._id,
@@ -46,7 +49,6 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 						position: position,
 					})
 				}
-				setDragOffset(Vector.zero)
 			},
 		},
 		{
