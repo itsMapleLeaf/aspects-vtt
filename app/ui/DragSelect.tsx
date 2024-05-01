@@ -2,38 +2,68 @@ import { useGesture } from "@use-gesture/react"
 import * as React from "react"
 import { twMerge } from "tailwind-merge"
 import { expect } from "../common/expect.ts"
+import { useEffectEvent } from "../common/react.ts"
+import type { StrictOmit } from "../common/types.ts"
 import { Vector } from "../common/vector.ts"
 
-type Area = {
-	start: Vector
-	end: Vector
+export type DragSelectStore<V> = ReturnType<typeof useDragSelectStore<V>>
+
+export type Area = { start: Vector; end: Vector }
+
+const empty: ReadonlySet<never> = new Set()
+
+export function useDragSelectStore<T>() {
+	const [selected, setSelected] = React.useState<ReadonlySet<T>>(empty)
+	const [area, setArea] = React.useState<Area>()
+
+	const setItemSelected = useEffectEvent(function setItemSelected(item: T, selected: boolean) {
+		setSelected((items) => setPresentInSet(items, item, selected))
+	})
+
+	const clear = useEffectEvent(function clear() {
+		setSelected(empty)
+	})
+
+	function isSelected(item: T) {
+		return selected.has(item)
+	}
+
+	return { selected, area, setItemSelected, clear, setArea, isSelected }
 }
 
-const AreaContext = React.createContext<Area | undefined>(undefined)
+type SelectableCallback = (area: Area) => void
 
-export interface DragSelectAreaProps extends React.ComponentProps<"div"> {}
+const RegistryContext = React.createContext(new Set<SelectableCallback>())
 
-export function DragSelectArea({ children, ...props }: DragSelectAreaProps) {
-	const [area, setArea] = React.useState<Area>()
+export interface DragSelectAreaProps extends React.ComponentProps<"div"> {
+	store: StrictOmit<DragSelectStore<unknown>, "setItemSelected" | "isSelected">
+}
+
+export function DragSelectArea({ store, children, ...props }: DragSelectAreaProps) {
+	const [registry] = React.useState(() => new Set<SelectableCallback>())
 
 	const bind = useGesture(
 		{
 			onPointerDown: (state) => {
-				const xy = Vector.from(state.event.clientX, state.event.clientY)
-				setArea({
+				store.setArea(undefined)
+				store.clear()
+			},
+			onDragStart: (state) => {
+				const xy = Vector.from(state.xy)
+				store.setArea({
 					start: xy,
 					end: xy,
 				})
 			},
 			onDrag: (state) => {
 				const xy = Vector.from(state.xy)
-				setArea((area) => ({
+				store.setArea((area) => ({
 					start: area?.start ?? xy,
 					end: xy,
 				}))
 			},
 			onDragEnd: (state) => {
-				setArea(undefined)
+				store.setArea(undefined)
 			},
 		},
 		{
@@ -55,33 +85,67 @@ export function DragSelectArea({ children, ...props }: DragSelectAreaProps) {
 	return (
 		<div {...props} className={twMerge("relative", props.className)}>
 			<div {...bind()} className="absolute inset-0 touch-none" />
-			<AreaContext value={area}>{children}</AreaContext>
-			{area && (
+			<RegistryContext value={registry}>{children}</RegistryContext>
+			{store.area && (
 				<div
 					className="absolute left-0 top-0 border-2 border-primary-600 bg-primary-600/25"
-					style={getStyle(area)}
+					style={getStyle(store.area)}
 				/>
 			)}
 		</div>
 	)
 }
 
-export interface DragSelectableProps extends React.ComponentProps<"div"> {}
+export interface DragSelectableProps<V> extends React.ComponentProps<"div"> {
+	item: V
+	store: DragSelectStore<V>
+}
 
-export function DragSelectable(props: DragSelectableProps) {
-	const area = React.use(AreaContext)
-	const [selected, setSelected] = React.useState(false)
+export function DragSelectable<V>({ item, store, ...props }: DragSelectableProps<V>) {
 	const ref = React.useRef<HTMLDivElement>(null)
 
 	React.useEffect(() => {
-		if (!area) return
-
+		if (!store.area) return
+		const [start, end] = Vector.normalizeRange(store.area.start, store.area.end)
 		const rect = expect(ref.current, "ref not set").getBoundingClientRect()
-		const [start, end] = Vector.normalizeRange(area.start, area.end)
-		setSelected(
+		store.setItemSelected(
+			item,
 			rect.left < end.x && rect.right > start.x && rect.top < end.y && rect.bottom > start.y,
 		)
-	}, [area])
+	}, [item, store.area, store.setItemSelected])
 
-	return <div {...props} ref={ref} data-selected={selected || undefined} />
+	return (
+		<div
+			{...props}
+			ref={ref}
+			onPointerDown={(event) => {
+				props.onPointerDown?.(event)
+				if (!store.isSelected(item) && event.buttons === 1) {
+					store.clear()
+					store.setItemSelected(item, true)
+				}
+			}}
+			data-selected={store.isSelected(item) || undefined}
+		/>
+	)
+}
+
+function toggleInSet<T>(set: ReadonlySet<T>, item: T): ReadonlySet<T> {
+	const modified = new Set(set)
+	if (set.has(item)) {
+		modified.delete(item)
+	} else {
+		modified.add(item)
+	}
+	return modified
+}
+
+function setPresentInSet<T>(set: ReadonlySet<T>, item: T, present: boolean): ReadonlySet<T> {
+	const modified = new Set(set)
+	if (present) {
+		modified.add(item)
+	} else {
+		modified.delete(item)
+	}
+	return modified
 }

@@ -30,7 +30,7 @@ export const meta: MetaFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="text-balance break-words bg-primary-100 text-primary-900">
+		<html lang="en" className="touch-none text-balance break-words bg-primary-100 text-primary-900">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
