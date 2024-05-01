@@ -2,11 +2,12 @@ import { useGesture } from "@use-gesture/react"
 import type { ReactDOMAttributes } from "@use-gesture/react/dist/declarations/src/types"
 import { useMutation, useQuery } from "convex/react"
 import { LucideHeart } from "lucide-react"
-import { Fragment, useState } from "react"
+import { useState } from "react"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
 import { patchByKey } from "../../common/collection.ts"
 import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
+import { pick } from "../../common/object.ts"
 import type { StoreState } from "../../common/store.tsx"
 import { Vector } from "../../common/vector.ts"
 import {
@@ -62,32 +63,37 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 	return (
 		<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
 			{tokens?.map((token) => (
-				<Fragment key={token.key}>
+				<TokenBase
+					key={token.key}
+					{...{
+						scene,
+						token,
+						viewport,
+						bindDrag,
+						dragSelectStore,
+						offset: dragSelectStore.isSelected(token.key) ? dragOffset : Vector.zero,
+					}}
+				>
 					{token.character && (
-						<TokenBase
-							{...{
-								scene,
-								token,
-								viewport,
-								bindDrag,
-								dragSelectStore,
-								offset: dragSelectStore.isSelected(token.key) ? dragOffset : Vector.zero,
+						<UploadedImage
+							id={token.character.imageId}
+							style={{
+								width: scene.cellSize,
+								height: scene.cellSize,
 							}}
-						>
-							<UploadedImage
-								id={token.character.imageId}
-								style={{
-									width: scene.cellSize,
-									height: scene.cellSize,
-								}}
-								className={{
-									container: "overflow-clip rounded shadow-md shadow-black/50",
-									image: "object-top object-cover",
-								}}
-							/>
-						</TokenBase>
+							className={{
+								container: "overflow-clip rounded shadow-md shadow-black/50",
+								image: "object-top object-cover",
+							}}
+						/>
 					)}
-				</Fragment>
+					{token.area && (
+						<div
+							className="rounded border-4 border-blue-500 bg-blue-500/30"
+							style={pick(token.area, ["width", "height"])}
+						/>
+					)}
+				</TokenBase>
 			))}
 		</DragSelectArea>
 	)
