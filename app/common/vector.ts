@@ -51,12 +51,20 @@ export class Vector {
 		return new Vector(args[0].width, args[0].height)
 	}
 
-	static topLeftMost(a: Vector, b: Vector): Vector {
-		return Vector.from(Math.min(a.x, b.x), Math.min(a.y, b.y))
+	static topLeftMost(firstInput: VectorInput, secondInput: VectorInput): Vector {
+		const first = Vector.from(firstInput)
+		const second = Vector.from(secondInput)
+		return Vector.from(Math.min(first.x, second.x), Math.min(first.y, second.y))
 	}
 
-	static bottomRightMost(a: Vector, b: Vector): Vector {
-		return Vector.from(Math.max(a.x, b.x), Math.max(a.y, b.y))
+	static bottomRightMost(firstInput: VectorInput, secondInput: VectorInput): Vector {
+		const first = Vector.from(firstInput)
+		const second = Vector.from(secondInput)
+		return Vector.from(Math.max(first.x, second.x), Math.max(first.y, second.y))
+	}
+
+	static normalizeRange(start: VectorInput, end: VectorInput) {
+		return [Vector.topLeftMost(start, end), Vector.bottomRightMost(start, end)] as const
 	}
 
 	get xy(): { x: number; y: number } {
@@ -166,5 +174,13 @@ export class Vector {
 
 	toObject<X extends PropertyKey, Y extends PropertyKey>(xProp: X, yProp: Y) {
 		return { [xProp]: this.x, [yProp]: this.y } as { [K in X | Y]: number }
+	}
+
+	toSize() {
+		return { width: this.x, height: this.y }
+	}
+
+	readonly css = {
+		translate: () => `${this.x}px ${this.y}px`,
 	}
 }

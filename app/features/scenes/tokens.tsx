@@ -14,6 +14,7 @@ import {
 	ContextMenuPanel,
 	ContextMenuTrigger,
 } from "../../ui/ContextMenu.tsx"
+import { DragSelectArea, DragSelectable } from "../../ui/DragSelect.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import type { ApiScene } from "./types.ts"
 import { ViewportStore } from "./viewport.tsx"
@@ -21,25 +22,29 @@ import { ViewportStore } from "./viewport.tsx"
 export function SceneTokens({ scene }: { scene: ApiScene }) {
 	const viewport = ViewportStore.useState()
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
-	return tokens?.map((token) => (
-		<Fragment key={token.key}>
-			{token.character && (
-				<TokenBase {...{ scene, token, viewport }}>
-					<UploadedImage
-						id={token.character.imageId}
-						style={{
-							width: scene.cellSize,
-							height: scene.cellSize,
-						}}
-						className={{
-							container: "overflow-clip rounded shadow-md shadow-black/50",
-							image: "object-top object-cover",
-						}}
-					/>
-				</TokenBase>
-			)}
-		</Fragment>
-	))
+	return (
+		<DragSelectArea className="absolute inset-0 size-full">
+			{tokens?.map((token) => (
+				<Fragment key={token.key}>
+					{token.character && (
+						<TokenBase {...{ scene, token, viewport }}>
+							<UploadedImage
+								id={token.character.imageId}
+								style={{
+									width: scene.cellSize,
+									height: scene.cellSize,
+								}}
+								className={{
+									container: "overflow-clip rounded shadow-md shadow-black/50",
+									image: "object-top object-cover",
+								}}
+							/>
+						</TokenBase>
+					)}
+				</Fragment>
+			))}
+		</DragSelectArea>
+	)
 }
 
 function TokenBase({
@@ -94,7 +99,12 @@ function TokenBase({
 			style={{ translate: `${translation.x}px ${translation.y}px`, scale: viewport.scale }}
 		>
 			<ContextMenu>
-				<ContextMenuTrigger className="relative">{children}</ContextMenuTrigger>
+				<ContextMenuTrigger className="relative">
+					<DragSelectable className="group rounded">
+						{children}
+						<div className="absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+					</DragSelectable>
+				</ContextMenuTrigger>
 				<ContextMenuPanel>
 					<ContextMenuItem text="Test" icon={<LucideHeart />} />
 				</ContextMenuPanel>
