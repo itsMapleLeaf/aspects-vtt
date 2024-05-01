@@ -9,7 +9,7 @@ import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
 import { Rect } from "../../common/Rect.ts"
 import { patchByKey } from "../../common/collection.ts"
-import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
+import { queryMutators } from "../../common/convex.ts"
 import { clamp } from "../../common/math.ts"
 import { pick } from "../../common/object.ts"
 import { useWindowEvent } from "../../common/useWindowEvent.ts"
@@ -158,9 +158,10 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 
 function useUpdateTokenMutation() {
 	return useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
-		applyOptimisticQueryUpdates(store, api.scenes.tokens.list, (items) =>
-			patchByKey(items, "key", args).toArray(),
-		)
+		for (const entry of queryMutators(store, api.scenes.tokens.list)) {
+			if (!entry.value) continue
+			entry.set(patchByKey(entry.value, "key", args).toArray())
+		}
 	})
 }
 

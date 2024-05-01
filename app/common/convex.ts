@@ -26,16 +26,23 @@ export function useMutationAction<Func extends FunctionReference<"mutation", "pu
 	)
 }
 
-export function applyOptimisticQueryUpdates<Query extends FunctionReference<"query", "public">>(
+export interface QueryMutatorEntry<Query extends FunctionReference<"query", "public">> {
+	value: FunctionReturnType<Query>
+	args: FunctionArgs<Query>
+	set: (value: FunctionReturnType<Query>) => void
+}
+
+export function* queryMutators<Query extends FunctionReference<"query", "public">>(
 	store: OptimisticLocalStore,
 	query: Query,
-	update: (
-		current: FunctionReturnType<Query>,
-		args: FunctionArgs<Query>,
-	) => FunctionReturnType<Query>,
-) {
+): Generator<QueryMutatorEntry<Query>, void, undefined> {
 	for (const entry of store.getAllQueries(query)) {
 		if (entry.value === undefined) continue
-		store.setQuery(query, entry.args, update(entry.value, entry.args))
+		yield {
+			...entry,
+			set(data) {
+				store.setQuery(query, entry.args, data)
+			},
+		}
 	}
 }

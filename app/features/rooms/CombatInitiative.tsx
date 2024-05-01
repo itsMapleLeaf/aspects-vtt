@@ -5,7 +5,7 @@ import { useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import { withMovedItem } from "../../common/array.ts"
-import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
+import { queryMutators } from "../../common/convex.ts"
 import type { Nullish } from "../../common/types.ts"
 import { Button } from "../../ui/Button.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
@@ -21,32 +21,33 @@ export function CombatInitiative() {
 	const { combat, ...room } = useRoom()
 	const characters = useCharacters()
 
-	const { members, currentMemberId, currentMemberIndex } = useQuery(
-		api.rooms.combat.getCombatMembers,
-		{
-			roomId: room._id,
-		},
-	) ?? {
-		memberIds: [],
-		currentMember: null,
-		currentMemberIndex: 0,
-	}
+	const {
+		members = [],
+		currentMemberId,
+		currentMemberIndex = 0,
+	} = useQuery(api.rooms.combat.getCombatMembers, {
+		roomId: room._id,
+	}) ?? {}
 
 	const moveMember = useMutation(api.rooms.combat.moveMember).withOptimisticUpdate(
 		(store, args) => {
-			applyOptimisticQueryUpdates(store, api.rooms.combat.getCombatMembers, (current) => ({
-				...current,
-				members: withMovedItem(current.members, args.fromIndex, args.toIndex),
-			}))
+			for (const entry of queryMutators(store, api.rooms.combat.getCombatMembers)) {
+				entry.set({
+					...entry.value,
+					members: withMovedItem(entry.value.members, args.fromIndex, args.toIndex),
+				})
+			}
 		},
 	)
 
 	const setCurrentMember = useMutation(api.rooms.combat.setCurrentMember).withOptimisticUpdate(
 		(store, args) => {
-			applyOptimisticQueryUpdates(store, api.rooms.combat.getCombatMembers, (current) => ({
-				...current,
-				currentMemberId: args.characterId,
-			}))
+			for (const entry of queryMutators(store, api.rooms.combat.getCombatMembers)) {
+				entry.set({
+					...entry.value,
+					currentMemberId: args.characterId,
+				})
+			}
 		},
 	)
 

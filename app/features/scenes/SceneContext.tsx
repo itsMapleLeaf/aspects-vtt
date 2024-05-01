@@ -6,8 +6,9 @@ import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import type { Branded } from "../../../convex/helpers.ts"
 import { Rect } from "../../common/Rect.ts"
+import { patchByKey } from "../../common/collection.ts"
 import { createNonEmptyContext, useNonEmptyContext } from "../../common/context.tsx"
-import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
+import { queryMutators } from "../../common/convex.ts"
 import { expect } from "../../common/expect.ts"
 import type { Nullish } from "../../common/types.ts"
 import { useWindowEvent } from "../../common/useWindowEvent.ts"
@@ -48,9 +49,9 @@ function useSceneProvider(scene: Nullish<ApiScene>) {
 
 	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
-		applyOptimisticQueryUpdates(store, api.scenes.tokens.list, (current) =>
-			current.map((it) => (it.key === args.key ? { ...it, ...args } : it)),
-		)
+		for (const entry of queryMutators(store, api.scenes.tokens.list)) {
+			entry.set(patchByKey(entry.value, "key", args).toArray())
+		}
 	})
 
 	const selectedTokens = () =>
