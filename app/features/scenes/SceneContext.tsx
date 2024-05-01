@@ -169,7 +169,7 @@ function useSceneProvider(scene: Nullish<ApiScene>) {
 					)
 					addToken({
 						sceneId: scene._id,
-						position: worldRect.position.xy,
+						position: worldRect.topLeft.xy,
 						visible: true,
 						area: {
 							width: worldRect.width,

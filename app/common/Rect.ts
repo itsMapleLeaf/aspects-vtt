@@ -1,31 +1,47 @@
-import { Vector, type VectorInputArgs } from "./vector.ts"
+import { Vector, type VectorInput, type VectorInputArgs } from "./vector.ts"
 
 export type RectInput =
+	| { start: VectorInput; end: VectorInput }
+	| { from: VectorInput; to: VectorInput }
+	| { topLeft: VectorInput; bottomRight: VectorInput }
 	| { x: number; y: number; width: number; height: number }
 	| { left: number; top: number; width: number; height: number }
-	| { position: Vector; size: Vector }
-	| { topLeft: Vector; bottomRight: Vector }
+	| { left: number; top: number; right: number; bottom: number }
+	| { position: VectorInput; size: VectorInput }
 
 export class Rect {
-	readonly position: Vector
-	readonly size: Vector
-
-	constructor(position: Vector, size: Vector) {
-		this.position = position
-		this.size = size
-	}
+	constructor(
+		readonly start: Vector,
+		readonly end: Vector,
+	) {}
 
 	static from(input: RectInput): Rect {
-		if ("x" in input) {
-			return new Rect(Vector.from(input), Vector.fromSize(input))
+		if ("start" in input) {
+			return new Rect(Vector.from(input.start), Vector.from(input.end))
 		}
-		if ("left" in input) {
-			return new Rect(Vector.from(input.left, input.top), Vector.fromSize(input))
+		if ("from" in input) {
+			return Rect.from({ start: input.from, end: input.to })
+		}
+		if ("topLeft" in input) {
+			return Rect.from({ start: input.topLeft, end: input.bottomRight })
+		}
+		if ("x" in input) {
+			const position = Vector.from(input.x, input.y)
+			return new Rect(position, position.plus(input.width, input.height))
+		}
+		if ("left" in input && "right" in input) {
+			return new Rect(Vector.from(input.left, input.top), Vector.from(input.right, input.bottom))
+		}
+		if ("left" in input && "width" in input) {
+			return Rect.from({
+				position: Vector.from(input.left, input.top),
+				size: Vector.fromSize(input),
+			})
 		}
 		if ("position" in input) {
-			return new Rect(input.position, input.size)
+			return new Rect(Vector.from(input.position), Vector.from(input.size))
 		}
-		return new Rect(input.topLeft, input.bottomRight)
+		throw new Error(`Invalid rect input: ${JSON.stringify(input, null, 2)}`)
 	}
 
 	/** @deprecated Use {@link from} */
@@ -35,15 +51,27 @@ export class Rect {
 
 	/** @deprecated Use {@link from} */
 	static fromCorners(topLeft: Vector, bottomRight: Vector): Rect {
-		return new Rect(Vector.topLeftMost(topLeft, bottomRight), topLeft.minus(bottomRight).abs)
+		return new Rect(topLeft, bottomRight)
+	}
+
+	get topLeft(): Vector {
+		return Vector.topLeftMost(this.start, this.end)
+	}
+
+	get bottomRight(): Vector {
+		return Vector.bottomRightMost(this.start, this.end)
 	}
 
 	get x(): number {
-		return this.position.x
+		return this.topLeft.x
 	}
 
 	get y(): number {
-		return this.position.y
+		return this.topLeft.y
+	}
+
+	get size(): Vector {
+		return this.bottomRight.minus(this.topLeft)
 	}
 
 	get width(): number {
@@ -55,27 +83,19 @@ export class Rect {
 	}
 
 	get left(): number {
-		return this.position.x
-	}
-
-	get right(): number {
-		return this.position.x + this.width
+		return this.topLeft.x
 	}
 
 	get top(): number {
-		return this.position.y
+		return this.topLeft.y
+	}
+
+	get right(): number {
+		return this.bottomRight.x
 	}
 
 	get bottom(): number {
-		return this.position.y + this.height
-	}
-
-	get topLeft(): Vector {
-		return this.position
-	}
-
-	get bottomRight(): Vector {
-		return this.position.plus(this.size)
+		return this.bottomRight.y
 	}
 
 	get tuple(): readonly [left: number, top: number, width: number, height: number] {
@@ -83,20 +103,28 @@ export class Rect {
 		return [left, top, width, height] as const
 	}
 
+	withStart(...input: VectorInputArgs) {
+		return new Rect(Vector.from(...input), this.end)
+	}
+
+	withEnd(...input: VectorInputArgs) {
+		return new Rect(this.start, Vector.from(...input))
+	}
+
 	withPosition(...position: VectorInputArgs): Rect {
-		return new Rect(Vector.from(...position), this.size)
+		return Rect.from({ position: Vector.from(...position), size: this.size })
 	}
 
 	withSize(...size: VectorInputArgs): Rect {
-		return new Rect(this.position, Vector.from(...size))
+		return Rect.from({ position: this.topLeft, size: Vector.from(...size) })
 	}
 
-	translated(position: Vector): Rect {
-		return new Rect(this.position.plus(position), this.size)
+	move(position: Vector): Rect {
+		return Rect.from({ position: this.topLeft.plus(position), size: this.size })
 	}
 
-	scaledBy(amount: number): Rect {
-		return new Rect(this.position, this.size.times(amount))
+	scale(amount: VectorInput): Rect {
+		return Rect.from({ position: this.topLeft, size: this.size.times(amount) })
 	}
 
 	withMinimumSize(...size: VectorInputArgs): Rect {

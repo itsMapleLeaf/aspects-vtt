@@ -212,9 +212,9 @@ function MapElement({
 	const isSelected = controller.selectedTokens().some((it) => it.key === token.key)
 
 	const transformed = rect
-		.withPosition(rect.position.times(controller.camera.scale).plus(controller.camera.position))
-		.scaledBy(controller.camera.scale)
-		.translated((isSelected && controller.tokenMovement) || Vector.zero)
+		.withPosition(rect.topLeft.times(controller.camera.scale).plus(controller.camera.position))
+		.scale(controller.camera.scale)
+		.move((isSelected && controller.tokenMovement) || Vector.zero)
 
 	return (
 		<div

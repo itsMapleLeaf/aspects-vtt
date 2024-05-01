@@ -133,12 +133,14 @@ export class Vector {
 		return new Vector(this.x - b.x, this.y - b.y)
 	}
 
-	times(b: number): Vector {
-		return new Vector(this.x * b, this.y * b)
+	times(...input: VectorInputArgs): Vector {
+		const other = Vector.from(...input)
+		return new Vector(this.x * other.x, this.y * other.y)
 	}
 
-	dividedBy(b: number): Vector {
-		return new Vector(this.x / b, this.y / b)
+	dividedBy(...input: VectorInputArgs): Vector {
+		const other = Vector.from(...input)
+		return new Vector(this.x / other.x, this.y / other.y)
 	}
 
 	distanceTo(...input: VectorInputArgs): number {
