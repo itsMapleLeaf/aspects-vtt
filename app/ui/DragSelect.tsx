@@ -46,8 +46,10 @@ export function DragSelectArea({ store, children, ...props }: DragSelectAreaProp
 	const bind = useGesture(
 		{
 			onPointerDown: (state) => {
-				store.setArea(undefined)
-				store.clear()
+				if (state.buttons === 1) {
+					store.setArea(undefined)
+					store.clear()
+				}
 			},
 			onDragStart: (state) => {
 				const xy = Vector.from(state.xy)
