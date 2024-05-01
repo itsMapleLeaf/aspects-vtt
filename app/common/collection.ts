@@ -55,3 +55,23 @@ export function patchByKey<T, K extends keyof T>(
 ) {
 	return patchBy(items, (item) => item[key] === properties[key], properties)
 }
+
+export function toggleInSet<T>(set: ReadonlySet<T>, item: T): ReadonlySet<T> {
+	const modified = new Set(set)
+	if (set.has(item)) {
+		modified.delete(item)
+	} else {
+		modified.add(item)
+	}
+	return modified
+}
+
+export function setPresentInSet<T>(set: ReadonlySet<T>, item: T, present: boolean): ReadonlySet<T> {
+	const modified = new Set(set)
+	if (present) {
+		modified.add(item)
+	} else {
+		modified.delete(item)
+	}
+	return modified
+}

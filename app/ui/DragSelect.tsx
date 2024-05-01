@@ -1,6 +1,7 @@
 import { useGesture } from "@use-gesture/react"
 import * as React from "react"
 import { twMerge } from "tailwind-merge"
+import { setPresentInSet } from "../common/collection.ts"
 import { expect } from "../common/expect.ts"
 import { useEffectEvent } from "../common/react.ts"
 import type { StrictOmit } from "../common/types.ts"
@@ -128,24 +129,4 @@ export function DragSelectable<V>({ item, store, ...props }: DragSelectableProps
 			data-selected={store.isSelected(item) || undefined}
 		/>
 	)
-}
-
-function toggleInSet<T>(set: ReadonlySet<T>, item: T): ReadonlySet<T> {
-	const modified = new Set(set)
-	if (set.has(item)) {
-		modified.delete(item)
-	} else {
-		modified.add(item)
-	}
-	return modified
-}
-
-function setPresentInSet<T>(set: ReadonlySet<T>, item: T, present: boolean): ReadonlySet<T> {
-	const modified = new Set(set)
-	if (present) {
-		modified.add(item)
-	} else {
-		modified.delete(item)
-	}
-	return modified
 }
