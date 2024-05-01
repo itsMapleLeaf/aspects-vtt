@@ -1,21 +1,17 @@
-import { useGesture } from "@use-gesture/react"
 import * as React from "react"
-import { twMerge } from "tailwind-merge"
+import { Rect } from "../common/Rect.ts"
 import { setPresentInSet } from "../common/collection.ts"
-import { expect } from "../common/expect.ts"
 import { useEffectEvent } from "../common/react.ts"
 import type { StrictOmit } from "../common/types.ts"
-import { Vector } from "../common/vector.ts"
+import { RectDrawArea } from "./RectDrawArea.tsx"
 
 export type DragSelectStore<V> = ReturnType<typeof useDragSelectStore<V>>
-
-export type Area = { start: Vector; end: Vector }
 
 const empty: ReadonlySet<never> = new Set()
 
 export function useDragSelectStore<T>() {
 	const [selected, setSelected] = React.useState<ReadonlySet<T>>(empty)
-	const [area, setArea] = React.useState<Area>()
+	const [area, setArea] = React.useState<Rect>()
 
 	const setItemSelected = useEffectEvent(function setItemSelected(item: T, selected: boolean) {
 		setSelected((items) => setPresentInSet(items, item, selected))
@@ -32,70 +28,18 @@ export function useDragSelectStore<T>() {
 	return { selected, area, setItemSelected, clear, setArea, isSelected }
 }
 
-type SelectableCallback = (area: Area) => void
-
-const RegistryContext = React.createContext(new Set<SelectableCallback>())
-
 export interface DragSelectAreaProps extends React.ComponentProps<"div"> {
 	store: StrictOmit<DragSelectStore<unknown>, "setItemSelected" | "isSelected">
 }
 
-export function DragSelectArea({ store, children, ...props }: DragSelectAreaProps) {
-	const [registry] = React.useState(() => new Set<SelectableCallback>())
-
-	const bind = useGesture(
-		{
-			onPointerDown: (state) => {
-				if (state.buttons === 1) {
-					store.setArea(undefined)
-					store.clear()
-				}
-			},
-			onDragStart: (state) => {
-				const xy = Vector.from(state.xy)
-				store.setArea({
-					start: xy,
-					end: xy,
-				})
-			},
-			onDrag: (state) => {
-				const xy = Vector.from(state.xy)
-				store.setArea((area) => ({
-					start: area?.start ?? xy,
-					end: xy,
-				}))
-			},
-			onDragEnd: (state) => {
-				store.setArea(undefined)
-			},
-		},
-		{
-			drag: {
-				threshold: 8,
-				eventOptions: { passive: true },
-			},
-		},
-	)
-
-	function getStyle(area: Area): React.CSSProperties {
-		const [start, end] = Vector.normalizeRange(area.start, area.end)
-		return {
-			translate: start.css.translate(),
-			...end.minus(start).toSize(),
-		}
-	}
-
+export function DragSelectArea({ store, ...props }: DragSelectAreaProps) {
 	return (
-		<div {...props} className={twMerge("relative", props.className)}>
-			<div {...bind()} className="absolute inset-0 touch-none" />
-			<RegistryContext value={registry}>{children}</RegistryContext>
-			{store.area && (
-				<div
-					className="absolute left-0 top-0 border-2 border-primary-600 bg-primary-600/25"
-					style={getStyle(store.area)}
-				/>
-			)}
-		</div>
+		<RectDrawArea
+			{...props}
+			rect={store.area}
+			onRectChange={store.setArea}
+			onInit={() => store.clear()}
+		/>
 	)
 }
 
@@ -108,13 +52,10 @@ export function DragSelectable<V>({ item, store, ...props }: DragSelectableProps
 	const ref = React.useRef<HTMLDivElement>(null)
 
 	React.useEffect(() => {
+		if (!ref.current) return
 		if (!store.area) return
-		const [start, end] = Vector.normalizeRange(store.area.start, store.area.end)
-		const rect = expect(ref.current, "ref not set").getBoundingClientRect()
-		store.setItemSelected(
-			item,
-			rect.left < end.x && rect.right > start.x && rect.top < end.y && rect.bottom > start.y,
-		)
+		const rect = Rect.from(ref.current.getBoundingClientRect())
+		store.setItemSelected(item, rect.overlaps(store.area))
 	}, [item, store.area, store.setItemSelected])
 
 	return (
