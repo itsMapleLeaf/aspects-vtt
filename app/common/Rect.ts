@@ -143,4 +143,11 @@ export class Rect {
 			this.bottom > other.top
 		)
 	}
+
+	contains(...pointInput: VectorInputArgs) {
+		const point = Vector.from(...pointInput)
+		return (
+			point.x > this.left && point.x < this.right && point.y > this.top && point.y < this.bottom
+		)
+	}
 }

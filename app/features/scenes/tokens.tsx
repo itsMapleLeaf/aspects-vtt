@@ -7,6 +7,7 @@ import * as React from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
+import { Rect } from "../../common/Rect.ts"
 import { patchByKey } from "../../common/collection.ts"
 import { applyOptimisticQueryUpdates } from "../../common/convex.ts"
 import { clamp } from "../../common/math.ts"
@@ -180,13 +181,8 @@ export function TokenLabel(props: { text: string; subText: string }) {
 	// so we'll use a global listener and check position instead for this
 	useWindowEvent("pointermove", (event) => {
 		if (!hoverAreaRef.current) return
-		const rect = hoverAreaRef.current.getBoundingClientRect()
-		setVisible(
-			event.clientX > rect.left &&
-				event.clientX < rect.right &&
-				event.clientY > rect.top &&
-				event.clientY < rect.bottom,
-		)
+		const rect = Rect.from(hoverAreaRef.current.getBoundingClientRect())
+		setVisible(rect.contains(event.clientX, event.clientY))
 	})
 
 	return (
