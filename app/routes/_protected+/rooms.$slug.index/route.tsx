@@ -11,8 +11,6 @@ import { MessageForm } from "../../../features/messages/MessageForm.tsx"
 import { MessageList } from "../../../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../../../features/rooms/CombatInitiative.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../../../features/rooms/roomContext.tsx"
-import { useSceneContext } from "../../../features/scenes/SceneContext.tsx"
-import { useScene } from "../../../features/scenes/SceneContext.tsx"
 import { SceneList } from "../../../features/scenes/SceneList.tsx"
 import { SceneMapBackground } from "../../../features/scenes/SceneMapBackground.tsx"
 import { SceneGrid } from "../../../features/scenes/grid.tsx"
@@ -33,7 +31,8 @@ import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "
 
 export default function RoomIndexRoute() {
 	const currentUrl = useHref(useLocation())
-	const scene = useScene()
+	const room = useRoom()
+	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
 	return (
 		<CharacterSelectionProvider>
 			<ViewportStore.Provider>
@@ -66,7 +65,8 @@ export default function RoomIndexRoute() {
 }
 
 function SceneHeading() {
-	const scene = useScene()
+	const room = useRoom()
+	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
 	if (!scene) return
 	return (
 		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
@@ -147,13 +147,13 @@ function RoomToolbar() {
 }
 
 function AreaToolButton() {
-	const sceneContext = useSceneContext()
+	// const sceneContext = useSceneContext()
 	return (
 		<ToolbarButton
 			text="Draw Area"
 			icon={<Lucide.SquareDashedMousePointer />}
-			active={sceneContext.isDrawInput}
-			onClick={sceneContext.toggleDrawInputMode}
+			// active={sceneContext.isDrawInput}
+			// onClick={sceneContext.toggleDrawInputMode}
 		/>
 	)
 }
@@ -282,7 +282,7 @@ function GeneralSkillsList() {
 
 function RoomSettingsForm() {
 	const room = useRoom()
-	const scene = useScene()
+	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
 	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
 	const [updateSceneState, updateScene] = useMutationState(api.scenes.update)
 	return (

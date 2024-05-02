@@ -182,6 +182,11 @@ export class Vector {
 		return { width: this.x, height: this.y }
 	}
 
+	equals(...input: VectorInputArgs) {
+		const other = Vector.from(...input)
+		return this.x === other.x && this.y === other.y
+	}
+
 	readonly css = {
 		translate: () => `${this.x}px ${this.y}px`,
 	}

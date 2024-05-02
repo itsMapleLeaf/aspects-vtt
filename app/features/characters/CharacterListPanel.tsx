@@ -10,7 +10,7 @@ import { expect } from "../../common/expect.ts"
 import { useEffectEvent } from "../../common/react.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
-import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../ui/Modal.tsx"
+import { ModalButton } from "../../ui/Modal.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { ToggleableSidebar } from "../../ui/ToggleableSidebar.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
@@ -18,7 +18,7 @@ import { panel, translucentPanel } from "../../ui/styles.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { defineSceneMapDropData } from "../scenes/SceneMap.tsx"
-import { CharacterForm } from "./CharacterForm.tsx"
+import { CharacterModal } from "./CharacterModal.tsx"
 import { useCharacterSelection } from "./CharacterSelectionProvider.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -158,19 +158,6 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 				)}
 			</MenuPanel>
 		</Menu>
-	)
-}
-
-function CharacterModal({ character, children }: { character: ApiCharacter; children: ReactNode }) {
-	return (
-		<Modal>
-			{children}
-			<ModalPanel title="Character Profile">
-				<ModalPanelContent className="p-4">
-					<CharacterForm character={character} />
-				</ModalPanelContent>
-			</ModalPanel>
-		</Modal>
 	)
 }
 

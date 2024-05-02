@@ -27,17 +27,12 @@ import { AspectSkillsSelectorButton } from "./AspectSkillsSelectorButton.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
 import type { ApiAttribute, ApiCharacter } from "./types.ts"
+import { useCharacterSkills } from "./useCharacterSkills.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
 	const notionData = useQuery(api.notionImports.get)
-	const race = notionData?.races.find((r) => r.name === character.race)
-	const coreAspect = notionData?.aspects.find((it) => it.name === character.coreAspect)
-
-	const aspectSkillsByName = new Map(notionData?.aspectSkills.map((skill) => [skill.name, skill]))
-	const aspectSkills = character.aspectSkills
-		.map((name) => aspectSkillsByName.get(name))
-		.filter(Boolean)
+	const skills = useCharacterSkills(character)
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
@@ -138,12 +133,25 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 							icon={<Lucide.Zap />}
 						/>
 						<div className={panel("p-3")}>
-							<DefinitionList items={[coreAspect?.ability].concat(race?.abilities, aspectSkills)} />
+							<DefinitionList items={skills} />
 						</div>
 					</div>
 				</FormField>
 			)}
 
+			<CharacterNotesFields character={character} />
+		</div>
+	)
+}
+
+export function CharacterNotesFields({
+	character,
+}: {
+	character: ApiCharacter
+}) {
+	const room = useRoom()
+	return (
+		<>
 			{character.isOwner && (
 				<CharacterTextAreaField
 					character={character}
@@ -154,7 +162,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			{room.isOwner && (
 				<CharacterTextAreaField character={character} field="ownerNotes" label="Owner Notes" />
 			)}
-		</div>
+		</>
 	)
 }
 

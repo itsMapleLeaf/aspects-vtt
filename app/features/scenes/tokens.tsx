@@ -1,7 +1,8 @@
+import { Hovercard, HovercardAnchor, HovercardProvider, type PopoverStore } from "@ariakit/react"
 import { useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
-import { LucideHeart } from "lucide-react"
+import * as Lucide from "lucide-react"
 import { useState } from "react"
 import * as React from "react"
 import { twMerge } from "tailwind-merge"
@@ -15,20 +16,25 @@ import { clamp } from "../../common/math.ts"
 import { pick } from "../../common/object.ts"
 import { useWindowEvent } from "../../common/useWindowEvent.ts"
 import { Vector } from "../../common/vector.ts"
-import {
-	ContextMenu,
-	ContextMenuItem,
-	ContextMenuPanel,
-	ContextMenuTrigger,
-} from "../../ui/ContextMenu.tsx"
+import { Button } from "../../ui/Button.tsx"
 import { DragSelectArea, DragSelectable, useDragSelectStore } from "../../ui/DragSelect.tsx"
+import { FormField } from "../../ui/Form.tsx"
+import { ModalButton } from "../../ui/Modal.tsx"
+import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
+import { Tooltip } from "../../ui/Tooltip.tsx"
+import { panel, translucentPanel } from "../../ui/styles.ts"
+import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
+import { CharacterModal } from "../characters/CharacterModal.tsx"
+import type { ApiCharacter } from "../characters/types.ts"
+import { useCharacterSkills } from "../characters/useCharacterSkills.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiScene } from "./types.ts"
 import { ViewportStore } from "./viewport.tsx"
 
 export function SceneTokens({ scene }: { scene: ApiScene }) {
 	const viewport = ViewportStore.useState()
-	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id })
+	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id }) ?? []
 	const [dragOffset, setDragOffset] = useState(Vector.zero)
 	const updateToken = useUpdateTokenMutation()
 	const dragSelectStore = useDragSelectStore<ApiToken["key"]>()
@@ -62,6 +68,45 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 		},
 	)
 
+	const selectedTokens = () =>
+		Iterator.from(tokens).filter((it) => dragSelectStore.isSelected(it.key))
+
+	let tokenMenuAnchorRect = Rect.from({
+		topLeft: selectedTokens()
+			.map((it) => it.position)
+			.reduce(Vector.topLeftMost, Number.POSITIVE_INFINITY),
+		bottomRight: selectedTokens()
+			.map((it) => {
+				if (it.character) return Vector.from(it.position).plus(scene.cellSize)
+				if (it.area) return Vector.from(it.position).plus(it.area)
+				return it.position
+			})
+			.reduce(Vector.bottomRightMost, Number.NEGATIVE_INFINITY),
+	})
+
+	tokenMenuAnchorRect = tokenMenuAnchorRect
+		.withPosition(viewport.offset.plus(tokenMenuAnchorRect.topLeft.times(viewport.scale)))
+		.scale(viewport.scale)
+
+	const tokenMenuStore = usePopoverStore({
+		open:
+			dragSelectStore.selected.size > 0 &&
+			dragSelectStore.area == null &&
+			dragOffset.equals(Vector.zero),
+		placement: "bottom",
+	})
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: we specifically want to re-render when these change
+	React.useLayoutEffect(() => {
+		tokenMenuStore.render()
+	}, [
+		tokenMenuStore.render,
+		tokenMenuAnchorRect.left,
+		tokenMenuAnchorRect.top,
+		tokenMenuAnchorRect.width,
+		tokenMenuAnchorRect.height,
+	])
+
 	function getTokenProps(token: ApiToken) {
 		const translate = getTokenTranslate(token)
 		return {
@@ -84,35 +129,33 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 			{/* sort so characters are last and are on top of everything else */}
 			{sortBy(tokens ?? [], (it) => (it.character ? 1 : 0))?.map((token) => (
 				<div {...getTokenProps(token)} key={token.key}>
-					<TokenMenu>
-						<DragSelectable
-							{...bindDrag()}
-							className="group touch-none rounded"
-							store={dragSelectStore}
-							item={token.key}
-						>
-							{token.character && (
-								<UploadedImage
-									id={token.character.imageId}
-									style={{
-										width: scene.cellSize,
-										height: scene.cellSize,
-									}}
-									className={{
-										container: "overflow-clip rounded shadow-md shadow-black/50",
-										image: "object-top object-cover",
-									}}
-								/>
-							)}
-							{token.area && (
-								<div
-									className="rounded border-4 border-blue-500 bg-blue-500/30"
-									style={pick(token.area, ["width", "height"])}
-								/>
-							)}
-							<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
-						</DragSelectable>
-					</TokenMenu>
+					<DragSelectable
+						{...bindDrag()}
+						className="group touch-none rounded"
+						store={dragSelectStore}
+						item={token.key}
+					>
+						{token.character && (
+							<UploadedImage
+								id={token.character.imageId}
+								style={{
+									width: scene.cellSize,
+									height: scene.cellSize,
+								}}
+								className={{
+									container: "overflow-clip rounded shadow-md shadow-black/50",
+									image: "object-top object-cover",
+								}}
+							/>
+						)}
+						{token.area && (
+							<div
+								className="rounded border-4 border-blue-500 bg-blue-500/30"
+								style={pick(token.area, ["width", "height"])}
+							/>
+						)}
+						<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+					</DragSelectable>
 				</div>
 			))}
 
@@ -184,7 +227,119 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 					</div>
 				))
 				.toArray()}
+
+			<TokenMenu
+				store={tokenMenuStore}
+				anchor={tokenMenuAnchorRect}
+				selectedTokens={selectedTokens}
+			/>
 		</DragSelectArea>
+	)
+}
+
+function TokenMenu({
+	store,
+	anchor,
+	selectedTokens,
+}: {
+	store: PopoverStore
+	anchor: Rect
+	selectedTokens: () => Iterator<ApiToken>
+}) {
+	const room = useRoom()
+
+	const selectedCharacters = selectedTokens()
+		.map((it) => it.character)
+		.filter((it) => it != null)
+		.toArray()
+
+	const selectionHasCharacters = selectedCharacters.length > 0
+	const singleSelectedCharacter = !selectedCharacters[1] && selectedCharacters[0]
+
+	return (
+		<Popover store={store}>
+			<PopoverPanel
+				getAnchorRect={() => anchor}
+				modal={false}
+				fixed
+				flip={false}
+				className="flex w-min flex-col gap-2 rounded-xl p-2"
+			>
+				<div className="flex gap-[inherit]">
+					{singleSelectedCharacter && (
+						<CharacterModal character={singleSelectedCharacter}>
+							<Tooltip content="View profile">
+								<ModalButton render={<Button icon={<Lucide.BookUser />} />} />
+							</Tooltip>
+						</CharacterModal>
+					)}
+					{selectionHasCharacters && (
+						<Tooltip content="Roll attribute">
+							<Button icon={<Lucide.Dices />} />
+						</Tooltip>
+					)}
+					{selectionHasCharacters && (
+						<Tooltip content="Update damage">
+							<Button icon={<Lucide.HeartPulse />} />
+						</Tooltip>
+					)}
+					{selectionHasCharacters && (
+						<Tooltip content="Update stress">
+							<Button icon={<Lucide.Brain />} />
+						</Tooltip>
+					)}
+					<Tooltip content="Choose random">
+						<Button icon={<Lucide.Shuffle />} />
+					</Tooltip>
+					{room.isOwner && (
+						<Tooltip content="Hide token">
+							<Button icon={<Lucide.Image />} />
+						</Tooltip>
+					)}
+					{room.isOwner && (
+						<Tooltip content="Hide name">
+							<Button icon={<Lucide.Eye />} />
+						</Tooltip>
+					)}
+				</div>
+				{singleSelectedCharacter && (
+					<FormField label="Skills">
+						<CharacterSkillsShortList character={singleSelectedCharacter} />
+					</FormField>
+				)}
+				{singleSelectedCharacter && <CharacterNotesFields character={singleSelectedCharacter} />}
+			</PopoverPanel>
+		</Popover>
+	)
+}
+
+function CharacterSkillsShortList({ character }: { character: ApiCharacter }) {
+	const skills = useCharacterSkills(character)
+	return (
+		<ul className="flex flex-wrap gap-2">
+			{skills.map((skill) => (
+				<HovercardProvider key={skill.name} timeout={250} placement="top">
+					<HovercardAnchor
+						render={<li />}
+						className={panel(
+							"leading-none font-light bg-primary-200/50 hover:bg-primary-200 cursor-default transition p-2",
+						)}
+					>
+						{skill.name}
+					</HovercardAnchor>
+					<Hovercard
+						className={translucentPanel(
+							"p-2 max-w-xs opacity-0 translate-y-1 transition data-[enter]:opacity-100 data-[enter]:translate-y-0 shadow-md shadow-black/50 whitespace-pre-line pointer-events-none",
+						)}
+						unmountOnHide
+						gutter={12}
+						portal
+					>
+						{skill.description}
+					</Hovercard>
+				</HovercardProvider>
+			))}
+		</ul>
 	)
 }
 
@@ -195,17 +350,6 @@ function useUpdateTokenMutation() {
 			entry.set(patchByKey(entry.value, "key", args).toArray())
 		}
 	})
-}
-
-function TokenMenu({ children }: { children: React.ReactNode }) {
-	return (
-		<ContextMenu>
-			<ContextMenuTrigger className="relative">{children}</ContextMenuTrigger>
-			<ContextMenuPanel>
-				<ContextMenuItem text="Test" icon={<LucideHeart />} />
-			</ContextMenuPanel>
-		</ContextMenu>
-	)
 }
 
 export function TokenLabel(props: { text: string; subText: string }) {

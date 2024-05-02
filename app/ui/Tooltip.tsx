@@ -1,24 +1,29 @@
 import * as Ariakit from "@ariakit/react"
 import type * as React from "react"
+import type { StrictOmit } from "../common/types.ts"
 
-export function Tooltip(props: {
+interface TooltipProps extends StrictOmit<Ariakit.TooltipAnchorProps, "content"> {
 	content: React.ReactNode
 	children: React.ReactElement
 	placement?: Ariakit.TooltipProviderProps["placement"]
-	providerProps?: Ariakit.TooltipProviderProps
-	anchorProps?: Ariakit.TooltipAnchorProps
 	tooltipProps?: Ariakit.TooltipProps
-}) {
+}
+
+export function Tooltip({ content, children, placement, tooltipProps, ...props }: TooltipProps) {
+	// can't use a provider here, it conflicts with other disclosure providers
+	// https://github.com/ariakit/ariakit/issues/3754
+	const store = Ariakit.useTooltipStore({ placement })
 	return (
-		<Ariakit.TooltipProvider placement={props.placement} {...props.providerProps}>
-			<Ariakit.TooltipAnchor {...props.anchorProps} render={props.children} />
+		<>
+			<Ariakit.TooltipAnchor store={store} render={children} {...props} />
 			<Ariakit.Tooltip
+				store={store}
 				className="pointer-events-none w-fit max-w-32 translate-y-1 rounded bg-white px-2 py-0.5 text-center text-sm font-semibold text-primary-100 opacity-0 shadow-md shadow-black/50 transition data-[enter]:translate-y-0 data-[enter]:opacity-100"
 				unmountOnHide
-				{...props.tooltipProps}
+				{...tooltipProps}
 			>
-				{props.content}
+				{content}
 			</Ariakit.Tooltip>
-		</Ariakit.TooltipProvider>
+		</>
 	)
 }

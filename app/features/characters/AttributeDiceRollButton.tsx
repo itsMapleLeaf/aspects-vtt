@@ -42,6 +42,7 @@ export function AttributeDiceRollButton({
 				)}
 				portal
 				gutter={8}
+				unmountOnHide
 			>
 				<div className="flex gap-2 *:flex-1">
 					<FormField label="Boost Dice">

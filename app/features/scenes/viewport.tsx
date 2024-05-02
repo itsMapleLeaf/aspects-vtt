@@ -78,7 +78,15 @@ export function ViewportDragInput(props: ComponentProps<"div">) {
 export function ViewportWheelInput({ children }: { children: React.ReactNode }) {
 	const actions = ViewportStore.useActions()
 	const bind = useWheel((state) => {
+		// wheel events can bubble up through the _react tree_
+		// through portals rendered in elements outside of this one,
+		// so we have to explicitly check that the scrolled element
+		// is actually inside of this in the DOM tree
+		if (!(state.event.currentTarget as HTMLElement).contains(state.event.target as Node)) {
+			return
+		}
+
 		actions.updateZoom(-state.delta[1], [state.event.clientX, state.event.clientY])
-	})
+	}, {})
 	return <div {...bind()}>{children}</div>
 }

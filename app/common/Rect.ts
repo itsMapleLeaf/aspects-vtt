@@ -8,6 +8,7 @@ export type RectInput =
 	| { left: number; top: number; width: number; height: number }
 	| { left: number; top: number; right: number; bottom: number }
 	| { position: VectorInput; size: VectorInput }
+	| Rect
 
 export class Rect {
 	constructor(
@@ -16,6 +17,9 @@ export class Rect {
 	) {}
 
 	static from(input: RectInput): Rect {
+		if (input instanceof Rect) {
+			return input
+		}
 		if ("start" in input) {
 			return new Rect(Vector.from(input.start), Vector.from(input.end))
 		}
@@ -39,7 +43,8 @@ export class Rect {
 			})
 		}
 		if ("position" in input) {
-			return new Rect(Vector.from(input.position), Vector.from(input.size))
+			const position = Vector.from(input.position)
+			return new Rect(position, position.plus(input.size))
 		}
 		throw new Error(`Invalid rect input: ${JSON.stringify(input, null, 2)}`)
 	}
@@ -119,8 +124,8 @@ export class Rect {
 		return Rect.from({ position: this.topLeft, size: Vector.from(...size) })
 	}
 
-	move(position: Vector): Rect {
-		return Rect.from({ position: this.topLeft.plus(position), size: this.size })
+	move(delta: VectorInput): Rect {
+		return Rect.from({ position: this.topLeft.plus(delta), size: this.size })
 	}
 
 	scale(amount: VectorInput): Rect {
@@ -149,5 +154,9 @@ export class Rect {
 		return (
 			point.x > this.left && point.x < this.right && point.y > this.top && point.y < this.bottom
 		)
+	}
+
+	clamp(boundsInput: RectInput) {
+		const bounds = Rect.from(boundsInput)
 	}
 }

@@ -19,7 +19,9 @@ export function Modal({ children, ...props }: ModalProps) {
 	)
 }
 
-export const ModalButton = Ariakit.DialogDisclosure
+export function ModalButton(props: Ariakit.DisclosureProps) {
+	return <Ariakit.DialogDisclosure {...props} />
+}
 
 export interface ModalPanelProps extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode

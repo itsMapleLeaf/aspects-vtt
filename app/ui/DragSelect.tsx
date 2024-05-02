@@ -21,9 +21,7 @@ export function useDragSelectStore<T>() {
 		setSelected(empty)
 	})
 
-	function isSelected(item: T) {
-		return selected.has(item)
-	}
+	const isSelected = React.useCallback((item: T) => selected.has(item), [selected])
 
 	return { selected, area, setItemSelected, clear, setArea, isSelected }
 }

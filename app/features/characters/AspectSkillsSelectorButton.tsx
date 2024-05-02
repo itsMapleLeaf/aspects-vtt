@@ -27,6 +27,23 @@ export function AspectSkillsSelectorButton({
 	ButtonPropsAsElement,
 	"element"
 >) {
+	return (
+		<Modal>
+			<Button {...props} element={<ModalButton />} />
+			<ModalPanel title="Manage Aspect Skills" fullHeight>
+				<ModalPanelContent className="flex flex-col gap-2 p-2">
+					<SelectorForm character={character} />
+				</ModalPanelContent>
+			</ModalPanel>
+		</Modal>
+	)
+}
+
+function SelectorForm({
+	character,
+}: {
+	character: ApiCharacter
+}) {
 	const room = useRoom()
 	const notionData = useQuery(api.notionImports.get)
 
@@ -80,52 +97,47 @@ export function AspectSkillsSelectorButton({
 	})
 
 	return (
-		<Modal>
-			<Button {...props} element={<ModalButton />} />
-			<ModalPanel title="Manage Aspect Skills" fullHeight>
-				<ModalPanelContent className="flex flex-col gap-2 p-2">
-					<CharacterExperienceDisplay character={character} className="font-bold" />
-					<Focusable
-						autoFocus
-						render={
-							<Input
-								type="search"
-								placeholder="Type a skill name or aspect name"
-								value={search}
-								onChange={(event) => setSearch(event.target.value)}
-							/>
-						}
+		<>
+			<CharacterExperienceDisplay character={character} className="font-bold" />
+			<Focusable
+				autoFocus
+				render={
+					<Input
+						type="search"
+						placeholder="Type a skill name or aspect name"
+						value={search}
+						onChange={(event) => setSearch(event.target.value)}
 					/>
-					<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-						{groups.get("learned")?.map((skill, index) => (
-							<AspectSkillItem
-								key={skill.name}
-								skill={skill}
-								character={character}
-								cost={getCost(skill, index)}
-							/>
-						))}
-						{groups.get("available")?.map((skill) => (
-							<AspectSkillItem
-								key={skill.name}
-								skill={skill}
-								character={character}
-								cost={getCost(skill, addedAspectSkills.size)}
-							/>
-						))}
-						{groups.get("unavailable")?.map((skill) => (
-							<AspectSkillItem
-								key={skill.name}
-								skill={skill}
-								character={character}
-								cost={getCost(skill, addedAspectSkills.size)}
-								disabled={!room.isOwner}
-							/>
-						))}
-					</div>
-				</ModalPanelContent>
-			</ModalPanel>
-		</Modal>
+				}
+			/>
+			<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+				{groups.get("learned")?.map((skill, index) => (
+					<AspectSkillItem
+						key={skill.name}
+						skill={skill}
+						character={character}
+						cost={getCost(skill, index)}
+					/>
+				))}
+				{groups.get("available")?.map((skill) => (
+					<AspectSkillItem
+						key={skill.name}
+						skill={skill}
+						character={character}
+						cost={getCost(skill, addedAspectSkills.size)}
+					/>
+				))}
+				{groups.get("unavailable")?.map((skill) => (
+					<AspectSkillItem
+						key={skill.name}
+						skill={skill}
+						character={character}
+						cost={getCost(skill, addedAspectSkills.size)}
+						disabled={!room.isOwner}
+					/>
+				))}
+			</div>
+		</>
 	)
 }
 
