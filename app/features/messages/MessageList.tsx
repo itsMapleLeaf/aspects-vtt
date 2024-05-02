@@ -6,13 +6,8 @@ import { Fragment } from "react"
 import { Virtuoso } from "react-virtuoso"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
-import {
-	ContextMenu,
-	ContextMenuItem,
-	ContextMenuPanel,
-	ContextMenuTrigger,
-} from "../../ui/ContextMenu.tsx"
 import { Loading } from "../../ui/Loading.tsx"
+import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
@@ -101,39 +96,39 @@ function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) 
 	}
 
 	return (
-		<ContextMenu>
-			<ContextMenuTrigger>{props.children}</ContextMenuTrigger>
-			<ContextMenuPanel>
-				<ContextMenuItem
+		<MoreMenu>
+			{props.children}
+			<MoreMenuPanel>
+				<MoreMenuItem
 					icon={<Lucide.Heart />}
 					text="Heal selected characters"
 					onClick={() => {
 						updateCharacters((it) => ({ damage: it.damage - diceTotal }))
 					}}
 				/>
-				<ContextMenuItem
+				<MoreMenuItem
 					icon={<Lucide.HeartCrack />}
 					text="Damage selected characters"
 					onClick={() => {
 						updateCharacters((it) => ({ damage: it.damage + diceTotal }))
 					}}
 				/>
-				<ContextMenuItem
+				<MoreMenuItem
 					icon={<Lucide.Zap />}
 					text="Refresh selected characters"
 					onClick={() => {
 						updateCharacters((it) => ({ fatigue: it.fatigue - diceTotal }))
 					}}
 				/>
-				<ContextMenuItem
+				<MoreMenuItem
 					icon={<Lucide.ZapOff />}
 					text="Exhaust selected characters"
 					onClick={() => {
 						updateCharacters((it) => ({ fatigue: it.fatigue + diceTotal }))
 					}}
 				/>
-			</ContextMenuPanel>
-		</ContextMenu>
+			</MoreMenuPanel>
+		</MoreMenu>
 	)
 }
 

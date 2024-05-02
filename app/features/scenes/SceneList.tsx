@@ -1,11 +1,10 @@
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { api } from "../../../convex/_generated/api.js"
-import type { Id } from "../../../convex/_generated/dataModel.js"
 import { useMutationState } from "../../common/convex.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { useModalContext } from "../../ui/Modal.tsx"
-import { MoreMenu } from "../../ui/MoreMenu.tsx"
+import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
 import { usePrompt } from "../../ui/Prompt.tsx"
 import { panel } from "../../ui/styles.ts"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
@@ -21,24 +20,11 @@ export function SceneList() {
 	const modal = useModalContext()
 	const prompt = usePrompt()
 
-	const moreMenuOptions = (sceneId: Id<"scenes">) => [
-		{
-			text: "Duplicate",
-			icon: <Lucide.Copy />,
-			onClick: () => duplicateScene({ id: sceneId }),
-		},
-		{
-			text: "Delete",
-			icon: <Lucide.Trash />,
-			onClick: () => removeScene({ id: sceneId }),
-		},
-	]
-
 	return (
 		<ul className="grid grid-cols-[repeat(auto-fill,minmax(theme(spacing.48),1fr))] gap-3">
 			{scenes?.map((scene) => (
 				<li key={scene._id} className="-m-1">
-					<MoreMenu options={moreMenuOptions(scene._id)}>
+					<MoreMenu>
 						<button
 							type="button"
 							className="block w-full rounded p-1 transition hover:bg-primary-300"
@@ -74,6 +60,18 @@ export function SceneList() {
 								)}
 							</p>
 						</button>
+						<MoreMenuPanel>
+							<MoreMenuItem
+								text="Duplicate"
+								icon={<Lucide.Copy />}
+								onClick={() => duplicateScene({ id: scene._id })}
+							/>
+							<MoreMenuItem
+								text="Delete"
+								icon={<Lucide.Trash />}
+								onClick={() => removeScene({ id: scene._id })}
+							/>
+						</MoreMenuPanel>
 					</MoreMenu>
 				</li>
 			))}
