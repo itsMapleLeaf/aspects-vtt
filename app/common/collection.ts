@@ -75,3 +75,16 @@ export function setPresentInSet<T>(set: ReadonlySet<T>, item: T, present: boolea
 	}
 	return modified
 }
+
+export function sortBy<Item>(
+	iterable: Iterable<Item>,
+	rank: ((value: Item) => string) | ((value: Item) => number),
+) {
+	return [...iterable].sort((first, second) => {
+		const firstRank = rank(first)
+		const secondRank = rank(second)
+		return typeof firstRank === "string"
+			? firstRank.localeCompare(String(secondRank))
+			: firstRank - Number(secondRank)
+	})
+}

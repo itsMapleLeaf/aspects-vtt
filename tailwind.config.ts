@@ -16,6 +16,7 @@ export default {
 			boxShadowColor: {
 				DEFAULT: `rgba(0,0,0,0.5)`,
 			},
+			dropShadow: defaultTheme.dropShadow,
 		},
 	},
 	plugins: [

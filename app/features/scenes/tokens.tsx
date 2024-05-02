@@ -9,6 +9,7 @@ import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
 import { Rect } from "../../common/Rect.ts"
 import { patchByKey } from "../../common/collection.ts"
+import { sortBy } from "../../common/collection.ts"
 import { queryMutators } from "../../common/convex.ts"
 import { clamp } from "../../common/math.ts"
 import { pick } from "../../common/object.ts"
@@ -80,7 +81,8 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 
 	return (
 		<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
-			{tokens?.map((token) => (
+			{/* sort so characters are last and are on top of everything else */}
+			{sortBy(tokens ?? [], (it) => (it.character ? 1 : 0))?.map((token) => (
 				<div {...getTokenProps(token)} key={token.key}>
 					<TokenMenu>
 						<DragSelectable
@@ -113,6 +115,8 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 					</TokenMenu>
 				</div>
 			))}
+
+			{/* character token decorations */}
 			{Iterator.from(tokens ?? [])
 				?.map((token) => token.character && { token, character: token.character })
 				.filter((it) => it != null)
@@ -149,6 +153,34 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 							</div>
 							<TokenLabel text={character.displayName} subText={character.displayPronouns} />
 						</div>
+					</div>
+				))
+				.toArray()}
+
+			{/* area sizes */}
+			{Iterator.from(tokens ?? [])
+				?.map((token) => {
+					if (!token.area) return
+					return {
+						token,
+						area: token.area,
+						gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).floor,
+					}
+				})
+				.filter((it) => it != null)
+				.map(({ token, area, gridSize }) => (
+					<div
+						className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
+						style={{
+							...pick(area, ["width", "height"]),
+							translate: getTokenTranslate(token),
+							scale: viewport.scale,
+						}}
+						key={token.key}
+					>
+						<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
+							{gridSize.x}x{gridSize.y}
+						</p>
 					</div>
 				))
 				.toArray()}
