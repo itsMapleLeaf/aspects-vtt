@@ -1,31 +1,12 @@
-import {
-	Disclosure,
-	DisclosureContent,
-	DisclosureProvider,
-	type DisclosureStore,
-	useDisclosureStore,
-} from "@ariakit/react"
 import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type ComponentProps, type Ref, useEffect, useImperativeHandle, useRef } from "react"
-import { twMerge } from "tailwind-merge"
-import { z } from "zod"
+import { useEffect } from "react"
 import { api } from "../../../../convex/_generated/api.js"
-import type { Id } from "../../../../convex/_generated/dataModel.js"
 import { useMutationState } from "../../../common/convex.ts"
-import { useMutationAction } from "../../../common/convex.ts"
-import { expect } from "../../../common/expect.ts"
-import { useEffectEvent } from "../../../common/react.ts"
-import { useLocalStorageState } from "../../../common/useLocalStorage.ts"
-import { CharacterForm } from "../../../features/characters/CharacterForm.tsx"
-import {
-	CharacterSelectionProvider,
-	useCharacterSelection,
-} from "../../../features/characters/CharacterSelectionProvider"
-import type { ApiCharacter } from "../../../features/characters/types.ts"
-import { UploadedImage } from "../../../features/images/UploadedImage.tsx"
+import { CharacterListPanel } from "../../../features/characters/CharacterListPanel.tsx"
+import { CharacterSelectionProvider } from "../../../features/characters/CharacterSelectionProvider"
 import { MessageForm } from "../../../features/messages/MessageForm.tsx"
 import { MessageList } from "../../../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../../../features/rooms/CombatInitiative.tsx"
@@ -33,7 +14,6 @@ import { RoomOwnerOnly, useCharacters, useRoom } from "../../../features/rooms/r
 import { useSceneContext } from "../../../features/scenes/SceneContext.tsx"
 import { useScene } from "../../../features/scenes/SceneContext.tsx"
 import { SceneList } from "../../../features/scenes/SceneList.tsx"
-import { defineSceneMapDropData } from "../../../features/scenes/SceneMap.tsx"
 import { SceneMapBackground } from "../../../features/scenes/SceneMapBackground.tsx"
 import { SceneGrid } from "../../../features/scenes/grid.tsx"
 import { SceneTokens } from "../../../features/scenes/tokens.tsx"
@@ -42,20 +22,11 @@ import { ViewportDragInput } from "../../../features/scenes/viewport.tsx"
 import { ViewportWheelInput } from "../../../features/scenes/viewport.tsx"
 import { SetMapBackgroundButton } from "../../../features/tokens/SetMapBackgroundButton.tsx"
 import { AppHeader } from "../../../ui/AppHeader.tsx"
-import { Button } from "../../../ui/Button.tsx"
-import {
-	ContextMenu,
-	ContextMenuItem,
-	ContextMenuPanel,
-	ContextMenuTrigger,
-} from "../../../ui/ContextMenu.tsx"
 import { DefinitionList } from "../../../ui/DefinitionList.tsx"
 import { FormField, FormLayout, FormRow } from "../../../ui/Form.tsx"
 import { Input } from "../../../ui/Input.tsx"
-import { Loading } from "../../../ui/Loading.tsx"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../../ui/Modal.tsx"
-import { ScrollArea } from "../../../ui/ScrollArea.tsx"
-import { Tooltip } from "../../../ui/Tooltip.tsx"
+import { ToggleableSidebar } from "../../../ui/ToggleableSidebar.tsx"
 import { ValidatedInput } from "../../../ui/ValidatedInput"
 import { panel, translucentPanel } from "../../../ui/styles.ts"
 import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./Toolbar"
@@ -187,185 +158,6 @@ function AreaToolButton() {
 	)
 }
 
-function CharacterListPanel() {
-	const room = useRoom()
-	const characters = useCharacters()
-	const ownedCharacters = new Set(room.isOwner ? [] : characters.filter((it) => it.isOwner))
-	const selection = useCharacterSelection()
-	const storeRef = useRef<DisclosureStore>(undefined)
-
-	useEffect(() => {
-		if (selection.selectedCharacter) {
-			storeRef.current?.show()
-		}
-	}, [selection.selectedCharacter])
-
-	return (
-		<ToggleableSidebar
-			name="Characters"
-			side="left"
-			storeRef={storeRef}
-			onVisibleChange={(visible) => {
-				// just hide the character form if it's open
-				if (!visible && selection.selectedCharacter) {
-					selection.setSelected(undefined)
-					return false
-				}
-			}}
-		>
-			<aside className="flex h-full flex-row items-stretch gap-2">
-				<ScrollArea className={translucentPanel("h-full w-28 p-2")}>
-					<ul className="flex h-full flex-col gap-3">
-						<RoomOwnerOnly>
-							<li>
-								<CreateCharacterButton />
-							</li>
-						</RoomOwnerOnly>
-						{[...ownedCharacters].map((character) => (
-							<li key={character._id}>
-								<CharacterTile character={character} />
-							</li>
-						))}
-						<li>
-							<hr className="border-primary-300" />
-						</li>
-						{characters
-							.filter((it) => !ownedCharacters.has(it))
-							.map((character) => (
-								<li key={character._id}>
-									<CharacterTile character={character} />
-								</li>
-							))}
-					</ul>
-				</ScrollArea>
-				{selection.selectedCharacter && (
-					<ScrollArea className={translucentPanel("p-3 h-full w-[350px]")}>
-						<CharacterForm character={selection.selectedCharacter} />
-					</ScrollArea>
-				)}
-			</aside>
-		</ToggleableSidebar>
-	)
-}
-
-function CharacterTile({
-	character,
-	...props
-}: { character: ApiCharacter } & ComponentProps<"button">) {
-	const room = useRoom()
-	const removeCharacter = useMutation(api.characters.remove)
-	const duplicateCharacter = useMutation(api.characters.duplicate)
-	const selection = useCharacterSelection()
-
-	const button = (
-		<button
-			type="button"
-			className={twMerge(
-				"flex w-full flex-col items-stretch gap-2 transition-opacity",
-				selection.selectedCharacter?._id === character._id
-					? "text-primary-700"
-					: "opacity-75 hover:opacity-100",
-			)}
-			draggable
-			onDragStart={(event) => {
-				const image = expect(
-					event.currentTarget.querySelector("[data-image]"),
-					"couldn't find drag image",
-				)
-				const rect = image.getBoundingClientRect()
-				event.dataTransfer.setDragImage(image, rect.width / 2, rect.height / 2)
-				event.dataTransfer.setData(
-					"text/plain",
-					JSON.stringify(
-						defineSceneMapDropData({
-							characterId: character._id,
-						}),
-					),
-				)
-			}}
-			onClick={() => {
-				selection.toggleSelected(character._id)
-			}}
-			{...props}
-		>
-			<div className={panel("overflow-clip aspect-square relative flex-center")} data-image>
-				<UploadedImage
-					id={character.imageId}
-					emptyIcon={<Lucide.Ghost />}
-					className={character.visible ? "" : "opacity-50"}
-				/>
-				{character.visible ? null : <Lucide.EyeOff className="absolute size-8 opacity-50" />}
-			</div>
-			<p className="text-pretty text-center text-sm/none">{character.displayName}</p>
-		</button>
-	)
-
-	if (!room.isOwner) {
-		return button
-	}
-
-	return (
-		<ContextMenu>
-			<ContextMenuTrigger>{button}</ContextMenuTrigger>
-			<ContextMenuPanel>
-				<ContextMenuItem
-					text="Duplicate"
-					icon={<Lucide.Copy />}
-					onClick={async () => {
-						const id = await duplicateCharacter({ id: character._id, randomize: false })
-						selection.setSelected(id)
-					}}
-				/>
-				<ContextMenuItem
-					text="Duplicate (Randomized)"
-					icon={<Lucide.Shuffle />}
-					onClick={async () => {
-						const id = await duplicateCharacter({ id: character._id, randomize: true })
-						selection.setSelected(id)
-					}}
-				/>
-				<ContextMenuItem
-					text="Delete"
-					icon={<Lucide.Trash />}
-					onClick={() => {
-						if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
-							removeCharacter({ id: character._id })
-						}
-					}}
-				/>
-			</ContextMenuPanel>
-		</ContextMenu>
-	)
-}
-
-function CreateCharacterButton() {
-	const room = useRoom()
-	const [createdId, submit, pending] = useMutationAction(api.characters.create)
-	const selection = useCharacterSelection()
-
-	const handleCreated = useEffectEvent((id: Id<"characters">) => {
-		selection.setSelected(id)
-	})
-
-	useEffect(() => {
-		if (createdId) handleCreated(createdId)
-	}, [createdId, handleCreated])
-
-	return (
-		<form action={() => submit({ roomId: room._id })}>
-			<Tooltip content="Create Character" placement="right">
-				<button
-					type="submit"
-					className="flex-center aspect-square w-full opacity-75 transition-opacity hover:opacity-100"
-				>
-					{pending ? <Loading size="sm" /> : <Lucide.UserPlus2 className="size-8" />}
-					<span className="sr-only">Create Character</span>
-				</button>
-			</Tooltip>
-		</form>
-	)
-}
-
 function CombatDetails() {
 	return (
 		<ul className="flex list-inside list-disc flex-col gap-1.5">
@@ -476,61 +268,6 @@ function MessagesPanel() {
 				</div>
 			</aside>
 		</ToggleableSidebar>
-	)
-}
-
-function ToggleableSidebar({
-	name,
-	side,
-	storeRef,
-	children,
-	onVisibleChange,
-}: {
-	name: string
-	side: "left" | "right"
-	storeRef?: Ref<DisclosureStore | undefined>
-	children: React.ReactNode
-	onVisibleChange?: (visible: boolean) => boolean | undefined
-}) {
-	const [open, setOpen] = useLocalStorageState(`sidebar:${name}`, true, z.boolean().catch(true))
-	const store = useDisclosureStore({ open, setOpen })
-	const isOpen = store.useState("open")
-	const Icon = isOpen ? Lucide.SidebarClose : Lucide.SidebarOpen
-
-	useImperativeHandle(storeRef, () => store)
-
-	return (
-		<div
-			data-side={side}
-			className="group/sidebar-panel pointer-events-none fixed bottom-0 top-16 flex justify-end gap-2 p-2 *:pointer-events-auto data-[side=left]:left-0 data-[side=right]:right-0 data-[side=left]:flex-row-reverse"
-		>
-			<DisclosureProvider store={store}>
-				<Button
-					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
-					className="shadow-md shadow-black/25"
-					element={
-						<Disclosure
-							title={isOpen ? `Hide ${name}` : `Show ${name}`}
-							onClick={(event) => {
-								event.preventDefault()
-								if (onVisibleChange?.(!isOpen) === false) {
-									return
-								}
-								setOpen(!isOpen)
-							}}
-						/>
-					}
-				/>
-				<DisclosureContent
-					className={twMerge(
-						"h-full opacity-0 data-[enter]:opacity-100 transition data-[enter]:translate-x-0",
-						side === "right" ? "translate-x-4" : "-translate-x-4",
-					)}
-				>
-					{children}
-				</DisclosureContent>
-			</DisclosureProvider>
-		</div>
 	)
 }
 

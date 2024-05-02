@@ -1,43 +1,27 @@
-import {
-	Dialog,
-	DialogDescription,
-	DialogDisclosure,
-	type DialogDisclosureProps,
-	DialogDismiss,
-	type DialogDismissProps,
-	DialogHeading,
-	type DialogProps,
-	DialogProvider,
-	type DialogProviderProps,
-	type DialogStore,
-	useDialogContext,
-	useDialogStore,
-} from "@ariakit/react"
+import * as Ariakit from "@ariakit/react"
 import { LucideX } from "lucide-react"
-import { type ComponentPropsWithoutRef, forwardRef } from "react"
+import type { ComponentPropsWithoutRef } from "react"
 import type { StrictOmit } from "../common/types.ts"
 import { panel } from "./styles.ts"
 import { twc } from "./twc.ts"
 import { withMergedClassName } from "./withMergedClassName.ts"
 
-interface ModalProps extends StrictOmit<DialogProviderProps, "children"> {
-	children: React.ReactNode | ((store: DialogStore) => React.ReactNode)
+interface ModalProps extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
+	children: React.ReactNode | ((store: Ariakit.DialogStore) => React.ReactNode)
 }
 
 export function Modal({ children, ...props }: ModalProps) {
-	const store = useDialogStore()
+	const store = Ariakit.useDialogStore()
 	return (
-		<DialogProvider store={store} {...props}>
+		<Ariakit.DialogProvider store={store} {...props}>
 			{typeof children === "function" ? children(store) : children}
-		</DialogProvider>
+		</Ariakit.DialogProvider>
 	)
 }
 
-export const ModalButton = forwardRef<HTMLButtonElement, DialogDisclosureProps>((props, ref) => (
-	<DialogDisclosure {...props} ref={ref} />
-))
+export const ModalButton = Ariakit.DialogDisclosure
 
-export interface ModalPanelProps extends StrictOmit<DialogProps, "backdrop" | "title"> {
+export interface ModalPanelProps extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
 	description?: React.ReactNode
 	className?: string
@@ -53,7 +37,7 @@ export function ModalPanel({
 	...props
 }: ModalPanelProps) {
 	return (
-		<Dialog
+		<Ariakit.Dialog
 			backdrop={
 				<div className="bg-black/50 opacity-0 backdrop-blur transition-opacity data-[enter]:opacity-100" />
 			}
@@ -68,28 +52,28 @@ export function ModalPanel({
 		>
 			<div className="flex items-center gap-3 border-b border-primary-300 bg-black/25 p-3">
 				<div className="flex-1">
-					<DialogHeading className="text-2xl/tight font-light">{title}</DialogHeading>
-					{description && <DialogDescription>{description}</DialogDescription>}
+					<Ariakit.DialogHeading className="text-2xl/tight font-light">
+						{title}
+					</Ariakit.DialogHeading>
+					{description && <Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>}
 				</div>
-				<DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
+				<Ariakit.DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
 					<LucideX />
-				</DialogDismiss>
+				</Ariakit.DialogDismiss>
 			</div>
 			{children}
-		</Dialog>
+		</Ariakit.Dialog>
 	)
 }
 
-export const ModalPanelContent = twc.div`min-h-0 flex-1 overflow-y-auto`
+export const ModalPanelContent = twc.div`min-h-0 flex-1 overflow-y-auto bg-primary-100`
 
 export function ModalActions(props: ComponentPropsWithoutRef<"div">) {
 	return <div {...withMergedClassName(props, "flex justify-end gap-2")} />
 }
 
-export const ModalDismiss = forwardRef<HTMLButtonElement, DialogDismissProps>((props, ref) => (
-	<DialogDismiss {...props} ref={ref} />
-))
+export const ModalDismiss = Ariakit.DialogDismiss
 
 export function useModalContext() {
-	return useDialogContext()
+	return Ariakit.useDialogContext()
 }
