@@ -161,24 +161,36 @@ export const remove = mutation({
 
 export const applyStress = mutation({
 	args: {
-		id: v.id("characters"),
+		roomId: v.id("rooms"),
+		characterIds: v.array(v.id("characters")),
 		property: literals("damage", "fatigue"),
 		delta: literals(-1, 1),
 		amount: v.number(),
 		dice: v.array(diceInputValidator),
 	},
 	handler: async (ctx, args) => {
-		const character = await requireDoc(ctx, args.id, "characters").getValueOrThrow()
+		const characters = await Promise.all(
+			args.characterIds.map((id) => requireDoc(ctx, id, "characters").getValueOrThrow()),
+		)
+
+		for (const character of characters) {
+			if (character.roomId !== args.roomId) {
+				throw new Error(
+					`Character ${character._id} "${character.name}" has invalid room ${character.roomId}, expected ${args.roomId}`,
+				)
+			}
+		}
+
 		let amount = args.amount
 
 		if (args.dice.length > 0) {
-			let content = `Rolling for ${args.delta === -1 ? "healing" : "damage"} on <@${args.id}>`
+			let content = `Rolling for ${args.delta === -1 ? "healing" : "damage"}!`
 			if (args.amount !== 0) {
 				content += ` (+${args.amount})`
 			}
 
 			const message = await createMessage(ctx, {
-				roomId: character.roomId,
+				roomId: args.roomId,
 				dice: args.dice,
 				content: content,
 			})
@@ -186,10 +198,14 @@ export const applyStress = mutation({
 			amount += message.diceRoll?.dice.reduce((total, die) => total + die.result, 0) ?? 0
 		}
 
-		await update(ctx, {
-			id: character._id,
-			[args.property]: Math.max((character[args.property] ?? 0) + amount * args.delta, 0),
-		})
+		await Promise.all(
+			characters.map((character) =>
+				update(ctx, {
+					id: character._id,
+					[args.property]: Math.max((character[args.property] ?? 0) + amount * args.delta, 0),
+				}),
+			),
+		)
 	},
 })
 

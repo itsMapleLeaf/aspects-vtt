@@ -1,9 +1,9 @@
 import { useDisclosureContext } from "@ariakit/react"
+import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import type * as React from "react"
 import { api } from "../../../convex/_generated/api"
-import { useMutationState } from "../../common/convex.ts"
 import { Button } from "../../ui/Button.tsx"
 import { FormField, FormLayout } from "../../ui/Form.tsx"
 import { NumberInput } from "../../ui/NumberInput.tsx"
@@ -11,6 +11,7 @@ import { Popover, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { panel } from "../../ui/styles.ts"
 import { DiceCounter } from "../dice/DiceCounter.tsx"
 import { getDiceInputList } from "../dice/getDiceInputList.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiCharacter } from "./types.ts"
 
 export function StressUpdateMenu({
@@ -35,8 +36,9 @@ function StressUpdateForm({
 	characters,
 	field,
 }: { field: "damage" | "fatigue"; characters: ApiCharacter[] }) {
-	const [applyStressState, applyStress] = useMutationState(api.characters.applyStress)
+	const room = useRoom()
 	const disclosure = useDisclosureContext()
+	const applyStress = useMutation(api.characters.applyStress)
 
 	const [values, setValues] = useState<{
 		operation: "add" | "remove"
@@ -50,18 +52,16 @@ function StressUpdateForm({
 
 	return (
 		<FormLayout
-			onSubmit={(event) => {
-				event.preventDefault()
+			action={async () => {
+				await applyStress({
+					roomId: room._id,
+					characterIds: characters.map((it) => it._id),
+					amount: values.amount,
+					delta: values.operation === "remove" ? -1 : 1,
+					dice: getDiceInputList(values.dice).toArray(),
+					property: field,
+				})
 				disclosure?.hide()
-				for (const character of characters) {
-					applyStress({
-						id: character._id,
-						amount: values.amount,
-						delta: values.operation === "remove" ? -1 : 1,
-						dice: getDiceInputList(values.dice).toArray(),
-						property: field,
-					})
-				}
 			}}
 		>
 			<fieldset className={panel("grid grid-flow-col auto-cols-fr bg-transparent overflow-clip")}>
@@ -99,12 +99,7 @@ function StressUpdateForm({
 			<FormField label="Dice">
 				<DiceCounter value={values.dice} onChange={(dice) => setValues({ ...values, dice })} />
 			</FormField>
-			<Button
-				type="submit"
-				text="Apply"
-				icon={<Lucide.Check />}
-				pending={applyStressState.status === "pending"}
-			/>
+			<Button type="submit" text="Apply" icon={<Lucide.Check />} />
 		</FormLayout>
 	)
 }
