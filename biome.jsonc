@@ -28,7 +28,8 @@
 				"noUnusedTemplateLiteral": "off",
 				"noParameterAssign": "off",
 				"useConsistentArrayType": "warn",
-				"useNodejsImportProtocol": "error"
+				"useNodejsImportProtocol": "error",
+				"useSelfClosingElements": "off"
 			}
 		}
 	},
