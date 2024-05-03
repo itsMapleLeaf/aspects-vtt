@@ -399,7 +399,7 @@ function TokenMenu({
 				modal={false}
 				fixed
 				flip={false}
-				className="flex w-min flex-col gap-2 rounded-xl p-2"
+				className="flex w-min flex-col gap-3 rounded p-3"
 				hideOnInteractOutside={false}
 			>
 				<div className="flex gap-[inherit]">
