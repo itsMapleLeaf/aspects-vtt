@@ -34,9 +34,10 @@ export function NumberInput({
 			fallback={fallback}
 			controllerRef={controllerRef}
 			parse={(input) => {
-				if (input.trim() === "") return
+				const isNumberString = /^(\d+|\d*?\.\d+)$/.test(input)
+				if (!isNumberString) return
 
-				const value = Number(input.trim())
+				const value = Number(input)
 				if (!Number.isFinite(value)) return
 				if (min != null && value < min) return
 				if (max != null && value > max) return

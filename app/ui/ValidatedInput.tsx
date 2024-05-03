@@ -21,20 +21,27 @@ export function ValidatedInput<T>({
 	fallback?: T
 	controllerRef?: Ref<ValidatedInputController>
 }) {
-	const [invalidValue, setInvalidValue] = useState<string>()
-	const isFallback = invalidValue === "" && fallback != null
+	const [state, setState] = useState<
+		{ type: "empty"; value: string } | { type: "invalid"; value: string } | { type: "valid" }
+	>({ type: "valid" })
 
 	const handleChange = (value: string) => {
+		if (value === "") {
+			setState({ type: "empty", value: value })
+			if (fallback != null) {
+				onChangeValid(fallback)
+			}
+			return
+		}
+
 		const parsed = parse(value)
 		if (parsed != null) {
-			setInvalidValue(undefined)
+			setState({ type: "valid" })
 			onChangeValid(parsed)
-		} else if (value === "" && fallback != null) {
-			setInvalidValue("")
-			onChangeValid(fallback)
-		} else {
-			setInvalidValue(value)
+			return
 		}
+
+		setState({ type: "invalid", value })
 	}
 
 	useImperativeHandle(controllerRef, () => ({
@@ -46,9 +53,9 @@ export function ValidatedInput<T>({
 	return (
 		<Input
 			{...props}
-			data-invalid={invalidValue !== undefined && !isFallback}
+			invalid={state.type === "invalid" || (state.type === "empty" && fallback != null)}
 			placeholder={props.placeholder ?? String(fallback ?? "")}
-			value={invalidValue ?? props.value}
+			value={state.type === "empty" || state.type === "invalid" ? state.value : props.value}
 			onChange={(event) => {
 				props.onChange?.(event)
 				handleChange(event.currentTarget.value)
