@@ -12,12 +12,9 @@ import { usePrompt } from "../../ui/Prompt.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel } from "../../ui/styles.ts"
-import {
-	type DiceKind,
-	diceKinds,
-	diceKindsByName,
-	getDiceKindApiInput,
-} from "../dice/diceKinds.tsx"
+import { DiceCounter } from "../dice/DiceCounter.tsx"
+import { type DiceKind, diceKindsByName } from "../dice/diceKinds.tsx"
+import { getDiceInputList } from "../dice/getDiceInputList.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function MessageForm() {
@@ -33,19 +30,6 @@ export function MessageForm() {
 
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
 
-	function updateDiceCount(name: string, delta: number) {
-		setDiceCounts((dice) => ({
-			...dice,
-			[name]: Math.max((dice[name] ?? 0) + delta, 0),
-		}))
-	}
-
-	function getDiceInput() {
-		return Iterator.from(diceKinds)
-			.map((kind) => getDiceKindApiInput(kind, diceCounts[kind.name] ?? 0))
-			.filter(({ count }) => count > 0)
-	}
-
 	return (
 		<form
 			action={async () => {
@@ -53,7 +37,7 @@ export function MessageForm() {
 					await createMessage({
 						roomId: room._id,
 						content: content,
-						dice: getDiceInput().toArray(),
+						dice: getDiceInputList(diceCounts).toArray(),
 					})
 					setContent("")
 					setDiceCounts({})
@@ -68,53 +52,7 @@ export function MessageForm() {
 					<PopoverTrigger render={<Button icon={<Lucide.Dices />} title="Dice" />} />
 					<PopoverPanel gutter={16} shift={-8}>
 						<div className="grid grid-cols-2 gap-2 p-2">
-							<ul className="contents">
-								{diceKinds
-									.map((kind) => ({ kind, count: diceCounts[kind.name] ?? 0 }))
-									.map(({ kind, count }) => (
-										<li
-											key={kind.name}
-											data-selected={count > 0}
-											className={panel(
-												"flex items-center justify-center gap-2 px-3 py-1 transition *:data-[selected=false]:opacity-50",
-											)}
-										>
-											<div className="flex flex-col">
-												<button
-													type="button"
-													title={`Add a ${kind.name}`}
-													className="-m-2 flex items-center justify-center p-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
-													onClick={() => updateDiceCount(kind.name, 1)}
-												>
-													<Lucide.ChevronUp />
-												</button>
-												<button
-													type="button"
-													title={`Add a ${kind.name}`}
-													className="-mx-2 flex items-center justify-center px-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
-													onClick={() => updateDiceCount(kind.name, -1)}
-												>
-													<Lucide.ChevronDown />
-												</button>
-											</div>
-
-											<p className="text-center text-xl font-medium tabular-nums">{count}</p>
-
-											<button
-												type="button"
-												className="transition *:size-12 hover:brightness-75 active:brightness-125 active:duration-0"
-												title={`Click to add a ${kind.name}, right-click to remove`}
-												onClick={() => updateDiceCount(kind.name, 1)}
-												onContextMenu={(event) => {
-													event.preventDefault()
-													updateDiceCount(kind.name, -1)
-												}}
-											>
-												{kind.element}
-											</button>
-										</li>
-									))}
-							</ul>
+							<DiceCounter value={diceCounts} onChange={setDiceCounts} className="col-span-2" />
 
 							<Button
 								type="button"
@@ -144,7 +82,7 @@ export function MessageForm() {
 									await createMacro({
 										name,
 										roomId: room._id,
-										dice: getDiceInput().toArray(),
+										dice: getDiceInputList(diceCounts).toArray(),
 									})
 								}}
 							/>

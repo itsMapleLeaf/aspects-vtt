@@ -17,6 +17,7 @@ export function PopoverPanel(props: Ariakit.PopoverProps) {
 		<Ariakit.Popover
 			portal
 			gutter={8}
+			unmountOnHide
 			{...withMergedClassName(
 				props,
 				panel(

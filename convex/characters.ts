@@ -1,4 +1,4 @@
-import { brandedString, nullable } from "convex-helpers/validators"
+import { brandedString, literals, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import { omit } from "../app/common/object.ts"
@@ -7,6 +7,8 @@ import { CharacterModel } from "./CharacterModel.js"
 import { RoomModel } from "./RoomModel.js"
 import type { Doc } from "./_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "./_generated/server.js"
+import { requireDoc } from "./helpers.ts"
+import { create as createMessage, diceInputValidator } from "./messages.ts"
 import { tokenValidator } from "./token.js"
 import { getUserFromIdentity } from "./users.js"
 
@@ -154,6 +156,40 @@ export const remove = mutation({
 	handler: async (ctx, args) => {
 		const character = await CharacterModel.get(ctx, args.id).getValueOrThrow()
 		await character.delete(ctx)
+	},
+})
+
+export const applyStress = mutation({
+	args: {
+		id: v.id("characters"),
+		property: literals("damage", "fatigue"),
+		delta: literals(-1, 1),
+		amount: v.number(),
+		dice: v.array(diceInputValidator),
+	},
+	handler: async (ctx, args) => {
+		const character = await requireDoc(ctx, args.id, "characters").getValueOrThrow()
+		let amount = args.amount
+
+		if (args.dice.length > 0) {
+			let content = `Rolling for ${args.delta === -1 ? "healing" : "damage"} on <@${args.id}>`
+			if (args.amount !== 0) {
+				content += ` (+${args.amount})`
+			}
+
+			const message = await createMessage(ctx, {
+				roomId: character.roomId,
+				dice: args.dice,
+				content: content,
+			})
+
+			amount += message.diceRoll?.dice.reduce((total, die) => total + die.result, 0) ?? 0
+		}
+
+		await update(ctx, {
+			id: character._id,
+			[args.property]: Math.max((character[args.property] ?? 0) + amount * args.delta, 0),
+		})
 	},
 })
 

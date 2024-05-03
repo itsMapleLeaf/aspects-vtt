@@ -30,6 +30,7 @@ import { panel, translucentPanel } from "../../ui/styles.ts"
 import { CharacterDnd } from "../characters/CharacterDnd.tsx"
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
+import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacterSkills } from "../characters/useCharacterSkills.ts"
 import { useCreateAttributeRollMessage } from "../characters/useCreateAttributeRollMessage.tsx"
@@ -415,13 +416,17 @@ function TokenMenu({
 						</RollAttributeMenu>
 					)}
 
-					{/* todo */}
 					{selectionHasCharacters && (
-						<Button tooltip="Update damage" icon={<Lucide.HeartPulse />} />
+						<StressUpdateMenu characters={selectedCharacters} field="damage">
+							<Button tooltip="Update damage" icon={<Lucide.HeartPulse />} />
+						</StressUpdateMenu>
 					)}
 
-					{/* todo */}
-					{selectionHasCharacters && <Button tooltip="Update fatigue" icon={<Lucide.Brain />} />}
+					{selectionHasCharacters && (
+						<StressUpdateMenu characters={selectedCharacters} field="fatigue">
+							<Button tooltip="Update fatigue" icon={<Lucide.Brain />} />
+						</StressUpdateMenu>
+					)}
 
 					{selectedTokens.length >= 2 && (
 						<Button

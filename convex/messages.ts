@@ -90,12 +90,14 @@ export const create = mutation({
 			}
 		}
 
-		return await ctx.db.insert("messages", {
+		const message = {
 			...args,
 			content,
 			userId: user.clerkId,
 			diceRoll: diceRolls.length > 0 ? { dice: diceRolls } : undefined,
-		})
+		}
+		await ctx.db.insert("messages", message)
+		return message
 	},
 })
 
