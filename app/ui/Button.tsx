@@ -9,7 +9,7 @@ import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import type { Disallowed, StrictOmit } from "../common/types.ts"
 import { Loading } from "./Loading.tsx"
-import { TooltipAnchor, TooltipContent, TooltipProvider } from "./Tooltip.old.tsx"
+import { Tooltip } from "./Tooltip.tsx"
 import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName"
 
@@ -88,12 +88,7 @@ export function Button({
 		return element
 	}
 
-	return (
-		<TooltipProvider>
-			<TooltipAnchor render={element} />
-			<TooltipContent>{tooltip}</TooltipContent>
-		</TooltipProvider>
-	)
+	return <Tooltip content={tooltip}>{element}</Tooltip>
 }
 
 export interface ButtonStyleProps {

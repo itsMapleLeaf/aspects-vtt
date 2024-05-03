@@ -16,21 +16,23 @@ import { queryMutators } from "../../common/convex.ts"
 import { clamp } from "../../common/math.ts"
 import { pick } from "../../common/object.ts"
 import { randomItem } from "../../common/random.ts"
+import { useFilter } from "../../common/react.ts"
 import { useWindowEvent } from "../../common/useWindowEvent.ts"
 import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
 import { DragSelectArea, DragSelectable, useDragSelectStore } from "../../ui/DragSelect.tsx"
 import { FormField } from "../../ui/Form.tsx"
+import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { ModalButton } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
-import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { CharacterDnd } from "../characters/CharacterDnd.tsx"
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacterSkills } from "../characters/useCharacterSkills.ts"
+import { useCreateAttributeRollMessage } from "../characters/useCreateAttributeRollMessage.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
@@ -99,10 +101,15 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 
 	const tokenMenuStore = usePopoverStore({
 		open:
-			dragSelectStore.selected.size > 0 &&
+			selectedTokens().take(1).count() === 1 &&
 			dragSelectStore.area == null &&
 			dragOffset.equals(Vector.zero),
 		placement: "bottom",
+		setOpen: (open) => {
+			if (!open) {
+				dragSelectStore.clear()
+			}
+		},
 	})
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: we specifically want to re-render when these change
@@ -140,7 +147,8 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 				<div {...getTokenProps(token)} key={token.key}>
 					<DragSelectable
 						{...bindDrag()}
-						className="group touch-none rounded"
+						data-hidden={!token.visible || undefined}
+						className="group touch-none rounded data-[hidden]:opacity-75"
 						store={dragSelectStore}
 						item={token.key}
 					>
@@ -163,6 +171,11 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 								className="rounded border-4 border-blue-500 bg-blue-500/30"
 								style={pick(token.area, ["width", "height"])}
 							/>
+						)}
+						{token.visible ? null : (
+							<div className="flex-center absolute inset-0">
+								<Lucide.EyeOff className="size-2/3 opacity-50" />
+							</div>
 						)}
 						<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
 					</DragSelectable>
@@ -308,7 +321,11 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 				<TokenMenu
 					store={tokenMenuStore}
 					anchor={tokenMenuAnchorRect}
-					selectedTokens={selectedTokens}
+					selectedTokens={selectedTokens().toArray()}
+					onTokenSelected={(token) => {
+						dragSelectStore.clear()
+						dragSelectStore.setItemSelected(token.key, true)
+					}}
 				/>
 			</DragSelectArea>
 		)
@@ -348,15 +365,26 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 function TokenMenu({
 	store,
 	anchor,
-	selectedTokens,
+	onTokenSelected,
+	...props
 }: {
 	store: PopoverStore
 	anchor: Rect
-	selectedTokens: () => Iterator<ApiToken>
+	selectedTokens: ApiToken[]
+	onTokenSelected: (token: ApiToken) => void
 }) {
 	const room = useRoom()
+	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
+	const updateToken = useUpdateTokenMutation()
+	const removeToken = useMutation(api.scenes.tokens.remove)
+	const updateCharacter = useMutation(api.characters.update)
 
-	const selectedCharacters = selectedTokens()
+	// even if the menu is only rendered with 1+ tokens,
+	// it renders a 0 token "flash of nothing state" during the close state,
+	// so we use this filter to only render with contentful arrays
+	const selectedTokens = useFilter(props.selectedTokens, (it) => it.length > 0)
+
+	const selectedCharacters = Iterator.from(selectedTokens)
 		.map((it) => it.character)
 		.filter((it) => it != null)
 		.toArray()
@@ -372,52 +400,146 @@ function TokenMenu({
 				fixed
 				flip={false}
 				className="flex w-min flex-col gap-2 rounded-xl p-2"
+				hideOnInteractOutside={false}
 			>
 				<div className="flex gap-[inherit]">
 					{singleSelectedCharacter && (
 						<CharacterModal character={singleSelectedCharacter}>
-							<Tooltip content="View profile">
-								<ModalButton render={<Button icon={<Lucide.BookUser />} />} />
-							</Tooltip>
+							<ModalButton render={<Button tooltip="View profile" icon={<Lucide.BookUser />} />} />
 						</CharacterModal>
 					)}
+
 					{selectionHasCharacters && (
-						<Tooltip content="Roll attribute">
-							<Button icon={<Lucide.Dices />} />
-						</Tooltip>
+						<RollAttributeMenu characters={selectedCharacters}>
+							<Button tooltip="Roll attribute" icon={<Lucide.Dices />} />
+						</RollAttributeMenu>
 					)}
+
+					{/* todo */}
 					{selectionHasCharacters && (
-						<Tooltip content="Update damage">
-							<Button icon={<Lucide.HeartPulse />} />
-						</Tooltip>
+						<Button tooltip="Update damage" icon={<Lucide.HeartPulse />} />
 					)}
-					{selectionHasCharacters && (
-						<Tooltip content="Update stress">
-							<Button icon={<Lucide.Brain />} />
-						</Tooltip>
+
+					{/* todo */}
+					{selectionHasCharacters && <Button tooltip="Update stress" icon={<Lucide.Brain />} />}
+
+					<Button
+						tooltip="Choose random"
+						icon={<Lucide.Shuffle />}
+						onClick={() => {
+							const token = randomItem(selectedTokens)
+							if (token) {
+								onTokenSelected(token)
+							}
+						}}
+					/>
+
+					{room.isOwner && scene && selectedTokens.some((it) => !it.visible) && (
+						<Button
+							tooltip="Show token"
+							icon={<Lucide.Image />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									updateToken({ sceneId: scene._id, key: token.key, visible: true })
+								}
+							}}
+						/>
 					)}
-					<Tooltip content="Choose random">
-						<Button icon={<Lucide.Shuffle />} />
-					</Tooltip>
-					{room.isOwner && (
-						<Tooltip content="Hide token">
-							<Button icon={<Lucide.Image />} />
-						</Tooltip>
+
+					{room.isOwner && scene && selectedTokens.some((it) => it.visible) && (
+						<Button
+							tooltip="Hide token"
+							icon={<Lucide.ImageOff />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									updateToken({ sceneId: scene._id, key: token.key, visible: false })
+								}
+							}}
+						/>
 					)}
-					{room.isOwner && (
-						<Tooltip content="Hide name">
-							<Button icon={<Lucide.Eye />} />
-						</Tooltip>
+
+					{room.isOwner && selectedCharacters.some((it) => !it.nameVisible) && (
+						<Button
+							tooltip="Show name"
+							icon={<Lucide.Eye />}
+							onClick={() => {
+								for (const character of selectedCharacters) {
+									updateCharacter({
+										id: character._id,
+										nameVisible: true,
+									})
+								}
+							}}
+						/>
+					)}
+
+					{room.isOwner && selectedCharacters.some((it) => it.nameVisible) && (
+						<Button
+							tooltip="Hide name"
+							icon={<Lucide.EyeOff />}
+							onClick={() => {
+								for (const character of selectedCharacters) {
+									updateCharacter({
+										id: character._id,
+										nameVisible: false,
+									})
+								}
+							}}
+						/>
+					)}
+
+					{room.isOwner && scene && selectedTokens.length > 0 && (
+						<Button
+							tooltip="Remove"
+							icon={<Lucide.X />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									removeToken({ sceneId: scene._id, tokenKey: token.key })
+								}
+							}}
+						/>
 					)}
 				</div>
+
 				{singleSelectedCharacter && (
 					<FormField label="Skills">
 						<CharacterSkillsShortList character={singleSelectedCharacter} />
 					</FormField>
 				)}
+
 				{singleSelectedCharacter && <CharacterNotesFields character={singleSelectedCharacter} />}
 			</PopoverPanel>
 		</Popover>
+	)
+}
+
+function RollAttributeMenu(props: {
+	characters: ApiCharacter[]
+	children: React.ReactElement
+}) {
+	const createAttributeRollMessage = useCreateAttributeRollMessage()
+	const notionImports = useQuery(api.notionImports.get)
+	return (
+		<Menu placement="bottom">
+			<MenuButton render={props.children} />
+			<MenuPanel>
+				{notionImports?.attributes?.map((attribute) => (
+					<MenuItem
+						key={attribute.key}
+						icon={undefined}
+						text={attribute.name}
+						onClick={() => {
+							for (const character of props.characters) {
+								createAttributeRollMessage({
+									content: `<@${character._id}>: ${attribute.name}`,
+									attributeValue: character[attribute.key],
+								})
+							}
+						}}
+					/>
+				))}
+			</MenuPanel>
+		</Menu>
 	)
 }
 
@@ -447,6 +569,7 @@ function CharacterSkillsShortList({ character }: { character: ApiCharacter }) {
 					</Hovercard>
 				</HovercardProvider>
 			))}
+			{skills.length === 0 && <p className="italic opacity-75">This character has no skills.</p>}
 		</ul>
 	)
 }

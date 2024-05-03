@@ -41,3 +41,16 @@ export function useEffectEvent<Args extends unknown[], Return>(fn: (...args: Arg
 
 	return useCallback((...args: Args) => ref.current(...args), [])
 }
+
+export function useFilter<In, Out extends In>(
+	input: In,
+	predicate: (input: In) => input is Out,
+): In | Out
+export function useFilter<T>(input: T, predicate: (input: T) => unknown): T
+export function useFilter<T>(input: T, predicate: (input: T) => unknown) {
+	const [state, setState] = useState<T>(input)
+	if (input !== state && predicate(input)) {
+		setState(input)
+	}
+	return state
+}
