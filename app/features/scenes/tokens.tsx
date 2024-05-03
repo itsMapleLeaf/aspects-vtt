@@ -28,7 +28,11 @@ import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { CharacterDnd } from "../characters/CharacterDnd.tsx"
-import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
+import {
+	CharacterDamageField,
+	CharacterFatigueField,
+	CharacterNotesFields,
+} from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
@@ -391,7 +395,7 @@ function TokenMenu({
 		.toArray()
 
 	const selectionHasCharacters = selectedCharacters.length > 0
-	const singleSelectedCharacter = !selectedCharacters[1] && selectedCharacters[0]
+	const singleSelectedCharacter = (!selectedCharacters[1] && selectedCharacters[0]) || undefined
 
 	return (
 		<Popover store={store}>
@@ -507,6 +511,13 @@ function TokenMenu({
 						/>
 					)}
 				</div>
+
+				{singleSelectedCharacter?.isOwner && (
+					<div className="grid auto-cols-fr grid-flow-col gap-2">
+						<CharacterDamageField character={singleSelectedCharacter} />
+						<CharacterFatigueField character={singleSelectedCharacter} />
+					</div>
+				)}
 
 				{singleSelectedCharacter && (
 					<FormField label="Skills">
