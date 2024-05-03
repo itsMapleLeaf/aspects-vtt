@@ -5,6 +5,7 @@ import { Rect } from "../common/Rect.ts"
 
 interface RectDrawAreaProps extends React.ComponentProps<"div"> {
 	rect: Rect | undefined
+	preview?: boolean
 	onRectChange: (rect: Rect | undefined) => void
 	onInit?: () => void
 	onStart?: () => void
@@ -13,6 +14,7 @@ interface RectDrawAreaProps extends React.ComponentProps<"div"> {
 
 export function RectDrawArea({
 	rect,
+	preview = true,
 	onRectChange,
 	onInit,
 	onStart,
@@ -54,7 +56,7 @@ export function RectDrawArea({
 		<div {...props} className={twMerge("relative", props.className)}>
 			<div {...bind()} className="absolute inset-0 touch-none" />
 			{children}
-			{rect && (
+			{rect && preview && (
 				<div
 					className="absolute left-0 top-0 border-2 border-primary-600 bg-primary-600/25"
 					style={{ translate: rect.topLeft.css.translate(), ...rect.size.toSize() }}

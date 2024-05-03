@@ -7,13 +7,15 @@ import { useState } from "react"
 import * as React from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
+import type { Branded } from "../../../convex/helpers.ts"
 import type { ApiToken } from "../../../convex/scenes/tokens.ts"
 import { Rect } from "../../common/Rect.ts"
-import { patchByKey } from "../../common/collection.ts"
+import { keyedByProperty, patchByKey } from "../../common/collection.ts"
 import { sortBy } from "../../common/collection.ts"
 import { queryMutators } from "../../common/convex.ts"
 import { clamp } from "../../common/math.ts"
 import { pick } from "../../common/object.ts"
+import { randomItem } from "../../common/random.ts"
 import { useWindowEvent } from "../../common/useWindowEvent.ts"
 import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
@@ -21,6 +23,7 @@ import { DragSelectArea, DragSelectable, useDragSelectStore } from "../../ui/Dra
 import { FormField } from "../../ui/Form.tsx"
 import { ModalButton } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
+import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { CharacterDnd } from "../characters/CharacterDnd.tsx"
@@ -29,7 +32,8 @@ import { CharacterModal } from "../characters/CharacterModal.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacterSkills } from "../characters/useCharacterSkills.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
-import { useRoom } from "../rooms/roomContext.tsx"
+import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
+import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import type { ApiScene } from "./types.ts"
 import { ViewportStore } from "./viewport.tsx"
 
@@ -37,9 +41,12 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 	const viewport = ViewportStore.useState()
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id }) ?? []
 	const [dragOffset, setDragOffset] = useState(Vector.zero)
-	const addToken = useMutation(api.scenes.tokens.add)
+	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
 	const dragSelectStore = useDragSelectStore<ApiToken["key"]>()
+	const roomToolbarState = RoomToolbarStore.useState()
+	const roomToolbarActions = RoomToolbarStore.useActions()
+	const [previewArea, setPreviewArea] = useState<Rect>()
 
 	const bindDrag = useGesture(
 		{
@@ -126,6 +133,187 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 			.css.translate()
 	}
 
+	let tokenElements = (
+		<>
+			{/* sort so characters are last and are on top of everything else */}
+			{sortBy(tokens ?? [], (it) => (it.character ? 1 : 0))?.map((token) => (
+				<div {...getTokenProps(token)} key={token.key}>
+					<DragSelectable
+						{...bindDrag()}
+						className="group touch-none rounded"
+						store={dragSelectStore}
+						item={token.key}
+					>
+						{token.character && (
+							<UploadedImage
+								id={token.character.imageId}
+								style={{
+									width: scene.cellSize,
+									height: scene.cellSize,
+								}}
+								emptyIcon={<Lucide.Ghost />}
+								className={{
+									container: "overflow-clip rounded shadow-md shadow-black/50 bg-primary-300",
+									image: "object-top object-cover",
+								}}
+							/>
+						)}
+						{token.area && (
+							<div
+								className="rounded border-4 border-blue-500 bg-blue-500/30"
+								style={pick(token.area, ["width", "height"])}
+							/>
+						)}
+						<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+					</DragSelectable>
+				</div>
+			))}
+
+			{/* character token decorations */}
+			{Iterator.from(tokens ?? [])
+				?.map((token) => token.character && { token, character: token.character })
+				.filter((it) => it != null)
+				.map(({ token, character }) => (
+					<div
+						className="pointer-events-none absolute left-0 top-0 origin-top-left"
+						style={{ translate: getTokenTranslate(token) }}
+						key={token.key}
+					>
+						<div
+							className="relative"
+							style={{
+								width: scene.cellSize * viewport.scale,
+								height: scene.cellSize * viewport.scale,
+							}}
+						>
+							<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
+								<TokenMeter
+									value={character.damage / character.damageThreshold}
+									className={{
+										base: "text-yellow-400",
+										warning: "text-orange-400",
+										danger: "text-red-400",
+									}}
+								/>
+								<TokenMeter
+									value={character.fatigue / character.fatigueThreshold}
+									className={{
+										base: "text-green-400",
+										warning: "text-blue-400",
+										danger: "text-purple-400",
+									}}
+								/>
+							</div>
+							<TokenLabel text={character.displayName} subText={character.displayPronouns} />
+						</div>
+					</div>
+				))
+				.toArray()}
+
+			{/* area sizes */}
+			{Iterator.from(tokens ?? [])
+				?.map((token) => {
+					if (!token.area) return
+					return {
+						token,
+						area: token.area,
+						gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).floor,
+					}
+				})
+				.filter((it) => it != null)
+				.map(({ token, area, gridSize }) => (
+					<div
+						className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
+						style={{
+							...pick(area, ["width", "height"]),
+							translate: getTokenTranslate(token),
+							scale: viewport.scale,
+						}}
+						key={token.key}
+					>
+						<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
+							{gridSize.x}x{gridSize.y}
+						</p>
+					</div>
+				))
+				.toArray()}
+		</>
+	)
+
+	if (roomToolbarState.activeTool === RoomTool.Draw) {
+		const gridSnappedPreviewArea =
+			previewArea &&
+			Rect.from({
+				topLeft: previewArea.topLeft
+					.minus(viewport.offset)
+					.floorTo(scene.cellSize * viewport.scale)
+					.plus(viewport.offset),
+				bottomRight: previewArea.bottomRight
+					.minus(viewport.offset)
+					.ceilingTo(scene.cellSize * viewport.scale)
+					.plus(viewport.offset),
+			})
+
+		const gridSize = gridSnappedPreviewArea?.size.dividedBy(scene.cellSize * viewport.scale).rounded
+
+		tokenElements = (
+			<RectDrawArea
+				className="absolute inset-0"
+				preview={false}
+				rect={previewArea}
+				onRectChange={setPreviewArea}
+				onFinish={() => {
+					if (!gridSnappedPreviewArea) {
+						throw new Error("grid preview area is undefined")
+					}
+
+					const position = gridSnappedPreviewArea.topLeft
+						.minus(viewport.offset)
+						.dividedBy(viewport.scale).xy
+
+					const size = gridSnappedPreviewArea.size.dividedBy(viewport.scale).toSize()
+
+					addToken({
+						sceneId: scene._id,
+						visible: true,
+						position: position,
+						area: {
+							...size,
+							color: randomItem(["red", "orange", "yellow", "green", "blue", "purple"]),
+						},
+					})
+					roomToolbarActions.enableSelectTool()
+				}}
+			>
+				<div className="pointer-events-none size-full opacity-50">{tokenElements}</div>
+				{gridSnappedPreviewArea && (
+					<div
+						className="flex-center absolute left-0 top-0 rounded border-4 border-blue-500 bg-blue-500/30"
+						style={{
+							translate: gridSnappedPreviewArea.topLeft.css.translate(),
+							...gridSnappedPreviewArea.size.toSize(),
+						}}
+					>
+						<p className="rounded-lg bg-black p-3 text-xl/none font-bold text-white opacity-50">
+							{gridSize?.x}x{gridSize?.y}
+						</p>
+					</div>
+				)}
+			</RectDrawArea>
+		)
+	} else {
+		tokenElements = (
+			<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
+				{tokenElements}
+				<TokenMenu
+					store={tokenMenuStore}
+					anchor={tokenMenuAnchorRect}
+					selectedTokens={selectedTokens}
+				/>
+			</DragSelectArea>
+		)
+	}
+
 	return (
 		<CharacterDnd.Dropzone
 			className="absolute inset-0"
@@ -152,116 +340,7 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 				}
 			}}
 		>
-			<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
-				{/* sort so characters are last and are on top of everything else */}
-				{sortBy(tokens ?? [], (it) => (it.character ? 1 : 0))?.map((token) => (
-					<div {...getTokenProps(token)} key={token.key}>
-						<DragSelectable
-							{...bindDrag()}
-							className="group touch-none rounded"
-							store={dragSelectStore}
-							item={token.key}
-						>
-							{token.character && (
-								<UploadedImage
-									id={token.character.imageId}
-									style={{
-										width: scene.cellSize,
-										height: scene.cellSize,
-									}}
-									emptyIcon={<Lucide.Ghost />}
-									className={{
-										container: "overflow-clip rounded shadow-md shadow-black/50 bg-primary-300",
-										image: "object-top object-cover",
-									}}
-								/>
-							)}
-							{token.area && (
-								<div
-									className="rounded border-4 border-blue-500 bg-blue-500/30"
-									style={pick(token.area, ["width", "height"])}
-								/>
-							)}
-							<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
-						</DragSelectable>
-					</div>
-				))}
-
-				{/* character token decorations */}
-				{Iterator.from(tokens ?? [])
-					?.map((token) => token.character && { token, character: token.character })
-					.filter((it) => it != null)
-					.map(({ token, character }) => (
-						<div
-							className="pointer-events-none absolute left-0 top-0 origin-top-left"
-							style={{ translate: getTokenTranslate(token) }}
-							key={token.key}
-						>
-							<div
-								className="relative"
-								style={{
-									width: scene.cellSize * viewport.scale,
-									height: scene.cellSize * viewport.scale,
-								}}
-							>
-								<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
-									<TokenMeter
-										value={character.damage / character.damageThreshold}
-										className={{
-											base: "text-yellow-400",
-											warning: "text-orange-400",
-											danger: "text-red-400",
-										}}
-									/>
-									<TokenMeter
-										value={character.fatigue / character.fatigueThreshold}
-										className={{
-											base: "text-green-400",
-											warning: "text-blue-400",
-											danger: "text-purple-400",
-										}}
-									/>
-								</div>
-								<TokenLabel text={character.displayName} subText={character.displayPronouns} />
-							</div>
-						</div>
-					))
-					.toArray()}
-
-				{/* area sizes */}
-				{Iterator.from(tokens ?? [])
-					?.map((token) => {
-						if (!token.area) return
-						return {
-							token,
-							area: token.area,
-							gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).floor,
-						}
-					})
-					.filter((it) => it != null)
-					.map(({ token, area, gridSize }) => (
-						<div
-							className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
-							style={{
-								...pick(area, ["width", "height"]),
-								translate: getTokenTranslate(token),
-								scale: viewport.scale,
-							}}
-							key={token.key}
-						>
-							<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
-								{gridSize.x}x{gridSize.y}
-							</p>
-						</div>
-					))
-					.toArray()}
-
-				<TokenMenu
-					store={tokenMenuStore}
-					anchor={tokenMenuAnchorRect}
-					selectedTokens={selectedTokens}
-				/>
-			</DragSelectArea>
+			{tokenElements}
 		</CharacterDnd.Dropzone>
 	)
 }
@@ -372,6 +451,23 @@ function CharacterSkillsShortList({ character }: { character: ApiCharacter }) {
 	)
 }
 
+function useAddTokenMutation() {
+	const characters = useCharacters()
+	return useMutation(api.scenes.tokens.add).withOptimisticUpdate((store, args) => {
+		const charactersById = keyedByProperty(characters, "_id")
+		for (const entry of queryMutators(store, api.scenes.tokens.list)) {
+			entry.set([
+				...entry.value,
+				{
+					...args,
+					key: crypto.randomUUID() as Branded<"token">,
+					character: args.characterId ? charactersById.get(args.characterId) : undefined,
+				},
+			])
+		}
+	})
+}
+
 function useUpdateTokenMutation() {
 	return useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
 		for (const entry of queryMutators(store, api.scenes.tokens.list)) {
@@ -387,6 +483,7 @@ export function TokenLabel(props: { text: string; subText: string }) {
 
 	// this needs to ignore pointer events for dragging and other stuff to work,
 	// so we'll use a global listener and check position instead for this
+	// TODO: use a portal instead, probably
 	useWindowEvent("pointermove", (event) => {
 		if (!hoverAreaRef.current) return
 		const rect = Rect.from(hoverAreaRef.current.getBoundingClientRect())

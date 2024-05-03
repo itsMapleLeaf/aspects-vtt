@@ -10,6 +10,7 @@ import { CharacterSelectionProvider } from "../../../features/characters/Charact
 import { MessageForm } from "../../../features/messages/MessageForm.tsx"
 import { MessageList } from "../../../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../../../features/rooms/CombatInitiative.tsx"
+import { RoomTool, RoomToolbarStore } from "../../../features/rooms/RoomToolbarStore.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../../../features/rooms/roomContext.tsx"
 import { SceneList } from "../../../features/scenes/SceneList.tsx"
 import { SceneMapBackground } from "../../../features/scenes/SceneMapBackground.tsx"
@@ -35,26 +36,28 @@ export default function RoomIndexRoute() {
 	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
 	return (
 		<CharacterSelectionProvider>
+			<JoinRoomEffect />
 			<ViewportStore.Provider>
-				<JoinRoomEffect />
-				{scene && (
-					<div className="fixed inset-0 -z-10 select-none">
-						<ViewportWheelInput>
-							<SceneMapBackground scene={scene} />
-							<SceneGrid scene={scene} />
-							<ViewportDragInput>
-								<SceneTokens scene={scene} />
-							</ViewportDragInput>
-						</ViewportWheelInput>
-					</div>
-				)}
-				<div
-					className={translucentPanel(
-						"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
+				<RoomToolbarStore.Provider>
+					{scene && (
+						<div className="fixed inset-0 -z-10 select-none">
+							<ViewportWheelInput>
+								<SceneMapBackground scene={scene} />
+								<SceneGrid scene={scene} />
+								<ViewportDragInput>
+									<SceneTokens scene={scene} />
+								</ViewportDragInput>
+							</ViewportWheelInput>
+						</div>
 					)}
-				>
-					<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
-				</div>
+					<div
+						className={translucentPanel(
+							"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
+						)}
+					>
+						<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
+					</div>
+				</RoomToolbarStore.Provider>
 				<SceneHeading />
 				<CharacterListPanel />
 				<MessagesPanel />
@@ -147,13 +150,14 @@ function RoomToolbar() {
 }
 
 function AreaToolButton() {
-	// const sceneContext = useSceneContext()
+	const state = RoomToolbarStore.useState()
+	const actions = RoomToolbarStore.useActions()
 	return (
 		<ToolbarButton
 			text="Draw Area"
 			icon={<Lucide.SquareDashedMousePointer />}
-			// active={sceneContext.isDrawInput}
-			// onClick={sceneContext.toggleDrawInputMode}
+			active={state.activeTool === RoomTool.Draw}
+			onClick={actions.toggleDrawTool}
 		/>
 	)
 }
