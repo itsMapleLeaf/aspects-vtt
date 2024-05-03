@@ -23,6 +23,7 @@ import { ModalButton } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
+import { CharacterDnd } from "../characters/CharacterDnd.tsx"
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
@@ -36,6 +37,7 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 	const viewport = ViewportStore.useState()
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id }) ?? []
 	const [dragOffset, setDragOffset] = useState(Vector.zero)
+	const addToken = useMutation(api.scenes.tokens.add)
 	const updateToken = useUpdateTokenMutation()
 	const dragSelectStore = useDragSelectStore<ApiToken["key"]>()
 
@@ -125,115 +127,142 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 	}
 
 	return (
-		<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
-			{/* sort so characters are last and are on top of everything else */}
-			{sortBy(tokens ?? [], (it) => (it.character ? 1 : 0))?.map((token) => (
-				<div {...getTokenProps(token)} key={token.key}>
-					<DragSelectable
-						{...bindDrag()}
-						className="group touch-none rounded"
-						store={dragSelectStore}
-						item={token.key}
-					>
-						{token.character && (
-							<UploadedImage
-								id={token.character.imageId}
-								style={{
-									width: scene.cellSize,
-									height: scene.cellSize,
-								}}
-								className={{
-									container: "overflow-clip rounded shadow-md shadow-black/50",
-									image: "object-top object-cover",
-								}}
-							/>
-						)}
-						{token.area && (
-							<div
-								className="rounded border-4 border-blue-500 bg-blue-500/30"
-								style={pick(token.area, ["width", "height"])}
-							/>
-						)}
-						<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
-					</DragSelectable>
-				</div>
-			))}
+		<CharacterDnd.Dropzone
+			className="absolute inset-0"
+			onDrop={(character, event) => {
+				const position = Vector.from(event.clientX, event.clientY)
+					.minus(viewport.offset)
+					.minus((scene.cellSize / 2) * viewport.scale)
+					.dividedBy(viewport.scale).xy
 
-			{/* character token decorations */}
-			{Iterator.from(tokens ?? [])
-				?.map((token) => token.character && { token, character: token.character })
-				.filter((it) => it != null)
-				.map(({ token, character }) => (
-					<div
-						className="pointer-events-none absolute left-0 top-0 origin-top-left"
-						style={{ translate: getTokenTranslate(token) }}
-						key={token.key}
-					>
-						<div
-							className="relative"
-							style={{
-								width: scene.cellSize * viewport.scale,
-								height: scene.cellSize * viewport.scale,
-							}}
+				const existing = tokens.find((it) => it.character?._id === character._id)
+				if (existing) {
+					updateToken({
+						key: existing.key,
+						sceneId: scene._id,
+						position,
+					})
+				} else {
+					addToken({
+						sceneId: scene._id,
+						characterId: character._id,
+						position,
+						visible: character.visible,
+					})
+				}
+			}}
+		>
+			<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
+				{/* sort so characters are last and are on top of everything else */}
+				{sortBy(tokens ?? [], (it) => (it.character ? 1 : 0))?.map((token) => (
+					<div {...getTokenProps(token)} key={token.key}>
+						<DragSelectable
+							{...bindDrag()}
+							className="group touch-none rounded"
+							store={dragSelectStore}
+							item={token.key}
 						>
-							<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
-								<TokenMeter
-									value={character.damage / character.damageThreshold}
+							{token.character && (
+								<UploadedImage
+									id={token.character.imageId}
+									style={{
+										width: scene.cellSize,
+										height: scene.cellSize,
+									}}
+									emptyIcon={<Lucide.Ghost />}
 									className={{
-										base: "text-yellow-400",
-										warning: "text-orange-400",
-										danger: "text-red-400",
+										container: "overflow-clip rounded shadow-md shadow-black/50 bg-primary-300",
+										image: "object-top object-cover",
 									}}
 								/>
-								<TokenMeter
-									value={character.fatigue / character.fatigueThreshold}
-									className={{
-										base: "text-green-400",
-										warning: "text-blue-400",
-										danger: "text-purple-400",
-									}}
+							)}
+							{token.area && (
+								<div
+									className="rounded border-4 border-blue-500 bg-blue-500/30"
+									style={pick(token.area, ["width", "height"])}
 								/>
+							)}
+							<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+						</DragSelectable>
+					</div>
+				))}
+
+				{/* character token decorations */}
+				{Iterator.from(tokens ?? [])
+					?.map((token) => token.character && { token, character: token.character })
+					.filter((it) => it != null)
+					.map(({ token, character }) => (
+						<div
+							className="pointer-events-none absolute left-0 top-0 origin-top-left"
+							style={{ translate: getTokenTranslate(token) }}
+							key={token.key}
+						>
+							<div
+								className="relative"
+								style={{
+									width: scene.cellSize * viewport.scale,
+									height: scene.cellSize * viewport.scale,
+								}}
+							>
+								<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
+									<TokenMeter
+										value={character.damage / character.damageThreshold}
+										className={{
+											base: "text-yellow-400",
+											warning: "text-orange-400",
+											danger: "text-red-400",
+										}}
+									/>
+									<TokenMeter
+										value={character.fatigue / character.fatigueThreshold}
+										className={{
+											base: "text-green-400",
+											warning: "text-blue-400",
+											danger: "text-purple-400",
+										}}
+									/>
+								</div>
+								<TokenLabel text={character.displayName} subText={character.displayPronouns} />
 							</div>
-							<TokenLabel text={character.displayName} subText={character.displayPronouns} />
 						</div>
-					</div>
-				))
-				.toArray()}
+					))
+					.toArray()}
 
-			{/* area sizes */}
-			{Iterator.from(tokens ?? [])
-				?.map((token) => {
-					if (!token.area) return
-					return {
-						token,
-						area: token.area,
-						gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).floor,
-					}
-				})
-				.filter((it) => it != null)
-				.map(({ token, area, gridSize }) => (
-					<div
-						className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
-						style={{
-							...pick(area, ["width", "height"]),
-							translate: getTokenTranslate(token),
-							scale: viewport.scale,
-						}}
-						key={token.key}
-					>
-						<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
-							{gridSize.x}x{gridSize.y}
-						</p>
-					</div>
-				))
-				.toArray()}
+				{/* area sizes */}
+				{Iterator.from(tokens ?? [])
+					?.map((token) => {
+						if (!token.area) return
+						return {
+							token,
+							area: token.area,
+							gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).floor,
+						}
+					})
+					.filter((it) => it != null)
+					.map(({ token, area, gridSize }) => (
+						<div
+							className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
+							style={{
+								...pick(area, ["width", "height"]),
+								translate: getTokenTranslate(token),
+								scale: viewport.scale,
+							}}
+							key={token.key}
+						>
+							<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
+								{gridSize.x}x{gridSize.y}
+							</p>
+						</div>
+					))
+					.toArray()}
 
-			<TokenMenu
-				store={tokenMenuStore}
-				anchor={tokenMenuAnchorRect}
-				selectedTokens={selectedTokens}
-			/>
-		</DragSelectArea>
+				<TokenMenu
+					store={tokenMenuStore}
+					anchor={tokenMenuAnchorRect}
+					selectedTokens={selectedTokens}
+				/>
+			</DragSelectArea>
+		</CharacterDnd.Dropzone>
 	)
 }
 

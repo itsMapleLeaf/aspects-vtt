@@ -6,7 +6,6 @@ import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import { groupBy } from "../../common/collection.ts"
 import { useMutationAction } from "../../common/convex.ts"
-import { expect } from "../../common/expect.ts"
 import { useEffectEvent } from "../../common/react.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
@@ -17,7 +16,7 @@ import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
-import { defineSceneMapDropData } from "../scenes/SceneMap.tsx"
+import { CharacterDnd } from "./CharacterDnd.tsx"
 import { CharacterModal } from "./CharacterModal.tsx"
 import { useCharacterSelection } from "./CharacterSelectionProvider.tsx"
 import type { ApiCharacter } from "./types.ts"
@@ -80,32 +79,19 @@ function CharacterTile({
 						? "text-primary-700"
 						: "opacity-75 hover:opacity-100",
 				)}
-				draggable
-				onDragStart={(event: React.DragEvent<HTMLButtonElement>) => {
-					const image = expect(
-						event.currentTarget.querySelector("[data-image]"),
-						"couldn't find drag image",
-					)
-					const rect = image.getBoundingClientRect()
-					event.dataTransfer.setDragImage(image, rect.width / 2, rect.height / 2)
-					event.dataTransfer.setData(
-						"text/plain",
-						JSON.stringify(
-							defineSceneMapDropData({
-								characterId: character._id,
-							}),
-						),
-					)
-				}}
 				{...props}
 			>
 				<div className={panel("overflow-clip aspect-square relative flex-center")}>
-					<UploadedImage
-						id={character.imageId}
-						emptyIcon={<Lucide.Ghost />}
-						className={character.visible ? "" : "opacity-50"}
-						data-image
-					/>
+					<CharacterDnd.Draggable data={character} className="size-full">
+						<UploadedImage
+							id={character.imageId}
+							emptyIcon={<Lucide.Ghost />}
+							className={{
+								container: `size-full ${character.visible ? "" : "opacity-50"}`,
+								image: "object-cover object-top",
+							}}
+						/>
+					</CharacterDnd.Draggable>
 					{character.visible ? null : <Lucide.EyeOff className="absolute size-8 opacity-50" />}
 				</div>
 				<p className="text-pretty text-center text-sm/none">{character.displayName}</p>

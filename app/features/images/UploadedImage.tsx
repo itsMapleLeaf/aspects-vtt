@@ -1,3 +1,4 @@
+import { LucideImageOff } from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 import type { Id } from "../../../convex/_generated/dataModel.js"
@@ -13,7 +14,12 @@ type UploadedImageProps = Overwrite<
 	}
 >
 
-export function UploadedImage({ id, emptyIcon, className, ...props }: UploadedImageProps) {
+export function UploadedImage({
+	id,
+	emptyIcon = <LucideImageOff />,
+	className,
+	...props
+}: UploadedImageProps) {
 	const imageUrl = id ? getApiImageUrl(id) : undefined
 	const resolvedClassName = typeof className === "string" ? { container: className } : className
 	return (
@@ -26,13 +32,14 @@ export function UploadedImage({ id, emptyIcon, className, ...props }: UploadedIm
 					src={imageUrl}
 					alt=""
 					className={twMerge(
-						"size-full object-contain [will-change:transform]",
+						// will-change-transform keeps the image from looking super grainy with certain other classes
+						"size-full object-contain will-change-transform",
 						resolvedClassName?.image,
 					)}
 					draggable={false}
 				/>
 			) : (
-				<div className="flex-center size-full p-2 text-primary-600 opacity-50 *:size-full empty:hidden">
+				<div className="flex-center size-full text-primary-600 opacity-50 *:size-3/4 empty:hidden">
 					{emptyIcon}
 				</div>
 			)}
