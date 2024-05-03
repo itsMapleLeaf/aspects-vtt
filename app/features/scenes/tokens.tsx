@@ -421,18 +421,20 @@ function TokenMenu({
 					)}
 
 					{/* todo */}
-					{selectionHasCharacters && <Button tooltip="Update stress" icon={<Lucide.Brain />} />}
+					{selectionHasCharacters && <Button tooltip="Update fatigue" icon={<Lucide.Brain />} />}
 
-					<Button
-						tooltip="Choose random"
-						icon={<Lucide.Shuffle />}
-						onClick={() => {
-							const token = randomItem(selectedTokens)
-							if (token) {
-								onTokenSelected(token)
-							}
-						}}
-					/>
+					{selectedTokens.length >= 2 && (
+						<Button
+							tooltip="Choose random"
+							icon={<Lucide.Shuffle />}
+							onClick={() => {
+								const token = randomItem(selectedTokens)
+								if (token) {
+									onTokenSelected(token)
+								}
+							}}
+						/>
+					)}
 
 					{room.isOwner && scene && selectedTokens.some((it) => !it.visible) && (
 						<Button
