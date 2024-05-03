@@ -230,7 +230,7 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 					return {
 						token,
 						area: token.area,
-						gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).floor,
+						gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).rounded,
 					}
 				})
 				.filter((it) => it != null)
