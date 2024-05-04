@@ -1,4 +1,6 @@
 import {
+	type ReactNode,
+	isValidElement,
 	useCallback,
 	useEffect,
 	useInsertionEffect,
@@ -53,4 +55,14 @@ export function useFilter<T>(input: T, predicate: (input: T) => unknown) {
 		setState(input)
 	}
 	return state
+}
+
+export function isReactNode(value: unknown): value is ReactNode {
+	return (
+		typeof value === "string" ||
+		typeof value === "number" ||
+		typeof value === "boolean" ||
+		(Array.isArray(value) && value.every(isReactNode)) ||
+		isValidElement(value)
+	)
 }
