@@ -43,7 +43,7 @@ export function Button({
 }: ButtonProps) {
 	const [onClickPending, setOnClickPending] = useState(false)
 	const status = useFormStatus()
-	const pending = pendingProp || (status.pending && props.type === "submit") || onClickPending
+	const pending = pendingProp ?? ((status.pending && props.type === "submit") || onClickPending)
 
 	const className = buttonStyle({ size })
 
