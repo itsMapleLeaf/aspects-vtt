@@ -20,18 +20,16 @@ export function RoomSettingsForm() {
 			<div>
 				{scene && (
 					<>
-						<FormField label="Scene Name" htmlFor="sceneName">
+						<FormField label="Scene Name">
 							<EditableInput
-								id="sceneName"
 								value={scene.name}
 								onSubmit={(name) => updateScene({ id: scene._id, name })}
 							/>
 						</FormField>
 
 						<FormRow className="items-end">
-							<FormField label="Cell Size" htmlFor="sceneCellSize" className="basis-24">
+							<FormField label="Cell Size" className="basis-24">
 								<EditableIntegerInput
-									id="sceneCellSize"
 									align="center"
 									value={scene.cellSize}
 									onSubmit={(cellSize) => updateScene({ id: scene._id, cellSize })}
@@ -44,18 +42,16 @@ export function RoomSettingsForm() {
 					</>
 				)}
 
-				<FormField label="Experience" htmlFor="experience">
+				<FormField label="Experience">
 					<EditableIntegerInput
-						id="experience"
 						value={room.experience}
 						onSubmit={(experience) => updateRoom({ id: room._id, experience })}
 					/>
 				</FormField>
 
 				<fieldset className="flex items-stretch gap-[inherit]">
-					<FormField label="Year" htmlFor="year" className="basis-20">
+					<FormField label="Year" className="basis-20">
 						<EditableIntegerInput
-							id="year"
 							align="center"
 							min={1}
 							value={gameTime.year + 1}
@@ -75,9 +71,8 @@ export function RoomSettingsForm() {
 						onChange={console.log}
 					/>
 
-					<FormField label="Day" htmlFor="day" className="basis-20">
+					<FormField label="Day" className="basis-20">
 						<EditableIntegerInput
-							id="day"
 							align="center"
 							min={1}
 							value={gameTime.day + 1}
