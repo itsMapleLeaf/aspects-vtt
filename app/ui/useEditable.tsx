@@ -1,9 +1,13 @@
 import { type ComponentProps, type ComponentType, useState } from "react"
-import type { Overwrite } from "../common/types.ts"
+import type { Awaitable, Overwrite } from "../common/types.ts"
+import type { DietUnknown } from "../common/types.ts"
+import type { TODO } from "../common/types.ts"
 
 export interface EditableOptions<T> {
 	value: T
-	onSubmit: (value: T) => unknown
+	validate?: (value: T) => string | undefined
+	onSubmit: (value: T) => Awaitable<DietUnknown | typeof CancelSubmit>
+	onChangeInternal?: (value: T) => void
 }
 
 export type EditableComponentProps<Comp extends ComponentType, Value> = Overwrite<
@@ -15,23 +19,47 @@ interface ChangeEventLike<Value> {
 	currentTarget: { value: Value }
 }
 
-const empty = Symbol()
+const Empty = Symbol()
+export const CancelSubmit = Symbol()
 
-export function useEditable<Value>({ value, onSubmit }: EditableOptions<Value>) {
-	const [valueInternal, setValueInternal] = useState<Value | typeof empty>(empty)
+export function useEditable<
+	Value,
+	Props extends {
+		onChange?: (event: TODO) => void
+		onBlur?: (event: TODO) => void
+		onKeyDown?: (event: TODO) => void
+	},
+>({ value, validate, onSubmit, onChangeInternal, ...baseProps }: EditableOptions<Value> & Props) {
+	const [valueInternal, setValueInternal] = useState<Value | typeof Empty>(Empty)
 	const [pending, setPending] = useState(false)
+	const validationError = valueInternal === Empty ? undefined : validate?.(valueInternal)
+	const invalid = !!validationError
+
+	function handleChangeInternal(value: Value) {
+		setValueInternal(value)
+		onChangeInternal?.(value)
+	}
+
+	function clearValue() {
+		setValueInternal(Empty)
+	}
 
 	function submit() {
-		if (valueInternal === empty || valueInternal === value) {
+		if (valueInternal === Empty || valueInternal === value || invalid) {
 			return
 		}
 
 		void (async () => {
 			setPending(true)
 			try {
-				await onSubmit(valueInternal)
-			} catch (error) {
-				console.error(error)
+				const result = await onSubmit(valueInternal)
+				if (result !== CancelSubmit) {
+					clearValue()
+				}
+			} catch (cause) {
+				if (cause !== CancelSubmit) {
+					console.error(cause)
+				}
 			}
 			setPending(false)
 		})()
@@ -39,39 +67,37 @@ export function useEditable<Value>({ value, onSubmit }: EditableOptions<Value>) 
 
 	return {
 		pending,
+		invalid,
+		validationError,
 		submit,
-		inputProps: <
-			ChangeEvent extends ChangeEventLike<Value>,
-			BlurEvent,
-			KeyDownEvent extends React.KeyboardEvent,
-		>(baseProps: {
-			onChange?: (event: ChangeEvent) => void
-			onBlur?: (event: BlurEvent) => void
-			onKeyDown?: (event: KeyDownEvent) => void
-		}) => ({
-			value: valueInternal === empty ? value : valueInternal,
-			onChange: (input: Value | ChangeEvent) => {
+		inputProps: {
+			...baseProps,
+			value: valueInternal === Empty ? value : valueInternal,
+
+			onChange: (input: Value | ChangeEventLike<Value>) => {
 				if (pending) {
 					return
 				}
 
 				if (typeof input === "object" && input !== null && "currentTarget" in input) {
-					setValueInternal(input.currentTarget.value)
+					handleChangeInternal(input.currentTarget.value)
 					baseProps.onChange?.(input)
 				} else {
-					setValueInternal(input)
+					handleChangeInternal(input)
 				}
 			},
-			onBlur: (event: BlurEvent) => {
+
+			onBlur: (event: React.FocusEvent) => {
 				baseProps.onBlur?.(event)
 				submit()
 			},
-			onKeyDown: (event: KeyDownEvent) => {
+
+			onKeyDown: (event: React.KeyboardEvent) => {
 				baseProps?.onKeyDown?.(event)
 				if (event.key === "Escape") {
 					event.preventDefault()
 					event.stopPropagation()
-					setValueInternal(empty)
+					clearValue()
 				}
 				if (event.key === "Enter") {
 					event.preventDefault()
@@ -79,6 +105,6 @@ export function useEditable<Value>({ value, onSubmit }: EditableOptions<Value>) 
 					submit()
 				}
 			},
-		}),
+		},
 	}
 }

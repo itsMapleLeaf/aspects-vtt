@@ -10,7 +10,11 @@ export function EditableInput(
 	const classes = resolveClasses(props.className, "wrapper")
 	return (
 		<LoadingDecoration pending={editable.pending} className={classes.wrapper}>
-			<Input {...editable.inputProps(props)} className={classes.input} />
+			<Input
+				{...editable.inputProps}
+				invalid={props.invalid ?? editable.invalid}
+				className={classes.input}
+			/>
 		</LoadingDecoration>
 	)
 }

@@ -37,3 +37,9 @@ export type UndefinedToOptional<T> = Simplify<
 		[K in keyof T as undefined extends T[K] ? K : never]?: T[K]
 	}
 >
+
+// biome-ignore lint/complexity/noBannedTypes: this is useful when you need an "unknown" that doesn't swallow other types in the union
+export type DietUnknown = {} | undefined | null
+
+// biome-ignore lint/suspicious/noExplicitAny: this type is used to mark places that need a fix
+export type TODO = any

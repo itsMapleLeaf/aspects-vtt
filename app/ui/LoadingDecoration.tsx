@@ -12,7 +12,7 @@ export function LoadingDecoration({ pending, children, ...props }: LoadingDecora
 			{children}
 			<div
 				data-pending={pending}
-				className="flex-center pointer-events-none absolute inset-y-0 right-0 aspect-square opacity-0 data-[pending=true]:opacity-50"
+				className="flex-center pointer-events-none absolute inset-y-0 right-0 aspect-square opacity-0 transition data-[pending=true]:opacity-50"
 			>
 				<Loading size="sm" className="p-0" />
 			</div>
