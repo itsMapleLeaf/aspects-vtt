@@ -55,7 +55,7 @@ export function ToolbarPopoverButton(props: {
 				gutter={24}
 				autoFocusOnShow={false}
 				autoFocusOnHide={false}
-				className="relative max-h-[calc(100dvh-8rem)] w-[360px] overflow-y-auto bg-primary-100/75 backdrop-blur-sm"
+				className="relative max-h-[calc(100dvh-8rem)] w-[400px] overflow-y-auto bg-primary-100/75 backdrop-blur-sm"
 			>
 				{props.children}
 			</PopoverPanel>

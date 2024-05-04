@@ -4,12 +4,12 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect } from "react"
 import { api } from "../../../../convex/_generated/api.js"
-import { useMutationState } from "../../../common/convex.ts"
 import { CharacterListPanel } from "../../../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../../../features/characters/CharacterSelectionProvider"
 import { MessageForm } from "../../../features/messages/MessageForm.tsx"
 import { MessageList } from "../../../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../../../features/rooms/CombatInitiative.tsx"
+import { RoomSettingsForm } from "../../../features/rooms/RoomSettingsForm.tsx"
 import { RoomTool, RoomToolbarStore } from "../../../features/rooms/RoomToolbarStore.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../../../features/rooms/roomContext.tsx"
 import { SceneList } from "../../../features/scenes/SceneList.tsx"
@@ -19,14 +19,10 @@ import { SceneTokens } from "../../../features/scenes/tokens.tsx"
 import { ViewportStore } from "../../../features/scenes/viewport.tsx"
 import { ViewportDragInput } from "../../../features/scenes/viewport.tsx"
 import { ViewportWheelInput } from "../../../features/scenes/viewport.tsx"
-import { SetMapBackgroundButton } from "../../../features/tokens/SetMapBackgroundButton.tsx"
 import { AppHeader } from "../../../ui/AppHeader.tsx"
 import { DefinitionList } from "../../../ui/DefinitionList.tsx"
-import { FormField, FormLayout, FormRow } from "../../../ui/Form.tsx"
-import { Input } from "../../../ui/Input.tsx"
 import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../../ui/Modal.tsx"
 import { ToggleableSidebar } from "../../../ui/ToggleableSidebar.tsx"
-import { ValidatedInput } from "../../../ui/ValidatedInput"
 import { panel, translucentPanel } from "../../../ui/styles.ts"
 import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./Toolbar"
 
@@ -281,64 +277,6 @@ function GeneralSkillsList() {
 		<DefinitionList
 			items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name))}
 		/>
-	)
-}
-
-function RoomSettingsForm() {
-	const room = useRoom()
-	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
-	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
-	const [updateSceneState, updateScene] = useMutationState(api.scenes.update)
-	return (
-		<FormLayout className="grid gap-2">
-			{scene && (
-				<>
-					<FormField label="Scene Name" htmlFor="sceneName">
-						<Input
-							id="sceneName"
-							type="text"
-							className="w-full"
-							value={updateSceneState.args?.name ?? scene.name}
-							onChange={(event) => {
-								const value = event.currentTarget.value
-								updateScene({ id: scene._id, name: value })
-							}}
-						/>
-					</FormField>
-					<FormRow className="items-end">
-						<FormField label="Cell Size" htmlFor="cellSize">
-							<ValidatedInput
-								id="cellSize"
-								placeholder="70"
-								className="w-20"
-								value={updateSceneState.args?.cellSize ?? scene.cellSize}
-								parse={(input) => {
-									const value = Number(input)
-									return Number.isInteger(value) && value >= 8 ? value : undefined
-								}}
-								onChangeValid={(value) => {
-									updateScene({ id: scene._id, cellSize: value })
-								}}
-							/>
-						</FormField>
-						<div className="flex-1">
-							<SetMapBackgroundButton scene={scene} />
-						</div>
-					</FormRow>
-				</>
-			)}
-			<FormField label="Experience">
-				<ValidatedInput
-					placeholder="420"
-					value={updateRoomState.args?.experience ?? room.experience}
-					parse={(input) => {
-						const value = Number(input)
-						return Number.isInteger(value) && value >= 0 ? value : undefined
-					}}
-					onChangeValid={(value) => updateRoom({ id: room._id, experience: value })}
-				/>
-			</FormField>
-		</FormLayout>
 	)
 }
 

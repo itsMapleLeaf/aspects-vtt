@@ -20,6 +20,8 @@
     "@ariakit/react": "^0.4.6",
     "@clerk/remix": "4.0.1",
     "@clerk/themes": "2.0.1",
+    "@conform-to/react": "1.1.3",
+    "@conform-to/zod": "1.1.3",
     "@floating-ui/react": "0.26.12",
     "@floating-ui/react-dom": "2.0.8",
     "@fontsource-variable/nunito": "5.0.19",
