@@ -5,19 +5,29 @@ import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
 import { menuItemStyle, menuPanelStyle } from "./Menu.tsx"
 
-export function Select<T extends string>(props: {
+export type SelectOption<T> =
+	| { id?: string | undefined; label: ReactNode; value: Extract<T, string> }
+	| { id: string; label: ReactNode; value: T }
+
+export function Select<T>(props: {
 	label: ReactNode
-	value: string | undefined
-	options: Array<{ label: ReactNode; value: T }>
+	value: T | undefined
+	options: SelectOption<T>[]
 	placeholder?: ReactNode
 	onChange: (value: T) => void
 	className?: string
 }) {
+	const currentOption = props.options.find((it) => it.value === props.value)
+
+	function getOptionId(option: SelectOption<T>) {
+		return "id" in option ? option.id : option.value
+	}
+
 	return (
 		<Ariakit.SelectProvider
-			value={props.value}
-			setValue={(value) => {
-				const option = props.options.find((o) => o.value === value)
+			value={currentOption && getOptionId(currentOption)}
+			setValue={(id) => {
+				const option = props.options.find((it) => id === getOptionId(it))
 				if (option) props.onChange(option.value)
 			}}
 		>
@@ -28,7 +38,7 @@ export function Select<T extends string>(props: {
 				<Button
 					icon={<Lucide.ChevronDown />}
 					text={
-						props.options.find((o) => o.value === props.value)?.label ?? (
+						currentOption?.label ?? (
 							<span className="opacity-50">{props.placeholder ?? "Choose one"}</span>
 						)
 					}
@@ -38,7 +48,11 @@ export function Select<T extends string>(props: {
 			</FormField>
 			<Ariakit.SelectPopover portal gutter={8} sameWidth className={menuPanelStyle()}>
 				{props.options.map((option) => (
-					<Ariakit.SelectItem key={option.value} value={option.value} className={menuItemStyle()}>
+					<Ariakit.SelectItem
+						key={getOptionId(option)}
+						value={getOptionId(option)}
+						className={menuItemStyle()}
+					>
 						{option.label}
 					</Ariakit.SelectItem>
 				))}
