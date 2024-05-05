@@ -16,7 +16,7 @@ import { SceneList } from "../../../features/scenes/SceneList.tsx"
 import { SceneMapBackground } from "../../../features/scenes/SceneMapBackground.tsx"
 import { SceneGrid } from "../../../features/scenes/grid.tsx"
 import { SceneTokens } from "../../../features/scenes/tokens.tsx"
-import { ViewportStore } from "../../../features/scenes/viewport.tsx"
+import { ViewportProvider } from "../../../features/scenes/viewport.tsx"
 import { ViewportDragInput } from "../../../features/scenes/viewport.tsx"
 import { ViewportWheelInput } from "../../../features/scenes/viewport.tsx"
 import { AppHeader } from "../../../ui/AppHeader.tsx"
@@ -33,7 +33,7 @@ export default function RoomIndexRoute() {
 	return (
 		<CharacterSelectionProvider>
 			<JoinRoomEffect />
-			<ViewportStore.Provider>
+			<ViewportProvider>
 				<RoomToolbarStore.Provider>
 					{scene && (
 						<div className="fixed inset-0 -z-10 select-none">
@@ -58,7 +58,7 @@ export default function RoomIndexRoute() {
 				<CharacterListPanel />
 				<MessagesPanel />
 				<CombatTurnBanner />
-			</ViewportStore.Provider>
+			</ViewportProvider>
 		</CharacterSelectionProvider>
 	)
 }

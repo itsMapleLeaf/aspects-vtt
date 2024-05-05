@@ -1,4 +1,5 @@
 import { vitePlugin as remix } from "@remix-run/dev"
+import babel from "@rollup/plugin-babel"
 import { vercelPreset } from "@vercel/remix/vite"
 import { flatRoutes } from "remix-flat-routes"
 import { remixRoutes } from "remix-routes/vite.js"
@@ -8,6 +9,12 @@ import inspect from "vite-plugin-inspect"
 
 export default defineConfig({
 	plugins: [
+		babel({
+			babelHelpers: "bundled",
+			extensions: [".ts", ".tsx"],
+			include: ["app/**/*.{ts,tsx}"],
+			plugins: [["@babel/plugin-proposal-decorators", { version: "2023-11" }]],
+		}),
 		remix({
 			future: {
 				v3_fetcherPersist: true,

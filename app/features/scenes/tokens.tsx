@@ -3,6 +3,7 @@ import { useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
+import { observer } from "mobx-react-lite"
 import { useState } from "react"
 import * as React from "react"
 import { twMerge } from "tailwind-merge"
@@ -42,10 +43,10 @@ import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import type { ApiScene } from "./types.ts"
-import { ViewportStore } from "./viewport.tsx"
+import { useViewport } from "./viewport.tsx"
 
-export function SceneTokens({ scene }: { scene: ApiScene }) {
-	const viewport = ViewportStore.useState()
+export const SceneTokens = observer(function SceneTokens({ scene }: { scene: ApiScene }) {
+	const viewport = useViewport()
 	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id }) ?? []
 	const [dragOffset, setDragOffset] = useState(Vector.zero)
 	const addToken = useAddTokenMutation()
@@ -365,7 +366,7 @@ export function SceneTokens({ scene }: { scene: ApiScene }) {
 			{tokenElements}
 		</CharacterDnd.Dropzone>
 	)
-}
+})
 
 function TokenMenu({
 	store,

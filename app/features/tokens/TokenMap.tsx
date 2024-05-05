@@ -275,6 +275,7 @@ function SizeTooltipArea({ size, className }: { size: Vector; className?: string
 
 	return (
 		<div ref={containerRef} className={twMerge("absolute inset-0", className)}>
+			{/* @ts-expect-error: not sure why this is erroring */}
 			{createPortal(
 				<p
 					className={twMerge(

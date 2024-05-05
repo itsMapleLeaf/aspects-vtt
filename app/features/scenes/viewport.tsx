@@ -1,51 +1,58 @@
 import { useGesture, useWheel } from "@use-gesture/react"
-import type { ComponentProps } from "react"
+import { action, computed, observable } from "mobx"
+import { type ComponentProps, type ReactNode, createContext, use, useState } from "react"
 import { clamp } from "../../common/math.ts"
-import { createStore } from "../../common/store.tsx"
 import { Vector, type VectorInput } from "../../common/vector.ts"
 
-export const ViewportStore = createStore({
-	state: {
-		offset: Vector.zero,
-		scaleTick: 0,
-	},
-	actions: (setState) => ({
-		setOffset: (offset: VectorInput) => {
-			setState((state) => ({ ...state, offset: Vector.from(offset) }))
-		},
-		addOffset: (delta: VectorInput) => {
-			setState((state) => ({ ...state, offset: state.offset.plus(delta) }))
-		},
-		updateZoom: (delta: number, pivotInput: VectorInput) => {
-			setState((state) => {
-				const newScaleTick = clamp(state.scaleTick + Math.sign(delta), -10, 10)
-				const pivot = Vector.from(pivotInput).minus(state.offset)
-				const shift = pivot.minus(pivot.times(getScale(newScaleTick) / getScale(state.scaleTick)))
-				return {
-					...state,
-					scaleTick: newScaleTick,
-					offset: state.offset.plus(shift),
-				}
-			})
-		},
-	}),
-	context: (state) => ({
-		offset: state.offset,
-		scale: getScale(state.scaleTick),
-	}),
-})
+class Viewport {
+	static scaleAt(tick: number) {
+		return 1.3 ** tick
+	}
 
-function getScale(tick: number) {
-	return 1.3 ** tick
+	@observable.ref accessor offset = Vector.zero
+	@observable.ref accessor scaleTick = 0
+
+	@computed get scale() {
+		return Viewport.scaleAt(this.scaleTick)
+	}
+
+	@action.bound setOffset(newOffset: VectorInput) {
+		this.offset = Vector.from(newOffset)
+	}
+
+	@action.bound addOffset(delta: VectorInput) {
+		this.offset = this.offset.plus(delta)
+	}
+
+	@action.bound updateZoom(delta: number, pivotInput: VectorInput) {
+		const newScaleTick = clamp(this.scaleTick + Math.sign(delta), -10, 10)
+		const pivot = Vector.from(pivotInput).minus(this.offset)
+		const shift = pivot.minus(
+			pivot.times(Viewport.scaleAt(newScaleTick) / Viewport.scaleAt(this.scaleTick)),
+		)
+		this.scaleTick = newScaleTick
+		this.offset = this.offset.plus(shift)
+	}
+}
+
+const ViewportContext = createContext(new Viewport())
+
+export function ViewportProvider({ children }: { children: ReactNode }) {
+	const [value] = useState(new Viewport())
+	return <ViewportContext value={value}>{children}</ViewportContext>
+}
+
+export function useViewport() {
+	return use(ViewportContext)
 }
 
 export function ViewportDragInput(props: ComponentProps<"div">) {
-	const actions = ViewportStore.useActions()
+	const viewport = useViewport()
 
 	const bind = useGesture(
 		{
 			onDrag: (state) => {
-				actions.addOffset(state.delta)
+				viewport.addOffset(state.delta)
 			},
 			onDragEnd: () => {
 				// prevent a context menu from showing after we finish dragging,
@@ -76,9 +83,9 @@ export function ViewportDragInput(props: ComponentProps<"div">) {
 }
 
 export function ViewportWheelInput({ children }: { children: React.ReactNode }) {
-	const actions = ViewportStore.useActions()
+	const viewport = useViewport()
 	const bind = useWheel((state) => {
-		const target = state.event.currentTarget as HTMLElement
+		const target = state.event.currentTarget as HTMLElement | undefined
 		// wheel events can bubble up through the _react tree_
 		// through portals rendered in elements outside of this one,
 		// so we have to explicitly check that the scrolled element
@@ -87,7 +94,7 @@ export function ViewportWheelInput({ children }: { children: React.ReactNode }) 
 			return
 		}
 
-		actions.updateZoom(-state.delta[1], [state.event.clientX, state.event.clientY])
+		viewport.updateZoom(-state.delta[1], [state.event.clientX, state.event.clientY])
 	}, {})
 	return <div {...bind()}>{children}</div>
 }
