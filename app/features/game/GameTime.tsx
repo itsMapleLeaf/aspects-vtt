@@ -72,6 +72,10 @@ export class GameTime {
 		)
 	}
 
+	get timeOfDayName() {
+		return expect(GameTime.TimesOfDay[this.timeOfDay])
+	}
+
 	// visible during the first half of each week
 	get auroraVisible() {
 		return this.dayOfWeek < GameTime.DaysInWeek / 2

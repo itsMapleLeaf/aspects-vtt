@@ -1,10 +1,10 @@
 import containerQueries from "@tailwindcss/container-queries"
-import type { Config } from "tailwindcss"
 import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
-import { theme } from "./app/theme.js"
+import { theme } from "./app/theme.ts"
 
+/** @satisfies {import('tailwindcss').Config} */
 export default {
 	content: ["app/**/*.{ts,tsx}"],
 	theme: {
@@ -39,4 +39,4 @@ export default {
 			})
 		}),
 	],
-} satisfies Config
+}

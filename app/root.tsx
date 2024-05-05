@@ -14,8 +14,9 @@ import { ConvexProviderWithClerk } from "convex/react-clerk"
 import { isEqual } from "lodash-es"
 import { useEffect } from "react"
 import { api } from "../convex/_generated/api.js"
+import { expect } from "./common/expect.ts"
 import { clientEnv } from "./env.ts"
-import { theme } from "./theme.ts"
+import { theme, toHex } from "./theme.ts"
 import { Loading } from "./ui/Loading.tsx"
 import { PromptProvider } from "./ui/Prompt.tsx"
 
@@ -62,11 +63,12 @@ export default ClerkApp(App, {
 		baseTheme: dark,
 		variables: {
 			borderRadius: "0.25rem",
-			colorBackground: theme.colors.primary[200],
-			colorText: theme.colors.primary[900],
-			colorPrimary: theme.colors.primary[600],
-			colorInputBackground: theme.colors.primary[300],
-			colorInputText: theme.colors.primary[900],
+			// clerk doesn't accept oklch() :(
+			colorBackground: toHex(expect(theme.colors.primaryStatic[200])),
+			colorText: toHex(expect(theme.colors.primaryStatic[900])),
+			colorPrimary: toHex(expect(theme.colors.primaryStatic[600])),
+			colorInputBackground: toHex(expect(theme.colors.primaryStatic[300])),
+			colorInputText: toHex(expect(theme.colors.primaryStatic[900])),
 		},
 	},
 })

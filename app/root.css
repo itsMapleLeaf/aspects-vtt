@@ -3,8 +3,14 @@
 @tailwind utilities;
 
 @layer base {
-	button, [role=button] {
-		cursor: unset;
+	@property --theme-hue {
+		syntax: '<number>';
+		initial-value: 0;
+		inherits: true;
+	 }
+
+	:root {
+		--theme-hue: 280;
 	}
 
 	:focus {
@@ -13,5 +19,9 @@
 
 	:focus-visible {
 		@apply ring-2 ring-primary-500;
+	}
+
+	button, [role=button] {
+		cursor: unset;
 	}
 }

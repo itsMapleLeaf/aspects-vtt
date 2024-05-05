@@ -6,6 +6,7 @@ import { useEffect } from "react"
 import { api } from "../../../../convex/_generated/api.js"
 import { CharacterListPanel } from "../../../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../../../features/characters/CharacterSelectionProvider"
+import { GameTime } from "../../../features/game/GameTime.tsx"
 import { MessageForm } from "../../../features/messages/MessageForm.tsx"
 import { MessageList } from "../../../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../../../features/rooms/CombatInitiative.tsx"
@@ -30,46 +31,76 @@ export default function RoomIndexRoute() {
 	const currentUrl = useHref(useLocation())
 	const room = useRoom()
 	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
+
+	const gameTime = new GameTime(room.gameTime)
+	const themeColor = [
+		145, // daytime
+		70, // evening
+		305, // night
+	][gameTime.timeOfDay]
+
+	useEffect(() => {
+		if (themeColor !== undefined) {
+			document.body.style.setProperty("--theme-hue", String(themeColor))
+		}
+	}, [themeColor])
+
+	useEffect(() => {
+		return () => {
+			document.body.style.removeProperty("--theme-hue")
+		}
+	}, [])
+
 	return (
-		<CharacterSelectionProvider>
-			<JoinRoomEffect />
-			<ViewportProvider>
-				<RoomToolbarStore.Provider>
-					{scene && (
-						<div className="fixed inset-0 -z-10 select-none">
-							<ViewportWheelInput>
-								<SceneMapBackground scene={scene} />
-								<SceneGrid scene={scene} />
-								<ViewportDragInput>
-									<SceneTokens scene={scene} />
-								</ViewportDragInput>
-							</ViewportWheelInput>
-						</div>
-					)}
-					<div
-						className={translucentPanel(
-							"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
+		<div className="contents">
+			<CharacterSelectionProvider>
+				<JoinRoomEffect />
+				<ViewportProvider>
+					<RoomToolbarStore.Provider>
+						{scene && (
+							<div className="fixed inset-0 -z-10 select-none bg-primary-100">
+								<ViewportWheelInput>
+									<SceneMapBackground scene={scene} />
+									<SceneGrid scene={scene} />
+									<ViewportDragInput>
+										<SceneTokens scene={scene} />
+									</ViewportDragInput>
+								</ViewportWheelInput>
+							</div>
 						)}
-					>
-						<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
-					</div>
-				</RoomToolbarStore.Provider>
-				<SceneHeading />
-				<CharacterListPanel />
-				<MessagesPanel />
-				<CombatTurnBanner />
-			</ViewportProvider>
-		</CharacterSelectionProvider>
+						<div
+							className={translucentPanel(
+								"px-4 rounded-none border-0 border-b h-16 flex flex-col justify-center",
+							)}
+						>
+							<AppHeader
+								end={<UserButton afterSignOutUrl={currentUrl} />}
+								center={<RoomToolbar />}
+							/>
+						</div>
+					</RoomToolbarStore.Provider>
+					<SceneHeading />
+					<CharacterListPanel />
+					<MessagesPanel />
+					<CombatTurnBanner />
+				</ViewportProvider>
+			</CharacterSelectionProvider>
+		</div>
 	)
 }
 
 function SceneHeading() {
 	const room = useRoom()
 	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
+	const gameTime = new GameTime(room.gameTime)
 	if (!scene) return
 	return (
 		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
 			{scene.name}
+			<p className="text-base">
+				{gameTime.timeOfDayName} - Day {gameTime.day} of {gameTime.monthName.name}, Year{" "}
+				{gameTime.year}
+			</p>
 		</h2>
 	)
 }
