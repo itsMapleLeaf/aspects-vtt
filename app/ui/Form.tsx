@@ -1,20 +1,10 @@
-import {
-	type ReactNode,
-	createContext,
-	isValidElement,
-	use,
-	useEffect,
-	useId,
-	useMemo,
-	useState,
-} from "react"
+import { type ReactNode, createContext, isValidElement, use, useId, useMemo } from "react"
 import { twMerge } from "tailwind-merge"
-import { useEffectEvent } from "../common/react.ts"
+import { useConsumer, useConsumerProvider } from "./ConsumerContext.tsx"
 import { twc } from "./twc.ts"
 
 const FieldContext = createContext({
 	inputId: "",
-	registerConsumer: () => () => {},
 })
 
 export const FormLayout = twc.form`flex flex-col gap-3 p-3`
@@ -36,38 +26,24 @@ export function FormField({
 	className?: string
 	children: React.ReactNode
 }) {
-	const [consumerCount, setConsumerCount] = useState(0)
+	const consumers = useConsumerProvider()
 	const fallbackInputId = useId()
-	const inputId = htmlFor || (consumerCount > 0 && fallbackInputId) || ""
-
-	const registerConsumer = useEffectEvent(() => {
-		setConsumerCount((it) => it + 1)
-		return () => {
-			setConsumerCount((it) => it - 1)
-		}
-	})
-
-	const fieldContext = useMemo(
-		() => ({
-			inputId,
-			registerConsumer,
-		}),
-		[inputId, registerConsumer],
-	)
-
+	const inputId = htmlFor || (consumers.count > 0 && fallbackInputId) || ""
+	const fieldContext = useMemo(() => ({ inputId }), [inputId])
 	return (
 		<div className={twMerge("flex flex-col", className)}>
 			<div className="select-none font-bold leading-6">
 				{isValidElement(label) ? label : inputId ? <label htmlFor={inputId}>{label}</label> : label}
 			</div>
 			{description && <div className="text-sm/6 font-bold text-primary-700">{description}</div>}
-			<FieldContext value={fieldContext}>{children}</FieldContext>
+			<FieldContext value={fieldContext}>
+				<consumers.Provider>{children}</consumers.Provider>
+			</FieldContext>
 		</div>
 	)
 }
 
 export function useField() {
-	const { registerConsumer, ...field } = use(FieldContext)
-	useEffect(() => registerConsumer(), [registerConsumer])
-	return field
+	useConsumer()
+	return use(FieldContext)
 }
