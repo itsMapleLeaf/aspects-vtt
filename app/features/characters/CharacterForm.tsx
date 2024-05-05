@@ -238,13 +238,11 @@ function CharacterTextAreaField({
 	label?: string
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.update))
-	const inputId = useId()
 	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
-			<FormField label={label} htmlFor={inputId}>
+			<FormField label={label}>
 				<TextArea
-					id={inputId}
 					value={value}
 					onChange={(event) => update({ id: character._id, [field]: event.target.value })}
 				/>
