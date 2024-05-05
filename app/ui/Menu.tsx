@@ -1,5 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
+import { useAsyncState } from "../common/useAsyncState.ts"
 import { Button } from "./Button.tsx"
 import { panel } from "./styles.ts"
 
@@ -27,18 +28,33 @@ export function menuItemStyle(...classes: ClassNameValue[]) {
 	)
 }
 
-interface MenuItemProps extends Ariakit.MenuItemProps {
+interface MenuItemProps extends Ariakit.MenuItemProps<"div"> {
 	text: string
 	icon: React.ReactNode
+	onClick?: (event: React.MouseEvent<HTMLElement>) => unknown
 }
 
-export function MenuItem({ text, icon, ...props }: MenuItemProps) {
+export function MenuItem({ text, icon, ref, ...props }: MenuItemProps) {
+	const menu = Ariakit.useMenuContext()
+
+	const [state, handleClick] = useAsyncState(async (event: React.MouseEvent<HTMLElement>) => {
+		event.preventDefault()
+		await props.onClick?.(event)
+		menu?.hide()
+	})
+
 	return (
-		<Button
-			text={text}
-			icon={icon}
-			className="cursor-default justify-start border-none text-left"
-			element={<Ariakit.MenuItem {...props} />}
+		<Ariakit.MenuItem
+			{...props}
+			render={
+				<Button
+					text={text}
+					icon={icon}
+					className="cursor-default justify-start border-none text-left"
+					onClick={handleClick}
+					pending={state.status === "pending"}
+				/>
+			}
 		/>
 	)
 }
