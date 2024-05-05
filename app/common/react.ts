@@ -59,10 +59,13 @@ export function useFilter<T>(input: T, predicate: (input: T) => unknown) {
 
 export function isReactNode(value: unknown): value is ReactNode {
 	return (
+		value == null ||
 		typeof value === "string" ||
 		typeof value === "number" ||
+		typeof value === "bigint" ||
 		typeof value === "boolean" ||
-		(Array.isArray(value) && value.every(isReactNode)) ||
-		isValidElement(value)
+		value instanceof Promise ||
+		isValidElement(value) ||
+		(Array.isArray(value) && value.every(isReactNode))
 	)
 }
