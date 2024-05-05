@@ -1,8 +1,11 @@
 import { useMutation, useQuery } from "convex/react"
+import { LucideChevronsLeft, LucideChevronsRight, LucideClock, LucideSunrise } from "lucide-react"
 import { api } from "../../../convex/_generated/api.js"
+import { Button } from "../../ui/Button.tsx"
 import { EditableInput } from "../../ui/EditableInput.tsx"
 import { EditableIntegerInput } from "../../ui/EditableIntegerInput.tsx"
 import { FormField, FormLayout, FormRow } from "../../ui/Form.tsx"
+import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { EditableSelect } from "../../ui/Select.tsx"
 import { GameTime } from "../game/GameTime.tsx"
 import { SetMapBackgroundButton } from "../tokens/SetMapBackgroundButton.tsx"
@@ -111,6 +114,59 @@ export function RoomSettingsForm() {
 					})
 				}}
 			/>
+
+			<fieldset className="grid auto-cols-fr grid-flow-col gap-[inherit]">
+				<Menu>
+					<MenuButton render={<Button text="Rewind" icon={<LucideChevronsLeft />} />} />
+					<MenuPanel sameWidth>
+						<MenuItem
+							icon={<LucideClock />}
+							text="Time"
+							onClick={async () => {
+								await updateRoom({
+									id: room._id,
+									gameTime: gameTime.add({ time: -1 / GameTime.TimesOfDay.length }),
+								})
+							}}
+						/>
+						<MenuItem
+							icon={<LucideSunrise />}
+							text="Day"
+							onClick={async () => {
+								await updateRoom({
+									id: room._id,
+									gameTime: gameTime.add({ day: -1 }),
+								})
+							}}
+						/>
+					</MenuPanel>
+				</Menu>
+				<Menu>
+					<MenuButton render={<Button text="Advance" icon={<LucideChevronsRight />} />} />
+					<MenuPanel sameWidth>
+						<MenuItem
+							icon={<LucideClock />}
+							text="Time"
+							onClick={async () => {
+								await updateRoom({
+									id: room._id,
+									gameTime: gameTime.add({ time: 1 / GameTime.TimesOfDay.length }),
+								})
+							}}
+						/>
+						<MenuItem
+							icon={<LucideSunrise />}
+							text="Day"
+							onClick={async () => {
+								await updateRoom({
+									id: room._id,
+									gameTime: gameTime.add({ day: 1 }),
+								})
+							}}
+						/>
+					</MenuPanel>
+				</Menu>
+			</fieldset>
 		</FormLayout>
 	)
 }

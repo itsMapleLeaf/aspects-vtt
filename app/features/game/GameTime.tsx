@@ -94,4 +94,13 @@ export class GameTime {
 			time: date.time ?? this.time,
 		})
 	}
+
+	add(date: Partial<GameDate>) {
+		return GameTime.fromDate({
+			year: this.year + (date.year ?? 0),
+			month: this.month + (date.month ?? 0),
+			day: this.day + (date.day ?? 0),
+			time: this.time + (date.time ?? 0),
+		})
+	}
 }
