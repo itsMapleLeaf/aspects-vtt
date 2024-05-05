@@ -51,7 +51,8 @@ function StressUpdateForm({
 	})
 
 	return (
-		<FormLayout
+		<form
+			className="contents"
 			action={async () => {
 				await applyStress({
 					roomId: room._id,
@@ -64,42 +65,44 @@ function StressUpdateForm({
 				disclosure?.hide()
 			}}
 		>
-			<fieldset className={panel("grid grid-flow-col auto-cols-fr bg-transparent overflow-clip")}>
-				<label className="flex-center-row h-10 gap-1 px-2 text-red-300 opacity-50 transition hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200">
-					<input
-						type="radio"
-						name="operation"
-						className="appearance-none"
-						checked={values.operation === "add"}
-						onChange={(event) => setValues({ ...values, operation: "add" })}
+			<FormLayout>
+				<fieldset className={panel("grid grid-flow-col auto-cols-fr bg-transparent overflow-clip")}>
+					<label className="flex-center-row h-10 gap-1 px-2 text-red-300 opacity-50 transition hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200">
+						<input
+							type="radio"
+							name="operation"
+							className="appearance-none"
+							checked={values.operation === "add"}
+							onChange={(event) => setValues({ ...values, operation: "add" })}
+						/>
+						<Lucide.X className="-ml-1" />
+						<span>Hurt</span>
+					</label>
+					<label className="flex-center-row h-10 gap-1 px-2 text-green-300 opacity-50 transition hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200">
+						<input
+							type="radio"
+							name="operation"
+							className="appearance-none"
+							checked={values.operation === "remove"}
+							onChange={(event) => setValues({ ...values, operation: "remove" })}
+						/>
+						<Lucide.ChevronsUp className="-ml-1" />
+						<span>Heal</span>
+					</label>
+				</fieldset>
+				<FormField label="Amount">
+					<NumberInput
+						value={values.amount}
+						onChange={(amount) => setValues({ ...values, amount })}
+						fallback={0}
+						className="text-center"
 					/>
-					<Lucide.X className="-ml-1" />
-					<span>Hurt</span>
-				</label>
-				<label className="flex-center-row h-10 gap-1 px-2 text-green-300 opacity-50 transition hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200">
-					<input
-						type="radio"
-						name="operation"
-						className="appearance-none"
-						checked={values.operation === "remove"}
-						onChange={(event) => setValues({ ...values, operation: "remove" })}
-					/>
-					<Lucide.ChevronsUp className="-ml-1" />
-					<span>Heal</span>
-				</label>
-			</fieldset>
-			<FormField label="Amount">
-				<NumberInput
-					value={values.amount}
-					onChange={(amount) => setValues({ ...values, amount })}
-					fallback={0}
-					className="text-center"
-				/>
-			</FormField>
-			<FormField label="Dice">
-				<DiceCounter value={values.dice} onChange={(dice) => setValues({ ...values, dice })} />
-			</FormField>
-			<Button type="submit" text="Apply" icon={<Lucide.Check />} />
-		</FormLayout>
+				</FormField>
+				<FormField label="Dice">
+					<DiceCounter value={values.dice} onChange={(dice) => setValues({ ...values, dice })} />
+				</FormField>
+				<Button type="submit" text="Apply" icon={<Lucide.Check />} />
+			</FormLayout>
+		</form>
 	)
 }

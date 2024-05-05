@@ -46,42 +46,45 @@ function PromptModalForm() {
 	const context = useNonEmptyContext(PromptContext)
 	const [value, setValue] = React.useState("")
 	return (
-		<FormLayout
+		<form
+			className="contents"
 			action={() => {
 				context.currentPrompt?.resolve(value)
 				context.close()
 			}}
 		>
-			<FormField label={context.currentPrompt?.inputLabel ?? ""}>
-				<Focusable
-					autoFocus
-					render={
-						<Input
-							className="bg-primary-100"
-							value={value}
-							placeholder={context.currentPrompt?.inputPlaceholder}
-							onChange={(event) => setValue(event.target.value)}
-						/>
-					}
-				/>
-			</FormField>
-			<ModalActions>
-				<Button
-					type="button"
-					text="Cancel"
-					icon={<Lucide.X />}
-					onClick={() => {
-						context.currentPrompt?.resolve(undefined)
-						context.close()
-					}}
-				/>
-				<Button
-					type="submit"
-					text={context.currentPrompt?.buttonText ?? "Submit"}
-					icon={context.currentPrompt?.buttonIcon ?? <Lucide.Check />}
-				/>
-			</ModalActions>
-		</FormLayout>
+			<FormLayout>
+				<FormField label={context.currentPrompt?.inputLabel ?? ""}>
+					<Focusable
+						autoFocus
+						render={
+							<Input
+								className="bg-primary-100"
+								value={value}
+								placeholder={context.currentPrompt?.inputPlaceholder}
+								onChange={(event) => setValue(event.target.value)}
+							/>
+						}
+					/>
+				</FormField>
+				<ModalActions>
+					<Button
+						type="button"
+						text="Cancel"
+						icon={<Lucide.X />}
+						onClick={() => {
+							context.currentPrompt?.resolve(undefined)
+							context.close()
+						}}
+					/>
+					<Button
+						type="submit"
+						text={context.currentPrompt?.buttonText ?? "Submit"}
+						icon={context.currentPrompt?.buttonIcon ?? <Lucide.Check />}
+					/>
+				</ModalActions>
+			</FormLayout>
+		</form>
 	)
 }
 
