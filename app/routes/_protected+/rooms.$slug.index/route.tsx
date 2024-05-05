@@ -98,8 +98,8 @@ function SceneHeading() {
 		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
 			{scene.name}
 			<p className="text-base">
-				{gameTime.timeOfDayName} - Day {gameTime.day} of {gameTime.monthName.name}, Year{" "}
-				{gameTime.year}
+				{gameTime.timeOfDayName} - Day {gameTime.day + 1} of {gameTime.monthName.name}, Year{" "}
+				{gameTime.year + 1}
 			</p>
 		</h2>
 	)
