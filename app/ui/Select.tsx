@@ -1,9 +1,11 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import type { ReactNode } from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
+import { LoadingDecoration } from "./LoadingDecoration.tsx"
 import { menuItemStyle, menuPanelStyle } from "./Menu.tsx"
+import { type EditableProps, useEditable } from "./useEditable.tsx"
 
 export type SelectOption<T> =
 	| { id?: string | undefined; label: ReactNode; value: Extract<T, string> }
@@ -58,5 +60,23 @@ export function Select<T>(props: {
 				))}
 			</Ariakit.SelectPopover>
 		</Ariakit.SelectProvider>
+	)
+}
+
+export function EditableSelect<T>({
+	className,
+	...props
+}: EditableProps<ComponentProps<typeof Select<T>>, T>) {
+	const editable = useEditable(props)
+	return (
+		<LoadingDecoration pending={editable.pending} className={className}>
+			<Select
+				{...editable.inputProps}
+				onChange={(value) => {
+					editable.inputProps.onChange(value)
+					editable.submit(value)
+				}}
+			/>
+		</LoadingDecoration>
 	)
 }

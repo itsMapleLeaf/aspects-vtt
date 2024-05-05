@@ -1,5 +1,5 @@
-import { type ComponentProps, type ComponentType, useState } from "react"
-import type { Awaitable, Overwrite } from "../common/types.ts"
+import { useState } from "react"
+import type { Awaitable, Overwrite, PartialKeys } from "../common/types.ts"
 import type { DietUnknown } from "../common/types.ts"
 import type { TODO } from "../common/types.ts"
 
@@ -10,9 +10,15 @@ export interface EditableOptions<T> {
 	onChangeInternal?: (value: T) => void
 }
 
-export type EditableComponentProps<Comp extends ComponentType, Value> = Overwrite<
-	ComponentProps<Comp>,
-	EditableOptions<Value>
+type BaseInputProps = {
+	onChange?: (event: TODO) => void
+	onBlur?: (event: TODO) => void
+	onKeyDown?: (event: TODO) => void
+}
+
+export type EditableProps<Props extends object, Value> = PartialKeys<
+	Overwrite<Props, EditableOptions<Value>>,
+	keyof BaseInputProps
 >
 
 interface ChangeEventLike<Value> {
@@ -22,14 +28,13 @@ interface ChangeEventLike<Value> {
 const Empty = Symbol()
 export const CancelSubmit = Symbol()
 
-export function useEditable<
-	Value,
-	Props extends {
-		onChange?: (event: TODO) => void
-		onBlur?: (event: TODO) => void
-		onKeyDown?: (event: TODO) => void
-	},
->({ value, validate, onSubmit, onChangeInternal, ...baseProps }: EditableOptions<Value> & Props) {
+export function useEditable<Value, Props extends BaseInputProps>({
+	value,
+	validate,
+	onSubmit,
+	onChangeInternal,
+	...baseProps
+}: EditableOptions<Value> & Props) {
 	const [valueInternal, setValueInternal] = useState<Value | typeof Empty>(Empty)
 	const [pending, setPending] = useState(false)
 	const validationError = valueInternal === Empty ? undefined : validate?.(valueInternal)
@@ -44,15 +49,16 @@ export function useEditable<
 		setValueInternal(Empty)
 	}
 
-	function submit() {
-		if (valueInternal === Empty || valueInternal === value || invalid) {
+	function submit(submitArg?: Value) {
+		const submitted = submitArg ?? valueInternal
+		if (submitted === Empty || submitted === value || invalid) {
 			return
 		}
 
 		void (async () => {
 			setPending(true)
 			try {
-				const result = await onSubmit(valueInternal)
+				const result = await onSubmit(submitted)
 				if (result !== CancelSubmit) {
 					clearValue()
 				}

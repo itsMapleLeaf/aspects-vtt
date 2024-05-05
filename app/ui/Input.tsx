@@ -28,7 +28,7 @@ export function extractInputStyleProps<T extends InputStyleProps>({ align, inval
 export function inputStyle(props: InputStyleProps, ...classes: ClassNameValue[]) {
 	return panel(
 		twMerge(
-			"w-full h-10 min-w-0 rounded border border-primary-300 bg-primary-200 pl-8 pr-3 transition peer-empty:pl-3",
+			"w-full h-10 min-w-0 rounded border border-primary-300 bg-primary-200 px-3 transition",
 			props.align === "left" && "text-left",
 			props.align === "right" && "text-right",
 			props.align === "center" && "text-center",

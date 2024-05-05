@@ -28,7 +28,9 @@ export type PickByValue<Source, Value> = {
 
 export type Awaitable<T> = T | PromiseLike<T>
 
-export type PartialKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+export type PartialKeys<T, K extends PropertyKey> = Omit<T, K> & {
+	[k in Extract<K, keyof T>]?: T[k]
+}
 
 export type UndefinedToOptional<T> = Simplify<
 	{

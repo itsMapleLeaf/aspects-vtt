@@ -3,7 +3,7 @@ import { api } from "../../../convex/_generated/api.js"
 import { EditableInput } from "../../ui/EditableInput.tsx"
 import { EditableIntegerInput } from "../../ui/EditableIntegerInput.tsx"
 import { FormField, FormLayout, FormRow } from "../../ui/Form.tsx"
-import { Select } from "../../ui/Select.tsx"
+import { EditableSelect } from "../../ui/Select.tsx"
 import { GameTime } from "../game/GameTime.tsx"
 import { SetMapBackgroundButton } from "../tokens/SetMapBackgroundButton.tsx"
 import { useRoom } from "./roomContext.tsx"
@@ -54,11 +54,16 @@ export function RoomSettingsForm() {
 						align="center"
 						min={1}
 						value={gameTime.year + 1}
-						onSubmit={console.log}
+						onSubmit={async (year) => {
+							await updateRoom({
+								id: room._id,
+								gameTime: gameTime.withDate({ year: year - 1 }),
+							})
+						}}
 					/>
 				</FormField>
 
-				<Select
+				<EditableSelect
 					className="flex-1"
 					label="Month"
 					options={GameTime.Months.map((month, index) => ({
@@ -67,20 +72,31 @@ export function RoomSettingsForm() {
 						value: index,
 					}))}
 					value={gameTime.month}
-					onChange={console.log}
+					onSubmit={async (month) => {
+						await updateRoom({
+							id: room._id,
+							gameTime: gameTime.withDate({ month }),
+						})
+					}}
 				/>
 
 				<FormField label="Day" className="basis-20">
 					<EditableIntegerInput
 						align="center"
 						min={1}
+						max={GameTime.DaysInMonth}
 						value={gameTime.day + 1}
-						onSubmit={console.log}
+						onSubmit={async (day) => {
+							await updateRoom({
+								id: room._id,
+								gameTime: gameTime.withDate({ day: day - 1 }),
+							})
+						}}
 					/>
 				</FormField>
 			</fieldset>
 
-			<Select
+			<EditableSelect
 				label="Time"
 				options={GameTime.TimesOfDay.map((time, index) => ({
 					id: time,
@@ -88,7 +104,12 @@ export function RoomSettingsForm() {
 					value: index,
 				}))}
 				value={gameTime.timeOfDay}
-				onChange={() => {}}
+				onSubmit={async (time) => {
+					await updateRoom({
+						id: room._id,
+						gameTime: gameTime.withDate({ time: time / GameTime.TimesOfDay.length }),
+					})
+				}}
 			/>
 		</FormLayout>
 	)

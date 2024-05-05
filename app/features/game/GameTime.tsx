@@ -1,9 +1,18 @@
 import { expect } from "../../common/expect.ts"
+import { clamp } from "../../common/math.ts"
+
+export interface GameDate {
+	year: number
+	month: number
+	day: number
+	time: number
+}
 
 export class GameTime {
+	static readonly MonthsInYear = 4
 	static readonly DaysInWeek = 6
 	static readonly DaysInMonth = 24
-	static readonly MonthsInYear = 4
+	static readonly DaysInYear = this.DaysInMonth * this.MonthsInYear
 	static readonly TimesOfDay = ["Daytime", "Evening", "Night"] as const
 
 	static readonly Months = [
@@ -21,6 +30,10 @@ export class GameTime {
 	 */
 	constructor(timestamp: number | undefined) {
 		this.#time = Math.max(0, timestamp ?? 0)
+	}
+
+	static fromDate({ year, month, day, time }: GameDate) {
+		return year * GameTime.DaysInYear + month * GameTime.DaysInMonth + day + time
 	}
 
 	get day() {
@@ -44,11 +57,19 @@ export class GameTime {
 	}
 
 	get year() {
-		return Math.floor(this.month / GameTime.MonthsInYear) // 4 months in a year
+		return Math.floor(this.#time / GameTime.DaysInYear)
+	}
+
+	get time() {
+		return this.#time % 1
 	}
 
 	get timeOfDay() {
-		return (this.#time * GameTime.TimesOfDay.length) % GameTime.TimesOfDay.length
+		return clamp(
+			Math.round(this.time * GameTime.TimesOfDay.length),
+			0,
+			GameTime.TimesOfDay.length - 1,
+		)
 	}
 
 	// visible during the first half of each week
@@ -59,5 +80,14 @@ export class GameTime {
 	// visible during the first three quarters of the month
 	get nocturneVisible() {
 		return this.day < GameTime.DaysInMonth * (3 / 4)
+	}
+
+	withDate(date: Partial<GameDate>) {
+		return GameTime.fromDate({
+			year: date.year ?? this.year,
+			month: date.month ?? this.month,
+			day: date.day ?? this.day,
+			time: date.time ?? this.time,
+		})
 	}
 }
