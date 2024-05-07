@@ -15,7 +15,7 @@ import { editCharacterEvent } from "./events"
 
 export function CharactersPanel() {
 	const room = useRoom()
-	const characters = useQuery(api.characters.list, { roomId: room._id })
+	const characters = useQuery(api.characters.functions.list, { roomId: room._id })
 	const playerCharacter = characters?.find((character) => character.isOwner)
 
 	const [selectedCharacterId, setSelectedCharacterId] = useState<Id<"characters">>()
@@ -63,7 +63,7 @@ function DuplicateCharacterButton({
 	character: { _id: Id<"characters"> }
 	onDuplicate: (newCharacterId: Id<"characters">) => void
 }) {
-	const duplicate = useMutation(api.characters.duplicate)
+	const duplicate = useMutation(api.characters.functions.duplicate)
 	return (
 		<Button
 			icon={<Lucide.Copy />}

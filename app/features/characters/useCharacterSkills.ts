@@ -3,7 +3,7 @@ import { api } from "../../../convex/_generated/api.js"
 import type { ApiCharacter } from "./types.ts"
 
 export function useCharacterSkills(character: ApiCharacter) {
-	const notionData = useQuery(api.notionImports.get)
+	const notionData = useQuery(api.notionImports.functions.get)
 	const race = notionData?.races.find((r) => r.name === character.race)
 	const coreAspect = notionData?.aspects.find((it) => it.name === character.coreAspect)
 

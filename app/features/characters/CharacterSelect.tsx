@@ -1,6 +1,6 @@
+import type { FunctionReturnType } from "convex/server"
 import type { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
-import type { ResultQueryData } from "../../../convex/resultResponse.ts"
 import { Select } from "../../ui/Select.old.tsx"
 
 export function CharacterSelect({
@@ -8,7 +8,7 @@ export function CharacterSelect({
 	selected,
 	onChange,
 }: {
-	characters: ResultQueryData<typeof api.characters.list>
+	characters: FunctionReturnType<typeof api.characters.functions.list>
 	selected: Id<"characters">
 	onChange: (id: Id<"characters">) => void
 }) {

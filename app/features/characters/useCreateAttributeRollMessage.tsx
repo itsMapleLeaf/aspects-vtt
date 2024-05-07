@@ -12,7 +12,7 @@ import {
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function useCreateAttributeRollMessage() {
-	const createMessage = useMutation(api.messages.create)
+	const createMessage = useMutation(api.messages.functions.create)
 	const room = useRoom()
 	return useCallback(
 		async (args: {

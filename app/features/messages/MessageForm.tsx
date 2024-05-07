@@ -20,10 +20,10 @@ import { useRoom } from "../rooms/roomContext.tsx"
 export function MessageForm() {
 	const room = useRoom()
 	const prompt = usePrompt()
-	const createMessage = useMutation(api.messages.create)
+	const createMessage = useMutation(api.messages.functions.create)
 
-	const macros = useQuery(api.diceMacros.list, { roomId: room._id })
-	const createMacro = useMutation(api.diceMacros.create)
+	const macros = useQuery(api.diceMacros.functions.list, { roomId: room._id })
+	const createMacro = useMutation(api.diceMacros.functions.create)
 
 	const [content, setContent] = useState("")
 	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})

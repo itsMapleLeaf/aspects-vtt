@@ -13,9 +13,9 @@ import { useRoom } from "./roomContext.tsx"
 
 export function RoomSettingsForm() {
 	const room = useRoom()
-	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
-	const updateRoom = useMutation(api.rooms.update)
-	const updateScene = useMutation(api.scenes.update)
+	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
+	const updateRoom = useMutation(api.rooms.functions.update)
+	const updateScene = useMutation(api.scenes.functions.update)
 	const gameTime = new GameTime(room.gameTime)
 
 	return (

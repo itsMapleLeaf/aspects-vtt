@@ -102,8 +102,8 @@ function CharacterTile({
 
 function CharacterMenu({ character, children }: { character: ApiCharacter; children: ReactNode }) {
 	const room = useRoom()
-	const removeCharacter = useMutation(api.characters.remove)
-	const duplicateCharacter = useMutation(api.characters.duplicate)
+	const removeCharacter = useMutation(api.characters.functions.remove)
+	const duplicateCharacter = useMutation(api.characters.functions.duplicate)
 	const selection = useCharacterSelection()
 
 	return (
@@ -149,7 +149,7 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 
 function CreateCharacterButton() {
 	const room = useRoom()
-	const [createdId, submit, pending] = useMutationAction(api.characters.create)
+	const [createdId, submit, pending] = useMutationAction(api.characters.functions.create)
 	const selection = useCharacterSelection()
 
 	const handleCreated = useEffectEvent((id: Id<"characters">) => {

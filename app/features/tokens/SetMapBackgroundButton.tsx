@@ -10,7 +10,7 @@ import { Button } from "../../ui/Button.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 
 export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
-	const updateScene = useMutation(api.scenes.update)
+	const updateScene = useMutation(api.scenes.functions.update)
 	const inputRef = useRef<HTMLInputElement>(null)
 	const convex = useConvex()
 

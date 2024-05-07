@@ -17,13 +17,13 @@ import { panel } from "../../ui/styles.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
 
-type ApiCharacter = FunctionReturnType<typeof api.characters.list>[number]
+type ApiCharacter = FunctionReturnType<typeof api.characters.functions.list>[number]
 type ApiAspectSkill = Doc<"notionImports">["aspectSkills"][number]
 
 export function AspectSkillsSelectorButton({
 	character,
 	...props
-}: { character: FunctionReturnType<typeof api.characters.list>[number] } & StrictOmit<
+}: { character: FunctionReturnType<typeof api.characters.functions.list>[number] } & StrictOmit<
 	ButtonPropsAsElement,
 	"element"
 >) {
@@ -45,7 +45,7 @@ function SelectorForm({
 	character: ApiCharacter
 }) {
 	const room = useRoom()
-	const notionData = useQuery(api.notionImports.get)
+	const notionData = useQuery(api.notionImports.functions.get)
 
 	const aspectSkillsByName = new Map(
 		notionData?.aspectSkills?.map((skill) => [skill.name, skill]) ?? [],
@@ -152,7 +152,7 @@ function AspectSkillItem({
 	cost?: number
 	disabled?: boolean
 }) {
-	const [updateState, update] = useAsyncState(useMutation(api.characters.update))
+	const [updateState, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const isAdded = character.aspectSkills.includes(skill.name)
 	return (
 		<button

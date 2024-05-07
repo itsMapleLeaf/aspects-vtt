@@ -1,15 +1,14 @@
 import { brandedString, deprecated } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
-import { characterProperties } from "./characters.ts"
-import { diceMacroProperties } from "./diceMacros.ts"
-import { nullish } from "./helpers.ts"
-import { diceInputValidator, diceRollValidator } from "./messages.ts"
-import { notionImportProperties } from "./notionImports.ts"
-import { rectangleProperties } from "./rectangles.ts"
-import { roomProperties } from "./rooms.ts"
-import { roomCombatValidator } from "./rooms/combat.ts"
-import { sceneProperties } from "./scenes.ts"
+import { characterProperties } from "./characters/functions.ts"
+import { diceMacroProperties } from "./diceMacros/functions.ts"
+import { nullish } from "./helpers/convex.ts"
+import { diceInputValidator, diceRollValidator } from "./messages/functions.ts"
+import { notionImportProperties } from "./notionImports/functions.ts"
+import { roomCombatValidator } from "./rooms/combat/functions.ts"
+import { roomProperties } from "./rooms/functions.ts"
+import { sceneProperties } from "./scenes/functions.ts"
 
 export default defineSchema({
 	users: defineTable({
@@ -63,11 +62,6 @@ export default defineSchema({
 	}).index("by_room", ["roomId"]),
 
 	notionImports: defineTable(notionImportProperties),
-
-	rectangles: defineTable({
-		...rectangleProperties,
-		roomId: v.id("rooms"),
-	}).index("by_roomId", ["roomId"]),
 
 	scenes: defineTable(sceneProperties).index("by_room", ["roomId"]),
 })

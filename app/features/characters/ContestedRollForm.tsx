@@ -17,7 +17,7 @@ export function ContestedRollForm({
 	const characters = useCharacters()
 	const selfCharacter = characters.find((c) => c.isOwner)
 
-	const attributes = useQuery(api.notionImports.get)?.attributes
+	const attributes = useQuery(api.notionImports.functions.get)?.attributes
 	const strengthAttribute = attributes?.find((a) => a.key === "strength")
 
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
@@ -131,7 +131,7 @@ function AttributeSelectField(props: {
 	onChange: (value: ApiAttribute) => void
 	className?: string
 }) {
-	const attributes = useQuery(api.notionImports.get)?.attributes
+	const attributes = useQuery(api.notionImports.functions.get)?.attributes
 	return (
 		<Select
 			label={props.label}

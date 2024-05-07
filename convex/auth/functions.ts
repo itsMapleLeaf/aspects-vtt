@@ -1,9 +1,8 @@
-import type { UserIdentity } from "convex/server"
 import { v } from "convex/values"
-import { Result } from "../app/common/Result.ts"
-import { type QueryCtx, mutation, query } from "./_generated/server.js"
-import type { Branded } from "./helpers.js"
-import { getUserFromIdentity } from "./users.js"
+import { type QueryCtx, mutation, query } from "../_generated/server.js"
+import type { Branded } from "../helpers/convex.js"
+import { getUserFromIdentity } from "./helpers.ts"
+import { getIdentity } from "./helpers.ts"
 
 export const user = query({
 	handler: async (ctx: QueryCtx) => {
@@ -26,13 +25,3 @@ export const setup = mutation({
 		}
 	},
 })
-
-export function getIdentity(ctx: QueryCtx) {
-	return Result.fn(async () => {
-		const identity = await ctx.auth.getUserIdentity()
-		if (!identity) {
-			throw new Error("Not logged in")
-		}
-		return identity as UserIdentity & { subject: Branded<"clerkId"> }
-	})
-}

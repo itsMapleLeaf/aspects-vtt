@@ -38,7 +38,7 @@ function StressUpdateForm({
 }: { field: "damage" | "fatigue"; characters: ApiCharacter[] }) {
 	const room = useRoom()
 	const disclosure = useDisclosureContext()
-	const applyStress = useMutation(api.characters.applyStress)
+	const applyStress = useMutation(api.characters.functions.applyStress)
 
 	const [values, setValues] = useState<{
 		operation: "add" | "remove"

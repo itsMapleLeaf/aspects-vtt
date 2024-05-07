@@ -12,8 +12,8 @@ import { Loading } from "../../ui/Loading.tsx"
 import { panel } from "../../ui/styles.ts"
 
 export default function RoomListRoute() {
-	const rooms = useQuery(api.rooms.list)
-	const createRoom = useMutation(api.rooms.create)
+	const rooms = useQuery(api.rooms.functions.list)
+	const createRoom = useMutation(api.rooms.functions.create)
 	const navigate = useNavigate()
 	const currentUrl = useHref(useLocation())
 	const loading = usePendingDelay(rooms === undefined)

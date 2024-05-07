@@ -5,6 +5,6 @@ const crons = cronJobs()
 crons.weekly(
 	"import notion docs",
 	{ dayOfWeek: "friday", hourUTC: 17, minuteUTC: 0 },
-	internal.notionImports.importData,
+	internal.notionImports.functions.importData,
 )
 export default crons

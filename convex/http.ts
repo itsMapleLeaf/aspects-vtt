@@ -20,7 +20,7 @@ http.route({
 			return new Response(`File with id "${storageId}" not found`, { status: 404 })
 		}
 
-		const metadata = await ctx.runQuery(internal.storage.getMetadata, {
+		const metadata = await ctx.runQuery(internal.storage.functions.getMetadata, {
 			storageId: storageId as Id<"_storage">,
 		})
 

@@ -6,14 +6,14 @@ import type {
 } from "@notionhq/client/build/src/api-endpoints"
 import { brandedString } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
-import { promiseAllObject } from "../app/common/async.ts"
-import { raise } from "../app/common/errors.ts"
-import { prettify } from "../app/common/json.ts"
-import { lines } from "../app/common/string.ts"
-import { internal } from "./_generated/api"
-import { type QueryCtx, internalAction, internalMutation, query } from "./_generated/server"
-import { convexEnv } from "./env.ts"
-import type { Branded } from "./helpers.ts"
+import { promiseAllObject } from "../../app/common/async.ts"
+import { raise } from "../../app/common/errors.ts"
+import { prettify } from "../../app/common/json.ts"
+import { lines } from "../../app/common/string.ts"
+import { internal } from "../_generated/api"
+import { type QueryCtx, internalAction, internalMutation, query } from "../_generated/server"
+import { convexEnv } from "../env.ts"
+import type { Branded } from "../helpers/convex.ts"
 
 export const attributeIdValidator = brandedString("attributes")
 export type AttributeId = Infer<typeof attributeIdValidator>
@@ -77,7 +77,7 @@ export const notionImportProperties = {
 export const importData = internalAction({
 	async handler(ctx) {
 		await ctx.runMutation(
-			internal.notionImports.create,
+			internal.notionImports.functions.create,
 			await promiseAllObject({
 				aspects: getAspects(),
 				aspectSkills: getAspectSkills(),

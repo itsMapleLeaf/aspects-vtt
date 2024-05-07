@@ -1,12 +1,12 @@
 import { brandedString, literals } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
-import { omit } from "../../app/common/object.ts"
-import type { UndefinedToOptional } from "../../app/common/types.ts"
-import { CharacterModel } from "../CharacterModel.ts"
-import { RoomModel } from "../RoomModel.ts"
-import { mutation, query } from "../_generated/server.js"
-import { type Branded, partial, requireDoc } from "../helpers.ts"
-import { requireSceneRoomOwner } from "../scenes.ts"
+import { omit } from "../../../app/common/object.ts"
+import type { UndefinedToOptional } from "../../../app/common/types.ts"
+import { mutation, query } from "../../_generated/server.js"
+import { CharacterModel } from "../../characters/CharacterModel.ts"
+import { type Branded, partial, requireDoc } from "../../helpers/convex.ts"
+import { RoomModel } from "../../rooms/RoomModel.ts"
+import { requireSceneRoomOwner } from "../functions.ts"
 
 export const sceneTokenProperties = {
 	key: brandedString("token"),

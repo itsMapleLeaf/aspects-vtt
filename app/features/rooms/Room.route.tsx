@@ -28,7 +28,7 @@ import { RoomOwnerOnly, useCharacters, useRoom } from "./roomContext.tsx"
 export default function RoomRoute() {
 	const currentUrl = useHref(useLocation())
 	const room = useRoom()
-	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
+	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
 
 	const gameTime = new GameTime(room.gameTime)
 	const themeColor = [
@@ -89,7 +89,7 @@ export default function RoomRoute() {
 
 function SceneHeading() {
 	const room = useRoom()
-	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
+	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
 	const gameTime = new GameTime(room.gameTime)
 	if (!scene) return
 	return (
@@ -276,8 +276,8 @@ function CriticalInjuryDetails() {
 
 function JoinRoomEffect() {
 	const room = useRoom()
-	const user = useQuery(api.auth.user)
-	const join = useMutation(api.rooms.join)
+	const user = useQuery(api.auth.functions.user)
+	const join = useMutation(api.rooms.functions.join)
 	const hasJoined = room.players.some((p) => p.clerkId === user?.value?.clerkId)
 
 	useEffect(() => {
@@ -301,7 +301,7 @@ function MessagesPanel() {
 }
 
 function GeneralSkillsList() {
-	const notionData = useQuery(api.notionImports.get)
+	const notionData = useQuery(api.notionImports.functions.get)
 	return (
 		<DefinitionList
 			items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name))}

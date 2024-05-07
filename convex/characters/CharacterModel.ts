@@ -1,12 +1,12 @@
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError, type Infer } from "convex/values"
-import { Result } from "../app/common/Result.ts"
-import { RoomModel } from "./RoomModel.ts"
-import type { Doc, Id } from "./_generated/dataModel"
-import type { MutationCtx, QueryCtx } from "./_generated/server"
-import type { characterProperties } from "./characters"
-import type { Branded } from "./helpers.ts"
-import { getUserFromIdentity } from "./users.ts"
+import { Result } from "../../app/common/Result.ts"
+import type { Doc, Id } from "../_generated/dataModel"
+import type { MutationCtx, QueryCtx } from "../_generated/server"
+import { getUserFromIdentity } from "../auth/helpers.ts"
+import type { Branded } from "../helpers/convex.ts"
+import { RoomModel } from "../rooms/RoomModel.ts"
+import type { characterProperties } from "./functions.ts"
 
 const characterDefaults: Required<{
 	[K in keyof typeof characterProperties]: Exclude<

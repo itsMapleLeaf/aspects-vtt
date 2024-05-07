@@ -1,13 +1,13 @@
 import { paginationOptsValidator } from "convex/server"
 import { ConvexError, type Infer, v } from "convex/values"
 import { Effect } from "effect"
-import { expect } from "../app/common/expect.ts"
-import { pick } from "../app/common/object.ts"
-import { range } from "../app/common/range.ts"
-import { CharacterModel } from "./CharacterModel.js"
-import { mutation, query } from "./_generated/server.js"
-import { QueryCtxService } from "./effect.js"
-import { getUserFromClerkId, getUserFromIdentity } from "./users.js"
+import { expect } from "../../app/common/expect.ts"
+import { pick } from "../../app/common/object.ts"
+import { range } from "../../app/common/range.ts"
+import { mutation, query } from "../_generated/server.js"
+import { getUserFromClerkId, getUserFromIdentity } from "../auth/helpers.ts"
+import { CharacterModel } from "../characters/CharacterModel.js"
+import { QueryCtxService } from "../helpers/effect.js"
 
 export const diceRollValidator = v.object({
 	dice: v.array(v.object({ key: v.string(), name: v.string(), result: v.number() })),

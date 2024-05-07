@@ -11,7 +11,7 @@ import { Button } from "../../ui/Button.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 
-export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.get>["value"]>
+export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.functions.get>["value"]>
 
 const RoomContext = createContext<ApiRoom | typeof empty>(empty)
 const CharacterContext = createContext<ApiCharacter[] | typeof empty>(empty)
@@ -23,8 +23,8 @@ export function RoomProvider({
 	slug: string
 	children: React.ReactNode
 }) {
-	const room = useQuery(api.rooms.get, { slug })
-	const characters = useQuery(api.characters.list, { roomId: slug })
+	const room = useQuery(api.rooms.functions.get, { slug })
+	const characters = useQuery(api.characters.functions.list, { roomId: slug })
 
 	return room === undefined || characters === undefined ? (
 		<div className="flex h-dvh flex-col items-center justify-center">

@@ -25,13 +25,13 @@ export function CombatInitiative() {
 		members = [],
 		currentMemberId,
 		currentMemberIndex = 0,
-	} = useQuery(api.rooms.combat.getCombatMembers, {
+	} = useQuery(api.rooms.combat.functions.getCombatMembers, {
 		roomId: room._id,
 	}) ?? {}
 
-	const moveMember = useMutation(api.rooms.combat.moveMember).withOptimisticUpdate(
+	const moveMember = useMutation(api.rooms.combat.functions.moveMember).withOptimisticUpdate(
 		(store, args) => {
-			for (const entry of queryMutators(store, api.rooms.combat.getCombatMembers)) {
+			for (const entry of queryMutators(store, api.rooms.combat.functions.getCombatMembers)) {
 				entry.set({
 					...entry.value,
 					members: withMovedItem(entry.value.members, args.fromIndex, args.toIndex),
@@ -40,29 +40,29 @@ export function CombatInitiative() {
 		},
 	)
 
-	const setCurrentMember = useMutation(api.rooms.combat.setCurrentMember).withOptimisticUpdate(
-		(store, args) => {
-			for (const entry of queryMutators(store, api.rooms.combat.getCombatMembers)) {
-				entry.set({
-					...entry.value,
-					currentMemberId: args.characterId,
-				})
-			}
-		},
-	)
+	const setCurrentMember = useMutation(
+		api.rooms.combat.functions.setCurrentMember,
+	).withOptimisticUpdate((store, args) => {
+		for (const entry of queryMutators(store, api.rooms.combat.functions.getCombatMembers)) {
+			entry.set({
+				...entry.value,
+				currentMemberId: args.characterId,
+			})
+		}
+	})
 
 	const [animateRef] = useAutoAnimate({
 		easing: "ease-out",
 	})
 
 	const actions = {
-		startCombat: useMutation(api.rooms.combat.start),
-		endCombat: useMutation(api.rooms.combat.end),
-		advance: useMutation(api.rooms.combat.advance),
-		back: useMutation(api.rooms.combat.back),
-		reset: useMutation(api.rooms.combat.reset),
-		addMember: useMutation(api.rooms.combat.addMember),
-		removeMember: useMutation(api.rooms.combat.removeMember),
+		startCombat: useMutation(api.rooms.combat.functions.start),
+		endCombat: useMutation(api.rooms.combat.functions.end),
+		advance: useMutation(api.rooms.combat.functions.advance),
+		back: useMutation(api.rooms.combat.functions.back),
+		reset: useMutation(api.rooms.combat.functions.reset),
+		addMember: useMutation(api.rooms.combat.functions.addMember),
+		removeMember: useMutation(api.rooms.combat.functions.removeMember),
 	}
 
 	const attributes = useAttributes()
@@ -167,7 +167,7 @@ export function CombatMemberItem(props: {
 }) {
 	const room = useRoom()
 	const character = useCharacter(props.characterId)
-	const removeMember = useMutation(api.rooms.combat.removeMember)
+	const removeMember = useMutation(api.rooms.combat.functions.removeMember)
 
 	const className = panel(
 		"h-22 flex w-full items-center justify-between text-start transition-[color,border-color,opacity]",
@@ -243,7 +243,7 @@ export function CombatMemberItem(props: {
 
 function CombatEmptyState() {
 	const room = useRoom()
-	const startCombat = useMutation(api.rooms.combat.start)
+	const startCombat = useMutation(api.rooms.combat.functions.start)
 	const attributes = useAttributes()
 
 	const form = useForm({
@@ -282,7 +282,7 @@ function CombatEmptyState() {
 }
 
 function useAttributes() {
-	const notionImports = useQuery(api.notionImports.get)
+	const notionImports = useQuery(api.notionImports.functions.get)
 	return notionImports?.attributes ?? []
 }
 

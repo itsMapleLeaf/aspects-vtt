@@ -8,7 +8,7 @@ const uploadResultSchema = z.object({
 })
 
 export async function uploadImage(file: File, convex: ConvexReactClient): Promise<Id<"_storage">> {
-	const url = await convex.mutation(api.storage.getUploadUrl)
+	const url = await convex.mutation(api.storage.functions.getUploadUrl)
 
 	const response = await fetch(url, {
 		method: "POST",

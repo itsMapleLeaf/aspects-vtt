@@ -8,8 +8,8 @@ import { useState } from "react"
 import * as React from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
-import type { Branded } from "../../../convex/helpers.ts"
-import type { ApiToken } from "../../../convex/scenes/tokens.ts"
+import type { Branded } from "../../../convex/helpers/convex.ts"
+import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { Rect } from "../../common/Rect.ts"
 import { keyedByProperty, patchByKey } from "../../common/collection.ts"
 import { sortBy } from "../../common/collection.ts"
@@ -47,7 +47,7 @@ import { useViewport } from "./viewport.tsx"
 
 export const SceneTokens = observer(function SceneTokens({ scene }: { scene: ApiScene }) {
 	const viewport = useViewport()
-	const tokens = useQuery(api.scenes.tokens.list, { sceneId: scene._id }) ?? []
+	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
 	const [dragOffset, setDragOffset] = useState(Vector.zero)
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
@@ -380,10 +380,10 @@ function TokenMenu({
 	onTokenSelected: (token: ApiToken) => void
 }) {
 	const room = useRoom()
-	const scene = useQuery(api.scenes.getCurrent, { roomId: room._id })
+	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
 	const updateToken = useUpdateTokenMutation()
-	const removeToken = useMutation(api.scenes.tokens.remove)
-	const updateCharacter = useMutation(api.characters.update)
+	const removeToken = useMutation(api.scenes.tokens.functions.remove)
+	const updateCharacter = useMutation(api.characters.functions.update)
 
 	// even if the menu is only rendered with 1+ tokens,
 	// it renders a 0 token "flash of nothing state" during the close state,
@@ -406,9 +406,10 @@ function TokenMenu({
 				fixed
 				flip={false}
 				className="flex w-min flex-col gap-3 rounded p-3"
+				unmountOnHide={false}
 				hideOnInteractOutside={false}
 			>
-				<div className="flex gap-[inherit]">
+				<div className="flex justify-center gap-[inherit]">
 					{singleSelectedCharacter && (
 						<CharacterModal character={singleSelectedCharacter}>
 							<ModalButton render={<Button tooltip="View profile" icon={<Lucide.BookUser />} />} />
@@ -500,7 +501,7 @@ function TokenMenu({
 						/>
 					)}
 
-					{room.isOwner && scene && selectedTokens.length > 0 && (
+					{scene && selectedTokens.length > 0 && (
 						<Button
 							tooltip="Remove"
 							icon={<Lucide.X />}
@@ -513,20 +514,22 @@ function TokenMenu({
 					)}
 				</div>
 
-				{singleSelectedCharacter?.isOwner && (
-					<div className="grid auto-cols-fr grid-flow-col gap-2">
-						<CharacterDamageField character={singleSelectedCharacter} />
-						<CharacterFatigueField character={singleSelectedCharacter} />
-					</div>
-				)}
+				<div className="min-w-[320px] empty:hidden">
+					{singleSelectedCharacter?.isOwner && (
+						<div className="grid auto-cols-fr grid-flow-col gap-2">
+							<CharacterDamageField character={singleSelectedCharacter} />
+							<CharacterFatigueField character={singleSelectedCharacter} />
+						</div>
+					)}
 
-				{singleSelectedCharacter && (
-					<FormField label="Skills">
-						<CharacterSkillsShortList character={singleSelectedCharacter} />
-					</FormField>
-				)}
+					{room.isOwner && singleSelectedCharacter && (
+						<FormField label="Skills" className="min-w-[320px]">
+							<CharacterSkillsShortList character={singleSelectedCharacter} />
+						</FormField>
+					)}
 
-				{singleSelectedCharacter && <CharacterNotesFields character={singleSelectedCharacter} />}
+					{singleSelectedCharacter && <CharacterNotesFields character={singleSelectedCharacter} />}
+				</div>
 			</PopoverPanel>
 		</Popover>
 	)
@@ -537,7 +540,7 @@ function RollAttributeMenu(props: {
 	children: React.ReactElement
 }) {
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
-	const notionImports = useQuery(api.notionImports.get)
+	const notionImports = useQuery(api.notionImports.functions.get)
 	return (
 		<Menu placement="bottom">
 			<MenuButton render={props.children} />
@@ -595,9 +598,9 @@ function CharacterSkillsShortList({ character }: { character: ApiCharacter }) {
 
 function useAddTokenMutation() {
 	const characters = useCharacters()
-	return useMutation(api.scenes.tokens.add).withOptimisticUpdate((store, args) => {
+	return useMutation(api.scenes.tokens.functions.add).withOptimisticUpdate((store, args) => {
 		const charactersById = keyedByProperty(characters, "_id")
-		for (const entry of queryMutators(store, api.scenes.tokens.list)) {
+		for (const entry of queryMutators(store, api.scenes.tokens.functions.list)) {
 			entry.set([
 				...entry.value,
 				{
@@ -611,8 +614,8 @@ function useAddTokenMutation() {
 }
 
 function useUpdateTokenMutation() {
-	return useMutation(api.scenes.tokens.update).withOptimisticUpdate((store, args) => {
-		for (const entry of queryMutators(store, api.scenes.tokens.list)) {
+	return useMutation(api.scenes.tokens.functions.update).withOptimisticUpdate((store, args) => {
+		for (const entry of queryMutators(store, api.scenes.tokens.functions.list)) {
 			if (!entry.value) continue
 			entry.set(patchByKey(entry.value, "key", args).toArray())
 		}

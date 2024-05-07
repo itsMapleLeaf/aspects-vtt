@@ -12,11 +12,11 @@ import { useRoom } from "../rooms/roomContext.tsx"
 
 export function SceneList() {
 	const room = useRoom()
-	const scenes = useQuery(api.scenes.list, { roomId: room._id })
-	const [createSceneState, createScene] = useMutationState(api.scenes.create)
-	const [updateRoomState, updateRoom] = useMutationState(api.rooms.update)
-	const removeScene = useMutation(api.scenes.remove)
-	const duplicateScene = useMutation(api.scenes.duplicate)
+	const scenes = useQuery(api.scenes.functions.list, { roomId: room._id })
+	const [createSceneState, createScene] = useMutationState(api.scenes.functions.create)
+	const [updateRoomState, updateRoom] = useMutationState(api.rooms.functions.update)
+	const removeScene = useMutation(api.scenes.functions.remove)
+	const duplicateScene = useMutation(api.scenes.functions.duplicate)
 	const modal = useModalContext()
 	const prompt = usePrompt()
 

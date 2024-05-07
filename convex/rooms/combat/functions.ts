@@ -1,15 +1,14 @@
 import { deprecated, nullable } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { indexLooped, withMovedItem } from "../../app/common/array.ts"
-import { expect } from "../../app/common/expect.ts"
-import { roll } from "../../app/common/random.ts"
-import { CharacterModel } from "../CharacterModel.ts"
+import { indexLooped, withMovedItem } from "../../../app/common/array.ts"
+import { expect } from "../../../app/common/expect.ts"
+import { mutation } from "../../_generated/server.js"
+import { CharacterModel } from "../../characters/CharacterModel.ts"
+import { effectQuery, getDoc } from "../../helpers/effect.ts"
+import { attributeIdValidator } from "../../notionImports/functions.ts"
 import { RoomModel } from "../RoomModel.ts"
-import type { Id } from "../_generated/dataModel.js"
-import { type QueryCtx, mutation } from "../_generated/server.js"
-import { effectQuery, getDoc } from "../effect.ts"
-import { type AttributeId, attributeIdValidator, getNotionImports } from "../notionImports.ts"
+import { getInitiativeRoll, getRoomCombat } from "./helpers.ts"
 
 export const memberValidator = v.object({
 	characterId: v.id("characters"),
@@ -321,27 +320,3 @@ export const moveMember = mutation({
 		})
 	},
 })
-
-class CombatInactiveError {
-	readonly _tag = "CombatInactiveError"
-}
-
-function getRoomCombat(roomId: Id<"rooms">) {
-	return Effect.gen(function* () {
-		const room = yield* getDoc(roomId)
-		return room?.combat ?? (yield* Effect.fail(new CombatInactiveError()))
-	})
-}
-
-async function getInitiativeRoll(
-	ctx: QueryCtx,
-	characterId: Id<"characters">,
-	initiativeAttributeId: AttributeId | null,
-) {
-	const character = await ctx.db.get(characterId)
-
-	const notionImports = await getNotionImports(ctx)
-	const attribute = notionImports?.attributes.find((it) => it.id === initiativeAttributeId)
-
-	return character && attribute ? roll(character[attribute.key] ?? 4) : null
-}

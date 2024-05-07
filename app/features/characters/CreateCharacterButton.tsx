@@ -7,7 +7,7 @@ import { useRoom } from "../rooms/roomContext.tsx"
 
 export function CreateCharacterButton({ onCreate }: { onCreate: (id: Id<"characters">) => void }) {
 	const room = useRoom()
-	const create = useMutation(api.characters.create)
+	const create = useMutation(api.characters.functions.create)
 	return (
 		<Button
 			icon={<Lucide.Plus />}

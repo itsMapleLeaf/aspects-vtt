@@ -13,14 +13,13 @@ import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
-import { tokenSelectedEvent } from "../tokens/events.ts"
 
 export function MessageList() {
 	const room = useRoom()
 
 	const listItemCount = 20
 	const list = usePaginatedQuery(
-		api.messages.list,
+		api.messages.functions.list,
 		{ roomId: room._id },
 		{ initialNumItems: listItemCount },
 	)
@@ -48,7 +47,7 @@ export function MessageList() {
 	)
 }
 
-type ApiMessage = PaginatedQueryItem<typeof api.messages.list>
+type ApiMessage = PaginatedQueryItem<typeof api.messages.functions.list>
 
 function MessagePanel({ message }: { message: ApiMessage }) {
 	return (
@@ -83,7 +82,7 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 
 function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) {
 	// const sceneContext = useSceneContext()
-	const updateCharacter = useMutation(api.characters.update)
+	const updateCharacter = useMutation(api.characters.functions.update)
 	const diceTotal = props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ?? 0
 
 	function updateCharacters(
@@ -131,7 +130,7 @@ function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) 
 	)
 }
 
-type DiceRoll = NonNullable<PaginatedQueryItem<typeof api.messages.list>["diceRoll"]>
+type DiceRoll = NonNullable<PaginatedQueryItem<typeof api.messages.functions.list>["diceRoll"]>
 
 function DiceRollSummary({ roll }: { roll: DiceRoll }) {
 	const diceResultsByKindName = new Map<string, DiceRoll["dice"]>()
@@ -222,7 +221,7 @@ function Mention({ characterId }: { characterId: string }) {
 			className="inline-block rounded border border-primary-500 bg-primary-700/25 px-1.5 py-1 leading-none transition hover:bg-primary-700/50 active:bg-primary-700/75 active:duration-0"
 			onClick={() => {
 				if (!character) return
-				tokenSelectedEvent.emit(character._id)
+				// todo: select the token on the map
 			}}
 		>
 			{character ? character.displayName : "unknown character"}

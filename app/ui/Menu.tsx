@@ -1,6 +1,5 @@
 import * as Ariakit from "@ariakit/react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
-import { useAsyncState } from "../common/useAsyncState.ts"
 import { Button } from "./Button.tsx"
 import { panel } from "./styles.ts"
 
@@ -35,14 +34,6 @@ interface MenuItemProps extends Ariakit.MenuItemProps<"div"> {
 }
 
 export function MenuItem({ text, icon, ref, ...props }: MenuItemProps) {
-	const menu = Ariakit.useMenuContext()
-
-	const [state, handleClick] = useAsyncState(async (event: React.MouseEvent<HTMLElement>) => {
-		event.preventDefault()
-		await props.onClick?.(event)
-		menu?.hide()
-	})
-
 	return (
 		<Ariakit.MenuItem
 			{...props}
@@ -51,8 +42,6 @@ export function MenuItem({ text, icon, ref, ...props }: MenuItemProps) {
 					text={text}
 					icon={icon}
 					className="cursor-default justify-start border-none text-left"
-					onClick={handleClick}
-					pending={state.status === "pending"}
 				/>
 			}
 		/>

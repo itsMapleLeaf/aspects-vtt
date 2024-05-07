@@ -31,7 +31,7 @@ import { useCharacterSkills } from "./useCharacterSkills.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
-	const notionData = useQuery(api.notionImports.get)
+	const notionData = useQuery(api.notionImports.functions.get)
 	const skills = useCharacterSkills(character)
 
 	return (
@@ -200,7 +200,7 @@ export function CharacterFatigueField({
  */
 type UpdateableCharacterField<ValueType> = Extract<
 	keyof PickByValue<ApiCharacter, ValueType>,
-	keyof FunctionArgs<typeof api.characters.update>
+	keyof FunctionArgs<typeof api.characters.functions.update>
 >
 
 function CharacterInputField({
@@ -212,7 +212,7 @@ function CharacterInputField({
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const inputId = useId()
 	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
@@ -237,7 +237,7 @@ function CharacterTextAreaField({
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -260,7 +260,7 @@ function CharacterCheckboxField({
 	field: UpdateableCharacterField<boolean>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const value = state.args?.[field] ?? character[field] ?? false
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -282,7 +282,7 @@ function CharacterNumberField({
 	field: UpdateableCharacterField<number>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const value = state.args?.[field] ?? character[field] ?? 0
 
 	function setValue(newValue: number) {
@@ -307,7 +307,7 @@ function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue
 	label?: string
 	options: SelectOption<ApiCharacter[Field]>[]
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const inputId = useId()
 	const value = state.args?.[field] ?? character[field]
 	return (
@@ -332,7 +332,7 @@ function CharacterDiceField({
 	field: ApiAttribute["key"]
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.update))
+	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const value = state.args?.[field] ?? character[field]
 	const inputId = useId()
 
@@ -366,7 +366,7 @@ function CharacterImageField({
 }: {
 	character: { _id: Id<"characters">; imageId?: Id<"_storage"> | null }
 }) {
-	const update = useMutation(api.characters.update)
+	const update = useMutation(api.characters.functions.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
 	const convex = useConvex()
 	const inputId = useId()

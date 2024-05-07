@@ -19,7 +19,7 @@ export function DeleteCharacterButton({
 	character: { _id: Id<"characters">; displayName: string }
 	text?: string
 }) {
-	const remove = useMutation(api.characters.remove)
+	const remove = useMutation(api.characters.functions.remove)
 	return (
 		<Modal>
 			{(store) => (
