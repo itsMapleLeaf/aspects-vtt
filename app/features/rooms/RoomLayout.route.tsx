@@ -1,8 +1,8 @@
 import { Outlet, useParams } from "@remix-run/react"
 import { $params } from "remix-routes"
-import { RoomProvider } from "../../features/rooms/roomContext.tsx"
+import { RoomProvider } from "./roomContext.tsx"
 
-export default function RoomRoute() {
+export default function RoomLayout() {
 	const { slug } = $params("/rooms/:slug", useParams())
 	return (
 		<RoomProvider slug={slug}>

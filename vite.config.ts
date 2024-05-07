@@ -1,7 +1,6 @@
 import { vitePlugin as remix } from "@remix-run/dev"
 import babel from "@rollup/plugin-babel"
 import { vercelPreset } from "@vercel/remix/vite"
-import { flatRoutes } from "remix-flat-routes"
 import { remixRoutes } from "remix-routes/vite.js"
 import { visualizer } from "rollup-plugin-visualizer"
 import { defineConfig } from "vite"
@@ -22,7 +21,14 @@ export default defineConfig({
 				v3_throwAbortReason: true,
 			},
 			presets: process.env.VERCEL ? [vercelPreset()] : [],
-			routes: async (defineRoutes) => flatRoutes("routes", defineRoutes),
+			routes: async (defineRoutes) => {
+				return defineRoutes((route) => {
+					route("/", "features/rooms/RoomList.route.tsx", { index: true })
+					route("/rooms/:slug", "features/rooms/RoomLayout.route.tsx", () => {
+						route(undefined, "features/rooms/Room.route.tsx", { index: true })
+					})
+				})
+			},
 		}),
 		remixRoutes(),
 		inspect(),

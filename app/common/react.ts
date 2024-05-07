@@ -10,14 +10,14 @@ import {
 } from "react"
 import { timeoutEffect } from "./async.ts"
 
-export function useDelayedValue<T>(value: T, delay: number): T {
-	const [delayed, setDelayed] = useState(value)
+export function useDelayedValue<T>(value: T, delay: number, init?: T): T {
+	const [delayed, setDelayed] = useState(init ?? value)
 	useEffect(() => timeoutEffect(delay, setDelayed, value), [value, delay])
 	return delayed
 }
 
 export function usePendingDelay(pendingInput: boolean) {
-	return useDelayedValue(pendingInput, pendingInput ? 300 : 500)
+	return useDelayedValue(pendingInput, pendingInput ? 300 : 500, false)
 }
 
 export function useIsomorphicValue<ClientValue = undefined, ServerValue = undefined>(options: {

@@ -4,19 +4,26 @@ installIntoGlobal()
 import "@fontsource-variable/nunito"
 import "./root.css"
 
-import { ClerkApp, useAuth, useUser } from "@clerk/remix"
+import { ClerkApp, ClerkLoading, SignInButton, SignUpButton, useAuth } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
-import { dark } from "@clerk/themes"
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
-import { ConvexReactClient, useConvexAuth, useMutation, useQuery } from "convex/react"
+import {
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	useHref,
+	useLocation,
+} from "@remix-run/react"
+import { AuthLoading, Authenticated, ConvexReactClient, Unauthenticated } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
-import { isEqual } from "lodash-es"
-import { useEffect } from "react"
-import { api } from "../convex/_generated/api.js"
-import { expect } from "./common/expect.ts"
+import * as Lucide from "lucide-react"
+import { clerkConfig } from "./clerk.ts"
 import { clientEnv } from "./env.ts"
-import { theme, toHex } from "./theme.ts"
+import { AppHeaderLayout } from "./ui/AppHeaderLayout.tsx"
+import { Button } from "./ui/Button.tsx"
+import { EmptyStatePanel } from "./ui/EmptyState.tsx"
 import { Loading } from "./ui/Loading.tsx"
 import { PromptProvider } from "./ui/Prompt.tsx"
 
@@ -47,53 +54,45 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-function App() {
+export default ClerkApp(function App() {
 	return (
 		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-			<ConvexAuthGuard>
+			<AuthLoading>
+				<Loading fill="screen" />
+			</AuthLoading>
+			<Unauthenticated>
+				<UnauthenticatedMessage />
+			</Unauthenticated>
+			<Authenticated>
 				<Outlet />
-			</ConvexAuthGuard>
+			</Authenticated>
 		</ConvexProviderWithClerk>
 	)
-}
+}, clerkConfig)
 
-export default ClerkApp(App, {
-	telemetry: false,
-	appearance: {
-		baseTheme: dark,
-		variables: {
-			borderRadius: "0.25rem",
-			// clerk doesn't accept oklch() :(
-			colorBackground: toHex(expect(theme.colors.primaryStatic[200])),
-			colorText: toHex(expect(theme.colors.primaryStatic[900])),
-			colorPrimary: toHex(expect(theme.colors.primaryStatic[600])),
-			colorInputBackground: toHex(expect(theme.colors.primaryStatic[300])),
-			colorInputText: toHex(expect(theme.colors.primaryStatic[900])),
-		},
-	},
-})
-
-function ConvexAuthGuard({ children }: { children: React.ReactNode }) {
-	const { isLoading, isAuthenticated } = useConvexAuth()
-	const { user } = useUser()
-	const currentUser = useQuery(api.auth.user)
-	const updateUser = useMutation(api.auth.setup)
-
-	useEffect(() => {
-		const isReady = user && isAuthenticated && currentUser !== undefined
-		if (!isReady) return
-
-		const newUser = {
-			name: user.username || user.firstName || user.id,
-			avatarUrl: user.imageUrl,
-		}
-		if (isEqual(currentUser, newUser)) {
-			console.debug("User properties are the same, update skipped")
-			return
-		}
-
-		updateUser(newUser)
-	}, [user, isAuthenticated, updateUser, currentUser])
-
-	return isLoading ? <Loading fill="screen" /> : children
+function UnauthenticatedMessage() {
+	const currentUrl = useHref(useLocation())
+	return (
+		<AppHeaderLayout>
+			<main>
+				<EmptyStatePanel
+					icon={<Lucide.Lock />}
+					message="You must be signed in to continue."
+					actions={
+						<>
+							<ClerkLoading>
+								<Loading size="sm" />
+							</ClerkLoading>
+							<SignInButton mode="modal" forceRedirectUrl={currentUrl}>
+								<Button icon={<Lucide.LogIn />} text="Sign in" />
+							</SignInButton>
+							<SignUpButton mode="modal" forceRedirectUrl={currentUrl}>
+								<Button icon={<Lucide.UserPlus />} text="Create account" />
+							</SignUpButton>
+						</>
+					}
+				/>
+			</main>
+		</AppHeaderLayout>
+	)
 }
