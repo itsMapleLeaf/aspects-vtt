@@ -1,6 +1,6 @@
-import type { ValidatedFunction } from "convex/server"
 import type { ObjectType, PropertyValidators } from "convex/values"
-import { Context, Effect, pipe } from "effect"
+import { Context, Data, Effect, pipe } from "effect"
+import { Iterator } from "iterator-helpers-polyfill"
 import type { Id, TableNames } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
 import { mutation, query } from "../_generated/server.js"
@@ -11,6 +11,14 @@ export class MutationCtxService extends Context.Tag("MutationCtxService")<
 	MutationCtxService,
 	MutationCtx
 >() {}
+
+export class ConvexInternalError extends Data.TaggedError("ConvexInternalError")<{
+	cause: unknown
+}> {}
+
+export class ConvexDocNotFoundError extends Data.TaggedError("ConvexDocNotFoundError")<{
+	id: string
+}> {}
 
 export function effectQuery<Args extends PropertyValidators, Output>(options: {
 	args: Args
@@ -26,18 +34,15 @@ export function effectQuery<Args extends PropertyValidators, Output>(options: {
 	})
 }
 
-export function effectMutation<
-	Options extends ValidatedFunction<
-		MutationCtx,
-		PropertyValidators,
-		Effect.Effect<unknown, never, MutationCtxService>
-	>,
->(options: Options) {
+export function effectMutation<Args extends PropertyValidators, Output>(options: {
+	args: Args
+	handler: (args: ObjectType<Args>) => Effect.Effect<Output, never, MutationCtxService>
+}) {
 	return mutation({
 		...options,
 		handler(ctx, args) {
 			return Effect.runPromise(
-				pipe(options.handler(ctx, args), Effect.provideService(MutationCtxService, ctx)),
+				pipe(options.handler(args), Effect.provideService(MutationCtxService, ctx)),
 			)
 		},
 	})
@@ -46,7 +51,17 @@ export function effectMutation<
 export function getDoc<TableName extends TableNames>(id: Id<TableName>) {
 	return Effect.gen(function* () {
 		const ctx = yield* QueryCtxService
-		const doc = yield* Effect.tryPromise(() => ctx.db.get(id))
-		return yield* Effect.fromNullable(doc)
+		const doc = yield* Effect.tryPromise({
+			try: () => ctx.db.get(id),
+			catch: (cause) => new ConvexInternalError({ cause }),
+		})
+		return yield* Effect.mapError(
+			Effect.fromNullable(doc),
+			() => new ConvexDocNotFoundError({ id }),
+		)
 	})
+}
+
+export function getDocs<TableName extends TableNames>(ids: Iterable<Id<TableName>>) {
+	return Effect.all(Iterator.from(ids).map(getDoc))
 }
