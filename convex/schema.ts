@@ -8,7 +8,7 @@ import { diceInputValidator, diceRollValidator } from "./messages/functions.ts"
 import { notionImportProperties } from "./notionImports/functions.ts"
 import { roomCombatValidator } from "./rooms/combat/functions.ts"
 import { roomProperties } from "./rooms/functions.ts"
-import { sceneProperties } from "./scenes/functions.ts"
+import { sceneProperties } from "./scenes/types.ts"
 
 export default defineSchema({
 	users: defineTable({

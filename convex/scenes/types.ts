@@ -1,8 +1,17 @@
-import { type Infer, v } from "convex/values"
+import { deprecated, nullable } from "convex-helpers/validators"
+import { v } from "convex/values"
+import { sceneTokenProperties } from "./tokens/types"
 
-export const tokenValidator = v.object({
-	position: v.object({ x: v.number(), y: v.number() }),
-	visible: v.boolean(),
-})
+export const sceneUpdateProperties = {
+	name: v.string(),
+	background: nullable(v.id("_storage")),
+	backgroundDimensions: v.optional(v.object({ x: v.number(), y: v.number() })),
+	cellSize: v.number(),
+}
 
-export type Token = Infer<typeof tokenValidator>
+export const sceneProperties = {
+	...sceneUpdateProperties,
+	roomId: v.id("rooms"),
+	tokens: v.optional(v.array(v.object(sceneTokenProperties))),
+	characterTokens: deprecated,
+}

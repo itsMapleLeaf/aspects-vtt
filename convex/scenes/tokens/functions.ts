@@ -1,4 +1,4 @@
-import { brandedString, literals } from "convex-helpers/validators"
+import { brandedString } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
 import { omit } from "../../../app/common/object.ts"
 import type { UndefinedToOptional } from "../../../app/common/types.ts"
@@ -7,20 +7,7 @@ import { CharacterModel } from "../../characters/CharacterModel.ts"
 import { type Branded, partial, requireDoc } from "../../helpers/convex.ts"
 import { RoomModel } from "../../rooms/RoomModel.ts"
 import { requireSceneRoomOwner } from "../functions.ts"
-
-export const sceneTokenProperties = {
-	key: brandedString("token"),
-	position: v.object({ x: v.number(), y: v.number() }),
-	visible: v.boolean(),
-	characterId: v.optional(v.id("characters")),
-	area: v.optional(
-		v.object({
-			width: v.number(),
-			height: v.number(),
-			color: literals("red", "orange", "yellow", "green", "blue", "purple"),
-		}),
-	),
-}
+import { sceneTokenProperties } from "./types.ts"
 
 export type ApiToken = Awaited<ReturnType<typeof list>>[number]
 

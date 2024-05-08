@@ -1,25 +1,11 @@
-import { deprecated, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { partial, requireDoc } from "../helpers/convex.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
 import { requireRoomOwner } from "../rooms/functions.ts"
-import { createToken, sceneTokenProperties } from "./tokens/functions.ts"
-
-const sceneUpdateProperties = {
-	name: v.string(),
-	background: nullable(v.id("_storage")),
-	backgroundDimensions: v.optional(v.object({ x: v.number(), y: v.number() })),
-	cellSize: v.number(),
-}
-
-export const sceneProperties = {
-	...sceneUpdateProperties,
-	roomId: v.id("rooms"),
-	tokens: v.optional(v.array(v.object({ ...sceneTokenProperties }))), // spreading this fixes a weird transpiler bug
-	characterTokens: deprecated,
-}
+import { createToken } from "./tokens/functions.ts"
+import { sceneUpdateProperties } from "./types.ts"
 
 export const list = query({
 	args: {

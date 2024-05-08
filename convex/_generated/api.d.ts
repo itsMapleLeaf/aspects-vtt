@@ -25,7 +25,6 @@ import type * as helpers_convex from "../helpers/convex.js";
 import type * as helpers_effect from "../helpers/effect.js";
 import type * as http from "../http.js";
 import type * as messages_functions from "../messages/functions.js";
-import type * as migrations from "../migrations.js";
 import type * as notionImports_functions from "../notionImports/functions.js";
 import type * as rooms_combat_functions from "../rooms/combat/functions.js";
 import type * as rooms_combat_helpers from "../rooms/combat/helpers.js";
@@ -33,6 +32,7 @@ import type * as rooms_functions from "../rooms/functions.js";
 import type * as rooms_RoomModel from "../rooms/RoomModel.js";
 import type * as scenes_functions from "../scenes/functions.js";
 import type * as scenes_tokens_functions from "../scenes/tokens/functions.js";
+import type * as scenes_tokens_types from "../scenes/tokens/types.js";
 import type * as scenes_types from "../scenes/types.js";
 import type * as storage_functions from "../storage/functions.js";
 
@@ -56,7 +56,6 @@ declare const fullApi: ApiFromModules<{
   "helpers/effect": typeof helpers_effect;
   http: typeof http;
   "messages/functions": typeof messages_functions;
-  migrations: typeof migrations;
   "notionImports/functions": typeof notionImports_functions;
   "rooms/combat/functions": typeof rooms_combat_functions;
   "rooms/combat/helpers": typeof rooms_combat_helpers;
@@ -64,6 +63,7 @@ declare const fullApi: ApiFromModules<{
   "rooms/RoomModel": typeof rooms_RoomModel;
   "scenes/functions": typeof scenes_functions;
   "scenes/tokens/functions": typeof scenes_tokens_functions;
+  "scenes/tokens/types": typeof scenes_tokens_types;
   "scenes/types": typeof scenes_types;
   "storage/functions": typeof storage_functions;
 }>;
