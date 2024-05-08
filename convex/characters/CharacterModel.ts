@@ -1,6 +1,7 @@
 import type { WithoutSystemFields } from "convex/server"
-import { ConvexError, type Infer } from "convex/values"
+import { ConvexError, type ObjectType } from "convex/values"
 import { Result } from "../../app/common/Result.ts"
+import type { OmitByValue } from "../../app/common/types.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "../_generated/server"
 import { getUserFromIdentity } from "../auth/helpers.ts"
@@ -8,12 +9,7 @@ import type { Branded } from "../helpers/convex.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
 import type { characterProperties } from "./functions.ts"
 
-const characterDefaults: Required<{
-	[K in keyof typeof characterProperties]: Exclude<
-		Infer<(typeof characterProperties)[K]>,
-		undefined
-	>
-}> = {
+const characterDefaults = {
 	// profile
 	name: "",
 	pronouns: "",
@@ -40,17 +36,11 @@ const characterDefaults: Required<{
 	ownerNotes: "",
 	playerNotes: "",
 
-	// token properties
-	token: {
-		position: { x: 0, y: 0 },
-		visible: false,
-	},
-
 	// visibility
 	visible: false,
 	nameVisible: false,
 	playerId: null,
-}
+} satisfies OmitByValue<ObjectType<typeof characterProperties>, null | undefined>
 
 export class CharacterModel {
 	readonly ctx
@@ -70,12 +60,6 @@ export class CharacterModel {
 			fatigueThreshold:
 				doc.fatigueThreshold ??
 				docWithDefaults.sense + docWithDefaults.intellect + docWithDefaults.wit,
-
-			// temporary until implementing token toolbars to actually toggle visibility
-			token: {
-				...docWithDefaults.token,
-				visible: docWithDefaults.visible,
-			},
 		}
 	}
 

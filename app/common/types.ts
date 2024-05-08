@@ -22,9 +22,14 @@ export type Disallowed<T extends object> = {
 }
 
 /** Pick properties in an object type whose values are assignable to the given type */
-export type PickByValue<Source, Value> = {
-	[K in keyof Source as Value extends Source[K] ? K : never]: Source[K]
-}
+export type PickByValue<Source, Value> = Simplify<{
+	[K in keyof Source as Source[K] extends Value ? K : never]: Source[K]
+}>
+
+/** Omit properties in an object type whose values are assignable to the given type */
+export type OmitByValue<Source, Value> = Simplify<{
+	[K in keyof Source as Source[K] extends Value ? never : K]: Source[K]
+}>
 
 export type Awaitable<T> = T | PromiseLike<T>
 

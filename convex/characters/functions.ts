@@ -1,4 +1,4 @@
-import { brandedString, literals, nullable } from "convex-helpers/validators"
+import { brandedString, deprecated, literals, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { generateSlug } from "random-word-slugs"
 import { omit } from "../../app/common/object.ts"
@@ -9,7 +9,6 @@ import { getUserFromIdentity } from "../auth/helpers.ts"
 import { requireDoc } from "../helpers/convex.ts"
 import { create as createMessage, diceInputValidator } from "../messages/functions.ts"
 import { RoomModel } from "../rooms/RoomModel.js"
-import { tokenValidator } from "../scenes/types.js"
 import { CharacterModel } from "./CharacterModel.js"
 
 export const characterProperties = {
@@ -18,8 +17,8 @@ export const characterProperties = {
 	pronouns: v.optional(v.string()),
 	imageId: v.optional(v.union(v.id("_storage"), v.null())),
 	race: v.optional(v.string()),
-	coreAspect: v.optional(nullable(v.string())),
-	aspectSkills: v.optional(v.array(v.string())),
+	coreAspect: v.optional(nullable(v.string())), // todo: use aspect ID
+	aspectSkills: v.optional(v.array(v.string())), // todo: move to aspect skill IDs
 
 	// stats
 	damage: v.optional(v.number()),
@@ -39,13 +38,13 @@ export const characterProperties = {
 	ownerNotes: v.optional(v.string()),
 	playerNotes: v.optional(v.string()),
 
-	// token properties
-	token: v.optional(tokenValidator),
-
 	// visibility
 	visible: v.optional(v.boolean()),
 	nameVisible: v.optional(v.boolean()),
 	playerId: v.optional(nullable(brandedString("clerkId"))),
+
+	// deprecated
+	token: deprecated,
 }
 
 export const list = query({
@@ -113,10 +112,6 @@ export const duplicate = mutation({
 		return await ctx.db.insert("characters", {
 			...omit(doc, ["_id", "_creationTime"]),
 			...(args.randomize && (await generateRandomCharacterProperties(ctx))),
-			token: doc.token && {
-				...doc.token,
-				position: { x: doc.token.position.x + 1, y: doc.token.position.y },
-			},
 		})
 	},
 })

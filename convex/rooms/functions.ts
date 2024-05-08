@@ -17,7 +17,6 @@ export const roomProperties = {
 	currentScene: v.optional(v.id("scenes")),
 	gameTime: v.optional(v.number()), // measured in days since the start of year 0
 
-	// todo: deprecate
 	mapImageId: deprecated,
 	mapDimensions: deprecated,
 	mapCellSize: deprecated,
