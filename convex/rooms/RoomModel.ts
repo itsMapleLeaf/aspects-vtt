@@ -50,10 +50,8 @@ export class RoomModel {
 	}
 
 	async getPlayers() {
-		return await this.ctx.db
-			.query("players")
-			.withIndex("by_room", (q) => q.eq("roomId", this.data._id))
-			.collect()
+		const rooms = await this.ctx.table("rooms").get(this.data._id).edge("players").docs()
+		return rooms ?? []
 	}
 
 	getIdentityPlayer() {

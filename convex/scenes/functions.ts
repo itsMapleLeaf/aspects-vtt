@@ -41,11 +41,7 @@ export const create = mutation({
 	},
 	async handler(ctx, args) {
 		const room = await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
-
-		const players = await ctx.db
-			.query("players")
-			.withIndex("by_room", (q) => q.eq("roomId", room.data._id))
-			.collect()
+		const players = await room.getPlayers()
 
 		const characters = ctx.db
 			.query("characters")
