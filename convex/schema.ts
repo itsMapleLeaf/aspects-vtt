@@ -23,11 +23,11 @@ const schema = defineEntSchema({
 		...roomProperties,
 		combat: nullish(roomCombatValidator),
 	})
+		.edges("players", { ref: "roomId" })
 		.field("slug", v.string(), { unique: true })
 		.field("ownerId", brandedString("clerkId"), { index: true }),
 
 	players: defineEnt({
-		roomId: v.id("rooms"),
 		userId: brandedString("clerkId"),
 		diceMacros: v.optional(
 			v.array(
@@ -39,7 +39,7 @@ const schema = defineEntSchema({
 			),
 		),
 	})
-		.index("by_room", ["roomId"])
+		.edge("room", { field: "roomId" })
 		.index("by_user", ["userId"])
 		.index("by_room_and_user", ["roomId", "userId"]),
 

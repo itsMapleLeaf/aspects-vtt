@@ -1,15 +1,17 @@
 import { ConvexError, v } from "convex/values"
-import { Effect } from "effect"
+import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
 import { Result } from "../../app/common/Result.ts"
 import { range } from "../../app/common/range.ts"
 import type { Id } from "../_generated/dataModel.js"
+import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import {
-	getUserFromClerkId,
-	getUserFromIdentity,
-	getUserFromIdentityEffect,
-} from "../auth/helpers.ts"
-import { QueryCtxService, getDoc } from "../helpers/effect.js"
+	MutationCtxService,
+	effectMutation,
+	getDoc,
+	queryHandlerFromEffect,
+	withQueryCtx,
+} from "../helpers/effect.js"
 import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
 import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
@@ -17,34 +19,40 @@ import { roomProperties } from "./types.ts"
 
 export const get = query({
 	args: { slug: v.string() },
-	handler: async (ctx, args) => {
-		return await RoomModel.fromSlug(ctx, args.slug)
-			.map(async (room) => {
-				const players = await room.getPlayers()
+	handler: queryHandlerFromEffect((args) =>
+		Effect.gen(function* () {
+			const room = yield* pipe(
+				withQueryCtx((ctx) => ctx.table("rooms").get("slug", args.slug)),
+				Effect.flatMap(Effect.fromNullable),
+			)
 
-				const playerUsers = await Promise.all(
-					players.map(async (player) => {
-						const user = await Effect.runPromise(
-							getUserFromClerkId(player.userId).pipe(
-								Effect.provideService(QueryCtxService, ctx),
-								Effect.tapError(Effect.logWarning),
-								Effect.orElseSucceed(() => null),
-							),
-						)
-						if (!user) return null
-						return { name: user.name, clerkId: user.clerkId, avatarUrl: user.avatarUrl }
-					}),
-				)
+			const players = yield* withQueryCtx((ctx) =>
+				ctx.table("rooms").get(room._id).edge("players").docs(),
+			)
 
-				return {
-					...room.data,
-					experience: room.data.experience ?? 0,
-					isOwner: await room.isOwner(),
-					players: playerUsers.filter(Boolean),
-				}
-			})
-			.resolveJson()
-	},
+			const playerUserIds = players?.map((it) => it.userId) ?? []
+			const playerUsers = yield* pipe(
+				withQueryCtx((ctx) =>
+					ctx
+						.table("users")
+						.filter((q) => q.or(...playerUserIds.map((id) => q.eq(q.field("clerkId"), id))))
+						.docs(),
+				),
+			)
+
+			const identityUser = yield* getUserFromIdentityEffect()
+
+			return {
+				...room,
+				players: playerUsers,
+				isOwner: identityUser.clerkId === room.ownerId,
+				experience: room.experience ?? 0,
+			}
+		}).pipe(
+			Effect.tapError(Effect.logWarning),
+			Effect.orElseSucceed(() => null),
+		),
+	),
 })
 
 export const list = query({
@@ -119,14 +127,23 @@ export const remove = mutation({
 	},
 })
 
-export const join = mutation({
+export const join = effectMutation({
 	args: {
 		id: v.id("rooms"),
 	},
-	handler: async (ctx, args) => {
-		const room = await RoomModel.fromId(ctx, args.id).getValueOrThrow()
-		await room.join(ctx)
-	},
+	handler: (args) =>
+		Effect.gen(function* () {
+			const ctx = yield* MutationCtxService
+			const user = yield* getUserFromIdentityEffect()
+			const player = yield* Effect.tryPromise(() => {
+				return ctx.table("players").get("by_room_and_user", args.id, user.clerkId)
+			})
+			if (!player) {
+				yield* Effect.tryPromise(() => {
+					return ctx.table("players").insert({ roomId: args.id, userId: user.clerkId })
+				})
+			}
+		}),
 })
 
 export function getRoomAsOwner(roomId: Id<"rooms">) {

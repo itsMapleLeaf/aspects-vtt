@@ -32,6 +32,7 @@ export default function RoomListRoute() {
 									className={panel(
 										"flex h-full items-center gap-3 bg-primary-200/50 p-4 transition hover:bg-primary-200",
 									)}
+									prefetch="intent"
 								>
 									<LucideHome />
 									<h2 className="flex-1 text-lg font-light">{room.name}</h2>
