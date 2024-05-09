@@ -23,6 +23,8 @@ import type * as diceMacros_functions from "../diceMacros/functions.js";
 import type * as env from "../env.js";
 import type * as helpers_convex from "../helpers/convex.js";
 import type * as helpers_effect from "../helpers/effect.js";
+import type * as helpers_functions from "../helpers/functions.js";
+import type * as helpers_types from "../helpers/types.js";
 import type * as http from "../http.js";
 import type * as messages_functions from "../messages/functions.js";
 import type * as notionImports_functions from "../notionImports/functions.js";
@@ -54,6 +56,8 @@ declare const fullApi: ApiFromModules<{
   env: typeof env;
   "helpers/convex": typeof helpers_convex;
   "helpers/effect": typeof helpers_effect;
+  "helpers/functions": typeof helpers_functions;
+  "helpers/types": typeof helpers_types;
   http: typeof http;
   "messages/functions": typeof messages_functions;
   "notionImports/functions": typeof notionImports_functions;

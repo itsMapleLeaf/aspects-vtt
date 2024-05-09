@@ -1,5 +1,5 @@
+import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
 import { brandedString, deprecated } from "convex-helpers/validators"
-import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterProperties } from "./characters/functions.ts"
 import { diceMacroProperties } from "./diceMacros/functions.ts"
@@ -10,14 +10,16 @@ import { roomCombatValidator } from "./rooms/combat/functions.ts"
 import { roomProperties } from "./rooms/functions.ts"
 import { sceneProperties } from "./scenes/types.ts"
 
-export default defineSchema({
-	users: defineTable({
+export { schema as default, entDefinitions }
+
+const schema = defineEntSchema({
+	users: defineEnt({
 		clerkId: brandedString("clerkId"),
 		name: v.string(),
 		avatarUrl: v.optional(v.string()),
 	}).index("by_clerk_id", ["clerkId"]),
 
-	rooms: defineTable({
+	rooms: defineEnt({
 		...roomProperties,
 		slug: v.string(),
 		ownerId: brandedString("clerkId"),
@@ -26,7 +28,7 @@ export default defineSchema({
 		.index("by_slug", ["slug"])
 		.index("by_owner", ["ownerId"]),
 
-	players: defineTable({
+	players: defineEnt({
 		roomId: v.id("rooms"),
 		userId: brandedString("clerkId"),
 		diceMacros: v.optional(
@@ -43,25 +45,27 @@ export default defineSchema({
 		.index("by_user", ["userId"])
 		.index("by_room_and_user", ["roomId", "userId"]),
 
-	diceMacros: defineTable({
+	diceMacros: defineEnt({
 		...diceMacroProperties,
 		userId: brandedString("clerkId"),
 	}).index("by_room_and_user", ["roomId", "userId"]),
 
-	messages: defineTable({
+	messages: defineEnt({
 		roomId: v.id("rooms"),
 		userId: brandedString("clerkId"),
 		content: v.optional(v.string()),
 		diceRoll: v.optional(diceRollValidator),
 	}).index("by_room", ["roomId"]),
 
-	characters: defineTable({
+	characters: defineEnt({
 		...characterProperties,
 		roomId: v.id("rooms"),
 		tokenPosition: deprecated,
 	}).index("by_room", ["roomId"]),
 
-	notionImports: defineTable(notionImportProperties),
+	notionImports: defineEnt(notionImportProperties),
 
-	scenes: defineTable(sceneProperties).index("by_room", ["roomId"]),
+	scenes: defineEnt(sceneProperties).index("by_room", ["roomId"]),
 })
+
+const entDefinitions = getEntDefinitions(schema)
