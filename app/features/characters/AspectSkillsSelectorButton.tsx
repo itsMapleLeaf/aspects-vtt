@@ -45,7 +45,7 @@ function SelectorForm({
 	character: ApiCharacter
 }) {
 	const room = useRoom()
-	const notionData = useQuery(api.notionImports.functions.get)
+	const notionData = useQuery(api.notionImports.functions.get, {})
 
 	const aspectSkillsByName = new Map(
 		notionData?.aspectSkills?.map((skill) => [skill.name, skill]) ?? [],

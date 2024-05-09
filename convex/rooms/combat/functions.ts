@@ -1,29 +1,14 @@
-import { deprecated, nullable } from "convex-helpers/validators"
-import { type Infer, v } from "convex/values"
+import { nullable } from "convex-helpers/validators"
+import { v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { indexLooped, withMovedItem } from "../../../app/common/array.ts"
 import { expect } from "../../../app/common/expect.ts"
-import { mutation } from "../../_generated/server.js"
 import { CharacterModel } from "../../characters/CharacterModel.ts"
 import { effectQuery, getDoc } from "../../helpers/effect.ts"
-import { attributeIdValidator } from "../../notionImports/functions.ts"
+import { mutation } from "../../helpers/ents.ts"
+import { attributeIdValidator } from "../../notionImports/types.ts"
 import { RoomModel } from "../RoomModel.ts"
 import { getInitiativeRoll, getRoomCombat } from "./helpers.ts"
-
-export const memberValidator = v.object({
-	characterId: v.id("characters"),
-	initiative: nullable(v.number()),
-})
-export type CombatMember = Infer<typeof memberValidator>
-
-export const roomCombatValidator = v.object({
-	currentMemberId: v.optional(nullable(v.id("characters"))),
-	currentRoundNumber: v.number(),
-	initiativeAttribute: nullable(attributeIdValidator),
-	memberObjects: v.optional(v.array(memberValidator)),
-	currentMemberIndex: deprecated,
-	members: deprecated,
-})
 
 export const getCombatMembers = effectQuery({
 	args: { roomId: v.id("rooms") },

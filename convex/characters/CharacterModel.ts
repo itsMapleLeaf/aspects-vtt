@@ -3,11 +3,11 @@ import { ConvexError, type ObjectType } from "convex/values"
 import { Result } from "../../app/common/Result.ts"
 import type { OmitByValue } from "../../app/common/types.ts"
 import type { Doc, Id } from "../_generated/dataModel"
-import type { MutationCtx, QueryCtx } from "../_generated/server"
 import { getUserFromIdentity } from "../auth/helpers.ts"
 import type { Branded } from "../helpers/convex.ts"
+import type { MutationCtx, QueryCtx } from "../helpers/ents.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
-import type { characterProperties } from "./functions.ts"
+import type { characterProperties } from "./types.ts"
 
 const characterDefaults = {
 	// profile

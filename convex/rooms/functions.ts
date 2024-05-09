@@ -1,26 +1,19 @@
-import { deprecated } from "convex-helpers/validators"
 import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
 import { generateSlug } from "random-word-slugs"
 import { Result } from "../../app/common/Result.ts"
 import { range } from "../../app/common/range.ts"
 import type { Id } from "../_generated/dataModel.js"
-import { type QueryCtx, mutation, query } from "../_generated/server.js"
-import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
-import { getDoc } from "../helpers/effect.js"
+import {
+	getUserFromClerkId,
+	getUserFromIdentity,
+	getUserFromIdentityEffect,
+} from "../auth/helpers.ts"
+import { QueryCtxService, getDoc } from "../helpers/effect.js"
+import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
 import { RoomModel } from "./RoomModel.js"
-import { memberValidator } from "./combat/functions.js"
-
-export const roomProperties = {
-	name: v.optional(v.string()),
-	experience: v.optional(v.number()),
-	currentScene: v.optional(v.id("scenes")),
-	gameTime: v.optional(v.number()), // measured in days since the start of year 0
-
-	mapImageId: deprecated,
-	mapDimensions: deprecated,
-	mapCellSize: deprecated,
-}
+import { memberValidator } from "./combat/types.ts"
+import { roomProperties } from "./types.ts"
 
 export const get = query({
 	args: { slug: v.string() },
@@ -31,10 +24,13 @@ export const get = query({
 
 				const playerUsers = await Promise.all(
 					players.map(async (player) => {
-						const user = await ctx.db
-							.query("users")
-							.withIndex("by_clerk_id", (q) => q.eq("clerkId", player.userId))
-							.first()
+						const user = await Effect.runPromise(
+							getUserFromClerkId(player.userId).pipe(
+								Effect.provideService(QueryCtxService, ctx),
+								Effect.tapError(Effect.logWarning),
+								Effect.orElseSucceed(() => null),
+							),
+						)
 						if (!user) return null
 						return { name: user.name, clerkId: user.clerkId, avatarUrl: user.avatarUrl }
 					}),
@@ -74,7 +70,7 @@ export const create = mutation({
 		const user = await getUserFromIdentity(ctx).getValueOrThrow()
 		const slug = await generateUniqueSlug(ctx)
 
-		await ctx.db.insert("rooms", {
+		await ctx.table("rooms").insert({
 			name: slug,
 			slug,
 			ownerId: user.clerkId,

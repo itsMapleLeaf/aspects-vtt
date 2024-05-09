@@ -1,9 +1,10 @@
 import type { ObjectType, PropertyValidators } from "convex/values"
 import { Context, Data, Effect, pipe } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
+import type { Overwrite } from "../../app/common/types.js"
 import type { Id, TableNames } from "../_generated/dataModel.js"
-import type { MutationCtx, QueryCtx } from "../_generated/server.js"
-import { mutation, query } from "../_generated/server.js"
+import { mutation, query } from "./ents.js"
+import type { MutationCtx, QueryCtx } from "./ents.js"
 
 export class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {}
 
@@ -22,7 +23,10 @@ export class ConvexDocNotFoundError extends Data.TaggedError("ConvexDocNotFoundE
 
 export function effectQuery<Args extends PropertyValidators, Output>(options: {
 	args: Args
-	handler: (args: ObjectType<Args>) => Effect.Effect<Output, never, QueryCtxService>
+	handler: (
+		// biome-ignore lint/complexity/noBannedTypes: hack to satisfy the handler args type
+		args: Overwrite<ObjectType<Args>, {}>,
+	) => Effect.Effect<Output, never, QueryCtxService>
 }) {
 	return query({
 		args: options.args,
@@ -36,7 +40,10 @@ export function effectQuery<Args extends PropertyValidators, Output>(options: {
 
 export function effectMutation<Args extends PropertyValidators, Output>(options: {
 	args: Args
-	handler: (args: ObjectType<Args>) => Effect.Effect<Output, never, MutationCtxService>
+	handler: (
+		// biome-ignore lint/complexity/noBannedTypes: hack to satisfy the handler args type
+		args: Overwrite<ObjectType<Args>, {}>,
+	) => Effect.Effect<Output, never, MutationCtxService>
 }) {
 	return mutation({
 		...options,

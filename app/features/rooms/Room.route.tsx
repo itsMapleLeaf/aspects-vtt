@@ -276,7 +276,7 @@ function CriticalInjuryDetails() {
 
 function JoinRoomEffect() {
 	const room = useRoom()
-	const user = useQuery(api.auth.functions.user)
+	const user = useQuery(api.auth.functions.user, {})
 	const join = useMutation(api.rooms.functions.join)
 	const hasJoined = room.players.some((p) => p.clerkId === user?.value?.clerkId)
 
@@ -301,7 +301,7 @@ function MessagesPanel() {
 }
 
 function GeneralSkillsList() {
-	const notionData = useQuery(api.notionImports.functions.get)
+	const notionData = useQuery(api.notionImports.functions.get, {})
 	return (
 		<DefinitionList
 			items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name))}

@@ -2,8 +2,8 @@ import type { WithoutSystemFields } from "convex/server"
 import { ConvexError } from "convex/values"
 import { Result } from "../../app/common/Result.ts"
 import type { Doc, Id } from "../_generated/dataModel.js"
-import type { MutationCtx, QueryCtx } from "../_generated/server.js"
 import { getUserFromIdentity } from "../auth/helpers.ts"
+import type { MutationCtx, QueryCtx } from "../helpers/ents.ts"
 
 export class RoomModel {
 	private readonly ctx
@@ -20,10 +20,7 @@ export class RoomModel {
 
 	static fromSlug(ctx: QueryCtx, slug: string) {
 		return Result.fn(async () => {
-			const data = await ctx.db
-				.query("rooms")
-				.withIndex("by_slug", (q) => q.eq("slug", slug))
-				.unique()
+			const data = await ctx.table("rooms").get("slug", slug)
 			if (!data) {
 				throw new ConvexError(`Couldn't find room with slug ${slug}`)
 			}

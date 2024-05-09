@@ -12,7 +12,7 @@ import { Loading } from "../../ui/Loading.tsx"
 import { panel } from "../../ui/styles.ts"
 
 export default function RoomListRoute() {
-	const rooms = useQuery(api.rooms.functions.list)
+	const rooms = useQuery(api.rooms.functions.list, {})
 	const createRoom = useMutation(api.rooms.functions.create)
 	const navigate = useNavigate()
 	const currentUrl = useHref(useLocation())
@@ -44,7 +44,7 @@ export default function RoomListRoute() {
 						text="Create Room"
 						onClick={async () => {
 							try {
-								const result = await createRoom()
+								const result = await createRoom({})
 								navigate($path("/rooms/:slug", { slug: result.slug }))
 							} catch (error) {
 								if (error instanceof ConvexError) {

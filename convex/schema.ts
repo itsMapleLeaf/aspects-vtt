@@ -1,32 +1,30 @@
 import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
 import { brandedString, deprecated } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { characterProperties } from "./characters/functions.ts"
-import { diceMacroProperties } from "./diceMacros/functions.ts"
+import { characterProperties } from "./characters/types.ts"
+import { diceMacroProperties } from "./diceMacros/types.ts"
 import { nullish } from "./helpers/convex.ts"
-import { diceInputValidator, diceRollValidator } from "./messages/functions.ts"
-import { notionImportProperties } from "./notionImports/functions.ts"
-import { roomCombatValidator } from "./rooms/combat/functions.ts"
-import { roomProperties } from "./rooms/functions.ts"
+import { diceInputValidator } from "./messages/types.ts"
+import { diceRollValidator } from "./messages/types.ts"
+import { notionImportProperties } from "./notionImports/types.ts"
+import { roomCombatValidator } from "./rooms/combat/types.ts"
+import { roomProperties } from "./rooms/types.ts"
 import { sceneProperties } from "./scenes/types.ts"
 
 export { schema as default, entDefinitions }
 
 const schema = defineEntSchema({
 	users: defineEnt({
-		clerkId: brandedString("clerkId"),
 		name: v.string(),
 		avatarUrl: v.optional(v.string()),
-	}).index("by_clerk_id", ["clerkId"]),
+	}).field("clerkId", brandedString("clerkId"), { unique: true }),
 
 	rooms: defineEnt({
 		...roomProperties,
-		slug: v.string(),
-		ownerId: brandedString("clerkId"),
 		combat: nullish(roomCombatValidator),
 	})
-		.index("by_slug", ["slug"])
-		.index("by_owner", ["ownerId"]),
+		.field("slug", v.string(), { unique: true })
+		.field("ownerId", brandedString("clerkId"), { index: true }),
 
 	players: defineEnt({
 		roomId: v.id("rooms"),

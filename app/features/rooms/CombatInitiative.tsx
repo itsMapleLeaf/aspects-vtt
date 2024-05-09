@@ -282,7 +282,7 @@ function CombatEmptyState() {
 }
 
 function useAttributes() {
-	const notionImports = useQuery(api.notionImports.functions.get)
+	const notionImports = useQuery(api.notionImports.functions.get, {})
 	return notionImports?.attributes ?? []
 }
 

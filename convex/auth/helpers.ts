@@ -2,10 +2,11 @@ import type { UserIdentity } from "convex/server"
 import { ConvexError } from "convex/values"
 import { Effect, pipe } from "effect"
 import { Result } from "../../app/common/Result.ts"
-import type { QueryCtx } from "../_generated/server.js"
 import type { Branded } from "../helpers/convex.js"
 import { QueryCtxService } from "../helpers/effect.ts"
+import type { QueryCtx } from "../helpers/ents.ts"
 
+/** @deprecated */
 export function getIdentity(ctx: QueryCtx) {
 	return Result.fn(async () => {
 		const identity = await ctx.auth.getUserIdentity()
@@ -14,8 +15,9 @@ export function getIdentity(ctx: QueryCtx) {
 		}
 		return identity as UserIdentity & { subject: Branded<"clerkId"> }
 	})
-} /** @deprecated */
+}
 
+/** @deprecated */
 export function getUserFromIdentity(ctx: QueryCtx) {
 	return Result.fn(async () => {
 		const identity = await ctx.auth.getUserIdentity()
@@ -35,10 +37,7 @@ export function getUserFromClerkId(clerkId: Branded<"clerkId">) {
 	return Effect.gen(function* () {
 		const ctx = yield* QueryCtxService
 		const user = yield* Effect.tryPromise(() => {
-			return ctx.db
-				.query("users")
-				.withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
-				.unique()
+			return ctx.table("users").get("clerkId", clerkId)
 		})
 		return yield* Effect.fromNullable(user)
 	})

@@ -4,14 +4,12 @@ import { Effect } from "effect"
 import { expect } from "../../app/common/expect.ts"
 import { pick } from "../../app/common/object.ts"
 import { range } from "../../app/common/range.ts"
-import { mutation, query } from "../_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "../auth/helpers.ts"
 import { CharacterModel } from "../characters/CharacterModel.js"
 import { QueryCtxService } from "../helpers/effect.js"
-
-export const diceRollValidator = v.object({
-	dice: v.array(v.object({ key: v.string(), name: v.string(), result: v.number() })),
-})
+import { mutation, query } from "../helpers/ents.ts"
+import type { diceRollValidator } from "./types.ts"
+import { diceInputValidator } from "./types.ts"
 
 export const list = query({
 	args: {
@@ -50,15 +48,6 @@ export const list = query({
 		}
 	},
 })
-
-export const diceInputValidator = v.object({
-	name: v.string(),
-	sides: v.number(),
-	count: v.number(),
-	explodes: v.boolean(),
-})
-
-export type DiceInput = Infer<typeof diceInputValidator>
 
 export const create = mutation({
 	args: {

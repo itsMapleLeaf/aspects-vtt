@@ -4,75 +4,17 @@ import type {
 	QueryDatabaseResponse,
 	RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints"
-import { brandedString } from "convex-helpers/validators"
-import { type Infer, v } from "convex/values"
+import type { Infer } from "convex/values"
 import { promiseAllObject } from "../../app/common/async.ts"
 import { raise } from "../../app/common/errors.ts"
 import { prettify } from "../../app/common/json.ts"
 import { lines } from "../../app/common/string.ts"
 import { internal } from "../_generated/api"
-import { type QueryCtx, internalAction, internalMutation, query } from "../_generated/server"
+import { internalAction } from "../_generated/server"
 import { convexEnv } from "../env.ts"
 import type { Branded } from "../helpers/convex.ts"
-
-export const attributeIdValidator = brandedString("attributes")
-export type AttributeId = Infer<typeof attributeIdValidator>
-
-export const notionImportProperties = {
-	attributes: v.array(
-		v.object({
-			id: attributeIdValidator,
-			name: v.string(),
-			description: v.string(),
-			key: v.union(
-				v.literal("strength"),
-				v.literal("sense"),
-				v.literal("mobility"),
-				v.literal("intellect"),
-				v.literal("wit"),
-			),
-		}),
-	),
-	races: v.array(
-		v.object({
-			id: brandedString("races"),
-			name: v.string(),
-			description: v.string(),
-			abilities: v.array(
-				v.object({
-					name: v.string(),
-					description: v.string(),
-				}),
-			),
-		}),
-	),
-	aspects: v.array(
-		v.object({
-			id: brandedString("aspects"),
-			name: v.string(),
-			description: v.string(),
-			ability: v.object({
-				name: v.string(),
-				description: v.string(),
-			}),
-		}),
-	),
-	generalSkills: v.array(
-		v.object({
-			id: brandedString("generalSkills"),
-			name: v.string(),
-			description: v.string(),
-		}),
-	),
-	aspectSkills: v.array(
-		v.object({
-			id: brandedString("aspectSkills"),
-			name: v.string(),
-			description: v.string(),
-			aspects: v.array(brandedString("aspectName")),
-		}),
-	),
-}
+import { type QueryCtx, internalMutation, query } from "../helpers/ents.ts"
+import { notionImportProperties } from "./types.ts"
 
 export const importData = internalAction({
 	async handler(ctx) {

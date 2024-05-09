@@ -1,14 +1,8 @@
 import { ConvexError, v } from "convex/values"
-import { mutation, query } from "../_generated/server"
 import { getIdentity } from "../auth/helpers.ts"
 import { requireDoc } from "../helpers/convex.ts"
-import { diceInputValidator } from "../messages/functions.ts"
-
-export const diceMacroProperties = {
-	name: v.string(),
-	dice: v.array(diceInputValidator),
-	roomId: v.id("rooms"),
-}
+import { mutation, query } from "../helpers/ents.ts"
+import { diceMacroProperties } from "./types.ts"
 
 export const list = query({
 	args: {

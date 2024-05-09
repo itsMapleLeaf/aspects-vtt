@@ -540,7 +540,7 @@ function RollAttributeMenu(props: {
 	children: React.ReactElement
 }) {
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
-	const notionImports = useQuery(api.notionImports.functions.get)
+	const notionImports = useQuery(api.notionImports.functions.get, {})
 	return (
 		<Menu placement="bottom">
 			<MenuButton render={props.children} />

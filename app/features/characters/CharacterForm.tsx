@@ -31,7 +31,7 @@ import { useCharacterSkills } from "./useCharacterSkills.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
-	const notionData = useQuery(api.notionImports.functions.get)
+	const notionData = useQuery(api.notionImports.functions.get, {})
 	const skills = useCharacterSkills(character)
 
 	return (
