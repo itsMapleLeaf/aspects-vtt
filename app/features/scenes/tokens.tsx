@@ -1,4 +1,4 @@
-import { Hovercard, HovercardAnchor, HovercardProvider, type PopoverStore } from "@ariakit/react"
+import { type PopoverStore, Tooltip, TooltipAnchor, TooltipProvider } from "@ariakit/react"
 import { useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
@@ -514,7 +514,7 @@ function TokenMenu({
 					)}
 				</div>
 
-				<div className="min-w-[320px] empty:hidden">
+				<div className="grid min-w-[320px] gap-[inherit] empty:hidden">
 					{singleSelectedCharacter?.isOwner && (
 						<div className="grid auto-cols-fr grid-flow-col gap-2">
 							<CharacterDamageField character={singleSelectedCharacter} />
@@ -570,26 +570,30 @@ function CharacterSkillsShortList({ character }: { character: ApiCharacter }) {
 	return (
 		<ul className="flex flex-wrap gap-2">
 			{skills.map((skill) => (
-				<HovercardProvider key={skill.name} timeout={250} placement="top">
-					<HovercardAnchor
+				<TooltipProvider key={skill.name} timeout={250} placement="top">
+					<TooltipAnchor
 						render={<li />}
 						className={panel(
 							"leading-none font-light bg-primary-200/50 hover:bg-primary-200 cursor-default transition p-2",
 						)}
 					>
 						{skill.name}
-					</HovercardAnchor>
-					<Hovercard
+					</TooltipAnchor>
+					<Tooltip
 						className={translucentPanel(
 							"p-2 max-w-xs opacity-0 translate-y-1 transition data-[enter]:opacity-100 data-[enter]:translate-y-0 shadow-md shadow-black/50 whitespace-pre-line pointer-events-none",
 						)}
+						wrapperProps={{
+							className: "pointer-events-none",
+						}}
 						unmountOnHide
 						gutter={12}
 						portal
+						disablePointerEventsOnApproach={false}
 					>
 						{skill.description}
-					</Hovercard>
-				</HovercardProvider>
+					</Tooltip>
+				</TooltipProvider>
 			))}
 			{skills.length === 0 && <p className="italic opacity-75">This character has no skills.</p>}
 		</ul>
