@@ -1,8 +1,11 @@
-import type { LoaderFunctionArgs } from "@remix-run/node"
-import { Outlet, defer, useLoaderData } from "@remix-run/react"
+import { unstable_defineLoader } from "@remix-run/node"
+import { Outlet, useLoaderData } from "@remix-run/react"
+import { useParams } from "@remix-run/react"
+import { useQuery } from "convex/react"
 import { Effect } from "effect"
 import { LucideHelpCircle } from "lucide-react"
 import { use } from "react"
+import { $params } from "remix-routes"
 import { api } from "../../../convex/_generated/api.js"
 import { getConvexClient } from "../../convex.server.ts"
 import { dataFunctionParam, loaderFromEffect } from "../../effect.ts"
@@ -22,13 +25,14 @@ const getRoom = loaderFromEffect(
 	}),
 )
 
-export async function loader(args: LoaderFunctionArgs) {
-	return defer({ room: getRoom(args) })
-}
+export const loader = unstable_defineLoader((args) => ({
+	room: getRoom(args),
+}))
 
 export default function RoomLayout() {
 	const data = useLoaderData<typeof loader>()
-	const room = use(data.room)
+	const { slug } = $params("/rooms/:slug", useParams())
+	const room = useQuery(api.rooms.functions.get, { slug }) ?? use(data.room)
 	return room ? (
 		<RoomProvider room={room}>
 			<Outlet />
