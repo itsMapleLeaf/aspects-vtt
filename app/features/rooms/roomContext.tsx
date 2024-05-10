@@ -18,7 +18,7 @@ export function RoomProvider({
 	room: ApiRoom
 	children: React.ReactNode
 }) {
-	const characters = useQuery(api.characters.functions.list, { roomId: room.slug })
+	const characters = useQuery(api.characters.functions.list, { roomId: room._id })
 	return (
 		<RoomContext.Provider value={room}>
 			<CharacterContext.Provider value={characters ?? []}>{children}</CharacterContext.Provider>
