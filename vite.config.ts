@@ -1,3 +1,6 @@
+import { installGlobals } from "@remix-run/node"
+installGlobals({ nativeFetch: true })
+
 import { vitePlugin as remix } from "@remix-run/dev"
 import babel from "@rollup/plugin-babel"
 import { vercelPreset } from "@vercel/remix/vite"
