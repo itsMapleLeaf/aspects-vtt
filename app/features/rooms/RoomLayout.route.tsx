@@ -1,4 +1,4 @@
-import { unstable_defineLoader } from "@remix-run/node"
+import { type LoaderFunctionArgs, defer } from "@remix-run/node"
 import { Outlet, useLoaderData } from "@remix-run/react"
 import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
@@ -25,9 +25,10 @@ const getRoom = loaderFromEffect(
 	}),
 )
 
-export const loader = unstable_defineLoader((args) => ({
-	room: getRoom(args),
-}))
+export const loader = (args: LoaderFunctionArgs) =>
+	defer({
+		room: getRoom(args),
+	})
 
 export default function RoomLayout() {
 	const data = useLoaderData<typeof loader>()
