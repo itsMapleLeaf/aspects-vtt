@@ -5,6 +5,7 @@ import type {
 	RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints"
 import type { Infer } from "convex/values"
+import { Iterator } from "iterator-helpers-polyfill"
 import { promiseAllObject } from "../../app/common/async.ts"
 import { raise } from "../../app/common/errors.ts"
 import { prettify } from "../../app/common/json.ts"
