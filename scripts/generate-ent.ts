@@ -1,6 +1,7 @@
+import { relative } from "node:path"
 import { exit } from "node:process"
-import { argv } from "bun"
-import { $ } from "bun"
+import { argv, fileURLToPath } from "bun"
+import { oraPromise } from "ora"
 
 const [name] = argv.slice(2)
 if (!name) {
@@ -13,11 +14,28 @@ if (!/^[a-z][a-zA-Z]+$/.test(name)) {
 	exit(1)
 }
 
-const typesPath = new URL(`../convex/${name}/types.ts`, import.meta.url)
-const functionsPath = new URL(`../convex/${name}/functions.ts`, import.meta.url)
-const schemaPath = new URL("../convex/schema.ts", import.meta.url)
+const projectRoot = new URL("../", import.meta.url)
 
-await Bun.write(
+const typesPath = new URL(`./convex/${name}/types.ts`, projectRoot)
+const functionsPath = new URL(`./convex/${name}/functions.ts`, projectRoot)
+const schemaPath = new URL("./convex/schema.ts", projectRoot)
+
+function displayPath(absolutePath: URL) {
+	return relative(fileURLToPath(projectRoot), fileURLToPath(absolutePath))
+}
+
+function writeFile(path: URL, content: string) {
+	return oraPromise(Bun.write(path, content), `Writing ${displayPath(path)}`)
+}
+
+async function runCommand(command: string) {
+	const child = Bun.spawn(command.split(/\s+/), {
+		stdio: ["inherit", "pipe", "pipe"],
+	})
+	await oraPromise(child.exited, `Running ${command}`)
+}
+
+await writeFile(
 	typesPath,
 	`import { v } from "convex/values"
 
@@ -27,7 +45,7 @@ export const ${name}Properties = {
 `,
 )
 
-await Bun.write(
+await writeFile(
 	functionsPath,
 	`import { v } from "convex/values"
 import { query, mutation } from "../helpers/ents.ts"
@@ -65,7 +83,7 @@ export const update = mutation({
 		${name}Id: v.id("${name}"),
 	},
 	handler: async (ctx, args) => {
-		return await ctx.table("test").getX(args.testId).patch(args)
+		return await ctx.table("${name}").getX(args.${name}Id).patch(args)
 	},
 })
 
@@ -74,13 +92,13 @@ export const remove = mutation({
 		${name}Id: v.id("${name}"),
 	},
 	handler: async (ctx, args) => {
-		return await ctx.table("test").getX(args.testId).delete()
+		return await ctx.table("${name}").getX(args.${name}Id).delete()
 	},
 })
 `,
 )
 
-let schemaContent = await Bun.file(schemaPath).text()
+let schemaContent = await oraPromise(Bun.file(schemaPath).text(), "Reading schema")
 
 const generationMarker = "/* GENERATE-ENT */"
 
@@ -95,7 +113,7 @@ schemaContent = `import { ${name}Properties } from "./${name}/types.ts"
 ${schemaContent}
 `
 
-await Bun.write(schemaPath, schemaContent)
+await writeFile(schemaPath, schemaContent)
 
-await $`convex codegen`
-await $`biome check --apply convex`
+await runCommand("bunx convex codegen")
+await runCommand("bunx biome check --apply convex")
