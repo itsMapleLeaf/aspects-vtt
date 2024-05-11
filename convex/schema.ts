@@ -4,8 +4,7 @@ import { v } from "convex/values"
 import { characterProperties } from "./characters/types.ts"
 import { diceMacroProperties } from "./diceMacros/types.ts"
 import { nullish } from "./helpers/convex.ts"
-import { diceInputValidator } from "./messages/types.ts"
-import { diceRollValidator } from "./messages/types.ts"
+import { diceInputValidator, diceRollValidator } from "./messages/types.ts"
 import { notionImportProperties } from "./notionImports/types.ts"
 import { roomCombatValidator } from "./rooms/combat/types.ts"
 import { roomProperties } from "./rooms/types.ts"
@@ -64,6 +63,8 @@ const schema = defineEntSchema({
 	notionImports: defineEnt(notionImportProperties),
 
 	scenes: defineEnt(sceneProperties).index("by_room", ["roomId"]),
+
+	/* GENERATE-ENT */
 })
 
 const entDefinitions = getEntDefinitions(schema)
