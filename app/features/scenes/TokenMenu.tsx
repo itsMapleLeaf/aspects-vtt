@@ -70,12 +70,10 @@ export const TokenMenu = observer(function TokenMenu({
 	})
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: we specifically want to re-render when these change
-	React.useEffect(() => {
-		const handle = requestIdleCallback(() => store.render())
-		return () => {
-			cancelIdleCallback(handle)
-		}
-	}, [store.render, anchor.left, anchor.top, anchor.width, anchor.height])
+	React.useLayoutEffect(() => {
+		if (!open) return
+		store.render()
+	}, [store.render, open, anchor.left, anchor.top, anchor.width, anchor.height])
 
 	return (
 		<Popover store={store}>

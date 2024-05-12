@@ -2,10 +2,11 @@ import { useGesture } from "@use-gesture/react"
 import { useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
-import { action, observable } from "mobx"
+import { action, computed, observable } from "mobx"
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
-import type * as React from "react"
+import * as React from "react"
+import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { Rect } from "../../common/Rect.ts"
@@ -13,6 +14,7 @@ import { sortBy } from "../../common/collection.ts"
 import { createNonEmptyContext, useNonEmptyContext } from "../../common/context.tsx"
 import { pick } from "../../common/object.ts"
 import { randomItem } from "../../common/random.ts"
+import type { StrictOmit } from "../../common/types.ts"
 import { Vector } from "../../common/vector.ts"
 import {
 	DragSelectArea,
@@ -122,33 +124,15 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 		}
 	}
 
-	function getTokenTranslate(token: ApiToken) {
-		return Vector.from(token.position)
-			.times(viewport.scale)
-			.plus(
-				dragSelectStore.isSelected(token.key)
-					? dragOffset.value.times(viewport.scale)
-					: Vector.zero,
-			)
-			.css.translate()
-	}
-
 	return (
-		<div
-			className="absolute left-0 top-0 origin-top-left"
-			style={{
-				translate: viewport.offset.css.translate(),
-			}}
-		>
+		<ViewportTranslation>
 			{/* sort so characters are last and are on top of everything else */}
 			{sortBy(tokens, (it) => (it.character ? 1 : 0)).map((token) => (
-				<div
+				<TokenTranslation
+					token={token}
 					data-hidden={!token.visible || undefined}
-					className="absolute left-0 top-0 origin-top-left data-[hidden]:opacity-75"
+					className="data-[hidden]:opacity-75"
 					key={token.key}
-					style={{
-						translate: getTokenTranslate(token),
-					}}
 				>
 					<TokenDragSelectable token={token} onDragEnd={updateSelectedTokenPositions}>
 						{token.character && (
@@ -175,20 +159,14 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 						)}
 						<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
 					</TokenDragSelectable>
-				</div>
+				</TokenTranslation>
 			))}
 
 			{/* character token decorations */}
 			{Iterator.from(tokens)
 				.flatMap((token) => (token.character ? [{ token, character: token.character }] : []))
 				.map(({ token, character }) => (
-					<div
-						className="pointer-events-none absolute left-0 top-0 origin-top-left"
-						style={{
-							translate: getTokenTranslate(token),
-						}}
-						key={token.key}
-					>
+					<TokenTranslation token={token} className="pointer-events-none" key={token.key}>
 						<div
 							className="relative"
 							style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
@@ -213,7 +191,7 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 							</div>
 							<TokenLabel text={character.displayName} subText={character.displayPronouns} />
 						</div>
-					</div>
+					</TokenTranslation>
 				))
 				.toArray()}
 
@@ -230,22 +208,62 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 					]
 				})
 				.map(({ token, area, gridSize }) => (
-					<div
-						className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
-						style={{
-							...pick(area, ["width", "height"]),
-							translate: getTokenTranslate(token),
-							scale: viewport.scale,
-						}}
+					<TokenTranslation
+						token={token}
+						className="flex-center pointer-events-none"
+						style={{ ...pick(area, ["width", "height"]), scale: viewport.scale }}
 						key={token.key}
 					>
 						<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
 							{gridSize.x}x{gridSize.y}
 						</p>
-					</div>
+					</TokenTranslation>
 				))
 				.toArray()}
+		</ViewportTranslation>
+	)
+})
+
+const ViewportTranslation = observer(({ children }: { children: React.ReactNode }) => {
+	const viewport = useViewport()
+	return (
+		<div
+			className="absolute left-0 top-0 origin-top-left"
+			style={{ translate: viewport.offset.css.translate() }}
+		>
+			{children}
 		</div>
+	)
+})
+
+const TokenTranslation = observer(function TokenTranslation({
+	token,
+	...props
+}: React.ComponentProps<"div"> & {
+	token: ApiToken
+}) {
+	const dragSelectStore = useNonEmptyContext(DragSelectContext)
+	const isSelected = dragSelectStore.isSelected(token.key)
+	const viewport = useViewport()
+
+	const translate = React.useMemo(() => {
+		return computed(() => {
+			return Vector.from(token.position)
+				.times(viewport.scale)
+				.plus(isSelected ? dragOffset.value.times(viewport.scale) : Vector.zero)
+				.css.translate()
+		})
+	}, [isSelected, token, viewport])
+
+	return (
+		<div
+			{...props}
+			className={twMerge("absolute left-0 top-0 origin-top-left", props.className)}
+			style={{
+				translate: translate.get(),
+				...props.style,
+			}}
+		/>
 	)
 })
 
@@ -327,11 +345,12 @@ const TokenDragSelectable = observer(function TokenDragSelectable({
 	children,
 	token,
 	onDragEnd,
+	...props
 }: {
 	children: React.ReactNode
 	token: ApiToken
 	onDragEnd: () => void
-}) {
+} & StrictOmit<React.ComponentProps<"div">, "onDragEnd">) {
 	const viewport = useViewport()
 	const dragSelectStore = useNonEmptyContext(DragSelectContext)
 
@@ -357,10 +376,12 @@ const TokenDragSelectable = observer(function TokenDragSelectable({
 
 	return (
 		<DragSelectable
+			{...props}
 			{...bindDrag()}
-			className="group touch-none"
 			store={dragSelectStore}
 			item={token.key}
+			className={twMerge("group touch-none", props.className)}
+			data-token-drag-selectable
 		>
 			{children}
 		</DragSelectable>
