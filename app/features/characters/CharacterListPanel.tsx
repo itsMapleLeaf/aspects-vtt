@@ -1,3 +1,4 @@
+import { useDialogStore } from "@ariakit/react"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ComponentProps, type ReactNode, useEffect } from "react"
@@ -105,45 +106,49 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 	const removeCharacter = useMutation(api.characters.functions.remove)
 	const duplicateCharacter = useMutation(api.characters.functions.duplicate)
 	const selection = useCharacterSelection()
+	const modalStore = useDialogStore()
 
 	return (
-		<Menu placement="right">
-			{children}
-			<MenuPanel gutter={16} unmountOnHide={false}>
-				<CharacterModal character={character}>
-					<ModalButton render={<MenuItem text="Profile" icon={<Lucide.BookUser />} />} />
-				</CharacterModal>
-				{room.isOwner && (
-					<>
-						<MenuItem
-							text="Duplicate"
-							icon={<Lucide.Copy />}
-							onClick={async () => {
-								const id = await duplicateCharacter({ id: character._id, randomize: false })
-								selection.setSelected(id)
-							}}
-						/>
-						<MenuItem
-							text="Duplicate (Randomized)"
-							icon={<Lucide.Shuffle />}
-							onClick={async () => {
-								const id = await duplicateCharacter({ id: character._id, randomize: true })
-								selection.setSelected(id)
-							}}
-						/>
-						<MenuItem
-							text="Delete"
-							icon={<Lucide.Trash />}
-							onClick={() => {
-								if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
-									removeCharacter({ id: character._id })
-								}
-							}}
-						/>
-					</>
-				)}
-			</MenuPanel>
-		</Menu>
+		<CharacterModal character={character} store={modalStore}>
+			<Menu placement="right">
+				{children}
+				<MenuPanel gutter={16}>
+					<ModalButton
+						store={modalStore}
+						render={<MenuItem text="Profile" icon={<Lucide.BookUser />} />}
+					/>
+					{room.isOwner && (
+						<>
+							<MenuItem
+								text="Duplicate"
+								icon={<Lucide.Copy />}
+								onClick={async () => {
+									const id = await duplicateCharacter({ id: character._id, randomize: false })
+									selection.setSelected(id)
+								}}
+							/>
+							<MenuItem
+								text="Duplicate (Randomized)"
+								icon={<Lucide.Shuffle />}
+								onClick={async () => {
+									const id = await duplicateCharacter({ id: character._id, randomize: true })
+									selection.setSelected(id)
+								}}
+							/>
+							<MenuItem
+								text="Delete"
+								icon={<Lucide.Trash />}
+								onClick={() => {
+									if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
+										removeCharacter({ id: character._id })
+									}
+								}}
+							/>
+						</>
+					)}
+				</MenuPanel>
+			</Menu>
+		</CharacterModal>
 	)
 }
 
