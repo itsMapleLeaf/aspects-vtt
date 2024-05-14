@@ -22,14 +22,6 @@ export default defineConfig({
 				// unstable_singleFetch: true,
 			},
 			presets: process.env.VERCEL ? [vercelPreset()] : [],
-			routes: async (defineRoutes) => {
-				return defineRoutes((route) => {
-					route("/", "features/rooms/RoomList.route.tsx", { index: true })
-					route("/rooms/:slug", "features/rooms/RoomLayout.route.tsx", () => {
-						route(undefined, "features/rooms/Room.route.tsx", { index: true })
-					})
-				})
-			},
 		}),
 		remixRoutes(),
 		inspect(),

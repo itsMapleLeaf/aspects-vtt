@@ -3,27 +3,36 @@ import { useHref, useLocation } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect } from "react"
-import { api } from "../../../convex/_generated/api.js"
-import { AppHeader } from "../../ui/AppHeader.tsx"
-import { DefinitionList } from "../../ui/DefinitionList.tsx"
-import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../ui/Modal.tsx"
-import { ToggleableSidebar } from "../../ui/ToggleableSidebar.tsx"
-import { panel, translucentPanel } from "../../ui/styles.ts"
-import { CharacterListPanel } from "../characters/CharacterListPanel.tsx"
-import { CharacterSelectionProvider } from "../characters/CharacterSelectionProvider.tsx"
-import { GameTime } from "../game/GameTime.tsx"
-import { MessageForm } from "../messages/MessageForm.tsx"
-import { MessageList } from "../messages/MessageList.tsx"
-import { SceneList } from "../scenes/SceneList.tsx"
-import { SceneMapBackground } from "../scenes/SceneMapBackground.tsx"
-import { SceneTokens } from "../scenes/SceneTokens.tsx"
-import { SceneGrid } from "../scenes/grid.tsx"
-import { ViewportDragInput, ViewportProvider, ViewportWheelInput } from "../scenes/viewport.tsx"
-import { CombatInitiative } from "./CombatInitiative.tsx"
-import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
-import { Toolbar, ToolbarButton, ToolbarPopoverButton, ToolbarSeparator } from "./RoomToolbar.tsx"
-import { RoomTool, RoomToolbarStore } from "./RoomToolbarStore.tsx"
-import { RoomOwnerOnly, useCharacters, useRoom } from "./roomContext.tsx"
+import { api } from "../../convex/_generated/api.js"
+import { CharacterListPanel } from "../features/characters/CharacterListPanel.tsx"
+import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
+import { GameTime } from "../features/game/GameTime.tsx"
+import { MessageForm } from "../features/messages/MessageForm.tsx"
+import { MessageList } from "../features/messages/MessageList.tsx"
+import { CombatInitiative } from "../features/rooms/CombatInitiative.tsx"
+import { RoomSettingsForm } from "../features/rooms/RoomSettingsForm.tsx"
+import {
+	Toolbar,
+	ToolbarButton,
+	ToolbarPopoverButton,
+	ToolbarSeparator,
+} from "../features/rooms/RoomToolbar.tsx"
+import { RoomTool, RoomToolbarStore } from "../features/rooms/RoomToolbarStore.tsx"
+import { RoomOwnerOnly, useCharacters, useRoom } from "../features/rooms/roomContext.tsx"
+import { SceneList } from "../features/scenes/SceneList.tsx"
+import { SceneMapBackground } from "../features/scenes/SceneMapBackground.tsx"
+import { SceneTokens } from "../features/scenes/SceneTokens.tsx"
+import { SceneGrid } from "../features/scenes/grid.tsx"
+import {
+	ViewportDragInput,
+	ViewportProvider,
+	ViewportWheelInput,
+} from "../features/scenes/viewport.tsx"
+import { AppHeader } from "../ui/AppHeader.tsx"
+import { DefinitionList } from "../ui/DefinitionList.tsx"
+import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../ui/Modal.tsx"
+import { ToggleableSidebar } from "../ui/ToggleableSidebar.tsx"
+import { panel, translucentPanel } from "../ui/styles.ts"
 
 export default function RoomRoute() {
 	const currentUrl = useHref(useLocation())
