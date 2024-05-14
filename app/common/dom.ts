@@ -16,3 +16,14 @@ export function loadImage(src: string, signal?: AbortSignal): Promise<HTMLImageE
 		})
 	})
 }
+
+export function bindWindowEvent<K extends keyof WindowEventMap>(
+	eventType: K,
+	handler: (event: WindowEventMap[K]) => void,
+	options?: AddEventListenerOptions,
+) {
+	window.addEventListener(eventType, handler, options)
+	return () => {
+		window.removeEventListener(eventType, handler, options)
+	}
+}

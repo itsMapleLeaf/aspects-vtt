@@ -1,5 +1,8 @@
-import { Link } from "@remix-run/react"
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/remix"
+import { Link, useHref, useLocation } from "@remix-run/react"
+import { LucideLogIn } from "lucide-react"
 import { $path } from "remix-routes"
+import { Button } from "./Button.tsx"
 
 export function AppHeader({
 	center,
@@ -8,8 +11,9 @@ export function AppHeader({
 	center?: React.ReactNode
 	end?: React.ReactNode
 }) {
+	const currentUrl = useHref(useLocation())
 	return (
-		<header className="flex items-center gap-3">
+		<header className="flex h-10 items-center gap-3">
 			<div className="flex flex-1">
 				<Link to={$path("/")}>
 					<h1 className="text-2xl">
@@ -19,7 +23,22 @@ export function AppHeader({
 				</Link>
 			</div>
 			{center}
-			<div className="flex flex-1 justify-end gap-2">{end}</div>
+			<div className="flex flex-1 justify-end gap-2">
+				{end !== undefined ? (
+					end
+				) : (
+					<>
+						<SignedIn>
+							<UserButton afterSignOutUrl={currentUrl} />
+						</SignedIn>
+						<SignedOut>
+							<SignInButton mode="modal" forceRedirectUrl={currentUrl}>
+								<Button icon={<LucideLogIn />} text="Sign in" />
+							</SignInButton>
+						</SignedOut>
+					</>
+				)}
+			</div>
 		</header>
 	)
 }
