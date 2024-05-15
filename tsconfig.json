@@ -26,5 +26,8 @@
 		],
 		"verbatimModuleSyntax": true
 	},
+	"mdx": {
+		"checkMdx": true
+	},
 	"exclude": ["node_modules", "build", "convex/_generated"]
 }

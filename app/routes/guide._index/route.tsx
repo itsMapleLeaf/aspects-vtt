@@ -1,6 +1,9 @@
 import { bindWindowEvent } from "../../common/dom.ts"
 import { AppHeader } from "../../ui/AppHeader.tsx"
+import { panel } from "../../ui/styles.ts"
 import bannerUrl from "./banner.webp"
+import Content from "./content.mdx"
+import "./markdown.css"
 
 export default function GuideRoute() {
 	return (
@@ -11,7 +14,7 @@ export default function GuideRoute() {
 				<AppHeader />
 			</div>
 
-			<section className="flex-center relative aspect-[5/2] min-h-64 w-full overflow-clip p-8 text-center font-light">
+			<section className="flex-center relative aspect-[5/2] min-h-64 w-full overflow-clip border-b border-primary-300 p-8 text-center font-light">
 				<div
 					style={{ backgroundImage: `url(${bannerUrl})` }}
 					className="absolute inset-0 bg-cover bg-top bg-no-repeat brightness-75"
@@ -27,11 +30,11 @@ export default function GuideRoute() {
 				<p className="text-2xl tracking-wide drop-shadow-xl">How to play</p>
 			</section>
 
-			<div className="relative w-full">
-				<main className="relative mx-auto h-[150dvh] w-full max-w-screen-sm bg-primary-200 p-4">
-					<p></p>
-				</main>
-			</div>
+			<main
+				className={panel("markdown relative mx-auto shadow-md w-full max-w-2xl p-4 mb-8 -mt-16")}
+			>
+				<Content />
+			</main>
 		</>
 	)
 }

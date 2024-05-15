@@ -61,6 +61,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "7.24.1",
     "@biomejs/biome": "1.7.3",
+    "@mdx-js/rollup": "3.0.1",
     "@notionhq/client": "^2.2.15",
     "@remix-run/dev": "^2.9.2",
     "@rollup/plugin-babel": "6.0.4",
@@ -75,6 +76,8 @@
     "dotenv-cli": "7.4.2",
     "npm-run-all": "4.1.5",
     "ora": "8.0.1",
+    "rehype-autolink-headings": "7.1.0",
+    "rehype-slug": "6.0.0",
     "remix-flat-routes": "0.6.5",
     "rollup-plugin-visualizer": "5.12.0",
     "tailwindcss": "3.4.3",
