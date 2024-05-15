@@ -12,7 +12,7 @@ import type { StrictOmit } from "../../common/types.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button, type ButtonPropsAsElement } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
-import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../../ui/Modal.tsx"
+import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../../ui/Modal.tsx"
 import { panel } from "../../ui/styles.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
@@ -28,14 +28,14 @@ export function AspectSkillsSelectorButton({
 	"element"
 >) {
 	return (
-		<Modal>
+		<ModalProvider>
 			<Button {...props} element={<ModalButton />} />
 			<ModalPanel title="Manage Aspect Skills" fullHeight>
 				<ModalPanelContent className="flex flex-col gap-2 p-2">
 					<SelectorForm character={character} />
 				</ModalPanelContent>
 			</ModalPanel>
-		</Modal>
+		</ModalProvider>
 	)
 }
 

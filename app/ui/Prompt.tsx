@@ -7,7 +7,7 @@ import type { StrictOmit } from "../common/types.ts"
 import { Button } from "./Button.tsx"
 import { FormField, FormLayout } from "./Form.tsx"
 import { Input } from "./Input.tsx"
-import { Modal, ModalActions, ModalPanel, ModalPanelContent } from "./Modal.tsx"
+import { ModalActions, ModalPanel, ModalPanelContent, ModalProvider } from "./Modal.tsx"
 
 type PromptState = {
 	title: string
@@ -31,13 +31,13 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 			value={{ currentPrompt, open: setCurrentPrompt, close: () => setCurrentPrompt(undefined) }}
 		>
 			{children}
-			<Modal open={!!currentPrompt}>
+			<ModalProvider open={!!currentPrompt}>
 				<ModalPanel title={currentPrompt?.title}>
 					<ModalPanelContent>
 						<PromptModalForm />
 					</ModalPanelContent>
 				</ModalPanel>
-			</Modal>
+			</ModalProvider>
 		</PromptContext>
 	)
 }

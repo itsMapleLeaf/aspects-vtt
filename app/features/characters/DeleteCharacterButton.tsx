@@ -4,12 +4,12 @@ import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import { Button } from "../../ui/Button.tsx"
 import {
-	Modal,
 	ModalActions,
 	ModalButton,
 	ModalDismiss,
 	ModalPanel,
 	ModalPanelContent,
+	ModalProvider,
 } from "../../ui/Modal.tsx"
 
 export function DeleteCharacterButton({
@@ -21,7 +21,7 @@ export function DeleteCharacterButton({
 }) {
 	const remove = useMutation(api.characters.functions.remove)
 	return (
-		<Modal>
+		<ModalProvider>
 			{(store) => (
 				<>
 					<Button icon={<Lucide.Trash />} text={text} element={<ModalButton title="Delete" />} />
@@ -47,6 +47,6 @@ export function DeleteCharacterButton({
 					</ModalPanel>
 				</>
 			)}
-		</Modal>
+		</ModalProvider>
 	)
 }

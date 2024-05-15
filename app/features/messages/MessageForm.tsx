@@ -6,7 +6,7 @@ import { useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
-import { Modal, ModalButton, ModalPanel } from "../../ui/Modal.tsx"
+import { ModalButton, ModalPanel, ModalProvider } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { usePrompt } from "../../ui/Prompt.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
@@ -106,7 +106,7 @@ export function MessageForm() {
 			</div>
 
 			{macros && macros.length > 0 && (
-				<Modal>
+				<ModalProvider>
 					{(modal) => (
 						<>
 							<ModalButton render={<Button icon={<Lucide.Bookmark />} text="Saved macros" />} />
@@ -158,7 +158,7 @@ export function MessageForm() {
 							</ModalPanel>
 						</>
 					)}
-				</Modal>
+				</ModalProvider>
 			)}
 		</form>
 	)

@@ -1,16 +1,63 @@
 import * as Ariakit from "@ariakit/react"
 import { LucideX } from "lucide-react"
-import type { ComponentPropsWithoutRef } from "react"
+import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import type { StrictOmit } from "../common/types.ts"
+import { Button, type ButtonPropsAsButton } from "./Button.tsx"
 import { panel } from "./styles.ts"
 import { twc } from "./twc.ts"
 import { withMergedClassName } from "./withMergedClassName.ts"
 
-interface ModalProps extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
+interface ModalBaseProps {
+	children?: ReactNode
+	title: React.ReactNode
+	description?: React.ReactNode
+	fullHeight?: boolean
+}
+
+interface ModalAsButtonProps extends ModalBaseProps, StrictOmit<ButtonPropsAsButton, "title"> {}
+
+interface ModalWithTriggerProps extends ModalBaseProps {
+	trigger: React.ReactElement
+}
+
+type ModalProps = ModalAsButtonProps | ModalWithTriggerProps
+
+/**
+ * @example
+ * // using built-in button
+ * <Modal title="Delete Character" text="Delete Character" icon={<LucideTrash />}>
+ * 	<p>Are you sure you want to delete this character?</p>
+ *    <ModalActions>
+ * 		<ModalDismiss>Cancel</ModalDismiss>
+ * 		<Button type="submit">Delete</Button>
+ *    </ModalActions>
+ * </Modal>
+ *
+ * // using custom button
+ * <Modal title="Delete Character" trigger={<DeleteButton />}>
+ * 	<p>Are you sure you want to delete this character?</p>
+ *    <ModalActions>
+ * 		<ModalDismiss>Cancel</ModalDismiss>
+ * 		<Button type="submit">Delete</Button>
+ *    </ModalActions>
+ * </Modal>
+ */
+export function Modal({ children, title, description, fullHeight, ...props }: ModalProps) {
+	return (
+		<ModalProvider>
+			<ModalButton render={"trigger" in props ? props.trigger : <Button {...props} />} />
+			<ModalPanel title={title} description={description} fullHeight={fullHeight}>
+				<ModalPanelContent>{children}</ModalPanelContent>
+			</ModalPanel>
+		</ModalProvider>
+	)
+}
+
+export interface ModalProviderProps extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
 	children: React.ReactNode | ((store: Ariakit.DialogStore) => React.ReactNode)
 }
 
-export function Modal({ children, ...props }: ModalProps) {
+export function ModalProvider({ children, ...props }: ModalProviderProps) {
 	const store = Ariakit.useDialogStore()
 	return (
 		<Ariakit.DialogProvider store={store} {...props}>

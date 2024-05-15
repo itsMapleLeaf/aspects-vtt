@@ -30,7 +30,7 @@ import {
 } from "../features/scenes/viewport.tsx"
 import { AppHeader } from "../ui/AppHeader.tsx"
 import { DefinitionList } from "../ui/DefinitionList.tsx"
-import { Modal, ModalButton, ModalPanel, ModalPanelContent } from "../ui/Modal.tsx"
+import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../ui/Modal.tsx"
 import { ToggleableSidebar } from "../ui/ToggleableSidebar.tsx"
 import { panel, translucentPanel } from "../ui/styles.ts"
 
@@ -116,14 +116,14 @@ function RoomToolbar() {
 	return (
 		<Toolbar>
 			<RoomOwnerOnly>
-				<Modal>
+				<ModalProvider>
 					<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
 					<ModalPanel title="Scenes" className="max-w-screen-lg">
 						<ModalPanelContent className="p-3">
 							<SceneList />
 						</ModalPanelContent>
 					</ModalPanel>
-				</Modal>
+				</ModalProvider>
 			</RoomOwnerOnly>
 
 			<ToolbarSeparator />

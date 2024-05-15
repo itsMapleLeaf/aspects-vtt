@@ -5,7 +5,7 @@ import {
 	ContextMenuPanel,
 	ContextMenuTrigger,
 } from "../../ui/ContextMenu.tsx"
-import { Modal, ModalPanel, ModalPanelContent } from "../../ui/Modal.tsx"
+import { ModalPanel, ModalPanelContent, ModalProvider } from "../../ui/Modal.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { ContestedRollForm } from "./ContestedRollForm.tsx"
 
@@ -14,7 +14,7 @@ export function CharacterContextMenu(props: {
 	children?: React.ReactNode
 }) {
 	return (
-		<Modal>
+		<ModalProvider>
 			{(store) => (
 				<ContextMenu>
 					<ContextMenuTrigger className="absolute inset-0 size-full">
@@ -40,6 +40,6 @@ export function CharacterContextMenu(props: {
 					</ModalPanel>
 				</ContextMenu>
 			)}
-		</Modal>
+		</ModalProvider>
 	)
 }
