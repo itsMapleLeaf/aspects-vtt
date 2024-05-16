@@ -7,3 +7,17 @@ export function* lines(text: string) {
 		yield line
 	}
 }
+
+/**
+ * @example
+ * splitByCase("PascalCasedString") // ["Pascal", "Cased", "String"]
+ * splitByCase("snake_cased_string") // ["snake", "cased", "string"]
+ * splitByCase("camelCasedString") // ["camel", "Cased", "String"]
+ */
+export function splitByCase(text: string): string[] {
+	return [...(text.match(/[A-Z]?[a-z]+/g) ?? [])]
+}
+
+export function titleCase(text: string) {
+	return splitByCase(text).map(startCase).join(" ")
+}

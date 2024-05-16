@@ -92,14 +92,14 @@ export function ModalPanel({
 			}
 			{...props}
 			className={panel(
-				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col shadow-lg shadow-black/50  [--gutter:2rem] [--height:calc(min(100%-var(--gutter),64rem))] ",
+				"fixed bg-primary-100 inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col shadow-lg shadow-black/50  [--gutter:2rem] [--height:calc(min(100%-var(--gutter),64rem))] ",
 				"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				fullHeight ? "h-[--height]" : "h-fit max-h-[--height]",
 				className,
 			)}
 			unmountOnHide
 		>
-			<div className="flex items-center gap-3 border-b border-primary-300 bg-black/25 p-3">
+			<div className="flex items-center gap-3 border-b border-primary-300 bg-black/25 bg-primary-200 p-3">
 				<div className="flex-1">
 					<Ariakit.DialogHeading className="text-2xl/tight font-light">
 						{title}
