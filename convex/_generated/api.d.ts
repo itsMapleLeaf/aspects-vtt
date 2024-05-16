@@ -16,6 +16,8 @@ import type {
 } from "convex/server";
 import type * as auth_functions from "../auth/functions.js";
 import type * as auth_helpers from "../auth/helpers.js";
+import type * as characterAspectSkills_functions from "../characterAspectSkills/functions.js";
+import type * as characterAspectSkills_types from "../characterAspectSkills/types.js";
 import type * as characters_CharacterModel from "../characters/CharacterModel.js";
 import type * as characters_functions from "../characters/functions.js";
 import type * as characters_types from "../characters/types.js";
@@ -54,6 +56,8 @@ import type * as storage_functions from "../storage/functions.js";
 declare const fullApi: ApiFromModules<{
   "auth/functions": typeof auth_functions;
   "auth/helpers": typeof auth_helpers;
+  "characterAspectSkills/functions": typeof characterAspectSkills_functions;
+  "characterAspectSkills/types": typeof characterAspectSkills_types;
   "characters/CharacterModel": typeof characters_CharacterModel;
   "characters/functions": typeof characters_functions;
   "characters/types": typeof characters_types;

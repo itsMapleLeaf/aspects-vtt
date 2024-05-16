@@ -1,6 +1,7 @@
 import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
 import { brandedString, deprecated } from "convex-helpers/validators"
 import { v } from "convex/values"
+import { characterAspectSkillProperties } from "./characterAspectSkills/types.ts"
 import { characterProperties } from "./characters/types.ts"
 import { diceMacroProperties } from "./diceMacros/types.ts"
 import { nullish } from "./helpers/convex.ts"
@@ -58,11 +59,17 @@ const schema = defineEntSchema({
 		...characterProperties,
 		roomId: v.id("rooms"),
 		tokenPosition: deprecated,
-	}).index("by_room", ["roomId"]),
+	})
+		.index("by_room", ["roomId"])
+		.edges("characterAspectSkills", { ref: true }),
 
 	notionImports: defineEnt(notionImportProperties),
 
 	scenes: defineEnt(sceneProperties).index("by_room", ["roomId"]),
+
+	characterAspectSkills: defineEnt({
+		...characterAspectSkillProperties,
+	}).edge("character", { field: "characterId" }),
 
 	/* GENERATE-ENT */
 })
