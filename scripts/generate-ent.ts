@@ -1,6 +1,9 @@
-import { relative } from "node:path"
-import { exit } from "node:process"
-import { argv, fileURLToPath } from "bun"
+import { spawn } from "node:child_process"
+import { once } from "node:events"
+import * as fs from "node:fs/promises"
+import { dirname, relative } from "node:path"
+import { argv, exit } from "node:process"
+import { fileURLToPath } from "node:url"
 import { oraPromise } from "ora"
 
 const [name] = argv.slice(2)
@@ -24,15 +27,17 @@ function displayPath(absolutePath: URL) {
 	return relative(fileURLToPath(projectRoot), fileURLToPath(absolutePath))
 }
 
-function writeFile(path: URL, content: string) {
-	return oraPromise(Bun.write(path, content), `Writing ${displayPath(path)}`)
+async function writeFile(path: URL, content: string) {
+	await fs.mkdir(dirname(fileURLToPath(path)), { recursive: true })
+	await oraPromise(fs.writeFile(path, content), `Writing ${displayPath(path)}`)
 }
 
 async function runCommand(command: string) {
-	const child = Bun.spawn(command.split(/\s+/), {
+	const [program, ...args] = command.split(/\s+/)
+	const child = spawn(program as string, args, {
 		stdio: ["inherit", "pipe", "pipe"],
 	})
-	await oraPromise(child.exited, `Running ${command}`)
+	await oraPromise(once(child, "exit"), `Running ${command}`)
 }
 
 await writeFile(
@@ -98,7 +103,7 @@ export const remove = mutation({
 `,
 )
 
-let schemaContent = await oraPromise(Bun.file(schemaPath).text(), "Reading schema")
+let schemaContent = await oraPromise(fs.readFile(schemaPath, "utf8"), "Reading schema")
 
 const generationMarker = "/* GENERATE-ENT */"
 
