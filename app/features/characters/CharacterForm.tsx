@@ -10,7 +10,6 @@ import type { PickByValue } from "../../common/types.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button } from "../../ui/Button.tsx"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
-import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { Loading } from "../../ui/Loading.tsx"
@@ -23,16 +22,12 @@ import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { AspectSkillsSelectorButton } from "./AspectSkillsSelectorButton.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
-import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
 import type { ApiAttribute, ApiCharacter } from "./types.ts"
-import { useCharacterSkills } from "./useCharacterSkills.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
 	const notionData = useQuery(api.notionImports.functions.get, {})
-	const skills = useCharacterSkills(character)
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
@@ -119,24 +114,6 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					label="Core Aspect"
 					options={notionData?.aspects.map((r) => ({ label: r.name, value: r.name })) ?? []}
 				/>
-			)}
-
-			{character.isOwner && (
-				<FormField
-					label="Skills"
-					description={<CharacterExperienceDisplay character={character} />}
-				>
-					<div className="grid gap-2">
-						<AspectSkillsSelectorButton
-							character={character}
-							text="Manage Aspect Skills"
-							icon={<Lucide.Zap />}
-						/>
-						<div className={panel("p-3")}>
-							<DefinitionList items={skills} />
-						</div>
-					</div>
-				</FormField>
 			)}
 
 			<CharacterNotesFields character={character} />
