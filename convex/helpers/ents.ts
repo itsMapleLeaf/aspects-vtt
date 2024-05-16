@@ -1,4 +1,4 @@
-import type { GenericEnt, GenericEntWriter } from "convex-ents"
+import type { GenericEnt, GenericEntWriter, PromiseTable, PromiseTableWriter } from "convex-ents"
 import { entsTableFactory } from "convex-ents"
 import type { CustomCtx } from "convex-helpers/server/customFunctions"
 import { customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions"
@@ -13,6 +13,12 @@ export type Ent<TableName extends TableNames> = GenericEnt<typeof entDefinitions
 export type EntWriter<TableName extends TableNames> = GenericEntWriter<
 	typeof entDefinitions,
 	TableName
+>
+
+export type EntTable<TableName extends TableNames> = PromiseTable<typeof entDefinitions, TableName>
+export type EntTableWriter<TableName extends TableNames> = PromiseTableWriter<
+	TableName,
+	typeof entDefinitions
 >
 
 export const query = customQuery(

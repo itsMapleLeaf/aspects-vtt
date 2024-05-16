@@ -2,8 +2,9 @@ import type { UserIdentity } from "convex/server"
 import { ConvexError } from "convex/values"
 import { Effect, pipe } from "effect"
 import { Result } from "../../app/common/Result.ts"
+import type { Overwrite } from "../../app/common/types.ts"
 import type { Branded } from "../helpers/convex.js"
-import { QueryCtxService } from "../helpers/effect.ts"
+import { QueryCtxService, queryDoc, withQueryCtx } from "../helpers/effect.ts"
 import type { QueryCtx } from "../helpers/ents.ts"
 
 /** @deprecated */
@@ -33,23 +34,37 @@ export function getUserFromIdentity(ctx: QueryCtx) {
 	})
 }
 
+export class NotLoggedInError {
+	readonly _tag = "NotLoggedInError"
+}
+
+export class UserNotFoundError {
+	readonly _tag = "UserNotFoundError"
+}
+
+export class UnauthorizedError {
+	readonly _tag = "UnauthorizedError"
+}
+
+export function getIdentityEffect() {
+	return withQueryCtx((ctx) => ctx.auth.getUserIdentity()).pipe(
+		Effect.filterOrFail(
+			(identity) => identity !== null,
+			() => new NotLoggedInError(),
+		),
+		Effect.map((identity) => identity as Overwrite<UserIdentity, { subject: Branded<"clerkId"> }>),
+	)
+}
+
 export function getUserFromClerkId(clerkId: Branded<"clerkId">) {
-	return Effect.gen(function* () {
-		const ctx = yield* QueryCtxService
-		const user = yield* Effect.tryPromise(() => {
-			return ctx.table("users").get("clerkId", clerkId)
-		})
-		return yield* Effect.fromNullable(user)
-	})
+	return pipe(
+		queryDoc(async (ctx) => await ctx.table("users").get("clerkId", clerkId).doc()),
+		Effect.catchTag("ConvexDocNotFoundError", () => Effect.fail(new UserNotFoundError())),
+	)
 }
 
 export function getUserFromIdentityEffect() {
-	return Effect.gen(function* () {
-		const ctx = yield* QueryCtxService
-		const identity = yield* Effect.tryPromise(() => ctx.auth.getUserIdentity())
-		if (!identity) {
-			return yield* Effect.fail(new ConvexError("Not logged in"))
-		}
-		return yield* getUserFromClerkId(identity.subject as Branded<"clerkId">)
-	})
+	return getIdentityEffect().pipe(
+		Effect.flatMap((identity) => getUserFromClerkId(identity.subject)),
+	)
 }

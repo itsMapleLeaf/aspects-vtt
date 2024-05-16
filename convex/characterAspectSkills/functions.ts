@@ -1,40 +1,61 @@
 import { v } from "convex/values"
-import { mutation, query } from "../helpers/ents.ts"
+import { Effect, pipe } from "effect"
+import { ensureViewerOwnsCharacter } from "../characters/helpers.ts"
+import {
+	effectMutation,
+	effectQuery,
+	queryDoc,
+	withMutationCtx,
+	withQueryCtx,
+} from "../helpers/effect.ts"
 import { characterAspectSkillProperties } from "./types.ts"
 
-export const get = query({
-	args: {
-		characterAspectSkillId: v.id("characterAspectSkills"),
-	},
-	handler: async (ctx, args) => {
-		return await ctx.table("characterAspectSkills").get(args.characterAspectSkillId)
-	},
-})
-
-export const list = query({
+export const list = effectQuery({
 	args: {
 		characterId: v.id("characters"),
 	},
-	handler: async (ctx, args) => {
-		return await ctx.table("characters").getX(args.characterId).edge("characterAspectSkills").docs()
+	handler: (args) => {
+		return pipe(
+			ensureViewerOwnsCharacter(args.characterId),
+			Effect.andThen(() =>
+				withQueryCtx((ctx) =>
+					ctx.table("characters").getX(args.characterId).edge("characterAspectSkills").docs(),
+				),
+			),
+			Effect.tapError(Effect.logWarning),
+			Effect.orElseSucceed(() => []),
+		)
 	},
 })
 
-export const create = mutation({
+export const create = effectMutation({
 	args: {
 		...characterAspectSkillProperties,
 		characterAspectSkillId: v.id("characterAspectSkills"),
 	},
-	handler: async (ctx, args) => {
-		return await ctx.table("characterAspectSkills").insert(args)
+	handler: (args) => {
+		return pipe(
+			ensureViewerOwnsCharacter(args.characterId),
+			Effect.andThen(() =>
+				withMutationCtx((ctx) => ctx.table("characterAspectSkills").insert(args)),
+			),
+		)
 	},
 })
 
-export const remove = mutation({
+export const remove = effectMutation({
 	args: {
 		characterAspectSkillId: v.id("characterAspectSkills"),
 	},
-	handler: async (ctx, args) => {
-		return await ctx.table("characterAspectSkills").getX(args.characterAspectSkillId).delete()
+	handler: (args) => {
+		return Effect.gen(function* () {
+			const characterAspectSkill = yield* queryDoc((ctx) =>
+				ctx.table("characterAspectSkills").get(args.characterAspectSkillId).doc(),
+			)
+			yield* ensureViewerOwnsCharacter(characterAspectSkill.characterId)
+			yield* withMutationCtx((ctx) =>
+				ctx.table("characterAspectSkills").getX(args.characterAspectSkillId).delete(),
+			)
+		})
 	},
 })
