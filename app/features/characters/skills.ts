@@ -1,334 +1,349 @@
-export interface SkillTreeAspect {
-	tiers: Record<string, SkillTreeTier>
+import { Iterator } from "iterator-helpers-polyfill"
+import { titleCase } from "../../common/string.ts"
+
+class SkillTree {
+	readonly aspectsById: ReadonlyMap<string, Aspect>
+	readonly aspects: readonly Aspect[]
+
+	readonly tiers: readonly Tier[]
+
+	readonly skillsById: ReadonlyMap<string, Skill>
+	readonly skills: readonly Skill[]
+
+	constructor(tree: {
+		[aspectId: string]: {
+			[tierId: string]: {
+				[skillId: string]: { description: string }
+			}
+		}
+	}) {
+		this.aspectsById = new Map(
+			Object.entries(tree).map(([aspectId, tierMap]) => [aspectId, new Aspect(aspectId, tierMap)]),
+		)
+		this.aspects = [...this.aspectsById.values()]
+
+		this.tiers = [...this.aspects.flatMap((aspect) => aspect.tiers)]
+
+		this.skillsById = new Map(
+			Iterator.from(this.tiers).flatMap((tier) => tier.skillsById.entries()),
+		)
+		this.skills = [...this.skillsById.values()]
+	}
 }
 
-export interface SkillTreeTier {
-	skills: Record<string, SkillTreeSkill>
+class Aspect {
+	readonly name
+	readonly tiers: readonly Tier[]
+
+	constructor(
+		readonly id: string,
+		tierMap: { [tierId: string]: { [skillId: string]: { description: string } } },
+	) {
+		this.name = titleCase(id)
+		this.tiers = Object.entries(tierMap).map(([tierId, skills]) => {
+			return new Tier(tierId, this.tiers.length + 1, this, skills)
+		})
+	}
 }
 
-export interface SkillTreeSkill {
-	description: string
+class Tier {
+	readonly name
+	readonly skillsById: ReadonlyMap<string, Skill>
+	readonly skills: readonly Skill[]
+
+	constructor(
+		readonly id: string,
+		readonly number: number,
+		readonly aspect: Aspect,
+		skillMap: { [skillId: string]: { description: string } },
+	) {
+		this.name = titleCase(id)
+		this.skillsById = new Map(
+			Object.entries(skillMap).map(([skillId, skillConfig]) => [
+				skillId,
+				new Skill(skillId, skillConfig.description, aspect, this),
+			]),
+		)
+		this.skills = [...this.skillsById.values()]
+	}
 }
 
-export const CharacterSkillTree: Record<string, SkillTreeAspect> = {
+class Skill {
+	readonly name
+
+	constructor(
+		readonly id: string,
+		readonly description: string,
+		readonly aspect: Aspect,
+		readonly tier: Tier,
+	) {
+		this.name = titleCase(id)
+	}
+}
+
+export const CharacterSkillTree = new SkillTree({
 	fire: {
-		tiers: {
-			alter: {
-				skills: {
-					heatObject: {
-						description: `Touch an object to send heat through it.`,
-					},
-					heatAir: {
-						description: `Heat up the surrounding air.`,
-					},
-					propelFire: {
-						description: `Turn an existing flame into a projectile which ignites on impact.`,
-					},
-					propelLightning: {
-						description: `Take lightning or electricity and redirect it someplace else.`,
-					},
-				},
+		alter: {
+			heatObject: {
+				description: `Touch an object to send heat through it.`,
 			},
-			create: {
-				skills: {
-					makeLightning: {
-						description: `Create a sphere of fire in your palm, enough to power or short-circuit small or medium size devices.`,
-					},
-					makeFlame: {
-						description: `Create a fire in your palm around the size of a baseball.`,
-					},
-					becomeFlame: {
-						description: `Engulf yourself in a bright crackling ember. While in this state, double all damage dealt and all damage received.`,
-					},
-				},
+			heatAir: {
+				description: `Heat up the surrounding air.`,
 			},
-			control: {
-				skills: {
-					fireResistance: {
-						description: `You are less likely to be damaged by fire.`,
-					},
-					lightningResistance: {
-						description: `Lightning has a chance to fizzle or reflect on contact.`,
-					},
-					suppress: {
-						description: `Immediately extinguish any number of exposed fires.`,
-					},
-					insulate: {
-						description: `Cancel the flow of electricity in the surrounding air or in an object.`,
-					},
-				},
+			propelFire: {
+				description: `Turn an existing flame into a projectile which ignites on impact.`,
 			},
-			integrate: {
-				skills: {
-					foresee: {
-						description: `Become one with the surrounding environment, and predict changing weather conditions in the future.`,
-					},
-					alterAtmosphere: {
-						description: `Change the weather conditions of the surrounding environment.`,
-					},
-				},
+			propelLightning: {
+				description: `Take lightning or electricity and redirect it someplace else.`,
+			},
+		},
+		create: {
+			makeLightning: {
+				description: `Create a sphere of fire in your palm, enough to power or short-circuit small or medium size devices.`,
+			},
+			makeFlame: {
+				description: `Create a fire in your palm around the size of a baseball.`,
+			},
+			becomeFlame: {
+				description: `Engulf yourself in a bright crackling ember. While in this state, double all damage dealt and all damage received.`,
+			},
+		},
+		control: {
+			fireResistance: {
+				description: `You are less likely to be damaged by fire.`,
+			},
+			lightningResistance: {
+				description: `Lightning has a chance to fizzle or reflect on contact.`,
+			},
+			suppress: {
+				description: `Immediately extinguish any number of exposed fires.`,
+			},
+			insulate: {
+				description: `Cancel the flow of electricity in the surrounding air or in an object.`,
+			},
+		},
+		integrate: {
+			foresee: {
+				description: `Become one with the surrounding environment, and predict changing weather conditions in the future.`,
+			},
+			alterAtmosphere: {
+				description: `Change the weather conditions of the surrounding environment.`,
+			},
+		},
+		summon: {
+			fireball: {
+				description: `Create and propel a large ball of fire that bursts on impact.`,
+			},
+			arcOfFlame: {
+				description: `Swipe your hand or foot to create a massive arc of flame in front of yourself.`,
+			},
+			cinderStorm: {
+				description: `Summon a storm of raining fireballs.`,
+			},
+			lightningStorm: {
+				description: `Summon lightning to strike several areas.`,
 			},
 		},
 	},
 	water: {
-		tiers: {
-			alter: {
-				skills: {
-					frostTouch: {
-						description: `Touch a surface to send cooling through it.`,
-					},
-					cooling: {
-						description: `Lower the temperature of surrounding air.`,
-					},
-					moisten: {
-						description: `Modify the humidity of surrounding air.`,
-					},
-				},
+		alter: {
+			frostTouch: {
+				description: `Touch a surface to send cooling through it.`,
 			},
-			reform: {
-				skills: {
-					shapeWater: {
-						description: `Move, shape, or propel gatherings of water.`,
-					},
-					shapeIce: {
-						description: `Move, break, or reform chunks of ice.`,
-					},
-				},
+			cooling: {
+				description: `Lower the temperature of surrounding air.`,
 			},
-			transform: {
-				skills: {
-					condensate: {
-						description: `Gather and collect moisture in the surrounding air into water.`,
-					},
-					rapidMelt: {
-						description: `Rapidly turn ice into water.`,
-					},
-					flashFreeze: {
-						description: `Rapidly turn bodies of water into ice.`,
-					},
-					solidify: {
-						description: `Rapidly turn air moisture into ice.`,
-					},
-					evaporate: {
-						description: `Rapidly evaporate bodies of water.`,
-					},
-					vaporize: {
-						description: `Rapidly turn ice into air moisture.`,
-					},
-				},
+			moisten: {
+				description: `Modify the humidity of surrounding air.`,
 			},
-			sense: {
-				skills: {
-					whispersOfTheMoist: {
-						description: `Increase awareness of object through surrounding air moisture.`,
-					},
-					whispersOfTheSea: {
-						description: `Increase awareness of object through bodies of water.`,
-					},
-					whispersOfFrost: {
-						description: `Increase awareness of object through vibrations of ice.`,
-					},
-				},
+		},
+		reform: {
+			shapeWater: {
+				description: `Move, shape, or propel gatherings of water.`,
 			},
-			detect: {
-				skills: {
-					ensnareWater: {
-						description: `When learning this skill, choose any liquid. You can control it as if it were water. You may learn this skill multiple times with different choices.`,
-					},
-				},
+			shapeIce: {
+				description: `Move, break, or reform chunks of ice.`,
+			},
+		},
+		transform: {
+			condensate: {
+				description: `Gather and collect moisture in the surrounding air into water.`,
+			},
+			rapidMelt: {
+				description: `Rapidly turn ice into water.`,
+			},
+			flashFreeze: {
+				description: `Rapidly turn bodies of water into ice.`,
+			},
+			solidify: {
+				description: `Rapidly turn air moisture into ice.`,
+			},
+			evaporate: {
+				description: `Rapidly evaporate bodies of water.`,
+			},
+			vaporize: {
+				description: `Rapidly turn ice into air moisture.`,
+			},
+		},
+		sense: {
+			whispersOfTheMoist: {
+				description: `Increase awareness of object through surrounding air moisture.`,
+			},
+			whispersOfTheSea: {
+				description: `Increase awareness of object through bodies of water.`,
+			},
+			whispersOfFrost: {
+				description: `Increase awareness of object through vibrations of ice.`,
+			},
+		},
+		detect: {
+			ensnareWater: {
+				description: `When learning this skill, choose any liquid. You can control it as if it were water. You may learn this skill multiple times with different choices.`,
 			},
 		},
 	},
 	wind: {
-		tiers: {
-			coincide: {
-				skills: {
-					formOfAFeather: {
-						description: `Move as if under reduced gravity. Fall slowly, jump higher, and perform eased acrobatics.`,
-					},
-				},
+		coincide: {
+			formOfAFeather: {
+				description: `Move as if under reduced gravity. Fall slowly, jump higher, and perform eased acrobatics.`,
 			},
-			direct: {
-				skills: {
-					gust: {
-						description: `Create variable-strength haphazard gusts of wind to apply sudden impulses to objects and yourself.`,
-					},
-					breeze: {
-						description: `Increase the wind speed around you to apply sustained forces to objects and yourself. This can allow you to fly.`,
-					},
-					dampenWind: {
-						description: `Decrease or completely cancel the surrounding flow of wind.`,
-					},
-				},
+		},
+		direct: {
+			gust: {
+				description: `Create variable-strength haphazard gusts of wind to apply sudden impulses to objects and yourself.`,
 			},
-			shape: {
-				skills: {
-					shapeWind: {
-						description: `Choose a shape when learning this skill, such as a sphere, walls, spikes, or blades. Morph wind into that shape and control its movement. You may learn this skill multiple times with different choices.`,
-					},
-				},
+			breeze: {
+				description: `Increase the wind speed around you to apply sustained forces to objects and yourself. This can allow you to fly.`,
 			},
-			modulate: {
-				skills: {
-					condenseAir: {
-						description: `Thicken the density of surrounding air, applying more apparent pressure to those within.`,
-					},
-					disperse: {
-						description: `Decrease the density of surrounding air to a vacuum, depriving subjects within of breathing air.`,
-					},
-					alterSound: {
-						description: `Control the volume and propagation of sound in the surrounding area.`,
-					},
-				},
+			dampenWind: {
+				description: `Decrease or completely cancel the surrounding flow of wind.`,
 			},
-			integrate: {
-				skills: {
-					foresee: {
-						description: `Become one with the surrounding environment, and predict changing weather conditions in the future.`,
-					},
-					alterAtmosphere: {
-						description: `Change the weather conditions of the surrounding environment.`,
-					},
-				},
+		},
+		shape: {
+			shapeWind: {
+				description: `Choose a shape when learning this skill, such as a sphere, walls, spikes, or blades. Morph wind into that shape and control its movement. You may learn this skill multiple times with different choices.`,
+			},
+		},
+		modulate: {
+			condenseAir: {
+				description: `Thicken the density of surrounding air, applying more apparent pressure to those within.`,
+			},
+			disperse: {
+				description: `Decrease the density of surrounding air to a vacuum, depriving subjects within of breathing air.`,
+			},
+			alterSound: {
+				description: `Control the volume and propagation of sound in the surrounding area.`,
+			},
+		},
+		integrate: {
+			foresee: {
+				description: `Become one with the surrounding environment, and predict changing weather conditions in the future.`,
+			},
+			alterAtmosphere: {
+				description: `Change the weather conditions of the surrounding environment.`,
 			},
 		},
 	},
 	light: {
-		tiers: {
-			illuminate: {
-				skills: {
-					summonLight: {
-						description: `Create and control floating orbs of light.`,
-					},
-					illuminatingTouch: {
-						description: `Touch an object, person, or surface to give them a warming glow. Focusing to maintain.`,
-					},
-				},
+		illuminate: {
+			summonLight: {
+				description: `Create and control floating orbs of light.`,
 			},
-			restore: {
-				skills: {
-					healingLight: {
-						description: `Touch a character to heal their damage.`,
-					},
-					comfortingLight: {
-						description: `Touch a character to heal their fatigue.`,
-					},
-					strengtheningLight: {
-						description: `Touch a character to strengthen them and temporarily increase the power of their actions.`,
-					},
-				},
+			illuminatingTouch: {
+				description: `Touch an object, person, or surface to give them a warming glow. Focusing to maintain.`,
 			},
-			bless: {
-				skills: {
-					healingAura: {
-						description: `Emit a warming glow to heal damage from surrounding characters.`,
-					},
-					comfortingAura: {
-						description: `Emit a comforting glow to heal fatigue from surrounding characters.`,
-					},
-					strengtheningAura: {
-						description: `Emit an uplifting glow to strengthen surrounding characters.`,
-					},
-				},
+		},
+		restore: {
+			healingLight: {
+				description: `Touch a character to heal their damage.`,
 			},
-			protect: {
-				skills: {
-					barrier: {
-						description: `Conjure large walls of solidified light.`,
-					},
-					rayOfProtection: {
-						description: `Touch a target to surround them with a shield of light that protects them from damaging threats. Focus to maintain.`,
-					},
-					rayOfJustice: {
-						description: `Conjure and direct sharp spears of light towards one or more targets of your choosing.`,
-					},
-				},
+			comfortingLight: {
+				description: `Touch a character to heal their fatigue.`,
 			},
-			perceive: {
-				skills: {
-					discernReality: {
-						description: `See everything around you as it is, unaffected by mirages, invisibility, faces, and other forms of light and perception-altering illusions.`,
-					},
-					pierceReality: {
-						description: `See through walls and other solid objects.`,
-					},
-				},
+			strengtheningLight: {
+				description: `Touch a character to strengthen them and temporarily increase the power of their actions.`,
+			},
+		},
+		bless: {
+			healingAura: {
+				description: `Emit a warming glow to heal damage from surrounding characters.`,
+			},
+			comfortingAura: {
+				description: `Emit a comforting glow to heal fatigue from surrounding characters.`,
+			},
+			strengtheningAura: {
+				description: `Emit an uplifting glow to strengthen surrounding characters.`,
+			},
+		},
+		protect: {
+			barrier: {
+				description: `Conjure large walls of solidified light.`,
+			},
+			rayOfProtection: {
+				description: `Touch a target to surround them with a shield of light that protects them from damaging threats. Focus to maintain.`,
+			},
+			rayOfJustice: {
+				description: `Conjure and direct sharp spears of light towards one or more targets of your choosing.`,
+			},
+		},
+		perceive: {
+			discernReality: {
+				description: `See everything around you as it is, unaffected by mirages, invisibility, faces, and other forms of light and perception-altering illusions.`,
+			},
+			pierceReality: {
+				description: `See through walls and other solid objects.`,
 			},
 		},
 	},
 	darkness: {
-		tiers: {
-			influence: {
-				skills: {
-					intimidate: {
-						description: `Induce feelings of dread in a character you can see.`,
-					},
-					charm: {
-						description: `Induce feelings of favor or attraction in a character you can see, towards yourself or another character.`,
-					},
-					spotlight: {
-						description: `Increase your presence or that of another nearby character, such that it’s much harder to overlook you.`,
-					},
-					sneak: {
-						description: `Lower your presence or that of another nearby character, such that others are less likely to notice you.`,
-					},
-				},
+		influence: {
+			intimidate: {
+				description: `Induce feelings of dread in a character you can see.`,
 			},
-			curse: {
-				skills: {
-					auraOfWeakness: {
-						description: `Take on a dark, overpowering glow that physically weakens those nearby.`,
-					},
-					auraOfSickness: {
-						description: `Take on a dark, foreboding glow that mentally weakens those nearby.`,
-					},
-				},
+			charm: {
+				description: `Induce feelings of favor or attraction in a character you can see, towards yourself or another character.`,
 			},
-			deceive: {
-				skills: {
-					invisibility: {
-						description: `Turn invisible, such that visible light passes through you.`,
-					},
-					disguise: {
-						description: `Change the outward appearance of a character or object you can see.`,
-					},
-				},
+			spotlight: {
+				description: `Increase your presence or that of another nearby character, such that it’s much harder to overlook you.`,
 			},
-			rewrite: {
-				skills: {
-					alterEmotion: {
-						description: `Choose an emotion when learning this skill. Touch a character to change the strength of that emotion in them. You may learn this skill multiple times with different choices.`,
-					},
-					alterSenses: {
-						description: `Choose a sense when learning this skill. Amplify or dampen that sense of a person you can touch. You may learn this skill multiple times with different choices.`,
-					},
-					alterMemories: {
-						description: `Change the memories of a character you can touch.`,
-					},
-				},
+			sneak: {
+				description: `Lower your presence or that of another nearby character, such that others are less likely to notice you.`,
 			},
-			dematerialize: {
-				skills: {
-					phase: {
-						description: `Float and phase through solid objects.`,
-					},
-					riftwalk: {
-						description: `Create tears in reality to move from one place to another visible location.`,
-					},
-				},
+		},
+		curse: {
+			auraOfWeakness: {
+				description: `Take on a dark, overpowering glow that physically weakens those nearby.`,
+			},
+			auraOfSickness: {
+				description: `Take on a dark, foreboding glow that mentally weakens those nearby.`,
+			},
+		},
+		deceive: {
+			invisibility: {
+				description: `Turn invisible, such that visible light passes through you.`,
+			},
+			disguise: {
+				description: `Change the outward appearance of a character or object you can see.`,
+			},
+		},
+		rewrite: {
+			alterEmotion: {
+				description: `Choose an emotion when learning this skill. Touch a character to change the strength of that emotion in them. You may learn this skill multiple times with different choices.`,
+			},
+			alterSenses: {
+				description: `Choose a sense when learning this skill. Amplify or dampen that sense of a person you can touch. You may learn this skill multiple times with different choices.`,
+			},
+			alterMemories: {
+				description: `Change the memories of a character you can touch.`,
+			},
+		},
+		dematerialize: {
+			phase: {
+				description: `Float and phase through solid objects.`,
+			},
+			riftwalk: {
+				description: `Create tears in reality to move from one place to another visible location.`,
 			},
 		},
 	},
-}
-
-const aspectSkillsById = new Map<string, SkillTreeSkill>(
-	Object.entries(CharacterSkillTree).flatMap(([aspectId, aspect]) =>
-		Object.entries(aspect.tiers).flatMap(([tierId, tier]) =>
-			Object.entries(tier.skills).map(([skillId, skill]) => [skillId, skill] as const),
-		),
-	),
-)
-
-export function getAspectSkillById(skillId: string) {
-	return aspectSkillsById.get(skillId)
-}
+})
