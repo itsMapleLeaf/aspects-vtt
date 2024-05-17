@@ -15,17 +15,17 @@ export const CharacterSkillTree: Record<string, SkillTreeAspect> = {
 		tiers: {
 			alter: {
 				skills: {
-					fireResistance: {
-						description: `You are less likely to be damaged by fire.`,
+					heatObject: {
+						description: `Touch an object to send heat through it.`,
 					},
-					lightningResistance: {
-						description: `Lightning has a chance to fizzle or reflect on contact.`,
+					heatAir: {
+						description: `Heat up the surrounding air.`,
 					},
-					suppress: {
-						description: `Immediately extinguish any number of exposed fires.`,
+					propelFire: {
+						description: `Turn an existing flame into a projectile which ignites on impact.`,
 					},
-					insulate: {
-						description: `Cancel the flow of electricity in the surrounding air or in an object.`,
+					propelLightning: {
+						description: `Take lightning or electricity and redirect it someplace else.`,
 					},
 				},
 			},
@@ -319,4 +319,16 @@ export const CharacterSkillTree: Record<string, SkillTreeAspect> = {
 			},
 		},
 	},
+}
+
+const aspectSkillsById = new Map<string, SkillTreeSkill>(
+	Object.entries(CharacterSkillTree).flatMap(([aspectId, aspect]) =>
+		Object.entries(aspect.tiers).flatMap(([tierId, tier]) =>
+			Object.entries(tier.skills).map(([skillId, skill]) => [skillId, skill] as const),
+		),
+	),
+)
+
+export function getAspectSkillById(skillId: string) {
+	return aspectSkillsById.get(skillId)
 }
