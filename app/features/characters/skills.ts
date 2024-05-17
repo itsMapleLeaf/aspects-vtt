@@ -40,8 +40,8 @@ class Aspect {
 		tierMap: { [tierId: string]: { [skillId: string]: { description: string } } },
 	) {
 		this.name = titleCase(id)
-		this.tiers = Object.entries(tierMap).map(([tierId, skills]) => {
-			return new Tier(tierId, this.tiers.length + 1, this, skills)
+		this.tiers = Object.entries(tierMap).map(([tierId, skills], index) => {
+			return new Tier(tierId, index + 1, this, skills)
 		})
 	}
 }
