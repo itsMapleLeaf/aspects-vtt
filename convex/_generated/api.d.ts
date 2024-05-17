@@ -20,6 +20,7 @@ import type * as characterAspectSkills_functions from "../characterAspectSkills/
 import type * as characterAspectSkills_types from "../characterAspectSkills/types.js";
 import type * as characters_CharacterModel from "../characters/CharacterModel.js";
 import type * as characters_functions from "../characters/functions.js";
+import type * as characters_helpers from "../characters/helpers.js";
 import type * as characters_types from "../characters/types.js";
 import type * as crons from "../crons.js";
 import type * as diceMacros_functions from "../diceMacros/functions.js";
@@ -60,6 +61,7 @@ declare const fullApi: ApiFromModules<{
   "characterAspectSkills/types": typeof characterAspectSkills_types;
   "characters/CharacterModel": typeof characters_CharacterModel;
   "characters/functions": typeof characters_functions;
+  "characters/helpers": typeof characters_helpers;
   "characters/types": typeof characters_types;
   crons: typeof crons;
   "diceMacros/functions": typeof diceMacros_functions;

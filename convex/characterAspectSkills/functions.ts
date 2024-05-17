@@ -31,7 +31,6 @@ export const list = effectQuery({
 export const create = effectMutation({
 	args: {
 		...characterAspectSkillProperties,
-		characterAspectSkillId: v.id("characterAspectSkills"),
 	},
 	handler: (args) => {
 		return pipe(
