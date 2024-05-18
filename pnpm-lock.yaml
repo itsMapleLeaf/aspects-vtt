@@ -10,25 +10,25 @@ importers:
     dependencies:
       '@ariakit/react':
         specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 0.4.6(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       '@clerk/remix':
         specifier: 4.0.10
-        version: 4.0.10(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 4.0.10(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       '@clerk/themes':
         specifier: 2.1.6
         version: 2.1.6
       '@conform-to/react':
         specifier: 1.1.3
-        version: 1.1.3(react@19.0.0-beta-94eed63c49-20240425)
+        version: 1.1.3(react@19.0.0-rc-3f1436cca1-20240516)
       '@conform-to/zod':
         specifier: 1.1.3
         version: 1.1.3(zod@3.23.8)
       '@floating-ui/react':
         specifier: 0.26.15
-        version: 0.26.15(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 0.26.15(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       '@floating-ui/react-dom':
         specifier: 2.0.9
-        version: 2.0.9(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 2.0.9(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       '@fontsource-variable/nunito':
         specifier: 5.0.19
         version: 5.0.19
@@ -37,13 +37,13 @@ importers:
         version: 0.8.2
       '@radix-ui/react-scroll-area':
         specifier: 1.0.5
-        version: 1.0.5(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)
+        version: 1.0.5(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)
       '@remix-run/node':
         specifier: ^2.9.2
         version: 2.9.2(typescript@5.5.0-beta)
       '@remix-run/react':
         specifier: ^2.9.2
-        version: 2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta)
+        version: 2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta)
       '@remix-run/serve':
         specifier: ^2.9.2
         version: 2.9.2(typescript@5.5.0-beta)
@@ -52,22 +52,22 @@ importers:
         version: 2.9.2(typescript@5.5.0-beta)
       '@use-gesture/react':
         specifier: 10.3.1
-        version: 10.3.1(react@19.0.0-beta-94eed63c49-20240425)
+        version: 10.3.1(react@19.0.0-rc-3f1436cca1-20240516)
       '@vercel/remix':
         specifier: 2.9.2
-        version: 2.9.2(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))(@remix-run/node@2.9.2(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 2.9.2(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))(@remix-run/node@2.9.2(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       colorjs.io:
         specifier: 0.5.0
         version: 0.5.0
       convex:
         specifier: 1.12.0
-        version: 1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       convex-ents:
         specifier: 0.7.6
-        version: 0.7.6(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))
+        version: 0.7.6(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))
       convex-helpers:
         specifier: 0.1.36
-        version: 0.1.36(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(zod@3.23.8)
+        version: 0.1.36(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(zod@3.23.8)
       date-fns:
         specifier: 3.6.0
         version: 3.6.0
@@ -88,7 +88,7 @@ importers:
         version: 4.17.21
       lucide-react:
         specifier: 0.378.0
-        version: 0.378.0(react@19.0.0-beta-94eed63c49-20240425)
+        version: 0.378.0(react@19.0.0-rc-3f1436cca1-20240516)
       match-sorter:
         specifier: ^6.3.4
         version: 6.3.4
@@ -97,25 +97,19 @@ importers:
         version: 6.12.3
       mobx-react-lite:
         specifier: 4.0.7
-        version: 4.0.7(mobx@6.12.3)(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 4.0.7(mobx@6.12.3)(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       random-word-slugs:
         specifier: 0.1.7
         version: 0.1.7
-      react:
-        specifier: 19.0.0-beta-94eed63c49-20240425
-        version: 19.0.0-beta-94eed63c49-20240425
-      react-dom:
-        specifier: 19.0.0-beta-94eed63c49-20240425
-        version: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
       react-textarea-autosize:
         specifier: 8.5.3
-        version: 8.5.3(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
+        version: 8.5.3(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
       react-twc:
         specifier: 1.4.1
-        version: 1.4.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
+        version: 1.4.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
       react-virtuoso:
         specifier: 4.7.10
-        version: 4.7.10(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+        version: 4.7.10(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       remix-routes:
         specifier: 1.7.4
         version: 1.7.4
@@ -143,7 +137,7 @@ importers:
         version: 2.2.15
       '@remix-run/dev':
         specifier: ^2.9.2
-        version: 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
+        version: 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
       '@rollup/plugin-babel':
         specifier: 6.0.4
         version: 6.0.4(@babel/core@7.24.5)(@types/babel__core@7.20.5)(rollup@4.17.2)
@@ -168,6 +162,9 @@ importers:
       '@types/react-dom':
         specifier: npm:types-react-dom@alpha
         version: types-react-dom@19.0.0-alpha.5
+      babel-plugin-react-compiler:
+        specifier: 0.0.0-experimental-592953e-20240517
+        version: 0.0.0-experimental-592953e-20240517
       dotenv-cli:
         specifier: 7.4.2
         version: 7.4.2
@@ -177,6 +174,12 @@ importers:
       ora:
         specifier: 8.0.1
         version: 8.0.1
+      react:
+        specifier: 19.0.0-rc-3f1436cca1-20240516
+        version: 19.0.0-rc-3f1436cca1-20240516
+      react-dom:
+        specifier: 19.0.0-rc-3f1436cca1-20240516
+        version: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
       rehype-autolink-headings:
         specifier: 7.1.0
         version: 7.1.0
@@ -185,7 +188,7 @@ importers:
         version: 6.0.0
       remix-flat-routes:
         specifier: 0.6.5
-        version: 0.6.5(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))
+        version: 0.6.5(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))
       rollup-plugin-visualizer:
         specifier: 5.12.0
         version: 5.12.0(rollup@4.17.2)
@@ -247,6 +250,9 @@ packages:
   '@babel/core@7.24.5':
     resolution: {integrity: sha512-tVQRucExLQ02Boi4vdPp49svNGcfL2GhdTCT9aldhXgCJVAI21EtRfBettiuLUwce/7r6bFdgs6JFkcdTiFttA==}
     engines: {node: '>=6.9.0'}
+
+  '@babel/generator@7.2.0':
+    resolution: {integrity: sha512-BA75MVfRlFQG2EZgFYIwyT1r6xSkwfP2bdkY/kLZusEYWiJs4xCowab/alaEaT0wSvmVuXGqiefeBlP+7V1yKg==}
 
   '@babel/generator@7.24.5':
     resolution: {integrity: sha512-x32i4hEXvr+iI0NEoEfDKzlemF8AmtOP8CcrRaEcpzysWuoEb1KknpcvMsHKPONoKZiDuItklgWhB18xEhr9PA==}
@@ -943,6 +949,10 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
+  '@jest/types@24.9.0':
+    resolution: {integrity: sha512-XKK7ze1apu5JWQ5eZjHITP66AX+QsLlbaJRBGYr8pNzwcAE2JVkwnf0yqjHTsDRcjR0mujy/NmZMXw5kl+kGBw==}
+    engines: {node: '>= 6'}
+
   '@jridgewell/gen-mapping@0.3.5':
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
     engines: {node: '>=6.0.0'}
@@ -1351,6 +1361,15 @@ packages:
   '@types/hast@3.0.4':
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
 
+  '@types/istanbul-lib-coverage@2.0.6':
+    resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
+
+  '@types/istanbul-lib-report@3.0.3':
+    resolution: {integrity: sha512-NQn7AHQnk/RSLOxrBbGyJM/aVQ+pjj5HCgasFxc0K/KhoATfQ/47AyUl15I2yBUpihjmas+a+VJBOqecrFH+uA==}
+
+  '@types/istanbul-reports@1.1.2':
+    resolution: {integrity: sha512-P/W9yOX/3oPZSpaYOCQzGqgCQRXn0FFO/V8bWrCQs+wLmvVVxk6CRBXALEvNs9OHIatlnlFokfhuDo2ug01ciw==}
+
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -1395,6 +1414,12 @@ packages:
 
   '@types/unist@3.0.2':
     resolution: {integrity: sha512-dqId9J8K/vGi5Zr7oo212BGii5m3q5Hxlkwy3WpYuKPklmBEvsbMYYyLxAQpSffdLl/gdW0XUpKWFvYmyoWCoQ==}
+
+  '@types/yargs-parser@21.0.3':
+    resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
+
+  '@types/yargs@13.0.12':
+    resolution: {integrity: sha512-qCxJE1qgz2y0hA4pIxjBR+PelCH0U5CK1XJXFwCNqfmliatKp47UCXXE9Dyk1OXBDLvsCF57TqQEJaeLfDYEOQ==}
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
@@ -1463,6 +1488,10 @@ packages:
   ajv@8.6.3:
     resolution: {integrity: sha512-SMJOdDP6LqTkD0Uq8qLi+gMwSt0imXLSV080qFVwJCpH9U6Mb+SUGHAXM0KNbcBPguytWyvFxcHgMLe2D2XSpw==}
 
+  ansi-regex@4.1.1:
+    resolution: {integrity: sha512-ILlv4k/3f6vfQ4OoP2AGvirOktlQ98ZEL1k9FaQjxa3L1abBgbuTDAdPOpvbGncC0BTVQrl+OM8xZGK6tWXt7g==}
+    engines: {node: '>=6'}
+
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
@@ -1524,6 +1553,9 @@ packages:
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
+
+  babel-plugin-react-compiler@0.0.0-experimental-592953e-20240517:
+    resolution: {integrity: sha512-OjG1SVaeQZaJrqkMFJatg8W/MTow8Ak5rx2SI0ETQBO1XvOk/XZGMbltNCPdFJLKghBYoBjC+Y3Ap/Xr7B01mA==}
 
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
@@ -2397,6 +2429,9 @@ packages:
     resolution: {integrity: sha512-NGnrKwXzSms2qUUih/ILZ5JBqNTSa1+ZmP6flaIp6KmSElgE9qdndzS3cqjrDovwFdmwsGsLdeFgB6suw+1e9g==}
     engines: {node: '>= 0.4'}
 
+  invariant@2.2.4:
+    resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
+
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
@@ -2720,6 +2755,10 @@ packages:
 
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
+
+  loose-envify@1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
 
   lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
@@ -3494,6 +3533,10 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  pretty-format@24.9.0:
+    resolution: {integrity: sha512-00ZMZUiHaJrNfk33guavqgvfJS30sLYf0f8+Srklv0AMPodGGHcoHgksZ3OThYnIvOd+8yMCn0YiEOogjlgsnA==}
+    engines: {node: '>= 6'}
+
   pretty-ms@7.0.1:
     resolution: {integrity: sha512-973driJZvxiGOQ5ONsFhOF/DtzPMOMtgC11kCpUrPGMTgqp2q/1gwzCquocrN33is0VZ5GFHXZYMM9l6h67v2Q==}
     engines: {node: '>=10'}
@@ -3559,10 +3602,13 @@ packages:
     resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
     engines: {node: '>= 0.8'}
 
-  react-dom@19.0.0-beta-94eed63c49-20240425:
-    resolution: {integrity: sha512-V0uHW7Xd0u/LDlmFO8sJ9TTNizAESS+pexJNOi3KbOU1taf2gUO5J8YIWis60xcQbh7YBqSklyYIIq3DfiKz3Q==}
+  react-dom@19.0.0-rc-3f1436cca1-20240516:
+    resolution: {integrity: sha512-or7TvmgsPqNGudf4SfSWvZxdIW9ZRP0FxQGyEazfKK6Nevuy39G2SKKhPh285vFZuES13X90XSCkeOrgL+70CQ==}
     peerDependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
+
+  react-is@16.13.1:
+    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
   react-refresh@0.14.2:
     resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
@@ -3597,8 +3643,8 @@ packages:
       react: '>=16 || >=17 || >= 18'
       react-dom: '>=16 || >=17 || >= 18'
 
-  react@19.0.0-beta-94eed63c49-20240425:
-    resolution: {integrity: sha512-BPPKh5bZwcpw/Dgfh3A0MoU1GSl2edR2JggCq3QPdghQsrFg1aBuMkul5YB4rpII400RYq9VC5eF5Nm3spx0gA==}
+  react@19.0.0-rc-3f1436cca1-20240516:
+    resolution: {integrity: sha512-wLZoTg7n8ta+VOIc5ek+A6ry5qU1yj6QgT6IvjKNA5KGzWivMeqOHFGAF62wHgDBTNcdJx3aiilOmHtDHaNIDA==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -3760,8 +3806,8 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  scheduler@0.25.0-beta-94eed63c49-20240425:
-    resolution: {integrity: sha512-U8hoOV7uut5E8cMvRSMikEBBqLXfv2BpdxUsG45euaOfnqEgFrCdLLh6ydM+YBJ36+28olXMNmK2PFFzeg4UdQ==}
+  scheduler@0.25.0-rc-3f1436cca1-20240516:
+    resolution: {integrity: sha512-iJvRR7IYYhTx2TxKa9sBBAI+7dgpgQbCZyzd5oY88kkJM9BhbfqF/zexoV/aa5JtBdQNYKn4EHYXg8hu8rrqOA==}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -3849,6 +3895,10 @@ packages:
 
   source-map-support@0.5.21:
     resolution: {integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==}
+
+  source-map@0.5.7:
+    resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==}
+    engines: {node: '>=0.10.0'}
 
   source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
@@ -4046,6 +4096,10 @@ packages:
   trim-newlines@3.0.1:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
     engines: {node: '>=8'}
+
+  trim-right@1.0.1:
+    resolution: {integrity: sha512-WZGXGstmCWgeevgTL54hrCuw1dyMQIzWy7ZfqRJfSmJZBwklI15egmQytFP6bPidmw3M8d5yEowl1niq4vmqZw==}
+    engines: {node: '>=0.10.0'}
 
   trough@2.2.0:
     resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
@@ -4424,6 +4478,12 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod-validation-error@2.1.0:
+    resolution: {integrity: sha512-VJh93e2wb4c3tWtGgTa0OF/dTt/zoPCPzXq4V11ZjxmEAFaPi/Zss1xIZdEB5RD8GD00U0/iVXgqkF77RV7pdQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      zod: ^3.18.0
+
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
@@ -4443,19 +4503,19 @@ snapshots:
 
   '@ariakit/core@0.4.6': {}
 
-  '@ariakit/react-core@0.4.6(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@ariakit/react-core@0.4.6(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
       '@ariakit/core': 0.4.6
       '@floating-ui/dom': 1.6.5
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
-      use-sync-external-store: 1.2.2(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
+      use-sync-external-store: 1.2.2(react@19.0.0-rc-3f1436cca1-20240516)
 
-  '@ariakit/react@0.4.6(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@ariakit/react@0.4.6(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
-      '@ariakit/react-core': 0.4.6(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      '@ariakit/react-core': 0.4.6(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
 
   '@babel/code-frame@7.24.2':
     dependencies:
@@ -4483,6 +4543,14 @@ snapshots:
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
+
+  '@babel/generator@7.2.0':
+    dependencies:
+      '@babel/types': 7.24.5
+      jsesc: 2.5.2
+      lodash: 4.17.21
+      source-map: 0.5.7
+      trim-right: 1.0.1
 
   '@babel/generator@7.24.5':
     dependencies:
@@ -4706,9 +4774,9 @@ snapshots:
   '@biomejs/cli-win32-x64@1.7.3':
     optional: true
 
-  '@clerk/backend@1.1.5(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@clerk/backend@1.1.5(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
-      '@clerk/shared': 2.1.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+      '@clerk/shared': 2.1.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       cookie: 0.5.0
       snakecase-keys: 5.4.4
       tslib: 2.4.1
@@ -4716,35 +4784,35 @@ snapshots:
       - react
       - react-dom
 
-  '@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
-      '@clerk/shared': 2.1.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+      '@clerk/shared': 2.1.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       '@clerk/types': 4.4.0
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
       tslib: 2.4.1
 
-  '@clerk/remix@4.0.10(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@clerk/remix@4.0.10(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
-      '@clerk/backend': 1.1.5(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
-      '@clerk/clerk-react': 5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
-      '@clerk/shared': 2.1.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
-      '@remix-run/react': 2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta)
+      '@clerk/backend': 1.1.5(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
+      '@clerk/clerk-react': 5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
+      '@clerk/shared': 2.1.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
+      '@remix-run/react': 2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta)
       '@remix-run/server-runtime': 2.9.2(typescript@5.5.0-beta)
       cookie: 0.5.0
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
       tslib: 2.4.1
 
-  '@clerk/shared@2.1.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@clerk/shared@2.1.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
       glob-to-regexp: 0.4.1
       js-cookie: 3.0.1
       std-env: 3.7.0
-      swr: 2.2.0(react@19.0.0-beta-94eed63c49-20240425)
+      swr: 2.2.0(react@19.0.0-rc-3f1436cca1-20240516)
     optionalDependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
 
   '@clerk/themes@2.1.6':
     dependencies:
@@ -4757,10 +4825,10 @@ snapshots:
 
   '@conform-to/dom@1.1.3': {}
 
-  '@conform-to/react@1.1.3(react@19.0.0-beta-94eed63c49-20240425)':
+  '@conform-to/react@1.1.3(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
       '@conform-to/dom': 1.1.3
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
 
   '@conform-to/zod@1.1.3(zod@3.23.8)':
     dependencies:
@@ -4979,18 +5047,18 @@ snapshots:
       '@floating-ui/core': 1.6.1
       '@floating-ui/utils': 0.2.2
 
-  '@floating-ui/react-dom@2.0.9(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@floating-ui/react-dom@2.0.9(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
       '@floating-ui/dom': 1.6.5
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
 
-  '@floating-ui/react@0.26.15(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@floating-ui/react@0.26.15(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
-      '@floating-ui/react-dom': 2.0.9(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+      '@floating-ui/react-dom': 2.0.9(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       '@floating-ui/utils': 0.2.2
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
       tabbable: 6.2.0
 
   '@floating-ui/utils@0.2.2': {}
@@ -5007,6 +5075,12 @@ snapshots:
       strip-ansi-cjs: strip-ansi@6.0.1
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
+
+  '@jest/types@24.9.0':
+    dependencies:
+      '@types/istanbul-lib-coverage': 2.0.6
+      '@types/istanbul-reports': 1.1.2
+      '@types/yargs': 13.0.12
 
   '@jridgewell/gen-mapping@0.3.5':
     dependencies:
@@ -5152,89 +5226,89 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.24.5
 
-  '@radix-ui/react-compose-refs@1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-compose-refs@1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  '@radix-ui/react-context@1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-context@1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  '@radix-ui/react-direction@1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-direction@1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  '@radix-ui/react-presence@1.0.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-presence@1.0.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
-      '@radix-ui/react-compose-refs': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      '@radix-ui/react-use-layout-effect': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
-    optionalDependencies:
-      '@types/react': types-react@19.0.0-alpha.5
-      '@types/react-dom': types-react-dom@19.0.0-alpha.5
-
-  '@radix-ui/react-primitive@1.0.3(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)':
-    dependencies:
-      '@babel/runtime': 7.24.5
-      '@radix-ui/react-slot': 1.0.2(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      '@radix-ui/react-compose-refs': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-use-layout-effect': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
       '@types/react-dom': types-react-dom@19.0.0-alpha.5
 
-  '@radix-ui/react-scroll-area@1.0.5(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-primitive@1.0.3(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)':
+    dependencies:
+      '@babel/runtime': 7.24.5
+      '@radix-ui/react-slot': 1.0.2(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
+    optionalDependencies:
+      '@types/react': types-react@19.0.0-alpha.5
+      '@types/react-dom': types-react-dom@19.0.0-alpha.5
+
+  '@radix-ui/react-scroll-area@1.0.5(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
       '@radix-ui/number': 1.0.1
       '@radix-ui/primitive': 1.0.1
-      '@radix-ui/react-compose-refs': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      '@radix-ui/react-context': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      '@radix-ui/react-direction': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      '@radix-ui/react-presence': 1.0.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)
-      '@radix-ui/react-primitive': 1.0.3(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)
-      '@radix-ui/react-use-callback-ref': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      '@radix-ui/react-use-layout-effect': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      '@radix-ui/react-compose-refs': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-context': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-direction': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-presence': 1.0.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-primitive': 1.0.3(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(types-react-dom@19.0.0-alpha.5)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-use-callback-ref': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-use-layout-effect': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
       '@types/react-dom': types-react-dom@19.0.0-alpha.5
 
-  '@radix-ui/react-slot@1.0.2(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-slot@1.0.2(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
-      '@radix-ui/react-compose-refs': 1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
-      react: 19.0.0-beta-94eed63c49-20240425
+      '@radix-ui/react-compose-refs': 1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
+      react: 19.0.0-rc-3f1436cca1-20240516
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  '@radix-ui/react-use-callback-ref@1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-use-callback-ref@1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  '@radix-ui/react-use-layout-effect@1.0.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)':
+  '@radix-ui/react-use-layout-effect@1.0.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)':
     dependencies:
       '@babel/runtime': 7.24.5
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  '@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))':
+  '@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))':
     dependencies:
       '@babel/core': 7.24.5
       '@babel/generator': 7.24.5
@@ -5247,7 +5321,7 @@ snapshots:
       '@mdx-js/mdx': 2.3.0
       '@npmcli/package-json': 4.0.1
       '@remix-run/node': 2.9.2(typescript@5.5.0-beta)
-      '@remix-run/react': 2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta)
+      '@remix-run/react': 2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta)
       '@remix-run/router': 1.16.1
       '@remix-run/server-runtime': 2.9.2(typescript@5.5.0-beta)
       '@types/mdx': 2.0.13
@@ -5328,14 +5402,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.5.0-beta
 
-  '@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta)':
+  '@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta)':
     dependencies:
       '@remix-run/router': 1.16.1
       '@remix-run/server-runtime': 2.9.2(typescript@5.5.0-beta)
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
-      react-router: 6.23.1(react@19.0.0-beta-94eed63c49-20240425)
-      react-router-dom: 6.23.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
+      react-router: 6.23.1(react@19.0.0-rc-3f1436cca1-20240516)
+      react-router-dom: 6.23.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       turbo-stream: 2.0.1
     optionalDependencies:
       typescript: 5.5.0-beta
@@ -5368,9 +5442,9 @@ snapshots:
     optionalDependencies:
       typescript: 5.5.0-beta
 
-  '@remix-run/v1-route-convention@0.1.4(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))':
+  '@remix-run/v1-route-convention@0.1.4(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))':
     dependencies:
-      '@remix-run/dev': 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
+      '@remix-run/dev': 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
       minimatch: 7.4.6
 
   '@remix-run/web-blob@3.1.0':
@@ -5531,6 +5605,17 @@ snapshots:
     dependencies:
       '@types/unist': 2.0.10
 
+  '@types/istanbul-lib-coverage@2.0.6': {}
+
+  '@types/istanbul-lib-report@3.0.3':
+    dependencies:
+      '@types/istanbul-lib-coverage': 2.0.6
+
+  '@types/istanbul-reports@1.1.2':
+    dependencies:
+      '@types/istanbul-lib-coverage': 2.0.6
+      '@types/istanbul-lib-report': 3.0.3
+
   '@types/json-schema@7.0.15': {}
 
   '@types/lodash-es@4.17.12':
@@ -5575,14 +5660,20 @@ snapshots:
 
   '@types/unist@3.0.2': {}
 
+  '@types/yargs-parser@21.0.3': {}
+
+  '@types/yargs@13.0.12':
+    dependencies:
+      '@types/yargs-parser': 21.0.3
+
   '@ungap/structured-clone@1.2.0': {}
 
   '@use-gesture/core@10.3.1': {}
 
-  '@use-gesture/react@10.3.1(react@19.0.0-beta-94eed63c49-20240425)':
+  '@use-gesture/react@10.3.1(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
       '@use-gesture/core': 10.3.1
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
 
   '@vanilla-extract/babel-plugin-debug-ids@1.0.5':
     dependencies:
@@ -5612,7 +5703,7 @@ snapshots:
       '@babel/plugin-syntax-typescript': 7.24.1(@babel/core@7.24.5)
       '@vanilla-extract/babel-plugin-debug-ids': 1.0.5
       '@vanilla-extract/css': 1.15.1
-      esbuild: 0.17.6
+      esbuild: 0.17.19
       eval: 0.1.8
       find-up: 5.0.0
       javascript-stringify: 2.1.0
@@ -5634,15 +5725,15 @@ snapshots:
 
   '@vanilla-extract/private@1.0.4': {}
 
-  '@vercel/remix@2.9.2(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))(@remix-run/node@2.9.2(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)':
+  '@vercel/remix@2.9.2(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))(@remix-run/node@2.9.2(typescript@5.5.0-beta))(@remix-run/server-runtime@2.9.2(typescript@5.5.0-beta))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)':
     dependencies:
-      '@remix-run/dev': 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
+      '@remix-run/dev': 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
       '@remix-run/node': 2.9.2(typescript@5.5.0-beta)
       '@remix-run/server-runtime': 2.9.2(typescript@5.5.0-beta)
       '@vercel/static-config': 3.0.0
       isbot: 3.8.0
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
       ts-morph: 12.0.0
 
   '@vercel/static-config@3.0.0':
@@ -5682,6 +5773,8 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js: 4.4.1
+
+  ansi-regex@4.1.1: {}
 
   ansi-regex@5.0.1: {}
 
@@ -5737,6 +5830,16 @@ snapshots:
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.0.0
+
+  babel-plugin-react-compiler@0.0.0-experimental-592953e-20240517:
+    dependencies:
+      '@babel/generator': 7.2.0
+      '@babel/types': 7.24.5
+      chalk: 4.1.2
+      invariant: 2.2.4
+      pretty-format: 24.9.0
+      zod: 3.23.8
+      zod-validation-error: 2.1.0(zod@3.23.8)
 
   bail@2.0.2: {}
 
@@ -5966,27 +6069,27 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  convex-ents@0.7.6(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)):
+  convex-ents@0.7.6(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)):
     dependencies:
-      convex: 1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+      convex: 1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
 
-  convex-helpers@0.1.36(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(zod@3.23.8):
+  convex-helpers@0.1.36(convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(zod@3.23.8):
     dependencies:
-      convex: 1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
+      convex: 1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
     optionalDependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
       zod: 3.23.8
 
-  convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425))(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425):
+  convex@1.12.0(@clerk/clerk-react@5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516))(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
       esbuild: 0.17.19
       jwt-decode: 3.1.2
       node-fetch: 2.7.0
       prettier: 3.2.5
     optionalDependencies:
-      '@clerk/clerk-react': 5.1.0(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      '@clerk/clerk-react': 5.1.0(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
     transitivePeerDependencies:
       - encoding
 
@@ -6777,6 +6880,10 @@ snapshots:
       hasown: 2.0.2
       side-channel: 1.0.6
 
+  invariant@2.2.4:
+    dependencies:
+      loose-envify: 1.4.0
+
   ipaddr.js@1.9.1: {}
 
   is-alphabetical@2.0.1: {}
@@ -7034,6 +7141,10 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
+  loose-envify@1.4.0:
+    dependencies:
+      js-tokens: 4.0.0
+
   lower-case@2.0.2:
     dependencies:
       tslib: 2.4.1
@@ -7050,9 +7161,9 @@ snapshots:
 
   lru-cache@7.18.3: {}
 
-  lucide-react@0.378.0(react@19.0.0-beta-94eed63c49-20240425):
+  lucide-react@0.378.0(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
 
   map-obj@1.0.1: {}
 
@@ -7802,13 +7913,13 @@ snapshots:
       pkg-types: 1.1.1
       ufo: 1.5.3
 
-  mobx-react-lite@4.0.7(mobx@6.12.3)(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425):
+  mobx-react-lite@4.0.7(mobx@6.12.3)(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
       mobx: 6.12.3
-      react: 19.0.0-beta-94eed63c49-20240425
-      use-sync-external-store: 1.2.2(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      use-sync-external-store: 1.2.2(react@19.0.0-rc-3f1436cca1-20240516)
     optionalDependencies:
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
 
   mobx@6.12.3: {}
 
@@ -8178,6 +8289,13 @@ snapshots:
 
   prettier@3.2.5: {}
 
+  pretty-format@24.9.0:
+    dependencies:
+      '@jest/types': 24.9.0
+      ansi-regex: 4.1.1
+      ansi-styles: 3.2.1
+      react-is: 16.13.1
+
   pretty-ms@7.0.1:
     dependencies:
       parse-ms: 2.1.0
@@ -8237,48 +8355,50 @@ snapshots:
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
-  react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425):
+  react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
-      scheduler: 0.25.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
+      scheduler: 0.25.0-rc-3f1436cca1-20240516
+
+  react-is@16.13.1: {}
 
   react-refresh@0.14.2: {}
 
-  react-router-dom@6.23.1(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425):
+  react-router-dom@6.23.1(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
       '@remix-run/router': 1.16.1
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
-      react-router: 6.23.1(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
+      react-router: 6.23.1(react@19.0.0-rc-3f1436cca1-20240516)
 
-  react-router@6.23.1(react@19.0.0-beta-94eed63c49-20240425):
+  react-router@6.23.1(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
       '@remix-run/router': 1.16.1
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
 
-  react-textarea-autosize@8.5.3(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5):
+  react-textarea-autosize@8.5.3(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5):
     dependencies:
       '@babel/runtime': 7.24.5
-      react: 19.0.0-beta-94eed63c49-20240425
-      use-composed-ref: 1.3.0(react@19.0.0-beta-94eed63c49-20240425)
-      use-latest: 1.2.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      use-composed-ref: 1.3.0(react@19.0.0-rc-3f1436cca1-20240516)
+      use-latest: 1.2.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
     transitivePeerDependencies:
       - '@types/react'
 
-  react-twc@1.4.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5):
+  react-twc@1.4.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5):
     dependencies:
-      '@radix-ui/react-slot': 1.0.2(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
+      '@radix-ui/react-slot': 1.0.2(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
       clsx: 2.1.1
     transitivePeerDependencies:
       - '@types/react'
       - react
 
-  react-virtuoso@4.7.10(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425):
+  react-virtuoso@4.7.10(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
-      react-dom: 19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
 
-  react@19.0.0-beta-94eed63c49-20240425: {}
+  react@19.0.0-rc-3f1436cca1-20240516: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -8414,10 +8534,10 @@ snapshots:
       unified: 11.0.4
       vfile: 6.0.1
 
-  remix-flat-routes@0.6.5(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))):
+  remix-flat-routes@0.6.5(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))):
     dependencies:
-      '@remix-run/dev': 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
-      '@remix-run/v1-route-convention': 0.1.4(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-beta-94eed63c49-20240425(react@19.0.0-beta-94eed63c49-20240425))(react@19.0.0-beta-94eed63c49-20240425)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))
+      '@remix-run/dev': 2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12))
+      '@remix-run/v1-route-convention': 0.1.4(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)(typescript@5.5.0-beta))(@remix-run/serve@2.9.2(typescript@5.5.0-beta))(@types/node@20.12.12)(typescript@5.5.0-beta)(vite@5.2.11(@types/node@20.12.12)))
       fs-extra: 11.2.0
       minimatch: 5.1.6
 
@@ -8520,7 +8640,7 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  scheduler@0.25.0-beta-94eed63c49-20240425: {}
+  scheduler@0.25.0-rc-3f1436cca1-20240516: {}
 
   semver@5.7.2: {}
 
@@ -8625,6 +8745,8 @@ snapshots:
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
+
+  source-map@0.5.7: {}
 
   source-map@0.6.1: {}
 
@@ -8763,10 +8885,10 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  swr@2.2.0(react@19.0.0-beta-94eed63c49-20240425):
+  swr@2.2.0(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
-      use-sync-external-store: 1.2.2(react@19.0.0-beta-94eed63c49-20240425)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      use-sync-external-store: 1.2.2(react@19.0.0-rc-3f1436cca1-20240516)
 
   tabbable@6.2.0: {}
 
@@ -8859,6 +8981,8 @@ snapshots:
   trim-lines@3.0.1: {}
 
   trim-newlines@3.0.1: {}
+
+  trim-right@1.0.1: {}
 
   trough@2.2.0: {}
 
@@ -9072,26 +9196,26 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-composed-ref@1.3.0(react@19.0.0-beta-94eed63c49-20240425):
+  use-composed-ref@1.3.0(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
 
-  use-isomorphic-layout-effect@1.1.2(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5):
+  use-isomorphic-layout-effect@1.1.2(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  use-latest@1.2.1(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5):
+  use-latest@1.2.1(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
-      use-isomorphic-layout-effect: 1.1.2(react@19.0.0-beta-94eed63c49-20240425)(types-react@19.0.0-alpha.5)
+      react: 19.0.0-rc-3f1436cca1-20240516
+      use-isomorphic-layout-effect: 1.1.2(react@19.0.0-rc-3f1436cca1-20240516)(types-react@19.0.0-alpha.5)
     optionalDependencies:
       '@types/react': types-react@19.0.0-alpha.5
 
-  use-sync-external-store@1.2.2(react@19.0.0-beta-94eed63c49-20240425):
+  use-sync-external-store@1.2.2(react@19.0.0-rc-3f1436cca1-20240516):
     dependencies:
-      react: 19.0.0-beta-94eed63c49-20240425
+      react: 19.0.0-rc-3f1436cca1-20240516
 
   util-deprecate@1.0.2: {}
 
@@ -9274,6 +9398,10 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@0.1.0: {}
+
+  zod-validation-error@2.1.0(zod@3.23.8):
+    dependencies:
+      zod: 3.23.8
 
   zod@3.23.8: {}
 

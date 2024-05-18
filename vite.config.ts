@@ -15,7 +15,11 @@ export default defineConfig({
 			babelHelpers: "bundled",
 			extensions: [".ts", ".tsx"],
 			include: ["app/**/*.{ts,tsx}"],
-			plugins: [["@babel/plugin-proposal-decorators", { version: "2023-11" }]],
+			presets: ["@babel/preset-typescript"],
+			plugins: [
+				["@babel/plugin-proposal-decorators", { version: "2023-11" }],
+				"babel-plugin-react-compiler",
+			],
 		}),
 		mdx({
 			rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "append" }]],
