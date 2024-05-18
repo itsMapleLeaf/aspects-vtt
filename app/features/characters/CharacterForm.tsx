@@ -15,7 +15,7 @@ import { FormField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
-import { Select, type SelectOption, type SelectValue } from "../../ui/Select.old.tsx"
+import { Select, type SelectOption } from "../../ui/Select.tsx"
 import { TextArea } from "../../ui/TextArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
@@ -66,7 +66,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					field="playerId"
 					label="Player"
 					options={[
-						{ label: "None", value: null },
+						{ id: "none", label: "None", value: null },
 						...room.players.map((p) => ({ label: p.name, value: p.clerkId })),
 					]}
 				/>
@@ -123,14 +123,7 @@ function CharacterRaceAbilityList({
 	character: ApiCharacter
 }) {
 	const abilities = useCharacterRaceAbilities(character)
-	return (
-		<DefinitionList
-			items={abilities.map((ability) => ({
-				name: ability.name,
-				description: ability.description,
-			}))}
-		/>
-	)
+	return <DefinitionList items={abilities} />
 }
 
 export function CharacterNotesFields({
@@ -285,7 +278,7 @@ function CharacterNumberField({
 	)
 }
 
-function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue>>({
+function CharacterSelectField<Field extends UpdateableCharacterField<string | null>>({
 	character,
 	field,
 	label = startCase(field),
@@ -297,17 +290,15 @@ function CharacterSelectField<Field extends UpdateableCharacterField<SelectValue
 	options: SelectOption<ApiCharacter[Field]>[]
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
-	const inputId = useId()
 	const value = state.args?.[field] ?? character[field]
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
-			<FormField label={label} htmlFor={inputId}>
-				<Select
-					value={value}
-					options={options}
-					onChange={(value) => update({ id: character._id, [field]: value })}
-				/>
-			</FormField>
+			<Select
+				label={label}
+				value={value}
+				options={options}
+				onChange={(value) => update({ id: character._id, [field]: value })}
+			/>
 		</CharacterReadOnlyGuard>
 	)
 }
@@ -323,29 +314,26 @@ function CharacterDiceField({
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const value = state.args?.[field] ?? character[field]
-	const inputId = useId()
-
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
-			<FormField label={label} htmlFor={inputId}>
-				<div className="flex gap-2">
-					<Select
-						id={inputId}
-						options={statDiceKinds.map((kind) => ({
-							label: kind.name,
-							value: kind.faces.length,
-						}))}
-						value={value}
-						onChange={(value) => update({ id: character._id, [field]: value })}
-						className="flex-1"
-					/>
-					<AttributeDiceRollButton
-						attributeValue={value}
-						buttonLabel={`Roll ${label} for ${character.displayName}`}
-						messageContent={`<@${character._id}>: ${label}`}
-					/>
-				</div>
-			</FormField>
+			<div className="flex items-end gap-2">
+				<Select
+					label={label}
+					options={statDiceKinds.map((kind) => ({
+						id: kind.name,
+						label: kind.name,
+						value: kind.faces.length,
+					}))}
+					value={value}
+					onChange={(value) => update({ id: character._id, [field]: value })}
+					className="flex-1"
+				/>
+				<AttributeDiceRollButton
+					attributeValue={value}
+					buttonLabel={`Roll ${label} for ${character.displayName}`}
+					messageContent={`<@${character._id}>: ${label}`}
+				/>
+			</div>
 		</CharacterReadOnlyGuard>
 	)
 }
