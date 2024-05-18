@@ -22,7 +22,7 @@ import type { ApiCharacter } from "./types.ts"
 
 export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
-	const [onlyShowLearned, setOnlyShowLearned] = useState(false)
+	const [showingLearned, setShowingLearned] = useState(false)
 
 	const characterSkillIds = new Set(
 		Iterator.from(character.learnedAspectSkills ?? []).flatMap((doc) => doc.aspectSkillIds),
@@ -102,8 +102,8 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 			<section aria-label="Filters" className="flex-center-row p-2">
 				<CheckboxField
 					label="Only show learned skills"
-					checked={onlyShowLearned}
-					onChange={(event) => setOnlyShowLearned(event.target.checked)}
+					checked={showingLearned}
+					onChange={(event) => setShowingLearned(event.target.checked)}
 				/>
 			</section>
 
@@ -112,7 +112,7 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 					{computedSkillTree.map((aspect) => {
 						const tierItems = Iterator.from(aspect.tiers)
 							.map((tier) => {
-								return onlyShowLearned
+								return showingLearned
 									? { ...tier, skills: tier.skills.filter((s) => s.learned) }
 									: tier
 							})
