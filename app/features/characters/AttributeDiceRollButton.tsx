@@ -9,11 +9,13 @@ import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.t
 
 export function AttributeDiceRollButton({
 	attributeValue,
+	buttonText,
 	buttonLabel,
 	messageContent,
 }: {
 	attributeValue: number
-	buttonLabel: string
+	buttonText: string
+	buttonLabel?: string
 	messageContent: string
 }) {
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
@@ -21,21 +23,22 @@ export function AttributeDiceRollButton({
 	const [snagCount, setSnagCount] = useState(0)
 
 	return (
-		<Ariakit.HovercardProvider placement="left" timeout={350}>
-			<Ariakit.HovercardAnchor>
-				<Button
-					icon={<Lucide.Dices />}
-					text="Roll"
-					aria-label={buttonLabel}
-					onClick={async () => {
-						await createAttributeRollMessage({
-							content: messageContent,
-							attributeValue,
-						})
-					}}
-				/>
-			</Ariakit.HovercardAnchor>
-
+		<Ariakit.HovercardProvider placement="top" timeout={350} hideTimeout={0}>
+			<Ariakit.HovercardAnchor
+				render={
+					<Button
+						icon={<Lucide.Dices />}
+						text={buttonText}
+						aria-label={buttonLabel}
+						onClick={async () => {
+							await createAttributeRollMessage({
+								content: messageContent,
+								attributeValue,
+							})
+						}}
+					/>
+				}
+			/>
 			<Ariakit.Hovercard
 				className={panel(
 					"flex w-64 translate-y-2 flex-col gap-3 bg-primary-100 p-3 opacity-0 shadow-md shadow-black/50 transition data-[enter]:translate-y-0  data-[enter]:opacity-100",
