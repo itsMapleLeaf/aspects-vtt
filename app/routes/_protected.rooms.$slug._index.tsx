@@ -313,7 +313,7 @@ function GeneralSkillsList() {
 	const notionData = useQuery(api.notionImports.functions.get, {})
 	return (
 		<DefinitionList
-			items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name))}
+			items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name)) ?? []}
 		/>
 	)
 }
