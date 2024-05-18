@@ -1,10 +1,10 @@
 import { Tooltip, TooltipAnchor, TooltipProvider } from "@ariakit/react"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
-import { useCharacterSkills } from "../characters/useCharacterSkills.ts"
+import { useCharacterAbilities } from "../characters/useCharacterAbilities.ts"
 
 export function CharacterSkillsShortList({ character }: { character: ApiCharacter }) {
-	const skills = useCharacterSkills(character)
+	const skills = useCharacterAbilities(character)
 	return (
 		<ul className="flex flex-wrap gap-2">
 			{skills.map((skill) => (
