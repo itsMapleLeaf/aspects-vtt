@@ -10,10 +10,12 @@ import { randomItem } from "../../common/random.ts"
 import { useFilter } from "../../common/react.ts"
 import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
-import { FormField } from "../../ui/Form.tsx"
+import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { ModalButton } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
+import { ScrollArea } from "../../ui/ScrollArea.tsx"
+import { Tabs } from "../../ui/Tabs.tsx"
 import {
 	CharacterDamageField,
 	CharacterFatigueField,
@@ -21,10 +23,11 @@ import {
 } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
+import { CharacterSkillTree } from "../characters/skills.ts"
 import type { ApiCharacter } from "../characters/types.ts"
+import { useCharacterRaceAbilities } from "../characters/useCharacterRaceAbilities.ts"
 import { useCreateAttributeRollMessage } from "../characters/useCreateAttributeRollMessage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { CharacterSkillsShortList } from "./CharacterSkillsShortList.tsx"
 import type { ApiScene } from "./types.ts"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 import { useViewport } from "./viewport.tsx"
@@ -82,7 +85,7 @@ export const TokenMenu = observer(function TokenMenu({
 				modal={false}
 				fixed
 				flip={false}
-				className="flex w-min flex-col gap-3 rounded p-3"
+				className="flex w-min min-w-[360px] flex-col gap-3 rounded p-3"
 				unmountOnHide={false}
 				hideOnInteractOutside={false}
 			>
@@ -222,22 +225,30 @@ export function TokenMenuContent(props: {
 				)}
 			</div>
 
-			<div className="grid min-w-[320px] gap-[inherit] empty:hidden">
-				{singleSelectedCharacter?.isOwner && (
-					<div className="grid auto-cols-fr grid-flow-col gap-2">
-						<CharacterDamageField character={singleSelectedCharacter} />
-						<CharacterFatigueField character={singleSelectedCharacter} />
-					</div>
-				)}
+			{singleSelectedCharacter && (
+				<Tabs>
+					<Tabs.List>
+						<Tabs.Tab>Abilities</Tabs.Tab>
+						<Tabs.Tab>Status</Tabs.Tab>
+						<Tabs.Tab>Notes</Tabs.Tab>
+					</Tabs.List>
 
-				{room.isOwner && singleSelectedCharacter && (
-					<FormField label="Skills" className="min-w-[320px]">
-						<CharacterSkillsShortList character={singleSelectedCharacter} />
-					</FormField>
-				)}
+					<ScrollArea className="h-[360px]">
+						<Tabs.Panel>
+							<CharacterAbilityList character={singleSelectedCharacter} />
+						</Tabs.Panel>
 
-				{singleSelectedCharacter && <CharacterNotesFields character={singleSelectedCharacter} />}
-			</div>
+						<Tabs.Panel className="flex flex-col gap-2">
+							<CharacterDamageField character={singleSelectedCharacter} />
+							<CharacterFatigueField character={singleSelectedCharacter} />
+						</Tabs.Panel>
+
+						<Tabs.Panel className="flex flex-col gap-2">
+							<CharacterNotesFields character={singleSelectedCharacter} />
+						</Tabs.Panel>
+					</ScrollArea>
+				</Tabs>
+			)}
 		</>
 	)
 }
@@ -269,5 +280,25 @@ function RollAttributeMenu(props: {
 				))}
 			</MenuPanel>
 		</Menu>
+	)
+}
+
+function CharacterAbilityList({ character }: { character: ApiCharacter }) {
+	const raceAbilities = useCharacterRaceAbilities(character)
+
+	const aspectSkills = Iterator.from(character.learnedAspectSkills ?? [])
+		.flatMap((group) => group.aspectSkillIds)
+		.map((id) => CharacterSkillTree.skillsById.get(id))
+		.filter((skill) => skill != null)
+
+	if (character.isOwner) {
+		return <DefinitionList items={[...raceAbilities, ...aspectSkills]} />
+	}
+
+	return (
+		<>
+			<DefinitionList items={raceAbilities} />
+			<p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>
+		</>
 	)
 }
