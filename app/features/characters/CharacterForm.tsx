@@ -10,6 +10,7 @@ import type { PickByValue } from "../../common/types.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button } from "../../ui/Button.tsx"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
+import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { Loading } from "../../ui/Loading.tsx"
@@ -24,6 +25,7 @@ import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 import type { ApiAttribute, ApiCharacter } from "./types.ts"
+import { useCharacterRaceAbilities } from "./useCharacterRaceAbilities.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
@@ -54,6 +56,9 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				field="race"
 				options={notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []}
 			/>
+			<div className={panel("p-3")}>
+				<CharacterRaceAbilityList character={character} />
+			</div>
 
 			{room.isOwner && (
 				<CharacterSelectField
@@ -109,6 +114,22 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 
 			<CharacterNotesFields character={character} />
 		</div>
+	)
+}
+
+function CharacterRaceAbilityList({
+	character,
+}: {
+	character: ApiCharacter
+}) {
+	const abilities = useCharacterRaceAbilities(character)
+	return (
+		<DefinitionList
+			items={abilities.map((ability) => ({
+				name: ability.name,
+				description: ability.description,
+			}))}
+		/>
 	)
 }
 
