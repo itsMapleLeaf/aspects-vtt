@@ -7,8 +7,8 @@
   },
   "scripts": {
     "build": "remix vite:build",
-    "dev": "run-p --print-label --race 'dev:*'",
-    "dev:remix": "remix vite:dev --open",
+    "dev": "run-p --print-label --race dev:*",
+    "dev:remix": "remix vite:dev",
     "dev:convex": "convex dev --tail-logs",
     "preview": "dotenv -c -- remix-serve ./build/server/index.js",
     "lint": "biome check .",
