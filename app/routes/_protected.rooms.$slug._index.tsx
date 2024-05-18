@@ -102,9 +102,9 @@ function SceneHeading() {
 	const gameTime = new GameTime(room.gameTime)
 	if (!scene) return
 	return (
-		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light opacity-50 drop-shadow-md">
+		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)]">
 			{scene.name}
-			<p className="text-base">
+			<p className="text-base font-medium tracking-wide">
 				{gameTime.timeOfDayName} - Day {gameTime.day + 1} of {gameTime.monthName.name}, Year{" "}
 				{gameTime.year + 1}
 			</p>
