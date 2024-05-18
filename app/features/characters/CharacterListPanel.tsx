@@ -1,13 +1,11 @@
 import { useDialogStore } from "@ariakit/react"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type ComponentProps, type ReactNode, useEffect } from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api.js"
-import type { Id } from "../../../convex/_generated/dataModel.js"
 import { groupBy } from "../../common/collection.ts"
 import { useMutationAction } from "../../common/convex.ts"
-import { useEffectEvent } from "../../common/react.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { ModalButton } from "../../ui/Modal.tsx"
@@ -154,17 +152,7 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 
 function CreateCharacterButton() {
 	const room = useRoom()
-	const [createdId, submit, pending] = useMutationAction(api.characters.functions.create)
-	const selection = useCharacterSelection()
-
-	const handleCreated = useEffectEvent((id: Id<"characters">) => {
-		selection.setSelected(id)
-	})
-
-	useEffect(() => {
-		if (createdId) handleCreated(createdId)
-	}, [createdId, handleCreated])
-
+	const [, submit, pending] = useMutationAction(api.characters.functions.create)
 	return (
 		<form action={() => submit({ roomId: room._id })}>
 			<Tooltip content="Create Character" placement="right">
