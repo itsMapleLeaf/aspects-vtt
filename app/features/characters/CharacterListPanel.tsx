@@ -57,7 +57,9 @@ export function CharacterListPanel() {
 					{divider}
 					{renderList(groups.get("player") ?? [])}
 					{divider}
-					{renderList(groups.get("rest") ?? [])}
+					{renderList(
+						(groups.get("rest") ?? []).toSorted((a, b) => b._creationTime - a._creationTime),
+					)}
 				</ul>
 			</ScrollArea>
 		</ToggleableSidebar>
