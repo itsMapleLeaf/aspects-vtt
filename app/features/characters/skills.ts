@@ -122,12 +122,18 @@ export const CharacterSkillTree = new SkillTree({
 				description: `Cancel the flow of electricity in the surrounding air or in an object.`,
 			},
 		},
-		integrate: {
-			foresee: {
-				description: `Become one with the surrounding environment, and predict changing weather conditions in the future.`,
+		imbue: {
+			sparkObject: {
+				description: `Touch an object to send electricity through it.`,
 			},
-			alterAtmosphere: {
-				description: `Change the weather conditions of the surrounding environment.`,
+			sparkAir: {
+				description: `Lightly electrify the air around you.`,
+			},
+			quake: {
+				description: `Stomp the ground to create a straight line of molten cracks through the ground.`,
+			},
+			ignite: {
+				description: `Set fire to a nearby surface. `,
 			},
 		},
 		summon: {
@@ -186,7 +192,7 @@ export const CharacterSkillTree = new SkillTree({
 			},
 		},
 		sense: {
-			whispersOfTheMoist: {
+			whispersOfTheMist: {
 				description: `Increase awareness of object through surrounding air moisture.`,
 			},
 			whispersOfTheSea: {
@@ -324,6 +330,9 @@ export const CharacterSkillTree = new SkillTree({
 			},
 			disguise: {
 				description: `Change the outward appearance of a character or object you can see.`,
+			},
+			facade: {
+				description: `Create identical but untouchable mirror images of a character or object you can see.`,
 			},
 		},
 		rewrite: {
