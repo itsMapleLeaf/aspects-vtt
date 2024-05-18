@@ -14,20 +14,24 @@ export function CharacterModal({
 		<ModalProvider {...props}>
 			{children}
 			<ModalPanel title="Character Profile" fullHeight>
-				<Tabs>
-					<Tabs.List>
-						<Tabs.Tab>Profile</Tabs.Tab>
-						<Tabs.Tab>Skills</Tabs.Tab>
-					</Tabs.List>
-					<Tabs.Panel className="min-h-0 flex-1 overflow-y-auto">
-						<div className="p-4">
-							<CharacterForm character={character} />
-						</div>
-					</Tabs.Panel>
-					<Tabs.Panel className="flex min-h-0 flex-1 flex-col">
-						<CharacterSkillsViewer character={character} />
-					</Tabs.Panel>
-				</Tabs>
+				<div className="flex min-h-0 flex-1 flex-col gap-2 p-2">
+					{character.isOwner ? (
+						<Tabs>
+							<Tabs.List>
+								<Tabs.Tab>Profile</Tabs.Tab>
+								<Tabs.Tab>Skills</Tabs.Tab>
+							</Tabs.List>
+							<Tabs.Panel className="min-h-0 flex-1 overflow-y-auto">
+								<CharacterForm character={character} />
+							</Tabs.Panel>
+							<Tabs.Panel className="flex min-h-0 flex-1 flex-col">
+								<CharacterSkillsViewer character={character} />
+							</Tabs.Panel>
+						</Tabs>
+					) : (
+						<CharacterForm character={character} />
+					)}
+				</div>
 			</ModalPanel>
 		</ModalProvider>
 	)
