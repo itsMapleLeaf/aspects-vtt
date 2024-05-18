@@ -1,17 +1,27 @@
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
-import { LucidePlus, LucideStar, LucideStars, LucideX } from "lucide-react"
-import { Fragment, type ReactNode, useActionState } from "react"
+import {
+	LucideChevronsRight,
+	LucideHelpCircle,
+	LucidePlus,
+	LucideStar,
+	LucideStars,
+	LucideX,
+} from "lucide-react"
+import { Fragment, type ReactNode, useActionState, useState } from "react"
 import { api } from "../../../convex/_generated/api"
+import { CheckboxField } from "../../ui/CheckboxField.tsx"
+import { EmptyState } from "../../ui/EmptyState.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { twc } from "../../ui/twc.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { CharacterSkillTree } from "./skills.ts"
+import { CharacterSkillTree, type Skill } from "./skills.ts"
 import type { ApiCharacter } from "./types.ts"
 
 export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
+	const [onlyShowLearned, setOnlyShowLearned] = useState(false)
 
 	const characterSkillIds = new Set(
 		Iterator.from(character.learnedAspectSkills ?? []).flatMap((doc) => doc.aspectSkillIds),
@@ -50,33 +60,29 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 		.filter((skill) => skill.learned)
 		.reduce((total, skill) => total + skill.cost, 0)
 
-	const setSkillActive = useMutation(api.characters.functions.setSkillActive)
-
-	async function handleToggleSkill(aspectSkillId: string, active: boolean) {
-		try {
-			await setSkillActive({ characterId: character._id, aspectSkillId, active })
-		} catch (error) {
-			console.error(error) // TODO: show a toast
-		}
-	}
-
 	return (
 		<Tabs>
-			<aside className="flex-center h-12 px-2">
+			<aside className="flex-center h-16 gap-1 px-2">
 				<SomeKindaLabel>
-					Experience: {usedExperience} <span className="opacity-75">used</span> / {room.experience}{" "}
+					<span className="opacity-75">Experience:</span> {room.experience - usedExperience}{" "}
+					<span className="opacity-75">remaining</span> / {room.experience}{" "}
 					<span className="opacity-75">available</span>
 				</SomeKindaLabel>
-				<SomeKindaLabel>
-					<ul className="flex gap-1.5">
-						{characterAspectList.map((aspect, index) => (
-							<Fragment key={aspect.id}>
-								{index > 0 && <span className="translate-y-[-1px]">•</span>}
-								<span>{aspect.name}</span>
-							</Fragment>
-						))}
-					</ul>
-				</SomeKindaLabel>
+				{characterAspectList.length > 0 && (
+					<SomeKindaLabel className="flex gap-1">
+						<p className="opacity-75">Path:</p>
+						<ul className="flex gap-0.5">
+							{characterAspectList.map((aspect, index) => (
+								<Fragment key={aspect.id}>
+									{index > 0 && (
+										<LucideChevronsRight className="size-5 translate-y-[-0.5px] stroke-[2.5px] opacity-75" />
+									)}
+									<span>{aspect.name}</span>
+								</Fragment>
+							))}
+						</ul>
+					</SomeKindaLabel>
+				)}
 			</aside>
 
 			<Tabs.List>
@@ -92,28 +98,40 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 				))}
 			</Tabs.List>
 
+			<section aria-label="Filters" className="flex-center-row p-2">
+				<CheckboxField
+					label="Only show learned skills"
+					checked={onlyShowLearned}
+					onChange={(event) => setOnlyShowLearned(event.target.checked)}
+				/>
+			</section>
+
 			<div className="min-h-0 flex-1 overflow-y-auto [transform:translateZ(0)]">
-				{computedSkillTree.map((aspect) => (
-					<Tabs.Panel key={aspect.id} className="grid gap-4 p-4">
-						{aspect.tiers.map((tier) => (
+				{computedSkillTree.map((aspect) => {
+					const tierItems = Iterator.from(aspect.tiers)
+						.map((tier) => {
+							return onlyShowLearned
+								? { ...tier, skills: tier.skills.filter((s) => s.learned) }
+								: tier
+						})
+						.filter((tier) => tier.skills.length > 0)
+						.map((tier) => (
 							<TierSection key={tier.id} name={tier.name} number={tier.number}>
-								<ul className="-m-2 grid gap-1">
-									{tier.skills.map((skill) => (
-										<li key={skill.id}>
-											<AspectSkillButton
-												name={skill.name}
-												description={skill.description}
-												active={skill.learned}
-												cost={skill.cost}
-												onToggle={() => handleToggleSkill(skill.id, !skill.learned)}
-											/>
-										</li>
-									))}
-								</ul>
+								<SkillList skills={tier.skills} character={character} />
 							</TierSection>
-						))}
-					</Tabs.Panel>
-				))}
+						))
+						.toArray()
+
+					return (
+						<Tabs.Panel key={aspect.id} className="grid gap-4 p-4">
+							{tierItems.length > 0 ? (
+								tierItems
+							) : (
+								<EmptyState icon={<LucideHelpCircle />} message="Nothing here." className="py-24" />
+							)}
+						</Tabs.Panel>
+					)
+				})}
 			</div>
 		</Tabs>
 	)
@@ -132,6 +150,40 @@ function TierSection({
 			</h3>
 			{children}
 		</section>
+	)
+}
+
+function SkillList({
+	skills,
+	character,
+}: {
+	skills: (Skill & { learned: boolean; cost: number })[]
+	character: ApiCharacter
+}) {
+	const setSkillActive = useMutation(api.characters.functions.setSkillActive)
+
+	async function handleToggleSkill(aspectSkillId: string, active: boolean) {
+		try {
+			await setSkillActive({ characterId: character._id, aspectSkillId, active })
+		} catch (error) {
+			console.error(error) // TODO: show a toast
+		}
+	}
+
+	return (
+		<ul className="-m-2 grid gap-1">
+			{skills.map((skill) => (
+				<li key={skill.id}>
+					<AspectSkillButton
+						name={skill.name}
+						description={skill.description}
+						active={skill.learned}
+						cost={skill.cost}
+						onToggle={() => handleToggleSkill(skill.id, !skill.learned)}
+					/>
+				</li>
+			))}
+		</ul>
 	)
 }
 
@@ -157,8 +209,8 @@ function AspectSkillButton({
 			onPointerDown={dispatchToggle}
 		>
 			<h4 className="text-xl font-light">{name}</h4>
-			<p className="text-primary-800">{description}</p>
-			<SomeKindaLabel>{cost} EXP</SomeKindaLabel>
+			<p className="text-lg text-primary-800">{description}</p>
+			<SomeKindaLabel className="mt-1.5 block">{cost} EXP</SomeKindaLabel>
 			<div className="flex-center absolute inset-y-0 right-0 w-16 opacity-0 transition-opacity group-hover:opacity-100">
 				{pending ? <Loading size="sm" /> : active ? <LucideX /> : <LucidePlus />}
 			</div>
