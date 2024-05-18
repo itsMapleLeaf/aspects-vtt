@@ -2,12 +2,13 @@ import { type PaginatedQueryItem, useMutation, usePaginatedQuery } from "convex/
 import { formatDistanceToNow } from "date-fns"
 import { HelpCircle } from "lucide-react"
 import * as Lucide from "lucide-react"
-import { Fragment } from "react"
-import { Virtuoso } from "react-virtuoso"
+import { Fragment, useDeferredValue, useEffect, useMemo, useRef } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
+import { expect } from "../../common/expect.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
+import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
@@ -24,26 +25,62 @@ export function MessageList() {
 		{ initialNumItems: listItemCount },
 	)
 
+	const reversedResults = useMemo(() => list.results.toReversed(), [list.results])
+	const deferredResults = useDeferredValue(reversedResults)
+
+	const viewportRef = useRef<HTMLDivElement>(null)
+	const listRef = useRef<HTMLUListElement>(null)
+	const listHeightRef = useRef(0)
+
+	// initialize the list height
+	useEffect(() => {
+		listHeightRef.current = expect(listRef.current).clientHeight
+	}, [])
+
+	// observe changes in the height of the list and update the scroll position by the difference
+	useEffect(() => {
+		const observer = new ResizeObserver(([entry]) => {
+			const { contentRect } = expect(entry)
+			const heightDifference = contentRect.height - listHeightRef.current
+			if (heightDifference > 0) {
+				expect(viewportRef.current).scrollBy({ top: heightDifference })
+			}
+			listHeightRef.current = contentRect.height
+		})
+		observer.observe(expect(listRef.current))
+		return () => observer.disconnect()
+	}, [])
+
+	// scroll the viewport to the bottom when the list is loaded
+	const hasItems = list.results.length > 0
+	useEffect(() => {
+		if (hasItems) {
+			expect(viewportRef.current).scrollTo({ top: expect(listRef.current).scrollHeight })
+		}
+	}, [hasItems])
+
 	return (
-		<Virtuoso
-			style={{ height: "100%", willChange: "transform" }}
-			data={list.results}
-			itemContent={(_index, message) => (
-				<div className="pb-2 animate-in fade-in">
-					<MessagePanel message={message} />
-				</div>
-			)}
-			defaultItemHeight={135}
-			endReached={() => list.loadMore(listItemCount)}
-			components={{
-				Footer: () =>
-					list.status === "Exhausted" ? null : (
-						<div className="flex justify-center p-4">
-							<Loading />
-						</div>
-					),
+		<ScrollArea
+			viewportRef={viewportRef}
+			onViewportScroll={(event) => {
+				if (event.currentTarget.scrollTop < 50) {
+					list.loadMore(listItemCount)
+				}
 			}}
-		/>
+		>
+			<ul className="flex min-h-full flex-col justify-end gap-2" ref={listRef}>
+				{list.status !== "Exhausted" && (
+					<li>
+						<Loading />
+					</li>
+				)}
+				{deferredResults.map((message) => (
+					<li key={message._id}>
+						<MessagePanel message={message} />
+					</li>
+				))}
+			</ul>
+		</ScrollArea>
 	)
 }
 

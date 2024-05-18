@@ -300,10 +300,10 @@ function MessagesPanel() {
 	return (
 		<ToggleableSidebar name="Messages & Dice" side="right">
 			<aside className={translucentPanel("flex h-full w-[24rem] flex-col gap-2 p-2")}>
-				<MessageForm />
 				<div className="min-h-0 flex-1">
 					<MessageList />
 				</div>
+				<MessageForm />
 			</aside>
 		</ToggleableSidebar>
 	)

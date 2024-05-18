@@ -5,12 +5,20 @@ export interface ScrollAreaProps {
 	children: React.ReactNode
 	className?: string
 	scrollbarPosition?: "outside" | "inside"
+	viewportRef?: React.Ref<HTMLDivElement>
+	onViewportScroll?: (event: React.UIEvent<HTMLDivElement>) => void
 }
 
 export function ScrollArea(props: ScrollAreaProps) {
 	return (
 		<RadixScrollArea.Root className={twMerge("h-full", props.className)}>
-			<RadixScrollArea.Viewport className="max-h-full">{props.children}</RadixScrollArea.Viewport>
+			<RadixScrollArea.Viewport
+				className="max-h-full"
+				ref={props.viewportRef}
+				onScroll={props.onViewportScroll}
+			>
+				{props.children}
+			</RadixScrollArea.Viewport>
 			<RadixScrollArea.Scrollbar
 				orientation="vertical"
 				className={twMerge(
