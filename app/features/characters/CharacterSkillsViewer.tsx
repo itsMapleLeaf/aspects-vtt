@@ -13,6 +13,7 @@ import { api } from "../../../convex/_generated/api"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { Loading } from "../../ui/Loading.tsx"
+import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { twc } from "../../ui/twc.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
@@ -106,32 +107,38 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 				/>
 			</section>
 
-			<div className="min-h-0 flex-1 overflow-y-auto [transform:translateZ(0)]">
-				{computedSkillTree.map((aspect) => {
-					const tierItems = Iterator.from(aspect.tiers)
-						.map((tier) => {
-							return onlyShowLearned
-								? { ...tier, skills: tier.skills.filter((s) => s.learned) }
-								: tier
-						})
-						.filter((tier) => tier.skills.length > 0)
-						.map((tier) => (
-							<TierSection key={tier.id} name={tier.name} number={tier.number}>
-								<SkillList skills={tier.skills} character={character} />
-							</TierSection>
-						))
-						.toArray()
+			<div className="min-h-0 flex-1">
+				<ScrollArea>
+					{computedSkillTree.map((aspect) => {
+						const tierItems = Iterator.from(aspect.tiers)
+							.map((tier) => {
+								return onlyShowLearned
+									? { ...tier, skills: tier.skills.filter((s) => s.learned) }
+									: tier
+							})
+							.filter((tier) => tier.skills.length > 0)
+							.map((tier) => (
+								<TierSection key={tier.id} name={tier.name} number={tier.number}>
+									<SkillList skills={tier.skills} character={character} />
+								</TierSection>
+							))
+							.toArray()
 
-					return (
-						<Tabs.Panel key={aspect.id} className="grid gap-4 p-4">
-							{tierItems.length > 0 ? (
-								tierItems
-							) : (
-								<EmptyState icon={<LucideHelpCircle />} message="Nothing here." className="py-24" />
-							)}
-						</Tabs.Panel>
-					)
-				})}
+						return (
+							<Tabs.Panel key={aspect.id} className="grid gap-4 p-4">
+								{tierItems.length > 0 ? (
+									tierItems
+								) : (
+									<EmptyState
+										icon={<LucideHelpCircle />}
+										message="Nothing here."
+										className="py-24"
+									/>
+								)}
+							</Tabs.Panel>
+						)
+					})}
+				</ScrollArea>
 			</div>
 		</Tabs>
 	)
