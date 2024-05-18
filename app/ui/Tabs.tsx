@@ -29,6 +29,14 @@ function Tab(props: Ariakit.TabProps) {
 Tabs.Tab = Tab
 
 function Panel(props: Ariakit.TabPanelProps) {
-	return <Ariakit.TabPanel {...props} />
+	return (
+		<Ariakit.TabPanel
+			{...props}
+			className={twMerge(
+				"translate-y-2 opacity-0 transition duration-0 data-[enter]:duration-150 data-[enter]:translate-y-0 data-[enter]:opacity-100",
+				props.className,
+			)}
+		/>
+	)
 }
 Tabs.Panel = Panel
