@@ -124,13 +124,11 @@ export function CharacterNotesFields({
 	const room = useRoom()
 	return (
 		<>
-			{character.isOwner && (
-				<CharacterTextAreaField
-					character={character}
-					field="playerNotes"
-					label={room.isOwner ? "Player Notes" : "Notes"}
-				/>
-			)}
+			<CharacterTextAreaField
+				character={character}
+				field="playerNotes"
+				label={room.isOwner ? "Player Notes" : "Notes"}
+			/>
 			{room.isOwner && (
 				<CharacterTextAreaField character={character} field="ownerNotes" label="Owner Notes" />
 			)}

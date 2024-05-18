@@ -229,7 +229,7 @@ export function TokenMenuContent(props: {
 				<Tabs>
 					<Tabs.List>
 						<Tabs.Tab>Abilities</Tabs.Tab>
-						<Tabs.Tab>Status</Tabs.Tab>
+						{singleSelectedCharacter.isOwner && <Tabs.Tab>Status</Tabs.Tab>}
 						<Tabs.Tab>Notes</Tabs.Tab>
 					</Tabs.List>
 
@@ -238,10 +238,12 @@ export function TokenMenuContent(props: {
 							<CharacterAbilityList character={singleSelectedCharacter} />
 						</Tabs.Panel>
 
-						<Tabs.Panel className="flex flex-col gap-2">
-							<CharacterDamageField character={singleSelectedCharacter} />
-							<CharacterFatigueField character={singleSelectedCharacter} />
-						</Tabs.Panel>
+						{singleSelectedCharacter.isOwner && (
+							<Tabs.Panel className="flex flex-col gap-2">
+								<CharacterDamageField character={singleSelectedCharacter} />
+								<CharacterFatigueField character={singleSelectedCharacter} />
+							</Tabs.Panel>
+						)}
 
 						<Tabs.Panel className="flex flex-col gap-2">
 							<CharacterNotesFields character={singleSelectedCharacter} />
