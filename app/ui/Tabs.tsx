@@ -7,10 +7,7 @@ export function Tabs(props: Ariakit.TabProviderProps) {
 
 function List(props: Ariakit.TabListProps) {
 	return (
-		<Ariakit.TabList
-			{...props}
-			className={twMerge("flex flex-wrap p-1.5 gap-1.5", props.className)}
-		/>
+		<Ariakit.TabList {...props} className={twMerge("flex flex-wrap gap-1.5", props.className)} />
 	)
 }
 Tabs.List = List
@@ -29,14 +26,6 @@ function Tab(props: Ariakit.TabProps) {
 Tabs.Tab = Tab
 
 function Panel(props: Ariakit.TabPanelProps) {
-	return (
-		<Ariakit.TabPanel
-			{...props}
-			className={twMerge(
-				"translate-y-2 opacity-0 transition duration-0 data-[enter]:duration-150 data-[enter]:translate-y-0 data-[enter]:opacity-100",
-				props.className,
-			)}
-		/>
-	)
+	return <Ariakit.TabPanel {...props} />
 }
 Tabs.Panel = Panel
