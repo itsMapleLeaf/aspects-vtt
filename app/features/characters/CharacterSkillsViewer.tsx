@@ -63,82 +63,84 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 
 	return (
 		<Tabs>
-			<aside className="flex-center h-16 gap-1 px-2">
-				<SomeKindaLabel>
-					<span className="opacity-75">Experience:</span> {room.experience - usedExperience}{" "}
-					<span className="opacity-75">remaining</span> / {room.experience}{" "}
-					<span className="opacity-75">available</span>
-				</SomeKindaLabel>
-				{characterAspectList.length > 0 && (
-					<SomeKindaLabel className="flex gap-1">
-						<p className="opacity-75">Path:</p>
-						<ul className="flex gap-0.5">
-							{characterAspectList.map((aspect, index) => (
-								<Fragment key={aspect.id}>
-									{index > 0 && (
-										<LucideChevronsRight className="size-5 translate-y-[-0.5px] stroke-[2.5px] opacity-75" />
-									)}
-									<span>{aspect.name}</span>
-								</Fragment>
-							))}
-						</ul>
+			<div className="flex h-full flex-col gap-2">
+				<aside className="flex-center h-16 gap-1 px-2">
+					<SomeKindaLabel>
+						<span className="opacity-75">Experience:</span> {room.experience - usedExperience}{" "}
+						<span className="opacity-75">remaining</span> / {room.experience}{" "}
+						<span className="opacity-75">available</span>
 					</SomeKindaLabel>
-				)}
-			</aside>
+					{characterAspectList.length > 0 && (
+						<SomeKindaLabel className="flex gap-1">
+							<p className="opacity-75">Path:</p>
+							<ul className="flex gap-0.5">
+								{characterAspectList.map((aspect, index) => (
+									<Fragment key={aspect.id}>
+										{index > 0 && (
+											<LucideChevronsRight className="size-5 translate-y-[-0.5px] stroke-[2.5px] opacity-75" />
+										)}
+										<span>{aspect.name}</span>
+									</Fragment>
+								))}
+							</ul>
+						</SomeKindaLabel>
+					)}
+				</aside>
 
-			<Tabs.List>
-				{CharacterSkillTree.aspects.map((aspect) => (
-					<Tabs.Tab key={aspect.id} className="flex-center-row gap-1.5">
-						{characterAspectList[0] === aspect ? (
-							<LucideStars className="size-5" />
-						) : characterAspectSet.has(aspect) ? (
-							<LucideStar className="size-4" />
-						) : null}
-						<span>{aspect.name}</span>
-					</Tabs.Tab>
-				))}
-			</Tabs.List>
+				<Tabs.List>
+					{CharacterSkillTree.aspects.map((aspect) => (
+						<Tabs.Tab key={aspect.id} className="flex-center-row gap-1.5">
+							{characterAspectList[0] === aspect ? (
+								<LucideStars className="size-5" />
+							) : characterAspectSet.has(aspect) ? (
+								<LucideStar className="size-4" />
+							) : null}
+							<span>{aspect.name}</span>
+						</Tabs.Tab>
+					))}
+				</Tabs.List>
 
-			<section aria-label="Filters" className="flex-center-row p-2">
-				<CheckboxField
-					label="Only show learned skills"
-					checked={showingLearned}
-					onChange={(event) => setShowingLearned(event.target.checked)}
-				/>
-			</section>
+				<section aria-label="Filters" className="flex-center-row p-2">
+					<CheckboxField
+						label="Only show learned skills"
+						checked={showingLearned}
+						onChange={(event) => setShowingLearned(event.target.checked)}
+					/>
+				</section>
 
-			<div className="min-h-0 flex-1">
-				<ScrollArea>
-					{computedSkillTree.map((aspect) => {
-						const tierItems = Iterator.from(aspect.tiers)
-							.map((tier) => {
-								return showingLearned
-									? { ...tier, skills: tier.skills.filter((s) => s.learned) }
-									: tier
-							})
-							.filter((tier) => tier.skills.length > 0)
-							.map((tier) => (
-								<TierSection key={tier.id} name={tier.name} number={tier.number}>
-									<SkillList skills={tier.skills} character={character} />
-								</TierSection>
-							))
-							.toArray()
+				<div className="min-h-0 flex-1">
+					<ScrollArea>
+						{computedSkillTree.map((aspect) => {
+							const tierItems = Iterator.from(aspect.tiers)
+								.map((tier) => {
+									return showingLearned
+										? { ...tier, skills: tier.skills.filter((s) => s.learned) }
+										: tier
+								})
+								.filter((tier) => tier.skills.length > 0)
+								.map((tier) => (
+									<TierSection key={tier.id} name={tier.name} number={tier.number}>
+										<SkillList skills={tier.skills} character={character} />
+									</TierSection>
+								))
+								.toArray()
 
-						return (
-							<Tabs.Panel key={aspect.id} className="grid gap-4 p-4">
-								{tierItems.length > 0 ? (
-									tierItems
-								) : (
-									<EmptyState
-										icon={<LucideHelpCircle />}
-										message="Nothing here."
-										className="py-24"
-									/>
-								)}
-							</Tabs.Panel>
-						)
-					})}
-				</ScrollArea>
+							return (
+								<Tabs.Panel key={aspect.id} className="grid gap-4 px-2">
+									{tierItems.length > 0 ? (
+										tierItems
+									) : (
+										<EmptyState
+											icon={<LucideHelpCircle />}
+											message="Nothing here."
+											className="py-24"
+										/>
+									)}
+								</Tabs.Panel>
+							)
+						})}
+					</ScrollArea>
+				</div>
 			</div>
 		</Tabs>
 	)
