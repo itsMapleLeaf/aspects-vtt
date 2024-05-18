@@ -1,7 +1,7 @@
 import { Iterator } from "iterator-helpers-polyfill"
 import { titleCase } from "../../common/string.ts"
 
-class SkillTree {
+export class SkillTree {
 	readonly aspectsById: ReadonlyMap<string, Aspect>
 	readonly aspects: readonly Aspect[]
 
@@ -31,7 +31,7 @@ class SkillTree {
 	}
 }
 
-class Aspect {
+export class Aspect {
 	readonly name
 	readonly tiers: readonly Tier[]
 
@@ -46,7 +46,7 @@ class Aspect {
 	}
 }
 
-class Tier {
+export class Tier {
 	readonly name
 	readonly skillsById: ReadonlyMap<string, Skill>
 	readonly skills: readonly Skill[]
@@ -68,7 +68,7 @@ class Tier {
 	}
 }
 
-class Skill {
+export class Skill {
 	readonly name
 
 	constructor(

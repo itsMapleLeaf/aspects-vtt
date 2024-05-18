@@ -3,7 +3,7 @@ import type { Id } from "../_generated/dataModel"
 import { UnauthorizedError, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { queryDoc } from "../helpers/effect.ts"
 
-export function ensureViewerOwnsCharacter(characterId: Id<"characters">) {
+export function ensureViewerCharacterPermissions(characterId: Id<"characters">) {
 	return Effect.gen(function* () {
 		const { user, character } = yield* Effect.all({
 			user: getUserFromIdentityEffect(),
@@ -13,6 +13,6 @@ export function ensureViewerOwnsCharacter(characterId: Id<"characters">) {
 		if (room.ownerId === user.clerkId || character.playerId === user.clerkId) {
 			return { user, character, room }
 		}
-		yield* Effect.fail(new UnauthorizedError())
+		return yield* Effect.fail(new UnauthorizedError())
 	})
 }

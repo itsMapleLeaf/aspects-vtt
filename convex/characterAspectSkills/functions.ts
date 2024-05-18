@@ -1,6 +1,6 @@
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { ensureViewerOwnsCharacter } from "../characters/helpers.ts"
+import { ensureViewerCharacterPermissions } from "../characters/helpers.ts"
 import {
 	effectMutation,
 	effectQuery,
@@ -16,7 +16,7 @@ export const list = effectQuery({
 	},
 	handler: (args) => {
 		return pipe(
-			ensureViewerOwnsCharacter(args.characterId),
+			ensureViewerCharacterPermissions(args.characterId),
 			Effect.andThen(() =>
 				withQueryCtx((ctx) =>
 					ctx.table("characters").getX(args.characterId).edge("characterAspectSkills").docs(),
@@ -34,7 +34,7 @@ export const create = effectMutation({
 	},
 	handler: (args) => {
 		return pipe(
-			ensureViewerOwnsCharacter(args.characterId),
+			ensureViewerCharacterPermissions(args.characterId),
 			Effect.andThen(() =>
 				withMutationCtx((ctx) => ctx.table("characterAspectSkills").insert(args)),
 			),
@@ -51,7 +51,7 @@ export const remove = effectMutation({
 			const characterAspectSkill = yield* queryDoc((ctx) =>
 				ctx.table("characterAspectSkills").get(args.characterAspectSkillId).doc(),
 			)
-			yield* ensureViewerOwnsCharacter(characterAspectSkill.characterId)
+			yield* ensureViewerCharacterPermissions(characterAspectSkill.characterId)
 			yield* withMutationCtx((ctx) =>
 				ctx.table("characterAspectSkills").getX(args.characterAspectSkillId).delete(),
 			)

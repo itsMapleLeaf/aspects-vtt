@@ -24,7 +24,7 @@ export function CharacterModal({
 							<CharacterForm character={character} />
 						</div>
 					</Tabs.Panel>
-					<Tabs.Panel className="-mt-1.5 flex min-h-0 flex-1 flex-col">
+					<Tabs.Panel className="flex min-h-0 flex-1 flex-col">
 						<CharacterSkillsViewer character={character} />
 					</Tabs.Panel>
 				</Tabs>

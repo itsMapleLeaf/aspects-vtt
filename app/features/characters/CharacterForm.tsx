@@ -49,6 +49,12 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				</div>
 			)}
 
+			<CharacterSelectField
+				character={character}
+				field="race"
+				options={notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []}
+			/>
+
 			{room.isOwner && (
 				<CharacterSelectField
 					character={character}
@@ -99,21 +105,6 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					<CharacterDiceField character={character} field="intellect" />
 					<CharacterDiceField character={character} field="wit" />
 				</>
-			)}
-
-			<CharacterSelectField
-				character={character}
-				field="race"
-				options={notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []}
-			/>
-
-			{character.isOwner && (
-				<CharacterSelectField
-					character={character}
-					field="coreAspect"
-					label="Core Aspect"
-					options={notionData?.aspects.map((r) => ({ label: r.name, value: r.name })) ?? []}
-				/>
 			)}
 
 			<CharacterNotesFields character={character} />
