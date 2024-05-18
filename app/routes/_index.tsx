@@ -10,8 +10,19 @@ import { AppHeader } from "../ui/AppHeader.tsx"
 import { Button } from "../ui/Button.tsx"
 import { Loading } from "../ui/Loading.tsx"
 import { panel } from "../ui/styles.ts"
+import { ProtectedLayout } from "./_protected/ProtectedLayout.tsx"
 
+// rendering the protected layout here is a workaround;
+// there's a bug in the vercel preset that prevents index routes in layout routes from working
 export default function RoomListRoute() {
+	return (
+		<ProtectedLayout>
+			<Content />
+		</ProtectedLayout>
+	)
+}
+
+function Content() {
 	const rooms = useQuery(api.rooms.functions.list, {})
 	const createRoom = useMutation(api.rooms.functions.create)
 	const navigate = useNavigate()
