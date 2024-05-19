@@ -1,3 +1,5 @@
+import type { Equal, Expect } from "./types.ts"
+
 /**
  * Returns a random integer between min and max (inclusive).
  *
@@ -13,10 +15,23 @@ export function roll(sides: number) {
 	return randomInt(1, sides)
 }
 
-export function randomItem<const T extends readonly unknown[]>(items: T) {
-	return items[randomInt(items.length) - 1] as T extends (
-		readonly [unknown, ...unknown[]]
-	) ?
-		T[number]
-	:	T[number] | undefined
+export function randomItem<const T extends Iterable<unknown>>(input: T) {
+	const items = [...input]
+	return items[randomInt(items.length) - 1] as IndexedValue<T>
 }
+
+type IndexedValue<T extends Iterable<unknown>> =
+	T extends readonly [unknown, ...unknown[]] ? T[number]
+	: T extends Iterable<infer U> ? U | undefined
+	: never
+
+/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
+type _Test_IndexedValueReturnsNonUndefinedForNonEmptyArray = Expect<
+	Equal<IndexedValue<["a", "b", "c"]>, "a" | "b" | "c">
+>
+
+type _Test_IndexedValueReturnsUndefinedIterable = Expect<
+	| Equal<IndexedValue<string[]>, string | undefined>
+	| Equal<IndexedValue<Iterable<string>>, string | undefined>
+	| Equal<IndexedValue<[]>, undefined>
+>
