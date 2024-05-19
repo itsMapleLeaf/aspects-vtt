@@ -84,7 +84,6 @@ export const TokenMenu = observer(function TokenMenu({
 				getAnchorRect={() => anchor}
 				modal={false}
 				fixed
-				flip={false}
 				className="flex w-min min-w-[360px] flex-col gap-3 rounded p-3"
 				unmountOnHide={false}
 				hideOnInteractOutside={false}
