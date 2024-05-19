@@ -37,7 +37,7 @@ export function inputStyle(
 ) {
 	return panel(
 		twMerge(
-			"w-full h-10 min-w-0 rounded border border-primary-300 bg-primary-200 px-3 transition",
+			"h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-200 px-3 transition",
 			props.align === "left" && "text-left",
 			props.align === "right" && "text-right",
 			props.align === "center" && "text-center",

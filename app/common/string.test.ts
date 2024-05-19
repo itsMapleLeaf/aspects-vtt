@@ -1,4 +1,5 @@
-import { describe, expect, it } from "bun:test"
+import assert from "node:assert/strict"
+import { describe, it } from "node:test"
 import { lines, splitByCase } from "./string.ts"
 
 describe("lines", () => {
@@ -6,38 +7,38 @@ describe("lines", () => {
 		const text = `i love
 cute
 boys`
-		expect([...lines(text)]).toEqual(["i love", "cute", "boys"])
+		assert.deepEqual([...lines(text)], ["i love", "cute", "boys"])
 	})
 
 	it("yields a single string if there are no lines", () => {
 		const text = `no lines`
-		expect([...lines(text)]).toEqual(["no lines"])
+		assert.deepEqual([...lines(text)], ["no lines"])
 	})
 
 	it("yields nothing if the input is empty", () => {
 		const text = ``
-		expect([...lines(text)]).toEqual([])
+		assert.deepEqual([...lines(text)], [])
 	})
 
 	it("yields the white space if the input is just white space", () => {
 		const text = `   `
-		expect([...lines(text)]).toEqual(["   "])
+		assert.deepEqual([...lines(text)], ["   "])
 	})
 })
 
 describe("splitByCase", () => {
 	it("splits by non-letters and casing changes", () => {
-		expect(splitByCase("PascalCasedString")).toEqual([
+		assert.deepEqual(splitByCase("PascalCasedString"), [
 			"Pascal",
 			"Cased",
 			"String",
 		])
-		expect(splitByCase("snake_cased_string")).toEqual([
+		assert.deepEqual(splitByCase("snake_cased_string"), [
 			"snake",
 			"cased",
 			"string",
 		])
-		expect(splitByCase("camelCasedString")).toEqual([
+		assert.deepEqual(splitByCase("camelCasedString"), [
 			"camel",
 			"Cased",
 			"String",

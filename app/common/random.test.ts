@@ -1,5 +1,6 @@
-import { describe, expect, it } from "bun:test"
 import { Iterator } from "iterator-helpers-polyfill"
+import assert from "node:assert/strict"
+import { describe, it } from "node:test"
 import { randomItem } from "./random.ts"
 
 describe("randomItem", () => {
@@ -8,6 +9,6 @@ describe("randomItem", () => {
 		const randomItems = new Set(
 			Iterator.range(1000).map(() => randomItem(items)),
 		)
-		expect(randomItems.size).toBe(items.length)
+		assert.strictEqual(randomItems.size, items.length)
 	})
 })
