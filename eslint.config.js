@@ -48,20 +48,13 @@ export default [
 	...fixupConfigRules({
 		plugins: {
 			"react-hooks": reactHooks,
+			"react-compiler": reactCompiler,
 		},
 		rules: {
 			"react-hooks/exhaustive-deps": "warn",
 			"react-hooks/rules-of-hooks": "error",
-		},
-		files: ["app/**/*.{ts,tsx}"],
-	}),
-	{
-		plugins: {
-			"react-compiler": reactCompiler,
-		},
-		rules: {
 			"react-compiler/react-compiler": "warn",
 		},
 		files: ["app/**/*.{ts,tsx}"],
-	},
+	}),
 ]

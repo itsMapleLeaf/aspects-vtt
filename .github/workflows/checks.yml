@@ -1,4 +1,4 @@
-name: Checks
+name: checks
 
 on:
   push:
@@ -23,17 +23,17 @@ jobs:
     name: ${{ matrix.script.name }}
     steps:
       - name: "🛒"
-        uses: actions/checkout@v4
+        uses: actions/checkout
 
-      - name: "🍞"
-        uses: oven-sh/setup-bun@v1
+      - name: "📦"
+        uses: pnpm/action-setup
 
       - name: "📥"
-        run: bun install
+        run: pnpm install --no-frozen-lockfile
 
       - name: "🛠️"
         if: ${{ matrix.script.needs-build }}
-        run: bun run build
+        run: pnpm run build
 
       - name: "▶️"
-        run: bun run ${{ matrix.script.name }}
+        run: pnpm run ${{ matrix.script.name }}
