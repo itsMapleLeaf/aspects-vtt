@@ -7,8 +7,7 @@ import reactRecommended from "eslint-plugin-react/configs/recommended.js"
 import globals from "globals"
 import ts from "typescript-eslint"
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
-export default [
+export default ts.config(
 	{
 		ignores: ["build/", "convex/_generated/"],
 	},
@@ -19,7 +18,18 @@ export default [
 		},
 	},
 	js.configs.recommended,
+
 	...ts.configs.recommended,
+	...ts.configs.stylistic,
+	{
+		languageOptions: {
+			parserOptions: {
+				project: true,
+				tsconfigRootDir: import.meta.dirname,
+			},
+		},
+	},
+
 	...fixupConfigRules(reactRecommended),
 	...fixupConfigRules(jsxRuntime),
 	{
@@ -42,6 +52,7 @@ export default [
 				{ fixStyle: "inline-type-imports" },
 			],
 			"@typescript-eslint/no-import-type-side-effects": "error",
+			"@typescript-eslint/unbound-method": ["warn", { ignoreStatic: true }],
 			"react/no-unescaped-entities": "off",
 		},
 	},
@@ -57,4 +68,4 @@ export default [
 		},
 		files: ["app/**/*.{ts,tsx}"],
 	}),
-]
+)
