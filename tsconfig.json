@@ -16,7 +16,6 @@
 		"target": "ESNext",
 		"types": [
 			"node",
-			"bun",
 			"@remix-run/node",
 			"vite/client",
 			"react/canary",
