@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        script:
+        command:
           - name: lint
-            needs-build: false
+            run: node --run lint
           - name: typecheck
-            needs-build: true
+            run: node --run build && node --run typecheck
           - name: test
-            needs-build: false
+            run: node --run test
       fail-fast: false
-    name: ${{ matrix.script.name }}
+    name: ${{ matrix.command.name }}
     steps:
       - name: "🛒"
         uses: actions/checkout@v4
@@ -31,12 +31,9 @@ jobs:
       - name: "📥"
         run: pnpm install --no-frozen-lockfile
 
-      - name: "🛠️"
-        if: ${{ matrix.script.needs-build }}
-        run: pnpm run build
-
       - name: "▶️"
-        run: pnpm run ${{ matrix.script.name }}
+        run: ${{ matrix.command.run }}
+
   format:
     if: (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -53,7 +50,9 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: "💅"
-        run: pnpm run format
+        run: node --run format
 
       - name: "📝"
         uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: --force
