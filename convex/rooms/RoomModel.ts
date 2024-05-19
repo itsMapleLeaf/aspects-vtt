@@ -50,7 +50,11 @@ export class RoomModel {
 	}
 
 	async getPlayers() {
-		const rooms = await this.ctx.table("rooms").get(this.data._id).edge("players").docs()
+		const rooms = await this.ctx
+			.table("rooms")
+			.get(this.data._id)
+			.edge("players")
+			.docs()
 		return rooms ?? []
 	}
 
@@ -65,7 +69,10 @@ export class RoomModel {
 		})
 	}
 
-	async update(ctx: MutationCtx, args: Partial<WithoutSystemFields<Doc<"rooms">>>) {
+	async update(
+		ctx: MutationCtx,
+		args: Partial<WithoutSystemFields<Doc<"rooms">>>,
+	) {
 		if (!(await this.isOwner())) {
 			throw new ConvexError("You don't have permission to update this room.")
 		}
@@ -84,6 +91,9 @@ export class RoomModel {
 	async join(ctx: MutationCtx) {
 		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
 		if (await this.getIdentityPlayer().getValueOrNull()) return
-		await ctx.db.insert("players", { userId: user.clerkId, roomId: this.data._id })
+		await ctx.db.insert("players", {
+			userId: user.clerkId,
+			roomId: this.data._id,
+		})
 	}
 }

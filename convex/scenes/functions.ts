@@ -45,7 +45,11 @@ export const create = mutation({
 
 		const characters = ctx.db
 			.query("characters")
-			.filter((q) => q.or(...players.map((player) => q.eq(q.field("playerId"), player.userId))))
+			.filter((q) =>
+				q.or(
+					...players.map((player) => q.eq(q.field("playerId"), player.userId)),
+				),
+			)
 
 		return await ctx.db.insert("scenes", {
 			...args,
@@ -79,7 +83,9 @@ export const update = mutation({
 	args: {
 		...partial(sceneUpdateProperties),
 		id: v.id("scenes"),
-		backgroundDimensions: v.optional(v.object({ x: v.number(), y: v.number() })),
+		backgroundDimensions: v.optional(
+			v.object({ x: v.number(), y: v.number() }),
+		),
 	},
 	async handler(ctx, { id, ...args }) {
 		await requireSceneRoomOwner(ctx, id).getValueOrThrow()

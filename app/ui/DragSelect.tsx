@@ -13,7 +13,10 @@ export function useDragSelectStore<T>() {
 	const [selected, setSelected] = React.useState<ReadonlySet<T>>(empty)
 	const [area, setArea] = React.useState<Rect>()
 
-	const setItemSelected = useEffectEvent(function setItemSelected(item: T, selected: boolean) {
+	const setItemSelected = useEffectEvent(function setItemSelected(
+		item: T,
+		selected: boolean,
+	) {
 		setSelected((items) => setPresentInSet(items, item, selected))
 	})
 
@@ -21,7 +24,10 @@ export function useDragSelectStore<T>() {
 		setSelected(empty)
 	})
 
-	const isSelected = React.useCallback((item: T) => selected.has(item), [selected])
+	const isSelected = React.useCallback(
+		(item: T) => selected.has(item),
+		[selected],
+	)
 
 	return { selected, area, setItemSelected, clear, setArea, isSelected }
 }
@@ -46,7 +52,11 @@ export interface DragSelectableProps<V> extends React.ComponentProps<"div"> {
 	store: DragSelectStore<V>
 }
 
-export function DragSelectable<V>({ item, store, ...props }: DragSelectableProps<V>) {
+export function DragSelectable<V>({
+	item,
+	store,
+	...props
+}: DragSelectableProps<V>) {
 	const ref = React.useRef<HTMLDivElement>(null)
 
 	React.useEffect(() => {

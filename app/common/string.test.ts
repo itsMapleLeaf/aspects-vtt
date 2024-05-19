@@ -27,8 +27,20 @@ boys`
 
 describe("splitByCase", () => {
 	it("splits by non-letters and casing changes", () => {
-		expect(splitByCase("PascalCasedString")).toEqual(["Pascal", "Cased", "String"])
-		expect(splitByCase("snake_cased_string")).toEqual(["snake", "cased", "string"])
-		expect(splitByCase("camelCasedString")).toEqual(["camel", "Cased", "String"])
+		expect(splitByCase("PascalCasedString")).toEqual([
+			"Pascal",
+			"Cased",
+			"String",
+		])
+		expect(splitByCase("snake_cased_string")).toEqual([
+			"snake",
+			"cased",
+			"string",
+		])
+		expect(splitByCase("camelCasedString")).toEqual([
+			"camel",
+			"Cased",
+			"String",
+		])
 	})
 })

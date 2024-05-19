@@ -4,10 +4,10 @@
 
 @layer base {
 	@property --theme-hue {
-		syntax: '<number>';
+		syntax: "<number>";
 		initial-value: 0;
 		inherits: true;
-	 }
+	}
 
 	:root {
 		--theme-hue: 280;
@@ -21,7 +21,8 @@
 		@apply ring-2 ring-primary-500;
 	}
 
-	button, [role=button] {
+	button,
+	[role="button"] {
 		cursor: unset;
 	}
 }

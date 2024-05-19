@@ -20,12 +20,18 @@ import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterSkillTree, type Skill } from "./skills.ts"
 import type { ApiCharacter } from "./types.ts"
 
-export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
+export function CharacterSkillsViewer({
+	character,
+}: {
+	character: ApiCharacter
+}) {
 	const room = useRoom()
 	const [showingLearned, setShowingLearned] = useState(false)
 
 	const characterSkillIds = new Set(
-		Iterator.from(character.learnedAspectSkills ?? []).flatMap((doc) => doc.aspectSkillIds),
+		Iterator.from(character.learnedAspectSkills ?? []).flatMap(
+			(doc) => doc.aspectSkillIds,
+		),
 	)
 
 	const characterAspectSet = new Set(
@@ -44,7 +50,8 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 				// if the character already learned this aspect, calculate the cost based on the aspect index,
 				// otherwise, show how much it'll cost to learn this aspect (as if it's the last aspect in the list)
 				const aspectIndex = characterAspectList.indexOf(aspect)
-				const baseAspectCost = (aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
+				const baseAspectCost =
+					(aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
 				const tierCost = tier.number * 10
 				return {
 					...skill,
@@ -66,7 +73,8 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 			<div className="flex h-full flex-col gap-2">
 				<aside className="flex-center h-16 gap-1 px-2">
 					<SomeKindaLabel>
-						<span className="opacity-75">Experience:</span> {room.experience - usedExperience}{" "}
+						<span className="opacity-75">Experience:</span>{" "}
+						{room.experience - usedExperience}{" "}
 						<span className="opacity-75">remaining</span> / {room.experience}{" "}
 						<span className="opacity-75">available</span>
 					</SomeKindaLabel>
@@ -90,11 +98,11 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 				<Tabs.List>
 					{CharacterSkillTree.aspects.map((aspect) => (
 						<Tabs.Tab key={aspect.id} className="flex-center-row gap-1.5">
-							{characterAspectList[0] === aspect ? (
+							{characterAspectList[0] === aspect ?
 								<LucideStars className="size-5" />
-							) : characterAspectSet.has(aspect) ? (
+							: characterAspectSet.has(aspect) ?
 								<LucideStar className="size-4" />
-							) : null}
+							:	null}
 							<span>{aspect.name}</span>
 						</Tabs.Tab>
 					))}
@@ -113,13 +121,17 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 						{computedSkillTree.map((aspect) => {
 							const tierItems = Iterator.from(aspect.tiers)
 								.map((tier) => {
-									return showingLearned
-										? { ...tier, skills: tier.skills.filter((s) => s.learned) }
-										: tier
+									return showingLearned ?
+											{ ...tier, skills: tier.skills.filter((s) => s.learned) }
+										:	tier
 								})
 								.filter((tier) => tier.skills.length > 0)
 								.map((tier) => (
-									<TierSection key={tier.id} name={tier.name} number={tier.number}>
+									<TierSection
+										key={tier.id}
+										name={tier.name}
+										number={tier.number}
+									>
 										<SkillList skills={tier.skills} character={character} />
 									</TierSection>
 								))
@@ -127,15 +139,14 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 
 							return (
 								<Tabs.Panel key={aspect.id} className="grid gap-4 px-2">
-									{tierItems.length > 0 ? (
+									{tierItems.length > 0 ?
 										tierItems
-									) : (
-										<EmptyState
+									:	<EmptyState
 											icon={<LucideHelpCircle />}
 											message="Nothing here."
 											className="py-24"
 										/>
-									)}
+									}
 								</Tabs.Panel>
 							)
 						})}
@@ -150,7 +161,11 @@ function TierSection({
 	name,
 	number,
 	children,
-}: { name: string; number: number; children: ReactNode }) {
+}: {
+	name: string
+	number: number
+	children: ReactNode
+}) {
 	return (
 		<section className="grid gap-3">
 			<h3>
@@ -173,7 +188,11 @@ function SkillList({
 
 	async function handleToggleSkill(aspectSkillId: string, active: boolean) {
 		try {
-			await setSkillActive({ characterId: character._id, aspectSkillId, active })
+			await setSkillActive({
+				characterId: character._id,
+				aspectSkillId,
+				active,
+			})
 		} catch (error) {
 			console.error(error) // TODO: show a toast
 		}
@@ -209,7 +228,10 @@ function AspectSkillButton({
 	cost: number
 	onToggle: (active: boolean) => unknown
 }) {
-	const [, dispatchToggle, pending] = useActionState(() => onToggle(!active), undefined)
+	const [, dispatchToggle, pending] = useActionState(
+		() => onToggle(!active),
+		undefined,
+	)
 	return (
 		<button
 			type="button"
@@ -221,7 +243,11 @@ function AspectSkillButton({
 			<p className="text-lg text-primary-800">{description}</p>
 			<SomeKindaLabel className="mt-1.5 block">{cost} EXP</SomeKindaLabel>
 			<div className="flex-center absolute inset-y-0 right-0 w-16 opacity-0 transition-opacity group-hover:opacity-100">
-				{pending ? <Loading size="sm" /> : active ? <LucideX /> : <LucidePlus />}
+				{pending ?
+					<Loading size="sm" />
+				: active ?
+					<LucideX />
+				:	<LucidePlus />}
 			</div>
 		</button>
 	)

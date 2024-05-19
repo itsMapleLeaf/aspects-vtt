@@ -116,14 +116,19 @@ export function TokenMenuContent(props: {
 		.toArray()
 
 	const selectionHasCharacters = selectedCharacters.length > 0
-	const singleSelectedCharacter = (!selectedCharacters[1] && selectedCharacters[0]) || undefined
+	const singleSelectedCharacter =
+		(!selectedCharacters[1] && selectedCharacters[0]) || undefined
 
 	return (
 		<>
 			<div className="flex justify-center gap-[inherit]">
 				{singleSelectedCharacter && (
 					<CharacterModal character={singleSelectedCharacter}>
-						<ModalButton render={<Button tooltip="View profile" icon={<Lucide.BookUser />} />} />
+						<ModalButton
+							render={
+								<Button tooltip="View profile" icon={<Lucide.BookUser />} />
+							}
+						/>
 					</CharacterModal>
 				)}
 
@@ -164,7 +169,11 @@ export function TokenMenuContent(props: {
 						icon={<Lucide.Image />}
 						onClick={() => {
 							for (const token of selectedTokens) {
-								updateToken({ sceneId: scene._id, key: token.key, visible: true })
+								updateToken({
+									sceneId: scene._id,
+									key: token.key,
+									visible: true,
+								})
 							}
 						}}
 					/>
@@ -176,7 +185,11 @@ export function TokenMenuContent(props: {
 						icon={<Lucide.ImageOff />}
 						onClick={() => {
 							for (const token of selectedTokens) {
-								updateToken({ sceneId: scene._id, key: token.key, visible: false })
+								updateToken({
+									sceneId: scene._id,
+									key: token.key,
+									visible: false,
+								})
 							}
 						}}
 					/>

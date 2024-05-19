@@ -1,4 +1,11 @@
-import { type ReactNode, createContext, use, useEffect, useMemo, useState } from "react"
+import {
+	type ReactNode,
+	createContext,
+	use,
+	useEffect,
+	useMemo,
+	useState,
+} from "react"
 import { useEffectEvent } from "../common/react.ts"
 
 type Register = () => () => void
@@ -16,7 +23,11 @@ export function useConsumerProvider() {
 	})
 
 	const Provider = useMemo(() => {
-		return function ConsumerCountProvider({ children }: { children: ReactNode }) {
+		return function ConsumerCountProvider({
+			children,
+		}: {
+			children: ReactNode
+		}) {
 			return <RegisterContext value={register}>{children}</RegisterContext>
 		}
 	}, [register])

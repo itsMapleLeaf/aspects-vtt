@@ -88,7 +88,7 @@ Basic ability: Corrupt - Take one fatigue to touch and set a curse of corruption
 
 # Aspect Skills
 
-You can use aspect skills at any time. 
+You can use aspect skills at any time.
 
 If a skill is **passive**, like [Waterwalk](Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Waterwalk%20ee6c525f9dd447738dfd7ab413975c9d.md), it is persistently active and does not require an action roll.
 
@@ -167,7 +167,7 @@ Modifier dice **do not** explode.
 
 # Actions
 
-You can perform *any* action (within reason), and DM chooses the best attribute for the action, and whether it requires a dice roll at all.
+You can perform _any_ action (within reason), and DM chooses the best attribute for the action, and whether it requires a dice roll at all.
 
 Dice rolls are required for anything your character wants to do that may or may not succeed.
 
@@ -210,7 +210,7 @@ Damage taken from a critical condition **does not** trigger a critical save roll
 
 ### Damage Critical Injuries
 
-1. Internal Bleeding - Any time you take damage, add 2d4 to it. 
+1. Internal Bleeding - Any time you take damage, add 2d4 to it.
 2. Broken Bone - Subtract 1d12 movement each turn to a minimum of 1.
 3. Concussion - Double the modifier value of snag dice for Sense, Intellect, and Wit rolls.
 4. Dislocation - Subtract 1d12 from the effect of your strength and mobility rolls.
@@ -255,7 +255,7 @@ Examples of actions:
 - Deciphering an ancient book
 - Disarming a trap so you don’t get crushed by the stone walls closing in on you :)
 
-The GM may also let you do minor actions: something less impactful that doesn’t require a dice roll, and/or something you can offhandedly do alongside a normal action. 
+The GM may also let you do minor actions: something less impactful that doesn’t require a dice roll, and/or something you can offhandedly do alongside a normal action.
 
 Examples of minor actions:
 

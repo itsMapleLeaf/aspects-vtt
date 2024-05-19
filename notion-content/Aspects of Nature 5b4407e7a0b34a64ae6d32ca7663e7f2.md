@@ -4,7 +4,7 @@
 
 ---
 
-> *Hey! Sorry for calling out of the blue. I kind of just… felt like talking and hanging out again. It’s been really boring in Rosenfeld. The most exciting thing that ever happens is Allison and Winter getting in fights, things catching on fire, and Allison doing spooky Allison things.
+> \*Hey! Sorry for calling out of the blue. I kind of just… felt like talking and hanging out again. It’s been really boring in Rosenfeld. The most exciting thing that ever happens is Allison and Winter getting in fights, things catching on fire, and Allison doing spooky Allison things.
 
 They’re definitely into each other, right? …Well, either way.
 
@@ -16,8 +16,9 @@ It seems like Arthur’s doing really well, too. I think he’s had his third, m
 
 As for me… I haven’t really done much. I’m still figuring things out. I don’t know. Maybe I’ll go out, just wander around aimlessly, and have a big adventure of my own. I ought to go back home to Azeurus and see Mom and Dad, too…
 
-Erm, anyways, I’m rambling. I hope you’re doing well. Call me back whenever. Also, it’s **Lirael**, in case you forgot my actual name. Not ‘Rae’. It’s not cute, no matter how many times you try to make it stick. It’s not!*
-> 
+Erm, anyways, I’m rambling. I hope you’re doing well. Call me back whenever. Also, it’s **Lirael**, in case you forgot my actual name. Not ‘Rae’. It’s not cute, no matter how many times you try to make it stick. It’s not!\*
+
+>
 
 ---
 
@@ -81,7 +82,7 @@ How do they identify?
 
 Homeland:
 
-See [](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Locations%208e695652aa0f4301ab226d9d9f26bffc.md). A character’s homeland can influence their upbringing in various ways. 
+See [](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Locations%208e695652aa0f4301ab226d9d9f26bffc.md). A character’s homeland can influence their upbringing in various ways.
 
 The majority species and aspect on a location can be different from your character’s. That can even make for a more interesting backstory!
 
@@ -97,7 +98,7 @@ Attributes:
 
 See [](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Attributes%20293fb106d9a34cbb82aebb6fd6b19e6f.md). Every attribute has a die attached to it from the [dice scale](https://www.notion.so/7d4f30c45723459090d126da81143440?pvs=21), and higher dice values have a greater chance of success.
 
-**Do not roll the dice for values.** The dice themselves *are* your attributes!
+**Do not roll the dice for values.** The dice themselves _are_ your attributes!
 
 Give each attribute a unique die from the scale, from d4 to d20. Here’s an example:
 
@@ -166,9 +167,9 @@ Name: Athena
 
 Gender / Pronouns: Female, she/her
 
-Homeland: [Whisperwood](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Locations%208e695652aa0f4301ab226d9d9f26bffc/Whisperwood%200aa8edbb3484475792874d097d74f9c1.md) 
+Homeland: [Whisperwood](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Locations%208e695652aa0f4301ab226d9d9f26bffc/Whisperwood%200aa8edbb3484475792874d097d74f9c1.md)
 
-Race: [Pyra](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Races%20b0a04570536d4a12aab5829a86d029e6/Pyra%20b6f6d8dd544a49fb8facfbf8b19b3263.md) 
+Race: [Pyra](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Races%20b0a04570536d4a12aab5829a86d029e6/Pyra%20b6f6d8dd544a49fb8facfbf8b19b3263.md)
 
 Experience: 0 (0 used)
 
@@ -230,26 +231,26 @@ There are two kinds of modifier dice: **boost** and **snag**. Boost dice add to 
 
 Example: You make a d12 roll with 2 boost dice and 1 snag dice. The d12 yields 5. The boost dice yield 4 and 1. The snag dice yields 2. The effect is 8: 5 from the main d12 die, plus 4 and 1 from the boost dice, minus 2 from the snag.
 
-Modifier dice are the *only* way to strengthen or weaken a roll, and there’s no limit to the number of them a roll can have.
+Modifier dice are the _only_ way to strengthen or weaken a roll, and there’s no limit to the number of them a roll can have.
 
 Modifier dice **do not explode**.
 
 <aside>
 ℹ️ You might ask yourself: why use modifier dice instead of adding or subtracting from the roll?
 
-Depending on how you’ve built your character, it’s easy to accumulate a lot of stress in this game. When that happens, a flat decrease on your rolls can make it difficult to do *anything*, especially with a weaker die, as many of your rolls would be reduced to 1.
+Depending on how you’ve built your character, it’s easy to accumulate a lot of stress in this game. When that happens, a flat decrease on your rolls can make it difficult to do _anything_, especially with a weaker die, as many of your rolls would be reduced to 1.
 
 Modifier dice give you a chance to succeed even when greatly impeded.
 
-This system also allows you to accumulate stress and use it as an *advantage* in certain ways without being completely stunted by it. The [Light](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Light%205eb70c67d6c5471cba5f52fdfcc351e8.md) aspect is built around this.
+This system also allows you to accumulate stress and use it as an _advantage_ in certain ways without being completely stunted by it. The [Light](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Light%205eb70c67d6c5471cba5f52fdfcc351e8.md) aspect is built around this.
 
-Likewise, boost dice let a player accumulate power with no real ceiling while still keeping a small chance for failure. This adds suspense and even hilarity in moments where you *somehow* manage to defy the odds!
+Likewise, boost dice let a player accumulate power with no real ceiling while still keeping a small chance for failure. This adds suspense and even hilarity in moments where you _somehow_ manage to defy the odds!
 
 </aside>
 
 # Attributes
 
-Attributes represent your characters’ aptitude for a given skillset, and each one is assigned a unique die to roll at creation. 
+Attributes represent your characters’ aptitude for a given skillset, and each one is assigned a unique die to roll at creation.
 
 The **value** of an attribute is the side count of its die. For example: if your intellect uses a d12, then the value of your intellect is 12.
 
@@ -273,7 +274,7 @@ The damage threshold depends on your strength die, and the fatigue threshold dep
 
 - d20 → 16
 - d12 → 14
-- * → 12
+- - → 12
 
 If a hit brings you past your threshold, you'll have to make a 1d100 **critical save** roll.
 
@@ -283,7 +284,7 @@ If the result is lower than the threshold, you’ll become incapacitated, and yo
 
 ### Damage Critical Injuries
 
-1. Internal Bleeding - Any time you take damage, add 2d4 to it. 
+1. Internal Bleeding - Any time you take damage, add 2d4 to it.
 2. Broken Bone - Subtract 1d12 movement each turn to a minimum of 1.
 3. Concussion - Double the modifier value of snag dice for Sense, Intellect, and Wit rolls.
 4. Dislocation - Subtract 1d12 from the effect of your strength and mobility rolls.
@@ -366,7 +367,7 @@ In combat, every character can be a part of a team, or they can be unaffiliated.
 
 Keeping track of the current date and time gives the world a feeling of autonomy and life. You can make important events happen on certain dates, requiring players to be mindful of where they spend their time.
 
-Each ingame day is divided into three parts: Daytime, Evening, and Nighttime. Each encounter or scene ingame should occupy one of these times of day. For example: you could spend daytime going around town and collecting important information, spend the evening stocking up on supplies, then spend the night resting. 
+Each ingame day is divided into three parts: Daytime, Evening, and Nighttime. Each encounter or scene ingame should occupy one of these times of day. For example: you could spend daytime going around town and collecting important information, spend the evening stocking up on supplies, then spend the night resting.
 
 For some scenes, it may make sense to run multiple of them within one part of the day. The GM may make exceptions as they see fit.
 
@@ -387,31 +388,29 @@ For example:
 
 # The World of Eisenwald
 
-> *Once upon a time, there were two umbraleth sisters: Aurora and Nocturne. At their awakening, the only company they had were each other. Faced with the darkness and danger of the surrounding uninhabited wilderness, they needed to quell their fears and work to survive the unflinching dangers of the Outlands.*
-> 
-> 
-> *One day, the two felt a spark, a vague feeling that would allow them to follow the path to entangle themselves with the very nature of reality itself.*
-> 
-> *It started with manipulating water, making use of it in various ways, from offense, to protection, to healing and comfort. More experimentation led to more advanced techniques, such as turning water to ice and frost and embedding one's senses into the surrounding moisture in the air.*
-> 
-> *The two girls experimented further, moving from aspect to aspect, eventually landing on the five that Eisenkind are familiar with today: Fire, Water, Wind, Light, and Darkness.*
-> 
-> *Aurora and Nocturne made use of their new skills to fend off the dangers of the Outlands. They travelled across Eisenwald, meeting other people and saving as many as they could, while passing their knowledge to them as well.*
-> 
-> *A civilization naturally came out of this gathering of Eisenkind, growing more and more, gradually becoming safer and more prosperous as Eisenkind gained more aptitude in technology and aspect art.*
-> 
-> *Roses were Aurora’s favorite flower. Out of love, Nocturne wanted to give their safe haven a name: Rosenfeld.*
-> 
-> *After the passing of the two sisters, Eisenkind collectively named the two formerly unnamed moons after them. The older sister, Nocturne, became the larger moon, and the younger sister, Aurora, became the smaller moon.*
-> 
-> *But maybe that’s just a fairy tale.*
-> 
+> _Once upon a time, there were two umbraleth sisters: Aurora and Nocturne. At their awakening, the only company they had were each other. Faced with the darkness and danger of the surrounding uninhabited wilderness, they needed to quell their fears and work to survive the unflinching dangers of the Outlands._
+>
+> _One day, the two felt a spark, a vague feeling that would allow them to follow the path to entangle themselves with the very nature of reality itself._
+>
+> _It started with manipulating water, making use of it in various ways, from offense, to protection, to healing and comfort. More experimentation led to more advanced techniques, such as turning water to ice and frost and embedding one's senses into the surrounding moisture in the air._
+>
+> _The two girls experimented further, moving from aspect to aspect, eventually landing on the five that Eisenkind are familiar with today: Fire, Water, Wind, Light, and Darkness._
+>
+> _Aurora and Nocturne made use of their new skills to fend off the dangers of the Outlands. They travelled across Eisenwald, meeting other people and saving as many as they could, while passing their knowledge to them as well._
+>
+> _A civilization naturally came out of this gathering of Eisenkind, growing more and more, gradually becoming safer and more prosperous as Eisenkind gained more aptitude in technology and aspect art._
+>
+> _Roses were Aurora’s favorite flower. Out of love, Nocturne wanted to give their safe haven a name: Rosenfeld._
+>
+> _After the passing of the two sisters, Eisenkind collectively named the two formerly unnamed moons after them. The older sister, Nocturne, became the larger moon, and the younger sister, Aurora, became the smaller moon._
+>
+> _But maybe that’s just a fairy tale._
 
 ---
 
 Aspects of Nature takes place in **Eisenwald**, a world populated by numerous varieties of human-like people called **Eisenkind**, each possessing features of one of many animals.
 
-The world's landscape is split into diverse, distinct regions, each spotted with cities and towns formed as safe havens from the surrounding outlands. 
+The world's landscape is split into diverse, distinct regions, each spotted with cities and towns formed as safe havens from the surrounding outlands.
 
 ## Races of Eisenkind
 
@@ -455,8 +454,7 @@ Factions are no more than core sets of ideals. Just like a political party or a 
 
 ### 🛡️ Protectionism
 
-> *I don't know what's out there, and I don't care. I just want to live in peace.*
-> 
+> _I don't know what's out there, and I don't care. I just want to live in peace._
 
 As the faction with the most members, Protectionists view the outlands as a dangerous frontier which should not be crossed, and that Eisenkind should separate and protect themselves from it as much as much as possible.
 
@@ -464,8 +462,7 @@ Protectionists run most of Eisenwald's modern society, in Rosenfeld especially. 
 
 ### 👑 Imperialism
 
-> *You're not scared of a bunch of dumb animals, are you? Can't take much to tame them.*
-> 
+> _You're not scared of a bunch of dumb animals, are you? Can't take much to tame them._
 
 Imperialists see the outlands as a resource for taking. They view outlandian life as inferior to Eisenkind, and their ideal future is one where outlandian creatures take on all of society's statedly meaningless labor, letting Eisenkind live in peace, comfort, and wealth.
 
@@ -475,12 +472,11 @@ The only thing keeping protector’s guilds from turning into military bunkers i
 
 ### 🚫 Singularity
 
-> *It's only a matter of time before those monsters devour everything we hold dear.*
-> 
+> _It's only a matter of time before those monsters devour everything we hold dear._
 
 Singularity is the belief that the outlands and outlandian life do not belong in Eisenwald at all. They believe that resources spent building walls, constructing safety infrastructure, and hiring protectors should be spent destroying the outlands and eradicating all that lives within. For some, even if Eisenkind lives are lost in the process.
 
-Most Singularists are actually more fearful of the outlands than those in other factions. They believe their mere *existence* is too much of a threat to eisenkind life.
+Most Singularists are actually more fearful of the outlands than those in other factions. They believe their mere _existence_ is too much of a threat to eisenkind life.
 
 Some Singularists act with a stable, respectable, and realistic set of morals. But the active minority are caught starting forest fires, poisoning lakes, or even making use of chemical weapons. While succeeding in destroying the outlands, they knowingly disregard Eisenkind life caught in the crossfire.
 
@@ -488,19 +484,17 @@ Given eisenkind's knowledge of the outlands and its treacherousness, many actual
 
 ### ☮️ Cohabitation
 
-> *They deserve to be here as much as we do. Maybe if we stopped shooting them on sight, we'd come to an understanding.*
-> 
+> _They deserve to be here as much as we do. Maybe if we stopped shooting them on sight, we'd come to an understanding._
 
 The Cohabitation faction believes that outland life is sacred and just as valuable as that of Eisenkind. Some even believe in a world where civilization can cross with the outlands, where all inhabitants of Eisenwald can live in peace and harmony.
 
-Many Cohabitationists further much of eisenkind’s knowledge about the outlands, feeling more compelled to research and experiment than others who view the outlands through a more negative or fearful lens. Many are knowledgeable, talented explorers and biologists who believe Protectionists are holding society back. 
+Many Cohabitationists further much of eisenkind’s knowledge about the outlands, feeling more compelled to research and experiment than others who view the outlands through a more negative or fearful lens. Many are knowledgeable, talented explorers and biologists who believe Protectionists are holding society back.
 
 However, there are the few who act less wisely. Those who open paths for dangerous outland creatures to encroach society, many occurrences of which did not end well. The emotional impact of these cases damaged the public perception of Cohabitation as a whole.
 
 ### 🪷 Naturalism
 
-> *How would you feel if some self-righteous arrogant bandits took away your home and forced you to leave? Eisenkind are no better.*
-> 
+> _How would you feel if some self-righteous arrogant bandits took away your home and forced you to leave? Eisenkind are no better._
 
 Naturalists believe that the land rightfully belongs to the outlandian creatures, and that Eisenkind have wrongfully stolen it from them and upset the balance of nature.
 
@@ -542,9 +536,9 @@ There are many potential ways for aspects to interact that aren’t predetermine
 Examples:
 
 - A fireball meeting a blast of water in the air should cancel out in a puff of steam.
-- The [Wrathful Tempest](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Wrathful%20Tempest%208f444c55d5b74a398a51a8c398b9a4d3.md) skill would likely increase the humidity in the air to help the [Water](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Water%2056e95afa52f74b4587f0041150209bd6.md)  aspect, or even make the scene darker to help the [Darkness](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Darkness%207b5f4eed8a384ffeb7d384acb5b8d14b.md)  aspect and hurt the [Light](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Light%205eb70c67d6c5471cba5f52fdfcc351e8.md)  aspect
+- The [Wrathful Tempest](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Wrathful%20Tempest%208f444c55d5b74a398a51a8c398b9a4d3.md) skill would likely increase the humidity in the air to help the [Water](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Water%2056e95afa52f74b4587f0041150209bd6.md) aspect, or even make the scene darker to help the [Darkness](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Darkness%207b5f4eed8a384ffeb7d384acb5b8d14b.md) aspect and hurt the [Light](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspects%2051560ac666db47f7a87735a87d8c0729/Light%205eb70c67d6c5471cba5f52fdfcc351e8.md) aspect
 - Unless circumstances determine otherwise, fire needs oxygen to live. Using the [Asphyxiate](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Asphyxiate%2046e9f4a0d1fc48049f3e75a6ea7ba41b.md) skill would not allow fires to burn within it.
-- Movement via [Wind Riding](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Wind%20Riding%20e13369d91af647e9ab43e6096e04ae08.md)  would circumvent frozen floors made with [Permafrost](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Permafrost%204d2f7559d1d44e18a661f3a007f80772.md).
+- Movement via [Wind Riding](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Wind%20Riding%20e13369d91af647e9ab43e6096e04ae08.md) would circumvent frozen floors made with [Permafrost](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Aspect%20Skills%20c4a6066f61224b06a7db32b7da50dedc/Permafrost%204d2f7559d1d44e18a661f3a007f80772.md).
 
 ---
 
@@ -576,7 +570,7 @@ Azeurian Silver held prominence for a good amount of time, and it still circulat
 
 Items are usually purchased from shops, but you might find yourself lucky enough to find them elsewhere. Or maybe you’re daring enough to try to take them without paying!
 
-Every location has one or more marketplaces where you can buy and sell items. To determine which items are available, make a  [Sense](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Attributes%20293fb106d9a34cbb82aebb6fd6b19e6f/Sense%20fc9761b47cbb4ff2a86a406988484f2b.md) or [Intellect](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Attributes%20293fb106d9a34cbb82aebb6fd6b19e6f/Intellect%205f17314e41084e67bb8603f60c0845b6.md) to determine if it’s in stock. The required threshold depends on the rarity:
+Every location has one or more marketplaces where you can buy and sell items. To determine which items are available, make a [Sense](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Attributes%20293fb106d9a34cbb82aebb6fd6b19e6f/Sense%20fc9761b47cbb4ff2a86a406988484f2b.md) or [Intellect](Aspects%20of%20Nature%205b4407e7a0b34a64ae6d32ca7663e7f2/Attributes%20293fb106d9a34cbb82aebb6fd6b19e6f/Intellect%205f17314e41084e67bb8603f60c0845b6.md) to determine if it’s in stock. The required threshold depends on the rarity:
 
 - Common: 3 or greater
 - Uncommon: 8 or greater
@@ -614,7 +608,7 @@ The first half of the year is the warm season, the latter half is the cool seaso
 
 ## Astronomy
 
-Aurora and Nocturne are the sister moons that call Eisenwald home. Nocturne is a larger moon with a slower orbit. Aurora has a much faster cycle, so much so it can be seen slowly moving across the sky with the naked eye. 
+Aurora and Nocturne are the sister moons that call Eisenwald home. Nocturne is a larger moon with a slower orbit. Aurora has a much faster cycle, so much so it can be seen slowly moving across the sky with the naked eye.
 
 The weeks and months are aligned with the cycles of Aurora and Nocturne. Aurora is visible for the first three days of each week, and Nocturne is visible for the first three weeks of the month.
 

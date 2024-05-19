@@ -1,10 +1,16 @@
 import type { OptimisticLocalStore } from "convex/browser"
 import { useMutation } from "convex/react"
-import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
+import type {
+	FunctionArgs,
+	FunctionReference,
+	FunctionReturnType,
+} from "convex/server"
 import { useActionState, useRef } from "react"
 import { useAsyncState } from "./useAsyncState.ts"
 
-export function useStableQueryValue<T>(value: T): readonly [value: T, pending: boolean] {
+export function useStableQueryValue<T>(
+	value: T,
+): readonly [value: T, pending: boolean] {
 	const ref = useRef(value)
 	if (ref.current !== value && value !== undefined) {
 		ref.current = value
@@ -12,27 +18,33 @@ export function useStableQueryValue<T>(value: T): readonly [value: T, pending: b
 	return [ref.current, value === undefined]
 }
 
-export function useMutationState<F extends FunctionReference<"mutation", "public">>(funcRef: F) {
+export function useMutationState<
+	F extends FunctionReference<"mutation", "public">,
+>(funcRef: F) {
 	return useAsyncState(useMutation(funcRef))
 }
 
-export function useMutationAction<Func extends FunctionReference<"mutation", "public">>(
-	func: Func,
-) {
+export function useMutationAction<
+	Func extends FunctionReference<"mutation", "public">,
+>(func: Func) {
 	const mutate = useMutation(func)
-	return useActionState<FunctionReturnType<Func> | undefined, FunctionArgs<Func>>(
-		(_result, args) => mutate(args),
-		undefined,
-	)
+	return useActionState<
+		FunctionReturnType<Func> | undefined,
+		FunctionArgs<Func>
+	>((_result, args) => mutate(args), undefined)
 }
 
-export interface QueryMutatorEntry<Query extends FunctionReference<"query", "public">> {
+export interface QueryMutatorEntry<
+	Query extends FunctionReference<"query", "public">,
+> {
 	value: FunctionReturnType<Query>
 	args: FunctionArgs<Query>
 	set: (value: FunctionReturnType<Query>) => void
 }
 
-export function* queryMutators<Query extends FunctionReference<"query", "public">>(
+export function* queryMutators<
+	Query extends FunctionReference<"query", "public">,
+>(
 	store: OptimisticLocalStore,
 	query: Query,
 ): Generator<QueryMutatorEntry<Query>, void, undefined> {

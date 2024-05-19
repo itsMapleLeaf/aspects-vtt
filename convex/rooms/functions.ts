@@ -4,7 +4,10 @@ import { generateSlug } from "random-word-slugs"
 import { Result } from "../../app/common/Result.ts"
 import { range } from "../../app/common/range.ts"
 import type { Id } from "../_generated/dataModel.js"
-import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
+import {
+	getUserFromIdentity,
+	getUserFromIdentityEffect,
+} from "../auth/helpers.ts"
 import {
 	MutationCtxService,
 	effectMutation,
@@ -35,7 +38,9 @@ export const get = query({
 				withQueryCtx((ctx) =>
 					ctx
 						.table("users")
-						.filter((q) => q.or(...playerUserIds.map((id) => q.eq(q.field("clerkId"), id))))
+						.filter((q) =>
+							q.or(...playerUserIds.map((id) => q.eq(q.field("clerkId"), id))),
+						)
 						.docs(),
 				),
 			)
@@ -68,7 +73,9 @@ export const list = query({
 			.withIndex("by_user", (q) => q.eq("userId", user.clerkId))
 			.collect()
 
-		const rooms = await Promise.all(memberships.map((player) => ctx.db.get(player.roomId)))
+		const rooms = await Promise.all(
+			memberships.map((player) => ctx.db.get(player.roomId)),
+		)
 		return rooms.filter(Boolean)
 	},
 })
@@ -113,7 +120,8 @@ export const update = mutation({
 			...args,
 			combat: room.data.combat && {
 				...room.data.combat,
-				memberObjects: args.combat?.members ?? room.data.combat.members ?? undefined,
+				memberObjects:
+					args.combat?.members ?? room.data.combat.members ?? undefined,
 			},
 		})
 	},
@@ -136,11 +144,15 @@ export const join = effectMutation({
 			const ctx = yield* MutationCtxService
 			const user = yield* getUserFromIdentityEffect()
 			const player = yield* Effect.tryPromise(() => {
-				return ctx.table("players").get("by_room_and_user", args.id, user.clerkId)
+				return ctx
+					.table("players")
+					.get("by_room_and_user", args.id, user.clerkId)
 			})
 			if (!player) {
 				yield* Effect.tryPromise(() => {
-					return ctx.table("players").insert({ roomId: args.id, userId: user.clerkId })
+					return ctx
+						.table("players")
+						.insert({ roomId: args.id, userId: user.clerkId })
 				})
 			}
 		}),

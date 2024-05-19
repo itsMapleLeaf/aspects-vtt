@@ -32,28 +32,27 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
-			{character.isOwner ? (
+			{character.isOwner ?
 				<CharacterImageField character={character} />
-			) : (
-				<UploadedImage id={character.imageId} />
-			)}
+			:	<UploadedImage id={character.imageId} />}
 
-			{character.isOwner ? (
+			{character.isOwner ?
 				<div className="flex gap-2 *:min-w-0 *:flex-1">
 					<CharacterInputField character={character} field="name" />
 					<CharacterInputField character={character} field="pronouns" />
 				</div>
-			) : (
-				<div className="flex gap-2 *:min-w-0 *:flex-1">
+			:	<div className="flex gap-2 *:min-w-0 *:flex-1">
 					<ReadOnlyField label="Name" value={character.displayName} />
 					<ReadOnlyField label="Pronouns" value={character.displayPronouns} />
 				</div>
-			)}
+			}
 
 			<CharacterSelectField
 				character={character}
 				field="race"
-				options={notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []}
+				options={
+					notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []
+				}
 			/>
 			<div className={panel("p-3")}>
 				<CharacterRaceAbilityList character={character} />
@@ -74,7 +73,11 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			{room.isOwner && (
 				<div className="flex flex-wrap gap-3">
 					<CharacterCheckboxField character={character} field="visible" />
-					<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
+					<CharacterCheckboxField
+						character={character}
+						field="nameVisible"
+						label="Show Name"
+					/>
 				</div>
 			)}
 
@@ -130,7 +133,11 @@ export function CharacterNotesFields({
 				label={room.isOwner ? "Player Notes" : "Notes"}
 			/>
 			{room.isOwner && (
-				<CharacterTextAreaField character={character} field="ownerNotes" label="Owner Notes" />
+				<CharacterTextAreaField
+					character={character}
+					field="ownerNotes"
+					label="Owner Notes"
+				/>
 			)}
 		</>
 	)
@@ -165,8 +172,8 @@ export function CharacterFatigueField({
 }
 
 /**
- * A field on the character document which also can be updated, so it excludes computed fields, like
- * damage thresholds
+ * A field on the character document which also can be updated, so it excludes
+ * computed fields, like damage thresholds
  */
 type UpdateableCharacterField<ValueType> = Extract<
 	keyof PickByValue<ApiCharacter, ValueType>,
@@ -182,7 +189,9 @@ function CharacterInputField({
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 	const inputId = useId()
 	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
@@ -191,7 +200,9 @@ function CharacterInputField({
 				<Input
 					id={inputId}
 					value={value}
-					onChange={(event) => update({ id: character._id, [field]: event.target.value })}
+					onChange={(event) =>
+						update({ id: character._id, [field]: event.target.value })
+					}
 				/>
 			</FormField>
 		</CharacterReadOnlyGuard>
@@ -207,14 +218,18 @@ function CharacterTextAreaField({
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
 			<FormField label={label}>
 				<TextArea
 					value={value}
-					onChange={(event) => update({ id: character._id, [field]: event.target.value })}
+					onChange={(event) =>
+						update({ id: character._id, [field]: event.target.value })
+					}
 				/>
 			</FormField>
 		</CharacterReadOnlyGuard>
@@ -230,14 +245,18 @@ function CharacterCheckboxField({
 	field: UpdateableCharacterField<boolean>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 	const value = state.args?.[field] ?? character[field] ?? false
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
 			<CheckboxField
 				label={label}
 				checked={value}
-				onChange={(event) => update({ id: character._id, [field]: event.target.checked })}
+				onChange={(event) =>
+					update({ id: character._id, [field]: event.target.checked })
+				}
 			/>
 		</CharacterReadOnlyGuard>
 	)
@@ -252,7 +271,9 @@ function CharacterNumberField({
 	field: UpdateableCharacterField<number>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 	const value = state.args?.[field] ?? character[field] ?? 0
 
 	function setValue(newValue: number) {
@@ -266,7 +287,9 @@ function CharacterNumberField({
 	)
 }
 
-function CharacterSelectField<Field extends UpdateableCharacterField<string | null>>({
+function CharacterSelectField<
+	Field extends UpdateableCharacterField<string | null>,
+>({
 	character,
 	field,
 	label = startCase(field),
@@ -277,7 +300,9 @@ function CharacterSelectField<Field extends UpdateableCharacterField<string | nu
 	label?: string
 	options: SelectOption<ApiCharacter[Field]>[]
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 	const value = state.args?.[field] ?? character[field]
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -300,7 +325,9 @@ function CharacterDiceField({
 	field: ApiAttribute["key"]
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 	const value = state.args?.[field] ?? character[field]
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -403,7 +430,9 @@ function CharacterReadOnlyGuard({
 	value: ReactNode
 	children: React.ReactNode
 }) {
-	return character.isOwner ? children : <ReadOnlyField label={label} value={value} />
+	return character.isOwner ? children : (
+			<ReadOnlyField label={label} value={value} />
+		)
 }
 
 function ReadOnlyField({ label, value }: { label: string; value: ReactNode }) {

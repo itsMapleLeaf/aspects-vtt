@@ -23,9 +23,12 @@ export const SceneGrid = observer(function SceneGrid({
 	useEffect(() => {
 		return autorun(() => {
 			if (!workerRef.current) {
-				workerRef.current = new Worker(new URL("./grid.worker.ts", import.meta.url), {
-					type: "module",
-				})
+				workerRef.current = new Worker(
+					new URL("./grid.worker.ts", import.meta.url),
+					{
+						type: "module",
+					},
+				)
 
 				const canvas = expect(canvasRef.current, "canvas ref not set")
 				const offscreen = canvas.transferControlToOffscreen()

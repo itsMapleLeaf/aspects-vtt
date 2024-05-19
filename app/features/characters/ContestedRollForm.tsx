@@ -13,7 +13,10 @@ import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.t
 export function ContestedRollForm({
 	opponent,
 	onRoll,
-}: { opponent: ApiCharacter; onRoll?: () => void }) {
+}: {
+	opponent: ApiCharacter
+	onRoll?: () => void
+}) {
 	const characters = useCharacters()
 	const selfCharacter = characters.find((c) => c.isOwner)
 
@@ -40,7 +43,10 @@ export function ContestedRollForm({
 		opponentSnagCount: 0,
 	})
 
-	const setValue = <K extends keyof typeof values>(key: K, value: (typeof values)[K]) => {
+	const setValue = <K extends keyof typeof values>(
+		key: K,
+		value: (typeof values)[K],
+	) => {
 		setValues((values) => ({ ...values, [key]: value }))
 	}
 
@@ -48,7 +54,10 @@ export function ContestedRollForm({
 		<FormLayout>
 			<Select
 				label="Character"
-				options={characters.map((c) => ({ label: c.displayName, value: c._id }))}
+				options={characters.map((c) => ({
+					label: c.displayName,
+					value: c._id,
+				}))}
 				value={values.selfCharacter?._id}
 				placeholder="Choose a character"
 				onChange={(id) => {
@@ -107,13 +116,15 @@ export function ContestedRollForm({
 								content: `<@${selfCharacter._id}> (Defending): ${
 									values.selfAttribute?.name ?? "Strength"
 								}`,
-								attributeValue: selfCharacter[values.selfAttribute?.key ?? "strength"],
+								attributeValue:
+									selfCharacter[values.selfAttribute?.key ?? "strength"],
 								boostCount: values.selfBoostCount,
 								snagCount: values.selfSnagCount,
 							}),
 							createAttributeRollMessage({
 								content: `<@${opponent._id}>: ${values.opponentAttribute?.name ?? "Strength"}`,
-								attributeValue: opponent[values.opponentAttribute?.key ?? "strength"],
+								attributeValue:
+									opponent[values.opponentAttribute?.key ?? "strength"],
 								boostCount: values.opponentBoostCount,
 								snagCount: values.opponentSnagCount,
 							}),
@@ -137,7 +148,10 @@ function AttributeSelectField(props: {
 			label={props.label}
 			value={props.value?.key}
 			options={
-				attributes?.map((attribute) => ({ label: attribute.name, value: attribute.key })) ?? []
+				attributes?.map((attribute) => ({
+					label: attribute.name,
+					value: attribute.key,
+				})) ?? []
 			}
 			placeholder="Select an attribute"
 			onChange={(key) => {

@@ -32,7 +32,9 @@ export function groupBy<Item, ResultKey extends PropertyKey>(
 	return result
 }
 
-export function isEmpty(iterable: Iterable<unknown>): iterable is Iterable<never> {
+export function isEmpty(
+	iterable: Iterable<unknown>,
+): iterable is Iterable<never> {
 	return Iterator.from(iterable).take(1).count() < 1
 }
 
@@ -45,7 +47,9 @@ export function patchBy<T>(
 	predicate: (item: T) => unknown,
 	properties: Partial<T>,
 ) {
-	return Iterator.from(items).map((it) => (predicate(it) ? { ...it, ...properties } : it))
+	return Iterator.from(items).map((it) =>
+		predicate(it) ? { ...it, ...properties } : it,
+	)
 }
 
 export function patchByKey<T, K extends keyof T>(
@@ -66,7 +70,11 @@ export function toggleInSet<T>(set: ReadonlySet<T>, item: T): ReadonlySet<T> {
 	return modified
 }
 
-export function setPresentInSet<T>(set: ReadonlySet<T>, item: T, present: boolean): ReadonlySet<T> {
+export function setPresentInSet<T>(
+	set: ReadonlySet<T>,
+	item: T,
+	present: boolean,
+): ReadonlySet<T> {
 	const modified = new Set(set)
 	if (present) {
 		modified.add(item)
@@ -83,8 +91,8 @@ export function sortBy<Item>(
 	return [...iterable].sort((first, second) => {
 		const firstRank = rank(first)
 		const secondRank = rank(second)
-		return typeof firstRank === "string"
-			? firstRank.localeCompare(String(secondRank))
-			: firstRank - Number(secondRank)
+		return typeof firstRank === "string" ?
+				firstRank.localeCompare(String(secondRank))
+			:	firstRank - Number(secondRank)
 	})
 }

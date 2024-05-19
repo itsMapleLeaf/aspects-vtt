@@ -1,9 +1,10 @@
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { type ComponentProps } from "react"
+import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api.js"
 import { useMutationState } from "../../common/convex.ts"
+import { useCanvasDraw } from "../../common/dom.ts"
 import { useImage } from "../../common/useImage.ts"
 import { Vector } from "../../common/vector.ts"
 import { Loading } from "../../ui/Loading.tsx"
@@ -13,13 +14,16 @@ import { usePrompt } from "../../ui/Prompt.tsx"
 import { panel } from "../../ui/styles.ts"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { useCanvasDraw } from "../../common/dom.ts"
 
 export function SceneList() {
 	const room = useRoom()
 	const scenes = useQuery(api.scenes.functions.list, { roomId: room._id })
-	const [createSceneState, createScene] = useMutationState(api.scenes.functions.create)
-	const [updateRoomState, updateRoom] = useMutationState(api.rooms.functions.update)
+	const [createSceneState, createScene] = useMutationState(
+		api.scenes.functions.create,
+	)
+	const [updateRoomState, updateRoom] = useMutationState(
+		api.rooms.functions.update,
+	)
 	const removeScene = useMutation(api.scenes.functions.remove)
 	const duplicateScene = useMutation(api.scenes.functions.duplicate)
 	const modal = useModalContext()
@@ -40,17 +44,20 @@ export function SceneList() {
 						>
 							<div
 								className={panel(
-									"w-full aspect-[4/3] overflow-clip flex-center bg-cover bg-center",
+									"flex-center aspect-[4/3] w-full overflow-clip bg-cover bg-center",
 								)}
 							>
-								{updateRoomState.status === "pending" &&
-								updateRoomState.args.currentScene === scene._id ? (
+								{(
+									updateRoomState.status === "pending" &&
+									updateRoomState.args.currentScene === scene._id
+								) ?
 									<Loading />
-								) : scene.background != null ? (
-									<CanvasThumbnail imageUrl={getApiImageUrl(scene.background)} />
-								) : (
-									<Lucide.ImageOff className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
-								)}
+								: scene.background != null ?
+									<CanvasThumbnail
+										imageUrl={getApiImageUrl(scene.background)}
+									/>
+								:	<Lucide.ImageOff className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
+								}
 							</div>
 							<p className="text-pretty px-2 py-1.5 text-center text-xl/tight font-light">
 								{scene.name}
@@ -81,7 +88,7 @@ export function SceneList() {
 				<button
 					type="button"
 					className={panel(
-						"w-full aspect-[4/3] overflow-clip flex-center hover:bg-primary-300 transition group",
+						"group flex-center aspect-[4/3] w-full overflow-clip transition hover:bg-primary-300",
 					)}
 					onClick={async () => {
 						const name = await prompt({
@@ -94,19 +101,23 @@ export function SceneList() {
 						}
 					}}
 				>
-					{createSceneState.status === "pending" ? (
+					{createSceneState.status === "pending" ?
 						<Loading />
-					) : (
-						<Lucide.ImagePlus className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
-					)}
-					<p className="text-pretty p-2 text-center text-xl/none font-light">Create Scene</p>
+					:	<Lucide.ImagePlus className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
+					}
+					<p className="text-pretty p-2 text-center text-xl/none font-light">
+						Create Scene
+					</p>
 				</button>
 			</li>
 		</ul>
 	)
 }
 
-function CanvasThumbnail({ imageUrl, ...props }: { imageUrl: string } & ComponentProps<"canvas">) {
+function CanvasThumbnail({
+	imageUrl,
+	...props
+}: { imageUrl: string } & ComponentProps<"canvas">) {
 	const image = useImage(imageUrl)
 
 	const canvasRef = useCanvasDraw((context) => {
@@ -120,15 +131,22 @@ function CanvasThumbnail({ imageUrl, ...props }: { imageUrl: string } & Componen
 
 		// use setTimeout to yield to the main thread
 		setTimeout(() => {
-			context.drawImage(image, ...offset.tuple, ...imageSize.times(coverScale).tuple)
+			context.drawImage(
+				image,
+				...offset.tuple,
+				...imageSize.times(coverScale).tuple,
+			)
 		}, 0)
-
 	})
 
 	return (
 		<div className="flex-center relative size-full">
 			{image == null && <Loading className="absolute m-auto" />}
-			<canvas {...props} className={twMerge("size-full", props.className)} ref={canvasRef} />
+			<canvas
+				{...props}
+				className={twMerge("size-full", props.className)}
+				ref={canvasRef}
+			/>
 		</div>
 	)
 }

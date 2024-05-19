@@ -12,17 +12,24 @@ http.route({
 		const url = new URL(request.url)
 		const storageId = url.searchParams.get("id")
 		if (!storageId) {
-			return new Response(`Missing required query parameter "id"`, { status: 400 })
+			return new Response(`Missing required query parameter "id"`, {
+				status: 400,
+			})
 		}
 
 		const file = await ctx.storage.get(storageId as Id<"_storage">)
 		if (!file) {
-			return new Response(`File with id "${storageId}" not found`, { status: 404 })
+			return new Response(`File with id "${storageId}" not found`, {
+				status: 404,
+			})
 		}
 
-		const metadata = await ctx.runQuery(internal.storage.functions.getMetadata, {
-			storageId: storageId as Id<"_storage">,
-		})
+		const metadata = await ctx.runQuery(
+			internal.storage.functions.getMetadata,
+			{
+				storageId: storageId as Id<"_storage">,
+			},
+		)
 
 		const headers = new Headers({
 			"Cache-Control": "public, max-age=31536000, immutable",

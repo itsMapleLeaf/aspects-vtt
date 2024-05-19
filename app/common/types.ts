@@ -1,5 +1,10 @@
-/** Like omit, but ensures the keys exist in the target object, and preserves union types */
-export type StrictOmit<T extends object, K extends keyof T> = Simplify<Pick<T, Exclude<keyof T, K>>>
+/**
+ * Like omit, but ensures the keys exist in the target object, and preserves
+ * union types
+ */
+export type StrictOmit<T extends object, K extends keyof T> = Simplify<
+	Pick<T, Exclude<keyof T, K>>
+>
 
 /** Merge two types, overwriting keys in A with keys in B */
 export type Overwrite<A extends object, B extends object> = Simplify<
@@ -7,6 +12,7 @@ export type Overwrite<A extends object, B extends object> = Simplify<
 >
 
 /** Simplify complex types into a flat object */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type Simplify<T extends object> = { [K in keyof T]: T[K] } & {}
 
 /** Represents all JS falsy values */
@@ -19,12 +25,18 @@ export type Disallowed<T extends object> = {
 	[K in keyof T]?: never
 }
 
-/** Pick properties in an object type whose values are assignable to the given type */
+/**
+ * Pick properties in an object type whose values are assignable to the given
+ * type
+ */
 export type PickByValue<Source, Value> = Simplify<{
 	[K in keyof Source as Source[K] extends Value ? K : never]: Source[K]
 }>
 
-/** Omit properties in an object type whose values are assignable to the given type */
+/**
+ * Omit properties in an object type whose values are assignable to the given
+ * type
+ */
 export type OmitByValue<Source, Value> = Simplify<{
 	[K in keyof Source as Source[K] extends Value ? never : K]: Source[K]
 }>
@@ -43,8 +55,8 @@ export type UndefinedToOptional<T> = Simplify<
 	}
 >
 
-// biome-ignore lint/complexity/noBannedTypes: this is useful when you need an "unknown" that doesn't swallow other types in the union
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type DietUnknown = {} | undefined | null
 
-// biome-ignore lint/suspicious/noExplicitAny: this type is used to mark places that need a fix
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TODO = any

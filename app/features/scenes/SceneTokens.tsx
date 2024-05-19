@@ -4,14 +4,17 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { action, computed, observable } from "mobx"
 import { observer } from "mobx-react-lite"
-import { useState } from "react"
 import * as React from "react"
+import { useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { Rect } from "../../common/Rect.ts"
 import { sortBy } from "../../common/collection.ts"
-import { createNonEmptyContext, useNonEmptyContext } from "../../common/context.tsx"
+import {
+	createNonEmptyContext,
+	useNonEmptyContext,
+} from "../../common/context.tsx"
 import { pick } from "../../common/object.ts"
 import { randomItem } from "../../common/random.ts"
 import type { StrictOmit } from "../../common/types.ts"
@@ -42,9 +45,14 @@ const dragOffset = new (class {
 	}
 })()
 
-const DragSelectContext = createNonEmptyContext<DragSelectStore<ApiToken["key"]>>()
+const DragSelectContext =
+	createNonEmptyContext<DragSelectStore<ApiToken["key"]>>()
 
-export const SceneTokens = observer(function SceneTokens({ scene }: { scene: ApiScene }) {
+export const SceneTokens = observer(function SceneTokens({
+	scene,
+}: {
+	scene: ApiScene
+}) {
 	const dragSelectStore = useDragSelectStore<ApiToken["key"]>()
 	return (
 		<DragSelectContext value={dragSelectStore}>
@@ -57,18 +65,29 @@ export const SceneTokens = observer(function SceneTokens({ scene }: { scene: Api
 	)
 })
 
-function SceneInteractionArea({ children, scene }: { children: React.ReactNode; scene: ApiScene }) {
+function SceneInteractionArea({
+	children,
+	scene,
+}: {
+	children: React.ReactNode
+	scene: ApiScene
+}) {
 	const roomToolbarState = RoomToolbarStore.useState()
-	return roomToolbarState.activeTool === RoomTool.Draw ? (
-		<RectTokenDrawArea scene={scene}>{children}</RectTokenDrawArea>
-	) : (
-		<TokenSelection scene={scene}>{children}</TokenSelection>
-	)
+	return roomToolbarState.activeTool === RoomTool.Draw ?
+			<RectTokenDrawArea scene={scene}>{children}</RectTokenDrawArea>
+		:	<TokenSelection scene={scene}>{children}</TokenSelection>
 }
 
-function SceneDropzone({ scene, children }: { scene: ApiScene; children: React.ReactNode }) {
+function SceneDropzone({
+	scene,
+	children,
+}: {
+	scene: ApiScene
+	children: React.ReactNode
+}) {
 	const viewport = useViewport()
-	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
+	const tokens =
+		useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
 	return (
@@ -80,7 +99,9 @@ function SceneDropzone({ scene, children }: { scene: ApiScene; children: React.R
 					.minus((scene.cellSize / 2) * viewport.scale)
 					.dividedBy(viewport.scale).xy
 
-				const existing = tokens.find((it) => it.character?._id === character._id)
+				const existing = tokens.find(
+					(it) => it.character?._id === character._id,
+				)
 				if (existing) {
 					updateToken({
 						key: existing.key,
@@ -102,9 +123,14 @@ function SceneDropzone({ scene, children }: { scene: ApiScene; children: React.R
 	)
 }
 
-const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene }) {
+const TokenSprites = observer(function TokenSprites({
+	scene,
+}: {
+	scene: ApiScene
+}) {
 	const viewport = useViewport()
-	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
+	const tokens =
+		useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
 	const updateToken = useUpdateTokenMutation()
 	const dragSelectStore = useNonEmptyContext(DragSelectContext)
 
@@ -134,22 +160,30 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 					className="data-[hidden]:opacity-75"
 					key={token.key}
 				>
-					<TokenDragSelectable token={token} onDragEnd={updateSelectedTokenPositions}>
+					<TokenDragSelectable
+						token={token}
+						onDragEnd={updateSelectedTokenPositions}
+					>
 						{token.character && (
 							<UploadedImage
 								id={token.character.imageId}
-								style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
+								style={Vector.from(scene.cellSize)
+									.times(viewport.scale)
+									.toSize()}
 								emptyIcon={<Lucide.Ghost />}
 								className={{
-									container: "overflow-clip rounded shadow-md shadow-black/50 bg-primary-300",
-									image: "object-top object-cover",
+									container:
+										"overflow-clip rounded bg-primary-300 shadow-md shadow-black/50",
+									image: "object-cover object-top",
 								}}
 							/>
 						)}
 						{token.area && (
 							<div
 								className="rounded border-4 border-blue-500 bg-blue-500/30"
-								style={Vector.fromSize(token.area).times(viewport.scale).toSize()}
+								style={Vector.fromSize(token.area)
+									.times(viewport.scale)
+									.toSize()}
 							/>
 						)}
 						{token.visible ? null : (
@@ -164,9 +198,15 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 
 			{/* character token decorations */}
 			{Iterator.from(tokens)
-				.flatMap((token) => (token.character ? [{ token, character: token.character }] : []))
+				.flatMap((token) =>
+					token.character ? [{ token, character: token.character }] : [],
+				)
 				.map(({ token, character }) => (
-					<TokenTranslation token={token} className="pointer-events-none" key={token.key}>
+					<TokenTranslation
+						token={token}
+						className="pointer-events-none"
+						key={token.key}
+					>
 						<div
 							className="relative"
 							style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
@@ -189,7 +229,10 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 									}}
 								/>
 							</div>
-							<TokenLabel text={character.displayName} subText={character.displayPronouns} />
+							<TokenLabel
+								text={character.displayName}
+								subText={character.displayPronouns}
+							/>
 						</div>
 					</TokenTranslation>
 				))
@@ -203,7 +246,8 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 						{
 							token,
 							area: token.area,
-							gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize).rounded,
+							gridSize: Vector.fromSize(token.area).dividedBy(scene.cellSize)
+								.rounded,
 						},
 					]
 				})
@@ -211,7 +255,10 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 					<TokenTranslation
 						token={token}
 						className="flex-center pointer-events-none"
-						style={{ ...pick(area, ["width", "height"]), scale: viewport.scale }}
+						style={{
+							...pick(area, ["width", "height"]),
+							scale: viewport.scale,
+						}}
 						key={token.key}
 					>
 						<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
@@ -224,17 +271,19 @@ const TokenSprites = observer(function TokenSprites({ scene }: { scene: ApiScene
 	)
 })
 
-const ViewportTranslation = observer(({ children }: { children: React.ReactNode }) => {
-	const viewport = useViewport()
-	return (
-		<div
-			className="absolute left-0 top-0 origin-top-left"
-			style={{ translate: viewport.offset.css.translate() }}
-		>
-			{children}
-		</div>
-	)
-})
+const ViewportTranslation = observer(
+	({ children }: { children: React.ReactNode }) => {
+		const viewport = useViewport()
+		return (
+			<div
+				className="absolute left-0 top-0 origin-top-left"
+				style={{ translate: viewport.offset.css.translate() }}
+			>
+				{children}
+			</div>
+		)
+	},
+)
 
 const TokenTranslation = observer(function TokenTranslation({
 	token,
@@ -258,7 +307,10 @@ const TokenTranslation = observer(function TokenTranslation({
 	return (
 		<div
 			{...props}
-			className={twMerge("absolute left-0 top-0 origin-top-left", props.className)}
+			className={twMerge(
+				"absolute left-0 top-0 origin-top-left",
+				props.className,
+			)}
 			style={{
 				translate: translate.get(),
 				...props.style,
@@ -292,7 +344,9 @@ const RectTokenDrawArea = observer(function RectTokenDrawArea({
 				.plus(viewport.offset),
 		})
 
-	const gridSize = gridSnappedPreviewArea?.size.dividedBy(scene.cellSize * viewport.scale).rounded
+	const gridSize = gridSnappedPreviewArea?.size.dividedBy(
+		scene.cellSize * viewport.scale,
+	).rounded
 
 	return (
 		<RectDrawArea
@@ -309,15 +363,24 @@ const RectTokenDrawArea = observer(function RectTokenDrawArea({
 					.minus(viewport.offset)
 					.dividedBy(viewport.scale).xy
 
-				const size = gridSnappedPreviewArea.size.dividedBy(viewport.scale).toSize()
+				const size = gridSnappedPreviewArea.size
+					.dividedBy(viewport.scale)
+					.toSize()
 
 				addToken({
 					sceneId: scene._id,
 					visible: true,
-					position: position,
+					position,
 					area: {
 						...size,
-						color: randomItem(["red", "orange", "yellow", "green", "blue", "purple"]),
+						color: randomItem([
+							"red",
+							"orange",
+							"yellow",
+							"green",
+							"blue",
+							"purple",
+						]),
 					},
 				})
 				roomToolbarActions.enableSelectTool()
@@ -369,7 +432,8 @@ const TokenDragSelectable = observer(function TokenDragSelectable({
 				from: [0, 0],
 			},
 			transform: (input) => [
-				...Vector.from(input).minus(viewport.offset).dividedBy(viewport.scale).tuple,
+				...Vector.from(input).minus(viewport.offset).dividedBy(viewport.scale)
+					.tuple,
 			],
 		},
 	)
@@ -396,10 +460,16 @@ const TokenSelection = observer(function TokenSelection({
 	scene: ApiScene
 }) {
 	const dragSelectStore = useNonEmptyContext(DragSelectContext)
-	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
-	const selectedTokens = tokens.filter((it) => dragSelectStore.isSelected(it.key))
+	const tokens =
+		useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
+	const selectedTokens = tokens.filter((it) =>
+		dragSelectStore.isSelected(it.key),
+	)
 	return (
-		<DragSelectArea className="absolute inset-0 size-full" store={dragSelectStore}>
+		<DragSelectArea
+			className="absolute inset-0 size-full"
+			store={dragSelectStore}
+		>
 			{children}
 			<TokenMenu
 				scene={scene}

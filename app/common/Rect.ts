@@ -34,7 +34,10 @@ export class Rect {
 			return new Rect(position, position.plus(input.width, input.height))
 		}
 		if ("left" in input && "right" in input) {
-			return new Rect(Vector.from(input.left, input.top), Vector.from(input.right, input.bottom))
+			return new Rect(
+				Vector.from(input.left, input.top),
+				Vector.from(input.right, input.bottom),
+			)
 		}
 		if ("left" in input && "width" in input) {
 			return Rect.from({
@@ -50,7 +53,12 @@ export class Rect {
 	}
 
 	/** @deprecated Use {@link from} */
-	static fromComponents(x: number, y: number, width: number, height: number): Rect {
+	static fromComponents(
+		x: number,
+		y: number,
+		width: number,
+		height: number,
+	): Rect {
 		return new Rect(Vector.from(x, y), Vector.from(width, height))
 	}
 
@@ -103,7 +111,12 @@ export class Rect {
 		return this.bottomRight.y
 	}
 
-	get tuple(): readonly [left: number, top: number, width: number, height: number] {
+	get tuple(): readonly [
+		left: number,
+		top: number,
+		width: number,
+		height: number,
+	] {
 		const { left, top, width, height } = this
 		return [left, top, width, height] as const
 	}
@@ -135,7 +148,10 @@ export class Rect {
 	withMinimumSize(...size: VectorInputArgs): Rect {
 		const sizeVector = Vector.from(...size)
 		return this.withSize(
-			Vector.from(Math.max(sizeVector.x, this.size.x), Math.max(sizeVector.y, this.size.y)),
+			Vector.from(
+				Math.max(sizeVector.x, this.size.x),
+				Math.max(sizeVector.y, this.size.y),
+			),
 		)
 	}
 
@@ -152,11 +168,10 @@ export class Rect {
 	contains(...pointInput: VectorInputArgs) {
 		const point = Vector.from(...pointInput)
 		return (
-			point.x > this.left && point.x < this.right && point.y > this.top && point.y < this.bottom
+			point.x > this.left &&
+			point.x < this.right &&
+			point.y > this.top &&
+			point.y < this.bottom
 		)
-	}
-
-	clamp(boundsInput: RectInput) {
-		const bounds = Rect.from(boundsInput)
 	}
 }

@@ -1,8 +1,8 @@
 import { useDisclosureContext } from "@ariakit/react"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useState } from "react"
 import type * as React from "react"
+import { useState } from "react"
 import { api } from "../../../convex/_generated/api"
 import { Button } from "../../ui/Button.tsx"
 import { FormField, FormLayout } from "../../ui/Form.tsx"
@@ -35,7 +35,10 @@ export function StressUpdateMenu({
 function StressUpdateForm({
 	characters,
 	field,
-}: { field: "damage" | "fatigue"; characters: ApiCharacter[] }) {
+}: {
+	field: "damage" | "fatigue"
+	characters: ApiCharacter[]
+}) {
 	const room = useRoom()
 	const disclosure = useDisclosureContext()
 	const applyStress = useMutation(api.characters.functions.applyStress)
@@ -66,7 +69,11 @@ function StressUpdateForm({
 			}}
 		>
 			<FormLayout>
-				<fieldset className={panel("grid grid-flow-col auto-cols-fr bg-transparent overflow-clip")}>
+				<fieldset
+					className={panel(
+						"grid auto-cols-fr grid-flow-col overflow-clip bg-transparent",
+					)}
+				>
 					<label className="flex-center-row h-10 gap-1 px-2 text-red-300 opacity-50 transition hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200">
 						<input
 							type="radio"
@@ -84,7 +91,9 @@ function StressUpdateForm({
 							name="operation"
 							className="appearance-none"
 							checked={values.operation === "remove"}
-							onChange={(event) => setValues({ ...values, operation: "remove" })}
+							onChange={(event) =>
+								setValues({ ...values, operation: "remove" })
+							}
 						/>
 						<Lucide.ChevronsUp className="-ml-1" />
 						<span>Heal</span>
@@ -99,7 +108,10 @@ function StressUpdateForm({
 					/>
 				</FormField>
 				<FormField label="Dice">
-					<DiceCounter value={values.dice} onChange={(dice) => setValues({ ...values, dice })} />
+					<DiceCounter
+						value={values.dice}
+						onChange={(dice) => setValues({ ...values, dice })}
+					/>
 				</FormField>
 				<Button type="submit" text="Apply" icon={<Lucide.Check />} />
 			</FormLayout>

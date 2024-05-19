@@ -4,14 +4,19 @@ import { clamp } from "../../common/math.ts"
 export function TokenMeter({
 	value,
 	className,
-}: { value: number; className: { base: string; warning: string; danger: string } }) {
+}: {
+	value: number
+	className: { base: string; warning: string; danger: string }
+}) {
 	return (
 		<div
 			aria-hidden
 			className={twMerge(
-				"h-3 w-24 rounded border border-current shadow shadow-black/50 relative transition-all",
-				value < 0.5 ? className.base : value < 0.8 ? className.warning : className.danger,
-				value > 0 ? "opacity-100 visible" : "opacity-0 invisible",
+				"relative h-3 w-24 rounded border border-current shadow shadow-black/50 transition-all",
+				value < 0.5 ? className.base
+				: value < 0.8 ? className.warning
+				: className.danger,
+				value > 0 ? "visible opacity-100" : "invisible opacity-0",
 			)}
 		>
 			<div

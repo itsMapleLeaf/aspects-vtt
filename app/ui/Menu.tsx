@@ -17,7 +17,15 @@ export function menuPanelStyle(...classes: ClassNameValue[]) {
 }
 
 export function MenuPanel(props: Ariakit.MenuProps) {
-	return <Ariakit.Menu portal gutter={8} unmountOnHide {...props} className={menuPanelStyle()} />
+	return (
+		<Ariakit.Menu
+			portal
+			gutter={8}
+			unmountOnHide
+			{...props}
+			className={menuPanelStyle()}
+		/>
+	)
 }
 
 export function menuItemStyle(...classes: ClassNameValue[]) {

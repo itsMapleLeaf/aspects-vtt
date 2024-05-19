@@ -58,7 +58,9 @@ export function CharacterListPanel() {
 					{renderList(groups.get("player") ?? [])}
 					{divider}
 					{renderList(
-						(groups.get("rest") ?? []).toSorted((a, b) => b._creationTime - a._creationTime),
+						(groups.get("rest") ?? []).toSorted(
+							(a, b) => b._creationTime - a._creationTime,
+						),
 					)}
 				</ul>
 			</ScrollArea>
@@ -76,13 +78,15 @@ function CharacterTile({
 			<MenuButton
 				className={twMerge(
 					"flex w-full flex-col items-stretch gap-2 transition-opacity",
-					selection.selectedCharacter?._id === character._id
-						? "text-primary-700"
-						: "opacity-75 hover:opacity-100",
+					selection.selectedCharacter?._id === character._id ?
+						"text-primary-700"
+					:	"opacity-75 hover:opacity-100",
 				)}
 				{...props}
 			>
-				<div className={panel("overflow-clip aspect-square relative flex-center")}>
+				<div
+					className={panel("flex-center relative aspect-square overflow-clip")}
+				>
 					<CharacterDnd.Draggable data={character} className="size-full">
 						<UploadedImage
 							id={character.imageId}
@@ -93,15 +97,25 @@ function CharacterTile({
 							}}
 						/>
 					</CharacterDnd.Draggable>
-					{character.visible ? null : <Lucide.EyeOff className="absolute size-8 opacity-50" />}
+					{character.visible ? null : (
+						<Lucide.EyeOff className="absolute size-8 opacity-50" />
+					)}
 				</div>
-				<p className="text-pretty text-center text-sm/none">{character.displayName}</p>
+				<p className="text-pretty text-center text-sm/none">
+					{character.displayName}
+				</p>
 			</MenuButton>
 		</CharacterMenu>
 	)
 }
 
-function CharacterMenu({ character, children }: { character: ApiCharacter; children: ReactNode }) {
+function CharacterMenu({
+	character,
+	children,
+}: {
+	character: ApiCharacter
+	children: ReactNode
+}) {
 	const room = useRoom()
 	const removeCharacter = useMutation(api.characters.functions.remove)
 	const duplicateCharacter = useMutation(api.characters.functions.duplicate)
@@ -123,7 +137,10 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 								text="Duplicate"
 								icon={<Lucide.Copy />}
 								onClick={async () => {
-									const id = await duplicateCharacter({ id: character._id, randomize: false })
+									const id = await duplicateCharacter({
+										id: character._id,
+										randomize: false,
+									})
 									selection.setSelected(id)
 								}}
 							/>
@@ -131,7 +148,10 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 								text="Duplicate (Randomized)"
 								icon={<Lucide.Shuffle />}
 								onClick={async () => {
-									const id = await duplicateCharacter({ id: character._id, randomize: true })
+									const id = await duplicateCharacter({
+										id: character._id,
+										randomize: true,
+									})
 									selection.setSelected(id)
 								}}
 							/>
@@ -139,7 +159,11 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 								text="Delete"
 								icon={<Lucide.Trash />}
 								onClick={() => {
-									if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
+									if (
+										confirm(
+											`Are you sure you want to remove "${character.displayName}"?`,
+										)
+									) {
 										removeCharacter({ id: character._id })
 									}
 								}}
@@ -162,7 +186,9 @@ function CreateCharacterButton() {
 					type="submit"
 					className="flex-center aspect-square w-full opacity-75 transition-opacity hover:opacity-100"
 				>
-					{pending ? <Loading size="sm" /> : <Lucide.UserPlus2 className="size-8" />}
+					{pending ?
+						<Loading size="sm" />
+					:	<Lucide.UserPlus2 className="size-8" />}
 					<span className="sr-only">Create Character</span>
 				</button>
 			</Tooltip>

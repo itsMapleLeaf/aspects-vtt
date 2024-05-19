@@ -1,8 +1,7 @@
 import { v } from "convex/values"
 import type { Branded } from "../helpers/convex.js"
 import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
-import { getUserFromIdentity } from "./helpers.ts"
-import { getIdentity } from "./helpers.ts"
+import { getIdentity, getUserFromIdentity } from "./helpers.ts"
 
 export const user = query({
 	handler: async (ctx: QueryCtx) => {
@@ -21,7 +20,10 @@ export const setup = mutation({
 		if (user) {
 			await ctx.db.patch(user._id, args)
 		} else {
-			await ctx.db.insert("users", { ...args, clerkId: identity.subject as Branded<"clerkId"> })
+			await ctx.db.insert("users", {
+				...args,
+				clerkId: identity.subject as Branded<"clerkId">,
+			})
 		}
 	},
 })

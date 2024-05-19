@@ -3,27 +3,36 @@ import { Context, Data, Effect, pipe } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import type { Awaitable, Overwrite } from "../../app/common/types.js"
 import type { Doc, Id, TableNames } from "../_generated/dataModel.js"
-import { mutation, query } from "./ents.js"
 import type { MutationCtx, QueryCtx } from "./ents.js"
+import { mutation, query } from "./ents.js"
 
-export class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {}
+export class QueryCtxService extends Context.Tag("QueryCtxService")<
+	QueryCtxService,
+	QueryCtx
+>() {}
 
 export class MutationCtxService extends Context.Tag("MutationCtxService")<
 	MutationCtxService,
 	MutationCtx
 >() {}
 
-export class ConvexInternalError extends Data.TaggedError("ConvexInternalError")<{
+export class ConvexInternalError extends Data.TaggedError(
+	"ConvexInternalError",
+)<{
 	cause: unknown
 }> {}
 
-export class ConvexDocNotFoundError extends Data.TaggedError("ConvexDocNotFoundError")<{
+export class ConvexDocNotFoundError extends Data.TaggedError(
+	"ConvexDocNotFoundError",
+)<{
 	id?: string
 	table?: string
 }> {}
 
 export function queryHandlerFromEffect<Args extends unknown[], Data>(
-	createEffect: (...args: Args) => Effect.Effect<Data, unknown, QueryCtxService>,
+	createEffect: (
+		...args: Args
+	) => Effect.Effect<Data, unknown, QueryCtxService>,
 ) {
 	return function handler(ctx: QueryCtx, ...args: Args) {
 		return createEffect(...args).pipe(
@@ -50,7 +59,8 @@ export function mutationHandlerFromEffect<Args extends unknown[], Data>(
 export function effectQuery<Args extends PropertyValidators, Output>(options: {
 	args: Args
 	handler: (
-		// biome-ignore lint/complexity/noBannedTypes: hack to satisfy the handler args type
+		// hack to satisfy the handler args type
+		// eslint-disable-next-line @typescript-eslint/ban-types
 		args: Overwrite<ObjectType<Args>, {}>,
 	) => Effect.Effect<Output, unknown, QueryCtxService>
 }) {
@@ -58,16 +68,23 @@ export function effectQuery<Args extends PropertyValidators, Output>(options: {
 		args: options.args,
 		handler: (ctx, args) => {
 			return Effect.runPromise(
-				pipe(options.handler(args), Effect.provideService(QueryCtxService, ctx)),
+				pipe(
+					options.handler(args),
+					Effect.provideService(QueryCtxService, ctx),
+				),
 			)
 		},
 	})
 }
 
-export function effectMutation<Args extends PropertyValidators, Output>(options: {
+export function effectMutation<
+	Args extends PropertyValidators,
+	Output,
+>(options: {
 	args: Args
 	handler: (
-		// biome-ignore lint/complexity/noBannedTypes: hack to satisfy the handler args type
+		// hack to satisfy the handler args type
+		// eslint-disable-next-line @typescript-eslint/ban-types
 		args: Overwrite<ObjectType<Args>, {}>,
 	) => Effect.Effect<Output, unknown, QueryCtxService | MutationCtxService>
 }) {
@@ -99,32 +116,42 @@ export function getDoc<TableName extends TableNames>(id: Id<TableName>) {
 	})
 }
 
-export function getDocs<TableName extends TableNames>(ids: Iterable<Id<TableName>>) {
+export function getDocs<TableName extends TableNames>(
+	ids: Iterable<Id<TableName>>,
+) {
 	return Effect.all(Iterator.from(ids).map(getDoc))
 }
 
-export function withQueryCtx<Result>(callback: (context: QueryCtx) => PromiseLike<Result>) {
+export function withQueryCtx<Result>(
+	callback: (context: QueryCtx) => PromiseLike<Result>,
+) {
 	return QueryCtxService.pipe(
 		Effect.flatMap((ctx) => Effect.tryPromise(() => callback(ctx))),
 		Effect.catchAllCause((cause) => new ConvexInternalError({ cause })),
 	)
 }
 
-export function withQueryCtxSync<Result>(callback: (context: QueryCtx) => Result) {
+export function withQueryCtxSync<Result>(
+	callback: (context: QueryCtx) => Result,
+) {
 	return QueryCtxService.pipe(
 		Effect.flatMap((ctx) => Effect.try(() => callback(ctx))),
 		Effect.catchAllCause((cause) => new ConvexInternalError({ cause })),
 	)
 }
 
-export function withMutationCtx<Result>(callback: (context: MutationCtx) => Awaitable<Result>) {
+export function withMutationCtx<Result>(
+	callback: (context: MutationCtx) => Awaitable<Result>,
+) {
 	return MutationCtxService.pipe(
 		Effect.flatMap((ctx) => Effect.tryPromise(async () => await callback(ctx))),
 		Effect.catchAllCause((cause) => new ConvexInternalError({ cause })),
 	)
 }
 
-export function withMutationCtxSync<Result>(callback: (context: MutationCtx) => Result) {
+export function withMutationCtxSync<Result>(
+	callback: (context: MutationCtx) => Result,
+) {
 	return MutationCtxService.pipe(
 		Effect.flatMap((ctx) => Effect.try(() => callback(ctx))),
 		Effect.catchAllCause((cause) => new ConvexInternalError({ cause })),
@@ -136,6 +163,10 @@ export function queryDoc<D extends Doc<TableNames>>(
 	return withQueryCtx(callback).pipe(Effect.flatMap(ensureDoc))
 }
 
-export function ensureDoc<D extends Doc<TableNames>>(doc: D | undefined | null) {
-	return doc != null ? Effect.succeed(doc) : Effect.fail(new ConvexDocNotFoundError({}))
+export function ensureDoc<D extends Doc<TableNames>>(
+	doc: D | undefined | null,
+) {
+	return doc != null ?
+			Effect.succeed(doc)
+		:	Effect.fail(new ConvexDocNotFoundError({}))
 }

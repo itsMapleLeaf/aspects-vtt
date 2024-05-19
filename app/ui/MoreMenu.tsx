@@ -11,7 +11,10 @@ interface MoreMenuProps extends ComponentProps<"div"> {
 export function MoreMenu({ children, menuProps, ...props }: MoreMenuProps) {
 	return (
 		<Menu placement="bottom" {...menuProps}>
-			<div {...props} className={twMerge("group/more-menu relative", props.className)}>
+			<div
+				{...props}
+				className={twMerge("group/more-menu relative", props.className)}
+			>
 				{children}
 				<Tooltip content="More actions">
 					<MenuButton className="flex-center absolute right-0 top-0 size-12 opacity-0 transition hover:!opacity-100 focus-visible:!opacity-100 group-hover/more-menu:opacity-50">

@@ -20,10 +20,10 @@ export function usePendingDelay(pendingInput: boolean) {
 	return useDelayedValue(pendingInput, pendingInput ? 300 : 500, false)
 }
 
-export function useIsomorphicValue<ClientValue = undefined, ServerValue = undefined>(options: {
-	client?: () => ClientValue
-	server?: () => ServerValue
-}) {
+export function useIsomorphicValue<
+	ClientValue = undefined,
+	ServerValue = undefined,
+>(options: { client?: () => ClientValue; server?: () => ServerValue }) {
 	return useSyncExternalStore<ClientValue | ServerValue | undefined>(
 		noopSubscribe,
 		() => options.client?.(),
@@ -32,7 +32,9 @@ export function useIsomorphicValue<ClientValue = undefined, ServerValue = undefi
 }
 const noopSubscribe = () => () => {}
 
-export function useEffectEvent<Args extends unknown[], Return>(fn: (...args: Args) => Return) {
+export function useEffectEvent<Args extends unknown[], Return>(
+	fn: (...args: Args) => Return,
+) {
 	const ref = useRef((...args: Args): Return => {
 		throw new Error("Attempted to call effect event callback during render")
 	})

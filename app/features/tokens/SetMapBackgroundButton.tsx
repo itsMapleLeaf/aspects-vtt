@@ -14,25 +14,25 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 	const inputRef = useRef<HTMLInputElement>(null)
 	const convex = useConvex()
 
-	const [state, updateSceneBackground] = useAsyncState(async function updateSceneBackground(
-		file: File,
-	) {
-		try {
-			const image = await loadImage(URL.createObjectURL(file))
-			const imageId = await uploadImage(file, convex)
-			await updateScene({
-				id: scene._id,
-				background: imageId,
-				backgroundDimensions: {
-					x: image.width,
-					y: image.height,
-				},
-			})
-		} catch (error) {
-			console.error(error)
-			alert("Failed to upload image")
-		}
-	})
+	const [state, updateSceneBackground] = useAsyncState(
+		async function updateSceneBackground(file: File) {
+			try {
+				const image = await loadImage(URL.createObjectURL(file))
+				const imageId = await uploadImage(file, convex)
+				await updateScene({
+					id: scene._id,
+					background: imageId,
+					backgroundDimensions: {
+						x: image.width,
+						y: image.height,
+					},
+				})
+			} catch (error) {
+				console.error(error)
+				alert("Failed to upload image")
+			}
+		},
+	)
 
 	return (
 		<>

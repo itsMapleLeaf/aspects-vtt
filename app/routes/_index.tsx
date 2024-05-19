@@ -31,10 +31,9 @@ function Content() {
 	return (
 		<div className="flex h-dvh flex-col gap-4 p-4">
 			<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
-			{rooms === undefined ? (
+			{rooms === undefined ?
 				loading && <Loading fill="parent" />
-			) : (
-				<main>
+			:	<main>
 					<ul className="mb-2 grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-2">
 						{rooms.map((room) => (
 							<li key={room._id}>
@@ -68,7 +67,7 @@ function Content() {
 						}}
 					/>
 				</main>
-			)}
+			}
 		</div>
 	)
 }

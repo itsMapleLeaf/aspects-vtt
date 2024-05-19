@@ -10,7 +10,11 @@ export type DiceStat = {
 	className?: string
 }
 
-const effectStat = { name: "Effect", min: 1, className: twMerge("text-primary-800") }
+const effectStat = {
+	name: "Effect",
+	min: 1,
+	className: twMerge("text-primary-800"),
+}
 const boostStat = { name: "Boost", className: twMerge("text-green-400") }
 const snagStat = { name: "Snag", className: twMerge("text-red-400") }
 export const diceStats: DiceStat[] = [effectStat, boostStat, snagStat]
@@ -83,9 +87,15 @@ export const boostDiceKind = defineModifier({
 	multiplier: 1,
 	stat: boostStat,
 })
-export const diceKinds: DiceKind[] = [...numericDiceKinds, boostDiceKind, snagDiceKind]
+export const diceKinds: DiceKind[] = [
+	...numericDiceKinds,
+	boostDiceKind,
+	snagDiceKind,
+]
 
-export const diceKindsByName = new Map(diceKinds.map((kind) => [kind.name, kind]))
+export const diceKindsByName = new Map(
+	diceKinds.map((kind) => [kind.name, kind]),
+)
 
 function defineNumeric({
 	faceCount,
@@ -102,8 +112,15 @@ function defineNumeric({
 		explodes: true,
 		element: (
 			<div className="flex-center-col relative text-primary-700 @container">
-				<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">{icon}</div>
-				<p className={twMerge("absolute text-[length:28cqw] font-semibold", textClassName)}>
+				<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">
+					{icon}
+				</div>
+				<p
+					className={twMerge(
+						"absolute text-[length:28cqw] font-semibold",
+						textClassName,
+					)}
+				>
 					d{faceCount}
 				</p>
 			</div>
@@ -116,8 +133,15 @@ function defineNumeric({
 					className="flex-center-col relative transition @container *:pointer-events-none hover:brightness-150 data-[max=true]:text-primary-700"
 					data-max={n === faceCount}
 				>
-					<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">{icon}</div>
-					<p className={twMerge("absolute text-[length:36cqw] font-semibold", textClassName)}>
+					<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">
+						{icon}
+					</div>
+					<p
+						className={twMerge(
+							"absolute text-[length:36cqw] font-semibold",
+							textClassName,
+						)}
+					>
 						{n}
 					</p>
 				</Tooltip>
@@ -147,7 +171,9 @@ function defineModifier({
 		element: (
 			<div className={twMerge("flex-center-col relative", className)}>
 				<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />
-				<div className="absolute size-[50%] translate-y-[3px] *:size-full">{icon}</div>
+				<div className="absolute size-[50%] translate-y-[3px] *:size-full">
+					{icon}
+				</div>
 			</div>
 		),
 		faces: range.array(1, faceCount + 1).map((face) => ({
@@ -161,7 +187,9 @@ function defineModifier({
 					)}
 				>
 					<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />
-					<p className="absolute translate-y-[3px] text-[length:36cqw] font-semibold">{face}</p>
+					<p className="absolute translate-y-[3px] text-[length:36cqw] font-semibold">
+						{face}
+					</p>
 				</Tooltip>
 			),
 			modifyStats: new Map([

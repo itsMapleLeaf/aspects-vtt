@@ -22,7 +22,10 @@ export default defineConfig({
 			],
 		}),
 		mdx({
-			rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "append" }]],
+			rehypePlugins: [
+				rehypeSlug,
+				[rehypeAutolinkHeadings, { behavior: "append" }],
+			],
 		}),
 		remix({
 			future: {

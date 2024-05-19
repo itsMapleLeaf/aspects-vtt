@@ -47,7 +47,10 @@ export class Camera {
 
 	zoomedBy(delta: number, pivot: Vector): Camera {
 		const newZoomTick = this.zoomTick + delta
-		if (newZoomTick <= -Camera.zoomTickLimit || newZoomTick >= Camera.zoomTickLimit) {
+		if (
+			newZoomTick <= -Camera.zoomTickLimit ||
+			newZoomTick >= Camera.zoomTickLimit
+		) {
 			return this
 		}
 

@@ -59,7 +59,10 @@ export function RectDrawArea({
 			{rect && preview && (
 				<div
 					className="absolute left-0 top-0 border-2 border-primary-600 bg-primary-600/25"
-					style={{ translate: rect.topLeft.css.translate(), ...rect.size.toSize() }}
+					style={{
+						translate: rect.topLeft.css.translate(),
+						...rect.size.toSize(),
+					}}
 				/>
 			)}
 		</div>

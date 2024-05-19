@@ -52,14 +52,21 @@ export function getIdentityEffect() {
 			(identity) => identity !== null,
 			() => new NotLoggedInError(),
 		),
-		Effect.map((identity) => identity as Overwrite<UserIdentity, { subject: Branded<"clerkId"> }>),
+		Effect.map(
+			(identity) =>
+				identity as Overwrite<UserIdentity, { subject: Branded<"clerkId"> }>,
+		),
 	)
 }
 
 export function getUserFromClerkId(clerkId: Branded<"clerkId">) {
 	return pipe(
-		queryDoc(async (ctx) => await ctx.table("users").get("clerkId", clerkId).doc()),
-		Effect.catchTag("ConvexDocNotFoundError", () => Effect.fail(new UserNotFoundError())),
+		queryDoc(
+			async (ctx) => await ctx.table("users").get("clerkId", clerkId).doc(),
+		),
+		Effect.catchTag("ConvexDocNotFoundError", () =>
+			Effect.fail(new UserNotFoundError()),
+		),
 	)
 }
 

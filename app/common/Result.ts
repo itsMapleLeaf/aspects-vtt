@@ -47,19 +47,28 @@ export class Result<T> implements PromiseLike<ResultData<T>> {
 
 	async resolveJson(): Promise<ResultJson<T>> {
 		const result = await this.resolve()
-		return result.ok
-			? { ok: true, value: result.value, error: null }
-			: {
+		return result.ok ?
+				{ ok: true, value: result.value, error: null }
+			:	{
 					ok: false,
 					value: null,
-					error: result.error instanceof Error ? result.error.message : String(result.error),
+					error:
+						result.error instanceof Error ?
+							result.error.message
+						:	String(result.error),
 				}
 	}
 
 	// biome-ignore lint/suspicious/noThenProperty: intentionally implementing PromiseLike
 	then<TResult1 = ResultData<T>, TResult2 = never>(
-		onfulfilled?: ((value: ResultData<T>) => TResult1 | PromiseLike<TResult1>) | null | undefined,
-		onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null | undefined,
+		onfulfilled?:
+			| ((value: ResultData<T>) => TResult1 | PromiseLike<TResult1>)
+			| null
+			| undefined,
+		onrejected?:
+			| ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
+			| null
+			| undefined,
 	): PromiseLike<TResult1 | TResult2> {
 		return this.resolve().then(onfulfilled, onrejected)
 	}

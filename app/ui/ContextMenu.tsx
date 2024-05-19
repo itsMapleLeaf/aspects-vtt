@@ -1,6 +1,16 @@
 import * as Ariakit from "@ariakit/react"
-import { type ComponentProps, createContext, use, useEffect, useRef, useState } from "react"
-import { createNonEmptyContext, useNonEmptyContext } from "../common/context.tsx"
+import {
+	type ComponentProps,
+	createContext,
+	use,
+	useEffect,
+	useRef,
+	useState,
+} from "react"
+import {
+	createNonEmptyContext,
+	useNonEmptyContext,
+} from "../common/context.tsx"
 import { Vector } from "../common/vector.ts"
 import { Menu, MenuItem, MenuPanel } from "./Menu.tsx"
 

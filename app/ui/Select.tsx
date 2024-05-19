@@ -41,14 +41,21 @@ export function Select<T>(props: {
 					icon={<Lucide.ChevronDown />}
 					text={
 						currentOption?.label ?? (
-							<span className="opacity-50">{props.placeholder ?? "Choose one"}</span>
+							<span className="opacity-50">
+								{props.placeholder ?? "Choose one"}
+							</span>
 						)
 					}
 					element={<Ariakit.Select />}
 					className="w-full flex-row-reverse justify-between"
 				/>
 			</FormField>
-			<Ariakit.SelectPopover portal gutter={8} sameWidth className={menuPanelStyle()}>
+			<Ariakit.SelectPopover
+				portal
+				gutter={8}
+				sameWidth
+				className={menuPanelStyle()}
+			>
 				{props.options.map((option) => (
 					<Ariakit.SelectItem
 						key={getOptionId(option)}

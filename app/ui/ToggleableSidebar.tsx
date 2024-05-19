@@ -19,7 +19,11 @@ export function ToggleableSidebar({
 	side: "left" | "right"
 	children: React.ReactNode
 }) {
-	const [open, setOpen] = useLocalStorageState(`sidebar:${name}`, true, z.boolean().catch(true))
+	const [open, setOpen] = useLocalStorageState(
+		`sidebar:${name}`,
+		true,
+		z.boolean().catch(true),
+	)
 	const store = useDisclosureStore({ open, setOpen })
 	const isOpen = store.useState("open")
 	const Icon = isOpen ? Lucide.SidebarClose : Lucide.SidebarOpen
@@ -33,11 +37,13 @@ export function ToggleableSidebar({
 				<Button
 					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
 					className="shadow-md shadow-black/25"
-					element={<Disclosure title={isOpen ? `Hide ${name}` : `Show ${name}`} />}
+					element={
+						<Disclosure title={isOpen ? `Hide ${name}` : `Show ${name}`} />
+					}
 				/>
 				<DisclosureContent
 					className={twMerge(
-						"h-full opacity-0 data-[enter]:opacity-100 transition data-[enter]:translate-x-0",
+						"h-full opacity-0 transition data-[enter]:translate-x-0 data-[enter]:opacity-100",
 						side === "right" ? "translate-x-4" : "-translate-x-4",
 					)}
 				>

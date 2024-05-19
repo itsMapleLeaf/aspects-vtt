@@ -4,7 +4,7 @@ import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
 import { theme } from "./app/theme.ts"
 
-/** @satisfies {import('tailwindcss').Config} */
+/** @satisfies {import("tailwindcss").Config} */
 export default {
 	content: ["app/**/*.{ts,tsx}"],
 	theme: {

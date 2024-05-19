@@ -6,7 +6,9 @@ export function useCharacterAbilities(character: ApiCharacter) {
 	const notionData = useQuery(api.notionImports.functions.get, {})
 	const race = notionData?.races.find((r) => r.name === character.race)
 
-	const aspectSkillsByName = new Map(notionData?.aspectSkills.map((skill) => [skill.name, skill]))
+	const aspectSkillsByName = new Map(
+		notionData?.aspectSkills.map((skill) => [skill.name, skill]),
+	)
 	const aspectSkills = character.aspectSkills
 		.map((name) => aspectSkillsByName.get(name))
 		.filter(Boolean)

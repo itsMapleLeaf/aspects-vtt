@@ -1,7 +1,11 @@
-import { type PaginatedQueryItem, useMutation, usePaginatedQuery } from "convex/react"
+import {
+	type PaginatedQueryItem,
+	useMutation,
+	usePaginatedQuery,
+} from "convex/react"
 import { formatDistanceToNow } from "date-fns"
-import { HelpCircle } from "lucide-react"
 import * as Lucide from "lucide-react"
+import { HelpCircle } from "lucide-react"
 import { Fragment, useDeferredValue, useEffect, useMemo, useRef } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
@@ -12,7 +16,12 @@ import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
-import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
+import {
+	type DiceStat,
+	diceKinds,
+	diceKindsByName,
+	diceStats,
+} from "../dice/diceKinds.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
 export function MessageList() {
@@ -25,7 +34,10 @@ export function MessageList() {
 		{ initialNumItems: listItemCount },
 	)
 
-	const reversedResults = useMemo(() => list.results.toReversed(), [list.results])
+	const reversedResults = useMemo(
+		() => list.results.toReversed(),
+		[list.results],
+	)
 	const deferredResults = useDeferredValue(reversedResults)
 
 	const viewportRef = useRef<HTMLDivElement>(null)
@@ -55,7 +67,9 @@ export function MessageList() {
 	const hasItems = list.results.length > 0
 	useEffect(() => {
 		if (hasItems) {
-			expect(viewportRef.current).scrollTo({ top: expect(listRef.current).scrollHeight })
+			expect(viewportRef.current).scrollTo({
+				top: expect(listRef.current).scrollHeight,
+			})
 		}
 	}, [hasItems])
 
@@ -103,13 +117,16 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 				<div className="text-sm font-medium leading-tight tracking-wide">
 					{message.user?.character && (
 						<p className="text-primary-900">
-							{message.user.character.displayName} ({message.user.character.displayPronouns})
+							{message.user.character.displayName} (
+							{message.user.character.displayPronouns})
 						</p>
 					)}
 					<p className="flex gap-1 text-primary-600">
 						<span>{message.user?.name}</span>
 						<span className="first:hidden">•</span>
-						{formatDistanceToNow(new Date(message._creationTime), { addSuffix: true })}
+						{formatDistanceToNow(new Date(message._creationTime), {
+							addSuffix: true,
+						})}
 					</p>
 				</div>
 			</div>
@@ -117,13 +134,20 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 	)
 }
 
-function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) {
+function MessageMenu(props: {
+	message: ApiMessage
+	children: React.ReactNode
+}) {
 	// const sceneContext = useSceneContext()
 	const updateCharacter = useMutation(api.characters.functions.update)
-	const diceTotal = props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ?? 0
+	const diceTotal =
+		props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ??
+		0
 
 	function updateCharacters(
-		getArgs: (character: ApiCharacter) => Partial<Parameters<typeof updateCharacter>[0]>,
+		getArgs: (
+			character: ApiCharacter,
+		) => Partial<Parameters<typeof updateCharacter>[0]>,
 	) {
 		// for (const character of sceneContext.selectedCharacters()) {
 		// 	updateCharacter({ ...getArgs(character), id: character._id })
@@ -167,7 +191,9 @@ function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) 
 	)
 }
 
-type DiceRoll = NonNullable<PaginatedQueryItem<typeof api.messages.functions.list>["diceRoll"]>
+type DiceRoll = NonNullable<
+	PaginatedQueryItem<typeof api.messages.functions.list>["diceRoll"]
+>
 
 function DiceRollSummary({ roll }: { roll: DiceRoll }) {
 	const diceResultsByKindName = new Map<string, DiceRoll["dice"]>()
@@ -180,7 +206,8 @@ function DiceRollSummary({ roll }: { roll: DiceRoll }) {
 	const statValues = new Map<DiceStat, number>()
 	for (const die of roll.dice) {
 		const kind = diceKindsByName.get(die.name)
-		for (const [stat, value] of kind?.faces[die.result - 1]?.modifyStats ?? []) {
+		for (const [stat, value] of kind?.faces[die.result - 1]?.modifyStats ??
+			[]) {
 			statValues.set(stat, (statValues.get(stat) ?? 0) + value)
 		}
 	}
@@ -190,7 +217,10 @@ function DiceRollSummary({ roll }: { roll: DiceRoll }) {
 			<dl className="flex gap-1.5">
 				{diceStats
 					.filter((stat) => statValues.has(stat))
-					.map((stat) => ({ stat, value: Math.max(stat.min ?? 0, statValues.get(stat) ?? 0) }))
+					.map((stat) => ({
+						stat,
+						value: Math.max(stat.min ?? 0, statValues.get(stat) ?? 0),
+					}))
 					.filter(({ value }) => value > 0)
 					.map(({ stat, value }, index) => (
 						<Fragment key={stat.name}>
@@ -223,31 +253,39 @@ function DiceRollIcon({ die }: { die: DiceRoll["dice"][number] }) {
 	const kind = diceKindsByName.get(die.name)
 	return (
 		<div className="*:size-12">
-			{kind == null ? (
-				<Tooltip text={`Unknown dice type "${die.name}"`} className="flex-center-col">
+			{kind == null ?
+				<Tooltip
+					text={`Unknown dice type "${die.name}"`}
+					className="flex-center-col"
+				>
 					<HelpCircle />
 				</Tooltip>
-			) : (
-				kind.faces[die.result - 1]?.element ?? (
-					<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
+			:	kind.faces[die.result - 1]?.element ?? (
+					<Tooltip
+						text={`Unknown face "${die.result}" on ${die.name}`}
+						className="flex-center-col"
+					>
 						<HelpCircle />
 					</Tooltip>
 				)
-			)}
+			}
 		</div>
 	)
 }
 
 function MessageContent({ content }: { content: string }) {
-	return chunk(content.split(/(<@[\da-z]+>)/gi), 2).map(([text, mention], index) => {
-		const characterId = mention ? mention.slice(2, mention.length - 1) : undefined
-		return (
-			<Fragment key={index}>
-				<span>{text}</span>
-				{characterId && <Mention characterId={characterId} />}
-			</Fragment>
-		)
-	})
+	return chunk(content.split(/(<@[\da-z]+>)/gi), 2).map(
+		([text, mention], index) => {
+			const characterId =
+				mention ? mention.slice(2, mention.length - 1) : undefined
+			return (
+				<Fragment key={index}>
+					<span>{text}</span>
+					{characterId && <Mention characterId={characterId} />}
+				</Fragment>
+			)
+		},
+	)
 }
 
 function Mention({ characterId }: { characterId: string }) {

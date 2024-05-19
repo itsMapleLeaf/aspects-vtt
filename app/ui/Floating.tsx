@@ -16,15 +16,26 @@ export const defaultFloatingOptions = {
 	whileElementsMounted: FloatingUI.autoUpdate,
 } satisfies FloatingUI.UseFloatingOptions
 
-const FloatingContext = React.createContext<FloatingUI.UseFloatingReturn | null>(null)
+const FloatingContext =
+	React.createContext<FloatingUI.UseFloatingReturn | null>(null)
 
 export interface FloatingProviderProps extends FloatingUI.UseFloatingOptions {
 	children: React.ReactNode
 }
 
-export function FloatingProvider({ children, ...options }: FloatingProviderProps) {
-	const floating = FloatingUI.useFloating({ ...defaultFloatingOptions, ...options })
-	return <FloatingContext.Provider value={floating}>{children}</FloatingContext.Provider>
+export function FloatingProvider({
+	children,
+	...options
+}: FloatingProviderProps) {
+	const floating = FloatingUI.useFloating({
+		...defaultFloatingOptions,
+		...options,
+	})
+	return (
+		<FloatingContext.Provider value={floating}>
+			{children}
+		</FloatingContext.Provider>
+	)
 }
 
 export function FloatingReference({
@@ -36,7 +47,9 @@ export function FloatingReference({
 }) {
 	const floating = React.useContext(FloatingContext)
 	if (!floating) {
-		throw new Error(`${FloatingReference.name} must be a child of ${FloatingProvider.name}`)
+		throw new Error(
+			`${FloatingReference.name} must be a child of ${FloatingProvider.name}`,
+		)
 	}
 	return renderElementProp(children, { ref: floating.refs.setReference })
 }
@@ -46,7 +59,9 @@ export interface FloatingProps extends React.ComponentPropsWithoutRef<"div"> {}
 export function Floating(props: FloatingProps) {
 	const floating = React.useContext(FloatingContext)
 	if (!floating) {
-		throw new Error(`${Floating.name} must be a child of ${FloatingProvider.name}`)
+		throw new Error(
+			`${Floating.name} must be a child of ${FloatingProvider.name}`,
+		)
 	}
 	return createPortal(
 		<div

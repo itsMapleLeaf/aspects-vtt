@@ -6,7 +6,9 @@ import type { Id } from "../../../convex/_generated/dataModel.js"
 import { empty, useNonEmptyContext } from "../../common/context.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 
-export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.functions.get>>
+export type ApiRoom = NonNullable<
+	FunctionReturnType<typeof api.rooms.functions.get>
+>
 
 const RoomContext = createContext<ApiRoom | typeof empty>(empty)
 const CharacterContext = createContext<ApiCharacter[] | typeof empty>(empty)
@@ -18,10 +20,14 @@ export function RoomProvider({
 	room: ApiRoom
 	children: React.ReactNode
 }) {
-	const characters = useQuery(api.characters.functions.list, { roomId: room._id })
+	const characters = useQuery(api.characters.functions.list, {
+		roomId: room._id,
+	})
 	return (
 		<RoomContext.Provider value={room}>
-			<CharacterContext.Provider value={characters ?? []}>{children}</CharacterContext.Provider>
+			<CharacterContext.Provider value={characters ?? []}>
+				{children}
+			</CharacterContext.Provider>
 		</RoomContext.Provider>
 	)
 }

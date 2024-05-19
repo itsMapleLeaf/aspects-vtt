@@ -1,4 +1,10 @@
-export type JsonValue = number | string | boolean | null | JsonValue[] | JsonObject
+export type JsonValue =
+	| number
+	| string
+	| boolean
+	| null
+	| JsonValue[]
+	| JsonObject
 
 export type JsonObject = {
 	[key: string]: JsonValue | undefined

@@ -17,7 +17,9 @@ export function CharacterExperienceDisplay({
 	const room = useRoom()
 	const notionData = useQuery(api.notionImports.functions.get, {})
 
-	const aspectSkillsByName = new Map(notionData?.aspectSkills.map((skill) => [skill.name, skill]))
+	const aspectSkillsByName = new Map(
+		notionData?.aspectSkills.map((skill) => [skill.name, skill]),
+	)
 
 	const addedAspectSkills = new Set(
 		character.aspectSkills.filter((skill) => aspectSkillsByName.has(skill)),

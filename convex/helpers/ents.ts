@@ -1,7 +1,16 @@
-import type { GenericEnt, GenericEntWriter, PromiseTable, PromiseTableWriter } from "convex-ents"
+import type {
+	GenericEnt,
+	GenericEntWriter,
+	PromiseTable,
+	PromiseTableWriter,
+} from "convex-ents"
 import { entsTableFactory } from "convex-ents"
 import type { CustomCtx } from "convex-helpers/server/customFunctions"
-import { customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions"
+import {
+	customCtx,
+	customMutation,
+	customQuery,
+} from "convex-helpers/server/customFunctions"
 import type { TableNames } from "../_generated/dataModel.js"
 import * as server from "../_generated/server.js"
 import { entDefinitions } from "../schema.ts"
@@ -9,13 +18,19 @@ import { entDefinitions } from "../schema.ts"
 export type QueryCtx = CustomCtx<typeof query>
 export type MutationCtx = CustomCtx<typeof mutation>
 
-export type Ent<TableName extends TableNames> = GenericEnt<typeof entDefinitions, TableName>
+export type Ent<TableName extends TableNames> = GenericEnt<
+	typeof entDefinitions,
+	TableName
+>
 export type EntWriter<TableName extends TableNames> = GenericEntWriter<
 	typeof entDefinitions,
 	TableName
 >
 
-export type EntTable<TableName extends TableNames> = PromiseTable<typeof entDefinitions, TableName>
+export type EntTable<TableName extends TableNames> = PromiseTable<
+	typeof entDefinitions,
+	TableName
+>
 export type EntTableWriter<TableName extends TableNames> = PromiseTableWriter<
 	TableName,
 	typeof entDefinitions

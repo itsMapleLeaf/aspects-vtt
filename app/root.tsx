@@ -7,7 +7,13 @@ import "./root.css"
 import { ClerkApp, useAuth } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
+import {
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+} from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
 import { clerkConfig } from "./clerk.ts"
@@ -20,7 +26,10 @@ export const loader = (args: LoaderFunctionArgs) => rootAuthLoader(args)
 
 export const meta: MetaFunction = () => [
 	{ title: "Aspects VTT" },
-	{ name: "description", content: "A virtual tabletop for the Aspects of Nature tabletop RPG" },
+	{
+		name: "description",
+		content: "A virtual tabletop for the Aspects of Nature tabletop RPG",
+	},
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {

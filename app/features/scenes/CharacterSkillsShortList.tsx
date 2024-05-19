@@ -3,7 +3,11 @@ import { panel, translucentPanel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacterAbilities } from "../characters/useCharacterAbilities.ts"
 
-export function CharacterSkillsShortList({ character }: { character: ApiCharacter }) {
+export function CharacterSkillsShortList({
+	character,
+}: {
+	character: ApiCharacter
+}) {
 	const skills = useCharacterAbilities(character)
 	return (
 		<ul className="flex flex-wrap gap-2">
@@ -12,14 +16,14 @@ export function CharacterSkillsShortList({ character }: { character: ApiCharacte
 					<TooltipAnchor
 						render={<li />}
 						className={panel(
-							"leading-none font-light bg-primary-200/50 hover:bg-primary-200 cursor-default transition p-2",
+							"cursor-default bg-primary-200/50 p-2 font-light leading-none transition hover:bg-primary-200",
 						)}
 					>
 						{skill.name}
 					</TooltipAnchor>
 					<Tooltip
 						className={translucentPanel(
-							"p-2 max-w-xs opacity-0 translate-y-1 transition data-[enter]:opacity-100 data-[enter]:translate-y-0 shadow-md shadow-black/50 whitespace-pre-line pointer-events-none",
+							"pointer-events-none max-w-xs translate-y-1 whitespace-pre-line p-2 opacity-0 shadow-md shadow-black/50 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 						)}
 						wrapperProps={{
 							className: "pointer-events-none",
@@ -33,7 +37,9 @@ export function CharacterSkillsShortList({ character }: { character: ApiCharacte
 					</Tooltip>
 				</TooltipProvider>
 			))}
-			{skills.length === 0 && <p className="italic opacity-75">This character has no skills.</p>}
+			{skills.length === 0 && (
+				<p className="italic opacity-75">This character has no skills.</p>
+			)}
 		</ul>
 	)
 }

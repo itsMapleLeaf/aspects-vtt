@@ -12,21 +12,27 @@ import type { StrictOmit } from "../../common/types.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button, type ButtonPropsAsElement } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
-import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../../ui/Modal.tsx"
+import {
+	ModalButton,
+	ModalPanel,
+	ModalPanelContent,
+	ModalProvider,
+} from "../../ui/Modal.tsx"
 import { panel } from "../../ui/styles.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterExperienceDisplay } from "./CharacterExperienceDisplay.tsx"
 
-type ApiCharacter = FunctionReturnType<typeof api.characters.functions.list>[number]
+type ApiCharacter = FunctionReturnType<
+	typeof api.characters.functions.list
+>[number]
 type ApiAspectSkill = Doc<"notionImports">["aspectSkills"][number]
 
 export function AspectSkillsSelectorButton({
 	character,
 	...props
-}: { character: FunctionReturnType<typeof api.characters.functions.list>[number] } & StrictOmit<
-	ButtonPropsAsElement,
-	"element"
->) {
+}: {
+	character: FunctionReturnType<typeof api.characters.functions.list>[number]
+} & StrictOmit<ButtonPropsAsElement, "element">) {
 	return (
 		<ModalProvider>
 			<Button {...props} element={<ModalButton />} />
@@ -39,11 +45,7 @@ export function AspectSkillsSelectorButton({
 	)
 }
 
-function SelectorForm({
-	character,
-}: {
-	character: ApiCharacter
-}) {
+function SelectorForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
 	const notionData = useQuery(api.notionImports.functions.get, {})
 
@@ -73,11 +75,12 @@ function SelectorForm({
 	const availableExperience = room.experience - usedExperience
 
 	const isPurchaseable = (skill: ApiAspectSkill, index: number) =>
-		index <= 1
-			? // biome-ignore lint/style/noNonNullAssertion: <explanation>
-				skill.aspects.length === 1 && skill.aspects.includes(character.coreAspect!)
-			: getCost(skill, index) <= availableExperience &&
-				skill.aspects.some((aspect) => aspects.has(aspect))
+		index <= 1 ?
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
+			skill.aspects.length === 1 &&
+			skill.aspects.includes(character.coreAspect!)
+		:	getCost(skill, index) <= availableExperience &&
+			skill.aspects.some((aspect) => aspects.has(aspect))
 
 	const [search, setSearch] = useState("")
 	const searchResults = matchSorter(
@@ -111,31 +114,37 @@ function SelectorForm({
 				}
 			/>
 			<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
-				{groups.get("learned")?.map((skill, index) => (
-					<AspectSkillItem
-						key={skill.name}
-						skill={skill}
-						character={character}
-						cost={getCost(skill, index)}
-					/>
-				))}
-				{groups.get("available")?.map((skill) => (
-					<AspectSkillItem
-						key={skill.name}
-						skill={skill}
-						character={character}
-						cost={getCost(skill, addedAspectSkills.size)}
-					/>
-				))}
-				{groups.get("unavailable")?.map((skill) => (
-					<AspectSkillItem
-						key={skill.name}
-						skill={skill}
-						character={character}
-						cost={getCost(skill, addedAspectSkills.size)}
-						disabled={!room.isOwner}
-					/>
-				))}
+				{groups
+					.get("learned")
+					?.map((skill, index) => (
+						<AspectSkillItem
+							key={skill.name}
+							skill={skill}
+							character={character}
+							cost={getCost(skill, index)}
+						/>
+					))}
+				{groups
+					.get("available")
+					?.map((skill) => (
+						<AspectSkillItem
+							key={skill.name}
+							skill={skill}
+							character={character}
+							cost={getCost(skill, addedAspectSkills.size)}
+						/>
+					))}
+				{groups
+					.get("unavailable")
+					?.map((skill) => (
+						<AspectSkillItem
+							key={skill.name}
+							skill={skill}
+							character={character}
+							cost={getCost(skill, addedAspectSkills.size)}
+							disabled={!room.isOwner}
+						/>
+					))}
 			</div>
 		</>
 	)
@@ -152,7 +161,9 @@ function AspectSkillItem({
 	cost?: number
 	disabled?: boolean
 }) {
-	const [updateState, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [updateState, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 	const isAdded = character.aspectSkills.includes(skill.name)
 	return (
 		<button
@@ -172,18 +183,27 @@ function AspectSkillItem({
 			<div className="flex-1">
 				<h3 className="mb-1 text-xl font-light">{skill.name}</h3>
 				{cost !== undefined && (
-					<p className="mb-1.5 text-sm/none font-bold uppercase tracking-wide">{cost} EXP</p>
+					<p className="mb-1.5 text-sm/none font-bold uppercase tracking-wide">
+						{cost} EXP
+					</p>
 				)}
-				<p className="mb-1.5 whitespace-pre-line text-pretty">{skill.description}</p>
+				<p className="mb-1.5 whitespace-pre-line text-pretty">
+					{skill.description}
+				</p>
 				<ul className="flex flex-wrap gap-1">
 					{skill.aspects.map((aspect) => (
-						<li key={aspect} className={panel("bg-primary-100/50 px-2 py-1.5 text-sm/none")}>
+						<li
+							key={aspect}
+							className={panel("bg-primary-100/50 px-2 py-1.5 text-sm/none")}
+						>
 							{aspect}
 						</li>
 					))}
 				</ul>
 			</div>
-			{isAdded ? <Lucide.Minus /> : <Lucide.Plus />}
+			{isAdded ?
+				<Lucide.Minus />
+			:	<Lucide.Plus />}
 		</button>
 	)
 }

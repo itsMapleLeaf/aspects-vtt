@@ -24,10 +24,9 @@ export function AppHeader({
 			</div>
 			{center}
 			<div className="flex flex-1 justify-end gap-2">
-				{end !== undefined ? (
+				{end !== undefined ?
 					end
-				) : (
-					<>
+				:	<>
 						<SignedIn>
 							<UserButton afterSignOutUrl={currentUrl} />
 						</SignedIn>
@@ -37,7 +36,7 @@ export function AppHeader({
 							</SignInButton>
 						</SignedOut>
 					</>
-				)}
+				}
 			</div>
 		</header>
 	)

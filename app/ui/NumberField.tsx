@@ -19,7 +19,10 @@ export function NumberField(props: {
 		const input = expect(inputRef.current, "input ref not set")
 
 		const handleWheel = (event: WheelEvent) => {
-			if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
+			if (
+				document.activeElement === event.currentTarget &&
+				event.deltaY !== 0
+			) {
 				event.preventDefault()
 				event.stopPropagation()
 				setValue(props.value - Math.sign(event.deltaY))

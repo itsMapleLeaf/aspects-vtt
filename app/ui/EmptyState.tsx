@@ -37,12 +37,19 @@ export function EmptyState({
 	className?: string
 }) {
 	return (
-		<section className={twMerge("flex-center-col mx-auto w-full max-w-screen-sm gap-4", className)}>
+		<section
+			className={twMerge(
+				"flex-center-col mx-auto w-full max-w-screen-sm gap-4",
+				className,
+			)}
+		>
 			<div aria-hidden className="text-primary-500 opacity-60 *:size-16">
 				{icon}
 			</div>
 			<p className="text-xl font-light">{message}</p>
-			<div className="flex-center-row flex-wrap gap-2 empty:hidden">{actions}</div>
+			<div className="flex-center-row flex-wrap gap-2 empty:hidden">
+				{actions}
+			</div>
 			{children}
 		</section>
 	)

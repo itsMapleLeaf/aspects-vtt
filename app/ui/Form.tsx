@@ -1,4 +1,11 @@
-import { type ReactNode, createContext, isValidElement, use, useId, useMemo } from "react"
+import {
+	type ReactNode,
+	createContext,
+	isValidElement,
+	use,
+	useId,
+	useMemo,
+} from "react"
 import { twMerge } from "tailwind-merge"
 import { useConsumer, useConsumerProvider } from "./ConsumerContext.tsx"
 import { twc } from "./twc.ts"
@@ -33,9 +40,17 @@ export function FormField({
 	return (
 		<div className={twMerge("flex flex-col", className)}>
 			<div className="select-none font-bold leading-6">
-				{isValidElement(label) ? label : inputId ? <label htmlFor={inputId}>{label}</label> : label}
+				{isValidElement(label) ?
+					label
+				: inputId ?
+					<label htmlFor={inputId}>{label}</label>
+				:	label}
 			</div>
-			{description && <div className="text-sm/6 font-bold text-primary-700">{description}</div>}
+			{description && (
+				<div className="text-sm/6 font-bold text-primary-700">
+					{description}
+				</div>
+			)}
 			<FieldContext value={fieldContext}>
 				<consumers.Provider>{children}</consumers.Provider>
 			</FieldContext>

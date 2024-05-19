@@ -2,16 +2,17 @@
  * Utilities for customizing the class names of components with many elements.
  *
  * @example
- * function Button({children,...props}: ClassSlotProps<'wrapper' | 'button', ComponentProps<'div'>>) {
- *   const classes = resolveClasses(className, 'wrapper')
- *   return (
- *     <div {...props} className={classes.wrapper}>
- *       <button className={classes.button}>
- *         {children}
- *       </button>
- *     </div>
- *   )
- * }
+ * 	function Button({
+ * 		children,
+ * 		...props
+ * 	}: ClassSlotProps<"wrapper" | "button", ComponentProps<"div">>) {
+ * 		const classes = resolveClasses(className, "wrapper")
+ * 		return (
+ * 			<div {...props} className={classes.wrapper}>
+ * 				<button className={classes.button}>{children}</button>
+ * 			</div>
+ * 		)
+ * 	}
  */
 import type { Nullish, Overwrite } from "../common/types.ts"
 

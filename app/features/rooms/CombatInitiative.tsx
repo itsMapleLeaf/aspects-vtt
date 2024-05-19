@@ -15,7 +15,12 @@ import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
-import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
+import {
+	RoomOwnerOnly,
+	useCharacter,
+	useCharacters,
+	useRoom,
+} from "./roomContext.tsx"
 
 export function CombatInitiative() {
 	const { combat, ...room } = useRoom()
@@ -29,21 +34,31 @@ export function CombatInitiative() {
 		roomId: room._id,
 	}) ?? {}
 
-	const moveMember = useMutation(api.rooms.combat.functions.moveMember).withOptimisticUpdate(
-		(store, args) => {
-			for (const entry of queryMutators(store, api.rooms.combat.functions.getCombatMembers)) {
-				entry.set({
-					...entry.value,
-					members: withMovedItem(entry.value.members, args.fromIndex, args.toIndex),
-				})
-			}
-		},
-	)
+	const moveMember = useMutation(
+		api.rooms.combat.functions.moveMember,
+	).withOptimisticUpdate((store, args) => {
+		for (const entry of queryMutators(
+			store,
+			api.rooms.combat.functions.getCombatMembers,
+		)) {
+			entry.set({
+				...entry.value,
+				members: withMovedItem(
+					entry.value.members,
+					args.fromIndex,
+					args.toIndex,
+				),
+			})
+		}
+	})
 
 	const setCurrentMember = useMutation(
 		api.rooms.combat.functions.setCurrentMember,
 	).withOptimisticUpdate((store, args) => {
-		for (const entry of queryMutators(store, api.rooms.combat.functions.getCombatMembers)) {
+		for (const entry of queryMutators(
+			store,
+			api.rooms.combat.functions.getCombatMembers,
+		)) {
 			entry.set({
 				...entry.value,
 				currentMemberId: args.characterId,
@@ -66,13 +81,16 @@ export function CombatInitiative() {
 	}
 
 	const attributes = useAttributes()
-	const initiativeAttribute = attributes.find((it) => it.id === combat?.initiativeAttribute)
+	const initiativeAttribute = attributes.find(
+		(it) => it.id === combat?.initiativeAttribute,
+	)
 
 	if (combat == null) {
 		return <CombatEmptyState />
 	}
 
-	const isRoundStart = combat.currentRoundNumber === 1 && currentMemberIndex === 0
+	const isRoundStart =
+		combat.currentRoundNumber === 1 && currentMemberIndex === 0
 	const combatMemberIds = new Set(members?.map((it) => it.characterId))
 
 	return (
@@ -97,10 +115,17 @@ export function CombatInitiative() {
 							isCurrent={member.characterId === currentMemberId}
 							index={index}
 							onDrop={(fromIndex) =>
-								moveMember({ id: room._id, fromIndex: fromIndex, toIndex: index })
+								moveMember({
+									id: room._id,
+									fromIndex,
+									toIndex: index,
+								})
 							}
 							onSetCurrentMember={(characterId) =>
-								setCurrentMember({ id: room._id, characterId: member.characterId })
+								setCurrentMember({
+									id: room._id,
+									characterId: member.characterId,
+								})
 							}
 						/>
 					</li>
@@ -129,17 +154,29 @@ export function CombatInitiative() {
 				<div className="grid auto-cols-fr grid-flow-col gap-3">
 					{characters && (
 						<Menu placement="bottom">
-							<Button icon={<Lucide.Plus />} text="Add Member" element={<MenuButton />} />
+							<Button
+								icon={<Lucide.Plus />}
+								text="Add Member"
+								element={<MenuButton />}
+							/>
 							<MenuPanel>
 								{characters
 									.filter((character) => !combatMemberIds.has(character._id))
 									.map((character) => (
 										<MenuItem
 											key={character._id}
-											icon={<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />}
+											icon={
+												<UploadedImage
+													id={character.imageId}
+													emptyIcon={<Lucide.Ghost />}
+												/>
+											}
 											text={character.name}
 											onClick={() =>
-												actions.addMember({ id: room._id, characterId: character._id })
+												actions.addMember({
+													id: room._id,
+													characterId: character._id,
+												})
 											}
 										/>
 									))}
@@ -216,7 +253,9 @@ export function CombatMemberItem(props: {
 		<div
 			className={className}
 			draggable
-			onDragStart={(e) => e.dataTransfer.setData("text/plain", `${props.index}`)}
+			onDragStart={(e) =>
+				e.dataTransfer.setData("text/plain", `${props.index}`)
+			}
 			onDragEnd={(e) => e.preventDefault()}
 			onDragOver={(e) => e.preventDefault()}
 			onDrop={(e) => {
@@ -233,7 +272,9 @@ export function CombatMemberItem(props: {
 			<button
 				type="button"
 				className="p-2 opacity-50 transition-opacity hover:opacity-100"
-				onClick={() => removeMember({ id: room._id, characterId: props.characterId })}
+				onClick={() =>
+					removeMember({ id: room._id, characterId: props.characterId })
+				}
 			>
 				<Lucide.X />
 			</button>
@@ -248,12 +289,17 @@ function CombatEmptyState() {
 
 	const form = useForm({
 		defaultValues: {
-			initiativeAttribute: attributes.find((it) => it.name.toLowerCase() === "mobility")?.id,
+			initiativeAttribute: attributes.find(
+				(it) => it.name.toLowerCase() === "mobility",
+			)?.id,
 		},
 	})
 
 	return (
-		<EmptyState icon={<Lucide.ListStart />} message="Combat is currently inactive.">
+		<EmptyState
+			icon={<Lucide.ListStart />}
+			message="Combat is currently inactive."
+		>
 			<RoomOwnerOnly>
 				<FormLayout className="w-full p-0">
 					<Select
@@ -286,9 +332,7 @@ function useAttributes() {
 	return notionImports?.attributes ?? []
 }
 
-function useForm<Values>(options: {
-	defaultValues: Partial<Values>
-}) {
+function useForm<Values>(options: { defaultValues: Partial<Values> }) {
 	const [values, setValues] = useState<Partial<Values>>({})
 
 	const resolvedValues = {
@@ -304,9 +348,13 @@ function useForm<Values>(options: {
 				onChange(eventOrValue: Values[F] | { target: { value: Values[F] } }) {
 					setValues((values) => {
 						const value =
-							typeof eventOrValue === "object" && eventOrValue !== null && "target" in eventOrValue
-								? eventOrValue.target.value
-								: eventOrValue
+							(
+								typeof eventOrValue === "object" &&
+								eventOrValue !== null &&
+								"target" in eventOrValue
+							) ?
+								eventOrValue.target.value
+							:	eventOrValue
 						return { ...values, [field]: value }
 					})
 				},

@@ -1,7 +1,9 @@
 import { type Infer, v } from "convex/values"
 
 export const diceRollValidator = v.object({
-	dice: v.array(v.object({ key: v.string(), name: v.string(), result: v.number() })),
+	dice: v.array(
+		v.object({ key: v.string(), name: v.string(), result: v.number() }),
+	),
 })
 export const diceInputValidator = v.object({
 	name: v.string(),

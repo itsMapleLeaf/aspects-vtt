@@ -3,7 +3,10 @@ import { useEffectEvent } from "./react.ts"
 
 export function createStore<State, Actions, ContextValue>(options: {
 	state: State
-	actions: (setState: React.Dispatch<React.SetStateAction<State>>, getState: () => State) => Actions
+	actions: (
+		setState: React.Dispatch<React.SetStateAction<State>>,
+		getState: () => State,
+	) => Actions
 	context: (state: State) => ContextValue
 }) {
 	const StateContext = React.createContext(options.context(options.state))
@@ -26,7 +29,9 @@ export function createStore<State, Actions, ContextValue>(options: {
 
 		return (
 			<StateContext.Provider value={options.context(state)}>
-				<ActionsContext.Provider value={actions}>{children}</ActionsContext.Provider>
+				<ActionsContext.Provider value={actions}>
+					{children}
+				</ActionsContext.Provider>
 			</StateContext.Provider>
 		)
 	}
@@ -46,8 +51,8 @@ export function createStore<State, Actions, ContextValue>(options: {
 	}
 }
 
-export type StoreState<S> = S extends { useState(): unknown } ? ReturnType<S["useState"]> : never
+export type StoreState<S> =
+	S extends { useState(): unknown } ? ReturnType<S["useState"]> : never
 
-export type StoreActions<S> = S extends { useActions(): unknown }
-	? ReturnType<S["useActions"]>
-	: never
+export type StoreActions<S> =
+	S extends { useActions(): unknown } ? ReturnType<S["useActions"]> : never

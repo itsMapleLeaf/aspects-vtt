@@ -21,13 +21,17 @@ export function UploadedImage({
 	...props
 }: UploadedImageProps) {
 	const imageUrl = id ? getApiImageUrl(id) : undefined
-	const resolvedClassName = typeof className === "string" ? { container: className } : className
+	const resolvedClassName =
+		typeof className === "string" ? { container: className } : className
 	return (
 		<div
 			{...props}
-			className={twMerge("flex items-center justify-center", resolvedClassName?.container)}
+			className={twMerge(
+				"flex items-center justify-center",
+				resolvedClassName?.container,
+			)}
 		>
-			{imageUrl ? (
+			{imageUrl ?
 				<img
 					src={imageUrl}
 					alt=""
@@ -38,11 +42,10 @@ export function UploadedImage({
 					)}
 					draggable={false}
 				/>
-			) : (
-				<div className="flex-center size-full text-primary-600 opacity-50 *:size-3/4 empty:hidden">
+			:	<div className="flex-center size-full text-primary-600 opacity-50 *:size-3/4 empty:hidden">
 					{emptyIcon}
 				</div>
-			)}
+			}
 		</div>
 	)
 }

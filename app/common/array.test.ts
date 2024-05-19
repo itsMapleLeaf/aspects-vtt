@@ -27,14 +27,22 @@ describe("withMovedItem", () => {
 		expect(() => withMovedItem([1, 2, 3], Number.POSITIVE_INFINITY, 0)).toThrow(
 			/fromIndex must be an integer/,
 		)
-		expect(() => withMovedItem([1, 2, 3], Number.NaN, 0)).toThrow(/fromIndex must be an integer/)
-		expect(() => withMovedItem([1, 2, 3], 69 / 420, 0)).toThrow(/fromIndex must be an integer/)
+		expect(() => withMovedItem([1, 2, 3], Number.NaN, 0)).toThrow(
+			/fromIndex must be an integer/,
+		)
+		expect(() => withMovedItem([1, 2, 3], 69 / 420, 0)).toThrow(
+			/fromIndex must be an integer/,
+		)
 
 		expect(() => withMovedItem([1, 2, 3], 0, Number.POSITIVE_INFINITY)).toThrow(
 			/toIndex must be an integer/,
 		)
-		expect(() => withMovedItem([1, 2, 3], 0, Number.NaN)).toThrow(/toIndex must be an integer/)
-		expect(() => withMovedItem([1, 2, 3], 0, 69 / 420)).toThrow(/toIndex must be an integer/)
+		expect(() => withMovedItem([1, 2, 3], 0, Number.NaN)).toThrow(
+			/toIndex must be an integer/,
+		)
+		expect(() => withMovedItem([1, 2, 3], 0, 69 / 420)).toThrow(
+			/toIndex must be an integer/,
+		)
 	})
 
 	it("should return the input if fromIndex is the same as toIndex", () => {

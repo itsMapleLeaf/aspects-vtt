@@ -1,7 +1,8 @@
 /**
  * Returns a random integer between min and max (inclusive).
  *
- * When passed a single number, it will return a random integer between 1 and that number (inclusive).
+ * When passed a single number, it will return a random integer between 1 and
+ * that number (inclusive).
  */
 export function randomInt(...args: [min: number, max: number] | [max: number]) {
 	const [min, max] = args.length === 1 ? [1, args[0]] : args
@@ -13,7 +14,9 @@ export function roll(sides: number) {
 }
 
 export function randomItem<const T extends readonly unknown[]>(items: T) {
-	return items[randomInt(items.length) - 1] as T extends readonly [unknown, ...unknown[]]
-		? T[number]
-		: T[number] | undefined
+	return items[randomInt(items.length) - 1] as T extends (
+		readonly [unknown, ...unknown[]]
+	) ?
+		T[number]
+	:	T[number] | undefined
 }

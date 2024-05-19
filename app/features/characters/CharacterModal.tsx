@@ -9,13 +9,15 @@ export function CharacterModal({
 	character,
 	children,
 	...props
-}: { character: ApiCharacter; children: ReactNode } & ComponentProps<typeof ModalProvider>) {
+}: { character: ApiCharacter; children: ReactNode } & ComponentProps<
+	typeof ModalProvider
+>) {
 	return (
 		<ModalProvider {...props}>
 			{children}
 			<ModalPanel title="Character Profile" fullHeight>
 				<div className="flex min-h-0 flex-1 flex-col gap-2 p-2">
-					{character.isOwner ? (
+					{character.isOwner ?
 						<Tabs>
 							<Tabs.List>
 								<Tabs.Tab>Profile</Tabs.Tab>
@@ -28,9 +30,7 @@ export function CharacterModal({
 								<CharacterSkillsViewer character={character} />
 							</Tabs.Panel>
 						</Tabs>
-					) : (
-						<CharacterForm character={character} />
-					)}
+					:	<CharacterForm character={character} />}
 				</div>
 			</ModalPanel>
 		</ModalProvider>

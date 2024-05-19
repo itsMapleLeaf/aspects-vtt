@@ -20,12 +20,16 @@ interface ButtonPropsBase extends ButtonStyleProps {
 	pending?: boolean
 }
 
-export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
+export interface ButtonPropsAsButton
+	extends ComponentPropsWithoutRef<"button">,
+		ButtonPropsBase {
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
 }
 
 export interface ButtonPropsAsElement
-	extends Disallowed<StrictOmit<ComponentPropsWithoutRef<"button">, "className">>,
+	extends Disallowed<
+			StrictOmit<ComponentPropsWithoutRef<"button">, "className">
+		>,
 		ButtonPropsBase {
 	element: ReactElement<{ className?: string; children?: React.ReactNode }>
 	className?: string
@@ -43,7 +47,9 @@ export function Button({
 }: ButtonProps) {
 	const [onClickPending, setOnClickPending] = useState(false)
 	const status = useFormStatus()
-	const pending = pendingProp ?? ((status.pending && props.type === "submit") || onClickPending)
+	const pending =
+		pendingProp ??
+		((status.pending && props.type === "submit") || onClickPending)
 
 	const className = buttonStyle({ size })
 
@@ -53,7 +59,9 @@ export function Button({
 				data-size={size}
 				className="flex-center-row relative -mx-0.5 size-5 *:size-5 empty:hidden data-[size=lg]:size-8 *:data-[size=lg]:size-8"
 			>
-				{pending ? <Loading size="sm" /> : icon}
+				{pending ?
+					<Loading size="sm" />
+				:	icon}
 			</span>
 			<span data-size={size} className="relative empty:hidden">
 				{text}
@@ -62,13 +70,12 @@ export function Button({
 	)
 
 	const element =
-		"element" in props ? (
+		"element" in props ?
 			cloneElement(props.element, {
 				className: twMerge(className, props.className),
-				children: children,
+				children,
 			})
-		) : (
-			<button
+		:	<button
 				type="button"
 				disabled={pending}
 				{...withMergedClassName(props, "cursor-default", className)}
@@ -82,7 +89,6 @@ export function Button({
 			>
 				{children}
 			</button>
-		)
 
 	if (!tooltip) {
 		return element

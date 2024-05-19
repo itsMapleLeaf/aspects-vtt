@@ -30,9 +30,10 @@ export const list = query({
 		}
 
 		const roomId = ctx.db.normalizeId("rooms", args.roomId)
-		const { value: room } = roomId
-			? await RoomModel.fromId(ctx, roomId)
-			: await RoomModel.fromSlug(ctx, args.roomId)
+		const { value: room } =
+			roomId ?
+				await RoomModel.fromId(ctx, roomId)
+			:	await RoomModel.fromSlug(ctx, args.roomId)
 		if (!room) {
 			return []
 		}
@@ -44,14 +45,19 @@ export const list = query({
 		const isRoomOwner = await room.isOwner()
 		if (!isRoomOwner) {
 			query = query.filter((q) =>
-				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.clerkId)),
+				q.or(
+					q.eq(q.field("visible"), true),
+					q.eq(q.field("playerId"), user.clerkId),
+				),
 			)
 		}
 
 		const docs = await query.collect()
 
 		const results = await Promise.all(
-			docs.map((doc) => new CharacterModel(ctx, doc)).map((model) => model.getComputedData()),
+			docs
+				.map((doc) => new CharacterModel(ctx, doc))
+				.map((model) => model.getComputedData()),
 		)
 
 		return results.sort((a, b) => a.name.localeCompare(b.name))
@@ -104,7 +110,9 @@ export const update = mutation({
 				newAspectSkills = [...character.data.aspectSkills, aspectSkills.add]
 			}
 			if ("remove" in aspectSkills) {
-				newAspectSkills = character.data.aspectSkills.filter((name) => name !== aspectSkills.remove)
+				newAspectSkills = character.data.aspectSkills.filter(
+					(name) => name !== aspectSkills.remove,
+				)
 			}
 		}
 
@@ -136,7 +144,9 @@ export const applyStress = mutation({
 	},
 	handler: async (ctx, args) => {
 		const characters = await Promise.all(
-			args.characterIds.map((id) => requireDoc(ctx, id, "characters").getValueOrThrow()),
+			args.characterIds.map((id) =>
+				requireDoc(ctx, id, "characters").getValueOrThrow(),
+			),
 		)
 
 		for (const character of characters) {
@@ -158,17 +168,22 @@ export const applyStress = mutation({
 			const message = await createMessage(ctx, {
 				roomId: args.roomId,
 				dice: args.dice,
-				content: content,
+				content,
 			})
 
-			amount += message.diceRoll?.dice.reduce((total, die) => total + die.result, 0) ?? 0
+			amount +=
+				message.diceRoll?.dice.reduce((total, die) => total + die.result, 0) ??
+				0
 		}
 
 		await Promise.all(
 			characters.map((character) =>
 				update(ctx, {
 					id: character._id,
-					[args.property]: Math.max((character[args.property] ?? 0) + amount * args.delta, 0),
+					[args.property]: Math.max(
+						(character[args.property] ?? 0) + amount * args.delta,
+						0,
+					),
 				}),
 			),
 		)
@@ -183,12 +198,18 @@ export const setSkillActive = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
+			const { character } = yield* ensureViewerCharacterPermissions(
+				args.characterId,
+			)
 
 			const skill = yield* Effect.orElseFail(
-				Effect.fromNullable(CharacterSkillTree.skillsById.get(args.aspectSkillId)),
+				Effect.fromNullable(
+					CharacterSkillTree.skillsById.get(args.aspectSkillId),
+				),
 				() =>
-					new NoSuchElementException(`Couldn't find aspect skill with id "${args.aspectSkillId}"`),
+					new NoSuchElementException(
+						`Couldn't find aspect skill with id "${args.aspectSkillId}"`,
+					),
 			)
 
 			const aspectSkillGroups = new Map(
@@ -218,7 +239,10 @@ export const setSkillActive = effectMutation({
 				.filter((doc) => doc.aspectSkillIds.length > 0)
 
 			yield* withMutationCtx((ctx) =>
-				ctx.table("characters").getX(character._id).patch({ learnedAspectSkills }),
+				ctx
+					.table("characters")
+					.getX(character._id)
+					.patch({ learnedAspectSkills }),
 			)
 		})
 	},
@@ -226,9 +250,14 @@ export const setSkillActive = effectMutation({
 
 async function generateRandomCharacterProperties(ctx: QueryCtx) {
 	const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
-	const [strength, sense, mobility, intellect, wit] = dice.sort(() => Math.random() - 0.5)
+	const [strength, sense, mobility, intellect, wit] = dice.sort(
+		() => Math.random() - 0.5,
+	)
 
-	const notionImports = await ctx.db.query("notionImports").order("desc").first()
+	const notionImports = await ctx.db
+		.query("notionImports")
+		.order("desc")
+		.first()
 	const race = randomItem(notionImports?.races ?? [])?.name
 	const coreAspect = randomItem(notionImports?.aspects ?? [])?.name
 

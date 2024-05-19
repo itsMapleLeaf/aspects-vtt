@@ -14,7 +14,9 @@ interface ModalBaseProps {
 	fullHeight?: boolean
 }
 
-interface ModalAsButtonProps extends ModalBaseProps, StrictOmit<ButtonPropsAsButton, "title"> {}
+interface ModalAsButtonProps
+	extends ModalBaseProps,
+		StrictOmit<ButtonPropsAsButton, "title"> {}
 
 interface ModalWithTriggerProps extends ModalBaseProps {
 	trigger: React.ReactElement
@@ -24,36 +26,49 @@ type ModalProps = ModalAsButtonProps | ModalWithTriggerProps
 
 /**
  * @example
- * // using built-in button
- * <Modal title="Delete Character" text="Delete Character" icon={<LucideTrash />}>
+ * 	// using built-in button
+ * 	<Modal title="Delete Character" text="Delete Character" icon={<LucideTrash />}>
  * 	<p>Are you sure you want to delete this character?</p>
- *    <ModalActions>
- * 		<ModalDismiss>Cancel</ModalDismiss>
- * 		<Button type="submit">Delete</Button>
- *    </ModalActions>
- * </Modal>
+ * 	<ModalActions>
+ * 	<ModalDismiss>Cancel</ModalDismiss>
+ * 	<Button type="submit">Delete</Button>
+ * 	</ModalActions>
+ * 	</Modal>
  *
- * // using custom button
- * <Modal title="Delete Character" trigger={<DeleteButton />}>
+ * 	// using custom button
+ * 	<Modal title="Delete Character" trigger={<DeleteButton />}>
  * 	<p>Are you sure you want to delete this character?</p>
- *    <ModalActions>
- * 		<ModalDismiss>Cancel</ModalDismiss>
- * 		<Button type="submit">Delete</Button>
- *    </ModalActions>
- * </Modal>
+ * 	<ModalActions>
+ * 	<ModalDismiss>Cancel</ModalDismiss>
+ * 	<Button type="submit">Delete</Button>
+ * 	</ModalActions>
+ * 	</Modal>
  */
-export function Modal({ children, title, description, fullHeight, ...props }: ModalProps) {
+export function Modal({
+	children,
+	title,
+	description,
+	fullHeight,
+	...props
+}: ModalProps) {
 	return (
 		<ModalProvider>
-			<ModalButton render={"trigger" in props ? props.trigger : <Button {...props} />} />
-			<ModalPanel title={title} description={description} fullHeight={fullHeight}>
+			<ModalButton
+				render={"trigger" in props ? props.trigger : <Button {...props} />}
+			/>
+			<ModalPanel
+				title={title}
+				description={description}
+				fullHeight={fullHeight}
+			>
 				<ModalPanelContent>{children}</ModalPanelContent>
 			</ModalPanel>
 		</ModalProvider>
 	)
 }
 
-export interface ModalProviderProps extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
+export interface ModalProviderProps
+	extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
 	children: React.ReactNode | ((store: Ariakit.DialogStore) => React.ReactNode)
 }
 
@@ -70,7 +85,8 @@ export function ModalButton(props: Ariakit.DisclosureProps) {
 	return <Ariakit.DialogDisclosure {...props} />
 }
 
-export interface ModalPanelProps extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
+export interface ModalPanelProps
+	extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
 	description?: React.ReactNode
 	className?: string
@@ -92,7 +108,7 @@ export function ModalPanel({
 			}
 			{...props}
 			className={panel(
-				"fixed bg-primary-100 inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col shadow-lg shadow-black/50  [--gutter:2rem] [--height:calc(min(100%-var(--gutter),64rem))] ",
+				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col bg-primary-100 shadow-lg shadow-black/50  [--gutter:2rem] [--height:calc(min(100%-var(--gutter),64rem))] ",
 				"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				fullHeight ? "h-[--height]" : "h-fit max-h-[--height]",
 				className,
@@ -104,7 +120,9 @@ export function ModalPanel({
 					<Ariakit.DialogHeading className="text-2xl/tight font-light">
 						{title}
 					</Ariakit.DialogHeading>
-					{description && <Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>}
+					{description && (
+						<Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>
+					)}
 				</div>
 				<Ariakit.DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
 					<LucideX />

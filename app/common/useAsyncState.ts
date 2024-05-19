@@ -8,7 +8,9 @@ export type AsyncState<Args, Return> = Readonly<
 >
 
 export function useAsyncState<Args, Return>(fn: (args: Args) => Return) {
-	const [state, setState] = useState<AsyncState<Args, Return>>({ status: "initial" })
+	const [state, setState] = useState<AsyncState<Args, Return>>({
+		status: "initial",
+	})
 	const abortControllerRef = useRef<AbortController>(undefined)
 
 	async function run(args: Args) {
@@ -25,7 +27,10 @@ export function useAsyncState<Args, Return>(fn: (args: Args) => Return) {
 		} catch (error) {
 			if (!controller.signal.aborted) {
 				console.error(error)
-				setState({ status: "error", error: new Error(undefined, { cause: error }) })
+				setState({
+					status: "error",
+					error: new Error(undefined, { cause: error }),
+				})
 			}
 		}
 	}

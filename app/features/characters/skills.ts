@@ -18,7 +18,10 @@ export class SkillTree {
 		}
 	}) {
 		this.aspectsById = new Map(
-			Object.entries(tree).map(([aspectId, tierMap]) => [aspectId, new Aspect(aspectId, tierMap)]),
+			Object.entries(tree).map(([aspectId, tierMap]) => [
+				aspectId,
+				new Aspect(aspectId, tierMap),
+			]),
 		)
 		this.aspects = [...this.aspectsById.values()]
 
@@ -37,7 +40,9 @@ export class Aspect {
 
 	constructor(
 		readonly id: string,
-		tierMap: { [tierId: string]: { [skillId: string]: { description: string } } },
+		tierMap: {
+			[tierId: string]: { [skillId: string]: { description: string } }
+		},
 	) {
 		this.name = titleCase(id)
 		this.tiers = Object.entries(tierMap).map(([tierId, skills], index) => {

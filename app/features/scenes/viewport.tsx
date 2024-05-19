@@ -1,6 +1,12 @@
 import { useGesture, useWheel } from "@use-gesture/react"
 import { action, computed, observable } from "mobx"
-import { type ComponentProps, type ReactNode, createContext, use, useState } from "react"
+import {
+	type ComponentProps,
+	type ReactNode,
+	createContext,
+	use,
+	useState,
+} from "react"
 import { clamp } from "../../common/math.ts"
 import { Vector, type VectorInput } from "../../common/vector.ts"
 
@@ -28,7 +34,9 @@ class Viewport {
 		const newScaleTick = clamp(this.scaleTick + Math.sign(delta), -10, 10)
 		const pivot = Vector.from(pivotInput).minus(this.offset)
 		const shift = pivot.minus(
-			pivot.times(Viewport.scaleAt(newScaleTick) / Viewport.scaleAt(this.scaleTick)),
+			pivot.times(
+				Viewport.scaleAt(newScaleTick) / Viewport.scaleAt(this.scaleTick),
+			),
 		)
 		this.scaleTick = newScaleTick
 		this.offset = this.offset.plus(shift)
@@ -65,7 +73,9 @@ export function ViewportDragInput(props: ComponentProps<"div">) {
 					capture: true,
 				})
 				setTimeout(() => {
-					document.removeEventListener("contextmenu", handleContextMenu, { capture: true })
+					document.removeEventListener("contextmenu", handleContextMenu, {
+						capture: true,
+					})
 				}, 500)
 			},
 		},
@@ -82,7 +92,11 @@ export function ViewportDragInput(props: ComponentProps<"div">) {
 	return <div {...bind()} {...props} className="absolute inset-0 touch-none" />
 }
 
-export function ViewportWheelInput({ children }: { children: React.ReactNode }) {
+export function ViewportWheelInput({
+	children,
+}: {
+	children: React.ReactNode
+}) {
 	const viewport = useViewport()
 	const bind = useWheel((state) => {
 		const target = state.event.currentTarget as HTMLElement | undefined
@@ -94,7 +108,10 @@ export function ViewportWheelInput({ children }: { children: React.ReactNode }) 
 			return
 		}
 
-		viewport.updateZoom(-state.delta[1], [state.event.clientX, state.event.clientY])
+		viewport.updateZoom(-state.delta[1], [
+			state.event.clientX,
+			state.event.clientY,
+		])
 	}, {})
 	return <div {...bind()}>{children}</div>
 }
