@@ -72,11 +72,10 @@ export const TokenMenu = observer(function TokenMenu({
 		},
 	})
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: we specifically want to re-render when these change
 	React.useLayoutEffect(() => {
 		if (!open) return
 		store.render()
-	}, [store.render, open, anchor.left, anchor.top, anchor.width, anchor.height])
+	}, [store, open, anchor.left, anchor.top, anchor.width, anchor.height])
 
 	return (
 		<Popover store={store}>
@@ -116,7 +115,7 @@ export function TokenMenuContent(props: {
 
 	const selectionHasCharacters = selectedCharacters.length > 0
 	const singleSelectedCharacter =
-		(!selectedCharacters[1] && selectedCharacters[0]) || undefined
+		(!selectedCharacters[1] && selectedCharacters[0]) ?? undefined
 
 	return (
 		<>
