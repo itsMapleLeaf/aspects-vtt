@@ -19,8 +19,6 @@
 			"bun",
 			"@remix-run/node",
 			"vite/client",
-			"react/canary",
-			"react-dom/canary",
 			"@total-typescript/ts-reset"
 			// "@remix-run/react/future/single-fetch.d.ts"
 		],
