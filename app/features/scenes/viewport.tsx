@@ -85,6 +85,7 @@ export function ViewportDragInput(props: ComponentProps<"div">) {
 					buttons: [2],
 				},
 				threshold: 8,
+				keyboardDisplacement: 0,
 			},
 		},
 	)
