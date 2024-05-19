@@ -1,5 +1,6 @@
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError, type ObjectType } from "convex/values"
+import { uniqueByProperty } from "../../app/common/collection.ts"
 import { Result } from "../../app/common/Result.ts"
 import type { OmitByValue } from "../../app/common/types.ts"
 import type { Doc, Id } from "../_generated/dataModel"
@@ -108,6 +109,14 @@ export class CharacterModel {
 			isOwner: isCharacterOwner,
 			displayName: canSeeName ? this.data.name : "???",
 			displayPronouns: canSeeName ? this.data.pronouns : "",
+			conditions: [
+				...uniqueByProperty(
+					(this.data.conditions ?? []).toSorted((a, b) =>
+						a.name.localeCompare(b.name),
+					),
+					"name",
+				),
+			],
 		}
 	}
 

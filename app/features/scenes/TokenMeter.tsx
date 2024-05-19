@@ -16,7 +16,6 @@ export function TokenMeter({
 				value < 0.5 ? className.base
 				: value < 0.8 ? className.warning
 				: className.danger,
-				value > 0 ? "visible opacity-100" : "invisible opacity-0",
 			)}
 		>
 			<div

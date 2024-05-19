@@ -1,5 +1,6 @@
 import { brandedString, deprecated, nullable } from "convex-helpers/validators"
-import { v } from "convex/values"
+import { v, type Infer } from "convex/values"
+import { userColorValidator } from "../types.ts"
 
 export const characterProperties = {
 	// profile
@@ -30,6 +31,7 @@ export const characterProperties = {
 	damage: v.optional(v.number()),
 	fatigue: v.optional(v.number()),
 	currency: v.optional(v.number()),
+	conditions: v.optional(v.array(characterConditionValidator())),
 
 	// notes
 	ownerNotes: v.optional(v.string()),
@@ -45,3 +47,13 @@ export const characterProperties = {
 	coreAspect: v.optional(nullable(v.string())),
 	aspectSkills: v.optional(v.array(v.string())),
 }
+
+function characterConditionValidator() {
+	return v.object({
+		name: v.string(),
+		color: userColorValidator(),
+	})
+}
+export type ApiCharacterCondition = Infer<
+	ReturnType<typeof characterConditionValidator>
+>

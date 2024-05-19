@@ -6,7 +6,7 @@ import { theme } from "./app/theme.ts"
 
 /** @satisfies {import("tailwindcss").Config} */
 export default {
-	content: ["app/**/*.{ts,tsx}"],
+	content: ["{app,shared}/**/*.{ts,tsx}"],
 	theme: {
 		extend: {
 			...theme,

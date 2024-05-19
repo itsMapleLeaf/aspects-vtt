@@ -3,17 +3,18 @@ import { v } from "convex/values"
 import { Effect } from "effect"
 import { NoSuchElementException } from "effect/Cause"
 import { generateSlug } from "random-word-slugs"
-import { omit } from "../../app/common/object.ts"
+import { omit, pick } from "../../app/common/object.ts"
 import { randomItem } from "../../app/common/random.ts"
 import { CharacterSkillTree } from "../../app/features/characters/skills.ts"
 import type { Doc } from "../_generated/dataModel.js"
 import { getUserFromIdentity } from "../auth/helpers.ts"
 import { requireDoc } from "../helpers/convex.ts"
 import { effectMutation, withMutationCtx } from "../helpers/effect.ts"
-import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
+import { mutation, query, type QueryCtx } from "../helpers/ents.ts"
 import { create as createMessage } from "../messages/functions.ts"
 import { diceInputValidator } from "../messages/types.ts"
 import { RoomModel } from "../rooms/RoomModel.js"
+import { userColorValidator } from "../types.ts"
 import { CharacterModel } from "./CharacterModel.js"
 import { ensureViewerCharacterPermissions } from "./helpers.ts"
 import { characterProperties } from "./types.ts"
@@ -243,6 +244,46 @@ export const setSkillActive = effectMutation({
 					.table("characters")
 					.getX(character._id)
 					.patch({ learnedAspectSkills }),
+			)
+		})
+	},
+})
+
+export const updateConditions = effectMutation({
+	args: {
+		characterId: v.id("characters"),
+		action: v.union(
+			v.object({
+				type: v.literal("add"),
+				name: v.string(),
+				color: userColorValidator(),
+			}),
+			v.object({
+				type: v.literal("remove"),
+				name: v.string(),
+			}),
+			v.object({
+				type: v.literal("clear"),
+			}),
+		),
+	},
+	handler({ characterId, action }) {
+		return Effect.gen(function* () {
+			const { character } = yield* ensureViewerCharacterPermissions(characterId)
+
+			let conditions = character.conditions ?? []
+			if (action.type === "add") {
+				conditions = [...conditions, pick(action, ["name", "color"])]
+			} else if (action.type === "remove") {
+				conditions = conditions.filter(
+					(condition) => condition.name !== action.name,
+				)
+			} else if (action.type === "clear") {
+				conditions = []
+			}
+
+			yield* withMutationCtx((ctx) =>
+				ctx.table("characters").getX(character._id).patch({ conditions }),
 			)
 		})
 	},

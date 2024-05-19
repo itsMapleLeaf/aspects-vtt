@@ -96,3 +96,28 @@ export function sortBy<Item>(
 			:	firstRank - Number(secondRank)
 	})
 }
+
+export function* uniqueBy<T>(items: Iterable<T>, keyFn: (item: T) => unknown) {
+	const seen = new Set<unknown>()
+	for (const item of items) {
+		const key = keyFn(item)
+		if (!seen.has(key)) {
+			seen.add(key)
+			yield item
+		}
+	}
+}
+
+export function* uniqueByProperty<T>(items: Iterable<T>, key: keyof T) {
+	yield* uniqueBy(items, (item) => item[key])
+}
+
+export function fromEntries<K extends PropertyKey, V>(
+	entries: Iterable<readonly [K, V]>,
+): Record<K, V> {
+	const result = {} as Record<K, V>
+	for (const [key, value] of entries) {
+		result[key] = value
+	}
+	return result
+}

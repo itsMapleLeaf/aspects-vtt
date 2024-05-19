@@ -11,11 +11,13 @@ import { useFilter } from "../../common/react.ts"
 import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
+import { FormField } from "../../ui/Form.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { ModalButton } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
+import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
 import {
 	CharacterDamageField,
 	CharacterFatigueField,
@@ -251,8 +253,15 @@ export function TokenMenuContent(props: {
 
 						{singleSelectedCharacter.isOwner && (
 							<Tabs.Panel className="flex flex-col gap-2">
-								<CharacterDamageField character={singleSelectedCharacter} />
-								<CharacterFatigueField character={singleSelectedCharacter} />
+								<div className="flex gap-2 *:flex-1">
+									<CharacterDamageField character={singleSelectedCharacter} />
+									<CharacterFatigueField character={singleSelectedCharacter} />
+								</div>
+								<FormField label="Conditions">
+									<CharacterConditionsListInput
+										character={singleSelectedCharacter}
+									/>
+								</FormField>
 							</Tabs.Panel>
 						)}
 

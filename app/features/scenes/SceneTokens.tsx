@@ -9,6 +9,7 @@ import { useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
+import { getColorStyle } from "../../../shared/colors.ts"
 import { Rect } from "../../common/Rect.ts"
 import { sortBy } from "../../common/collection.ts"
 import {
@@ -211,23 +212,38 @@ const TokenSprites = observer(function TokenSprites({
 							className="relative"
 							style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
 						>
-							<div className="flex-center absolute inset-x-0 bottom-full justify-end gap-1.5 pb-2">
-								<TokenMeter
-									value={character.damage / character.damageThreshold}
-									className={{
-										base: "text-yellow-400",
-										warning: "text-orange-400",
-										danger: "text-red-400",
-									}}
-								/>
-								<TokenMeter
-									value={character.fatigue / character.fatigueThreshold}
-									className={{
-										base: "text-green-400",
-										warning: "text-blue-400",
-										danger: "text-purple-400",
-									}}
-								/>
+							<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
+								{character.conditions.map((condition) => (
+									<p
+										key={condition.name}
+										className={twMerge(
+											getColorStyle(condition.color),
+											"flex-center-row h-6 rounded px-1.5 text-sm leading-none",
+										)}
+									>
+										{condition.name}
+									</p>
+								))}
+								{character.damage > 0 && (
+									<TokenMeter
+										value={character.damage / character.damageThreshold}
+										className={{
+											base: "text-yellow-400",
+											warning: "text-orange-400",
+											danger: "text-red-400",
+										}}
+									/>
+								)}
+								{character.fatigue > 0 && (
+									<TokenMeter
+										value={character.fatigue / character.fatigueThreshold}
+										className={{
+											base: "text-green-400",
+											warning: "text-blue-400",
+											danger: "text-purple-400",
+										}}
+									/>
+								)}
 							</div>
 							<TokenLabel
 								text={character.displayName}

@@ -45,6 +45,7 @@ import type * as scenes_tokens_functions from "../scenes/tokens/functions.js";
 import type * as scenes_tokens_types from "../scenes/tokens/types.js";
 import type * as scenes_types from "../scenes/types.js";
 import type * as storage_functions from "../storage/functions.js";
+import type * as types from "../types.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -86,6 +87,7 @@ declare const fullApi: ApiFromModules<{
   "scenes/tokens/types": typeof scenes_tokens_types;
   "scenes/types": typeof scenes_types;
   "storage/functions": typeof storage_functions;
+  types: typeof types;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

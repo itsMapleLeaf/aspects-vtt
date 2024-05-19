@@ -23,3 +23,9 @@ export function omit<T extends object, K extends keyof T>(
 	}
 	return result as StrictOmit<T, K>
 }
+
+export function* keys<T extends object>(obj: T): Iterable<keyof T> {
+	for (const key in obj) {
+		yield key
+	}
+}
