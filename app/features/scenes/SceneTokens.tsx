@@ -1,3 +1,4 @@
+import { useTabStore } from "@ariakit/react"
 import { useGesture } from "@use-gesture/react"
 import { useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
@@ -468,7 +469,7 @@ const TokenDragSelectable = observer(function TokenDragSelectable({
 	)
 })
 
-const TokenSelection = observer(function TokenSelection({
+function TokenSelection({
 	children,
 	scene,
 }: {
@@ -481,6 +482,7 @@ const TokenSelection = observer(function TokenSelection({
 	const selectedTokens = tokens.filter((it) =>
 		dragSelectStore.isSelected(it.key),
 	)
+	const tabStore = useTabStore()
 	return (
 		<DragSelectArea
 			className="absolute inset-0 size-full"
@@ -500,6 +502,7 @@ const TokenSelection = observer(function TokenSelection({
 				}}
 			>
 				<TokenMenuContent
+					tabStore={tabStore}
 					selectedTokens={selectedTokens}
 					onTokenSelected={(token) => {
 						dragSelectStore.clear()
@@ -509,4 +512,4 @@ const TokenSelection = observer(function TokenSelection({
 			</TokenMenu>
 		</DragSelectArea>
 	)
-})
+}

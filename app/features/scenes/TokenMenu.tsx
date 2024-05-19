@@ -1,3 +1,4 @@
+import type { TabStore } from "@ariakit/react"
 import { useMutation, useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
@@ -98,6 +99,7 @@ export const TokenMenu = observer(function TokenMenu({
 export function TokenMenuContent(props: {
 	selectedTokens: ApiToken[]
 	onTokenSelected: (token: ApiToken) => void
+	tabStore: TabStore
 }) {
 	const room = useRoom()
 	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
@@ -239,7 +241,7 @@ export function TokenMenuContent(props: {
 			</div>
 
 			{singleSelectedCharacter && (
-				<Tabs>
+				<Tabs store={props.tabStore}>
 					<Tabs.List>
 						<Tabs.Tab>Abilities</Tabs.Tab>
 						{singleSelectedCharacter.isOwner && <Tabs.Tab>Status</Tabs.Tab>}
