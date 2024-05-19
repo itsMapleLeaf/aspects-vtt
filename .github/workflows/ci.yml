@@ -1,5 +1,3 @@
-name: checks
-
 on:
   push:
     branches:
@@ -23,10 +21,10 @@ jobs:
     name: ${{ matrix.script.name }}
     steps:
       - name: "🛒"
-        uses: actions/checkout
+        uses: actions/checkout@v4
 
       - name: "📦"
-        uses: pnpm/action-setup
+        uses: pnpm/action-setup@v4
 
       - name: "📥"
         run: pnpm install --no-frozen-lockfile
@@ -37,3 +35,23 @@ jobs:
 
       - name: "▶️"
         run: pnpm run ${{ matrix.script.name }}
+  format:
+    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: "🛒"
+        uses: actions/checkout@v4
+
+      - name: "📦"
+        uses: pnpm/action-setup@v4
+
+      - name: "📥"
+        run: pnpm install --no-frozen-lockfile
+
+      - name: "💅"
+        run: pnpm run format
+
+      - name: "📝"
+        uses: stefanzweifel/git-auto-commit-action@v5
