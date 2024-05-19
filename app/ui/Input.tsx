@@ -4,7 +4,9 @@ import { panel } from "./styles.ts"
 
 export interface InputProps
 	extends React.ComponentProps<"input">,
-		InputStyleProps {}
+		InputStyleProps {
+	onChangeValue?: (value: string) => void
+}
 
 export function Input(props: InputProps) {
 	const [inputStyleProps, inputProps] = extractInputStyleProps(props)
@@ -14,6 +16,10 @@ export function Input(props: InputProps) {
 			id={field.inputId}
 			{...inputProps}
 			className={inputStyle(inputStyleProps, inputProps.className)}
+			onChange={(event) => {
+				props.onChange?.(event)
+				props.onChangeValue?.(event.currentTarget.value)
+			}}
 		/>
 	)
 }
