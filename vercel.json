@@ -1,4 +1,3 @@
 {
-	"installCommand": "bun install",
 	"buildCommand": "pnpm exec convex deploy --cmd \"pnpm run build\" --cmd-url-env-var-name VITE_CONVEX_URL"
 }
