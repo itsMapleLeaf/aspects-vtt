@@ -1,7 +1,11 @@
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
+import { type ComponentProps } from "react"
+import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api.js"
 import { useMutationState } from "../../common/convex.ts"
+import { useImage } from "../../common/useImage.ts"
+import { Vector } from "../../common/vector.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { useModalContext } from "../../ui/Modal.tsx"
 import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
@@ -9,6 +13,7 @@ import { usePrompt } from "../../ui/Prompt.tsx"
 import { panel } from "../../ui/styles.ts"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { useCanvasDraw } from "../../common/dom.ts"
 
 export function SceneList() {
 	const room = useRoom()
@@ -34,11 +39,6 @@ export function SceneList() {
 							}}
 						>
 							<div
-								style={{
-									backgroundImage: scene.background
-										? `url(${getApiImageUrl(scene.background)})`
-										: undefined,
-								}}
 								className={panel(
 									"w-full aspect-[4/3] overflow-clip flex-center bg-cover bg-center",
 								)}
@@ -46,9 +46,11 @@ export function SceneList() {
 								{updateRoomState.status === "pending" &&
 								updateRoomState.args.currentScene === scene._id ? (
 									<Loading />
-								) : scene.background == null ? (
+								) : scene.background != null ? (
+									<CanvasThumbnail imageUrl={getApiImageUrl(scene.background)} />
+								) : (
 									<Lucide.ImageOff className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
-								) : null}
+								)}
 							</div>
 							<p className="text-pretty px-2 py-1.5 text-center text-xl/tight font-light">
 								{scene.name}
@@ -101,5 +103,32 @@ export function SceneList() {
 				</button>
 			</li>
 		</ul>
+	)
+}
+
+function CanvasThumbnail({ imageUrl, ...props }: { imageUrl: string } & ComponentProps<"canvas">) {
+	const image = useImage(imageUrl)
+
+	const canvasRef = useCanvasDraw((context) => {
+		if (!image) return
+
+		const canvasSize = Vector.fromSize(context.canvas)
+		const imageSize = Vector.fromSize(image)
+
+		const coverScale = Math.max(...canvasSize.dividedBy(imageSize).tuple)
+		const offset = canvasSize.minus(imageSize.times(coverScale)).dividedBy(2)
+
+		// use setTimeout to yield to the main thread
+		setTimeout(() => {
+			context.drawImage(image, ...offset.tuple, ...imageSize.times(coverScale).tuple)
+		}, 0)
+
+	})
+
+	return (
+		<div className="flex-center relative size-full">
+			{image == null && <Loading className="absolute m-auto" />}
+			<canvas {...props} className={twMerge("size-full", props.className)} ref={canvasRef} />
+		</div>
 	)
 }

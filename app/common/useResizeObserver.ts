@@ -1,23 +1,31 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { expect } from "./expect.ts"
 import type { Nullish } from "./types.ts"
 import { Vector } from "./vector.ts"
 
-export function useResizeObserver(
-	ref: Nullish<Element> | React.RefObject<Nullish<Element>>,
-	callback: (entry: ResizeObserverEntry) => void,
+export function useResizeObserver<T extends Element>(
+	ref: Nullish<T> | React.RefObject<Nullish<T>>,
+	callback: (size: { width: number; height: number }, element: T) => void,
 ) {
 	const callbackRef = useRef<typeof callback>(undefined)
-	useEffect(() => {
+	useLayoutEffect(() => {
 		callbackRef.current = callback
 	})
+
+	useLayoutEffect(() => {
+		const element = ref && "current" in ref ? ref.current : ref
+		if (element) {
+			callbackRef.current?.(element.getBoundingClientRect(), element)
+		}
+	}, [ref])
 
 	useEffect(() => {
 		const element = ref && "current" in ref ? ref.current : ref
 		if (!element) return
 
 		const observer = new ResizeObserver((entries) => {
-			callbackRef.current?.(expect(entries[0], "resize observer entry not found"))
+			const entry = expect(entries[0], "resize observer entry not found")
+			callbackRef.current?.(entry.contentRect, element)
 		})
 		observer.observe(element)
 		return () => observer.disconnect()
@@ -26,6 +34,6 @@ export function useResizeObserver(
 
 export function useSize(ref: Nullish<Element> | React.RefObject<Nullish<Element>>) {
 	const [size, setSize] = useState(Vector.zero)
-	useResizeObserver(ref, (entry) => setSize(Vector.fromSize(entry.contentRect)))
+	useResizeObserver(ref, (size) => setSize(Vector.fromSize(size)))
 	return size
 }
