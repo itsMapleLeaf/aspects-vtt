@@ -43,19 +43,20 @@ export const create = mutation({
 		const room = await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
 		const players = await room.getPlayers()
 
-		const characters = ctx.db
+		const characters = await ctx.db
 			.query("characters")
 			.filter((q) =>
 				q.or(
 					...players.map((player) => q.eq(q.field("playerId"), player.userId)),
 				),
 			)
+			.collect()
 
 		return await ctx.db.insert("scenes", {
 			...args,
 			background: null,
 			cellSize: 70,
-			tokens: await Array.fromAsync(characters, (character, index) =>
+			tokens: characters.map((character, index) =>
 				createToken({
 					position: { x: index * 70, y: 0 },
 					visible: true,
