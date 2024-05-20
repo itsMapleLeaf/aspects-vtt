@@ -1,4 +1,5 @@
 import * as React from "react"
+import { twMerge } from "tailwind-merge"
 import { Rect } from "../common/Rect.ts"
 import { setPresentInSet } from "../common/collection.ts"
 import { useEffectEvent } from "../common/react.ts"
@@ -69,6 +70,7 @@ export function DragSelectable<V>({
 	return (
 		<div
 			{...props}
+			className={twMerge("touch-none", props.className)}
 			ref={ref}
 			onPointerDown={(event) => {
 				props.onPointerDown?.(event)
