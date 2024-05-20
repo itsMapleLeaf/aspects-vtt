@@ -19,6 +19,7 @@ export default defineConfig({
 					["@babel/plugin-proposal-decorators", { version: "2023-11" }],
 					"babel-plugin-react-compiler",
 				],
+				sourceMaps: true,
 			},
 		}),
 		mdx({
