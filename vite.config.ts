@@ -15,10 +15,7 @@ export default defineConfig({
 			filter: /\.tsx?$/,
 			babelConfig: {
 				presets: ["@babel/preset-typescript"],
-				plugins: [
-					["@babel/plugin-proposal-decorators", { version: "2023-11" }],
-					"babel-plugin-react-compiler",
-				],
+				plugins: ["babel-plugin-react-compiler"],
 				sourceMaps: true,
 			},
 		}),

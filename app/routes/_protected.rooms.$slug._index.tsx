@@ -26,15 +26,9 @@ import {
 	useCharacters,
 	useRoom,
 } from "../features/rooms/roomContext.tsx"
+import { SceneProvider } from "../features/scenes/SceneContext.tsx"
 import { SceneList } from "../features/scenes/SceneList.tsx"
-import { SceneMapBackground } from "../features/scenes/SceneMapBackground.tsx"
-import { SceneTokens } from "../features/scenes/SceneTokens.tsx"
-import { SceneGrid } from "../features/scenes/grid.tsx"
-import {
-	ViewportDragInput,
-	ViewportProvider,
-	ViewportWheelInput,
-} from "../features/scenes/viewport.tsx"
+import { SceneMap } from "../features/scenes/SceneMap.tsx"
 import { AppHeader } from "../ui/AppHeader.tsx"
 import { DefinitionList } from "../ui/DefinitionList.tsx"
 import {
@@ -74,35 +68,29 @@ export default function RoomRoute() {
 		<div className="contents">
 			<CharacterSelectionProvider>
 				<JoinRoomEffect />
-				<ViewportProvider>
-					<RoomToolbarStore.Provider>
-						{scene && (
-							<div className="fixed inset-0 -z-10 select-none bg-primary-100">
-								<ViewportWheelInput>
-									<SceneMapBackground scene={scene} />
-									<SceneGrid scene={scene} />
-									<ViewportDragInput>
-										<SceneTokens scene={scene} />
-									</ViewportDragInput>
-								</ViewportWheelInput>
-							</div>
-						)}
-						<div
-							className={translucentPanel(
-								"flex h-16 flex-col justify-center rounded-none border-0 border-b px-4",
-							)}
-						>
-							<AppHeader
-								end={<UserButton afterSignOutUrl={currentUrl} />}
-								center={<RoomToolbar />}
-							/>
+				<RoomToolbarStore.Provider>
+					{scene && (
+						<div className="fixed inset-0 -z-10 select-none bg-primary-100">
+							<SceneProvider scene={scene}>
+								<SceneMap />
+							</SceneProvider>
 						</div>
-					</RoomToolbarStore.Provider>
-					<SceneHeading />
-					<CharacterListPanel />
-					<MessagesPanel />
-					<CombatTurnBanner />
-				</ViewportProvider>
+					)}
+					<div
+						className={translucentPanel(
+							"flex h-16 flex-col justify-center rounded-none border-0 border-b px-4",
+						)}
+					>
+						<AppHeader
+							end={<UserButton afterSignOutUrl={currentUrl} />}
+							center={<RoomToolbar />}
+						/>
+					</div>
+				</RoomToolbarStore.Provider>
+				<SceneHeading />
+				<CharacterListPanel />
+				<MessagesPanel />
+				<CombatTurnBanner />
 			</CharacterSelectionProvider>
 		</div>
 	)

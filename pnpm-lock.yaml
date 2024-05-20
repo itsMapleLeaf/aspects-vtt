@@ -92,12 +92,6 @@ importers:
       match-sorter:
         specifier: ^6.3.4
         version: 6.3.4
-      mobx:
-        specifier: 6.12.3
-        version: 6.12.3
-      mobx-react-lite:
-        specifier: 4.0.7
-        version: 4.0.7(mobx@6.12.3)(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516)
       node:
         specifier: '22'
         version: 22.2.0
@@ -126,9 +120,6 @@ importers:
         specifier: 3.23.8
         version: 3.23.8
     devDependencies:
-      '@babel/plugin-proposal-decorators':
-        specifier: 7.24.1
-        version: 7.24.1(@babel/core@7.24.5)
       '@babel/preset-typescript':
         specifier: 7.24.1
         version: 7.24.1(@babel/core@7.24.5)
@@ -396,12 +387,6 @@ packages:
     resolution: {integrity: sha512-EOv5IK8arwh3LI47dz1b0tKUb/1uhHAnHJOrjgtQMIpu1uXd9mlFrJg9IUgGUgZ41Ch0K8REPTYpO7B76b4vJg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
-
-  '@babel/plugin-proposal-decorators@7.24.1':
-    resolution: {integrity: sha512-zPEvzFijn+hRvJuX2Vu3KbEBN39LN3f7tW3MQO2LsIs57B26KU+kUc82BdAktS1VCM6libzh45eKGI65lg0cpA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
 
   '@babel/plugin-proposal-private-methods@7.18.6':
     resolution: {integrity: sha512-nutsvktDItsNn4rpGItSNV2sz1XwS+nfU0Rg8aCx3W3NOKVzdMjJRu0O5OkgDp3ZGICSTbgRpxZoWsxoKRvbeA==}
@@ -3509,22 +3494,6 @@ packages:
   mlly@1.7.0:
     resolution: {integrity: sha512-U9SDaXGEREBYQgfejV97coK0UL1r+qnF2SyO9A3qcI8MzKnsIFKHNVEkrDyNncQTKQQumsasmeq84eNMdBfsNQ==}
 
-  mobx-react-lite@4.0.7:
-    resolution: {integrity: sha512-RjwdseshK9Mg8On5tyJZHtGD+J78ZnCnRaxeQDSiciKVQDUbfZcXhmld0VMxAwvcTnPEHZySGGewm467Fcpreg==}
-    peerDependencies:
-      mobx: ^6.9.0
-      react: ^16.8.0 || ^17 || ^18
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
-  mobx@6.12.3:
-    resolution: {integrity: sha512-c8NKkO4R2lShkSXZ2Ongj1ycjugjzFFo/UswHBnS62y07DMcTc9Rvo03/3nRyszIvwPNljlkd4S828zIBv/piw==}
-
   modern-ahocorasick@1.0.1:
     resolution: {integrity: sha512-yoe+JbhTClckZ67b2itRtistFKf8yPYelHLc7e5xAwtNAXxM6wJTUx2C7QeVSJFDzKT7bCIFyBVybPMKvmB9AA==}
 
@@ -5209,13 +5178,6 @@ snapshots:
   '@babel/parser@7.24.5':
     dependencies:
       '@babel/types': 7.24.5
-
-  '@babel/plugin-proposal-decorators@7.24.1(@babel/core@7.24.5)':
-    dependencies:
-      '@babel/core': 7.24.5
-      '@babel/helper-create-class-features-plugin': 7.24.5(@babel/core@7.24.5)
-      '@babel/helper-plugin-utils': 7.24.5
-      '@babel/plugin-syntax-decorators': 7.24.1(@babel/core@7.24.5)
 
   '@babel/plugin-proposal-private-methods@7.18.6(@babel/core@7.24.5)':
     dependencies:
@@ -8873,16 +8835,6 @@ snapshots:
       pathe: 1.1.2
       pkg-types: 1.1.1
       ufo: 1.5.3
-
-  mobx-react-lite@4.0.7(mobx@6.12.3)(react-dom@19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516))(react@19.0.0-rc-3f1436cca1-20240516):
-    dependencies:
-      mobx: 6.12.3
-      react: 19.0.0-rc-3f1436cca1-20240516
-      use-sync-external-store: 1.2.2(react@19.0.0-rc-3f1436cca1-20240516)
-    optionalDependencies:
-      react-dom: 19.0.0-rc-3f1436cca1-20240516(react@19.0.0-rc-3f1436cca1-20240516)
-
-  mobx@6.12.3: {}
 
   modern-ahocorasick@1.0.1: {}
 
