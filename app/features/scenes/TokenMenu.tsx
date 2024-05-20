@@ -51,12 +51,14 @@ export function TokenMenu() {
 		.withPosition(viewport.offset.plus(anchor.topLeft.times(viewport.scale)))
 		.scale(viewport.scale)
 
+	const open =
+		tokenDragOffset.equals(Vector.zero) &&
+		selectedTokens.length > 0 &&
+		tokenSelectStore.area == null
+
 	const store = usePopoverStore({
 		placement: "bottom",
-		open:
-			tokenDragOffset.equals(Vector.zero) &&
-			selectedTokens.length > 0 &&
-			tokenSelectStore.area == null,
+		open,
 		setOpen: (open) => {
 			if (!open) {
 				tokenSelectStore.clear()

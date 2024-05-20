@@ -12,7 +12,7 @@ export type Overwrite<A extends object, B extends object> = Simplify<
 >
 
 /** Simplify complex types into a flat object */
-// eslint-disable-next-line @typescript-eslint/ban-types
+
 export type Simplify<T extends object> = { [K in keyof T]: T[K] } & {}
 
 /** Represents all JS falsy values */
@@ -55,10 +55,8 @@ export type UndefinedToOptional<T> = Simplify<
 	}
 >
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type DietUnknown = {} | undefined | null
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TODO = any
 
 export type ValueOf<T> = T[keyof T]

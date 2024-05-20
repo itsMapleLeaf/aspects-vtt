@@ -24,7 +24,7 @@ export function createStore<State, Actions, ContextValue>(options: {
 
 		const actions = React.useMemo(
 			() => options.actions(setState, getState),
-			[options.actions, getState],
+			[getState],
 		)
 
 		return (

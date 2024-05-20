@@ -6,7 +6,6 @@ import {
 	useInsertionEffect,
 	useRef,
 	useState,
-	useSyncExternalStore,
 } from "react"
 import { timeoutEffect } from "./async.ts"
 
@@ -19,18 +18,6 @@ export function useDelayedValue<T>(value: T, delay: number, init?: T): T {
 export function usePendingDelay(pendingInput: boolean) {
 	return useDelayedValue(pendingInput, pendingInput ? 300 : 500, false)
 }
-
-export function useIsomorphicValue<
-	ClientValue = undefined,
-	ServerValue = undefined,
->(options: { client?: () => ClientValue; server?: () => ServerValue }) {
-	return useSyncExternalStore<ClientValue | ServerValue | undefined>(
-		noopSubscribe,
-		() => options.client?.(),
-		() => options.server?.(),
-	)
-}
-const noopSubscribe = () => () => {}
 
 export function useEffectEvent<Args extends unknown[], Return>(
 	fn: (...args: Args) => Return,

@@ -63,6 +63,7 @@ export function ContextMenuTrigger(props: ComponentProps<"div">) {
 export function ContextMenuPanel(props: ComponentProps<typeof MenuPanel>) {
 	const pointer = use(PointerContext)
 	const store = useNonEmptyContext(StoreContext)
+	// eslint-disable-next-line react-compiler/react-compiler
 	const open = store.useState("open")
 	const ref = useRef<React.ComponentRef<typeof MenuPanel>>(null)
 
@@ -78,7 +79,7 @@ export function ContextMenuPanel(props: ComponentProps<typeof MenuPanel>) {
 		return () => {
 			window.removeEventListener("pointerdown", handler)
 		}
-	}, [open, store.hide])
+	}, [open, store])
 
 	return <MenuPanel getAnchorRect={() => pointer} ref={ref} {...props} />
 }

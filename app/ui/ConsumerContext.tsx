@@ -37,5 +37,5 @@ export function useConsumerProvider() {
 
 export function useConsumer() {
 	const register = use(RegisterContext)
-	useEffect(register, [])
+	useEffect(register, [register])
 }

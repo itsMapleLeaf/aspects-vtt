@@ -109,7 +109,7 @@ export function DragSelectable<V>({
 				)
 			},
 		})
-	}, [item, store.registerHandle])
+	}, [item, store])
 
 	return (
 		<div

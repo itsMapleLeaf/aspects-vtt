@@ -2,7 +2,6 @@ import {
 	Disclosure,
 	DisclosureContent,
 	DisclosureProvider,
-	useDisclosureStore,
 } from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
@@ -24,21 +23,19 @@ export function ToggleableSidebar({
 		true,
 		z.boolean().catch(true),
 	)
-	const store = useDisclosureStore({ open, setOpen })
-	const isOpen = store.useState("open")
-	const Icon = isOpen ? Lucide.SidebarClose : Lucide.SidebarOpen
+	const Icon = open ? Lucide.SidebarClose : Lucide.SidebarOpen
 
 	return (
 		<div
 			data-side={side}
 			className="group/sidebar-panel pointer-events-none fixed bottom-0 top-16 flex justify-end gap-2 p-2 *:pointer-events-auto data-[side=left]:left-0 data-[side=right]:right-0 data-[side=left]:flex-row-reverse"
 		>
-			<DisclosureProvider store={store}>
+			<DisclosureProvider open={open} setOpen={setOpen}>
 				<Button
 					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
 					className="shadow-md shadow-black/25"
 					element={
-						<Disclosure title={isOpen ? `Hide ${name}` : `Show ${name}`} />
+						<Disclosure title={open ? `Hide ${name}` : `Show ${name}`} />
 					}
 				/>
 				<DisclosureContent

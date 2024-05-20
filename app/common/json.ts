@@ -6,9 +6,7 @@ export type JsonValue =
 	| JsonValue[]
 	| JsonObject
 
-export type JsonObject = {
-	[key: string]: JsonValue | undefined
-}
+export type JsonObject = { [_ in string]: JsonValue }
 
 export function prettify(value: unknown) {
 	try {

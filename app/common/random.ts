@@ -25,7 +25,6 @@ type IndexedValue<T extends Iterable<unknown>> =
 	: T extends Iterable<infer U> ? U | undefined
 	: never
 
-/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
 type _Test_IndexedValueReturnsNonUndefinedForNonEmptyArray = Expect<
 	Equal<IndexedValue<["a", "b", "c"]>, "a" | "b" | "c">
 >
