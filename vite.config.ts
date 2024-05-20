@@ -1,25 +1,25 @@
 import mdx from "@mdx-js/rollup"
 import { vitePlugin as remix } from "@remix-run/dev"
-import babel from "@rollup/plugin-babel"
 import { vercelPreset } from "@vercel/remix/vite"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
 import { remixRoutes } from "remix-routes/vite.js"
 import { visualizer } from "rollup-plugin-visualizer"
 import { defineConfig } from "vite"
+import babel from "vite-plugin-babel"
 import inspect from "vite-plugin-inspect"
 
 export default defineConfig({
 	plugins: [
 		babel({
-			babelHelpers: "bundled",
-			extensions: [".ts", ".tsx"],
-			include: ["app/**/*.{ts,tsx}"],
-			presets: ["@babel/preset-typescript"],
-			plugins: [
-				["@babel/plugin-proposal-decorators", { version: "2023-11" }],
-				"babel-plugin-react-compiler",
-			],
+			filter: /\.tsx?$/,
+			babelConfig: {
+				presets: ["@babel/preset-typescript"],
+				plugins: [
+					["@babel/plugin-proposal-decorators", { version: "2023-11" }],
+					"babel-plugin-react-compiler",
+				],
+			},
 		}),
 		mdx({
 			rehypePlugins: [
