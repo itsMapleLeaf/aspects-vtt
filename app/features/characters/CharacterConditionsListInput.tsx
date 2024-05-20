@@ -169,6 +169,7 @@ function AddConditionInput({
 				sameWidth
 				className={menuPanelStyle()}
 				flip={false}
+				unmountOnHide
 			>
 				{filteredPresets.map((condition) => (
 					<Ariakit.ComboboxItem
