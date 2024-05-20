@@ -1,5 +1,4 @@
 import { fixupConfigRules } from "@eslint/compat"
-import js from "@eslint/js"
 import reactCompiler from "eslint-plugin-react-compiler"
 import reactHooks from "eslint-plugin-react-hooks"
 import jsxRuntime from "eslint-plugin-react/configs/jsx-runtime.js"
@@ -15,33 +14,28 @@ export default ts.config(
 		languageOptions: {
 			ecmaVersion: "latest",
 			globals: { ...globals.browser, ...globals.node },
-		},
-	},
-	js.configs.recommended,
-
-	...ts.configs.recommended,
-	...ts.configs.stylistic,
-	{
-		languageOptions: {
+			parser: ts.parser,
 			parserOptions: {
 				project: true,
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},
-	},
-
-	...fixupConfigRules(reactRecommended),
-	...fixupConfigRules(jsxRuntime),
-	{
-		settings: {
-			react: {
-				version: "detect",
-			},
-		},
 		rules: {
 			"no-console": ["error", { allow: ["warn", "info", "error"] }],
-			"no-empty": ["warn", { allowEmptyCatch: true }],
 			"object-shorthand": "warn",
+		},
+	},
+
+	// recommended configs are too noisy
+	// js.configs.recommended,
+	// ...ts.configs.recommended,
+	// ...ts.configs.stylistic,
+
+	{
+		plugins: {
+			"@typescript-eslint": ts.plugin,
+		},
+		rules: {
 			"@typescript-eslint/no-unused-vars": [
 				"warn",
 				{ args: "none", varsIgnorePattern: "^_" },
@@ -52,16 +46,25 @@ export default ts.config(
 				{ fixStyle: "inline-type-imports" },
 			],
 			"@typescript-eslint/no-import-type-side-effects": "error",
-			"@typescript-eslint/unbound-method": ["warn", { ignoreStatic: true }],
-			"react/no-unescaped-entities": "off",
 		},
 	},
+
+	{
+		settings: {
+			react: {
+				version: "detect",
+			},
+		},
+	},
+	...fixupConfigRules(reactRecommended),
+	...fixupConfigRules(jsxRuntime),
 	...fixupConfigRules({
 		plugins: {
 			"react-hooks": reactHooks,
 			"react-compiler": reactCompiler,
 		},
 		rules: {
+			"react/no-unescaped-entities": "off",
 			"react-hooks/exhaustive-deps": "warn",
 			"react-hooks/rules-of-hooks": "error",
 			"react-compiler/react-compiler": "warn",
