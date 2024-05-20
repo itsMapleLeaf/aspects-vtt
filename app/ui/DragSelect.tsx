@@ -2,39 +2,79 @@ import * as React from "react"
 import { twMerge } from "tailwind-merge"
 import { Rect } from "../common/Rect.ts"
 import { setPresentInSet } from "../common/collection.ts"
-import { useEffectEvent } from "../common/react.ts"
-import type { StrictOmit } from "../common/types.ts"
+import { expect } from "../common/expect.ts"
 import { RectDrawArea } from "./RectDrawArea.tsx"
 
 export type DragSelectStore<V> = ReturnType<typeof useDragSelectStore<V>>
+
+type SelectableHandle<T> = {
+	item: T
+	overlaps: (area: Rect) => boolean
+}
 
 const empty: ReadonlySet<never> = new Set()
 
 export function useDragSelectStore<T>() {
 	const [selected, setSelected] = React.useState<ReadonlySet<T>>(empty)
-	const [area, setArea] = React.useState<Rect>()
+	const [areaState, setAreaState] = React.useState<Rect>()
+	const [handles] = React.useState(() => new Set<SelectableHandle<T>>())
 
-	const setItemSelected = useEffectEvent(function setItemSelected(
-		item: T,
-		selected: boolean,
-	) {
+	function setItemSelected(item: T, selected: boolean) {
 		setSelected((items) => setPresentInSet(items, item, selected))
-	})
+	}
 
-	const clear = useEffectEvent(function clear() {
+	function clear() {
 		setSelected(empty)
-	})
+	}
 
-	const isSelected = React.useCallback(
-		(item: T) => selected.has(item),
-		[selected],
-	)
+	function isSelected(item: T) {
+		return selected.has(item)
+	}
 
-	return { selected, area, setItemSelected, clear, setArea, isSelected }
+	function registerHandle(handle: SelectableHandle<T>) {
+		handles.add(handle)
+		return () => {
+			handles.delete(handle)
+		}
+	}
+
+	function setArea(area: Rect | undefined) {
+		setAreaState(area)
+		if (area) {
+			React.startTransition(() => {
+				setSelected((current) => {
+					const next = new Set(
+						Iterator.from(handles)
+							.filter((h) => h.overlaps(area))
+							.map((h) => h.item),
+					)
+					if (next.size !== current.size) {
+						return next
+					}
+					if (Iterator.from(next).intersection(current).count() > 0) {
+						return next
+					}
+					return current
+				})
+			})
+		}
+	}
+
+	return {
+		selected,
+		clear,
+		setItemSelected,
+		isSelected,
+
+		area: areaState,
+		setArea,
+
+		registerHandle,
+	}
 }
 
 export interface DragSelectAreaProps extends React.ComponentProps<"div"> {
-	store: StrictOmit<DragSelectStore<unknown>, "setItemSelected" | "isSelected">
+	store: Pick<DragSelectStore<unknown>, "area" | "setArea" | "clear">
 }
 
 export function DragSelectArea({ store, ...props }: DragSelectAreaProps) {
@@ -61,11 +101,15 @@ export function DragSelectable<V>({
 	const ref = React.useRef<HTMLDivElement>(null)
 
 	React.useEffect(() => {
-		if (!ref.current) return
-		if (!store.area) return
-		const rect = Rect.from(ref.current.getBoundingClientRect())
-		store.setItemSelected(item, rect.overlaps(store.area))
-	}, [item, store.area, store.setItemSelected])
+		return store.registerHandle({
+			item,
+			overlaps(area) {
+				return area.overlaps(
+					Rect.from(expect(ref.current).getBoundingClientRect()),
+				)
+			},
+		})
+	}, [item, store.registerHandle])
 
 	return (
 		<div
