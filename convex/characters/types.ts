@@ -15,8 +15,6 @@ export const characterProperties = {
 	mobility: v.optional(v.number()),
 	intellect: v.optional(v.number()),
 	wit: v.optional(v.number()),
-	damageThreshold: v.optional(nullable(v.number())),
-	fatigueThreshold: v.optional(nullable(v.number())),
 	learnedAspectSkills: v.optional(
 		// keep track of the order of aspects to calculate the correct EXP costs
 		v.array(
@@ -44,8 +42,10 @@ export const characterProperties = {
 
 	// deprecated
 	token: deprecated,
-	coreAspect: v.optional(nullable(v.string())),
-	aspectSkills: v.optional(v.array(v.string())),
+	coreAspect: deprecated,
+	aspectSkills: deprecated,
+	damageThreshold: deprecated,
+	fatigueThreshold: deprecated,
 }
 
 function characterConditionValidator() {

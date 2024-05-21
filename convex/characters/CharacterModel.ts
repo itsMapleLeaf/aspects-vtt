@@ -16,14 +16,10 @@ const characterDefaults = {
 	pronouns: "",
 	imageId: null,
 	race: "",
-	coreAspect: null,
-	aspectSkills: [],
 
 	// stats
 	damage: 0,
-	damageThreshold: null,
 	fatigue: 0,
-	fatigueThreshold: null,
 	currency: 0,
 
 	// attributes

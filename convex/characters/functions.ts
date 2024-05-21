@@ -94,34 +94,18 @@ export const duplicate = mutation({
 	},
 })
 
-export const update = mutation({
+export const update = effectMutation({
 	args: {
 		...characterProperties,
 		id: v.id("characters"),
-		aspectSkills: v.optional(
-			v.union(v.object({ add: v.string() }), v.object({ remove: v.string() })),
-		),
 	},
-	handler: async (ctx, { id, aspectSkills, ...args }) => {
-		const character = await CharacterModel.get(ctx, id).getValueOrThrow()
-
-		let newAspectSkills
-		if (aspectSkills) {
-			if ("add" in aspectSkills) {
-				newAspectSkills = [...character.data.aspectSkills, aspectSkills.add]
-			}
-			if ("remove" in aspectSkills) {
-				newAspectSkills = character.data.aspectSkills.filter(
-					(name) => name !== aspectSkills.remove,
-				)
-			}
-		}
-
-		await character.update(ctx, {
-			...args,
-			...(newAspectSkills && { aspectSkills: newAspectSkills }),
-		})
-	},
+	handler: ({ id, ...args }) =>
+		Effect.gen(function* () {
+			yield* ensureViewerCharacterPermissions(id)
+			yield* withMutationCtx((ctx) =>
+				ctx.table("characters").getX(id).patch(args),
+			)
+		}),
 })
 
 export const remove = mutation({
@@ -300,7 +284,6 @@ async function generateRandomCharacterProperties(ctx: QueryCtx) {
 		.order("desc")
 		.first()
 	const race = randomItem(notionImports?.races ?? [])?.name
-	const coreAspect = randomItem(notionImports?.aspects ?? [])?.name
 
 	return {
 		name: generateSlug(2, {
@@ -316,6 +299,5 @@ async function generateRandomCharacterProperties(ctx: QueryCtx) {
 		intellect,
 		wit,
 		race,
-		coreAspect,
 	} satisfies Partial<Doc<"characters">>
 }
