@@ -8,28 +8,41 @@ import { ClerkApp, useAuth } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
 import {
+	defer,
 	Links,
 	Meta,
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useLoaderData,
 } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
+import { Effect } from "effect"
+import { useState } from "react"
+import { api } from "../convex/_generated/api"
 import { clerkConfig } from "./clerk.ts"
+import { getConvexClient } from "./convex.server.ts"
+import { loaderFromEffect } from "./effect.ts"
 import { clientEnv } from "./env.ts"
+import { UserContext } from "./features/auth/UserContext.tsx"
 import { PromptProvider } from "./ui/Prompt.tsx"
 
-const convex = new ConvexReactClient(clientEnv.VITE_CONVEX_URL)
+const setupUser = loaderFromEffect(
+	Effect.gen(function* () {
+		const convex = yield* getConvexClient()
+		return yield* Effect.tryPromise(() =>
+			convex.mutation(api.auth.functions.setup, {}),
+		)
+	}),
+)
 
-export const loader = (args: LoaderFunctionArgs) => rootAuthLoader(args)
+export const loader = (args: LoaderFunctionArgs) =>
+	rootAuthLoader(args, (args) => defer({ user: setupUser(args) }))
 
 export const meta: MetaFunction = () => [
 	{ title: "Aspects VTT" },
-	{
-		name: "description",
-		content: "A virtual tabletop for the Aspects of Nature tabletop RPG",
-	},
+	{ description: "A virtual tabletop for the Aspects of Nature tabletop RPG" },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -51,9 +64,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default ClerkApp(function App() {
+	const { user } = useLoaderData<typeof loader>()
+	const [convex] = useState(
+		() => new ConvexReactClient(clientEnv.VITE_CONVEX_URL),
+	)
 	return (
 		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-			<Outlet />
+			<UserContext value={user}>
+				<Outlet />
+			</UserContext>
 		</ConvexProviderWithClerk>
 	)
 }, clerkConfig)

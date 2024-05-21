@@ -1,7 +1,11 @@
-import { v } from "convex/values"
-import type { Branded } from "../helpers/convex.js"
-import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
-import { getIdentity, getUserFromIdentity } from "./helpers.ts"
+import { Effect } from "effect"
+import { effectMutation, withMutationCtx } from "../helpers/effect.ts"
+import { type QueryCtx, query } from "../helpers/ents.ts"
+import {
+	getIdentityEffect,
+	getUserFromClerkId,
+	getUserFromIdentity,
+} from "./helpers.ts"
 
 export const user = query({
 	handler: async (ctx: QueryCtx) => {
@@ -9,21 +13,37 @@ export const user = query({
 	},
 })
 
-export const setup = mutation({
-	args: {
-		name: v.string(),
-		avatarUrl: v.optional(v.string()),
-	},
-	async handler(ctx, args) {
-		const user = await getUserFromIdentity(ctx).getValueOrNull()
-		const identity = await getIdentity(ctx).getValueOrThrow()
-		if (user) {
-			await ctx.db.patch(user._id, args)
-		} else {
-			await ctx.db.insert("users", {
-				...args,
-				clerkId: identity.subject as Branded<"clerkId">,
-			})
-		}
+export const setup = effectMutation({
+	args: {},
+	handler() {
+		return Effect.gen(function* () {
+			const identity = yield* getIdentityEffect()
+			const data = {
+				name: identity.nickname || identity.name || "anonymous",
+				avatarUrl: identity.pictureUrl,
+			}
+
+			return yield* getUserFromClerkId(identity.subject).pipe(
+				Effect.flatMap((user) => {
+					return withMutationCtx(async (ctx) => {
+						return await ctx
+							.table("users")
+							.getX(user._id)
+							.patch(data)
+							.get()
+							.doc()
+					})
+				}),
+				Effect.catchTag("UserNotFoundError", () => {
+					return withMutationCtx(async (ctx) => {
+						return await ctx
+							.table("users")
+							.insert({ ...data, clerkId: identity.subject })
+							.get()
+							.doc()
+					})
+				}),
+			)
+		})
 	},
 })
