@@ -12,15 +12,17 @@ http.route({
 		const url = new URL(request.url)
 		const storageId = url.searchParams.get("id")
 		if (!storageId) {
-			return new Response(`Missing required query parameter "id"`, {
+			return new Response(null, {
 				status: 400,
+				statusText: `Missing required query parameter "id"`,
 			})
 		}
 
 		const file = await ctx.storage.get(storageId as Id<"_storage">)
 		if (!file) {
-			return new Response(`File with id "${storageId}" not found`, {
+			return new Response(null, {
 				status: 404,
+				statusText: `File with id "${storageId}" not found`,
 			})
 		}
 
