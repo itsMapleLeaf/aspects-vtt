@@ -12,7 +12,8 @@
 		"lint": "eslint .",
 		"format": "prettier --write .",
 		"test": "tsx --test",
-		"typecheck": "tsc"
+		"typecheck": "tsc",
+		"convex-backend": "nu.exe scripts/convex-backend.nu"
 	},
 	"dependencies": {
 		"@ariakit/react": "^0.4.6",
