@@ -8,6 +8,7 @@ import { useUser } from "../features/auth/UserContext.tsx"
 import { CharacterListPanel } from "../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
+import { useNotionData } from "../features/game/NotionDataContext.tsx"
 import { MessageForm } from "../features/messages/MessageForm.tsx"
 import { MessageList } from "../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../features/rooms/CombatInitiative.tsx"
@@ -331,7 +332,7 @@ function MessagesPanel() {
 }
 
 function GeneralSkillsList() {
-	const notionData = useQuery(api.notionImports.functions.get, {})
+	const notionData = useNotionData()
 	return (
 		<DefinitionList
 			items={

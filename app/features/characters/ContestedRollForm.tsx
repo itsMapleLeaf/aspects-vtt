@@ -1,12 +1,11 @@
-import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
-import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { FormActions, FormLayout, FormRow } from "../../ui/Form.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
 import { Select } from "../../ui/Select.tsx"
 import type { ApiAttribute, ApiCharacter } from "../characters/types.ts"
+import { useNotionData } from "../game/NotionDataContext.tsx"
 import { useCharacters } from "../rooms/roomContext.tsx"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
@@ -20,7 +19,7 @@ export function ContestedRollForm({
 	const characters = useCharacters()
 	const selfCharacter = characters.find((c) => c.isOwner)
 
-	const attributes = useQuery(api.notionImports.functions.get, {})?.attributes
+	const attributes = useNotionData()?.attributes
 	const strengthAttribute = attributes?.find((a) => a.key === "strength")
 
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
@@ -142,7 +141,7 @@ function AttributeSelectField(props: {
 	onChange: (value: ApiAttribute) => void
 	className?: string
 }) {
-	const attributes = useQuery(api.notionImports.functions.get, {})?.attributes
+	const attributes = useNotionData()?.attributes
 	return (
 		<Select
 			label={props.label}

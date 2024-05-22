@@ -1,4 +1,4 @@
-import { useConvex, useMutation, useQuery } from "convex/react"
+import { useConvex, useMutation } from "convex/react"
 import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useId, useState } from "react"
@@ -19,6 +19,7 @@ import { TextArea } from "../../ui/TextArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import { statDiceKinds } from "../dice/diceKinds.tsx"
+import { useNotionData } from "../game/NotionDataContext.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
@@ -28,7 +29,7 @@ import type { ApiAttribute, ApiCharacter } from "./types.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
-	const notionData = useQuery(api.notionImports.functions.get, {})
+	const notionData = useNotionData()
 
 	return (
 		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">

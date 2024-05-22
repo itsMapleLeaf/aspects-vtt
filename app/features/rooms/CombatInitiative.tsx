@@ -14,6 +14,7 @@ import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
+import { useNotionData } from "../game/NotionDataContext.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import {
 	RoomOwnerOnly,
@@ -328,7 +329,7 @@ function CombatEmptyState() {
 }
 
 function useAttributes() {
-	const notionImports = useQuery(api.notionImports.functions.get, {})
+	const notionImports = useNotionData()
 	return notionImports?.attributes ?? []
 }
 
