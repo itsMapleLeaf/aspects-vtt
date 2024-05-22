@@ -303,19 +303,20 @@ function RollAttributeMenu(props: {
 function CharacterAbilityList({ character }: { character: ApiCharacter }) {
 	const raceAbilities = useCharacterRaceAbilities(character)
 
+	if (!character.isOwner) {
+		return (
+			<>
+				<DefinitionList items={raceAbilities} />
+				<p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>
+			</>
+		)
+	}
+
 	const aspectSkills = Iterator.from(character.learnedAspectSkills ?? [])
 		.flatMap((group) => group.aspectSkillIds)
 		.map((id) => CharacterSkillTree.skillsById.get(id))
 		.filter((skill) => skill != null)
+		.toArray()
 
-	if (character.isOwner) {
-		return <DefinitionList items={[...raceAbilities, ...aspectSkills]} />
-	}
-
-	return (
-		<>
-			<DefinitionList items={raceAbilities} />
-			<p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>
-		</>
-	)
+	return <DefinitionList items={[...raceAbilities, ...aspectSkills]} />
 }
