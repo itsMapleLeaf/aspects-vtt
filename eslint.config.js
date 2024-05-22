@@ -10,7 +10,16 @@ export default ts.config(
 	{
 		ignores: ["build/", "convex/_generated/"],
 	},
+
+	// recommended configs are too noisy
+	// js.configs.recommended,
+	// ...ts.configs.recommended,
+	// ...ts.configs.stylistic,
+
 	{
+		plugins: {
+			"@typescript-eslint": ts.plugin,
+		},
 		languageOptions: {
 			ecmaVersion: "latest",
 			globals: { ...globals.browser, ...globals.node },
@@ -23,29 +32,18 @@ export default ts.config(
 		rules: {
 			"no-console": ["error", { allow: ["warn", "info", "error"] }],
 			"object-shorthand": "warn",
-		},
-	},
+			"prefer-const": "warn",
 
-	// recommended configs are too noisy
-	// js.configs.recommended,
-	// ...ts.configs.recommended,
-	// ...ts.configs.stylistic,
-
-	{
-		plugins: {
-			"@typescript-eslint": ts.plugin,
-		},
-		rules: {
-			"@typescript-eslint/no-unused-vars": [
-				"warn",
-				{ args: "none", varsIgnorePattern: "^_" },
-			],
 			"@typescript-eslint/ban-ts-comment": "off",
 			"@typescript-eslint/consistent-type-imports": [
 				"warn",
 				{ fixStyle: "inline-type-imports" },
 			],
 			"@typescript-eslint/no-import-type-side-effects": "error",
+			"@typescript-eslint/no-unused-vars": [
+				"warn",
+				{ args: "none", varsIgnorePattern: "^_" },
+			],
 		},
 	},
 
@@ -59,6 +57,7 @@ export default ts.config(
 	...fixupConfigRules(reactRecommended),
 	...fixupConfigRules(jsxRuntime),
 	...fixupConfigRules({
+		files: ["app/**/*.{ts,tsx}"],
 		plugins: {
 			"react-hooks": reactHooks,
 			"react-compiler": reactCompiler,
@@ -69,6 +68,5 @@ export default ts.config(
 			"react-hooks/rules-of-hooks": "error",
 			"react-compiler/react-compiler": "warn",
 		},
-		files: ["app/**/*.{ts,tsx}"],
 	}),
 )
