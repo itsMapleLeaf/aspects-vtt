@@ -19,15 +19,15 @@ import type { ApiCharacter } from "../characters/types.ts"
 
 const conditionPresets: ApiCharacterCondition[] = [
 	{
-		name: "Incapacitated",
+		name: "Burning",
 		color: "red",
 	},
 	{
-		name: "Prone",
+		name: "Unconscious",
 		color: "orange",
 	},
 	{
-		name: "Strengthened",
+		name: "Prone",
 		color: "yellow",
 	},
 	{
@@ -39,11 +39,11 @@ const conditionPresets: ApiCharacterCondition[] = [
 		color: "blue",
 	},
 	{
-		name: "Paralyzed",
+		name: "Blinded",
 		color: "purple",
 	},
 	{
-		name: "Sleeping",
+		name: "Incapacitated",
 		color: "pink",
 	},
 	{
