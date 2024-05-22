@@ -40,9 +40,9 @@ export function useFilter<In, Out extends In>(
 export function useFilter<T>(input: T, predicate: (input: T) => unknown): T
 export function useFilter<T>(input: T, predicate: (input: T) => unknown) {
 	const [state, setState] = useState<T>(input)
-	if (input !== state && predicate(input)) {
-		setState(input)
-	}
+	useEffect(() => {
+		if (predicate(input)) setState(input)
+	}, [input, predicate])
 	return state
 }
 
