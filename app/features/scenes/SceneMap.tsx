@@ -14,6 +14,7 @@ import { Vector } from "../../common/vector.ts"
 import { DragSelectable, DragSelectArea } from "../../ui/DragSelect.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { CharacterDnd } from "../characters/CharacterDnd.tsx"
+import { getThresholds } from "../characters/helpers.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
@@ -373,6 +374,8 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 		return null
 	}
 
+	const thresholds = getThresholds(token.character)
+
 	return (
 		<div
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"
@@ -396,7 +399,7 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 					))}
 					{token.character.damage > 0 && (
 						<TokenMeter
-							value={token.character.damage / token.character.damageThreshold}
+							value={token.character.damage / thresholds.damage}
 							className={{
 								base: "text-yellow-400",
 								warning: "text-orange-400",
@@ -406,7 +409,7 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 					)}
 					{token.character.fatigue > 0 && (
 						<TokenMeter
-							value={token.character.fatigue / token.character.fatigueThreshold}
+							value={token.character.fatigue / thresholds.fatigue}
 							className={{
 								base: "text-green-400",
 								warning: "text-blue-400",

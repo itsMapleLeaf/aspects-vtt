@@ -15,6 +15,8 @@ export const characterProperties = {
 	mobility: v.optional(v.number()),
 	intellect: v.optional(v.number()),
 	wit: v.optional(v.number()),
+	damageThresholdDelta: v.optional(v.number()),
+	fatigueThresholdDelta: v.optional(v.number()),
 	learnedAspectSkills: v.optional(
 		// keep track of the order of aspects to calculate the correct EXP costs
 		v.array(

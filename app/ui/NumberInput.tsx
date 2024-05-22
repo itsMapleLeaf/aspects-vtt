@@ -21,7 +21,7 @@ type NumberInputProps = StrictOmit<
 export function NumberInput({
 	value,
 	onChange,
-	min = 0, // this is a bad default generally, but Aspects pretty much never deals with negative numbers
+	min = 0, // this is a bad default generally, but Aspects rarely deals with negative numbers
 	max,
 	step = 1,
 	requireInteger = true,

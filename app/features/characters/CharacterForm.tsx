@@ -93,13 +93,13 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				<div className="flex gap-2 *:flex-1">
 					<CharacterNumberField
 						character={character}
-						field="damageThreshold"
-						label="Damage Threshold"
+						field="damageThresholdDelta"
+						label="Damage Threshold Modifier"
 					/>
 					<CharacterNumberField
 						character={character}
-						field="fatigueThreshold"
-						label="Fatigue Threshold"
+						field="fatigueThresholdDelta"
+						label="Fatigue Threshold Modifier"
 					/>
 				</div>
 			)}
@@ -148,11 +148,13 @@ export function CharacterDamageField({
 }: {
 	character: ApiCharacter
 }) {
+	const threshold =
+		character.strength + character.mobility + character.damageThresholdDelta
 	return (
 		<CharacterNumberField
 			character={character}
 			field="damage"
-			label={`Damage / ${character.damageThreshold}`}
+			label={`Damage / ${threshold}`}
 		/>
 	)
 }
@@ -162,11 +164,16 @@ export function CharacterFatigueField({
 }: {
 	character: ApiCharacter
 }) {
+	const threshold =
+		character.sense +
+		character.intellect +
+		character.wit +
+		character.fatigueThresholdDelta
 	return (
 		<CharacterNumberField
 			character={character}
 			field="fatigue"
-			label={`Fatigue / ${character.fatigueThreshold}`}
+			label={`Fatigue / ${threshold}`}
 		/>
 	)
 }
@@ -266,10 +273,12 @@ function CharacterNumberField({
 	character,
 	field,
 	label = startCase(field),
+	min = 0,
 }: {
 	character: ApiCharacter
 	field: UpdateableCharacterField<number>
 	label?: string
+	min?: number
 }) {
 	const [state, update] = useAsyncState(
 		useMutation(api.characters.functions.update),
@@ -282,7 +291,7 @@ function CharacterNumberField({
 
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
-			<NumberField label={label} value={value} onChange={setValue} />
+			<NumberField label={label} value={value} min={min} onChange={setValue} />
 		</CharacterReadOnlyGuard>
 	)
 }

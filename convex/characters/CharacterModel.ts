@@ -28,6 +28,8 @@ const characterDefaults = {
 	mobility: 4,
 	intellect: 4,
 	wit: 4,
+	damageThresholdDelta: 0,
+	fatigueThresholdDelta: 0,
 
 	// notes
 	ownerNotes: "",
@@ -49,20 +51,8 @@ export class CharacterModel {
 
 	constructor(ctx: QueryCtx, doc: Doc<"characters">) {
 		this.ctx = ctx
-
-		const docWithDefaults = { ...characterDefaults, ...doc }
-
 		this.doc = doc
-
-		this.data = {
-			...docWithDefaults,
-			damageThreshold:
-				doc.damageThreshold ??
-				docWithDefaults.strength + docWithDefaults.mobility,
-			fatigueThreshold:
-				doc.fatigueThreshold ??
-				docWithDefaults.sense + docWithDefaults.intellect + docWithDefaults.wit,
-		}
+		this.data = { ...characterDefaults, ...doc }
 	}
 
 	static get(ctx: QueryCtx, id: Id<"characters">) {
