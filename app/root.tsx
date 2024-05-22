@@ -18,8 +18,8 @@ import {
 } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
-import { Effect } from "effect"
-import { useState } from "react"
+import { Effect, pipe } from "effect"
+import { Suspense, useState } from "react"
 import { api } from "../convex/_generated/api"
 import { clerkConfig } from "./clerk.ts"
 import { getConvexClient } from "./convex.server.ts"
@@ -31,8 +31,9 @@ import { PromptProvider } from "./ui/Prompt.tsx"
 const setupUser = loaderFromEffect(
 	Effect.gen(function* () {
 		const convex = yield* getConvexClient()
-		return yield* Effect.tryPromise(() =>
-			convex.mutation(api.auth.functions.setup, {}),
+		return yield* pipe(
+			Effect.tryPromise(() => convex.mutation(api.auth.functions.setup, {})),
+			Effect.orElseSucceed(() => null),
 		)
 	}),
 )
@@ -55,7 +56,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<PromptProvider>{children}</PromptProvider>
+				<PromptProvider>
+					<Suspense>{children}</Suspense>
+				</PromptProvider>
 				<ScrollRestoration />
 				<Scripts />
 			</body>

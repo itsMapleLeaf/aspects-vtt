@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect } from "react"
 import { api } from "../../convex/_generated/api.js"
+import { useUser } from "../features/auth/UserContext.tsx"
 import { CharacterListPanel } from "../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
@@ -303,9 +304,9 @@ function CriticalInjuryDetails() {
 
 function JoinRoomEffect() {
 	const room = useRoom()
-	const user = useQuery(api.auth.functions.user, {})
+	const user = useUser()
 	const join = useMutation(api.rooms.functions.join)
-	const hasJoined = room.players.some((p) => p.clerkId === user?.value?.clerkId)
+	const hasJoined = room.players.some((p) => p.clerkId === user?.clerkId)
 
 	useEffect(() => {
 		if (!hasJoined) join({ id: room._id })

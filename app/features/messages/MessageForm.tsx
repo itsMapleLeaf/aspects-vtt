@@ -14,6 +14,7 @@ import { usePrompt } from "../../ui/Prompt.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel } from "../../ui/styles.ts"
+import { useUser } from "../auth/UserContext.tsx"
 import { AttributeDiceRollButton } from "../characters/AttributeDiceRollButton.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { DiceCounter } from "../dice/DiceCounter.tsx"
@@ -174,9 +175,9 @@ function DiceRollButton({
 }: {
 	field: keyof PickByValue<ApiCharacter, number>
 }) {
-	const user = useQuery(api.auth.functions.user, {})
+	const user = useUser()
 	const ownedCharacter = useCharacters().find(
-		(c) => c.playerId === user?.value?.clerkId,
+		(c) => c.playerId === user?.clerkId,
 	)
 	return (
 		ownedCharacter && (
