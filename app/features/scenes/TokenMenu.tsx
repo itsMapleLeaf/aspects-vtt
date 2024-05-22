@@ -1,10 +1,11 @@
-import { useMutation, useQuery } from "convex/react"
+import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import * as React from "react"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../common/Rect.ts"
 import { randomItem } from "../../common/random.ts"
+import { useFilter } from "../../common/react.ts"
 import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
@@ -26,6 +27,7 @@ import { CharacterSkillTree } from "../characters/skills.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacterRaceAbilities } from "../characters/useCharacterRaceAbilities.ts"
 import { useCreateAttributeRollMessage } from "../characters/useCreateAttributeRollMessage.tsx"
+import { useNotionData } from "../game/NotionDataContext.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
@@ -82,188 +84,191 @@ export function TokenMenu() {
 					unmountOnHide={false}
 					hideOnInteractOutside={false}
 				>
-					<TokenMenuButtons />
-					<TokenMenuCharacterTabs />
+					<TokenMenuContent />
 				</PopoverPanel>
 			</Popover>
 		</Tabs>
 	)
 }
 
-function TokenMenuButtons() {
+function TokenMenuContent() {
 	const {
 		scene,
 		tokenSelectStore,
-		selectedTokens,
-		selectedCharacters,
-		singleSelectedCharacter,
+		selectedTokens: selectedTokensInput,
 	} = useSceneContext()
 	const room = useRoom()
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
 	const updateCharacter = useMutation(api.characters.functions.update)
 
+	// filter out empty token arrays to avoid "flash of empty content" while closing
+	const selectedTokens = useFilter(selectedTokensInput, (it) => it.length > 0)
+
+	const selectedCharacters = Iterator.from(selectedTokens)
+		.map((it) => it.character)
+		.filter((it) => it != null)
+		.toArray()
+
 	const selectionHasCharacters = selectedCharacters.length > 0
 
+	const singleSelectedCharacter =
+		selectedCharacters.length === 1 ? selectedCharacters[0] : undefined
+
 	return (
-		<div className="flex justify-center gap-[inherit]">
-			{singleSelectedCharacter && (
-				<CharacterModal character={singleSelectedCharacter}>
-					<ModalButton
-						render={
-							<Button tooltip="View profile" icon={<Lucide.BookUser />} />
-						}
+		<>
+			<div className="flex justify-center gap-[inherit]">
+				{singleSelectedCharacter && (
+					<CharacterModal character={singleSelectedCharacter}>
+						<ModalButton
+							render={
+								<Button tooltip="View profile" icon={<Lucide.BookUser />} />
+							}
+						/>
+					</CharacterModal>
+				)}
+
+				{selectionHasCharacters && (
+					<RollAttributeMenu characters={selectedCharacters}>
+						<Button tooltip="Roll attribute" icon={<Lucide.Dices />} />
+					</RollAttributeMenu>
+				)}
+
+				{selectionHasCharacters && (
+					<StressUpdateMenu characters={selectedCharacters} field="damage">
+						<Button tooltip="Update damage" icon={<Lucide.HeartPulse />} />
+					</StressUpdateMenu>
+				)}
+
+				{selectionHasCharacters && (
+					<StressUpdateMenu characters={selectedCharacters} field="fatigue">
+						<Button tooltip="Update fatigue" icon={<Lucide.Brain />} />
+					</StressUpdateMenu>
+				)}
+
+				{selectedTokens.length >= 2 && (
+					<Button
+						tooltip="Choose random"
+						icon={<Lucide.Shuffle />}
+						onClick={() => {
+							const token = randomItem(selectedTokens)
+							if (token) {
+								tokenSelectStore.clear()
+								tokenSelectStore.setItemSelected(token.key, true)
+							}
+						}}
 					/>
-				</CharacterModal>
-			)}
+				)}
 
-			{selectionHasCharacters && (
-				<RollAttributeMenu characters={selectedCharacters}>
-					<Button tooltip="Roll attribute" icon={<Lucide.Dices />} />
-				</RollAttributeMenu>
-			)}
+				{room.isOwner && scene && selectedTokens.some((it) => !it.visible) && (
+					<Button
+						tooltip="Show token"
+						icon={<Lucide.Image />}
+						onClick={() => {
+							for (const token of selectedTokens) {
+								updateToken({
+									sceneId: scene._id,
+									key: token.key,
+									visible: true,
+								})
+							}
+						}}
+					/>
+				)}
 
-			{selectionHasCharacters && (
-				<StressUpdateMenu characters={selectedCharacters} field="damage">
-					<Button tooltip="Update damage" icon={<Lucide.HeartPulse />} />
-				</StressUpdateMenu>
-			)}
+				{room.isOwner && scene && selectedTokens.some((it) => it.visible) && (
+					<Button
+						tooltip="Hide token"
+						icon={<Lucide.ImageOff />}
+						onClick={() => {
+							for (const token of selectedTokens) {
+								updateToken({
+									sceneId: scene._id,
+									key: token.key,
+									visible: false,
+								})
+							}
+						}}
+					/>
+				)}
 
-			{selectionHasCharacters && (
-				<StressUpdateMenu characters={selectedCharacters} field="fatigue">
-					<Button tooltip="Update fatigue" icon={<Lucide.Brain />} />
-				</StressUpdateMenu>
-			)}
+				{room.isOwner && selectedCharacters.some((it) => !it.nameVisible) && (
+					<Button
+						tooltip="Show name"
+						icon={<Lucide.Eye />}
+						onClick={() => {
+							for (const character of selectedCharacters) {
+								updateCharacter({
+									id: character._id,
+									nameVisible: true,
+								})
+							}
+						}}
+					/>
+				)}
 
-			{selectedTokens.length >= 2 && (
-				<Button
-					tooltip="Choose random"
-					icon={<Lucide.Shuffle />}
-					onClick={() => {
-						const token = randomItem(selectedTokens)
-						if (token) {
-							tokenSelectStore.clear()
-							tokenSelectStore.setItemSelected(token.key, true)
-						}
-					}}
-				/>
-			)}
+				{room.isOwner && selectedCharacters.some((it) => it.nameVisible) && (
+					<Button
+						tooltip="Hide name"
+						icon={<Lucide.EyeOff />}
+						onClick={() => {
+							for (const character of selectedCharacters) {
+								updateCharacter({
+									id: character._id,
+									nameVisible: false,
+								})
+							}
+						}}
+					/>
+				)}
 
-			{room.isOwner && scene && selectedTokens.some((it) => !it.visible) && (
-				<Button
-					tooltip="Show token"
-					icon={<Lucide.Image />}
-					onClick={() => {
-						for (const token of selectedTokens) {
-							updateToken({
-								sceneId: scene._id,
-								key: token.key,
-								visible: true,
-							})
-						}
-					}}
-				/>
+				{scene && selectedTokens.length > 0 && (
+					<Button
+						tooltip="Remove"
+						icon={<Lucide.X />}
+						onClick={() => {
+							for (const token of selectedTokens) {
+								removeToken({ sceneId: scene._id, tokenKey: token.key })
+							}
+						}}
+					/>
+				)}
+			</div>
+			{singleSelectedCharacter?.isOwner && (
+				<TokenMenuCharacterTabs character={singleSelectedCharacter} />
 			)}
-
-			{room.isOwner && scene && selectedTokens.some((it) => it.visible) && (
-				<Button
-					tooltip="Hide token"
-					icon={<Lucide.ImageOff />}
-					onClick={() => {
-						for (const token of selectedTokens) {
-							updateToken({
-								sceneId: scene._id,
-								key: token.key,
-								visible: false,
-							})
-						}
-					}}
-				/>
-			)}
-
-			{room.isOwner && selectedCharacters.some((it) => !it.nameVisible) && (
-				<Button
-					tooltip="Show name"
-					icon={<Lucide.Eye />}
-					onClick={() => {
-						for (const character of selectedCharacters) {
-							updateCharacter({
-								id: character._id,
-								nameVisible: true,
-							})
-						}
-					}}
-				/>
-			)}
-
-			{room.isOwner && selectedCharacters.some((it) => it.nameVisible) && (
-				<Button
-					tooltip="Hide name"
-					icon={<Lucide.EyeOff />}
-					onClick={() => {
-						for (const character of selectedCharacters) {
-							updateCharacter({
-								id: character._id,
-								nameVisible: false,
-							})
-						}
-					}}
-				/>
-			)}
-
-			{scene && selectedTokens.length > 0 && (
-				<Button
-					tooltip="Remove"
-					icon={<Lucide.X />}
-					onClick={() => {
-						for (const token of selectedTokens) {
-							removeToken({ sceneId: scene._id, tokenKey: token.key })
-						}
-					}}
-				/>
-			)}
-		</div>
+		</>
 	)
 }
 
-function TokenMenuCharacterTabs() {
-	const { singleSelectedCharacter } = useSceneContext()
-
-	if (!singleSelectedCharacter) {
-		return null
-	}
-
+function TokenMenuCharacterTabs({ character }: { character: ApiCharacter }) {
 	return (
 		<>
 			<Tabs.List>
 				<Tabs.Tab id="abilities">Abilities</Tabs.Tab>
-				{singleSelectedCharacter.isOwner && (
-					<Tabs.Tab id="status">Status</Tabs.Tab>
-				)}
+				{character.isOwner && <Tabs.Tab id="status">Status</Tabs.Tab>}
 				<Tabs.Tab id="notes">Notes</Tabs.Tab>
 			</Tabs.List>
 
 			<ScrollArea className="h-[360px]">
 				<Tabs.Panel id="abilities">
-					<CharacterAbilityList character={singleSelectedCharacter} />
+					<CharacterAbilityList character={character} />
 				</Tabs.Panel>
 
-				{singleSelectedCharacter.isOwner && (
+				{character.isOwner && (
 					<Tabs.Panel className="flex flex-col gap-2" id="status">
 						<div className="flex gap-2 *:flex-1">
-							<CharacterDamageField character={singleSelectedCharacter} />
-							<CharacterFatigueField character={singleSelectedCharacter} />
+							<CharacterDamageField character={character} />
+							<CharacterFatigueField character={character} />
 						</div>
 						<FormField label="Conditions">
-							<CharacterConditionsListInput
-								character={singleSelectedCharacter}
-							/>
+							<CharacterConditionsListInput character={character} />
 						</FormField>
 					</Tabs.Panel>
 				)}
 
 				<Tabs.Panel className="flex flex-col gap-2" id="notes">
-					<CharacterNotesFields character={singleSelectedCharacter} />
+					<CharacterNotesFields character={character} />
 				</Tabs.Panel>
 			</ScrollArea>
 		</>
@@ -275,7 +280,7 @@ function RollAttributeMenu(props: {
 	children: React.ReactElement
 }) {
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
-	const notionImports = useQuery(api.notionImports.functions.get, {})
+	const notionImports = useNotionData()
 	return (
 		<Menu placement="bottom">
 			<MenuButton render={props.children} />

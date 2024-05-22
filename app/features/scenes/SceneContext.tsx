@@ -1,5 +1,4 @@
 import { useQuery } from "convex/react"
-import { Iterator } from "iterator-helpers-polyfill"
 import { createContext, use, useState, type ReactNode } from "react"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
@@ -30,14 +29,6 @@ function useSceneProvider(scene: ApiScene) {
 		tokenSelectStore.isSelected(it.key),
 	)
 
-	const selectedCharacters = Iterator.from(selectedTokens)
-		.map((it) => it.character)
-		.filter((it) => it != null)
-		.toArray()
-
-	const singleSelectedCharacter =
-		(!selectedCharacters[1] && selectedCharacters[0]) ?? undefined
-
 	return {
 		scene,
 
@@ -46,8 +37,6 @@ function useSceneProvider(scene: ApiScene) {
 		setTokenDragOffset,
 		tokens,
 		selectedTokens,
-		selectedCharacters,
-		singleSelectedCharacter,
 
 		viewport: {
 			offset: viewport.offset,
