@@ -99,13 +99,13 @@ export function MessageForm() {
 		<form action={submit} className="flex flex-col gap-2">
 			<div className="flex flex-col gap-2 empty:hidden">
 				<div className="flex gap-2 *:flex-1">
-					<DiceRollButton field="strength" />
-					<DiceRollButton field="mobility" />
+					<SelfAttributeRollButton field="strength" />
+					<SelfAttributeRollButton field="mobility" />
 				</div>
 				<div className="flex gap-2 *:flex-1">
-					<DiceRollButton field="sense" />
-					<DiceRollButton field="intellect" />
-					<DiceRollButton field="wit" />
+					<SelfAttributeRollButton field="sense" />
+					<SelfAttributeRollButton field="intellect" />
+					<SelfAttributeRollButton field="wit" />
 				</div>
 			</div>
 
@@ -170,7 +170,7 @@ export function MessageForm() {
 	)
 }
 
-function DiceRollButton({
+function SelfAttributeRollButton({
 	field,
 }: {
 	field: keyof PickByValue<ApiCharacter, number>

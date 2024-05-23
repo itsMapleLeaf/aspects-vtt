@@ -149,13 +149,14 @@ export const applyStress = effectMutation({
 				)
 			}
 
-			const user = yield* getUserFromIdentityEffect()
-
-			const characters = yield* Effect.forEach(
-				args.characterIds,
-				(id) => getEntityDoc("characters", id),
-				{ concurrency: "unbounded" },
-			)
+			const { user, characters } = yield* Effect.all({
+				user: getUserFromIdentityEffect(),
+				characters: Effect.forEach(
+					args.characterIds,
+					(id) => getEntityDoc("characters", id),
+					{ concurrency: "unbounded" },
+				),
+			})
 
 			const characterRoomIds = [
 				...new Set(characters.map((character) => character.roomId)),
