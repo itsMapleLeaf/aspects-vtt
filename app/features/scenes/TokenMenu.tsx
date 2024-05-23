@@ -14,6 +14,7 @@ import { ModalButton } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
+import { panel } from "../../ui/styles.ts"
 import { AttributeDiceRollButtonGrid } from "../characters/AttributeDiceRollButtonGrid.tsx"
 import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
 import {
@@ -108,9 +109,75 @@ function TokenMenuContent() {
 	const singleSelectedCharacter =
 		selectedCharacters.length === 1 ? selectedCharacters[0] : undefined
 
+	type TabView = {
+		title: string
+		content: JSX.Element
+	}
+
+	const tabViews: TabView[] = []
+
+	if (selectedCharacters.length > 0) {
+		tabViews.push({
+			title: "Abilities",
+			content: (
+				<>
+					<AttributeDiceRollButtonGrid className="gap-[inherit]" characters={selectedCharacters} />
+					{singleSelectedCharacter && (
+						<div className={panel()}>
+							<ScrollArea className="max-h-[360px]">
+								<div className="p-3">
+									<CharacterAbilityList character={singleSelectedCharacter} />
+								</div>
+							</ScrollArea>
+						</div>
+					)}
+				</>
+			),
+		})
+	}
+
+	if (selectionHasCharacters) {
+		tabViews.push({
+			title: "Status",
+			content: (
+				<>
+					{singleSelectedCharacter && (
+						<div className="flex gap-2 *:flex-1">
+							<CharacterDamageField character={singleSelectedCharacter} />
+							<CharacterFatigueField character={singleSelectedCharacter} />
+						</div>
+					)}
+					{singleSelectedCharacter && (
+						<FormField label="Conditions">
+							<CharacterConditionsListInput character={singleSelectedCharacter} />
+						</FormField>
+					)}
+					<div className="flex gap-[inherit] *:flex-1 empty:hidden">
+						<StressUpdateMenu characters={selectedCharacters}>
+							<Button text="Advanced stress update" icon={<Lucide.WandSparkles />} />
+						</StressUpdateMenu>
+					</div>
+				</>
+			),
+		})
+	}
+
+	if (singleSelectedCharacter) {
+		tabViews.push({
+			title: "Notes",
+			content: <CharacterNotesFields character={singleSelectedCharacter} />,
+		})
+	}
+
 	return (
 		<>
 			<div className="flex justify-center gap-[inherit]">
+				{singleSelectedCharacter && (
+					<CharacterModal character={singleSelectedCharacter}>
+						<ModalButton render={<Button text="View profile" icon={<Lucide.BookUser />} />} />
+					</CharacterModal>
+				)}
+
 				{selectedTokens.length >= 2 && (
 					<Button
 						tooltip="Choose random"
@@ -200,60 +267,23 @@ function TokenMenuContent() {
 				)}
 			</div>
 
-			{selectedCharacters.length > 0 && (
-				<AttributeDiceRollButtonGrid className="gap-[inherit]" characters={selectedCharacters} />
+			{tabViews.length > 0 && (
+				<>
+					<hr className="border-primary-300/75" />
+					<Tabs.List>
+						{tabViews.map((view) => (
+							<Tabs.Tab key={view.title} id={view.title}>
+								{view.title}
+							</Tabs.Tab>
+						))}
+					</Tabs.List>
+					{tabViews.map((view) => (
+						<Tabs.Panel key={view.title} id={view.title} className="flex flex-col gap-2">
+							{view.content}
+						</Tabs.Panel>
+					))}
+				</>
 			)}
-
-			<div className="flex gap-[inherit] *:flex-1 empty:hidden">
-				{singleSelectedCharacter && (
-					<CharacterModal character={singleSelectedCharacter}>
-						<ModalButton render={<Button text="View profile" icon={<Lucide.BookUser />} />} />
-					</CharacterModal>
-				)}
-				{selectionHasCharacters && (
-					<StressUpdateMenu characters={selectedCharacters}>
-						<Button text="Update stress" icon={<Lucide.HeartCrack />} />
-					</StressUpdateMenu>
-				)}
-			</div>
-
-			{singleSelectedCharacter?.isOwner && (
-				<TokenMenuCharacterTabs character={singleSelectedCharacter} />
-			)}
-		</>
-	)
-}
-
-function TokenMenuCharacterTabs({ character }: { character: ApiCharacter }) {
-	return (
-		<>
-			<Tabs.List>
-				<Tabs.Tab id="abilities">Abilities</Tabs.Tab>
-				{character.isOwner && <Tabs.Tab id="status">Status</Tabs.Tab>}
-				<Tabs.Tab id="notes">Notes</Tabs.Tab>
-			</Tabs.List>
-
-			<ScrollArea className="h-[360px]">
-				<Tabs.Panel id="abilities">
-					<CharacterAbilityList character={character} />
-				</Tabs.Panel>
-
-				{character.isOwner && (
-					<Tabs.Panel className="flex flex-col gap-2" id="status">
-						<div className="flex gap-2 *:flex-1">
-							<CharacterDamageField character={character} />
-							<CharacterFatigueField character={character} />
-						</div>
-						<FormField label="Conditions">
-							<CharacterConditionsListInput character={character} />
-						</FormField>
-					</Tabs.Panel>
-				)}
-
-				<Tabs.Panel className="flex flex-col gap-2" id="notes">
-					<CharacterNotesFields character={character} />
-				</Tabs.Panel>
-			</ScrollArea>
 		</>
 	)
 }

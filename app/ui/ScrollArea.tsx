@@ -11,9 +11,9 @@ export interface ScrollAreaProps {
 
 export function ScrollArea(props: ScrollAreaProps) {
 	return (
-		<RadixScrollArea.Root className={twMerge("h-full", props.className)}>
+		<RadixScrollArea.Root className={twMerge("flex h-full flex-col", props.className)}>
 			<RadixScrollArea.Viewport
-				className="max-h-full"
+				className="min-h-0 flex-1"
 				ref={props.viewportRef}
 				onScroll={props.onViewportScroll}
 			>
