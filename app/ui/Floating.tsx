@@ -1,7 +1,6 @@
 import * as FloatingUI from "@floating-ui/react-dom"
 import * as React from "react"
 import { createPortal } from "react-dom"
-import { type ElementProp, renderElementProp } from "../common/ElementProp.tsx"
 
 export const defaultFloatingOptions = {
 	placement: "top",
@@ -13,50 +12,56 @@ export const defaultFloatingOptions = {
 			padding: 8,
 		}),
 	],
-	whileElementsMounted: FloatingUI.autoUpdate,
 } satisfies FloatingUI.UseFloatingOptions
 
-const FloatingContext = React.createContext<FloatingUI.UseFloatingReturn | null>(null)
+export function createFloatingComponents() {
+	const FloatingContext = React.createContext<FloatingUI.UseFloatingReturn | null>(null)
 
-export interface FloatingProviderProps extends FloatingUI.UseFloatingOptions {
-	children: React.ReactNode
-}
-
-export function FloatingProvider({ children, ...options }: FloatingProviderProps) {
-	const floating = FloatingUI.useFloating({
-		...defaultFloatingOptions,
-		...options,
-	})
-	return <FloatingContext.Provider value={floating}>{children}</FloatingContext.Provider>
-}
-
-export function FloatingReference({
-	children,
-}: {
-	children: ElementProp<{
-		ref: FloatingUI.UseFloatingReturn["refs"]["setReference"]
-	}>
-}) {
-	const floating = React.useContext(FloatingContext)
-	if (!floating) {
-		throw new Error(`${FloatingReference.name} must be a child of ${FloatingProvider.name}`)
+	interface FloatingProviderProps extends FloatingUI.UseFloatingOptions {
+		children: React.ReactNode
 	}
-	return renderElementProp(children, { ref: floating.refs.setReference })
-}
 
-export interface FloatingProps extends React.ComponentPropsWithoutRef<"div"> {}
-
-export function Floating(props: FloatingProps) {
-	const floating = React.useContext(FloatingContext)
-	if (!floating) {
-		throw new Error(`${Floating.name} must be a child of ${FloatingProvider.name}`)
+	function FloatingProvider({ children, ...options }: FloatingProviderProps) {
+		const floating = FloatingUI.useFloating({
+			...defaultFloatingOptions,
+			...options,
+		})
+		return <FloatingContext.Provider value={floating}>{children}</FloatingContext.Provider>
 	}
-	return createPortal(
-		<div
-			{...props}
-			ref={floating.refs.setFloating}
-			style={{ ...floating.floatingStyles, ...props.style }}
-		/>,
-		document.body,
-	)
+
+	function useFloatingContext() {
+		const floating = React.use(FloatingContext)
+		if (!floating) {
+			throw new Error(`FloatingProvider not found`)
+		}
+		return floating
+	}
+
+	function FloatingReference(props: React.ComponentProps<"div">) {
+		const floating = useFloatingContext()
+		return <div {...props} ref={floating.refs.setReference} />
+	}
+
+	function Floating(props: React.ComponentProps<"div">) {
+		const floating = useFloatingContext()
+		return (
+			<>
+				{createPortal(
+					<div
+						{...props}
+						ref={floating.refs.setFloating}
+						// eslint-disable-next-line react/prop-types
+						style={{ ...floating.floatingStyles, ...props.style }}
+					/>,
+					document.body,
+				)}
+			</>
+		)
+	}
+
+	return {
+		FloatingProvider,
+		FloatingReference,
+		Floating,
+	}
 }

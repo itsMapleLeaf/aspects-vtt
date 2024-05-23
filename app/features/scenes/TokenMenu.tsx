@@ -1,7 +1,8 @@
+import * as FloatingUI from "@floating-ui/react-dom"
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
-import * as React from "react"
+import { createPortal } from "react-dom"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../common/Rect.ts"
 import { randomItem } from "../../common/random.ts"
@@ -11,10 +12,9 @@ import { Button } from "../../ui/Button.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { ModalButton } from "../../ui/Modal.tsx"
-import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
-import { panel } from "../../ui/styles.ts"
+import { panel, translucentPanel } from "../../ui/styles.ts"
 import { AttributeDiceRollButtonGrid } from "../characters/AttributeDiceRollButtonGrid.tsx"
 import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
 import {
@@ -36,12 +36,16 @@ export function TokenMenu() {
 
 	let anchor = Rect.from({
 		topLeft: selectedTokens
-			.map((it) => it.position)
+			.map((it) => Vector.from(it.position).roundedTo(scene.cellSize))
 			.reduce(Vector.topLeftMost, Number.POSITIVE_INFINITY),
 		bottomRight: selectedTokens
 			.map((it) => {
-				if (it.character) return Vector.from(it.position).plus(scene.cellSize)
-				if (it.area) return Vector.from(it.position).plus(it.area)
+				if (it.character)
+					return Vector.from(it.position).roundedTo(scene.cellSize).plus(scene.cellSize)
+				if (it.area)
+					return Vector.from(it.position)
+						.roundedTo(scene.cellSize)
+						.plus(Vector.from(it.area).roundedTo(scene.cellSize))
 				return it.position
 			})
 			.reduce(Vector.bottomRightMost, Number.NEGATIVE_INFINITY),
@@ -56,35 +60,50 @@ export function TokenMenu() {
 		selectedTokens.length > 0 &&
 		tokenSelectStore.area == null
 
-	const store = usePopoverStore({
+	// this was to position the menu relative to the cursor,
+	// but that didn't work out well
+	// const [position, setPosition] = useState(Vector.zero)
+	// const cursorRef = useRef(Vector.zero)
+
+	// useWindowEvent("pointermove", (event) => {
+	// 	cursorRef.current = Vector.from(event.clientX, event.clientY)
+	// })
+
+	// layout effect avoids a single frame of lag when opening the menu
+	// useLayoutEffect(() => {
+	// 	if (open) setPosition(cursorRef.current)
+	// }, [open, tokenSelectStore.selected])
+
+	const floating = FloatingUI.useFloating({
+		// open: open && position != null,
 		placement: "bottom",
-		open,
-		setOpen: (open) => {
-			if (!open) {
-				tokenSelectStore.clear()
-			}
+		strategy: "fixed",
+		middleware: [
+			FloatingUI.offset(16),
+			FloatingUI.shift({
+				crossAxis: true,
+				padding: 16,
+			}),
+		],
+		elements: {
+			reference: {
+				getBoundingClientRect: () => anchor,
+			},
 		},
 	})
 
-	React.useLayoutEffect(() => {
-		if (!open) return
-		store.render()
-	}, [store, open, anchor])
-
 	return (
 		<Tabs>
-			<Popover store={store}>
-				<PopoverPanel
-					getAnchorRect={() => anchor}
-					modal={false}
-					fixed
-					className="flex w-min min-w-[360px] flex-col gap-2 rounded p-3"
-					unmountOnHide={false}
-					hideOnInteractOutside={false}
+			{/* @ts-expect-error */}
+			{createPortal(
+				<div
+					ref={floating.refs.setFloating}
+					style={{ ...floating.floatingStyles, display: open ? undefined : "none" }}
 				>
 					<TokenMenuContent />
-				</PopoverPanel>
-			</Popover>
+				</div>,
+				document.body,
+			)}
 		</Tabs>
 	)
 }
@@ -170,11 +189,15 @@ function TokenMenuContent() {
 	}
 
 	return (
-		<>
-			<div className="flex justify-center gap-[inherit]">
+		<div className="flex-center gap-3">
+			<div className={translucentPanel("flex justify-center gap-2 p-2")}>
 				{singleSelectedCharacter && (
 					<CharacterModal character={singleSelectedCharacter}>
-						<ModalButton render={<Button text="View profile" icon={<Lucide.BookUser />} />} />
+						<ModalButton
+							render={
+								<Button text="View profile" icon={<Lucide.BookUser />} className="shrink-0" />
+							}
+						/>
 					</CharacterModal>
 				)}
 
@@ -268,8 +291,7 @@ function TokenMenuContent() {
 			</div>
 
 			{tabViews.length > 0 && (
-				<>
-					<hr className="border-primary-300/75" />
+				<div className={translucentPanel("flex w-[360px] flex-col gap-2 p-2")}>
 					<Tabs.List>
 						{tabViews.map((view) => (
 							<Tabs.Tab key={view.title} id={view.title}>
@@ -282,9 +304,9 @@ function TokenMenuContent() {
 							{view.content}
 						</Tabs.Panel>
 					))}
-				</>
+				</div>
 			)}
-		</>
+		</div>
 	)
 }
 
