@@ -10,9 +10,7 @@ interface ColumnPropsAsDiv extends ColumnPropsBase, ComponentProps<"div"> {
 	element?: undefined
 }
 
-interface ColumnPropsAsElement
-	extends ColumnPropsBase,
-		Record<keyof ComponentProps<"div">, never> {
+interface ColumnPropsAsElement extends ColumnPropsBase, Record<keyof ComponentProps<"div">, never> {
 	element: ElementProp<ComponentProps<"div">>
 }
 

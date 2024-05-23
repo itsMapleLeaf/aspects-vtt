@@ -8,10 +8,7 @@ import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomItem } from "../../app/common/random.ts"
 import { CharacterSkillTree } from "../../app/features/characters/skills.ts"
 import { type Doc } from "../_generated/dataModel.js"
-import {
-	getUserFromIdentity,
-	getUserFromIdentityEffect,
-} from "../auth/helpers.ts"
+import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
 import {
 	effectMutation,
@@ -41,9 +38,7 @@ export const list = query({
 
 		const roomId = ctx.db.normalizeId("rooms", args.roomId)
 		const { value: room } =
-			roomId ?
-				await RoomModel.fromId(ctx, roomId)
-			:	await RoomModel.fromSlug(ctx, args.roomId)
+			roomId ? await RoomModel.fromId(ctx, roomId) : await RoomModel.fromSlug(ctx, args.roomId)
 		if (!room) {
 			return []
 		}
@@ -55,19 +50,14 @@ export const list = query({
 		const isRoomOwner = await room.isOwner()
 		if (!isRoomOwner) {
 			query = query.filter((q) =>
-				q.or(
-					q.eq(q.field("visible"), true),
-					q.eq(q.field("playerId"), user.clerkId),
-				),
+				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.clerkId)),
 			)
 		}
 
 		const docs = await query.collect()
 
 		const results = await Promise.all(
-			docs
-				.map((doc) => new CharacterModel(ctx, doc))
-				.map((model) => model.getComputedData()),
+			docs.map((doc) => new CharacterModel(ctx, doc)).map((model) => model.getComputedData()),
 		)
 
 		return results.sort((a, b) => a.name.localeCompare(b.name))
@@ -111,9 +101,7 @@ export const update = effectMutation({
 	handler: ({ id, ...args }) =>
 		Effect.gen(function* () {
 			yield* ensureViewerCharacterPermissions(id)
-			yield* withMutationCtx((ctx) =>
-				ctx.table("characters").getX(id).patch(args),
-			)
+			yield* withMutationCtx((ctx) => ctx.table("characters").getX(id).patch(args))
 		}),
 })
 
@@ -138,33 +126,23 @@ export const applyStress = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			if (args.properties.length === 0) {
-				return yield* Effect.fail(
-					new ConvexError("At least one property must be specified"),
-				)
+				return yield* Effect.fail(new ConvexError("At least one property must be specified"))
 			}
 
 			if (args.characterIds.length === 0) {
-				return yield* Effect.fail(
-					new ConvexError("At least one character must be specified"),
-				)
+				return yield* Effect.fail(new ConvexError("At least one character must be specified"))
 			}
 
 			const { user, characters } = yield* Effect.all({
 				user: getUserFromIdentityEffect(),
-				characters: Effect.forEach(
-					args.characterIds,
-					(id) => getEntityDoc("characters", id),
-					{ concurrency: "unbounded" },
-				),
+				characters: Effect.forEach(args.characterIds, (id) => getEntityDoc("characters", id), {
+					concurrency: "unbounded",
+				}),
 			})
 
-			const characterRoomIds = [
-				...new Set(characters.map((character) => character.roomId)),
-			]
+			const characterRoomIds = [...new Set(characters.map((character) => character.roomId))]
 			if (!isTuple(characterRoomIds, 1)) {
-				return yield* Effect.fail(
-					new ConvexError("Characters must all be in the same room"),
-				)
+				return yield* Effect.fail(new ConvexError("Characters must all be in the same room"))
 			}
 			const roomId = characterRoomIds[0]
 
@@ -173,8 +151,7 @@ export const applyStress = effectMutation({
 
 			if (args.dice.length > 0) {
 				diceRolls = [...createDiceRolls(args.dice)]
-				amount +=
-					diceRolls.reduce((total, die) => total + die.result, 0) * args.delta
+				amount += diceRolls.reduce((total, die) => total + die.result, 0) * args.delta
 			}
 
 			const listFormat = new Intl.ListFormat("en-US", {
@@ -228,18 +205,12 @@ export const setSkillActive = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureViewerCharacterPermissions(
-				args.characterId,
-			)
+			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
 
 			const skill = yield* Effect.orElseFail(
-				Effect.fromNullable(
-					CharacterSkillTree.skillsById.get(args.aspectSkillId),
-				),
+				Effect.fromNullable(CharacterSkillTree.skillsById.get(args.aspectSkillId)),
 				() =>
-					new NoSuchElementException(
-						`Couldn't find aspect skill with id "${args.aspectSkillId}"`,
-					),
+					new NoSuchElementException(`Couldn't find aspect skill with id "${args.aspectSkillId}"`),
 			)
 
 			const aspectSkillGroups = new Map(
@@ -269,10 +240,7 @@ export const setSkillActive = effectMutation({
 				.filter((doc) => doc.aspectSkillIds.length > 0)
 
 			yield* withMutationCtx((ctx) =>
-				ctx
-					.table("characters")
-					.getX(character._id)
-					.patch({ learnedAspectSkills }),
+				ctx.table("characters").getX(character._id).patch({ learnedAspectSkills }),
 			)
 		})
 	},
@@ -304,9 +272,7 @@ export const updateConditions = effectMutation({
 			if (action.type === "add") {
 				conditions = [...conditions, pick(action, ["name", "color"])]
 			} else if (action.type === "remove") {
-				conditions = conditions.filter(
-					(condition) => condition.name !== action.name,
-				)
+				conditions = conditions.filter((condition) => condition.name !== action.name)
 			} else if (action.type === "clear") {
 				conditions = []
 			}
@@ -320,14 +286,9 @@ export const updateConditions = effectMutation({
 
 async function generateRandomCharacterProperties(ctx: QueryCtx) {
 	const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
-	const [strength, sense, mobility, intellect, wit] = dice.sort(
-		() => Math.random() - 0.5,
-	)
+	const [strength, sense, mobility, intellect, wit] = dice.sort(() => Math.random() - 0.5)
 
-	const notionImports = await ctx.db
-		.query("notionImports")
-		.order("desc")
-		.first()
+	const notionImports = await ctx.db.query("notionImports").order("desc").first()
 	const race = randomItem(notionImports?.races ?? [])?.name
 
 	return {

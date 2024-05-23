@@ -7,9 +7,7 @@ export function getConvexClient() {
 	return Effect.gen(function* () {
 		const convex = new ConvexHttpClient(clientEnv.VITE_CONVEX_URL)
 		const auth = yield* getClerkAuth()
-		const token = yield* Effect.tryPromise(() =>
-			auth.getToken({ template: "convex" }),
-		)
+		const token = yield* Effect.tryPromise(() => auth.getToken({ template: "convex" }))
 		if (token != null) {
 			convex.setAuth(token)
 		}

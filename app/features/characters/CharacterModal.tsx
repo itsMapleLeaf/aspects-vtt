@@ -9,9 +9,7 @@ export function CharacterModal({
 	character,
 	children,
 	...props
-}: { character: ApiCharacter; children: ReactNode } & ComponentProps<
-	typeof ModalProvider
->) {
+}: { character: ApiCharacter; children: ReactNode } & ComponentProps<typeof ModalProvider>) {
 	return (
 		<ModalProvider {...props}>
 			{children}

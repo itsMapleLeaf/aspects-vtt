@@ -9,11 +9,7 @@ export function NumberField(props: {
 }) {
 	return (
 		<FormField label={props.label}>
-			<NumberInput
-				value={props.value}
-				min={props.min}
-				onChange={props.onChange}
-			/>
+			<NumberInput value={props.value} min={props.min} onChange={props.onChange} />
 		</FormField>
 	)
 }

@@ -1,9 +1,4 @@
-import {
-	ClerkLoaded,
-	ClerkLoading,
-	SignInButton,
-	SignUpButton,
-} from "@clerk/remix"
+import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
 import * as Lucide from "lucide-react"

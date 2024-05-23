@@ -1,10 +1,5 @@
 import { useMutation, useQuery } from "convex/react"
-import {
-	LucideChevronsLeft,
-	LucideChevronsRight,
-	LucideClock,
-	LucideSunrise,
-} from "lucide-react"
+import { LucideChevronsLeft, LucideChevronsRight, LucideClock, LucideSunrise } from "lucide-react"
 import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { EditableInput } from "../../ui/EditableInput.tsx"
@@ -39,9 +34,7 @@ export function RoomSettingsForm() {
 							<EditableIntegerInput
 								align="center"
 								value={scene.cellSize}
-								onSubmit={(cellSize) =>
-									updateScene({ id: scene._id, cellSize })
-								}
+								onSubmit={(cellSize) => updateScene({ id: scene._id, cellSize })}
 							/>
 						</FormField>
 						<div className="flex-1">
@@ -126,9 +119,7 @@ export function RoomSettingsForm() {
 
 			<fieldset className="grid auto-cols-fr grid-flow-col gap-[inherit]">
 				<Menu>
-					<MenuButton
-						render={<Button text="Rewind" icon={<LucideChevronsLeft />} />}
-					/>
+					<MenuButton render={<Button text="Rewind" icon={<LucideChevronsLeft />} />} />
 					<MenuPanel sameWidth>
 						<MenuItem
 							icon={<LucideClock />}
@@ -155,9 +146,7 @@ export function RoomSettingsForm() {
 					</MenuPanel>
 				</Menu>
 				<Menu>
-					<MenuButton
-						render={<Button text="Advance" icon={<LucideChevronsRight />} />}
-					/>
+					<MenuButton render={<Button text="Advance" icon={<LucideChevronsRight />} />} />
 					<MenuPanel sameWidth>
 						<MenuItem
 							icon={<LucideClock />}

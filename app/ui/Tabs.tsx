@@ -7,10 +7,7 @@ export function Tabs(props: Ariakit.TabProviderProps) {
 
 function List(props: Ariakit.TabListProps) {
 	return (
-		<Ariakit.TabList
-			{...props}
-			className={twMerge("flex flex-wrap gap-1.5", props.className)}
-		/>
+		<Ariakit.TabList {...props} className={twMerge("flex flex-wrap gap-1.5", props.className)} />
 	)
 }
 Tabs.List = List

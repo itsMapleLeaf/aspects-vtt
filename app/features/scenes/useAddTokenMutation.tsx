@@ -7,25 +7,17 @@ import { useCharacters } from "../rooms/roomContext.tsx"
 
 export function useAddTokenMutation() {
 	const characters = useCharacters()
-	return useMutation(api.scenes.tokens.functions.add).withOptimisticUpdate(
-		(store, args) => {
-			const charactersById = keyedByProperty(characters, "_id")
-			for (const entry of queryMutators(
-				store,
-				api.scenes.tokens.functions.list,
-			)) {
-				entry.set([
-					...entry.value,
-					{
-						...args,
-						key: crypto.randomUUID() as Branded<"token">,
-						character:
-							args.characterId ?
-								charactersById.get(args.characterId)
-							:	undefined,
-					},
-				])
-			}
-		},
-	)
+	return useMutation(api.scenes.tokens.functions.add).withOptimisticUpdate((store, args) => {
+		const charactersById = keyedByProperty(characters, "_id")
+		for (const entry of queryMutators(store, api.scenes.tokens.functions.list)) {
+			entry.set([
+				...entry.value,
+				{
+					...args,
+					key: crypto.randomUUID() as Branded<"token">,
+					character: args.characterId ? charactersById.get(args.characterId) : undefined,
+				},
+			])
+		}
+	})
 }

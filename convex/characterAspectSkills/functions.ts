@@ -19,11 +19,7 @@ export const list = effectQuery({
 			ensureViewerCharacterPermissions(args.characterId),
 			Effect.andThen(() =>
 				withQueryCtx((ctx) =>
-					ctx
-						.table("characters")
-						.getX(args.characterId)
-						.edge("characterAspectSkills")
-						.docs(),
+					ctx.table("characters").getX(args.characterId).edge("characterAspectSkills").docs(),
 				),
 			),
 			Effect.tapError(Effect.logWarning),
@@ -40,9 +36,7 @@ export const create = effectMutation({
 		return pipe(
 			ensureViewerCharacterPermissions(args.characterId),
 			Effect.andThen(() =>
-				withMutationCtx((ctx) =>
-					ctx.table("characterAspectSkills").insert(args),
-				),
+				withMutationCtx((ctx) => ctx.table("characterAspectSkills").insert(args)),
 			),
 		)
 	},
@@ -55,17 +49,11 @@ export const remove = effectMutation({
 	handler: (args) => {
 		return Effect.gen(function* () {
 			const characterAspectSkill = yield* queryDoc((ctx) =>
-				ctx
-					.table("characterAspectSkills")
-					.get(args.characterAspectSkillId)
-					.doc(),
+				ctx.table("characterAspectSkills").get(args.characterAspectSkillId).doc(),
 			)
 			yield* ensureViewerCharacterPermissions(characterAspectSkill.characterId)
 			yield* withMutationCtx((ctx) =>
-				ctx
-					.table("characterAspectSkills")
-					.getX(args.characterAspectSkillId)
-					.delete(),
+				ctx.table("characterAspectSkills").getX(args.characterAspectSkillId).delete(),
 			)
 		})
 	},

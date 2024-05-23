@@ -16,12 +16,9 @@ export function SceneGrid() {
 
 	useEffect(() => {
 		if (!workerRef.current) {
-			workerRef.current = new Worker(
-				new URL("./SceneGrid.worker.ts", import.meta.url),
-				{
-					type: "module",
-				},
-			)
+			workerRef.current = new Worker(new URL("./SceneGrid.worker.ts", import.meta.url), {
+				type: "module",
+			})
 
 			const canvas = expect(canvasRef.current, "canvas ref not set")
 			const offscreen = canvas.transferControlToOffscreen()
@@ -41,11 +38,6 @@ export function SceneGrid() {
 	}, [scene.cellSize, size, viewport])
 
 	return (
-		<canvas
-			className="absolute inset-0 size-full"
-			width={size.x}
-			height={size.y}
-			ref={canvasRef}
-		/>
+		<canvas className="absolute inset-0 size-full" width={size.x} height={size.y} ref={canvasRef} />
 	)
 }

@@ -31,14 +31,9 @@ export function MessageForm() {
 	const createMacro = useMutation(api.diceMacros.functions.create)
 
 	const [content, setContent] = useState("")
-	const [diceCounts, setDiceCounts] = useState<
-		Record<DiceKind["name"], number>
-	>({})
+	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})
 
-	const totalDice = Object.values(diceCounts).reduce(
-		(sum, count) => sum + count,
-		0,
-	)
+	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
 
 	async function submit() {
 		try {
@@ -50,11 +45,7 @@ export function MessageForm() {
 			setContent("")
 			setDiceCounts({})
 		} catch (error) {
-			alert(
-				error instanceof ConvexError ?
-					error.message
-				:	"Something went wrong, try again.",
-			)
+			alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
 		}
 	}
 
@@ -86,11 +77,7 @@ export function MessageForm() {
 			})
 			return true
 		} catch (error) {
-			alert(
-				error instanceof ConvexError ?
-					error.message
-				:	"Something went wrong, try again.",
-			)
+			alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
 		}
 		return false
 	}
@@ -116,9 +103,7 @@ export function MessageForm() {
 					<ModalProvider>
 						{(modal) => (
 							<>
-								<ModalButton
-									render={<Button icon={<Lucide.Play />} text="Run" />}
-								/>
+								<ModalButton render={<Button icon={<Lucide.Play />} text="Run" />} />
 								<ModalPanel title="Run macro" fullHeight>
 									<MacroList
 										macros={macros}
@@ -170,15 +155,9 @@ export function MessageForm() {
 	)
 }
 
-function SelfAttributeRollButton({
-	field,
-}: {
-	field: keyof PickByValue<ApiCharacter, number>
-}) {
+function SelfAttributeRollButton({ field }: { field: keyof PickByValue<ApiCharacter, number> }) {
 	const user = useUser()
-	const ownedCharacter = useCharacters().find(
-		(c) => c.playerId === user?.clerkId,
-	)
+	const ownedCharacter = useCharacters().find((c) => c.playerId === user?.clerkId)
 	return (
 		ownedCharacter && (
 			<AttributeDiceRollButton
@@ -196,9 +175,7 @@ function MacroList({
 	onSubmit,
 }: {
 	macros: FunctionReturnType<typeof api.diceMacros.functions.list>
-	onSubmit: (
-		macro: FunctionReturnType<typeof api.diceMacros.functions.list>[0],
-	) => void
+	onSubmit: (macro: FunctionReturnType<typeof api.diceMacros.functions.list>[0]) => void
 }) {
 	return (
 		<ScrollArea scrollbarPosition="inside" className="min-h-0 flex-1">
@@ -208,10 +185,7 @@ function MacroList({
 						<header className="flex justify-between p-2">
 							<h3 className="flex-1 self-center">{macro.name}</h3>
 							<Tooltip content="Roll">
-								<Button
-									icon={<Lucide.Dices />}
-									onClick={() => onSubmit(macro)}
-								/>
+								<Button icon={<Lucide.Dices />} onClick={() => onSubmit(macro)} />
 							</Tooltip>
 						</header>
 						<ul className="flex flex-wrap gap-2 border-t border-primary-300 bg-black/25 p-2">

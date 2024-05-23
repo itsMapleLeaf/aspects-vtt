@@ -6,11 +6,8 @@ import type { QueryCtx } from "../helpers/ents.ts"
 
 export type Branded<T> = string & { _: T }
 
-export const nullish = <
-	V extends Validator<NonNullable<unknown>, false, string>,
->(
-	validator: V,
-) => v.optional(v.union(v.null(), validator))
+export const nullish = <V extends Validator<NonNullable<unknown>, false, string>>(validator: V) =>
+	v.optional(v.union(v.null(), validator))
 
 export function requireDoc<TableName extends TableNames>(
 	ctx: QueryCtx,

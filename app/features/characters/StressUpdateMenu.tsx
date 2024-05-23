@@ -49,9 +49,9 @@ export function StressUpdateMenu({
 		},
 	] as const
 
-	const [stressTypes, setStressTypes] = useState<
-		(typeof stressTypeOptions)[number]["value"]
-	>(stressTypeOptions[0].value)
+	const [stressTypes, setStressTypes] = useState<(typeof stressTypeOptions)[number]["value"]>(
+		stressTypeOptions[0].value,
+	)
 
 	return (
 		<Modal trigger={children} title="Update stress" store={dialog}>
@@ -124,11 +124,7 @@ export function StressUpdateMenu({
 
 function ButtonOptionGroup({ children }: { children: React.ReactNode }) {
 	return (
-		<div
-			className={panel(
-				"flex overflow-clip bg-primary-100 *:flex-1 empty:hidden",
-			)}
-		>
+		<div className={panel("flex overflow-clip bg-primary-100 *:flex-1 empty:hidden")}>
 			{children}
 		</div>
 	)
@@ -171,13 +167,7 @@ function ButtonOption({
 	)
 }
 
-function Collapse({
-	title,
-	children,
-}: {
-	title: React.ReactNode
-	children: React.ReactNode
-}) {
+function Collapse({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
 	return (
 		<Ariakit.DisclosureProvider>
 			<div className="flex flex-col gap-1">

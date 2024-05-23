@@ -33,8 +33,7 @@ import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function TokenMenu() {
-	const { scene, viewport, tokenSelectStore, tokenDragOffset, selectedTokens } =
-		useSceneContext()
+	const { scene, viewport, tokenSelectStore, tokenDragOffset, selectedTokens } = useSceneContext()
 
 	let anchor = Rect.from({
 		topLeft: selectedTokens
@@ -92,11 +91,7 @@ export function TokenMenu() {
 }
 
 function TokenMenuContent() {
-	const {
-		scene,
-		tokenSelectStore,
-		selectedTokens: selectedTokensInput,
-	} = useSceneContext()
+	const { scene, tokenSelectStore, selectedTokens: selectedTokensInput } = useSceneContext()
 	const room = useRoom()
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
@@ -216,9 +211,7 @@ function TokenMenuContent() {
 			<div className="flex gap-2 *:flex-1 empty:hidden">
 				{singleSelectedCharacter && (
 					<CharacterModal character={singleSelectedCharacter}>
-						<ModalButton
-							render={<Button text="View profile" icon={<Lucide.BookUser />} />}
-						/>
+						<ModalButton render={<Button text="View profile" icon={<Lucide.BookUser />} />} />
 					</CharacterModal>
 				)}
 				{selectionHasCharacters && (
@@ -269,10 +262,7 @@ function TokenMenuCharacterTabs({ character }: { character: ApiCharacter }) {
 	)
 }
 
-function RollAttributeMenu(props: {
-	characters: ApiCharacter[]
-	children: React.ReactElement
-}) {
+function RollAttributeMenu(props: { characters: ApiCharacter[]; children: React.ReactElement }) {
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
 	const notionImports = useNotionData()
 	return (

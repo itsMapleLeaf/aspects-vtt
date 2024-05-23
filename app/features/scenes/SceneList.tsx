@@ -18,12 +18,8 @@ import { useRoom } from "../rooms/roomContext.tsx"
 export function SceneList() {
 	const room = useRoom()
 	const scenes = useQuery(api.scenes.functions.list, { roomId: room._id })
-	const [createSceneState, createScene] = useMutationState(
-		api.scenes.functions.create,
-	)
-	const [updateRoomState, updateRoom] = useMutationState(
-		api.rooms.functions.update,
-	)
+	const [createSceneState, createScene] = useMutationState(api.scenes.functions.create)
+	const [updateRoomState, updateRoom] = useMutationState(api.rooms.functions.update)
 	const removeScene = useMutation(api.scenes.functions.remove)
 	const duplicateScene = useMutation(api.scenes.functions.duplicate)
 	const modal = useModalContext()
@@ -53,9 +49,7 @@ export function SceneList() {
 								) ?
 									<Loading />
 								: scene.background != null ?
-									<CanvasThumbnail
-										imageUrl={getApiImageUrl(scene.background)}
-									/>
+									<CanvasThumbnail imageUrl={getApiImageUrl(scene.background)} />
 								:	<Lucide.ImageOff className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
 								}
 							</div>
@@ -105,19 +99,14 @@ export function SceneList() {
 						<Loading />
 					:	<Lucide.ImagePlus className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
 					}
-					<p className="text-pretty p-2 text-center text-xl/none font-light">
-						Create Scene
-					</p>
+					<p className="text-pretty p-2 text-center text-xl/none font-light">Create Scene</p>
 				</button>
 			</li>
 		</ul>
 	)
 }
 
-function CanvasThumbnail({
-	imageUrl,
-	...props
-}: { imageUrl: string } & ComponentProps<"canvas">) {
+function CanvasThumbnail({ imageUrl, ...props }: { imageUrl: string } & ComponentProps<"canvas">) {
 	const image = useImage(imageUrl)
 
 	const canvasRef = useCanvasDraw((context) => {
@@ -131,22 +120,14 @@ function CanvasThumbnail({
 
 		// use setTimeout to yield to the main thread
 		setTimeout(() => {
-			context.drawImage(
-				image,
-				...offset.tuple,
-				...imageSize.times(coverScale).tuple,
-			)
+			context.drawImage(image, ...offset.tuple, ...imageSize.times(coverScale).tuple)
 		}, 0)
 	})
 
 	return (
 		<div className="flex-center relative size-full">
 			{image == null && <Loading className="absolute m-auto" />}
-			<canvas
-				{...props}
-				className={twMerge("size-full", props.className)}
-				ref={canvasRef}
-			/>
+			<canvas {...props} className={twMerge("size-full", props.className)} ref={canvasRef} />
 		</div>
 	)
 }

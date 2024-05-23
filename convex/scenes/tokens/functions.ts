@@ -16,25 +16,18 @@ export const list = query({
 		sceneId: v.id("scenes"),
 	},
 	async handler(ctx, args) {
-		const scene = await requireDoc(
-			ctx,
-			args.sceneId,
-			"scenes",
-		).getValueOrThrow()
+		const scene = await requireDoc(ctx, args.sceneId, "scenes").getValueOrThrow()
 
 		const room = await RoomModel.fromId(ctx, scene.roomId).getValueOrNull()
 		if (!room) {
-			console.warn(
-				`Attempt to list tokens from scene ${args.sceneId} with nonexistent room`,
-			)
+			console.warn(`Attempt to list tokens from scene ${args.sceneId} with nonexistent room`)
 			return []
 		}
 
 		const tokens = await Promise.all(
 			scene.tokens?.map(async (token) => {
 				const character =
-					token.characterId &&
-					(await CharacterModel.get(ctx, token.characterId).getValueOrNull())
+					token.characterId && (await CharacterModel.get(ctx, token.characterId).getValueOrNull())
 				return {
 					...token,
 					character: await character?.getComputedData(),
@@ -59,10 +52,7 @@ export const add = mutation({
 		const scene = await requireDoc(ctx, sceneId, "scenes").getValueOrThrow()
 		await requireSceneRoomOwner(ctx, sceneId).getValueOrThrow()
 
-		if (
-			args.characterId &&
-			scene.tokens?.some((token) => token.characterId === args.characterId)
-		) {
+		if (args.characterId && scene.tokens?.some((token) => token.characterId === args.characterId)) {
 			throw new Error("Character already in scene")
 		}
 
@@ -98,17 +88,13 @@ export const update = mutation({
 		await requireSceneRoomOwner(ctx, sceneId).getValueOrThrow()
 
 		return await ctx.db.patch(sceneId, {
-			tokens: scene.tokens?.map((token) =>
-				token.key === key ? { ...token, ...args } : token,
-			),
+			tokens: scene.tokens?.map((token) => (token.key === key ? { ...token, ...args } : token)),
 		})
 	},
 })
 
 export type CreateTokenArgs = UndefinedToOptional<{
-	[K in Exclude<keyof typeof sceneTokenProperties, "key">]: Infer<
-		(typeof sceneTokenProperties)[K]
-	>
+	[K in Exclude<keyof typeof sceneTokenProperties, "key">]: Infer<(typeof sceneTokenProperties)[K]>
 }>
 
 export function createToken(args: CreateTokenArgs) {

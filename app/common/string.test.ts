@@ -28,20 +28,8 @@ boys`
 
 describe("splitByCase", () => {
 	it("splits by non-letters and casing changes", () => {
-		assert.deepEqual(splitByCase("PascalCasedString"), [
-			"Pascal",
-			"Cased",
-			"String",
-		])
-		assert.deepEqual(splitByCase("snake_cased_string"), [
-			"snake",
-			"cased",
-			"string",
-		])
-		assert.deepEqual(splitByCase("camelCasedString"), [
-			"camel",
-			"Cased",
-			"String",
-		])
+		assert.deepEqual(splitByCase("PascalCasedString"), ["Pascal", "Cased", "String"])
+		assert.deepEqual(splitByCase("snake_cased_string"), ["snake", "cased", "string"])
+		assert.deepEqual(splitByCase("camelCasedString"), ["camel", "Cased", "String"])
 	})
 })

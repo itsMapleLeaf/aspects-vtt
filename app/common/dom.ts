@@ -2,10 +2,7 @@ import { useLayoutEffect, useState } from "react"
 import { expect } from "./expect.ts"
 import { useResizeObserver } from "./useResizeObserver.ts"
 
-export function loadImage(
-	src: string,
-	signal?: AbortSignal,
-): Promise<HTMLImageElement> {
+export function loadImage(src: string, signal?: AbortSignal): Promise<HTMLImageElement> {
 	return new Promise((resolve, reject) => {
 		const image = new Image()
 		image.src = src
@@ -35,9 +32,7 @@ export function bindWindowEvent<K extends keyof WindowEventMap>(
 	}
 }
 
-export function useCanvasDraw(
-	draw: (context: CanvasRenderingContext2D) => void,
-) {
+export function useCanvasDraw(draw: (context: CanvasRenderingContext2D) => void) {
 	const [canvas, canvasRef] = useState<HTMLCanvasElement | null>()
 
 	useLayoutEffect(() => {

@@ -19,33 +19,28 @@ function toolbarButtonStyle(...classes: ClassNameValue[]) {
 	)
 }
 
-export interface ToolbarButtonProps
-	extends React.ComponentPropsWithoutRef<"button"> {
+export interface ToolbarButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 	text: string
 	icon: React.ReactNode
 	active?: boolean
 }
 
-export const ToolbarButton = React.forwardRef<
-	HTMLButtonElement,
-	ToolbarButtonProps
->(function ToolbarButton({ text, icon, active, ...props }, ref) {
-	return (
-		<Tooltip content={text} placement="bottom">
-			<button
-				type="button"
-				className={toolbarButtonStyle(
-					active && "text-primary-700 opacity-100",
-					props.className,
-				)}
-				{...props}
-				ref={ref}
-			>
-				{icon}
-			</button>
-		</Tooltip>
-	)
-})
+export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
+	function ToolbarButton({ text, icon, active, ...props }, ref) {
+		return (
+			<Tooltip content={text} placement="bottom">
+				<button
+					type="button"
+					className={toolbarButtonStyle(active && "text-primary-700 opacity-100", props.className)}
+					{...props}
+					ref={ref}
+				>
+					{icon}
+				</button>
+			</Tooltip>
+		)
+	},
+)
 
 export function ToolbarPopoverButton(props: {
 	id: string
@@ -55,9 +50,7 @@ export function ToolbarPopoverButton(props: {
 }) {
 	return (
 		<Popover placement="bottom">
-			<PopoverTrigger
-				render={<ToolbarButton icon={props.icon} text={props.text} />}
-			/>
+			<PopoverTrigger render={<ToolbarButton icon={props.icon} text={props.text} />} />
 			<PopoverPanel
 				gutter={24}
 				autoFocusOnShow={false}
@@ -84,13 +77,8 @@ export function ToolbarDialogButton({
 	defaultOpen?: boolean
 }) {
 	return (
-		<Ariakit.DialogProvider
-			store={store}
-			defaultOpen={store ? undefined : defaultOpen}
-		>
-			<Ariakit.DialogDisclosure
-				render={<ToolbarButton icon={icon} text={text} />}
-			/>
+		<Ariakit.DialogProvider store={store} defaultOpen={store ? undefined : defaultOpen}>
+			<Ariakit.DialogDisclosure render={<ToolbarButton icon={icon} text={text} />} />
 			{children}
 		</Ariakit.DialogProvider>
 	)
@@ -98,13 +86,7 @@ export function ToolbarDialogButton({
 
 export function ToolbarDialogContent(props: Ariakit.DialogProps) {
 	return (
-		<Ariakit.Dialog
-			portal
-			modal={false}
-			hideOnInteractOutside={false}
-			unmountOnHide
-			{...props}
-		/>
+		<Ariakit.Dialog portal modal={false} hideOnInteractOutside={false} unmountOnHide {...props} />
 	)
 }
 

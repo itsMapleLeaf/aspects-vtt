@@ -25,9 +25,7 @@ export async function getInitiativeRoll(
 	const character = await ctx.db.get(characterId)
 
 	const notionImports = await getNotionImports(ctx)
-	const attribute = notionImports?.attributes.find(
-		(it) => it.id === initiativeAttributeId,
-	)
+	const attribute = notionImports?.attributes.find((it) => it.id === initiativeAttributeId)
 
 	return character && attribute ? roll(character[attribute.key] ?? 4) : null
 }

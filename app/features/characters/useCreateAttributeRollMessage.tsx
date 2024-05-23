@@ -37,11 +37,7 @@ export function useCreateAttributeRollMessage() {
 					],
 				})
 			} catch (error) {
-				alert(
-					error instanceof ConvexError ?
-						error.message
-					:	"Something went wrong, try again.",
-				)
+				alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
 			}
 		},
 		[createMessage, room._id],

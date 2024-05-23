@@ -93,20 +93,14 @@ export interface DragSelectableProps<V> extends React.ComponentProps<"div"> {
 	store: DragSelectStore<V>
 }
 
-export function DragSelectable<V>({
-	item,
-	store,
-	...props
-}: DragSelectableProps<V>) {
+export function DragSelectable<V>({ item, store, ...props }: DragSelectableProps<V>) {
 	const ref = React.useRef<HTMLDivElement>(null)
 
 	React.useEffect(() => {
 		return store.registerHandle({
 			item,
 			overlaps(area) {
-				return area.overlaps(
-					Rect.from(expect(ref.current).getBoundingClientRect()),
-				)
+				return area.overlaps(Rect.from(expect(ref.current).getBoundingClientRect()))
 			},
 		})
 	}, [item, store])

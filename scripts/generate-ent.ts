@@ -103,10 +103,7 @@ export const remove = mutation({
 `,
 )
 
-let schemaContent = await oraPromise(
-	fs.readFile(schemaPath, "utf8"),
-	"Reading schema",
-)
+let schemaContent = await oraPromise(fs.readFile(schemaPath, "utf8"), "Reading schema")
 
 const generationMarker = "/* GENERATE-ENT */"
 

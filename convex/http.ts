@@ -26,12 +26,9 @@ http.route({
 			})
 		}
 
-		const metadata = await ctx.runQuery(
-			internal.storage.functions.getMetadata,
-			{
-				storageId: storageId as Id<"_storage">,
-			},
-		)
+		const metadata = await ctx.runQuery(internal.storage.functions.getMetadata, {
+			storageId: storageId as Id<"_storage">,
+		})
 
 		const headers = new Headers({
 			"Cache-Control": "public, max-age=31536000, immutable",

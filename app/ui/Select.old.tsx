@@ -26,9 +26,7 @@ export function Select<T extends SelectValue>({
 		onChange: (value: T) => void
 	}
 >) {
-	let valueIndex: number | undefined = options.findIndex(
-		(option) => option.value === value,
-	)
+	let valueIndex: number | undefined = options.findIndex((option) => option.value === value)
 	if (valueIndex === -1) {
 		valueIndex = undefined
 	}

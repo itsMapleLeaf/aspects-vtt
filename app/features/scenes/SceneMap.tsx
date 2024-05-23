@@ -39,10 +39,7 @@ export function SceneMap() {
 						<RectTokenDrawArea>
 							<TokenElements />
 						</RectTokenDrawArea>
-					:	<DragSelectArea
-							className="absolute inset-0"
-							store={tokenSelectStore}
-						>
+					:	<DragSelectArea className="absolute inset-0" store={tokenSelectStore}>
 							<TokenElements />
 						</DragSelectArea>
 					}
@@ -66,10 +63,7 @@ function WheelHandler({ children }: { children: React.ReactNode }) {
 			return
 		}
 
-		context.viewport.zoom(-state.delta[1], [
-			state.event.clientX,
-			state.event.clientY,
-		])
+		context.viewport.zoom(-state.delta[1], [state.event.clientX, state.event.clientY])
 	}, {})
 
 	return <div {...bind()}>{children}</div>
@@ -139,8 +133,7 @@ function SceneBackground() {
 
 function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 	const { scene, viewport } = useSceneContext()
-	const tokens =
-		useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
+	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
 	return (
@@ -152,9 +145,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 					.minus((scene.cellSize / 2) * viewport.scale)
 					.dividedBy(viewport.scale).xy
 
-				const existing = tokens.find(
-					(it) => it.character?._id === character._id,
-				)
+				const existing = tokens.find((it) => it.character?._id === character._id)
 				if (existing) {
 					updateToken({
 						key: existing.key,
@@ -195,9 +186,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 				.plus(viewport.offset),
 		})
 
-	const gridSize = gridSnappedPreviewArea?.size.dividedBy(
-		scene.cellSize * viewport.scale,
-	).rounded
+	const gridSize = gridSnappedPreviewArea?.size.dividedBy(scene.cellSize * viewport.scale).rounded
 
 	return (
 		<RectDrawArea
@@ -214,9 +203,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 					.minus(viewport.offset)
 					.dividedBy(viewport.scale).xy
 
-				const size = gridSnappedPreviewArea.size
-					.dividedBy(viewport.scale)
-					.toSize()
+				const size = gridSnappedPreviewArea.size.dividedBy(viewport.scale).toSize()
 
 				addToken({
 					sceneId: scene._id,
@@ -224,14 +211,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 					position,
 					area: {
 						...size,
-						color: randomItem([
-							"red",
-							"orange",
-							"yellow",
-							"green",
-							"blue",
-							"purple",
-						]),
+						color: randomItem(["red", "orange", "yellow", "green", "blue", "purple"]),
 					},
 				})
 				roomToolbarActions.enableSelectTool()
@@ -277,14 +257,8 @@ function TokenElements() {
 }
 
 function TokenElement({ token }: { token: ApiToken }) {
-	const {
-		scene,
-		viewport,
-		tokens,
-		tokenSelectStore,
-		tokenDragOffset,
-		setTokenDragOffset,
-	} = useSceneContext()
+	const { scene, viewport, tokens, tokenSelectStore, tokenDragOffset, setTokenDragOffset } =
+		useSceneContext()
 
 	const translate = useTokenTranslate(token)
 	const updateToken = useUpdateTokenMutation()
@@ -320,8 +294,7 @@ function TokenElement({ token }: { token: ApiToken }) {
 				from: [0, 0],
 			},
 			transform: (input) => [
-				...Vector.from(input).minus(viewport.offset).dividedBy(viewport.scale)
-					.tuple,
+				...Vector.from(input).minus(viewport.offset).dividedBy(viewport.scale).tuple,
 			],
 		},
 	)
@@ -341,8 +314,7 @@ function TokenElement({ token }: { token: ApiToken }) {
 					style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
 					emptyIcon={<Lucide.Ghost />}
 					className={{
-						container:
-							"overflow-clip rounded bg-primary-300 shadow-md shadow-black/50",
+						container: "overflow-clip rounded bg-primary-300 shadow-md shadow-black/50",
 						image: "object-cover object-top",
 					}}
 				/>
@@ -381,10 +353,7 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"
 			style={{ translate }}
 		>
-			<div
-				className="relative"
-				style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
-			>
+			<div className="relative" style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}>
 				<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
 					{token.character.conditions.map((condition) => (
 						<p
@@ -418,10 +387,7 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 						/>
 					)}
 				</div>
-				<TokenLabel
-					text={token.character.displayName}
-					subText={token.character.displayPronouns}
-				/>
+				<TokenLabel text={token.character.displayName} subText={token.character.displayPronouns} />
 			</div>
 		</div>
 	)
@@ -435,9 +401,7 @@ function AreaSizeLabel({ token }: { token: ApiToken }) {
 		return null
 	}
 
-	const dimensions = Vector.fromSize(token.area).dividedBy(
-		scene.cellSize,
-	).rounded
+	const dimensions = Vector.fromSize(token.area).dividedBy(scene.cellSize).rounded
 
 	return (
 		<div

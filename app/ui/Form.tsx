@@ -1,11 +1,4 @@
-import {
-	type ReactNode,
-	createContext,
-	isValidElement,
-	use,
-	useId,
-	useMemo,
-} from "react"
+import { type ReactNode, createContext, isValidElement, use, useId, useMemo } from "react"
 import { twMerge } from "tailwind-merge"
 import { useConsumer, useConsumerProvider } from "./ConsumerContext.tsx"
 import { twc } from "./twc.ts"
@@ -50,9 +43,7 @@ export function FormField({
 				<consumers.Provider>{children}</consumers.Provider>
 			</FieldContext>
 			{description && (
-				<div className="mt-1 text-sm/tight font-bold text-primary-700">
-					{description}
-				</div>
+				<div className="mt-1 text-sm/tight font-bold text-primary-700">{description}</div>
 			)}
 		</div>
 	)

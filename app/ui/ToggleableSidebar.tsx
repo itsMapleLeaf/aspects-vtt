@@ -1,8 +1,4 @@
-import {
-	Disclosure,
-	DisclosureContent,
-	DisclosureProvider,
-} from "@ariakit/react"
+import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
@@ -18,11 +14,7 @@ export function ToggleableSidebar({
 	side: "left" | "right"
 	children: React.ReactNode
 }) {
-	const [open, setOpen] = useLocalStorageState(
-		`sidebar:${name}`,
-		true,
-		z.boolean().catch(true),
-	)
+	const [open, setOpen] = useLocalStorageState(`sidebar:${name}`, true, z.boolean().catch(true))
 	const Icon = open ? Lucide.SidebarClose : Lucide.SidebarOpen
 
 	return (
@@ -34,9 +26,7 @@ export function ToggleableSidebar({
 				<Button
 					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
 					className="shadow-md shadow-black/25"
-					element={
-						<Disclosure title={open ? `Hide ${name}` : `Show ${name}`} />
-					}
+					element={<Disclosure title={open ? `Hide ${name}` : `Show ${name}`} />}
 				/>
 				<DisclosureContent
 					className={twMerge(

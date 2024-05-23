@@ -4,17 +4,13 @@ import { api } from "../../../convex/_generated/api"
 import type { Doc } from "../../../convex/_generated/dataModel"
 import type { Nullish } from "../../common/types.ts"
 
-const NotionDataConext = createContext<Nullish<Doc<"notionImports">>>(undefined)
+const NotionDataContext = createContext<Nullish<Doc<"notionImports">>>(undefined)
 
-export function NotionDataProvider({
-	children,
-}: {
-	children: React.ReactNode
-}) {
+export function NotionDataProvider({ children }: { children: React.ReactNode }) {
 	const notionData = useQuery(api.notionImports.functions.get, {})
-	return <NotionDataConext value={notionData}> {children} </NotionDataConext>
+	return <NotionDataContext value={notionData}>{children}</NotionDataContext>
 }
 
 export function useNotionData() {
-	return use(NotionDataConext)
+	return use(NotionDataContext)
 }

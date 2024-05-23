@@ -25,9 +25,7 @@ export function TokenLabel(props: { text: string; subText: string }) {
 			>
 				<div className="flex-center whitespace-nowrap rounded bg-black/50 px-2.5 py-2 text-center shadow shadow-black/50">
 					<p className="text-lg/none">{props.text}</p>
-					<p className="mt-0.5 text-base/none opacity-75 empty:hidden">
-						{props.subText}
-					</p>
+					<p className="mt-0.5 text-base/none opacity-75 empty:hidden">{props.subText}</p>
 				</div>
 			</div>
 		</>

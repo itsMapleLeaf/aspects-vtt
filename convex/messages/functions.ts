@@ -33,10 +33,7 @@ export const list = query({
 							Effect.orElseSucceed(() => null),
 						),
 					)
-					const { value: character } = await CharacterModel.fromPlayerId(
-						ctx,
-						userId,
-					)
+					const { value: character } = await CharacterModel.fromPlayerId(ctx, userId)
 					const data = await character?.getComputedData()
 					return {
 						...message,

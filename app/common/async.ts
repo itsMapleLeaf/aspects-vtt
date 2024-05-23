@@ -7,9 +7,9 @@ export function timeoutEffect<Args extends unknown[]>(
 	return () => clearTimeout(timeout)
 }
 
-export async function promiseAllObject<
-	Promises extends Record<string, unknown>,
->(promises: Promises) {
+export async function promiseAllObject<Promises extends Record<string, unknown>>(
+	promises: Promises,
+) {
 	const result: Record<string, unknown> = {}
 	await Promise.all(
 		Object.entries(promises).map(async ([key, promise]) => {

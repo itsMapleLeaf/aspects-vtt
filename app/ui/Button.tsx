@@ -20,16 +20,12 @@ interface ButtonPropsBase extends ButtonStyleProps {
 	pending?: boolean
 }
 
-export interface ButtonPropsAsButton
-	extends ComponentPropsWithoutRef<"button">,
-		ButtonPropsBase {
+export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
 }
 
 export interface ButtonPropsAsElement
-	extends Disallowed<
-			StrictOmit<ComponentPropsWithoutRef<"button">, "className">
-		>,
+	extends Disallowed<StrictOmit<ComponentPropsWithoutRef<"button">, "className">>,
 		ButtonPropsBase {
 	element: ReactElement<{ className?: string; children?: React.ReactNode }>
 	className?: string
@@ -47,9 +43,7 @@ export function Button({
 }: ButtonProps) {
 	const [onClickPending, setOnClickPending] = useState(false)
 	const status = useFormStatus()
-	const pending =
-		pendingProp ??
-		((status.pending && props.type === "submit") || onClickPending)
+	const pending = pendingProp ?? ((status.pending && props.type === "submit") || onClickPending)
 
 	const className = buttonStyle({ size })
 

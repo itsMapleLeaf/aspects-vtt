@@ -2,9 +2,7 @@ import { type ClassNameValue, twMerge } from "tailwind-merge"
 import { useField } from "./Form.tsx"
 import { panel } from "./styles.ts"
 
-export interface InputProps
-	extends React.ComponentProps<"input">,
-		InputStyleProps {
+export interface InputProps extends React.ComponentProps<"input">, InputStyleProps {
 	onChangeValue?: (value: string) => void
 }
 
@@ -29,18 +27,11 @@ export interface InputStyleProps {
 	invalid?: boolean
 }
 
-export function extractInputStyleProps<T extends InputStyleProps>({
-	align,
-	invalid,
-	...rest
-}: T) {
+export function extractInputStyleProps<T extends InputStyleProps>({ align, invalid, ...rest }: T) {
 	return [{ align, invalid }, rest] as const
 }
 
-export function inputStyle(
-	props: InputStyleProps,
-	...classes: ClassNameValue[]
-) {
+export function inputStyle(props: InputStyleProps, ...classes: ClassNameValue[]) {
 	return panel(
 		twMerge(
 			"h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-200 px-3 ring-inset transition",

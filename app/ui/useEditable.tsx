@@ -1,11 +1,5 @@
 import { useState } from "react"
-import type {
-	Awaitable,
-	DietUnknown,
-	Overwrite,
-	PartialKeys,
-	TODO,
-} from "../common/types.ts"
+import type { Awaitable, DietUnknown, Overwrite, PartialKeys, TODO } from "../common/types.ts"
 
 export interface EditableOptions<T> {
 	value: T
@@ -39,12 +33,9 @@ export function useEditable<Value, Props extends BaseInputProps>({
 	onChangeInternal,
 	...baseProps
 }: EditableOptions<Value> & Props) {
-	const [valueInternal, setValueInternal] = useState<Value | typeof Empty>(
-		Empty,
-	)
+	const [valueInternal, setValueInternal] = useState<Value | typeof Empty>(Empty)
 	const [pending, setPending] = useState(false)
-	const validationError =
-		valueInternal === Empty ? undefined : validate?.(valueInternal)
+	const validationError = valueInternal === Empty ? undefined : validate?.(valueInternal)
 	const invalid = !!validationError
 
 	function handleChangeInternal(value: Value) {
@@ -92,11 +83,7 @@ export function useEditable<Value, Props extends BaseInputProps>({
 					return
 				}
 
-				if (
-					typeof input === "object" &&
-					input !== null &&
-					"currentTarget" in input
-				) {
+				if (typeof input === "object" && input !== null && "currentTarget" in input) {
 					handleChangeInternal(input.currentTarget.value)
 					baseProps.onChange?.(input)
 				} else {

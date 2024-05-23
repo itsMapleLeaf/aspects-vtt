@@ -43,9 +43,7 @@ export class Vector {
 	}
 
 	static fromSize(
-		...args:
-			| [width: number, height: number]
-			| [size: { width: number; height: number }]
+		...args: [width: number, height: number] | [size: { width: number; height: number }]
 	): Vector {
 		if (args.length === 2) {
 			return new Vector(args[0], args[1])
@@ -53,29 +51,20 @@ export class Vector {
 		return new Vector(args[0].width, args[0].height)
 	}
 
-	static topLeftMost(
-		firstInput: VectorInput,
-		secondInput: VectorInput,
-	): Vector {
+	static topLeftMost(firstInput: VectorInput, secondInput: VectorInput): Vector {
 		const first = Vector.from(firstInput)
 		const second = Vector.from(secondInput)
 		return Vector.from(Math.min(first.x, second.x), Math.min(first.y, second.y))
 	}
 
-	static bottomRightMost(
-		firstInput: VectorInput,
-		secondInput: VectorInput,
-	): Vector {
+	static bottomRightMost(firstInput: VectorInput, secondInput: VectorInput): Vector {
 		const first = Vector.from(firstInput)
 		const second = Vector.from(secondInput)
 		return Vector.from(Math.max(first.x, second.x), Math.max(first.y, second.y))
 	}
 
 	static normalizeRange(start: VectorInput, end: VectorInput) {
-		return [
-			Vector.topLeftMost(start, end),
-			Vector.bottomRightMost(start, end),
-		] as const
+		return [Vector.topLeftMost(start, end), Vector.bottomRightMost(start, end)] as const
 	}
 
 	get xy(): { x: number; y: number } {
@@ -178,10 +167,7 @@ export class Vector {
 
 	clampBottomRight(...bottomRightInput: VectorInputArgs): Vector {
 		const bottomRight = Vector.from(...bottomRightInput)
-		return new Vector(
-			Math.min(this.x, bottomRight.x),
-			Math.min(this.y, bottomRight.y),
-		)
+		return new Vector(Math.min(this.x, bottomRight.x), Math.min(this.y, bottomRight.y))
 	}
 
 	clamp(topLeft: Vector, bottomRight: Vector): Vector {

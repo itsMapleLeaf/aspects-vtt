@@ -136,9 +136,7 @@ async function getAttributes() {
 				id: `attributes:${page.id}` as Branded<"attributes">,
 				name,
 				description: await fetchBlockChildrenContent(page.id),
-				key: name.toLowerCase() as Infer<
-					typeof notionImportProperties.attributes
-				>[number]["key"],
+				key: name.toLowerCase() as Infer<typeof notionImportProperties.attributes>[number]["key"],
 			}
 		}),
 	)
@@ -170,8 +168,7 @@ async function getAspectSkills() {
 				name,
 				description: getPropertyText(page.properties, "Description"),
 				aspects: aspectDocs.map(
-					(doc) =>
-						getPropertyText(doc.properties, "Name") as Branded<"aspectName">,
+					(doc) => getPropertyText(doc.properties, "Name") as Branded<"aspectName">,
 				),
 			}
 		}),
@@ -193,14 +190,9 @@ async function getAspects() {
 			const content = await fetchBlockChildrenContent(page.id)
 			const paragraphs = content.split("\n\n").filter(Boolean)
 			const abilityParagraph =
-				paragraphs.at(-1)?.replace(/^basic ability:\s*/i, "") ??
-				raise("Page has no content")
-			const [abilityName, abilityDescription] =
-				abilityParagraph.split(/\s*-\s*/)
-			const name = getPropertyText(
-				page.properties,
-				"Name",
-			) as Branded<"aspectName">
+				paragraphs.at(-1)?.replace(/^basic ability:\s*/i, "") ?? raise("Page has no content")
+			const [abilityName, abilityDescription] = abilityParagraph.split(/\s*-\s*/)
+			const name = getPropertyText(page.properties, "Name") as Branded<"aspectName">
 			console.info(`Imported aspect ${name}`)
 			return {
 				id: `aspects:${page.id}` as Branded<"aspects">,
@@ -215,9 +207,7 @@ async function getAspects() {
 	)
 }
 
-function asFullPage(
-	page: QueryDatabaseResponse["results"][number],
-): PageObjectResponse {
+function asFullPage(page: QueryDatabaseResponse["results"][number]): PageObjectResponse {
 	if (!isFullPage(page)) {
 		throw new Error(`Expected full page, got ${JSON.stringify(page, null, 2)}`)
 	}
@@ -228,10 +218,7 @@ function getRichTextContent(items: RichTextItemResponse[]) {
 	return items.map((item) => item.plain_text).join("")
 }
 
-function getPropertyText(
-	properties: PageObjectResponse["properties"],
-	name: string,
-) {
+function getPropertyText(properties: PageObjectResponse["properties"], name: string) {
 	const property = getPageProperty(properties, name)
 	switch (property?.type) {
 		case "title":
@@ -243,15 +230,10 @@ function getPropertyText(
 	}
 }
 
-function getPageProperty(
-	properties: PageObjectResponse["properties"],
-	name: string,
-) {
+function getPageProperty(properties: PageObjectResponse["properties"], name: string) {
 	const property = properties[name]
 	if (!property) {
-		throw new Error(
-			`Property "${name}" does not exist: ${JSON.stringify(properties, null, 2)}`,
-		)
+		throw new Error(`Property "${name}" does not exist: ${JSON.stringify(properties, null, 2)}`)
 	}
 	return property
 }
@@ -275,10 +257,7 @@ async function fetchBlockChildrenContent(parentId: string): Promise<string> {
 	return textBlocks.join("\n\n")
 }
 
-async function getRelatedPages(
-	properties: PageObjectResponse["properties"],
-	name: string,
-) {
+async function getRelatedPages(properties: PageObjectResponse["properties"], name: string) {
 	const property = getPageProperty(properties, name)
 	if (property.type !== "relation") {
 		throw new Error(
@@ -296,10 +275,7 @@ async function getRelatedPages(
 	return responses.filter(isFullPage)
 }
 
-function getBooleanProperty(
-	properties: PageObjectResponse["properties"],
-	name: string,
-) {
+function getBooleanProperty(properties: PageObjectResponse["properties"], name: string) {
 	const property = getPageProperty(properties, name)
 	if (property.type !== "checkbox") {
 		throw new Error(
@@ -326,9 +302,7 @@ async function promiseAllSuccesses<Input, Output>(
 			}
 		}),
 	)
-	return results
-		.filter((result) => result.status === "fulfilled")
-		.map((result) => result.value)
+	return results.filter((result) => result.status === "fulfilled").map((result) => result.value)
 }
 
 function asNonEmptyString(value: unknown) {

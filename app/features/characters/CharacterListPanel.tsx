@@ -58,9 +58,7 @@ export function CharacterListPanel() {
 					{renderList(groups.get("player") ?? [])}
 					{divider}
 					{renderList(
-						(groups.get("rest") ?? []).toSorted(
-							(a, b) => b._creationTime - a._creationTime,
-						),
+						(groups.get("rest") ?? []).toSorted((a, b) => b._creationTime - a._creationTime),
 					)}
 				</ul>
 			</ScrollArea>
@@ -84,9 +82,7 @@ function CharacterTile({
 				)}
 				{...props}
 			>
-				<div
-					className={panel("flex-center relative aspect-square overflow-clip")}
-				>
+				<div className={panel("flex-center relative aspect-square overflow-clip")}>
 					<CharacterDnd.Draggable data={character} className="size-full">
 						<UploadedImage
 							id={character.imageId}
@@ -97,25 +93,15 @@ function CharacterTile({
 							}}
 						/>
 					</CharacterDnd.Draggable>
-					{character.visible ? null : (
-						<Lucide.EyeOff className="absolute size-8 opacity-50" />
-					)}
+					{character.visible ? null : <Lucide.EyeOff className="absolute size-8 opacity-50" />}
 				</div>
-				<p className="text-pretty text-center text-sm/none">
-					{character.displayName}
-				</p>
+				<p className="text-pretty text-center text-sm/none">{character.displayName}</p>
 			</MenuButton>
 		</CharacterMenu>
 	)
 }
 
-function CharacterMenu({
-	character,
-	children,
-}: {
-	character: ApiCharacter
-	children: ReactNode
-}) {
+function CharacterMenu({ character, children }: { character: ApiCharacter; children: ReactNode }) {
 	const room = useRoom()
 	const removeCharacter = useMutation(api.characters.functions.remove)
 	const duplicateCharacter = useMutation(api.characters.functions.duplicate)
@@ -159,11 +145,7 @@ function CharacterMenu({
 								text="Delete"
 								icon={<Lucide.Trash />}
 								onClick={() => {
-									if (
-										confirm(
-											`Are you sure you want to remove "${character.displayName}"?`,
-										)
-									) {
+									if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
 										removeCharacter({ id: character._id })
 									}
 								}}

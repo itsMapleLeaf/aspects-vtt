@@ -16,13 +16,9 @@ const getRoom = loaderFromEffect(
 	Effect.gen(function* () {
 		const convex = yield* getConvexClient()
 		const slug = yield* dataFunctionParam("slug")
-		const room = yield* Effect.tryPromise(() =>
-			convex.query(api.rooms.functions.get, { slug }),
-		)
+		const room = yield* Effect.tryPromise(() => convex.query(api.rooms.functions.get, { slug }))
 		if (room) {
-			yield* Effect.tryPromise(() =>
-				convex.mutation(api.rooms.functions.join, { id: room._id }),
-			)
+			yield* Effect.tryPromise(() => convex.mutation(api.rooms.functions.join, { id: room._id }))
 		}
 		return room
 	}),
@@ -42,9 +38,6 @@ export default function RoomLayout() {
 				<Outlet />
 			</RoomProvider>
 		:	<AuthenticatedAppHeaderLayout>
-				<EmptyStatePanel
-					icon={<LucideHelpCircle />}
-					message="That room does not exist."
-				/>
+				<EmptyStatePanel icon={<LucideHelpCircle />} message="That room does not exist." />
 			</AuthenticatedAppHeaderLayout>
 }

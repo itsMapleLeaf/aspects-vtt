@@ -42,10 +42,7 @@ export function ContestedRollForm({
 		opponentSnagCount: 0,
 	})
 
-	const setValue = <K extends keyof typeof values>(
-		key: K,
-		value: (typeof values)[K],
-	) => {
+	const setValue = <K extends keyof typeof values>(key: K, value: (typeof values)[K]) => {
 		setValues((values) => ({ ...values, [key]: value }))
 	}
 
@@ -115,15 +112,13 @@ export function ContestedRollForm({
 								content: `<@${selfCharacter._id}> (Defending): ${
 									values.selfAttribute?.name ?? "Strength"
 								}`,
-								attributeValue:
-									selfCharacter[values.selfAttribute?.key ?? "strength"],
+								attributeValue: selfCharacter[values.selfAttribute?.key ?? "strength"],
 								boostCount: values.selfBoostCount,
 								snagCount: values.selfSnagCount,
 							}),
 							createAttributeRollMessage({
 								content: `<@${opponent._id}>: ${values.opponentAttribute?.name ?? "Strength"}`,
-								attributeValue:
-									opponent[values.opponentAttribute?.key ?? "strength"],
+								attributeValue: opponent[values.opponentAttribute?.key ?? "strength"],
 								boostCount: values.opponentBoostCount,
 								snagCount: values.opponentSnagCount,
 							}),

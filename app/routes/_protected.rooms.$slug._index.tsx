@@ -19,26 +19,14 @@ import {
 	ToolbarPopoverButton,
 	ToolbarSeparator,
 } from "../features/rooms/RoomToolbar.tsx"
-import {
-	RoomTool,
-	RoomToolbarStore,
-} from "../features/rooms/RoomToolbarStore.tsx"
-import {
-	RoomOwnerOnly,
-	useCharacters,
-	useRoom,
-} from "../features/rooms/roomContext.tsx"
+import { RoomTool, RoomToolbarStore } from "../features/rooms/RoomToolbarStore.tsx"
+import { RoomOwnerOnly, useCharacters, useRoom } from "../features/rooms/roomContext.tsx"
 import { SceneProvider } from "../features/scenes/SceneContext.tsx"
 import { SceneList } from "../features/scenes/SceneList.tsx"
 import { SceneMap } from "../features/scenes/SceneMap.tsx"
 import { AppHeader } from "../ui/AppHeader.tsx"
 import { DefinitionList } from "../ui/DefinitionList.tsx"
-import {
-	ModalButton,
-	ModalPanel,
-	ModalPanelContent,
-	ModalProvider,
-} from "../ui/Modal.tsx"
+import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../ui/Modal.tsx"
 import { ToggleableSidebar } from "../ui/ToggleableSidebar.tsx"
 import { panel, translucentPanel } from "../ui/styles.ts"
 
@@ -83,10 +71,7 @@ export default function RoomRoute() {
 							"flex h-16 flex-col justify-center rounded-none border-0 border-b px-4",
 						)}
 					>
-						<AppHeader
-							end={<UserButton afterSignOutUrl={currentUrl} />}
-							center={<RoomToolbar />}
-						/>
+						<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} center={<RoomToolbar />} />
 					</div>
 				</RoomToolbarStore.Provider>
 				<SceneHeading />
@@ -107,8 +92,8 @@ function SceneHeading() {
 		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)]">
 			{scene.name}
 			<p className="text-base font-medium tracking-wide">
-				{gameTime.timeOfDayName} - Day {gameTime.day + 1} of{" "}
-				{gameTime.monthName.name}, Year {gameTime.year + 1}
+				{gameTime.timeOfDayName} - Day {gameTime.day + 1} of {gameTime.monthName.name}, Year{" "}
+				{gameTime.year + 1}
 			</p>
 		</h2>
 	)
@@ -119,9 +104,7 @@ function RoomToolbar() {
 		<Toolbar>
 			<RoomOwnerOnly>
 				<ModalProvider>
-					<ModalButton
-						render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />}
-					/>
+					<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
 					<ModalPanel title="Scenes" className="max-w-screen-lg">
 						<ModalPanelContent className="p-3">
 							<SceneList />
@@ -154,21 +137,13 @@ function RoomToolbar() {
 				</div>
 			</ToolbarPopoverButton>
 
-			<ToolbarPopoverButton
-				id="generalSkills"
-				text="General Skills"
-				icon={<Lucide.Hammer />}
-			>
+			<ToolbarPopoverButton id="generalSkills" text="General Skills" icon={<Lucide.Hammer />}>
 				<div className="p-4">
 					<GeneralSkillsList />
 				</div>
 			</ToolbarPopoverButton>
 
-			<ToolbarPopoverButton
-				id="combatInfo"
-				text="Combat Info"
-				icon={<Lucide.Swords />}
-			>
+			<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
 				<div className="p-4">
 					<CombatDetails />
 				</div>
@@ -187,11 +162,7 @@ function RoomToolbar() {
 			<ToolbarSeparator />
 
 			<RoomOwnerOnly>
-				<ToolbarPopoverButton
-					id="settings"
-					text="Settings"
-					icon={<Lucide.Settings />}
-				>
+				<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Settings />}>
 					<RoomSettingsForm />
 				</ToolbarPopoverButton>
 			</RoomOwnerOnly>
@@ -239,8 +210,7 @@ function CriticalInjuryDetails() {
 						},
 						{
 							name: "Broken Bone",
-							description:
-								"Subtract 1d12 movement each turn to a minimum of 1.",
+							description: "Subtract 1d12 movement each turn to a minimum of 1.",
 						},
 						{
 							name: "Concussion",
@@ -249,8 +219,7 @@ function CriticalInjuryDetails() {
 						},
 						{
 							name: "Dislocation",
-							description:
-								"Subtract 1d12 from the effect of your strength and mobility rolls.",
+							description: "Subtract 1d12 from the effect of your strength and mobility rolls.",
 						},
 						{
 							name: "Pulled Muscle",
@@ -272,8 +241,7 @@ function CriticalInjuryDetails() {
 					items={[
 						{
 							name: "Crippling Migraine",
-							description:
-								"You must take one fatigue before making any action.",
+							description: "You must take one fatigue before making any action.",
 						},
 						{
 							name: "Panic Attack",
@@ -281,8 +249,7 @@ function CriticalInjuryDetails() {
 						},
 						{
 							name: "Neural Stunlock",
-							description:
-								"Double the modifier value of snag dice for intellect rolls.",
+							description: "Double the modifier value of snag dice for intellect rolls.",
 						},
 						{
 							name: "Exhaustion",
@@ -319,9 +286,7 @@ function JoinRoomEffect() {
 function MessagesPanel() {
 	return (
 		<ToggleableSidebar name="Messages & Dice" side="right">
-			<aside
-				className={translucentPanel("flex h-full w-[24rem] flex-col gap-2 p-2")}
-			>
+			<aside className={translucentPanel("flex h-full w-[24rem] flex-col gap-2 p-2")}>
 				<div className="min-h-0 flex-1">
 					<MessageList />
 				</div>
@@ -335,11 +300,7 @@ function GeneralSkillsList() {
 	const notionData = useNotionData()
 	return (
 		<DefinitionList
-			items={
-				notionData?.generalSkills.toSorted((a, b) =>
-					a.name.localeCompare(b.name),
-				) ?? []
-			}
+			items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name)) ?? []}
 		/>
 	)
 }
@@ -348,8 +309,7 @@ function CombatTurnBanner() {
 	const room = useRoom()
 	const characters = useCharacters()
 	const isTurn =
-		!room.isOwner &&
-		characters.find((c) => c._id === room.combat?.currentMemberId)?.isOwner
+		!room.isOwner && characters.find((c) => c._id === room.combat?.currentMemberId)?.isOwner
 	return (
 		<div
 			className={panel(

@@ -18,10 +18,7 @@ export class SkillTree {
 		}
 	}) {
 		this.aspectsById = new Map(
-			Object.entries(tree).map(([aspectId, tierMap]) => [
-				aspectId,
-				new Aspect(aspectId, tierMap),
-			]),
+			Object.entries(tree).map(([aspectId, tierMap]) => [aspectId, new Aspect(aspectId, tierMap)]),
 		)
 		this.aspects = [...this.aspectsById.values()]
 

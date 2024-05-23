@@ -21,15 +21,11 @@ export function UploadedImage({
 	...props
 }: UploadedImageProps) {
 	const imageUrl = id ? getApiImageUrl(id) : undefined
-	const resolvedClassName =
-		typeof className === "string" ? { container: className } : className
+	const resolvedClassName = typeof className === "string" ? { container: className } : className
 	return (
 		<div
 			{...props}
-			className={twMerge(
-				"flex items-center justify-center",
-				resolvedClassName?.container,
-			)}
+			className={twMerge("flex items-center justify-center", resolvedClassName?.container)}
 		>
 			{imageUrl ?
 				<img

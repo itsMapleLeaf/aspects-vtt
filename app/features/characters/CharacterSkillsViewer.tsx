@@ -20,18 +20,12 @@ import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterSkillTree, type Skill } from "./skills.ts"
 import type { ApiCharacter } from "./types.ts"
 
-export function CharacterSkillsViewer({
-	character,
-}: {
-	character: ApiCharacter
-}) {
+export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
 	const [showingLearned, setShowingLearned] = useState(false)
 
 	const characterSkillIds = new Set(
-		Iterator.from(character.learnedAspectSkills ?? []).flatMap(
-			(doc) => doc.aspectSkillIds,
-		),
+		Iterator.from(character.learnedAspectSkills ?? []).flatMap((doc) => doc.aspectSkillIds),
 	)
 
 	const characterAspectSet = new Set(
@@ -50,8 +44,7 @@ export function CharacterSkillsViewer({
 				// if the character already learned this aspect, calculate the cost based on the aspect index,
 				// otherwise, show how much it'll cost to learn this aspect (as if it's the last aspect in the list)
 				const aspectIndex = characterAspectList.indexOf(aspect)
-				const baseAspectCost =
-					(aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
+				const baseAspectCost = (aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
 				const tierCost = tier.number * 10
 				return {
 					...skill,
@@ -73,8 +66,7 @@ export function CharacterSkillsViewer({
 			<div className="flex h-full flex-col gap-2">
 				<aside className="flex-center h-16 gap-1 px-2">
 					<SomeKindaLabel>
-						<span className="opacity-75">Experience:</span>{" "}
-						{room.experience - usedExperience}{" "}
+						<span className="opacity-75">Experience:</span> {room.experience - usedExperience}{" "}
 						<span className="opacity-75">remaining</span> / {room.experience}{" "}
 						<span className="opacity-75">available</span>
 					</SomeKindaLabel>
@@ -127,11 +119,7 @@ export function CharacterSkillsViewer({
 								})
 								.filter((tier) => tier.skills.length > 0)
 								.map((tier) => (
-									<TierSection
-										key={tier.id}
-										name={tier.name}
-										number={tier.number}
-									>
+									<TierSection key={tier.id} name={tier.name} number={tier.number}>
 										<SkillList skills={tier.skills} character={character} />
 									</TierSection>
 								))
@@ -228,10 +216,7 @@ function AspectSkillButton({
 	cost: number
 	onToggle: (active: boolean) => unknown
 }) {
-	const [, dispatchToggle, pending] = useActionState(
-		() => onToggle(!active),
-		undefined,
-	)
+	const [, dispatchToggle, pending] = useActionState(() => onToggle(!active), undefined)
 	return (
 		<button
 			type="button"

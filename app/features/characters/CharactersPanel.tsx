@@ -20,12 +20,10 @@ export function CharactersPanel() {
 	})
 	const playerCharacter = characters?.find((character) => character.isOwner)
 
-	const [selectedCharacterId, setSelectedCharacterId] =
-		useState<Id<"characters">>()
+	const [selectedCharacterId, setSelectedCharacterId] = useState<Id<"characters">>()
 	const defaultCharacter = (!room.isOwner && playerCharacter) || characters?.[0]
 	const character =
-		characters?.find((character) => character._id === selectedCharacterId) ??
-		defaultCharacter
+		characters?.find((character) => character._id === selectedCharacterId) ?? defaultCharacter
 
 	useListener(editCharacterEvent, setSelectedCharacterId)
 
@@ -41,17 +39,11 @@ export function CharactersPanel() {
 							selected={character._id}
 							onChange={setSelectedCharacterId}
 						/>
-					:	<p className="flex h-10 flex-row items-center px-2 opacity-60">
-							No characters found.
-						</p>
-					}
+					:	<p className="flex h-10 flex-row items-center px-2 opacity-60">No characters found.</p>}
 				</div>
 				<RoomOwnerOnly>
 					{character && (
-						<DuplicateCharacterButton
-							character={character}
-							onDuplicate={setSelectedCharacterId}
-						/>
+						<DuplicateCharacterButton character={character} onDuplicate={setSelectedCharacterId} />
 					)}
 					{character && <DeleteCharacterButton character={character} />}
 					<CreateCharacterButton onCreate={setSelectedCharacterId} />

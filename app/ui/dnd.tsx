@@ -2,10 +2,7 @@ import type { ComponentPropsWithoutRef } from "react"
 import type { StrictOmit } from "../common/types.ts"
 
 export function createDndModule<Data>() {
-	function Draggable({
-		data,
-		...props
-	}: { data: Data } & ComponentPropsWithoutRef<"div">) {
+	function Draggable({ data, ...props }: { data: Data } & ComponentPropsWithoutRef<"div">) {
 		return (
 			<div
 				{...props}

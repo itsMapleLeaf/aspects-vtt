@@ -15,9 +15,7 @@ interface ModalBaseProps {
 	store?: Ariakit.DialogStore
 }
 
-interface ModalAsButtonProps
-	extends ModalBaseProps,
-		StrictOmit<ButtonPropsAsButton, "title"> {}
+interface ModalAsButtonProps extends ModalBaseProps, StrictOmit<ButtonPropsAsButton, "title"> {}
 
 interface ModalWithTriggerProps extends ModalBaseProps {
 	trigger: React.ReactElement
@@ -45,32 +43,18 @@ type ModalProps = ModalAsButtonProps | ModalWithTriggerProps
  * 	</ModalActions>
  * 	</Modal>
  */
-export function Modal({
-	children,
-	title,
-	description,
-	fullHeight,
-	store,
-	...props
-}: ModalProps) {
+export function Modal({ children, title, description, fullHeight, store, ...props }: ModalProps) {
 	return (
 		<ModalProvider store={store}>
-			<ModalButton
-				render={"trigger" in props ? props.trigger : <Button {...props} />}
-			/>
-			<ModalPanel
-				title={title}
-				description={description}
-				fullHeight={fullHeight}
-			>
+			<ModalButton render={"trigger" in props ? props.trigger : <Button {...props} />} />
+			<ModalPanel title={title} description={description} fullHeight={fullHeight}>
 				<ModalPanelContent>{children}</ModalPanelContent>
 			</ModalPanel>
 		</ModalProvider>
 	)
 }
 
-export interface ModalProviderProps
-	extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
+export interface ModalProviderProps extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
 	children: React.ReactNode | ((store: Ariakit.DialogStore) => React.ReactNode)
 }
 
@@ -87,8 +71,7 @@ export function ModalButton(props: Ariakit.DisclosureProps) {
 	return <Ariakit.DialogDisclosure {...props} />
 }
 
-export interface ModalPanelProps
-	extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
+export interface ModalPanelProps extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
 	description?: React.ReactNode
 	className?: string
@@ -122,9 +105,7 @@ export function ModalPanel({
 					<Ariakit.DialogHeading className="text-2xl/tight font-light">
 						{title}
 					</Ariakit.DialogHeading>
-					{description && (
-						<Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>
-					)}
+					{description && <Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>}
 				</div>
 				<Ariakit.DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
 					<LucideX />

@@ -4,13 +4,7 @@ import { LucideLogIn } from "lucide-react"
 import { $path } from "remix-routes"
 import { Button } from "./Button.tsx"
 
-export function AppHeader({
-	center,
-	end,
-}: {
-	center?: React.ReactNode
-	end?: React.ReactNode
-}) {
+export function AppHeader({ center, end }: { center?: React.ReactNode; end?: React.ReactNode }) {
 	const currentUrl = useHref(useLocation())
 	return (
 		<header className="flex h-10 items-center gap-3">

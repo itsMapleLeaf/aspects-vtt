@@ -5,8 +5,7 @@ import { Button } from "./Button.tsx"
 import { Input } from "./Input.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "./Popover.tsx"
 
-export interface CounterInputProps
-	extends StrictOmit<ComponentProps<"div">, "onChange"> {
+export interface CounterInputProps extends StrictOmit<ComponentProps<"div">, "onChange"> {
 	value: number
 	min?: number
 	max?: number
@@ -25,11 +24,7 @@ export function CounterInput({
 	return (
 		<Popover open={open} setOpen={setOpen}>
 			<div className="relative w-full">
-				<PopoverTrigger
-					render={
-						<Button icon={undefined} text={value} className="w-full pl-0" />
-					}
-				/>
+				<PopoverTrigger render={<Button icon={undefined} text={value} className="w-full pl-0" />} />
 				<div className="absolute inset-y-0 right-0 flex w-7 flex-col items-end justify-center">
 					<button
 						type="button"
@@ -102,21 +97,13 @@ function CounterInputForm({
 					}
 				}}
 				onWheel={(event) => {
-					if (
-						event.deltaY !== 0 &&
-						document.activeElement === event.currentTarget
-					) {
+					if (event.deltaY !== 0 && document.activeElement === event.currentTarget) {
 						event.preventDefault()
 						tweak(event.deltaY)
 					}
 				}}
 			/>
-			<Button
-				type="submit"
-				tooltip="Confirm"
-				icon={<LucideCheck />}
-				pending={false}
-			/>
+			<Button type="submit" tooltip="Confirm" icon={<LucideCheck />} pending={false} />
 		</form>
 	)
 }

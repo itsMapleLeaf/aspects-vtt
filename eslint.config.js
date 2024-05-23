@@ -35,15 +35,9 @@ export default ts.config(
 			"prefer-const": "warn",
 
 			"@typescript-eslint/ban-ts-comment": "off",
-			"@typescript-eslint/consistent-type-imports": [
-				"warn",
-				{ fixStyle: "inline-type-imports" },
-			],
+			"@typescript-eslint/consistent-type-imports": ["warn", { fixStyle: "inline-type-imports" }],
 			"@typescript-eslint/no-import-type-side-effects": "error",
-			"@typescript-eslint/no-unused-vars": [
-				"warn",
-				{ args: "none", varsIgnorePattern: "^_" },
-			],
+			"@typescript-eslint/no-unused-vars": ["warn", { args: "none", varsIgnorePattern: "^_" }],
 		},
 	},
 

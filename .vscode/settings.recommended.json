@@ -10,15 +10,9 @@
 	},
 	"eslint.enable": true,
 	"tailwindCSS.experimental.classRegex": [
-		"(?:twMerge|withMergedClassName|twc)\\.[^`]+`([^`]*)`",
-		"(?:twMerge|withMergedClassName|twc)\\(.*?\\).*?`([^`]*)",
-		[
-			"(?:twMerge|withMergedClassName|twc)\\.[^`]+\\(([^)]*)\\)",
-			"(?:'|\"|`)([^']*)(?:'|\"|`)"
-		],
-		[
-			"(?:twMerge|withMergedClassName|twc)\\(.*?\\).*?\\(([^)]*)\\)",
-			"(?:'|\"|`)([^']*)(?:'|\"|`)"
-		]
+		"twc\\.[^`]+`([^`]*)`",
+		"twc\\(.*?\\).*?`([^`]*)",
+		["twc\\.[^`]+\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+		["twc\\(.*?\\).*?\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
 	]
 }

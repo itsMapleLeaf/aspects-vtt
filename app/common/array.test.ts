@@ -29,27 +29,15 @@ describe("withMovedItem", () => {
 			() => withMovedItem([1, 2, 3], Number.POSITIVE_INFINITY, 0),
 			/fromIndex must be an integer/,
 		)
-		assert.throws(
-			() => withMovedItem([1, 2, 3], Number.NaN, 0),
-			/fromIndex must be an integer/,
-		)
-		assert.throws(
-			() => withMovedItem([1, 2, 3], 69 / 420, 0),
-			/fromIndex must be an integer/,
-		)
+		assert.throws(() => withMovedItem([1, 2, 3], Number.NaN, 0), /fromIndex must be an integer/)
+		assert.throws(() => withMovedItem([1, 2, 3], 69 / 420, 0), /fromIndex must be an integer/)
 
 		assert.throws(
 			() => withMovedItem([1, 2, 3], 0, Number.POSITIVE_INFINITY),
 			/toIndex must be an integer/,
 		)
-		assert.throws(
-			() => withMovedItem([1, 2, 3], 0, Number.NaN),
-			/toIndex must be an integer/,
-		)
-		assert.throws(
-			() => withMovedItem([1, 2, 3], 0, 69 / 420),
-			/toIndex must be an integer/,
-		)
+		assert.throws(() => withMovedItem([1, 2, 3], 0, Number.NaN), /toIndex must be an integer/)
+		assert.throws(() => withMovedItem([1, 2, 3], 0, 69 / 420), /toIndex must be an integer/)
 	})
 
 	it("should return the input if fromIndex is the same as toIndex", () => {

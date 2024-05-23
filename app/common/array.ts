@@ -1,10 +1,6 @@
 import { mod } from "./math.ts"
 
-export function withMovedItem<T>(
-	array: readonly T[],
-	fromIndex: number,
-	toIndex: number,
-): T[] {
+export function withMovedItem<T>(array: readonly T[], fromIndex: number, toIndex: number): T[] {
 	if (array.length === 0) return array as T[]
 
 	if (!Number.isInteger(fromIndex)) {
@@ -20,15 +16,11 @@ export function withMovedItem<T>(
 	}
 
 	if (fromIndex < 0 || fromIndex >= array.length) {
-		throw new Error(
-			`fromIndex (${fromIndex}) is out of range (0 to ${array.length - 1})`,
-		)
+		throw new Error(`fromIndex (${fromIndex}) is out of range (0 to ${array.length - 1})`)
 	}
 
 	if (toIndex < 0 || toIndex >= array.length) {
-		throw new Error(
-			`toIndex (${toIndex}) is out of range (0 to ${array.length - 1})`,
-		)
+		throw new Error(`toIndex (${toIndex}) is out of range (0 to ${array.length - 1})`)
 	}
 
 	const result = [...array]

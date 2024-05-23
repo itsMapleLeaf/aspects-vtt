@@ -25,9 +25,7 @@ function useSceneProvider(scene: ApiScene) {
 			sceneId: scene._id,
 		}) ?? []
 
-	const selectedTokens = tokens.filter((it) =>
-		tokenSelectStore.isSelected(it.key),
-	)
+	const selectedTokens = tokens.filter((it) => tokenSelectStore.isSelected(it.key))
 
 	return {
 		scene,
@@ -51,19 +49,13 @@ function useSceneProvider(scene: ApiScene) {
 
 			zoom(delta: number, pivotInput: VectorInput) {
 				setViewport((current) => {
-					const newScaleTick = clamp(
-						current.scaleTick + Math.sign(delta),
-						-10,
-						10,
-					)
+					const newScaleTick = clamp(current.scaleTick + Math.sign(delta), -10, 10)
 					if (newScaleTick === current.scaleTick) {
 						return current
 					}
 
 					const pivot = Vector.from(pivotInput).minus(current.offset)
-					const shift = pivot.minus(
-						pivot.times(scaleAt(newScaleTick) / scaleAt(current.scaleTick)),
-					)
+					const shift = pivot.minus(pivot.times(scaleAt(newScaleTick) / scaleAt(current.scaleTick)))
 					return {
 						...current,
 						scaleTick: newScaleTick,
@@ -78,18 +70,8 @@ function useSceneProvider(scene: ApiScene) {
 type SceneContext = ReturnType<typeof useSceneProvider>
 const SceneContext = createContext<SceneContext | undefined>(undefined)
 
-export function SceneProvider({
-	scene,
-	children,
-}: {
-	scene: ApiScene
-	children: ReactNode
-}) {
-	return (
-		<SceneContext.Provider value={useSceneProvider(scene)}>
-			{children}
-		</SceneContext.Provider>
-	)
+export function SceneProvider({ scene, children }: { scene: ApiScene; children: ReactNode }) {
+	return <SceneContext.Provider value={useSceneProvider(scene)}>{children}</SceneContext.Provider>
 }
 
 export function useSceneContext() {

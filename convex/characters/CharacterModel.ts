@@ -39,10 +39,7 @@ const characterDefaults = {
 	visible: false,
 	nameVisible: false,
 	playerId: null,
-} satisfies OmitByValue<
-	ObjectType<typeof characterProperties>,
-	null | undefined
->
+} satisfies OmitByValue<ObjectType<typeof characterProperties>, null | undefined>
 
 export class CharacterModel {
 	readonly ctx
@@ -72,9 +69,7 @@ export class CharacterModel {
 				.filter((q) => q.eq(q.field("playerId"), playerId))
 				.first()
 			if (!doc) {
-				throw new ConvexError(
-					`Couldn't find character with playerId ${playerId}`,
-				)
+				throw new ConvexError(`Couldn't find character with playerId ${playerId}`)
 			}
 			return new CharacterModel(ctx, doc)
 		})
@@ -97,27 +92,19 @@ export class CharacterModel {
 			displayPronouns: canSeeName ? this.data.pronouns : "",
 			conditions: [
 				...uniqueByProperty(
-					(this.data.conditions ?? []).toSorted((a, b) =>
-						a.name.localeCompare(b.name),
-					),
+					(this.data.conditions ?? []).toSorted((a, b) => a.name.localeCompare(b.name)),
 					"name",
 				),
 			],
 		}
 	}
 
-	async update(
-		ctx: MutationCtx,
-		updates: Partial<WithoutSystemFields<Doc<"characters">>>,
-	) {
+	async update(ctx: MutationCtx, updates: Partial<WithoutSystemFields<Doc<"characters">>>) {
 		const room = await this.getRoom()
 		const isMember =
-			(await room.isOwner()) ||
-			(await room.getIdentityPlayer().getValueOrNull()) != null
+			(await room.isOwner()) || (await room.getIdentityPlayer().getValueOrNull()) != null
 		if (!isMember) {
-			throw new ConvexError(
-				"You don't have permission to update this character.",
-			)
+			throw new ConvexError("You don't have permission to update this character.")
 		}
 
 		if (updates.playerId) {
@@ -135,9 +122,7 @@ export class CharacterModel {
 	async delete(ctx: MutationCtx) {
 		const room = await this.getRoom()
 		if (!(await room.isOwner())) {
-			throw new ConvexError(
-				"You don't have permission to delete this character.",
-			)
+			throw new ConvexError("You don't have permission to delete this character.")
 		}
 		await ctx.db.delete(this.data._id)
 	}

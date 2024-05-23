@@ -68,9 +68,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default ClerkApp(function App() {
 	const { user } = useLoaderData<typeof loader>()
-	const [convex] = useState(
-		() => new ConvexReactClient(clientEnv.VITE_CONVEX_URL),
-	)
+	const [convex] = useState(() => new ConvexReactClient(clientEnv.VITE_CONVEX_URL))
 	return (
 		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
 			<UserContext value={user}>

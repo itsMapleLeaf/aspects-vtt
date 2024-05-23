@@ -19,17 +19,11 @@ export const getCombatMembers = effectQuery({
 			// filter out member items that don't have character docs
 			const members = yield* pipe(
 				Effect.fromNullable(combat.memberObjects),
-				Effect.flatMap(
-					Effect.filter((member) =>
-						Effect.isSuccess(getDoc(member.characterId)),
-					),
-				),
+				Effect.flatMap(Effect.filter((member) => Effect.isSuccess(getDoc(member.characterId)))),
 			)
 
 			const currentMemberId = combat.currentMemberId ?? members[0]?.characterId
-			const currentMemberIndex = members.findIndex(
-				(it) => it.characterId === currentMemberId,
-			)
+			const currentMemberIndex = members.findIndex((it) => it.characterId === currentMemberId)
 
 			return {
 				members,
@@ -60,24 +54,18 @@ export const start = mutation({
 		const room = await RoomModel.fromId(ctx, id).getValueOrThrow()
 		await room.assertOwned()
 
-		const scene =
-			room.data.currentScene && (await ctx.db.get(room.data.currentScene))
+		const scene = room.data.currentScene && (await ctx.db.get(room.data.currentScene))
 
 		const visibleCharacters = await Promise.all(
 			scene?.tokens?.map(
-				(token) =>
-					token.visible && token.characterId && ctx.db.get(token.characterId),
+				(token) => token.visible && token.characterId && ctx.db.get(token.characterId),
 			) ?? [],
 		)
 
 		const initialMembers = await Promise.all(
 			visibleCharacters.filter(Boolean).map(async (character) => ({
 				characterId: character._id,
-				initiative: await getInitiativeRoll(
-					ctx,
-					character._id,
-					args.initiativeAttribute,
-				),
+				initiative: await getInitiativeRoll(ctx, character._id, args.initiativeAttribute),
 			})),
 		)
 
@@ -122,14 +110,10 @@ export const advance = mutation({
 			roomId: room.data._id,
 		})
 
-		const nextMember = expect(
-			indexLooped(members, currentMemberIndex + 1),
-			"No combat member",
-		)
+		const nextMember = expect(indexLooped(members, currentMemberIndex + 1), "No combat member")
 
 		const nextRoundNumber =
-			combat.currentRoundNumber +
-			(currentMemberIndex === members.length - 1 ? 1 : 0)
+			combat.currentRoundNumber + (currentMemberIndex === members.length - 1 ? 1 : 0)
 
 		await ctx.db.patch(room.data._id, {
 			combat: {
@@ -168,8 +152,7 @@ export const back = mutation({
 			"No previous member",
 		)
 
-		const previousRoundNumber =
-			combat.currentRoundNumber - (currentMemberIndex === 0 ? 1 : 0)
+		const previousRoundNumber = combat.currentRoundNumber - (currentMemberIndex === 0 ? 1 : 0)
 
 		await ctx.db.patch(room.data._id, {
 			combat: {
@@ -218,13 +201,8 @@ export const addMember = mutation({
 			throw new Error("Combat is inactive")
 		}
 
-		const character = await CharacterModel.get(
-			ctx,
-			args.characterId,
-		).getValueOrThrow()
-		if (
-			combat.memberObjects?.some((it) => it.characterId === character.data._id)
-		) {
+		const character = await CharacterModel.get(ctx, args.characterId).getValueOrThrow()
+		if (combat.memberObjects?.some((it) => it.characterId === character.data._id)) {
 			throw new Error("Character is already in combat")
 		}
 
@@ -261,22 +239,15 @@ export const removeMember = mutation({
 			throw new Error("Combat is inactive")
 		}
 
-		const character = await CharacterModel.get(
-			ctx,
-			args.characterId,
-		).getValueOrThrow()
-		if (
-			!combat.memberObjects?.some((it) => it.characterId === character.data._id)
-		) {
+		const character = await CharacterModel.get(ctx, args.characterId).getValueOrThrow()
+		if (!combat.memberObjects?.some((it) => it.characterId === character.data._id)) {
 			throw new Error("Character is not in combat")
 		}
 
 		await ctx.db.patch(room.data._id, {
 			combat: {
 				...combat,
-				memberObjects: combat.memberObjects?.filter(
-					(it) => it.characterId !== character.data._id,
-				),
+				memberObjects: combat.memberObjects?.filter((it) => it.characterId !== character.data._id),
 			},
 		})
 	},
@@ -296,13 +267,8 @@ export const setCurrentMember = mutation({
 			throw new Error("Combat is inactive")
 		}
 
-		const character = await CharacterModel.get(
-			ctx,
-			args.characterId,
-		).getValueOrThrow()
-		if (
-			!combat.memberObjects?.some((it) => it.characterId === character.data._id)
-		) {
+		const character = await CharacterModel.get(ctx, args.characterId).getValueOrThrow()
+		if (!combat.memberObjects?.some((it) => it.characterId === character.data._id)) {
 			throw new Error("Character is not in combat")
 		}
 

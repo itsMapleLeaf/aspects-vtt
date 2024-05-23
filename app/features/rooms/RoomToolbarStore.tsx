@@ -19,8 +19,7 @@ export const RoomToolbarStore = createStore({
 		toggleDrawTool() {
 			setState((state) => ({
 				...state,
-				activeTool:
-					state.activeTool !== RoomTool.Draw ? RoomTool.Draw : RoomTool.Select,
+				activeTool: state.activeTool !== RoomTool.Draw ? RoomTool.Draw : RoomTool.Select,
 			}))
 		},
 		enableSelectTool() {

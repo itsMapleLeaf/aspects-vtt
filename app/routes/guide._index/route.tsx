@@ -26,16 +26,12 @@ export default function GuideRoute() {
 						})
 					}}
 				></div>
-				<h2 className="text-4xl tracking-wider drop-shadow-xl sm:text-6xl">
-					Aspects of Nature
-				</h2>
+				<h2 className="text-4xl tracking-wider drop-shadow-xl sm:text-6xl">Aspects of Nature</h2>
 				<p className="text-2xl tracking-wide drop-shadow-xl">How to play</p>
 			</section>
 
 			<main
-				className={panel(
-					"markdown relative mx-auto -mt-16 mb-8 w-full max-w-2xl p-4 shadow-md",
-				)}
+				className={panel("markdown relative mx-auto -mt-16 mb-8 w-full max-w-2xl p-4 shadow-md")}
 			>
 				<Content />
 			</main>

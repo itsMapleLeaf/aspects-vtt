@@ -11,11 +11,7 @@ const rightMouseButton = 2
 const middleMouseButton = 4
 
 export function useDrag(
-	ref:
-		| HTMLElement
-		| null
-		| undefined
-		| { readonly current: HTMLElement | null | undefined },
+	ref: HTMLElement | null | undefined | { readonly current: HTMLElement | null | undefined },
 	{
 		shouldStart = () => true,
 		onStart,
@@ -98,7 +94,5 @@ export function useDrag(
 		}
 	})
 
-	return state ?
-			{ ...state, distance: state?.current.minus(state.start) }
-		:	undefined
+	return state ? { ...state, distance: state?.current.minus(state.start) } : undefined
 }

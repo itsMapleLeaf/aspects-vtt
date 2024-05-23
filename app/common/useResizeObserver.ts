@@ -32,9 +32,7 @@ export function useResizeObserver<T extends Element>(
 	}, [ref])
 }
 
-export function useSize(
-	ref: Nullish<Element> | React.RefObject<Nullish<Element>>,
-) {
+export function useSize(ref: Nullish<Element> | React.RefObject<Nullish<Element>>) {
 	const [size, setSize] = useState(Vector.zero)
 	useResizeObserver(ref, (size) => setSize(Vector.fromSize(size)))
 	return size

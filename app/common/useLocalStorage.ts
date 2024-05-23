@@ -18,10 +18,7 @@ export function useLocalStorageState<T extends JsonValue>(
 	return useLocalStorage(key, schema, useState(initialValue))
 }
 
-export function useLocalStorage<
-	Value extends JsonValue,
-	SetValue extends (value: Value) => void,
->(
+export function useLocalStorage<Value extends JsonValue, SetValue extends (value: Value) => void>(
 	key: string,
 	schema: { parse: (input: unknown) => Value },
 	[value, setValue]: [Value, SetValue],
