@@ -37,7 +37,7 @@ export function NumberInput({
 			fallback={fallback}
 			controllerRef={controllerRef}
 			parse={(input) => {
-				const isNumberString = /^(\d+|\d*?\.\d+)$/.test(input)
+				const isNumberString = /^-?(\d+|\d*?\.\d+)$/.test(input)
 				if (!isNumberString) return
 
 				const value = Number(input)

@@ -8,13 +8,23 @@ import { menuItemStyle, menuPanelStyle } from "./Menu.tsx"
 import { type EditableProps, useEditable } from "./useEditable.tsx"
 
 export type SelectOption<T> =
-	| { id?: string | undefined; label: ReactNode; value: Extract<T, string> }
-	| { id: string; label: ReactNode; value: T }
+	| {
+			id?: string | undefined
+			value: Extract<T, string>
+			label: ReactNode
+			icon?: ReactNode
+	  }
+	| {
+			id: string
+			value: T
+			label: ReactNode
+			icon?: ReactNode
+	  }
 
 export function Select<T>(props: {
 	label: ReactNode
 	value: T | undefined
-	options: SelectOption<T>[]
+	options: readonly SelectOption<T>[]
 	placeholder?: ReactNode
 	onChange: (value: T) => void
 	className?: string
@@ -62,6 +72,7 @@ export function Select<T>(props: {
 						value={getOptionId(option)}
 						className={menuItemStyle()}
 					>
+						{option.icon}
 						{option.label}
 					</Ariakit.SelectItem>
 				))}

@@ -118,32 +118,10 @@ function TokenMenuContent() {
 	return (
 		<>
 			<div className="flex justify-center gap-[inherit]">
-				{singleSelectedCharacter && (
-					<CharacterModal character={singleSelectedCharacter}>
-						<ModalButton
-							render={
-								<Button tooltip="View profile" icon={<Lucide.BookUser />} />
-							}
-						/>
-					</CharacterModal>
-				)}
-
 				{selectionHasCharacters && (
 					<RollAttributeMenu characters={selectedCharacters}>
 						<Button tooltip="Roll attribute" icon={<Lucide.Dices />} />
 					</RollAttributeMenu>
-				)}
-
-				{selectionHasCharacters && (
-					<StressUpdateMenu characters={selectedCharacters} field="damage">
-						<Button tooltip="Update damage" icon={<Lucide.HeartPulse />} />
-					</StressUpdateMenu>
-				)}
-
-				{selectionHasCharacters && (
-					<StressUpdateMenu characters={selectedCharacters} field="fatigue">
-						<Button tooltip="Update fatigue" icon={<Lucide.Brain />} />
-					</StressUpdateMenu>
 				)}
 
 				{selectedTokens.length >= 2 && (
@@ -234,6 +212,22 @@ function TokenMenuContent() {
 					/>
 				)}
 			</div>
+
+			<div className="flex gap-2 *:flex-1 empty:hidden">
+				{singleSelectedCharacter && (
+					<CharacterModal character={singleSelectedCharacter}>
+						<ModalButton
+							render={<Button text="View profile" icon={<Lucide.BookUser />} />}
+						/>
+					</CharacterModal>
+				)}
+				{selectionHasCharacters && (
+					<StressUpdateMenu characters={selectedCharacters}>
+						<Button text="Update stress" icon={<Lucide.HeartCrack />} />
+					</StressUpdateMenu>
+				)}
+			</div>
+
 			{singleSelectedCharacter?.isOwner && (
 				<TokenMenuCharacterTabs character={singleSelectedCharacter} />
 			)}

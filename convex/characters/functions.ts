@@ -1,18 +1,27 @@
 import { literals } from "convex-helpers/validators"
-import { v } from "convex/values"
+import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
 import { NoSuchElementException } from "effect/Cause"
 import { generateSlug } from "random-word-slugs"
-import { omit, pick } from "../../app/common/object.ts"
+import { isTuple } from "../../app/common/array.ts"
+import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomItem } from "../../app/common/random.ts"
 import { CharacterSkillTree } from "../../app/features/characters/skills.ts"
-import type { Doc } from "../_generated/dataModel.js"
-import { getUserFromIdentity } from "../auth/helpers.ts"
-import { requireDoc } from "../helpers/convex.ts"
-import { effectMutation, withMutationCtx } from "../helpers/effect.ts"
+import { type Doc } from "../_generated/dataModel.js"
+import {
+	getUserFromIdentity,
+	getUserFromIdentityEffect,
+} from "../auth/helpers.ts"
+import { createDiceRolls } from "../dice/helpers.ts"
+import {
+	effectMutation,
+	getEntityDoc,
+	insertDoc,
+	updateDoc,
+	withMutationCtx,
+} from "../helpers/effect.ts"
 import { mutation, query, type QueryCtx } from "../helpers/ents.ts"
-import { create as createMessage } from "../messages/functions.ts"
-import { diceInputValidator } from "../messages/types.ts"
+import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
 import { RoomModel } from "../rooms/RoomModel.js"
 import { userColorValidator } from "../types.ts"
 import { CharacterModel } from "./CharacterModel.js"
@@ -118,60 +127,95 @@ export const remove = mutation({
 	},
 })
 
-export const applyStress = mutation({
+export const applyStress = effectMutation({
 	args: {
-		roomId: v.id("rooms"),
 		characterIds: v.array(v.id("characters")),
-		property: literals("damage", "fatigue"),
-		delta: literals(-1, 1),
+		properties: v.array(literals("damage", "fatigue")),
 		amount: v.number(),
 		dice: v.array(diceInputValidator),
+		delta: literals(-1, 1), // whether to add or subtract the dice result
 	},
-	handler: async (ctx, args) => {
-		const characters = await Promise.all(
-			args.characterIds.map((id) =>
-				requireDoc(ctx, id, "characters").getValueOrThrow(),
-			),
-		)
-
-		for (const character of characters) {
-			if (character.roomId !== args.roomId) {
-				throw new Error(
-					`Character ${character._id} "${character.name}" has invalid room ${character.roomId}, expected ${args.roomId}`,
+	handler(args) {
+		return Effect.gen(function* () {
+			if (args.properties.length === 0) {
+				return yield* Effect.fail(
+					new ConvexError("At least one property must be specified"),
 				)
 			}
-		}
 
-		let amount = args.amount
-
-		if (args.dice.length > 0) {
-			let content = `Rolling for ${args.delta === -1 ? "healing" : "damage"}!`
-			if (args.amount !== 0) {
-				content += ` (+${args.amount})`
+			if (args.characterIds.length === 0) {
+				return yield* Effect.fail(
+					new ConvexError("At least one character must be specified"),
+				)
 			}
 
-			const message = await createMessage(ctx, {
-				roomId: args.roomId,
-				dice: args.dice,
-				content,
+			const user = yield* getUserFromIdentityEffect()
+
+			const characters = yield* Effect.forEach(
+				args.characterIds,
+				(id) => getEntityDoc("characters", id),
+				{ concurrency: "unbounded" },
+			)
+
+			const characterRoomIds = [
+				...new Set(characters.map((character) => character.roomId)),
+			]
+			if (!isTuple(characterRoomIds, 1)) {
+				return yield* Effect.fail(
+					new ConvexError("Characters must all be in the same room"),
+				)
+			}
+			const roomId = characterRoomIds[0]
+
+			let amount = args.amount
+			let diceRolls: DiceRoll[] | undefined
+
+			if (args.dice.length > 0) {
+				diceRolls = [...createDiceRolls(args.dice)]
+				amount +=
+					diceRolls.reduce((total, die) => total + die.result, 0) * args.delta
+			}
+
+			const listFormat = new Intl.ListFormat("en-US", {
+				type: "conjunction",
 			})
 
-			amount +=
-				message.diceRoll?.dice.reduce((total, die) => total + die.result, 0) ??
-				0
-		}
+			const characterMentions = listFormat.format(
+				characters.map((character) => `<@${character._id}>`),
+			)
 
-		await Promise.all(
-			characters.map((character) =>
-				update(ctx, {
-					id: character._id,
-					[args.property]: Math.max(
-						(character[args.property] ?? 0) + amount * args.delta,
-						0,
-					),
-				}),
-			),
-		)
+			const stressTypes = listFormat.format(args.properties)
+
+			let content
+			if (amount > 0) {
+				content = `Dealt ${Math.abs(amount)} ${stressTypes} to ${characterMentions}.`
+			} else if (amount < 0) {
+				content = `Healed ${Math.abs(amount)} ${stressTypes} from ${characterMentions}.`
+			} else {
+				content = `No damage or healing was applied.`
+			}
+
+			yield* Effect.forEach(
+				characters,
+				(character) => {
+					const data = fromEntries(
+						args.properties.map((property) => [
+							property,
+							Math.max((character[property] ?? 0) + amount, 0),
+						]),
+					)
+					return updateDoc(character._id, data)
+				},
+				{ concurrency: "unbounded" },
+			)
+
+			yield* insertDoc("messages", {
+				roomId,
+				userId: user.clerkId,
+				content,
+				diceRoll: diceRolls && { dice: diceRolls },
+			})
+		})
 	},
 })
 

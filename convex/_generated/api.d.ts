@@ -23,6 +23,7 @@ import type * as characters_functions from "../characters/functions.js";
 import type * as characters_helpers from "../characters/helpers.js";
 import type * as characters_types from "../characters/types.js";
 import type * as crons from "../crons.js";
+import type * as dice_helpers from "../dice/helpers.js";
 import type * as diceMacros_functions from "../diceMacros/functions.js";
 import type * as diceMacros_types from "../diceMacros/types.js";
 import type * as env from "../env.js";
@@ -65,6 +66,7 @@ declare const fullApi: ApiFromModules<{
   "characters/helpers": typeof characters_helpers;
   "characters/types": typeof characters_types;
   crons: typeof crons;
+  "dice/helpers": typeof dice_helpers;
   "diceMacros/functions": typeof diceMacros_functions;
   "diceMacros/types": typeof diceMacros_types;
   env: typeof env;

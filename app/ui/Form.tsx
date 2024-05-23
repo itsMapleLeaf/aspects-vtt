@@ -46,14 +46,14 @@ export function FormField({
 					<label htmlFor={inputId}>{label}</label>
 				:	label}
 			</div>
-			{description && (
-				<div className="text-sm/6 font-bold text-primary-700">
-					{description}
-				</div>
-			)}
 			<FieldContext value={fieldContext}>
 				<consumers.Provider>{children}</consumers.Provider>
 			</FieldContext>
+			{description && (
+				<div className="mt-1 text-sm/tight font-bold text-primary-700">
+					{description}
+				</div>
+			)}
 		</div>
 	)
 }

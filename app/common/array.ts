@@ -47,3 +47,20 @@ export function chunk<T>(array: readonly T[], chunkSize: number): T[][] {
 	}
 	return result
 }
+
+export function isTuple<T, Length extends number>(
+	input: readonly T[],
+	length: Length,
+): input is Tuple<T, Length> {
+	return input.length === length
+}
+
+type Tuple<T, N extends number> =
+	N extends N ?
+		number extends N ?
+			readonly T[]
+		:	_TupleOf<T, N, readonly []>
+	:	never
+
+type _TupleOf<T, N extends number, R extends readonly unknown[]> =
+	R["length"] extends N ? R : _TupleOf<T, N, readonly [T, ...R]>

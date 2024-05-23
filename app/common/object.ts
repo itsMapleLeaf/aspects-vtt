@@ -24,8 +24,14 @@ export function omit<T extends object, K extends keyof T>(
 	return result as StrictOmit<T, K>
 }
 
-export function* keys<T extends object>(obj: T): Iterable<keyof T> {
+export function* keys<T extends object>(obj: T) {
 	for (const key in obj) {
 		yield key
 	}
+}
+
+export function fromEntries<K extends PropertyKey, V>(
+	entries: Iterable<readonly [K, V]>,
+): Record<K, V> {
+	return Object.fromEntries(entries) as Record<K, V>
 }

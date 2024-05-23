@@ -1,14 +1,13 @@
 import { paginationOptsValidator } from "convex/server"
-import { ConvexError, type Infer, v } from "convex/values"
+import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
-import { expect } from "../../app/common/expect.ts"
+import { Iterator } from "iterator-helpers-polyfill"
 import { pick } from "../../app/common/object.ts"
-import { range } from "../../app/common/range.ts"
 import { getUserFromClerkId, getUserFromIdentity } from "../auth/helpers.ts"
 import { CharacterModel } from "../characters/CharacterModel.js"
+import { createDiceRolls } from "../dice/helpers.ts"
 import { QueryCtxService } from "../helpers/effect.js"
 import { mutation, query } from "../helpers/ents.ts"
-import type { diceRollValidator } from "./types.ts"
 import { diceInputValidator } from "./types.ts"
 
 export const list = query({
@@ -66,21 +65,7 @@ export const create = mutation({
 			throw new ConvexError("Message cannot be empty.")
 		}
 
-		const diceRolls: Infer<typeof diceRollValidator>["dice"] = []
-
-		const addDiceRoll = (name: string, sides: number, explodes: boolean) => {
-			const result = getRandomNumber(sides)
-			diceRolls.push({ key: crypto.randomUUID(), name, result })
-			if (explodes && result === sides) {
-				addDiceRoll(name, sides, explodes)
-			}
-		}
-
-		for (const input of dice) {
-			for (const _ of range(input.count)) {
-				addDiceRoll(input.name, input.sides, input.explodes)
-			}
-		}
+		const diceRolls = Iterator.from(createDiceRolls(dice)).toArray()
 
 		const message = {
 			...args,
@@ -110,11 +95,3 @@ export const remove = mutation({
 		await ctx.db.delete(id)
 	},
 })
-
-const getRandomNumber = (() => {
-	const output = new Uint32Array(1)
-	return function getRandomNumber(max: number) {
-		crypto.getRandomValues(output)
-		return (expect(output[0], "what") % max) + 1
-	}
-})()

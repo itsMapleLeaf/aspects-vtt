@@ -52,7 +52,7 @@ const schema = defineEntSchema({
 		roomId: v.id("rooms"),
 		userId: brandedString("clerkId"),
 		content: v.optional(v.string()),
-		diceRoll: v.optional(diceRollValidator),
+		diceRoll: v.optional(v.object({ dice: v.array(diceRollValidator) })),
 	}).index("by_room", ["roomId"]),
 
 	characters: defineEnt({

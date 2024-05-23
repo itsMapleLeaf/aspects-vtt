@@ -1,8 +1,9 @@
+import type { DocumentByName, WithoutSystemFields } from "convex/server"
 import type { ObjectType, PropertyValidators } from "convex/values"
 import { Context, Data, Effect, pipe } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import type { Awaitable, Overwrite } from "../../app/common/types.js"
-import type { Doc, Id, TableNames } from "../_generated/dataModel.js"
+import type { DataModel, Doc, Id, TableNames } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "./ents.js"
 import { mutation, query } from "./ents.js"
 
@@ -169,4 +170,22 @@ export function ensureDoc<D extends Doc<TableNames>>(
 	return doc != null ?
 			Effect.succeed(doc)
 		:	Effect.fail(new ConvexDocNotFoundError({}))
+}
+
+export function getEntityDoc<T extends TableNames>(table: T, id: Id<T>) {
+	return queryDoc((ctx) => ctx.table(table).get(id).doc())
+}
+
+export function insertDoc<T extends TableNames>(
+	table: T,
+	data: WithoutSystemFields<Doc<T>>,
+) {
+	return withMutationCtx((ctx) => ctx.db.insert(table, data))
+}
+
+export function updateDoc<Name extends TableNames>(
+	id: Id<Name>,
+	data: Partial<DocumentByName<DataModel, Name>>,
+) {
+	return withMutationCtx((ctx) => ctx.db.patch(id, data))
 }
