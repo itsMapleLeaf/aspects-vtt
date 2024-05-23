@@ -299,12 +299,7 @@ function CharacterDiceField({
 					onChange={(value) => update({ id: character._id, [field]: value })}
 					className="flex-1"
 				/>
-				<AttributeDiceRollButton
-					attributeValue={value}
-					buttonText={"Roll"}
-					buttonLabel={`Roll ${label} for ${character.displayName}`}
-					messageContent={`<@${character._id}>: ${label}`}
-				/>
+				<AttributeDiceRollButton characters={[{ ...character, ...state.args }]} attribute={field} />
 			</div>
 		</CharacterReadOnlyGuard>
 	)

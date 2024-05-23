@@ -10,11 +10,11 @@ import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
-import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { ModalButton } from "../../ui/Modal.tsx"
 import { Popover, PopoverPanel, usePopoverStore } from "../../ui/Popover.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
+import { AttributeDiceRollButtonGrid } from "../characters/AttributeDiceRollButtonGrid.tsx"
 import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
 import {
 	CharacterDamageField,
@@ -26,8 +26,6 @@ import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import { CharacterSkillTree } from "../characters/skills.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacterRaceAbilities } from "../characters/useCharacterRaceAbilities.ts"
-import { useCreateAttributeRollMessage } from "../characters/useCreateAttributeRollMessage.tsx"
-import { useNotionData } from "../game/NotionDataContext.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
@@ -79,7 +77,7 @@ export function TokenMenu() {
 					getAnchorRect={() => anchor}
 					modal={false}
 					fixed
-					className="flex w-min min-w-[360px] flex-col gap-3 rounded p-3"
+					className="flex w-min min-w-[360px] flex-col gap-2 rounded p-3"
 					unmountOnHide={false}
 					hideOnInteractOutside={false}
 				>
@@ -113,12 +111,6 @@ function TokenMenuContent() {
 	return (
 		<>
 			<div className="flex justify-center gap-[inherit]">
-				{selectionHasCharacters && (
-					<RollAttributeMenu characters={selectedCharacters}>
-						<Button tooltip="Roll attribute" icon={<Lucide.Dices />} />
-					</RollAttributeMenu>
-				)}
-
 				{selectedTokens.length >= 2 && (
 					<Button
 						tooltip="Choose random"
@@ -208,7 +200,11 @@ function TokenMenuContent() {
 				)}
 			</div>
 
-			<div className="flex gap-2 *:flex-1 empty:hidden">
+			{selectedCharacters.length > 0 && (
+				<AttributeDiceRollButtonGrid className="gap-[inherit]" characters={selectedCharacters} />
+			)}
+
+			<div className="flex gap-[inherit] *:flex-1 empty:hidden">
 				{singleSelectedCharacter && (
 					<CharacterModal character={singleSelectedCharacter}>
 						<ModalButton render={<Button text="View profile" icon={<Lucide.BookUser />} />} />
@@ -259,33 +255,6 @@ function TokenMenuCharacterTabs({ character }: { character: ApiCharacter }) {
 				</Tabs.Panel>
 			</ScrollArea>
 		</>
-	)
-}
-
-function RollAttributeMenu(props: { characters: ApiCharacter[]; children: React.ReactElement }) {
-	const createAttributeRollMessage = useCreateAttributeRollMessage()
-	const notionImports = useNotionData()
-	return (
-		<Menu placement="bottom">
-			<MenuButton render={props.children} />
-			<MenuPanel>
-				{notionImports?.attributes?.map((attribute) => (
-					<MenuItem
-						key={attribute.key}
-						icon={undefined}
-						text={attribute.name}
-						onClick={() => {
-							for (const character of props.characters) {
-								createAttributeRollMessage({
-									content: `<@${character._id}>: ${attribute.name}`,
-									attributeValue: character[attribute.key],
-								})
-							}
-						}}
-					/>
-				))}
-			</MenuPanel>
-		</Menu>
 	)
 }
 

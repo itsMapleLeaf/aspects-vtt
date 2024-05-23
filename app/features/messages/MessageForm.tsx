@@ -5,8 +5,6 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
-import { titleCase } from "../../common/string.ts"
-import type { PickByValue } from "../../common/types.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { ModalButton, ModalPanel, ModalProvider } from "../../ui/Modal.tsx"
@@ -15,8 +13,7 @@ import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel } from "../../ui/styles.ts"
 import { useUser } from "../auth/UserContext.tsx"
-import { AttributeDiceRollButton } from "../characters/AttributeDiceRollButton.tsx"
-import type { ApiCharacter } from "../characters/types.ts"
+import { AttributeDiceRollButtonGrid } from "../characters/AttributeDiceRollButtonGrid.tsx"
 import { DiceCounter } from "../dice/DiceCounter.tsx"
 import { type DiceKind, diceKindsByName } from "../dice/diceKinds.tsx"
 import { getDiceInputList } from "../dice/getDiceInputList.tsx"
@@ -34,6 +31,9 @@ export function MessageForm() {
 	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})
 
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
+
+	const user = useUser()
+	const ownedCharacter = useCharacters().find((c) => c.playerId === user?.clerkId)
 
 	async function submit() {
 		try {
@@ -84,17 +84,7 @@ export function MessageForm() {
 
 	return (
 		<form action={submit} className="flex flex-col gap-2">
-			<div className="flex flex-col gap-2 empty:hidden">
-				<div className="flex gap-2 *:flex-1">
-					<SelfAttributeRollButton field="strength" />
-					<SelfAttributeRollButton field="mobility" />
-				</div>
-				<div className="flex gap-2 *:flex-1">
-					<SelfAttributeRollButton field="sense" />
-					<SelfAttributeRollButton field="intellect" />
-					<SelfAttributeRollButton field="wit" />
-				</div>
-			</div>
+			{ownedCharacter && <AttributeDiceRollButtonGrid character={ownedCharacter} />}
 
 			<DiceCounter value={diceCounts} onChange={setDiceCounts} />
 
@@ -152,21 +142,6 @@ export function MessageForm() {
 				/>
 			</div>
 		</form>
-	)
-}
-
-function SelfAttributeRollButton({ field }: { field: keyof PickByValue<ApiCharacter, number> }) {
-	const user = useUser()
-	const ownedCharacter = useCharacters().find((c) => c.playerId === user?.clerkId)
-	return (
-		ownedCharacter && (
-			<AttributeDiceRollButton
-				attributeValue={ownedCharacter[field]}
-				buttonText={titleCase(field)}
-				buttonLabel={`Roll ${titleCase(field)} for your character (${ownedCharacter.displayName})`}
-				messageContent={`<@${ownedCharacter._id}>: ${titleCase(field)}`}
-			/>
-		)
 	)
 }
 

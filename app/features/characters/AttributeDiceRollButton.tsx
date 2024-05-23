@@ -2,22 +2,25 @@ import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { clamp } from "../../common/math.ts"
-import { Button } from "../../ui/Button.tsx"
+import { titleCase } from "../../common/string.ts"
+import type { PartialKeys, PickByValue } from "../../common/types.ts"
+import { Button, type ButtonProps } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { panel } from "../../ui/styles.ts"
+import type { ApiCharacter } from "./types.ts"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function AttributeDiceRollButton({
-	attributeValue,
-	buttonText,
-	buttonLabel,
-	messageContent,
+	characters,
+	attribute,
+	messageContent = (character) => `<@${character._id}>: ${titleCase(attribute)}`,
+	icon = <Lucide.Dices />,
+	...buttonProps
 }: {
-	attributeValue: number
-	buttonText: string
-	buttonLabel?: string
-	messageContent: string
-}) {
+	characters: ApiCharacter[]
+	attribute: keyof PickByValue<ApiCharacter, number>
+	messageContent?: (character: ApiCharacter) => string
+} & PartialKeys<ButtonProps, "icon">) {
 	const createAttributeRollMessage = useCreateAttributeRollMessage()
 	const [boostCount, setBoostCount] = useState(0)
 	const [snagCount, setSnagCount] = useState(0)
@@ -28,13 +31,18 @@ export function AttributeDiceRollButton({
 				render={
 					<Button
 						icon={<Lucide.Dices />}
-						text={buttonText}
-						aria-label={buttonLabel}
-						onClick={async () => {
-							await createAttributeRollMessage({
-								content: messageContent,
-								attributeValue,
-							})
+						aria-label={typeof buttonProps.text === "string" ? buttonProps.text : undefined}
+						{...buttonProps}
+						onClick={async (event) => {
+							await buttonProps.onClick?.(event)
+							await Promise.all(
+								characters.map((character) =>
+									createAttributeRollMessage({
+										content: messageContent(character),
+										attributeValue: character[attribute],
+									}),
+								),
+							)
 						}}
 					/>
 				}
@@ -59,12 +67,16 @@ export function AttributeDiceRollButton({
 					text="Roll"
 					icon={<Lucide.Dices />}
 					onClick={async () => {
-						await createAttributeRollMessage({
-							content: messageContent,
-							attributeValue,
-							boostCount,
-							snagCount,
-						})
+						await Promise.all(
+							characters.map((character) =>
+								createAttributeRollMessage({
+									content: messageContent(character),
+									attributeValue: character[attribute],
+									boostCount,
+									snagCount,
+								}),
+							),
+						)
 						setBoostCount(0)
 						setSnagCount(0)
 					}}
