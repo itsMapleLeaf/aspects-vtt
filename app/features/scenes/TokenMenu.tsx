@@ -11,7 +11,6 @@ import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
-import { ModalButton } from "../../ui/Modal.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
@@ -22,7 +21,7 @@ import {
 	CharacterFatigueField,
 	CharacterNotesFields,
 } from "../characters/CharacterForm.tsx"
-import { CharacterModal } from "../characters/CharacterModal.tsx"
+import { useCharacterModalContext } from "../characters/CharacterModal.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import { CharacterSkillTree } from "../characters/skills.ts"
 import type { ApiCharacter } from "../characters/types.ts"
@@ -114,6 +113,7 @@ function TokenMenuContent() {
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
 	const updateCharacter = useMutation(api.characters.functions.update)
+	const characterModal = useCharacterModalContext()
 
 	// filter out empty token arrays to avoid "flash of empty content" while closing
 	const selectedTokens = useFilter(selectedTokensInput, (it) => it.length > 0)
@@ -192,13 +192,12 @@ function TokenMenuContent() {
 		<div className="flex-center gap-3">
 			<div className={translucentPanel("flex justify-center gap-2 p-2")}>
 				{singleSelectedCharacter && (
-					<CharacterModal character={singleSelectedCharacter}>
-						<ModalButton
-							render={
-								<Button text="View profile" icon={<Lucide.BookUser />} className="shrink-0" />
-							}
-						/>
-					</CharacterModal>
+					<Button
+						text="View profile"
+						icon={<Lucide.BookUser />}
+						className="shrink-0"
+						onClick={() => characterModal.show(singleSelectedCharacter._id)}
+					/>
 				)}
 
 				{selectedTokens.length >= 2 && (

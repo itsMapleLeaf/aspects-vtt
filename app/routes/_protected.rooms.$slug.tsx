@@ -8,6 +8,7 @@ import { $params } from "remix-routes"
 import { api } from "../../convex/_generated/api.js"
 import { getConvexClient } from "../convex.server.ts"
 import { dataFunctionParam, loaderFromEffect } from "../effect.ts"
+import { CharacterModal } from "../features/characters/CharacterModal.tsx"
 import { RoomProvider } from "../features/rooms/roomContext.tsx"
 import { AuthenticatedAppHeaderLayout } from "../ui/AppHeaderLayout.tsx"
 import { EmptyStatePanel } from "../ui/EmptyState.tsx"
@@ -35,7 +36,9 @@ export default function RoomLayout() {
 	const room = useQuery(api.rooms.functions.get, { slug }) ?? use(data.room)
 	return room ?
 			<RoomProvider room={room}>
-				<Outlet />
+				<CharacterModal>
+					<Outlet />
+				</CharacterModal>
 			</RoomProvider>
 		:	<AuthenticatedAppHeaderLayout>
 				<EmptyStatePanel icon={<LucideHelpCircle />} message="That room does not exist." />

@@ -1,4 +1,3 @@
-import { useDialogStore } from "@ariakit/react"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
@@ -8,7 +7,6 @@ import { groupBy } from "../../common/collection.ts"
 import { useMutationAction } from "../../common/convex.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
-import { ModalButton } from "../../ui/Modal.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { ToggleableSidebar } from "../../ui/ToggleableSidebar.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
@@ -16,7 +14,7 @@ import { panel, translucentPanel } from "../../ui/styles.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { CharacterDnd } from "./CharacterDnd.tsx"
-import { CharacterModal } from "./CharacterModal.tsx"
+import { useCharacterModalContext } from "./CharacterModal.tsx"
 import { useCharacterSelection } from "./CharacterSelectionProvider.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -106,55 +104,54 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 	const removeCharacter = useMutation(api.characters.functions.remove)
 	const duplicateCharacter = useMutation(api.characters.functions.duplicate)
 	const selection = useCharacterSelection()
-	const modalStore = useDialogStore()
+	const characterModal = useCharacterModalContext()
 
 	return (
-		<CharacterModal character={character} store={modalStore}>
-			<Menu placement="right">
-				{children}
-				<MenuPanel gutter={16}>
-					<ModalButton
-						store={modalStore}
-						render={<MenuItem text="Profile" icon={<Lucide.BookUser />} />}
-					/>
-					{room.isOwner && (
-						<>
-							<MenuItem
-								text="Duplicate"
-								icon={<Lucide.Copy />}
-								onClick={async () => {
-									const id = await duplicateCharacter({
-										id: character._id,
-										randomize: false,
-									})
-									selection.setSelected(id)
-								}}
-							/>
-							<MenuItem
-								text="Duplicate (Randomized)"
-								icon={<Lucide.Shuffle />}
-								onClick={async () => {
-									const id = await duplicateCharacter({
-										id: character._id,
-										randomize: true,
-									})
-									selection.setSelected(id)
-								}}
-							/>
-							<MenuItem
-								text="Delete"
-								icon={<Lucide.Trash />}
-								onClick={() => {
-									if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
-										removeCharacter({ id: character._id })
-									}
-								}}
-							/>
-						</>
-					)}
-				</MenuPanel>
-			</Menu>
-		</CharacterModal>
+		<Menu placement="right">
+			{children}
+			<MenuPanel gutter={16}>
+				<MenuItem
+					text="Profile"
+					icon={<Lucide.BookUser />}
+					onClick={() => characterModal.show(character._id)}
+				/>
+				{room.isOwner && (
+					<>
+						<MenuItem
+							text="Duplicate"
+							icon={<Lucide.Copy />}
+							onClick={async () => {
+								const id = await duplicateCharacter({
+									id: character._id,
+									randomize: false,
+								})
+								selection.setSelected(id)
+							}}
+						/>
+						<MenuItem
+							text="Duplicate (Randomized)"
+							icon={<Lucide.Shuffle />}
+							onClick={async () => {
+								const id = await duplicateCharacter({
+									id: character._id,
+									randomize: true,
+								})
+								selection.setSelected(id)
+							}}
+						/>
+						<MenuItem
+							text="Delete"
+							icon={<Lucide.Trash />}
+							onClick={() => {
+								if (confirm(`Are you sure you want to remove "${character.displayName}"?`)) {
+									removeCharacter({ id: character._id })
+								}
+							}}
+						/>
+					</>
+				)}
+			</MenuPanel>
+		</Menu>
 	)
 }
 
