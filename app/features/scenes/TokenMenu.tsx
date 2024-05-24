@@ -74,7 +74,6 @@ export function TokenMenu() {
 	// }, [open, tokenSelectStore.selected])
 
 	const floating = FloatingUI.useFloating({
-		// open: open && position != null,
 		placement: "bottom",
 		strategy: "fixed",
 		middleware: [
@@ -89,6 +88,7 @@ export function TokenMenu() {
 				getBoundingClientRect: () => anchor,
 			},
 		},
+		whileElementsMounted: FloatingUI.autoUpdate,
 	})
 
 	return (
