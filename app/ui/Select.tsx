@@ -58,7 +58,7 @@ export function Select<T>(props: {
 					className="w-full flex-row-reverse justify-between"
 				/>
 			</FormField>
-			<Ariakit.SelectPopover portal gutter={8} sameWidth className={menuPanelStyle()}>
+			<Ariakit.SelectPopover portal gutter={8} sameWidth unmountOnHide className={menuPanelStyle()}>
 				{props.options.map((option) => (
 					<Ariakit.SelectItem
 						key={getOptionId(option)}
