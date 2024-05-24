@@ -1,12 +1,10 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import type { ComponentProps, ReactNode } from "react"
-import { twMerge } from "tailwind-merge"
+import { useActionState, type ComponentProps, type ReactNode } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { groupBy } from "../../common/collection.ts"
-import { useMutationAction } from "../../common/convex.ts"
 import { Loading } from "../../ui/Loading.tsx"
-import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
+import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { ToggleableSidebar } from "../../ui/ToggleableSidebar.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
@@ -44,8 +42,8 @@ export function CharacterListPanel() {
 
 	return (
 		<ToggleableSidebar name="Characters" side="left">
-			<ScrollArea className={translucentPanel("h-full w-28 p-2")}>
-				<ul className="flex h-full flex-col gap-3">
+			<ScrollArea className={translucentPanel("h-full w-28 p-1")}>
+				<ul className="flex h-full flex-col gap-2">
 					<RoomOwnerOnly>
 						<li>
 							<CreateCharacterButton />
@@ -68,35 +66,41 @@ function CharacterTile({
 	character,
 	...props
 }: { character: ApiCharacter } & ComponentProps<"button">) {
-	const selection = useCharacterSelection()
-	return (
-		<CharacterMenu character={character}>
-			<MenuButton
-				className={twMerge(
-					"flex w-full flex-col items-stretch gap-2 transition-opacity",
-					selection.selectedCharacter?._id === character._id ?
-						"text-primary-700"
-					:	"opacity-75 hover:opacity-100",
-				)}
-				{...props}
-			>
-				<div className={panel("flex-center relative aspect-square overflow-clip")}>
-					<CharacterDnd.Draggable data={character} className="size-full">
-						<UploadedImage
-							id={character.imageId}
-							emptyIcon={<Lucide.Ghost />}
-							className={{
-								container: `size-full ${character.visible ? "" : "opacity-50"}`,
-								image: "object-cover object-top",
-							}}
-						/>
-					</CharacterDnd.Draggable>
-					{character.visible ? null : <Lucide.EyeOff className="absolute size-8 opacity-50" />}
-				</div>
-				<p className="text-pretty text-center text-sm/none">{character.displayName}</p>
-			</MenuButton>
-		</CharacterMenu>
+	const characterModal = useCharacterModalContext()
+	const room = useRoom()
+
+	const button = (
+		<button
+			type="button"
+			{...props}
+			className="flex w-full flex-col items-stretch gap-2 rounded-md p-1 transition hover:bg-primary-300/75"
+			onClick={() => {
+				characterModal.show(character._id)
+			}}
+		>
+			<div className={panel("flex-center relative aspect-square overflow-clip")}>
+				<UploadedImage
+					id={character.imageId}
+					emptyIcon={<Lucide.Ghost />}
+					className={{
+						container: `size-full ${character.visible ? "" : "opacity-50"}`,
+						image: "object-cover object-top",
+					}}
+				/>
+
+				{character.visible ? null : <Lucide.EyeOff className="absolute size-8 opacity-50" />}
+			</div>
+			<p className="text-pretty text-center text-sm/none">{character.displayName}</p>
+		</button>
 	)
+
+	return room.isOwner ?
+			<CharacterMenu character={character}>
+				<CharacterDnd.Draggable data={character} className="size-full">
+					{button}
+				</CharacterDnd.Draggable>
+			</CharacterMenu>
+		:	button
 }
 
 function CharacterMenu({ character, children }: { character: ApiCharacter; children: ReactNode }) {
@@ -104,20 +108,14 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 	const removeCharacter = useMutation(api.characters.functions.remove)
 	const duplicateCharacter = useMutation(api.characters.functions.duplicate)
 	const selection = useCharacterSelection()
-	const characterModal = useCharacterModalContext()
 
 	return (
-		<Menu placement="right">
+		<MoreMenu>
 			{children}
-			<MenuPanel gutter={16}>
-				<MenuItem
-					text="Profile"
-					icon={<Lucide.BookUser />}
-					onClick={() => characterModal.show(character._id)}
-				/>
+			<MoreMenuPanel gutter={16}>
 				{room.isOwner && (
 					<>
-						<MenuItem
+						<MoreMenuItem
 							text="Duplicate"
 							icon={<Lucide.Copy />}
 							onClick={async () => {
@@ -128,7 +126,7 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 								selection.setSelected(id)
 							}}
 						/>
-						<MenuItem
+						<MoreMenuItem
 							text="Duplicate (Randomized)"
 							icon={<Lucide.Shuffle />}
 							onClick={async () => {
@@ -139,7 +137,7 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 								selection.setSelected(id)
 							}}
 						/>
-						<MenuItem
+						<MoreMenuItem
 							text="Delete"
 							icon={<Lucide.Trash />}
 							onClick={() => {
@@ -150,16 +148,22 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 						/>
 					</>
 				)}
-			</MenuPanel>
-		</Menu>
+			</MoreMenuPanel>
+		</MoreMenu>
 	)
 }
 
 function CreateCharacterButton() {
 	const room = useRoom()
-	const [, submit, pending] = useMutationAction(api.characters.functions.create)
+	const createCharacter = useMutation(api.characters.functions.create)
+	const [, action, pending] = useActionState(async () => {
+		const charadterId = await createCharacter({ roomId: room._id })
+		characterModal.show(charadterId)
+	}, undefined)
+	const characterModal = useCharacterModalContext()
+
 	return (
-		<form action={() => submit({ roomId: room._id })}>
+		<form action={action}>
 			<Tooltip content="Create Character" placement="right">
 				<button
 					type="submit"
