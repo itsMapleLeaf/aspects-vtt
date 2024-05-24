@@ -1,10 +1,9 @@
 import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
-import { useMutation, useQuery } from "convex/react"
+import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect } from "react"
 import { api } from "../../convex/_generated/api.js"
-import { useUser } from "../features/auth/UserContext.tsx"
 import { CharacterListPanel } from "../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
@@ -57,7 +56,6 @@ export default function RoomRoute() {
 	return (
 		<div className="contents">
 			<CharacterSelectionProvider>
-				<JoinRoomEffect />
 				<RoomToolbarStore.Provider>
 					{scene && (
 						<div className="fixed inset-0 -z-10 select-none bg-primary-100">
@@ -268,19 +266,6 @@ function CriticalInjuryDetails() {
 			</section>
 		</div>
 	)
-}
-
-function JoinRoomEffect() {
-	const room = useRoom()
-	const user = useUser()
-	const join = useMutation(api.rooms.functions.join)
-	const hasJoined = room.players.some((p) => p.clerkId === user?.clerkId)
-
-	useEffect(() => {
-		if (!hasJoined) join({ id: room._id })
-	}, [room._id, join, hasJoined])
-
-	return null
 }
 
 function MessagesPanel() {
