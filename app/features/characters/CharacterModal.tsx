@@ -47,7 +47,12 @@ export function CharacterModal({ children }: { children: ReactNode }) {
 										<CharacterSkillsViewer character={character} />
 									</Tabs.Panel>
 								</Tabs>
-							:	<CharacterForm character={character} />}
+							:	<div className="min-h-0 flex-1 p-2">
+									<ScrollArea>
+										<CharacterForm character={character} />
+									</ScrollArea>
+								</div>
+							}
 						</div>
 					)}
 				</ModalPanel>
