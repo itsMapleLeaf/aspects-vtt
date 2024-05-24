@@ -279,7 +279,7 @@ function TokenMenuContent() {
 				{scene && selectedTokens.length > 0 && (
 					<Button
 						tooltip="Remove"
-						icon={<Lucide.X />}
+						icon={<Lucide.Trash />}
 						onClick={() => {
 							for (const token of selectedTokens) {
 								removeToken({ sceneId: scene._id, tokenKey: token.key })
