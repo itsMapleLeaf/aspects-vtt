@@ -1,6 +1,7 @@
 import { createContext, use, useState, type ContextType, type ReactNode } from "react"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { ModalPanel, ModalProvider } from "../../ui/Modal.tsx"
+import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { useCharacters } from "../rooms/roomContext.tsx"
 import { CharacterForm } from "./CharacterForm.tsx"
@@ -30,17 +31,19 @@ export function CharacterModal({ children }: { children: ReactNode }) {
 			<ModalProvider open={open} setOpen={setOpen}>
 				<ModalPanel title="Character Profile" fullHeight>
 					{character && (
-						<div className="flex min-h-0 flex-1 flex-col gap-2">
+						<div className="flex min-h-0 flex-1 flex-col">
 							{character.isOwner ?
 								<Tabs>
-									<Tabs.List>
+									<Tabs.List className="p-2">
 										<Tabs.Tab>Profile</Tabs.Tab>
 										<Tabs.Tab>Skills</Tabs.Tab>
 									</Tabs.List>
-									<Tabs.Panel className="min-h-0 flex-1 overflow-y-auto">
-										<CharacterForm character={character} />
+									<Tabs.Panel className="min-h-0 flex-1 px-2 pb-2">
+										<ScrollArea>
+											<CharacterForm character={character} />
+										</ScrollArea>
 									</Tabs.Panel>
-									<Tabs.Panel className="flex min-h-0 flex-1 flex-col">
+									<Tabs.Panel className="min-h-0 flex-1 px-2 pb-2">
 										<CharacterSkillsViewer character={character} />
 									</Tabs.Panel>
 								</Tabs>

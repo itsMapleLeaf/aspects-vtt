@@ -32,7 +32,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const notionData = useNotionData()
 
 	return (
-		<div className="-m-1 flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1 *:shrink-0">
+		<div className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto *:shrink-0">
 			{character.isOwner ?
 				<CharacterImageField character={character} />
 			:	<UploadedImage id={character.imageId} />}
