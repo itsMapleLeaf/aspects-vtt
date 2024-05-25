@@ -21,7 +21,6 @@ export function useDragSelectStore<T>() {
 	}
 
 	function startAdditiveSelection(event: PointerEvent) {
-		setAreaState(Rect.from({ position: [event.clientX, event.clientY], size: 0 }))
 		setMultiSelectState(empty)
 	}
 
@@ -37,7 +36,8 @@ export function useDragSelectStore<T>() {
 	}
 
 	function endSelection() {
-		setSelectedState(selected)
+		setSelectedState((selected) => new Set([...selected, ...multiSelectState]))
+		setMultiSelectState(empty)
 		setAreaState(undefined)
 	}
 
