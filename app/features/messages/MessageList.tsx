@@ -2,7 +2,7 @@ import { type PaginatedQueryItem, useMutation, usePaginatedQuery } from "convex/
 import { formatDistanceToNow } from "date-fns"
 import * as Lucide from "lucide-react"
 import { HelpCircle } from "lucide-react"
-import { Fragment, useDeferredValue, useEffect, useRef } from "react"
+import { Fragment, useEffect, useRef } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
 import { expect } from "../../common/expect.ts"
@@ -26,7 +26,7 @@ export function MessageList() {
 	)
 
 	const reversedResults = list.results.toReversed()
-	const deferredResults = useDeferredValue(reversedResults)
+	const deferredResults = reversedResults // useDeferredValue(reversedResults)
 
 	const viewportRef = useRef<HTMLDivElement>(null)
 	const listRef = useRef<HTMLUListElement>(null)
