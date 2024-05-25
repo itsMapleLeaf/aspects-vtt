@@ -84,7 +84,7 @@ export function MessageForm() {
 
 	return (
 		<form action={submit} className="flex flex-col gap-2">
-			{ownedCharacter && <AttributeDiceRollButtonGrid character={ownedCharacter} />}
+			{ownedCharacter && <AttributeDiceRollButtonGrid characters={[ownedCharacter]} />}
 
 			<DiceCounter value={diceCounts} onChange={setDiceCounts} />
 
