@@ -15,16 +15,44 @@ type SelectableHandle<T> = {
 const empty: ReadonlySet<never> = new Set()
 
 export function useDragSelectStore<T>() {
-	const [selected, setSelected] = React.useState<ReadonlySet<T>>(empty)
+	const [selectedState, setSelectedState] = React.useState<ReadonlySet<T>>(empty)
 	const [areaState, setAreaState] = React.useState<Rect>()
-	const [handles] = React.useState(() => new Set<SelectableHandle<T>>())
+	const [handles, setHandles] = React.useState<ReadonlySet<SelectableHandle<T>>>(() => new Set())
+
+	let selected = selectedState
+	if (areaState) {
+		selected = new Set([
+			...selected,
+			...Iterator.from(handles)
+				.filter((h) => h.overlaps(areaState))
+				.map((h) => h.item),
+		])
+	}
+
+	function startFreshSelection(event: PointerEvent) {
+		startAdditiveSelection(event)
+		setSelectedState(empty)
+	}
+
+	function startAdditiveSelection(event: PointerEvent) {
+		setAreaState(Rect.from({ position: [event.clientX, event.clientY], size: 0 }))
+	}
+
+	function updateSelection(rect: Rect) {
+		setAreaState(rect)
+	}
+
+	function endSelection() {
+		setSelectedState(selected)
+		setAreaState(undefined)
+	}
 
 	function setItemSelected(item: T, selected: boolean) {
-		setSelected((items) => setPresentInSet(items, item, selected))
+		setSelectedState((items) => setPresentInSet(items, item, selected))
 	}
 
 	function clear() {
-		setSelected(empty)
+		setSelectedState(empty)
 	}
 
 	function isSelected(item: T) {
@@ -32,49 +60,35 @@ export function useDragSelectStore<T>() {
 	}
 
 	function registerHandle(handle: SelectableHandle<T>) {
-		handles.add(handle)
+		setHandles((current) => new Set(current).add(handle))
 		return () => {
-			handles.delete(handle)
-		}
-	}
-
-	function setArea(area: Rect | undefined) {
-		setAreaState(area)
-		if (area) {
-			React.startTransition(() => {
-				setSelected((current) => {
-					const next = new Set(
-						Iterator.from(handles)
-							.filter((h) => h.overlaps(area))
-							.map((h) => h.item),
-					)
-					if (next.size !== current.size) {
-						return next
-					}
-					if (Iterator.from(next).intersection(current).count() > 0) {
-						return next
-					}
-					return current
-				})
+			setHandles((current) => {
+				const next = new Set(current)
+				next.delete(handle)
+				return next
 			})
 		}
 	}
 
 	return {
 		selected,
+		area: areaState,
+		startFreshSelection,
+		startAdditiveSelection,
+		updateSelection,
+		endSelection,
 		clear,
 		setItemSelected,
 		isSelected,
-
-		area: areaState,
-		setArea,
-
 		registerHandle,
 	}
 }
 
 export interface DragSelectAreaProps extends React.ComponentProps<"div"> {
-	store: Pick<DragSelectStore<unknown>, "area" | "setArea" | "clear">
+	store: Pick<
+		DragSelectStore<unknown>,
+		"area" | "startFreshSelection" | "startAdditiveSelection" | "updateSelection" | "endSelection"
+	>
 }
 
 export function DragSelectArea({ store, ...props }: DragSelectAreaProps) {
@@ -82,8 +96,16 @@ export function DragSelectArea({ store, ...props }: DragSelectAreaProps) {
 		<RectDrawArea
 			{...props}
 			rect={store.area}
-			onRectChange={store.setArea}
-			onInit={() => store.clear()}
+			onInit={(event) => {
+				if (event.ctrlKey) {
+					store.startAdditiveSelection(event)
+				} else {
+					store.startFreshSelection(event)
+				}
+			}}
+			onStart={store.updateSelection}
+			onRectChange={store.updateSelection}
+			onFinish={store.endSelection}
 		/>
 	)
 }
@@ -113,7 +135,7 @@ export function DragSelectable<V>({ item, store, ...props }: DragSelectableProps
 			onPointerDown={(event) => {
 				props.onPointerDown?.(event)
 				if (!store.isSelected(item) && event.buttons === 1) {
-					store.clear()
+					if (!event.ctrlKey) store.clear()
 					store.setItemSelected(item, true)
 				}
 			}}

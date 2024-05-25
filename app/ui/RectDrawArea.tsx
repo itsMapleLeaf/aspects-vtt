@@ -6,9 +6,9 @@ import { Rect } from "../common/Rect.ts"
 interface RectDrawAreaProps extends React.ComponentProps<"div"> {
 	rect: Rect | undefined
 	preview?: boolean
-	onRectChange: (rect: Rect | undefined) => void
-	onInit?: () => void
-	onStart?: () => void
+	onRectChange: (rect: Rect) => void
+	onInit?: (event: PointerEvent) => void
+	onStart?: (rect: Rect) => void
 	onFinish?: (rect: Rect) => void
 }
 
@@ -26,13 +26,11 @@ export function RectDrawArea({
 		{
 			onPointerDown: (state) => {
 				if (state.buttons === 1) {
-					onRectChange(undefined)
-					onInit?.()
+					onInit?.(state.event)
 				}
 			},
 			onDragStart: (state) => {
-				onRectChange(Rect.from({ topLeft: state.xy, bottomRight: state.xy }))
-				onStart?.()
+				onStart?.(Rect.from({ topLeft: state.xy, bottomRight: state.xy }))
 			},
 			onDrag: (state) => {
 				if (rect) {
@@ -40,7 +38,6 @@ export function RectDrawArea({
 				}
 			},
 			onDragEnd: (state) => {
-				onRectChange(undefined)
 				if (rect) onFinish?.(rect)
 			},
 		},

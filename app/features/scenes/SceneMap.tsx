@@ -193,6 +193,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 			className="absolute inset-0"
 			preview={false}
 			rect={previewArea}
+			onStart={setPreviewArea}
 			onRectChange={setPreviewArea}
 			onFinish={() => {
 				if (!gridSnappedPreviewArea) {
@@ -215,6 +216,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 					},
 				})
 				roomToolbarActions.enableSelectTool()
+				setPreviewArea(undefined)
 			}}
 		>
 			<div className="pointer-events-none size-full opacity-50">{children}</div>
@@ -265,7 +267,7 @@ function TokenElement({ token }: { token: ApiToken }) {
 
 	function updateSelectedTokenPositions() {
 		for (const token of tokens) {
-			if (!tokenSelectStore.selected.has(token.key)) continue
+			if (!tokenSelectStore.isSelected(token.key)) continue
 
 			const position = Vector.from(token.position)
 				.plus(tokenDragOffset)
