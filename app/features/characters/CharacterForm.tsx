@@ -389,10 +389,10 @@ function ReadOnlyField({ label, value }: { label: string; value: ReactNode }) {
 		<FormField label={label}>
 			<div
 				className={panel(
-					"flex h-10 items-center justify-between gap-1.5 bg-primary-300/30 pl-3 pr-2",
+					"flex items-center justify-between gap-1.5 bg-primary-300/30 py-2 pl-3 pr-2",
 				)}
 			>
-				<p className="flex-1 truncate">{value}</p>
+				<p className="min-w-0 flex-1 whitespace-pre-wrap break-words">{value}</p>
 				<Tooltip
 					text="Read-only"
 					className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
