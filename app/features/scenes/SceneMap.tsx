@@ -11,7 +11,7 @@ import { Rect } from "../../common/Rect.ts"
 import { sortBy } from "../../common/collection.ts"
 import { randomItem } from "../../common/random.ts"
 import { Vector } from "../../common/vector.ts"
-import { DragSelectable, DragSelectArea } from "../../ui/DragSelect.tsx"
+import { DragSelectArea } from "../../ui/DragSelect.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { CharacterDnd } from "../characters/CharacterDnd.tsx"
 import { getThresholds } from "../characters/helpers.ts"
@@ -39,7 +39,7 @@ export function SceneMap() {
 						<RectTokenDrawArea>
 							<TokenElements />
 						</RectTokenDrawArea>
-					:	<DragSelectArea className="absolute inset-0" store={tokenSelectStore}>
+					:	<DragSelectArea className="absolute inset-0" {...tokenSelectStore.areaProps()}>
 							<TokenElements />
 						</DragSelectArea>
 					}
@@ -259,15 +259,21 @@ function TokenElements() {
 }
 
 function TokenElement({ token }: { token: ApiToken }) {
-	const { scene, viewport, tokens, tokenSelectStore, tokenDragOffset, setTokenDragOffset } =
-		useSceneContext()
+	const {
+		scene,
+		viewport,
+		tokens,
+		tokenSelectStore: { selectableProps, isSelected },
+		tokenDragOffset,
+		setTokenDragOffset,
+	} = useSceneContext()
 
 	const translate = useTokenTranslate(token)
 	const updateToken = useUpdateTokenMutation()
 
 	function updateSelectedTokenPositions() {
 		for (const token of tokens) {
-			if (!tokenSelectStore.isSelected(token.key)) continue
+			if (!isSelected(token.key)) continue
 
 			const position = Vector.from(token.position)
 				.plus(tokenDragOffset)
@@ -302,10 +308,9 @@ function TokenElement({ token }: { token: ApiToken }) {
 	)
 
 	return (
-		<DragSelectable
+		<div
 			{...bind()}
-			store={tokenSelectStore}
-			item={token.key}
+			{...selectableProps(token.key)}
 			data-hidden={!token.visible || undefined}
 			className="group absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
 			style={{ translate }}
@@ -336,7 +341,7 @@ function TokenElement({ token }: { token: ApiToken }) {
 				</div>
 			)}
 			<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
-		</DragSelectable>
+		</div>
 	)
 }
 
