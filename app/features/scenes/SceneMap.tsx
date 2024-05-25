@@ -310,37 +310,38 @@ function TokenElement({ token }: { token: ApiToken }) {
 	return (
 		<div
 			{...bind()}
-			{...selectableProps(token.key)}
 			data-hidden={!token.visible || undefined}
-			className="group absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
+			className="absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
 			style={{ translate }}
 		>
-			{token.character && (
-				<UploadedImage
-					id={token.character.imageId}
-					style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
-					emptyIcon={<Lucide.Ghost />}
-					className={{
-						container: "overflow-clip rounded bg-primary-300 shadow-md shadow-black/50",
-						image: "object-cover object-top",
-					}}
-				/>
-			)}
-			{token.area && (
-				<div
-					className="rounded border-4 border-blue-500 bg-blue-500/30"
-					style={Vector.fromSize(token.area)
-						.roundedTo(scene.cellSize)
-						.times(viewport.scale)
-						.toSize()}
-				/>
-			)}
-			{token.visible ? null : (
-				<div className="flex-center absolute inset-0">
-					<Lucide.EyeOff className="size-2/3 opacity-50" />
-				</div>
-			)}
-			<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+			<div {...selectableProps(token.key)} className="group">
+				{token.character && (
+					<UploadedImage
+						id={token.character.imageId}
+						style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
+						emptyIcon={<Lucide.Ghost />}
+						className={{
+							container: "overflow-clip rounded bg-primary-300 shadow-md shadow-black/50",
+							image: "object-cover object-top",
+						}}
+					/>
+				)}
+				{token.area && (
+					<div
+						className="rounded border-4 border-blue-500 bg-blue-500/30"
+						style={Vector.fromSize(token.area)
+							.roundedTo(scene.cellSize)
+							.times(viewport.scale)
+							.toSize()}
+					/>
+				)}
+				{token.visible ? null : (
+					<div className="flex-center absolute inset-0">
+						<Lucide.EyeOff className="size-2/3 opacity-50" />
+					</div>
+				)}
+				<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+			</div>
 		</div>
 	)
 }
