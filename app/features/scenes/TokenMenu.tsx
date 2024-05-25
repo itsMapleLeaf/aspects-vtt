@@ -2,6 +2,7 @@ import * as FloatingUI from "@floating-ui/react-dom"
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
+import type { ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../common/Rect.ts"
@@ -93,7 +94,6 @@ export function TokenMenu() {
 
 	return (
 		<Tabs>
-			{/* @ts-expect-error */}
 			{createPortal(
 				<div
 					ref={floating.refs.setFloating}
@@ -130,7 +130,7 @@ function TokenMenuContent() {
 
 	type TabView = {
 		title: string
-		content: JSX.Element
+		content: ReactNode
 	}
 
 	const tabViews: TabView[] = []
