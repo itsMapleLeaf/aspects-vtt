@@ -1,4 +1,3 @@
-import { paginationOptsValidator } from "convex/server"
 import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
@@ -13,38 +12,34 @@ import { diceInputValidator } from "./types.ts"
 export const list = query({
 	args: {
 		roomId: v.id("rooms"),
-		paginationOpts: paginationOptsValidator,
 	},
 	async handler(ctx, args) {
 		const result = await ctx.db
 			.query("messages")
 			.withIndex("by_room", (q) => q.eq("roomId", args.roomId))
 			.order("desc")
-			.paginate(args.paginationOpts)
+			.take(20)
 
-		return {
-			...result,
-			page: await Promise.all(
-				result.page.map(async ({ userId, ...message }) => {
-					const user = await Effect.runPromise(
-						getUserFromClerkId(userId).pipe(
-							Effect.provideService(QueryCtxService, ctx),
-							Effect.tapError(Effect.logWarning),
-							Effect.orElseSucceed(() => null),
-						),
-					)
-					const { value: character } = await CharacterModel.fromPlayerId(ctx, userId)
-					const data = await character?.getComputedData()
-					return {
-						...message,
-						user: user && {
-							...pick(user, ["name", "avatarUrl"]),
-							character: data && pick(data, ["displayName", "displayPronouns"]),
-						},
-					}
-				}),
-			),
-		}
+		return await Promise.all(
+			result.map(async ({ userId, ...message }) => {
+				const user = await Effect.runPromise(
+					getUserFromClerkId(userId).pipe(
+						Effect.provideService(QueryCtxService, ctx),
+						Effect.tapError(Effect.logWarning),
+						Effect.orElseSucceed(() => null),
+					),
+				)
+				const { value: character } = await CharacterModel.fromPlayerId(ctx, userId)
+				const data = await character?.getComputedData()
+				return {
+					...message,
+					user: user && {
+						...pick(user, ["name", "avatarUrl"]),
+						character: data && pick(data, ["displayName", "displayPronouns"]),
+					},
+				}
+			}),
+		)
 	},
 })
 

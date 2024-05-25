@@ -1,4 +1,5 @@
-import { type PaginatedQueryItem, useMutation, usePaginatedQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
+import type { FunctionReturnType } from "convex/server"
 import { formatDistanceToNow } from "date-fns"
 import * as Lucide from "lucide-react"
 import { HelpCircle } from "lucide-react"
@@ -6,7 +7,6 @@ import { Fragment, useEffect, useRef } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
 import { expect } from "../../common/expect.ts"
-import { Loading } from "../../ui/Loading.tsx"
 import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
@@ -17,16 +17,7 @@ import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
 export function MessageList() {
 	const room = useRoom()
-
-	const listItemCount = 20
-	const list = usePaginatedQuery(
-		api.messages.functions.list,
-		{ roomId: room._id },
-		{ initialNumItems: listItemCount },
-	)
-
-	const reversedResults = list.results.toReversed()
-	const deferredResults = reversedResults // useDeferredValue(reversedResults)
+	const list = useQuery(api.messages.functions.list, { roomId: room._id })?.toReversed() ?? []
 
 	const viewportRef = useRef<HTMLDivElement>(null)
 	const listRef = useRef<HTMLUListElement>(null)
@@ -51,32 +42,21 @@ export function MessageList() {
 		return () => observer.disconnect()
 	}, [])
 
-	// scroll the viewport to the bottom when the list is loaded
-	const hasItems = list.results.length > 0
+	// scroll the viewport to the bottom when the list is loaded, and when the last list item changes
+	const hasItems = list.length > 0
+	const lastMessage = list.at(-1)
 	useEffect(() => {
 		if (hasItems) {
 			expect(viewportRef.current).scrollTo({
 				top: expect(listRef.current).scrollHeight,
 			})
 		}
-	}, [hasItems])
+	}, [hasItems, lastMessage])
 
 	return (
-		<ScrollArea
-			viewportRef={viewportRef}
-			onViewportScroll={(event) => {
-				if (event.currentTarget.scrollTop < 50) {
-					list.loadMore(listItemCount)
-				}
-			}}
-		>
+		<ScrollArea viewportRef={viewportRef}>
 			<ul className="flex min-h-full flex-col justify-end gap-2" ref={listRef}>
-				{list.status !== "Exhausted" && (
-					<li>
-						<Loading />
-					</li>
-				)}
-				{deferredResults.map((message) => (
+				{list.map((message) => (
 					<li key={message._id}>
 						<MessagePanel message={message} />
 					</li>
@@ -86,7 +66,7 @@ export function MessageList() {
 	)
 }
 
-type ApiMessage = PaginatedQueryItem<typeof api.messages.functions.list>
+type ApiMessage = FunctionReturnType<typeof api.messages.functions.list>[number]
 
 function MessagePanel({ message }: { message: ApiMessage }) {
 	return (
@@ -171,10 +151,10 @@ function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) 
 	)
 }
 
-type DiceRoll = NonNullable<PaginatedQueryItem<typeof api.messages.functions.list>["diceRoll"]>
+type ApiDiceRoll = NonNullable<ApiMessage["diceRoll"]>
 
-function DiceRollSummary({ roll }: { roll: DiceRoll }) {
-	const diceResultsByKindName = new Map<string, DiceRoll["dice"]>()
+function DiceRollSummary({ roll }: { roll: ApiDiceRoll }) {
+	const diceResultsByKindName = new Map<string, ApiDiceRoll["dice"]>()
 	for (const die of roll.dice) {
 		const dice = diceResultsByKindName.get(die.name) ?? []
 		dice.push(die)
@@ -226,7 +206,7 @@ function DiceRollSummary({ roll }: { roll: DiceRoll }) {
 	)
 }
 
-function DiceRollIcon({ die }: { die: DiceRoll["dice"][number] }) {
+function DiceRollIcon({ die }: { die: ApiDiceRoll["dice"][number] }) {
 	const kind = diceKindsByName.get(die.name)
 	return (
 		<div className="*:size-12">
