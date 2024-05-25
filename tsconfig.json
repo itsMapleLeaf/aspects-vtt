@@ -9,6 +9,7 @@
 		"module": "Preserve",
 		"moduleDetection": "force",
 		"noEmit": true,
+		"noErrorTruncation": true,
 		"noUncheckedIndexedAccess": true,
 		"preserveWatchOutput": true,
 		"skipLibCheck": true,
