@@ -77,7 +77,7 @@ const schema = defineEntSchema({
 
 const entDefinitions = getEntDefinitions(schema)
 
-export const { createCrudFunctions } = defineTables({
+export const tables = defineTables({
 	users: {
 		name: v.string(),
 		avatarUrl: v.optional(v.string()),

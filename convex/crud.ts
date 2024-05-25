@@ -2,23 +2,32 @@ import {
 	mutationGeneric,
 	paginationOptsValidator,
 	queryGeneric,
+	type DocumentByName,
+	type GenericDataModel,
 	type GenericMutationCtx,
 	type GenericQueryCtx,
 	type GenericTableIndexes,
 	type SystemFields,
+	type TableNamesInDataModel,
 } from "convex/server"
 import { v, type GenericId, type ObjectType, type PropertyValidators } from "convex/values"
-import { Console, Context, Effect } from "effect"
+import { Console, Effect, pipe } from "effect"
 import { expect } from "../app/common/expect.ts"
 import type { Simplify } from "../app/common/types.ts"
 import { type MutationCtx, type QueryCtx } from "./_generated/server"
 import { partial, type Branded } from "./helpers/convex.ts"
-import { createCrudFunctions } from "./schema.ts"
+import { tables } from "./schema.ts"
 
 export function defineTables<Tables extends { [name: string]: PropertyValidators }>(
 	tables: Tables,
 ) {
-	type DataModel = {
+	return new FunctionFactory(tables)
+}
+
+class FunctionFactory<Tables extends { [name: string]: PropertyValidators }> {
+	readonly tables
+
+	readonly __dataModel!: {
 		[K in Extract<keyof Tables, string>]: {
 			document: Simplify<{ _id: GenericId<K> } & SystemFields & ObjectType<Tables[K]>>
 			indexes: GenericTableIndexes
@@ -28,147 +37,157 @@ export function defineTables<Tables extends { [name: string]: PropertyValidators
 		}
 	}
 
-	type QueryCtx = GenericQueryCtx<DataModel>
-	type MutationCtx = GenericMutationCtx<DataModel>
-
-	class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {}
-
-	function effectQueryHandler<Value, Args>(
-		handler: (args: Args) => Effect.Effect<Value, unknown, QueryCtxService>,
-	) {
-		return (ctx: QueryCtx, args: Args) =>
-			handler(args).pipe(Effect.provideService(QueryCtxService, ctx), Effect.runPromise)
+	constructor(tables: Tables) {
+		this.tables = tables
 	}
 
-	class MutationCtxService extends Context.Tag("MutationCtxService")<
-		MutationCtxService,
-		MutationCtx
-	>() {}
+	crud<Table extends TableNamesInDataModel<typeof this.__dataModel>>(table: Table) {
+		return {
+			get: queryGeneric({
+				args: {
+					id: v.string(),
+				},
+				handler: this.queryHandler((ctx, args) => {
+					return Effect.gen(function* () {
+						const id = yield* ctx.normalizeId<Table>(table, args.id)
+						return yield* ctx.getDoc(id)
+					}).pipe(
+						Effect.tapError(Console.warn),
+						Effect.orElseSucceed(() => null),
+					)
+				}),
+			}),
 
-	function effectMutationHandler<Value, Args>(
-		handler: (args: Args) => Effect.Effect<Value, unknown, QueryCtxService | MutationCtxService>,
-	) {
-		return (ctx: MutationCtx, args: Args) =>
-			handler(args).pipe(
-				Effect.provideService(QueryCtxService, ctx),
-				Effect.provideService(MutationCtxService, ctx),
-				Effect.runPromise,
-			)
-	}
+			getAll: queryGeneric(
+				this.queryHandler((ctx) => Effect.promise(() => ctx.internal.db.query(table).collect())),
+			),
 
-	class DocNotFoundError extends Error {
-		readonly _tag = "DocNotFoundError"
-		constructor(
-			readonly id: string,
-			readonly table: string,
-		) {
-			super(`Doc not found for id "${id}" in table "${table}"`)
+			paginate: queryGeneric({
+				args: {
+					paginationOpts: paginationOptsValidator,
+				},
+				handler: this.queryHandler((ctx, args) => {
+					return Effect.promise(() => ctx.internal.db.query(table).paginate(args.paginationOpts))
+				}),
+			}),
+
+			create: mutationGeneric({
+				args: expect(this.tables[table]),
+				handler: this.mutationHandler((ctx, args) => {
+					return Effect.promise(() => ctx.internal.db.insert(table, args as any))
+				}),
+			}),
+
+			update: mutationGeneric({
+				args: {
+					id: v.string(),
+					data: v.object(partial(expect(this.tables[table]))),
+				},
+				handler: this.mutationHandler((ctx, args) => {
+					return Effect.gen(function* () {
+						const id = yield* ctx.normalizeId(table, args.id)
+						return yield* ctx.patchDoc(id, args.data as any)
+					})
+				}),
+			}),
+
+			remove: mutationGeneric({
+				args: {
+					id: v.string(),
+				},
+				handler: this.mutationHandler((ctx, args) => {
+					return Effect.gen(function* () {
+						const id = yield* ctx.normalizeId(table, args.id)
+						return yield* ctx.deleteDoc(id)
+					})
+				}),
+			}),
 		}
 	}
 
-	function getDoc<Table extends Extract<keyof Tables, string>>(table: Table, id: GenericId<Table>) {
-		return QueryCtxService.pipe(
-			Effect.flatMap((ctx) => Effect.promise(() => ctx.db.get(id))),
-			Effect.filterOrFail(
-				(doc) => doc != null,
-				() => new DocNotFoundError(id, table),
-			),
+	queryHandler<Value, Args extends readonly [unknown] | readonly []>(
+		makeEffect: (
+			ctx: EffectQueryCtx<typeof this.__dataModel>,
+			...optionalArgs: Args
+		) => Effect.Effect<Value, unknown>,
+	) {
+		return (ctx: GenericQueryCtx<typeof this.__dataModel>, ...optionalArgs: Args) =>
+			Effect.runPromise(makeEffect(new EffectQueryCtx(ctx), ...optionalArgs))
+	}
+
+	mutationHandler<Value, Args extends readonly [unknown] | readonly []>(
+		makeEffect: (
+			ctx: EffectMutationCtx<typeof this.__dataModel>,
+			...optionalArgs: Args
+		) => Effect.Effect<Value, unknown>,
+	) {
+		return (ctx: GenericMutationCtx<typeof this.__dataModel>, ...optionalArgs: Args) =>
+			Effect.runPromise(makeEffect(new EffectMutationCtx(ctx), ...optionalArgs))
+	}
+}
+
+class EffectQueryCtx<DataModel extends GenericDataModel> {
+	readonly internal
+
+	constructor(ctx: GenericQueryCtx<DataModel>) {
+		this.internal = ctx
+	}
+
+	getDoc<Table extends TableNamesInDataModel<DataModel>>(id: GenericId<Table>) {
+		return pipe(
+			Effect.promise(() => this.internal.db.get(id)),
+			Effect.mapError(() => new DocNotFoundError(id)),
 		)
 	}
 
-	class InvalidIdError extends Error {
-		readonly _tag = "InvalidIdError"
-		constructor(
-			readonly id: string,
-			readonly table: string,
-		) {
-			super(`Invalid id "${id}" for table "${table}"`)
-		}
-	}
-
-	function normalizeId<Table extends Extract<keyof Tables, string>>(table: Table, id: string) {
-		return QueryCtxService.pipe(
-			Effect.map((ctx) => ctx.db.normalizeId(table, id)),
-			Effect.filterOrFail(
-				(id) => id != null,
-				() => new InvalidIdError(id, table),
-			),
+	normalizeId<Table extends TableNamesInDataModel<DataModel>>(table: Table, id: string) {
+		return pipe(
+			Effect.sync(() => this.internal.db.normalizeId(table, id)),
+			Effect.flatMap(Effect.fromNullable),
+			Effect.mapError(() => new InvalidIdError(id, table)),
 		)
 	}
+}
 
-	return {
-		createCrudFunctions<Table extends Extract<keyof Tables, string>>(table: Table) {
-			return {
-				get: queryGeneric({
-					args: {
-						id: v.string(),
-					},
-					handler: effectQueryHandler((args) => {
-						return Effect.gen(function* () {
-							const id = yield* normalizeId<Table>(table, args.id)
-							return yield* getDoc(table, id)
-						}).pipe(
-							Effect.tapError(Console.warn),
-							Effect.orElseSucceed(() => null),
-						)
-					}),
-				}),
+class EffectMutationCtx<DataModel extends GenericDataModel> extends EffectQueryCtx<DataModel> {
+	readonly internal
 
-				getAll: queryGeneric({
-					handler(ctx: QueryCtx) {
-						return ctx.db.query(table).collect()
-					},
-				}),
+	constructor(ctx: GenericMutationCtx<DataModel>) {
+		super(ctx)
+		this.internal = ctx
+	}
 
-				paginate: queryGeneric({
-					args: {
-						paginationOpts: paginationOptsValidator,
-					},
-					handler(ctx: QueryCtx, args) {
-						return ctx.db.query(table).paginate(args.paginationOpts)
-					},
-				}),
+	patchDoc<Table extends TableNamesInDataModel<DataModel>>(
+		id: GenericId<Table>,
+		data: Partial<DocumentByName<DataModel, Table>>,
+	) {
+		return Effect.promise(() => this.internal.db.patch(id, data))
+	}
 
-				create: mutationGeneric({
-					args: expect(tables[table]),
-					handler(ctx: MutationCtx, args) {
-						return ctx.db.insert(table, args as any)
-					},
-				}),
+	deleteDoc<Table extends TableNamesInDataModel<DataModel>>(id: GenericId<Table>) {
+		return Effect.promise(() => this.internal.db.delete(id))
+	}
+}
 
-				update: mutationGeneric({
-					args: {
-						id: v.string(),
-						data: v.object(partial(expect(tables[table]))),
-					},
-					handler: effectMutationHandler((args) => {
-						return Effect.gen(function* () {
-							const id = yield* normalizeId<Table>(table, args.id)
-							const ctx = yield* MutationCtxService
-							return yield* Effect.promise(() => ctx.db.patch(id, args.data as any))
-						})
-					}),
-				}),
+class DocNotFoundError extends Error {
+	readonly _tag = "DocNotFoundError"
+	constructor(readonly id: string) {
+		super(`Doc not found for id "${id}"`)
+	}
+}
 
-				remove: mutationGeneric({
-					args: {
-						id: v.string(),
-					},
-					handler: effectMutationHandler((args) => {
-						return Effect.gen(function* () {
-							const id = yield* normalizeId<Table>(table, args.id)
-							const ctx = yield* MutationCtxService
-							return yield* Effect.promise(() => ctx.db.delete(id))
-						})
-					}),
-				}),
-			}
-		},
+class InvalidIdError extends Error {
+	readonly _tag = "InvalidIdError"
+	constructor(
+		readonly id: string,
+		readonly table: string,
+	) {
+		super(`Invalid id "${id}" for table "${table}"`)
 	}
 }
 
 function test() {
-	const crud = createCrudFunctions("users")
+	const crud = tables.crud("users")
 	crud.get({} as QueryCtx, { id: "1" })
 	crud.getAll({} as QueryCtx, {})
 	crud.paginate({} as QueryCtx, { paginationOpts: { cursor: null, numItems: 20 } })
