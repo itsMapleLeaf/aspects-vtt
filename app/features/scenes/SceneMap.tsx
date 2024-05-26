@@ -18,6 +18,7 @@ import { getThresholds } from "../characters/helpers.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { SceneGrid } from "./SceneGrid.tsx"
 import { TokenLabel } from "./TokenLabel.tsx"
@@ -239,6 +240,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 
 function TokenElements() {
 	const { viewport, tokens } = useSceneContext()
+	const room = useRoom()
 	return (
 		<div
 			className="absolute left-0 top-0 origin-top-left"
@@ -246,7 +248,11 @@ function TokenElements() {
 		>
 			{/* sort so characters are last and are on top of everything else */}
 			{sortBy(tokens, (it) => (it.character ? 1 : 0)).map((token) => (
-				<TokenElement token={token} key={token.key} />
+				<TokenElement
+					token={token}
+					isCurrentCombatMember={token.character?._id === room.combat?.currentMemberId}
+					key={token.key}
+				/>
 			))}
 			{tokens.map((token) => (
 				<CharacterTokenDecoration key={token.key} token={token} />
@@ -258,7 +264,13 @@ function TokenElements() {
 	)
 }
 
-function TokenElement({ token }: { token: ApiToken }) {
+function TokenElement({
+	token,
+	isCurrentCombatMember,
+}: {
+	token: ApiToken
+	isCurrentCombatMember: boolean
+}) {
 	const {
 		scene,
 		viewport,
@@ -314,7 +326,11 @@ function TokenElement({ token }: { token: ApiToken }) {
 			className="absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
 			style={{ translate }}
 		>
-			<div {...selectableProps(token.key)} className="group">
+			<div {...selectableProps(token.key)} className="group relative">
+				<div
+					data-is-current-combat-member={isCurrentCombatMember}
+					className="pointer-events-none absolute inset-0 animate-pulse rounded-lg outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700 "
+				></div>
 				{token.character && (
 					<UploadedImage
 						id={token.character.imageId}
