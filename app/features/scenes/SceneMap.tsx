@@ -133,7 +133,7 @@ function SceneBackground() {
 }
 
 function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
-	const { scene, viewport } = useSceneContext()
+	const { scene, ...context } = useSceneContext()
 	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
@@ -141,10 +141,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 		<CharacterDnd.Dropzone
 			className="absolute inset-0"
 			onDrop={(character, event) => {
-				const position = Vector.from(event.clientX, event.clientY)
-					.minus(viewport.offset)
-					.minus((scene.cellSize / 2) * viewport.scale)
-					.dividedBy(viewport.scale).xy
+				const position = context.mapPositionFromViewportPosition(event)
 
 				const existing = tokens.find((it) => it.character?._id === character._id)
 				if (existing) {
