@@ -4,6 +4,7 @@ import { partial, requireDoc } from "../helpers/convex.ts"
 import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
 import { requireRoomOwner } from "../rooms/functions.ts"
+import { vectorValidator } from "../types.ts"
 import { createToken } from "./tokens/functions.ts"
 import { sceneUpdateProperties } from "./types.ts"
 
@@ -80,7 +81,7 @@ export const update = mutation({
 	args: {
 		...partial(sceneUpdateProperties),
 		id: v.id("scenes"),
-		backgroundDimensions: v.optional(v.object({ x: v.number(), y: v.number() })),
+		backgroundDimensions: v.optional(vectorValidator()),
 	},
 	async handler(ctx, { id, ...args }) {
 		await requireSceneRoomOwner(ctx, id).getValueOrThrow()

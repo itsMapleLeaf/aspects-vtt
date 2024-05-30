@@ -51,6 +51,14 @@ export class Vector {
 		return new Vector(args[0].width, args[0].height)
 	}
 
+	static fromEventClient(event: MouseEvent): Vector {
+		return new Vector(event.clientX, event.clientY)
+	}
+
+	static fromEventMovement(event: MouseEvent): Vector {
+		return new Vector(event.movementX, event.movementY)
+	}
+
 	static topLeftMost(firstInput: VectorInput, secondInput: VectorInput): Vector {
 		const first = Vector.from(firstInput)
 		const second = Vector.from(secondInput)

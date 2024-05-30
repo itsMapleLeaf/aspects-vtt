@@ -19,6 +19,8 @@ import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { PingHandler } from "./PingHandler.tsx"
+import { PingLayer } from "./PingLayer.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { SceneGrid } from "./SceneGrid.tsx"
 import { TokenLabel } from "./TokenLabel.tsx"
@@ -35,16 +37,18 @@ export function SceneMap() {
 			<SceneBackground />
 			<SceneGrid />
 			<DragHandler>
-				<CharacterTokenDropzone>
-					{state.activeTool === RoomTool.Draw ?
-						<RectTokenDrawArea>
-							<TokenElements />
-						</RectTokenDrawArea>
-					:	<DragSelectArea className="absolute inset-0" {...tokenSelectStore.areaProps()}>
-							<TokenElements />
-						</DragSelectArea>
-					}
-				</CharacterTokenDropzone>
+				<PingHandler>
+					<CharacterTokenDropzone>
+						{state.activeTool === RoomTool.Draw ?
+							<RectTokenDrawArea>
+								<TokenElementLayer />
+							</RectTokenDrawArea>
+						:	<DragSelectArea className="absolute inset-0" {...tokenSelectStore.areaProps()}>
+								<TokenElementLayer />
+							</DragSelectArea>
+						}
+					</CharacterTokenDropzone>
+				</PingHandler>
 			</DragHandler>
 			<TokenMenu />
 		</WheelHandler>
@@ -141,8 +145,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 		<CharacterDnd.Dropzone
 			className="absolute inset-0"
 			onDrop={(character, event) => {
-				const position = context.mapPositionFromViewportPosition(event)
-
+				const position = context.mapPositionFromViewportPosition(event.clientX, event.clientY).xy
 				const existing = tokens.find((it) => it.character?._id === character._id)
 				if (existing) {
 					updateToken({
@@ -235,7 +238,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 	)
 }
 
-function TokenElements() {
+function TokenElementLayer() {
 	const { viewport, tokens } = useSceneContext()
 	const room = useRoom()
 	return (
@@ -251,6 +254,7 @@ function TokenElements() {
 					key={token.key}
 				/>
 			))}
+			<PingLayer />
 			{tokens.map((token) => (
 				<CharacterTokenDecoration key={token.key} token={token} />
 			))}
