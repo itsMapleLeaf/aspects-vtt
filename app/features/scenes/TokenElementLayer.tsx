@@ -100,7 +100,7 @@ function TokenElement({
 			<div {...tokenSelectStore.selectableProps(token.key)} className="group relative">
 				<div
 					data-is-current-combat-member={isCurrentCombatMember}
-					className="pointer-events-none absolute inset-0 animate-pulse rounded-lg outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700 "
+					className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700 "
 				></div>
 				{token.character && (
 					<UploadedImage
@@ -165,8 +165,8 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 						<TokenMeter
 							value={token.character.damage / thresholds.damage}
 							className={{
-								base: "text-yellow-400",
-								warning: "text-orange-400",
+								base: "text-red-400",
+								warning: "text-red-400",
 								danger: "text-red-400",
 							}}
 						/>
@@ -175,8 +175,8 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 						<TokenMeter
 							value={token.character.fatigue / thresholds.fatigue}
 							className={{
-								base: "text-green-400",
-								warning: "text-blue-400",
+								base: "text-purple-400",
+								warning: "text-purple-400",
 								danger: "text-purple-400",
 							}}
 						/>
