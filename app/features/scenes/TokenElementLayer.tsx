@@ -48,25 +48,19 @@ function TokenElement({
 	token: ApiToken
 	isCurrentCombatMember: boolean
 }) {
-	const {
-		scene,
-		viewport,
-		tokens,
-		tokenSelectStore: { selectableProps, isSelected },
-		tokenDragOffset,
-		setTokenDragOffset,
-	} = useSceneContext()
+	const { scene, viewport, tokens, tokenSelectStore, tokenDragOffset, setTokenDragOffset } =
+		useSceneContext()
 
 	const translate = useTokenTranslate(token)
 	const updateToken = useUpdateTokenMutation()
 
 	function updateSelectedTokenPositions() {
 		for (const token of tokens) {
-			if (!isSelected(token.key)) continue
+			if (!tokenSelectStore.isSelected(token.key)) continue
 
 			const position = Vector.from(token.position)
-				.plus(tokenDragOffset)
-				.roundedTo(scene.cellSize).xy
+				.roundedTo(scene.cellSize)
+				.plus(tokenDragOffset).xy
 
 			updateToken({
 				sceneId: scene._id,
@@ -103,7 +97,7 @@ function TokenElement({
 			className="absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
 			style={{ translate }}
 		>
-			<div {...selectableProps(token.key)} className="group relative">
+			<div {...tokenSelectStore.selectableProps(token.key)} className="group relative">
 				<div
 					data-is-current-combat-member={isCurrentCombatMember}
 					className="pointer-events-none absolute inset-0 animate-pulse rounded-lg outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700 "
@@ -221,9 +215,10 @@ function AreaSizeLabel({ token }: { token: ApiToken }) {
 }
 
 function useTokenTranslate(token: ApiToken) {
-	const { viewport, tokenSelectStore, tokenDragOffset } = useSceneContext()
+	const { scene, viewport, tokenSelectStore, tokenDragOffset } = useSceneContext()
 	const isSelected = tokenSelectStore.isSelected(token.key)
 	return Vector.from(token.position)
+		.roundedTo(scene.cellSize)
 		.times(viewport.scale)
 		.plus(isSelected ? tokenDragOffset.times(viewport.scale) : Vector.zero)
 		.css.translate()

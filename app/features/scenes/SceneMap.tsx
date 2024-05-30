@@ -134,7 +134,10 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 		<CharacterDnd.Dropzone
 			className="absolute inset-0"
 			onDrop={(character, event) => {
-				const position = context.mapPositionFromViewportPosition(event.clientX, event.clientY).xy
+				const position = context
+					.mapPositionFromViewportPosition(event.clientX, event.clientY)
+					.floorTo(scene.cellSize).xy
+
 				const existing = tokens.find((it) => it.character?._id === character._id)
 				if (existing) {
 					updateToken({
