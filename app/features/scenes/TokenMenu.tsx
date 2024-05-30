@@ -77,13 +77,7 @@ export function TokenMenu() {
 	const floating = FloatingUI.useFloating({
 		placement: "bottom",
 		strategy: "fixed",
-		middleware: [
-			FloatingUI.offset(16),
-			FloatingUI.shift({
-				crossAxis: true,
-				padding: 16,
-			}),
-		],
+		middleware: [FloatingUI.offset(16)],
 		elements: {
 			reference: {
 				getBoundingClientRect: () => anchor,
