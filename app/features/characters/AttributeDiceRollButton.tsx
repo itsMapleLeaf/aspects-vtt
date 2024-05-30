@@ -116,7 +116,7 @@ function CounterInput({
 				className="relative px-2 opacity-50 hover:opacity-100"
 				onClick={() => setValue(value - 1)}
 			>
-				<Lucide.ChevronLeft />
+				<Lucide.Minus />
 			</button>
 			<button
 				type="button"
@@ -167,7 +167,7 @@ function CounterInput({
 				className="relative px-2 opacity-50 hover:opacity-100"
 				onClick={() => setValue(value + 1)}
 			>
-				<Lucide.ChevronRight />
+				<Lucide.Plus />
 			</button>
 		</div>
 	)
