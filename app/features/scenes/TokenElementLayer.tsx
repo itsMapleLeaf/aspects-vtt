@@ -8,6 +8,7 @@ import { Vector } from "../../common/vector.ts"
 import { getThresholds } from "../characters/helpers.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { DistanceLabelLayer, DistanceLayer } from "./DistanceLayer.tsx"
 import { PingLayer } from "./PingLayer.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { TokenLabel } from "./TokenLabel.tsx"
@@ -22,6 +23,7 @@ export function TokenElementLayer() {
 			className="absolute left-0 top-0 origin-top-left"
 			style={{ translate: viewport.offset.css.translate() }}
 		>
+			<DistanceLayer />
 			{/* sort so characters are last and are on top of everything else */}
 			{sortBy(tokens, (it) => (it.character ? 1 : 0)).map((token) => (
 				<TokenElement
@@ -37,6 +39,7 @@ export function TokenElementLayer() {
 			{tokens.map((token) => (
 				<AreaSizeLabel key={token.key} token={token} />
 			))}
+			<DistanceLabelLayer />
 		</div>
 	)
 }
