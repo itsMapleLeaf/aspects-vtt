@@ -2,7 +2,7 @@ import { useGesture } from "@use-gesture/react"
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
-import { getColorStyle } from "../../../shared/colors.ts"
+import { getColorStyle, type UserColorName } from "../../../shared/colors.ts"
 import { sortBy } from "../../common/collection.ts"
 import { Vector } from "../../common/vector.ts"
 import { getThresholds } from "../characters/helpers.ts"
@@ -157,16 +157,14 @@ function CharacterTokenDecoration({
 			<div className="relative" style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}>
 				<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
 					{character.conditions.map((condition) => (
-						<p
-							key={condition.name}
-							className={twMerge(
-								getColorStyle(condition.color),
-								"flex-center-row h-6 rounded px-1.5 text-sm leading-none",
-							)}
-						>
-							{condition.name}
-						</p>
+						<CharacterTokenConditionBadge key={condition.name} condition={condition} />
 					))}
+					{character.damage > thresholds.damage && (
+						<CharacterTokenConditionBadge condition={{ name: "Incapacitated", color: "red" }} />
+					)}
+					{character.fatigue > thresholds.fatigue && (
+						<CharacterTokenConditionBadge condition={{ name: "Exhausted", color: "purple" }} />
+					)}
 					{character.damage > 0 && (
 						<TokenMeter
 							value={character.damage / thresholds.damage}
@@ -191,6 +189,23 @@ function CharacterTokenDecoration({
 				<TokenLabel text={character.displayName} subText={character.displayPronouns} />
 			</div>
 		</div>
+	)
+}
+
+function CharacterTokenConditionBadge({
+	condition,
+}: {
+	condition: { name: string; color: UserColorName }
+}) {
+	return (
+		<p
+			className={twMerge(
+				getColorStyle(condition.color),
+				"flex-center-row h-6 rounded px-1.5 text-sm leading-none",
+			)}
+		>
+			{condition.name}
+		</p>
 	)
 }
 
