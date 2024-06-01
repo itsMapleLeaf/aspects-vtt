@@ -4,7 +4,7 @@ import { useSceneContext } from "./SceneContext.tsx"
 export function DistanceLayer() {
 	const context = useSceneContext()
 
-	if (context.tokenDragOffset.equals(Vector.zero)) {
+	if (!context.isDraggingTokens) {
 		return
 	}
 

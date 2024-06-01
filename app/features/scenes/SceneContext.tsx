@@ -21,6 +21,8 @@ function useSceneProvider(scene: ApiScene) {
 	const tokenSelectStore = useDragSelectStore<ApiToken["key"]>()
 	const [tokenDragOffset, setTokenDragOffset] = useState(Vector.zero)
 
+	const isDraggingTokens = !tokenDragOffset.equals(Vector.zero)
+
 	const tokens =
 		useQuery(api.scenes.tokens.functions.list, {
 			sceneId: scene._id,
@@ -46,6 +48,7 @@ function useSceneProvider(scene: ApiScene) {
 		setTokenDragOffset,
 		tokens,
 		selectedTokens,
+		isDraggingTokens,
 
 		viewport: {
 			offset: viewport.offset,
