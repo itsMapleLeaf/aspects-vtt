@@ -1,8 +1,9 @@
+import type { ReactNode } from "react"
 import { FormField } from "./Form.tsx"
 import { NumberInput } from "./NumberInput.tsx"
 
 export function NumberField(props: {
-	label: string
+	label: ReactNode
 	value: number
 	min?: number
 	onChange: (value: number) => void

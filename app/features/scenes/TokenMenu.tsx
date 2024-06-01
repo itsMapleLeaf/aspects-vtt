@@ -17,15 +17,12 @@ import { Tabs } from "../../ui/Tabs.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { AttributeDiceRollButtonGrid } from "../characters/AttributeDiceRollButtonGrid.tsx"
 import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
-import {
-	CharacterDamageField,
-	CharacterFatigueField,
-	CharacterNotesFields,
-} from "../characters/CharacterForm.tsx"
+import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { useCharacterModalContext } from "../characters/CharacterModal.tsx"
+import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import { CharacterSkillTree } from "../characters/skills.ts"
-import type { ApiCharacter } from "../characters/types.ts"
+import { OwnedCharacter, type ApiCharacter } from "../characters/types.ts"
 import { useCharacterRaceAbilities } from "../characters/useCharacterRaceAbilities.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
@@ -154,10 +151,16 @@ function TokenMenuContent() {
 			title: "Status",
 			content: (
 				<>
+					{singleSelectedCharacter && OwnedCharacter.is(singleSelectedCharacter) && (
+						<div className="flex gap-2 *:flex-1 empty:hidden">
+							<CharacterStatusFields character={singleSelectedCharacter} />
+						</div>
+					)}
 					{singleSelectedCharacter && (
-						<div className="flex gap-2 *:flex-1">
-							<CharacterDamageField character={singleSelectedCharacter} />
-							<CharacterFatigueField character={singleSelectedCharacter} />
+						<div className="flex gap-[inherit] *:flex-1 empty:hidden">
+							<StressUpdateMenu characters={selectedCharacters}>
+								<Button text="Advanced stress update" icon={<Lucide.WandSparkles />} />
+							</StressUpdateMenu>
 						</div>
 					)}
 					{singleSelectedCharacter && (
@@ -165,11 +168,6 @@ function TokenMenuContent() {
 							<CharacterConditionsListInput character={singleSelectedCharacter} />
 						</FormField>
 					)}
-					<div className="flex gap-[inherit] *:flex-1 empty:hidden">
-						<StressUpdateMenu characters={selectedCharacters}>
-							<Button text="Advanced stress update" icon={<Lucide.WandSparkles />} />
-						</StressUpdateMenu>
-					</div>
 				</>
 			),
 		})
@@ -284,7 +282,7 @@ function TokenMenuContent() {
 			</div>
 
 			{tabViews.length > 0 && (
-				<div className={translucentPanel("flex w-[360px] flex-col gap-2 p-2")}>
+				<div className={translucentPanel("flex w-[400px] flex-col gap-2 p-2")}>
 					<Tabs.List>
 						{tabViews.map((view) => (
 							<Tabs.Tab key={view.title} id={view.title}>

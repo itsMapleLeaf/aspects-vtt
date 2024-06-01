@@ -1,22 +1,18 @@
 import { useConvex, useMutation } from "convex/react"
-import type { FunctionArgs } from "convex/server"
 import * as Lucide from "lucide-react"
-import { type ReactNode, useId, useState } from "react"
+import { useId, useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
-import { toNearestPositiveInt } from "../../common/numbers.ts"
 import { startCase } from "../../common/string.ts"
-import type { PickByValue } from "../../common/types.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button } from "../../ui/Button.tsx"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { Loading } from "../../ui/Loading.tsx"
-import { NumberField } from "../../ui/NumberField.tsx"
+import { ReadOnlyField } from "../../ui/ReadOnlyField.tsx"
 import { Select, type SelectOption } from "../../ui/Select.tsx"
 import { TextArea } from "../../ui/TextArea.tsx"
-import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { useNotionData } from "../game/NotionDataContext.tsx"
@@ -24,8 +20,16 @@ import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
+import { CharacterNumberField } from "./CharacterNumberField.tsx"
 import { CharacterRaceAbilityList } from "./CharacterRaceAbilityList.tsx"
-import type { ApiAttribute, ApiCharacter } from "./types.ts"
+import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
+import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
+import {
+	OwnedCharacter,
+	type ApiAttribute,
+	type ApiCharacter,
+	type UpdateableCharacterField,
+} from "./types.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
@@ -76,13 +80,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				</div>
 			)}
 
-			{character.isOwner && (
-				<div className="grid grid-flow-col items-end gap-2">
-					<CharacterDamageField character={character} />
-					<CharacterFatigueField character={character} />
-					<CharacterNumberField character={character} field="currency" />
-				</div>
-			)}
+			{OwnedCharacter.is(character) && <CharacterStatusFields character={character} />}
 
 			{character.isOwner && (
 				<div className="flex gap-2 *:flex-1">
@@ -129,30 +127,6 @@ export function CharacterNotesFields({ character }: { character: ApiCharacter })
 		</>
 	)
 }
-
-export function CharacterDamageField({ character }: { character: ApiCharacter }) {
-	const threshold = character.strength + character.mobility + character.damageThresholdDelta
-	return (
-		<CharacterNumberField character={character} field="damage" label={`Damage / ${threshold}`} />
-	)
-}
-
-export function CharacterFatigueField({ character }: { character: ApiCharacter }) {
-	const threshold =
-		character.sense + character.intellect + character.wit + character.fatigueThresholdDelta
-	return (
-		<CharacterNumberField character={character} field="fatigue" label={`Fatigue / ${threshold}`} />
-	)
-}
-
-/**
- * A field on the character document which also can be updated, so it excludes computed fields, like
- * damage thresholds
- */
-type UpdateableCharacterField<ValueType> = Extract<
-	keyof PickByValue<ApiCharacter, ValueType>,
-	keyof FunctionArgs<typeof api.characters.functions.update>
->
 
 function CharacterInputField({
 	character,
@@ -220,31 +194,6 @@ function CharacterCheckboxField({
 				checked={value}
 				onChange={(event) => update({ id: character._id, [field]: event.target.checked })}
 			/>
-		</CharacterReadOnlyGuard>
-	)
-}
-
-function CharacterNumberField({
-	character,
-	field,
-	label = startCase(field),
-	min = 0,
-}: {
-	character: ApiCharacter
-	field: UpdateableCharacterField<number>
-	label?: string
-	min?: number
-}) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
-	const value = state.args?.[field] ?? character[field] ?? 0
-
-	function setValue(newValue: number) {
-		update({ id: character._id, [field]: toNearestPositiveInt(newValue) })
-	}
-
-	return (
-		<CharacterReadOnlyGuard character={character} label={label} value={value}>
-			<NumberField label={label} value={value} min={min} onChange={setValue} />
 		</CharacterReadOnlyGuard>
 	)
 }
@@ -365,41 +314,6 @@ function CharacterImageField({
 						className="absolute right-0 top-0 m-2"
 					/>
 				)}
-			</div>
-		</FormField>
-	)
-}
-
-function CharacterReadOnlyGuard({
-	character,
-	label,
-	value,
-	children,
-}: {
-	character: ApiCharacter
-	label: string
-	value: ReactNode
-	children: React.ReactNode
-}) {
-	return character.isOwner ? children : <ReadOnlyField label={label} value={value} />
-}
-
-function ReadOnlyField({ label, value }: { label: string; value: ReactNode }) {
-	return (
-		<FormField label={label}>
-			<div
-				className={panel(
-					"flex items-center justify-between gap-1.5 bg-primary-300/30 py-2 pl-3 pr-2",
-				)}
-			>
-				<p className="min-w-0 flex-1 whitespace-pre-wrap break-words">{value}</p>
-				<Tooltip
-					text="Read-only"
-					className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
-				>
-					<Lucide.Ban className="size-4" />
-					<span className="sr-only">Read-only</span>
-				</Tooltip>
 			</div>
 		</FormField>
 	)
