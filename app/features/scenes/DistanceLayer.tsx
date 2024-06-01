@@ -23,7 +23,7 @@ export function DistanceLayer() {
 				<div
 					className="absolute left-0 top-0 box-content outline outline-4 outline-primary-800"
 					style={{
-						translate: Vector.from(Math.min(start.x, end.x), start.y)
+						translate: Vector.from(Math.min(start.x, end.x), end.y)
 							.plus((context.scene.cellSize * context.viewport.scale) / 2)
 							.css.translate(),
 						height: 0,
@@ -35,7 +35,7 @@ export function DistanceLayer() {
 				<div
 					className="absolute left-0 top-0 box-content outline outline-4 outline-primary-800"
 					style={{
-						translate: Vector.from(end.x, Math.min(start.y, end.y))
+						translate: Vector.from(start.x, Math.min(start.y, end.y))
 							.plus((context.scene.cellSize * context.viewport.scale) / 2)
 							.css.translate(),
 						width: 0,
@@ -45,7 +45,7 @@ export function DistanceLayer() {
 
 				{/* start dot */}
 				<div
-					className="absolute left-0 top-0 scale-50 rounded-full bg-primary-800"
+					className="absolute left-0 top-0 scale-[0.3] rounded-full bg-primary-800"
 					style={{
 						...Vector.from(context.scene.cellSize * context.viewport.scale).toSize(),
 						translate: start.css.translate(),
@@ -54,7 +54,7 @@ export function DistanceLayer() {
 
 				{/* end dot */}
 				<div
-					className="absolute left-0 top-0 scale-50 rounded-full bg-primary-800"
+					className="absolute left-0 top-0 scale-[0.3] rounded-full bg-primary-800"
 					style={{
 						...Vector.from(context.scene.cellSize * context.viewport.scale).toSize(),
 						translate: end.css.translate(),
