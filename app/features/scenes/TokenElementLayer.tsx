@@ -6,6 +6,7 @@ import { getColorStyle } from "../../../shared/colors.ts"
 import { sortBy } from "../../common/collection.ts"
 import { Vector } from "../../common/vector.ts"
 import { getThresholds } from "../characters/helpers.ts"
+import type { ApiCharacter } from "../characters/types.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { DistanceLabelLayer, DistanceLayer } from "./DistanceLayer.tsx"
@@ -33,12 +34,14 @@ export function TokenElementLayer() {
 				/>
 			))}
 			<PingLayer />
-			{tokens.map((token) => (
-				<CharacterTokenDecoration key={token.key} token={token} />
-			))}
-			{tokens.map((token) => (
-				<AreaSizeLabel key={token.key} token={token} />
-			))}
+			{tokens.map((token) =>
+				token.character ?
+					<CharacterTokenDecoration key={token.key} token={token} character={token.character} />
+				:	null,
+			)}
+			{tokens.map((token) =>
+				token.area ? <AreaSizeLabel key={token.key} token={token} area={token.area} /> : null,
+			)}
 			<DistanceLabelLayer />
 		</div>
 	)
@@ -136,16 +139,16 @@ function TokenElement({
 	)
 }
 
-function CharacterTokenDecoration({ token }: { token: ApiToken }) {
+function CharacterTokenDecoration({
+	token,
+	character,
+}: {
+	token: ApiToken
+	character: ApiCharacter
+}) {
 	const { scene, viewport } = useSceneContext()
 	const translate = useTokenTranslate(token)
-
-	if (!token.character) {
-		return null
-	}
-
-	const thresholds = getThresholds(token.character)
-
+	const thresholds = getThresholds(character)
 	return (
 		<div
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"
@@ -153,7 +156,7 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 		>
 			<div className="relative" style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}>
 				<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
-					{token.character.conditions.map((condition) => (
+					{character.conditions.map((condition) => (
 						<p
 							key={condition.name}
 							className={twMerge(
@@ -164,9 +167,9 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 							{condition.name}
 						</p>
 					))}
-					{token.character.damage > 0 && (
+					{character.damage > 0 && (
 						<TokenMeter
-							value={token.character.damage / thresholds.damage}
+							value={character.damage / thresholds.damage}
 							className={{
 								base: "text-red-400",
 								warning: "text-red-400",
@@ -174,9 +177,9 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 							}}
 						/>
 					)}
-					{token.character.fatigue > 0 && (
+					{character.fatigue > 0 && (
 						<TokenMeter
-							value={token.character.fatigue / thresholds.fatigue}
+							value={character.fatigue / thresholds.fatigue}
 							className={{
 								base: "text-purple-400",
 								warning: "text-purple-400",
@@ -185,27 +188,21 @@ function CharacterTokenDecoration({ token }: { token: ApiToken }) {
 						/>
 					)}
 				</div>
-				<TokenLabel text={token.character.displayName} subText={token.character.displayPronouns} />
+				<TokenLabel text={character.displayName} subText={character.displayPronouns} />
 			</div>
 		</div>
 	)
 }
 
-function AreaSizeLabel({ token }: { token: ApiToken }) {
+function AreaSizeLabel({ token, area }: { token: ApiToken; area: NonNullable<ApiToken["area"]> }) {
 	const { scene, viewport } = useSceneContext()
 	const translate = useTokenTranslate(token)
-
-	if (!token.area) {
-		return null
-	}
-
-	const dimensions = Vector.fromSize(token.area).dividedBy(scene.cellSize).rounded
-
+	const dimensions = Vector.fromSize(area).dividedBy(scene.cellSize).rounded
 	return (
 		<div
 			className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
 			style={{
-				...Vector.fromSize(token.area).roundedTo(scene.cellSize).toSize(),
+				...Vector.fromSize(area).roundedTo(scene.cellSize).toSize(),
 				scale: viewport.scale,
 				translate,
 			}}
