@@ -2,7 +2,6 @@ import * as FloatingUI from "@floating-ui/react-dom"
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
-import type { ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../common/Rect.ts"
@@ -12,6 +11,7 @@ import { Vector } from "../../common/vector.ts"
 import { Button } from "../../ui/Button.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
+import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
@@ -119,75 +119,66 @@ function TokenMenuContent() {
 	const singleSelectedCharacter =
 		selectedCharacters.length === 1 ? selectedCharacters[0] : undefined
 
-	type TabView = {
-		title: string
-		content: ReactNode
-	}
-
-	const tabViews: TabView[] = []
-
-	if (selectedCharacters.length > 0) {
-		tabViews.push({
-			title: "Abilities",
-			content: (
-				<>
-					<AttributeDiceRollButtonGrid className="gap-[inherit]" characters={selectedCharacters} />
-					{singleSelectedCharacter && (
-						<div className={panel()}>
-							<ScrollArea className="max-h-[360px]">
-								<div className="p-3">
-									<CharacterAbilityList character={singleSelectedCharacter} />
-								</div>
-							</ScrollArea>
-						</div>
-					)}
-				</>
-			),
-		})
-	}
-
-	if (selectionHasCharacters) {
-		tabViews.push({
-			title: "Status",
-			content: (
-				<>
-					{singleSelectedCharacter && OwnedCharacter.is(singleSelectedCharacter) && (
-						<div className="flex gap-2 *:flex-1 empty:hidden">
-							<CharacterStatusFields character={singleSelectedCharacter} />
-						</div>
-					)}
-					{singleSelectedCharacter && (
-						<div className="flex gap-[inherit] *:flex-1 empty:hidden">
-							<StressUpdateMenu characters={selectedCharacters}>
-								<Button text="Advanced stress update" icon={<Lucide.WandSparkles />} />
-							</StressUpdateMenu>
-						</div>
-					)}
-					{singleSelectedCharacter && (
-						<FormField label="Conditions">
-							<CharacterConditionsListInput character={singleSelectedCharacter} />
-						</FormField>
-					)}
-				</>
-			),
-		})
-	}
-
-	if (singleSelectedCharacter) {
-		tabViews.push({
-			title: "Notes",
-			content: <CharacterNotesFields character={singleSelectedCharacter} />,
-		})
-	}
-
 	return (
 		<div className="flex-center gap-3">
 			<div className={translucentPanel("flex justify-center gap-2 p-2")}>
+				{selectionHasCharacters && (
+					<Menu placement="top">
+						<MenuButton render={<Button text="Status" icon={<Lucide.HeartPulse />} />} />
+						<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
+							{singleSelectedCharacter && OwnedCharacter.is(singleSelectedCharacter) && (
+								<div className="flex gap-2 *:flex-1 empty:hidden">
+									<CharacterStatusFields character={singleSelectedCharacter} />
+								</div>
+							)}
+							<div className="flex gap-[inherit] *:flex-1 empty:hidden">
+								<StressUpdateMenu characters={selectedCharacters}>
+									<Button text="Advanced stress update" icon={<Lucide.WandSparkles />} />
+								</StressUpdateMenu>
+							</div>
+							{singleSelectedCharacter && (
+								<FormField label="Conditions">
+									<CharacterConditionsListInput character={singleSelectedCharacter} />
+								</FormField>
+							)}
+						</MenuPanel>
+					</Menu>
+				)}
+
+				{selectionHasCharacters && (
+					<Menu placement="top">
+						<MenuButton render={<Button text="Abilities" icon={<Lucide.BarChartBig />} />} />
+						<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
+							{singleSelectedCharacter && (
+								<div className={panel()}>
+									<ScrollArea className="max-h-[360px]">
+										<div className="p-3">
+											<CharacterAbilityList character={singleSelectedCharacter} />
+										</div>
+									</ScrollArea>
+								</div>
+							)}
+							<AttributeDiceRollButtonGrid
+								className="gap-[inherit]"
+								characters={selectedCharacters}
+							/>
+						</MenuPanel>
+					</Menu>
+				)}
+
+				{singleSelectedCharacter && (
+					<Menu placement="top">
+						<MenuButton render={<Button text="Notes" icon={<Lucide.NotebookPen />} />} />
+						<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
+							<CharacterNotesFields character={singleSelectedCharacter} />
+						</MenuPanel>
+					</Menu>
+				)}
+
 				{singleSelectedCharacter && (
 					<Button
-						text="View profile"
+						text="Profile"
 						icon={<Lucide.BookUser />}
-						className="shrink-0"
 						onClick={() => characterModal.show(singleSelectedCharacter._id)}
 					/>
 				)}
@@ -280,23 +271,6 @@ function TokenMenuContent() {
 					/>
 				)}
 			</div>
-
-			{tabViews.length > 0 && (
-				<div className={translucentPanel("flex w-[400px] flex-col gap-2 p-2")}>
-					<Tabs.List>
-						{tabViews.map((view) => (
-							<Tabs.Tab key={view.title} id={view.title}>
-								{view.title}
-							</Tabs.Tab>
-						))}
-					</Tabs.List>
-					{tabViews.map((view) => (
-						<Tabs.Panel key={view.title} id={view.title} className="flex flex-col gap-2">
-							{view.content}
-						</Tabs.Panel>
-					))}
-				</div>
-			)}
 		</div>
 	)
 }

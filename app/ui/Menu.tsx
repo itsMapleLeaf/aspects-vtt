@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react"
-import { type ClassNameValue, twMerge } from "tailwind-merge"
+import { twMerge, type ClassNameValue } from "tailwind-merge"
 import { Button } from "./Button.tsx"
 import { panel } from "./styles.ts"
 
@@ -17,7 +17,15 @@ export function menuPanelStyle(...classes: ClassNameValue[]) {
 }
 
 export function MenuPanel(props: Ariakit.MenuProps) {
-	return <Ariakit.Menu portal gutter={8} unmountOnHide {...props} className={menuPanelStyle()} />
+	return (
+		<Ariakit.Menu
+			portal
+			gutter={8}
+			unmountOnHide
+			{...props}
+			className={twMerge(menuPanelStyle(), props.className)}
+		/>
+	)
 }
 
 export function menuItemStyle(...classes: ClassNameValue[]) {
