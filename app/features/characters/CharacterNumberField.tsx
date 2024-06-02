@@ -1,5 +1,6 @@
 import { useMutation } from "convex/react"
 import type { ReactNode } from "react"
+import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api"
 import { toNearestPositiveInt } from "../../common/numbers.ts"
 import { startCase } from "../../common/string.ts"
@@ -36,7 +37,12 @@ export function CharacterNumberField({
 					<div className="pointer-events-none absolute left-2 opacity-50 *:size-5 empty:hidden">
 						{icon}
 					</div>
-					<NumberInput value={value} min={min} onChange={setValue} className="flex-1 pl-9" />
+					<NumberInput
+						value={value}
+						min={min}
+						onChange={setValue}
+						className={twMerge("flex-1", icon ? "pl-9" : "")}
+					/>
 				</div>
 			</FormField>
 		</CharacterReadOnlyGuard>
