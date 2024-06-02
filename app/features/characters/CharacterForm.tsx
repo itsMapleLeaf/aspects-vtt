@@ -55,7 +55,11 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			<CharacterSelectField
 				character={character}
 				field="race"
-				options={notionData?.races.map((r) => ({ label: r.name, value: r.name })) ?? []}
+				options={
+					notionData?.races
+						.map((r) => ({ label: r.name, value: r.name }))
+						.toSorted((a, b) => a.label.localeCompare(b.label)) ?? []
+				}
 			/>
 			<div className={panel("p-3")}>
 				<CharacterRaceAbilityList character={character} />
@@ -67,8 +71,10 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					field="playerId"
 					label="Player"
 					options={[
+						...room.players
+							.map((p) => ({ label: p.name, value: p.clerkId }))
+							.toSorted((a, b) => a.label.localeCompare(b.label)),
 						{ id: "none", label: "None", value: null },
-						...room.players.map((p) => ({ label: p.name, value: p.clerkId })),
 					]}
 				/>
 			)}
