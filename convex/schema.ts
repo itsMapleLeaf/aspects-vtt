@@ -3,7 +3,7 @@ import { brandedString, deprecated } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { characterAspectSkillProperties } from "./characterAspectSkills/types.ts"
 import { characterProperties } from "./characters/types.ts"
-import { defineTables } from "./crud.ts"
+import { createCrudSchema } from "./crud.ts"
 import { diceMacroProperties } from "./diceMacros/types.ts"
 import { nullish } from "./helpers/convex.ts"
 import { diceInputValidator, diceRollValidator } from "./messages/types.ts"
@@ -77,7 +77,7 @@ const schema = defineEntSchema({
 
 const entDefinitions = getEntDefinitions(schema)
 
-export const tables = defineTables({
+export const tables = createCrudSchema({
 	users: {
 		name: v.string(),
 		avatarUrl: v.optional(v.string()),

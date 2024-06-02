@@ -3,7 +3,7 @@ import { createContext, use, useState, type ReactNode } from "react"
 import { api } from "../../../convex/_generated/api"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { clamp } from "../../common/math.ts"
-import { Vector, type VectorInput } from "../../common/vector.ts"
+import { Vector, type VectorInput, type VectorInputArgs } from "../../common/vector.ts"
 import { useDragSelectStore } from "../../ui/DragSelect.tsx"
 import type { ApiScene } from "./types.ts"
 
@@ -12,6 +12,7 @@ function useSceneProvider(scene: ApiScene) {
 		offset: Vector.zero,
 		scaleTick: 0,
 	})
+	const viewportScale = scaleAt(viewport.scaleTick)
 
 	function scaleAt(tick: number) {
 		return 1.3 ** tick
@@ -27,8 +28,18 @@ function useSceneProvider(scene: ApiScene) {
 
 	const selectedTokens = tokens.filter((it) => tokenSelectStore.isSelected(it.key))
 
+	function mapPositionFromViewportPosition(...position: VectorInputArgs) {
+		return (
+			Vector.from(...position)
+				.minus(viewport.offset)
+				// .minus((scene.cellSize / 2) * viewportScale)
+				.dividedBy(viewportScale)
+		)
+	}
+
 	return {
 		scene,
+		mapPositionFromViewportPosition,
 
 		tokenSelectStore,
 		tokenDragOffset,
@@ -38,7 +49,7 @@ function useSceneProvider(scene: ApiScene) {
 
 		viewport: {
 			offset: viewport.offset,
-			scale: scaleAt(viewport.scaleTick),
+			scale: viewportScale,
 
 			move(delta: VectorInput) {
 				setViewport((current) => ({

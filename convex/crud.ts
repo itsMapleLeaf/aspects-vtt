@@ -9,6 +9,7 @@ import {
 	type GenericTableIndexes,
 	type SystemFields,
 	type TableNamesInDataModel,
+	type WithoutSystemFields,
 } from "convex/server"
 import { v, type GenericId, type ObjectType, type PropertyValidators } from "convex/values"
 import { Console, Effect, pipe } from "effect"
@@ -18,13 +19,13 @@ import { type MutationCtx, type QueryCtx } from "./_generated/server"
 import { partial, type Branded } from "./helpers/convex.ts"
 import { tables } from "./schema.ts"
 
-export function defineTables<Tables extends { [name: string]: PropertyValidators }>(
+export function createCrudSchema<Tables extends { [name: string]: PropertyValidators }>(
 	tables: Tables,
 ) {
-	return new FunctionFactory(tables)
+	return new CrudSchema(tables)
 }
 
-class FunctionFactory<Tables extends { [name: string]: PropertyValidators }> {
+class CrudSchema<Tables extends { [name: string]: PropertyValidators }> {
 	readonly tables
 
 	readonly __dataModel!: {
@@ -108,21 +109,21 @@ class FunctionFactory<Tables extends { [name: string]: PropertyValidators }> {
 	queryHandler<Value, Args extends readonly [unknown] | readonly []>(
 		makeEffect: (
 			ctx: EffectQueryCtx<typeof this.__dataModel>,
-			...optionalArgs: Args
+			...args: Args
 		) => Effect.Effect<Value, unknown>,
 	) {
-		return (ctx: GenericQueryCtx<typeof this.__dataModel>, ...optionalArgs: Args) =>
-			Effect.runPromise(makeEffect(new EffectQueryCtx(ctx), ...optionalArgs))
+		return (ctx: GenericQueryCtx<typeof this.__dataModel>, ...args: Args) =>
+			Effect.runPromise(makeEffect(new EffectQueryCtx(ctx), ...args))
 	}
 
 	mutationHandler<Value, Args extends readonly [unknown] | readonly []>(
 		makeEffect: (
 			ctx: EffectMutationCtx<typeof this.__dataModel>,
-			...optionalArgs: Args
+			...args: Args
 		) => Effect.Effect<Value, unknown>,
 	) {
-		return (ctx: GenericMutationCtx<typeof this.__dataModel>, ...optionalArgs: Args) =>
-			Effect.runPromise(makeEffect(new EffectMutationCtx(ctx), ...optionalArgs))
+		return (ctx: GenericMutationCtx<typeof this.__dataModel>, ...args: Args) =>
+			Effect.runPromise(makeEffect(new EffectMutationCtx(ctx), ...args))
 	}
 }
 
@@ -155,6 +156,13 @@ class EffectMutationCtx<DataModel extends GenericDataModel> extends EffectQueryC
 	constructor(ctx: GenericMutationCtx<DataModel>) {
 		super(ctx)
 		this.internal = ctx
+	}
+
+	insertDoc<Table extends TableNamesInDataModel<DataModel>>(
+		table: Table,
+		data: WithoutSystemFields<DocumentByName<DataModel, Table>>,
+	) {
+		return Effect.promise(() => this.internal.db.insert(table, data))
 	}
 
 	patchDoc<Table extends TableNamesInDataModel<DataModel>>(

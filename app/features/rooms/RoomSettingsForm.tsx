@@ -10,11 +10,12 @@ import { EditableSelect } from "../../ui/Select.tsx"
 import { GameTime } from "../game/GameTime.tsx"
 import { SetMapBackgroundButton } from "../tokens/SetMapBackgroundButton.tsx"
 import { useRoom } from "./roomContext.tsx"
+import { useUpdateRoomMutation } from "./useUpdateRoomMutation.tsx"
 
 export function RoomSettingsForm() {
 	const room = useRoom()
 	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
-	const updateRoom = useMutation(api.rooms.functions.update)
+	const updateRoom = useUpdateRoomMutation()
 	const updateScene = useMutation(api.scenes.functions.update)
 	const gameTime = new GameTime(room.gameTime)
 

@@ -18,6 +18,9 @@ import { getThresholds } from "../characters/helpers.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { getApiImageUrl } from "../images/getApiImageUrl.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
+import { PingHandler } from "./PingHandler.tsx"
+import { PingLayer } from "./PingLayer.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { SceneGrid } from "./SceneGrid.tsx"
 import { TokenLabel } from "./TokenLabel.tsx"
@@ -34,16 +37,18 @@ export function SceneMap() {
 			<SceneBackground />
 			<SceneGrid />
 			<DragHandler>
-				<CharacterTokenDropzone>
-					{state.activeTool === RoomTool.Draw ?
-						<RectTokenDrawArea>
-							<TokenElements />
-						</RectTokenDrawArea>
-					:	<DragSelectArea className="absolute inset-0" {...tokenSelectStore.areaProps()}>
-							<TokenElements />
-						</DragSelectArea>
-					}
-				</CharacterTokenDropzone>
+				<PingHandler>
+					<CharacterTokenDropzone>
+						{state.activeTool === RoomTool.Draw ?
+							<RectTokenDrawArea>
+								<TokenElementLayer />
+							</RectTokenDrawArea>
+						:	<DragSelectArea className="absolute inset-0" {...tokenSelectStore.areaProps()}>
+								<TokenElementLayer />
+							</DragSelectArea>
+						}
+					</CharacterTokenDropzone>
+				</PingHandler>
 			</DragHandler>
 			<TokenMenu />
 		</WheelHandler>
@@ -132,7 +137,7 @@ function SceneBackground() {
 }
 
 function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
-	const { scene, viewport } = useSceneContext()
+	const { scene, ...context } = useSceneContext()
 	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
@@ -140,11 +145,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 		<CharacterDnd.Dropzone
 			className="absolute inset-0"
 			onDrop={(character, event) => {
-				const position = Vector.from(event.clientX, event.clientY)
-					.minus(viewport.offset)
-					.minus((scene.cellSize / 2) * viewport.scale)
-					.dividedBy(viewport.scale).xy
-
+				const position = context.mapPositionFromViewportPosition(event.clientX, event.clientY).xy
 				const existing = tokens.find((it) => it.character?._id === character._id)
 				if (existing) {
 					updateToken({
@@ -237,8 +238,9 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 	)
 }
 
-function TokenElements() {
+function TokenElementLayer() {
 	const { viewport, tokens } = useSceneContext()
+	const room = useRoom()
 	return (
 		<div
 			className="absolute left-0 top-0 origin-top-left"
@@ -246,8 +248,13 @@ function TokenElements() {
 		>
 			{/* sort so characters are last and are on top of everything else */}
 			{sortBy(tokens, (it) => (it.character ? 1 : 0)).map((token) => (
-				<TokenElement token={token} key={token.key} />
+				<TokenElement
+					token={token}
+					isCurrentCombatMember={token.character?._id === room.combat?.currentMemberId}
+					key={token.key}
+				/>
 			))}
+			<PingLayer />
 			{tokens.map((token) => (
 				<CharacterTokenDecoration key={token.key} token={token} />
 			))}
@@ -258,7 +265,13 @@ function TokenElements() {
 	)
 }
 
-function TokenElement({ token }: { token: ApiToken }) {
+function TokenElement({
+	token,
+	isCurrentCombatMember,
+}: {
+	token: ApiToken
+	isCurrentCombatMember: boolean
+}) {
 	const {
 		scene,
 		viewport,
@@ -314,7 +327,11 @@ function TokenElement({ token }: { token: ApiToken }) {
 			className="absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
 			style={{ translate }}
 		>
-			<div {...selectableProps(token.key)} className="group">
+			<div {...selectableProps(token.key)} className="group relative">
+				<div
+					data-is-current-combat-member={isCurrentCombatMember}
+					className="pointer-events-none absolute inset-0 animate-pulse rounded-lg outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700 "
+				></div>
 				{token.character && (
 					<UploadedImage
 						id={token.character.imageId}

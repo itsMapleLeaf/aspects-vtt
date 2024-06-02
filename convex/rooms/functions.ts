@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
 import { Result } from "../../app/common/Result.ts"
+import { omit } from "../../app/common/object.ts"
 import { range } from "../../app/common/range.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
@@ -10,6 +11,7 @@ import {
 	effectMutation,
 	getDoc,
 	queryHandlerFromEffect,
+	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.js"
 import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
@@ -99,8 +101,8 @@ export const create = mutation({
 
 export const update = mutation({
 	args: {
+		...omit(roomProperties, ["ping"]),
 		id: v.id("rooms"),
-		...roomProperties,
 		combat: v.optional(
 			v.object({
 				members: v.array(memberValidator),
@@ -140,10 +142,36 @@ export const join = effectMutation({
 			})
 			if (!player) {
 				yield* Effect.tryPromise(() => {
-					return ctx.table("players").insert({ roomId: args.id, userId: user.clerkId })
+					return ctx.table("players").insert({
+						roomId: args.id,
+						userId: user.clerkId,
+					})
 				})
 			}
 		}),
+})
+
+export const ping = effectMutation({
+	args: {
+		roomId: v.id("rooms"),
+		position: v.object({ x: v.number(), y: v.number() }),
+		key: v.string(),
+	},
+	handler(args) {
+		return Effect.gen(function* () {
+			const user = yield* getUserFromIdentityEffect()
+			yield* withMutationCtx((ctx) =>
+				ctx.db.patch(args.roomId, {
+					ping: {
+						position: args.position,
+						name: user.name,
+						colorHue: user._creationTime % 360,
+						key: args.key,
+					},
+				}),
+			)
+		})
+	},
 })
 
 export function getRoomAsOwner(roomId: Id<"rooms">) {
