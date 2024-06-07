@@ -12,5 +12,5 @@ export const diceInputValidator = v.object({
 	name: v.string(),
 	sides: v.number(),
 	count: v.number(),
-	explodes: v.boolean(),
+	explodes: v.optional(v.boolean()),
 })

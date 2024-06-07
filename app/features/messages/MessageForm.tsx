@@ -37,7 +37,9 @@ export function MessageForm() {
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
 
 	const user = useUser()
-	const ownedCharacter = useCharacters().find(OwnedCharacter.is)
+	const ownedCharacter = useCharacters()
+		.filter((character) => character.playerId === user?.clerkId)
+		.find(OwnedCharacter.is)
 
 	async function submit() {
 		try {

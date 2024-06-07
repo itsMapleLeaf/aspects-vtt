@@ -23,7 +23,7 @@ export type DiceKind = {
 	name: string
 	element: React.ReactElement
 	faces: DiceFace[]
-	explodes: boolean
+	explodes?: boolean
 }
 
 export type DiceFace = {
@@ -103,7 +103,6 @@ function defineNumeric({
 	const name = `d${faceCount}`
 	return {
 		name,
-		explodes: true,
 		element: (
 			<div className="flex-center-col relative text-primary-700 @container">
 				<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">{icon}</div>
@@ -147,7 +146,6 @@ function defineModifier({
 	const faceCount = 4
 	return {
 		name,
-		explodes: false,
 		element: (
 			<div className={twMerge("flex-center-col relative", className)}>
 				<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />

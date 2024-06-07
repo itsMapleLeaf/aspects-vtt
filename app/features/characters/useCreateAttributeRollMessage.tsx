@@ -31,7 +31,7 @@ export function useCreateAttributeRollMessage() {
 					roomId: room._id,
 					content: args.content,
 					dice: [
-						getDiceKindApiInput(attributeDie, 1),
+						getDiceKindApiInput(attributeDie, 2),
 						getDiceKindApiInput(boostDiceKind, args.boostCount ?? 0),
 						getDiceKindApiInput(snagDiceKind, args.snagCount ?? 0),
 					],
