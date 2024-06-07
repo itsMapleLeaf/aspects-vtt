@@ -15,24 +15,35 @@ export function CharacterStatusFields({
 		character.sense + character.intellect + character.wit + character.fatigueThresholdDelta
 
 	return character.isOwner ?
-			<div className={twMerge("grid grid-flow-col items-end gap-2", className)}>
-				<CharacterNumberField
-					character={character}
-					field="damage"
-					icon={<LucideHeartCrack className="size-5" />}
-					label={`Damage / ${damageThreshold}`}
-				/>
-				<CharacterNumberField
-					character={character}
-					field="fatigue"
-					icon={<LucideZap className="size-5" />}
-					label={`Fatigue / ${fatigueThreshold}`}
-				/>
+			<div className={twMerge("grid grid-flow-col items-center gap-2", className)}>
+				<div className="relative flex items-center">
+					<CharacterNumberField
+						character={character}
+						field="damage"
+						icon={<LucideHeartCrack className="translate-x-[1px]" />}
+						label={null}
+						tooltip={`Damage`}
+					/>
+					<div className="pointer-events-none absolute right-3 opacity-50">/ {damageThreshold}</div>
+				</div>
+				<div className="relative flex items-center">
+					<CharacterNumberField
+						character={character}
+						field="fatigue"
+						icon={<LucideZap className="translate-x-[2px]" />}
+						label={null}
+						tooltip={`Fatigue`}
+					/>
+					<div className="pointer-events-none absolute right-3 opacity-50">
+						/ {fatigueThreshold}
+					</div>
+				</div>
 				<CharacterNumberField
 					character={character}
 					field="currency"
-					icon={<LucideBanknote className="size-5" />}
-					label={`Notes (Currency)`}
+					icon={<LucideBanknote />}
+					label={null}
+					tooltip={`Notes (Currency)`}
 				/>
 			</div>
 		:	null

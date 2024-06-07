@@ -20,7 +20,7 @@ export function ToggleableSidebar({
 	return (
 		<div
 			data-side={side}
-			className="group/sidebar-panel pointer-events-none fixed bottom-0 top-16 flex justify-end gap-2 p-2 *:pointer-events-auto data-[side=left]:left-0 data-[side=right]:right-0 data-[side=left]:flex-row-reverse"
+			className="group/sidebar-panel pointer-events-none flex h-full justify-end gap-2 *:pointer-events-auto data-[side=left]:left-0 data-[side=right]:right-0 data-[side=left]:flex-row-reverse"
 		>
 			<DisclosureProvider open={open} setOpen={setOpen}>
 				<Button

@@ -5,15 +5,26 @@ import type { ApiCharacter } from "./types.ts"
 
 export function AttributeDiceRollButtonGrid({
 	characters,
+	variant = "stacked",
 	...props
-}: { characters: ApiCharacter[] } & ComponentProps<"div">) {
+}: { characters: ApiCharacter[]; variant?: "stacked" | "horizontal" } & ComponentProps<"div">) {
 	return (
-		<div {...props} className={twMerge("flex flex-col gap-2", props.className)}>
-			<div className="flex gap-[inherit] *:flex-1">
+		<div
+			{...props}
+			data-variant={variant}
+			className={twMerge("flex gap-2 data-[variant=stacked]:flex-col", props.className)}
+		>
+			<div
+				data-variant={variant}
+				className="flex gap-[inherit] *:flex-1 data-[variant=horizontal]:contents"
+			>
 				<AttributeDiceRollButton characters={characters} text="Strength" attribute="strength" />
 				<AttributeDiceRollButton characters={characters} text="Mobility" attribute="mobility" />
 			</div>
-			<div className="flex gap-[inherit] *:flex-1">
+			<div
+				data-variant={variant}
+				className="flex gap-[inherit] *:flex-1 data-[variant=horizontal]:contents"
+			>
 				<AttributeDiceRollButton characters={characters} text="Sense" attribute="sense" />
 				<AttributeDiceRollButton characters={characters} text="Intellect" attribute="intellect" />
 				<AttributeDiceRollButton characters={characters} text="Wit" attribute="wit" />

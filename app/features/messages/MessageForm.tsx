@@ -1,10 +1,9 @@
-import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
 import { useMutation, useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
 import { ConvexError } from "convex/values"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
-import { useState, type ReactNode } from "react"
+import { useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
@@ -14,14 +13,10 @@ import { usePrompt } from "../../ui/Prompt.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel } from "../../ui/styles.ts"
-import { useUser } from "../auth/UserContext.tsx"
-import { AttributeDiceRollButtonGrid } from "../characters/AttributeDiceRollButtonGrid.tsx"
-import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
-import { OwnedCharacter } from "../characters/types.ts"
 import { DiceCounter } from "../dice/DiceCounter.tsx"
 import { diceKindsByName, type DiceKind } from "../dice/diceKinds.tsx"
 import { getDiceInputList } from "../dice/getDiceInputList.tsx"
-import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 
 export function MessageForm() {
 	const room = useRoom()
@@ -35,11 +30,6 @@ export function MessageForm() {
 	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})
 
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
-
-	const user = useUser()
-	const ownedCharacter = useCharacters()
-		.filter((character) => character.playerId === user?.clerkId)
-		.find(OwnedCharacter.is)
 
 	async function submit() {
 		try {
@@ -90,26 +80,17 @@ export function MessageForm() {
 
 	return (
 		<form action={submit} className="flex flex-col gap-2">
-			{ownedCharacter && <CharacterStatusFields character={ownedCharacter} />}
+			<DiceCounter value={diceCounts} onChange={setDiceCounts} />
 
-			{ownedCharacter && (
-				<FormField label="Attributes">
-					<AttributeDiceRollButtonGrid characters={[ownedCharacter]} />
-				</FormField>
-			)}
-
-			<Collapse title="Dice">
-				<DiceCounter value={diceCounts} onChange={setDiceCounts} />
-				<Button
-					type="button"
-					icon={<Lucide.RotateCcw />}
-					text="Reset"
-					disabled={totalDice < 1}
-					onClick={() => {
-						setDiceCounts({})
-					}}
-				/>
-			</Collapse>
+			<Button
+				type="button"
+				icon={<Lucide.RotateCcw />}
+				text="Reset"
+				disabled={totalDice < 1}
+				onClick={() => {
+					setDiceCounts({})
+				}}
+			/>
 
 			<FormField label="Macros">
 				<div className="flex gap-2 *:flex-1">
@@ -196,19 +177,5 @@ function MacroList({
 				))}
 			</div>
 		</ScrollArea>
-	)
-}
-
-function Collapse({ title, children }: { title: ReactNode; children: ReactNode }) {
-	return (
-		<DisclosureProvider>
-			<Disclosure className="flex items-center gap-0.5 transition-colors hover:text-primary-700">
-				<Lucide.ChevronDown className="transition-transform [[aria-expanded=true]>&]:rotate-180" />
-				<span className="select-none font-bold leading-6">{title}</span>
-			</Disclosure>
-			<DisclosureContent className="grid grid-rows-[0fr] transition-all data-[enter]:grid-rows-[1fr]">
-				<div className="overflow-hidden">{children}</div>
-			</DisclosureContent>
-		</DisclosureProvider>
 	)
 }
