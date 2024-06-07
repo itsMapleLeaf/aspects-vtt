@@ -20,13 +20,19 @@ export function PlayerControlsPanel() {
 				<div className="flex items-stretch gap-2">
 					<CharacterStatusFields character={ownedCharacter} />
 					<div className="self-stretch border-0 border-l border-primary-300" />
-					<Menu placement="top">
-						<MenuButton render={<Button text="Notes" icon={<Lucide.NotebookPen />} />} />
-						<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
-							<CharacterNotesFields character={ownedCharacter} />
-						</MenuPanel>
-					</Menu>
+					<CharacterNotesButton character={ownedCharacter} />
 				</div>
 			</>
 		:	null
+}
+
+function CharacterNotesButton({ character }: { character: OwnedCharacter }) {
+	return (
+		<Menu placement="top">
+			<MenuButton render={<Button text="Notes" icon={<Lucide.NotebookPen />} />} />
+			<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
+				<CharacterNotesFields character={character} />
+			</MenuPanel>
+		</Menu>
+	)
 }
