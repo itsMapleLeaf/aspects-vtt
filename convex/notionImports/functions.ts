@@ -23,7 +23,6 @@ export const importData = internalAction({
 			internal.notionImports.functions.create,
 			await promiseAllObject({
 				aspects: getAspects(),
-				aspectSkills: getAspectSkills(),
 				attributes: getAttributes(),
 				generalSkills: getGeneralSkills(),
 				races: getRaces(),
@@ -142,40 +141,6 @@ async function getAttributes() {
 	)
 }
 
-async function getAspectSkills() {
-	const client = new Client({
-		auth: convexEnv().NOTION_API_SECRET,
-	})
-
-	const aspectSkillsresponse = await client.databases.query({
-		database_id: convexEnv().NOTION_ASPECT_SKILLS_DATABASE_ID,
-	})
-
-	const aspectSkills = await Promise.all(
-		aspectSkillsresponse.results.map(asFullPage).map(async (page) => {
-			const name = getPropertyText(page.properties, "Name")
-			const aspectDocs = await getRelatedPages(page.properties, "Aspects")
-			const hidden = getBooleanProperty(page.properties, "Hidden")
-			if (hidden) {
-				console.info(`Aspect skill ${name} is hidden; skipping`)
-				return
-			}
-
-			console.info(`imported aspect skill ${name}`)
-
-			return {
-				id: `aspectSkills:${page.id}` as Branded<"aspectSkills">,
-				name,
-				description: getPropertyText(page.properties, "Description"),
-				aspects: aspectDocs.map(
-					(doc) => getPropertyText(doc.properties, "Name") as Branded<"aspectName">,
-				),
-			}
-		}),
-	)
-	return aspectSkills.filter(Boolean)
-}
-
 async function getAspects() {
 	const client = new Client({
 		auth: convexEnv().NOTION_API_SECRET,
@@ -200,7 +165,7 @@ async function getAspects() {
 				description: paragraphs.slice(0, -1).join("\n\n"),
 				ability: {
 					name: abilityName ?? raise("no ability name"),
-					description: abilityDescription ?? raise("no ability description"),
+					description: abilityDescription ?? "",
 				},
 			}
 		}),

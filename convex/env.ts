@@ -8,7 +8,7 @@ export function convexEnv() {
 			NOTION_ATTRIBUTES_DATABASE_ID: z.string(),
 			NOTION_GENERAL_SKILLS_DATABASE_ID: z.string(),
 			NOTION_RACES_DATABASE_ID: z.string(),
-			NOTION_ASPECT_SKILLS_DATABASE_ID: z.string(),
+			// NOTION_ASPECT_SKILLS_DATABASE_ID: z.string(),
 			NOTION_ASPECTS_DATABASE_ID: z.string(),
 		})
 		.safeParse(process.env)

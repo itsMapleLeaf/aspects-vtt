@@ -50,12 +50,14 @@ export const notionImportProperties = {
 			description: v.string(),
 		}),
 	),
-	aspectSkills: v.array(
-		v.object({
-			id: brandedString("aspectSkills"),
-			name: v.string(),
-			description: v.string(),
-			aspects: v.array(brandedString("aspectName")),
-		}),
+	aspectSkills: v.optional(
+		v.array(
+			v.object({
+				id: brandedString("aspectSkills"),
+				name: v.string(),
+				description: v.string(),
+				aspects: v.array(brandedString("aspectName")),
+			}),
+		),
 	),
 }
