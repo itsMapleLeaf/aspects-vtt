@@ -36,6 +36,12 @@ export default {
 					justifyContent: "center",
 					alignItems: "center",
 				},
+				".pointer-events-children": {
+					pointerEvents: "none",
+					"& > *": {
+						pointerEvents: "auto",
+					},
+				},
 			})
 		}),
 	],
