@@ -57,7 +57,7 @@ export function Button({
 					<Loading size="sm" />
 				:	icon}
 			</span>
-			<span data-size={size} className="relative empty:hidden">
+			<span data-size={size} className="relative whitespace-nowrap empty:hidden">
 				{text}
 			</span>
 		</>

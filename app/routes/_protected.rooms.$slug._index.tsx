@@ -82,7 +82,7 @@ export default function RoomRoute() {
 								<CharacterListPanel />
 							</div>
 							<div className="flex items-end">
-								<div className={translucentPanel("flex w-min flex-col gap-2 p-2")}>
+								<div className={translucentPanel("flex w-[40rem] flex-col gap-2 p-2")}>
 									<PlayerControlsPanel />
 								</div>
 							</div>
