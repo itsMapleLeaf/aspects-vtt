@@ -1,6 +1,7 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
+import { mod } from "../common/math.ts"
 import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
 import { LoadingDecoration } from "./LoadingDecoration.tsx"
@@ -54,8 +55,32 @@ export function Select<T>(props: {
 							<span className="opacity-50">{props.placeholder ?? "Choose one"}</span>
 						)
 					}
-					element={<Ariakit.Select />}
 					className="w-full flex-row-reverse justify-between"
+					element={
+						<Ariakit.Select
+							onKeyDown={(event) => {
+								if (event.key === "ArrowDown") {
+									event.preventDefault()
+									const currentOptionIndex = props.options.findIndex(
+										(it) => it.value === props.value,
+									)
+									const nextOption =
+										props.options[mod(currentOptionIndex + 1, props.options.length)]
+									if (nextOption) props.onChange(nextOption.value)
+								}
+
+								if (event.key === "ArrowUp") {
+									event.preventDefault()
+									const currentOptionIndex = props.options.findIndex(
+										(it) => it.value === props.value,
+									)
+									const nextOption =
+										props.options[mod(currentOptionIndex - 1, props.options.length)]
+									if (nextOption) props.onChange(nextOption.value)
+								}
+							}}
+						/>
+					}
 				/>
 			</FormField>
 			<Ariakit.SelectPopover portal gutter={8} sameWidth unmountOnHide className={menuPanelStyle()}>
