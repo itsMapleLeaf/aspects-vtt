@@ -27,6 +27,7 @@ import { loaderFromEffect } from "./effect.ts"
 import { clientEnv } from "./env.ts"
 import { UserContext } from "./features/auth/UserContext.tsx"
 import { PromptProvider } from "./ui/Prompt.tsx"
+import { Toaster } from "./ui/Toaster.tsx"
 
 const setupUser = loaderFromEffect(
 	Effect.gen(function* () {
@@ -57,7 +58,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<PromptProvider>
-					<Suspense>{children}</Suspense>
+					<Toaster>
+						<Suspense>{children}</Suspense>
+					</Toaster>
 				</PromptProvider>
 				<ScrollRestoration />
 				<Scripts />
