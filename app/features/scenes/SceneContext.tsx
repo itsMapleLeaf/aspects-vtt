@@ -31,12 +31,9 @@ function useSceneProvider(scene: ApiScene) {
 	const selectedTokens = tokens.filter((it) => tokenSelectStore.isSelected(it.key))
 
 	function mapPositionFromViewportPosition(...position: VectorInputArgs) {
-		return (
-			Vector.from(...position)
-				.minus(viewport.offset)
-				// .minus((scene.cellSize / 2) * viewportScale)
-				.dividedBy(viewportScale)
-		)
+		return Vector.from(...position)
+			.minus(viewport.offset)
+			.dividedBy(viewportScale)
 	}
 
 	return {
@@ -94,4 +91,8 @@ export function useSceneContext() {
 		throw new Error("SceneContext not found")
 	}
 	return context
+}
+
+export function useOptionalSceneContext() {
+	return use(SceneContext)
 }
