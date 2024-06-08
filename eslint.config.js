@@ -58,6 +58,7 @@ export default ts.config(
 		},
 		rules: {
 			"react/no-unescaped-entities": "off",
+			"react/no-unknown-property": "off",
 			"react-hooks/exhaustive-deps": "warn",
 			"react-hooks/rules-of-hooks": "error",
 			"react-compiler/react-compiler": "warn",
