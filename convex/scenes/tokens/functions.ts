@@ -52,7 +52,11 @@ export const add = mutation({
 		const scene = await requireDoc(ctx, sceneId, "scenes").getValueOrThrow()
 		await requireSceneRoomOwner(ctx, sceneId).getValueOrThrow()
 
-		if (args.characterId && scene.tokens?.some((token) => token.characterId === args.characterId)) {
+		if (
+			args.characterId &&
+			scene.tokens?.some((token) => token.characterId === args.characterId) &&
+			!args.unique
+		) {
 			throw new Error("Character already in scene")
 		}
 

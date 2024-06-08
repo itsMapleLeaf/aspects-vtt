@@ -11,6 +11,7 @@ import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { useOptionalSceneContext } from "../scenes/SceneContext"
 import { CharacterDnd } from "./CharacterDnd.tsx"
 import { useCharacterModalContext } from "./CharacterModal.tsx"
 import { useCharacterSelection } from "./CharacterSelectionProvider.tsx"
@@ -105,9 +106,11 @@ function CharacterTile({
 
 function CharacterMenu({ character, children }: { character: ApiCharacter; children: ReactNode }) {
 	const room = useRoom()
+	const addToken = useMutation(api.scenes.tokens.functions.add)
 	const removeCharacter = useMutation(api.characters.functions.remove)
 	const duplicateCharacter = useMutation(api.characters.functions.duplicate)
 	const selection = useCharacterSelection()
+	const sceneContext = useOptionalSceneContext()
 
 	return (
 		<MoreMenu>
@@ -115,6 +118,28 @@ function CharacterMenu({ character, children }: { character: ApiCharacter; child
 			<MoreMenuPanel gutter={16}>
 				{room.isOwner && (
 					<>
+						{sceneContext && (
+							<MoreMenuItem
+								text="Add Unique Token"
+								icon={<Lucide.Unlink />}
+								onClick={async () => {
+									const position = sceneContext
+										.mapPositionFromViewportPosition({
+											x: window.innerWidth / 2,
+											y: window.innerHeight / 2,
+										})
+										.roundedTo(sceneContext.scene.cellSize).xy
+
+									await addToken({
+										sceneId: sceneContext.scene._id,
+										characterId: character._id,
+										position,
+										visible: character.visible,
+										unique: true,
+									})
+								}}
+							/>
+						)}
 						<MoreMenuItem
 							text="Duplicate"
 							icon={<Lucide.Copy />}

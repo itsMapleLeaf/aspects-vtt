@@ -54,15 +54,13 @@ export default function RoomRoute() {
 		}
 	}, [])
 
-	return (
+	const content = (
 		<div className="contents">
 			<CharacterSelectionProvider>
 				<RoomToolbarStore.Provider>
 					{scene && (
 						<div className="fixed inset-0 select-none bg-primary-100">
-							<SceneProvider scene={scene}>
-								<SceneMap />
-							</SceneProvider>
+							<SceneMap />
 						</div>
 					)}
 
@@ -98,6 +96,10 @@ export default function RoomRoute() {
 			</CharacterSelectionProvider>
 		</div>
 	)
+
+	if (!scene) return content
+
+	return <SceneProvider scene={scene}>{content}</SceneProvider>
 }
 
 function SceneHeading() {

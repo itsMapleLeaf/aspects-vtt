@@ -106,7 +106,7 @@ function TokenElement({
 			<div {...tokenSelectStore.selectableProps(token.key)} className="group relative">
 				<div
 					data-is-current-combat-member={isCurrentCombatMember}
-					className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700 "
+					className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700"
 				></div>
 				{token.character && (
 					<UploadedImage
@@ -187,6 +187,11 @@ function CharacterTokenDecoration({
 					)}
 				</div>
 				<TokenLabel text={character.displayName} subText={character.displayPronouns} />
+				{token.unique && (
+					<div className="pointer-events-none absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 rounded-full bg-black/50 p-1.5 text-xs text-white">
+						<Lucide.Unlink strokeWidth={2} className="size-5" />
+					</div>
+				)}
 			</div>
 		</div>
 	)
