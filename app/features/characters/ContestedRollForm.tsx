@@ -22,7 +22,7 @@ export function ContestedRollForm({
 	const attributes = useNotionData()?.attributes
 	const strengthAttribute = attributes?.find((a) => a.key === "strength")
 
-	const createAttributeRollMessage = useCreateAttributeRollMessage()
+	const [, createAttributeRollMessage] = useCreateAttributeRollMessage()
 
 	const [values, setValues] = useState<{
 		selfCharacter: ApiCharacter | undefined
