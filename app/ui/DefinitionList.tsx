@@ -13,7 +13,7 @@ export function DefinitionList({ items }: DefinitionListProps) {
 						<div key={index}>
 							<dt className="text-lg/tight font-light">{item.name}</dt>
 							<dd className="whitespace-pre-line text-pretty font-medium text-primary-800">
-								{item.description}
+								{item.description.trim()}
 							</dd>
 						</div>
 						<hr className="border-primary-300 last:hidden" />
