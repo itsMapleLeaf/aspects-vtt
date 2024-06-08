@@ -1,11 +1,12 @@
 import { useConvex, useMutation } from "convex/react"
+import { ConvexError } from "convex/values"
 import * as Lucide from "lucide-react"
 import { useRef } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import type { Doc } from "../../../convex/_generated/dataModel.js"
+import { useSafeAction } from "../../common/convex.ts"
 import { loadImage } from "../../common/dom.ts"
 import { expect } from "../../common/expect.ts"
-import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button } from "../../ui/Button.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 
@@ -14,9 +15,7 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 	const inputRef = useRef<HTMLInputElement>(null)
 	const convex = useConvex()
 
-	const [state, updateSceneBackground] = useAsyncState(async function updateSceneBackground(
-		file: File,
-	) {
+	const [, submit, pending] = useSafeAction(async function updateSceneBackground(file: File) {
 		try {
 			const image = await loadImage(URL.createObjectURL(file))
 			const imageId = await uploadImage(file, convex)
@@ -30,7 +29,7 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 			})
 		} catch (error) {
 			console.error(error)
-			alert("Failed to upload image")
+			throw new ConvexError("Failed to upload image")
 		}
 	})
 
@@ -40,7 +39,7 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 				icon={<Lucide.ImagePlus />}
 				text="Set Background"
 				className="w-full"
-				pending={state.status === "pending"}
+				pending={pending}
 				onClick={() => {
 					const input = expect(inputRef.current, "input ref not set")
 					input.click()
@@ -49,10 +48,9 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 					event.preventDefault()
 					event.dataTransfer.dropEffect = "move"
 				}}
-				onDrop={async (event) => {
+				onDrop={(event) => {
 					event.preventDefault()
-					const file = expect(event.dataTransfer.files[0], "file not set")
-					await updateSceneBackground(file)
+					submit(expect(event.dataTransfer.files[0], "file not set"))
 				}}
 			/>
 			<input
@@ -63,9 +61,7 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 				onInput={(event) => {
 					const file = event.currentTarget.files?.[0]
 					event.currentTarget.value = ""
-					if (file) {
-						updateSceneBackground(file)
-					}
+					if (file) submit(file)
 				}}
 			/>
 		</>

@@ -54,4 +54,12 @@ export type Expect<T extends true> = T
 export type Equal<X, Y> =
 	(<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
 
+/** Adds optional properties of every union member */
+export type Exhaustive<T> = Simplify<ExhaustiveWithKeys<T, AllKeys<T>>>
+type ExhaustiveWithKeys<T, K extends PropertyKey> =
+	T extends object ? { [P in Extract<K, keyof T>]: T[P] } & { [P in Exclude<K, keyof T>]?: never }
+	:	never
+
+type AllKeys<T> = T extends unknown ? keyof T : never
+
 export const typed = <T>(value: T) => value

@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react"
-import { ConvexError } from "convex/values"
 import * as Lucide from "lucide-react"
 import { api } from "../../../convex/_generated/api"
+import { useSafeAction } from "../../common/convex.ts"
 import { expect } from "../../common/expect.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
@@ -36,29 +36,24 @@ function ActionFatigueButton({ character }: { character: OwnedCharacter }) {
 	const room = useRoom()
 	const createMessage = useMutation(api.messages.functions.create)
 	const updateCharacter = useMutation(api.characters.functions.update)
+
+	const [, handleClick] = useSafeAction(async () => {
+		const message = await createMessage({
+			roomId: room._id,
+			content: `<@${character._id}>: Action Fatigue`,
+			dice: [getDiceKindApiInput(expect(diceKindsByName.get("d4")), 1)],
+		})
+		const result = message.diceRoll?.dice[0]?.result
+		if (result !== undefined) {
+			await updateCharacter({
+				id: character._id,
+				fatigue: character.fatigue + result,
+			})
+		}
+	})
+
 	return (
-		<Button
-			text="Action Fatigue"
-			icon={<Lucide.ChevronsDown />}
-			onClick={async () => {
-				try {
-					const message = await createMessage({
-						roomId: room._id,
-						content: `<@${character._id}>: Action Fatigue`,
-						dice: [getDiceKindApiInput(expect(diceKindsByName.get("d4")), 1)],
-					})
-					const result = message.diceRoll?.dice[0]?.result
-					if (result !== undefined) {
-						await updateCharacter({
-							id: character._id,
-							fatigue: character.fatigue + result,
-						})
-					}
-				} catch (error) {
-					alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
-				}
-			}}
-		/>
+		<Button text="Action Fatigue" icon={<Lucide.ChevronsDown />} onClick={() => handleClick()} />
 	)
 }
 

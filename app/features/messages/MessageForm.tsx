@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
-import { ConvexError } from "convex/values"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
+import { useSafeAction } from "../../common/convex.ts"
 import { Button } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
@@ -31,19 +31,15 @@ export function MessageForm() {
 
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
 
-	async function submit() {
-		try {
-			await createMessage({
-				roomId: room._id,
-				content,
-				dice: getDiceInputList(diceCounts).toArray(),
-			})
-			setContent("")
-			setDiceCounts({})
-		} catch (error) {
-			alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
-		}
-	}
+	const [, submit] = useSafeAction(async function submit() {
+		await createMessage({
+			roomId: room._id,
+			content,
+			dice: getDiceInputList(diceCounts).toArray(),
+		})
+		setContent("")
+		setDiceCounts({})
+	})
 
 	async function saveMacro() {
 		const name = await prompt({
@@ -62,24 +58,23 @@ export function MessageForm() {
 		})
 	}
 
-	async function runMacro(
-		macro: FunctionReturnType<typeof api.diceMacros.functions.list>[0],
-	): Promise<boolean> {
-		try {
-			await createMessage({
-				roomId: room._id,
-				content,
-				dice: macro.dice,
-			})
-			return true
-		} catch (error) {
-			alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
-		}
-		return false
-	}
+	const [, runMacro] = useSafeAction(async function runMacro({
+		macro,
+		onSuccess,
+	}: {
+		macro: FunctionReturnType<typeof api.diceMacros.functions.list>[0]
+		onSuccess: () => void
+	}) {
+		await createMessage({
+			roomId: room._id,
+			content,
+			dice: macro.dice,
+		})
+		onSuccess()
+	})
 
 	return (
-		<form action={submit} className="flex flex-col gap-2">
+		<form action={() => submit()} className="flex flex-col gap-2">
 			<DiceCounter value={diceCounts} onChange={setDiceCounts} />
 
 			<Button
@@ -102,10 +97,7 @@ export function MessageForm() {
 									<ModalPanel title="Run macro" fullHeight>
 										<MacroList
 											macros={macros}
-											onSubmit={async (macro) => {
-												const success = await runMacro(macro)
-												if (success) modal.hide()
-											}}
+											onSubmit={(macro) => runMacro({ macro, onSuccess: () => modal.hide() })}
 										/>
 									</ModalPanel>
 								</>

@@ -1,7 +1,10 @@
 import type { OptimisticLocalStore } from "convex/browser"
 import { useMutation } from "convex/react"
 import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server"
+import { ConvexError } from "convex/values"
 import { useActionState, useRef } from "react"
+import { useToaster } from "../ui/Toaster.tsx"
+import type { Awaitable, Exhaustive } from "./types.ts"
 import { useAsyncState } from "./useAsyncState.ts"
 
 export function useStableQueryValue<T>(value: T): readonly [value: T, pending: boolean] {
@@ -16,14 +19,35 @@ export function useMutationState<F extends FunctionReference<"mutation", "public
 	return useAsyncState(useMutation(funcRef))
 }
 
+type ActionState<T> = Exhaustive<
+	| { type: "idle" }
+	| { type: "success"; value: T }
+	| { type: "error"; value?: T; error: NonNullable<unknown> }
+>
+
+export function useSafeAction<Result, Payload = void>(fn: (payload: Payload) => Awaitable<Result>) {
+	const toaster = useToaster()
+	return useActionState<ActionState<Result>, Payload>(
+		async (current, args) => {
+			try {
+				const value = await fn(args)
+				return { type: "success", value }
+			} catch (error) {
+				toaster.error({
+					title: "Something went wrong :(",
+					body: error instanceof ConvexError ? error.message : undefined,
+				})
+				return { type: "error", value: current.value, error: error != null ? error : new Error() }
+			}
+		},
+		{ type: "idle" },
+	)
+}
+
 export function useMutationAction<Func extends FunctionReference<"mutation", "public">>(
 	func: Func,
 ) {
-	const mutate = useMutation(func)
-	return useActionState<FunctionReturnType<Func> | undefined, FunctionArgs<Func>>(
-		(_result, args) => mutate(args),
-		undefined,
-	)
+	return useSafeAction(useMutation(func))
 }
 
 export interface QueryMutatorEntry<Query extends FunctionReference<"query", "public">> {

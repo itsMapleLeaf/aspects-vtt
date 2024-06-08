@@ -1,10 +1,10 @@
 import { UserButton } from "@clerk/remix"
 import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
-import { ConvexError } from "convex/values"
 import { LucideHome, LucidePlus } from "lucide-react"
 import { $path } from "remix-routes"
 import { api } from "../../convex/_generated/api.js"
+import { useSafeAction } from "../common/convex.ts"
 import { usePendingDelay } from "../common/react.ts"
 import { AppHeader } from "../ui/AppHeader.tsx"
 import { Button } from "../ui/Button.tsx"
@@ -28,6 +28,12 @@ function Content() {
 	const navigate = useNavigate()
 	const currentUrl = useHref(useLocation())
 	const loading = usePendingDelay(rooms === undefined)
+
+	const [, submit] = useSafeAction(async () => {
+		const result = await createRoom({})
+		navigate($path("/rooms/:slug", { slug: result.slug }))
+	})
+
 	return (
 		<div className="flex h-dvh flex-col gap-4 p-4">
 			<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
@@ -50,22 +56,7 @@ function Content() {
 							</li>
 						))}
 					</ul>
-					<Button
-						icon={<LucidePlus />}
-						text="Create Room"
-						onClick={async () => {
-							try {
-								const result = await createRoom({})
-								navigate($path("/rooms/:slug", { slug: result.slug }))
-							} catch (error) {
-								if (error instanceof ConvexError) {
-									alert(`Failed to create room: ${error.message}`)
-								} else {
-									alert("Failed to create room")
-								}
-							}
-						}}
-					/>
+					<Button icon={<LucidePlus />} text="Create Room" onClick={() => submit()} />
 				</main>
 			}
 		</div>

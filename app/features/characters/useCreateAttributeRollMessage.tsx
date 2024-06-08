@@ -1,7 +1,6 @@
 import { useMutation } from "convex/react"
-import { ConvexError } from "convex/values"
-import { useCallback } from "react"
 import { api } from "../../../convex/_generated/api.js"
+import { useSafeAction } from "../../common/convex.ts"
 import { expect } from "../../common/expect.ts"
 import {
 	boostDiceKind,
@@ -14,7 +13,7 @@ import { useRoom } from "../rooms/roomContext.tsx"
 export function useCreateAttributeRollMessage() {
 	const createMessage = useMutation(api.messages.functions.create)
 	const room = useRoom()
-	return useCallback(
+	return useSafeAction(
 		async (args: {
 			content?: string
 			attributeValue: number
@@ -26,20 +25,15 @@ export function useCreateAttributeRollMessage() {
 				`couldn't find a d${args.attributeValue} dice kind`,
 			)
 
-			try {
-				return await createMessage({
-					roomId: room._id,
-					content: args.content,
-					dice: [
-						getDiceKindApiInput(attributeDie, 2),
-						getDiceKindApiInput(boostDiceKind, args.boostCount ?? 0),
-						getDiceKindApiInput(snagDiceKind, args.snagCount ?? 0),
-					],
-				})
-			} catch (error) {
-				alert(error instanceof ConvexError ? error.message : "Something went wrong, try again.")
-			}
+			return await createMessage({
+				roomId: room._id,
+				content: args.content,
+				dice: [
+					getDiceKindApiInput(attributeDie, 2),
+					getDiceKindApiInput(boostDiceKind, args.boostCount ?? 0),
+					getDiceKindApiInput(snagDiceKind, args.snagCount ?? 0),
+				],
+			})
 		},
-		[createMessage, room._id],
 	)
 }
