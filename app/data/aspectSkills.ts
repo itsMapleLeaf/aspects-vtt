@@ -1,7 +1,7 @@
 import { Iterator } from "iterator-helpers-polyfill"
-import { titleCase } from "../../common/string.ts"
+import { titleCase } from "../common/string.ts"
 
-export class SkillTree {
+export class AspectSkillTree {
 	readonly aspectsById: ReadonlyMap<string, Aspect>
 	readonly aspects: readonly Aspect[]
 
@@ -83,7 +83,7 @@ export class Skill {
 	}
 }
 
-export const CharacterSkillTree = new SkillTree({
+export const aspectSkills = new AspectSkillTree({
 	fire: {
 		alter: {
 			heatObject: {

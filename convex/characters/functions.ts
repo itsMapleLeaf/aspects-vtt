@@ -6,7 +6,7 @@ import { generateSlug } from "random-word-slugs"
 import { isTuple } from "../../app/common/array.ts"
 import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomItem } from "../../app/common/random.ts"
-import { CharacterSkillTree } from "../../app/features/characters/skills.ts"
+import { aspectSkills } from "../../app/data/aspectSkills.ts"
 import { type Doc } from "../_generated/dataModel.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
@@ -208,7 +208,7 @@ export const setSkillActive = effectMutation({
 			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
 
 			const skill = yield* Effect.orElseFail(
-				Effect.fromNullable(CharacterSkillTree.skillsById.get(args.aspectSkillId)),
+				Effect.fromNullable(aspectSkills.skillsById.get(args.aspectSkillId)),
 				() =>
 					new NoSuchElementException(`Couldn't find aspect skill with id "${args.aspectSkillId}"`),
 			)

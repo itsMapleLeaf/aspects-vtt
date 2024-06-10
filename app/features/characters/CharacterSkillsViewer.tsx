@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { Fragment, type ReactNode, useActionState, useState } from "react"
 import { api } from "../../../convex/_generated/api"
+import { aspectSkills, type Skill } from "../../data/aspectSkills.ts"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { Loading } from "../../ui/Loading.tsx"
@@ -17,7 +18,6 @@ import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { twc } from "../../ui/twc.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { CharacterSkillTree, type Skill } from "./skills.ts"
 import type { ApiCharacter } from "./types.ts"
 
 export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
@@ -30,13 +30,13 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 
 	const characterAspectSet = new Set(
 		Iterator.from(character.learnedAspectSkills ?? [])
-			.map((doc) => CharacterSkillTree.aspectsById.get(doc.aspectId))
+			.map((doc) => aspectSkills.aspectsById.get(doc.aspectId))
 			.filter((aspect) => aspect != null),
 	)
 
 	const characterAspectList = [...characterAspectSet]
 
-	const computedSkillTree = CharacterSkillTree.aspects.map((aspect) => ({
+	const computedSkillTree = aspectSkills.aspects.map((aspect) => ({
 		...aspect,
 		tiers: aspect.tiers.map((tier) => ({
 			...tier,
@@ -88,7 +88,7 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 				</aside>
 
 				<Tabs.List>
-					{CharacterSkillTree.aspects.map((aspect) => (
+					{aspectSkills.aspects.map((aspect) => (
 						<Tabs.Tab key={aspect.id} className="flex-center-row gap-1.5">
 							{characterAspectList[0] === aspect ?
 								<LucideStars className="size-5" />

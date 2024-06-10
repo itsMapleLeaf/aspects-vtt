@@ -21,7 +21,6 @@ import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { useCharacterModalContext } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
-import { CharacterSkillTree } from "../characters/skills.ts"
 import { OwnedCharacter, type ApiCharacter } from "../characters/types.ts"
 import { useCharacterRaceAbilities } from "../characters/useCharacterRaceAbilities.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
@@ -289,7 +288,7 @@ function CharacterAbilityList({ character }: { character: ApiCharacter }) {
 
 	const aspectSkills = Iterator.from(character.learnedAspectSkills ?? [])
 		.flatMap((group) => group.aspectSkillIds)
-		.map((id) => CharacterSkillTree.skillsById.get(id))
+		.map((id) => aspectSkills.skillsById.get(id))
 		.filter((skill) => skill != null)
 		.toArray()
 
