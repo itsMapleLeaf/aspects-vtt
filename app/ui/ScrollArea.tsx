@@ -19,6 +19,7 @@ export function ScrollArea(props: ScrollAreaProps) {
 			>
 				{props.children}
 			</RadixScrollArea.Viewport>
+
 			<RadixScrollArea.Scrollbar
 				orientation="vertical"
 				className={twMerge(
@@ -28,7 +29,16 @@ export function ScrollArea(props: ScrollAreaProps) {
 			>
 				<RadixScrollArea.Thumb className="relative flex-1 rounded-full bg-primary-600 opacity-50 transition-opacity active:opacity-100 active:duration-0" />
 			</RadixScrollArea.Scrollbar>
-			<RadixScrollArea.Corner />
+
+			<RadixScrollArea.Scrollbar
+				orientation="horizontal"
+				className={twMerge(
+					"relative mt-0.5 flex h-2.5 flex-col p-0.5",
+					props.scrollbarPosition === "outside" ? "top-full" : "",
+				)}
+			>
+				<RadixScrollArea.Thumb className="relative flex-1 rounded-full bg-primary-600 opacity-50 transition-opacity active:opacity-100 active:duration-0" />
+			</RadixScrollArea.Scrollbar>
 		</RadixScrollArea.Root>
 	)
 }
