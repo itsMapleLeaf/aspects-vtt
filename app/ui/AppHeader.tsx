@@ -1,15 +1,22 @@
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/remix"
-import { Link, useHref, useLocation } from "@remix-run/react"
+import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
 import { LucideLogIn } from "lucide-react"
 import { $path } from "remix-routes"
 import { Button } from "./Button.tsx"
 
 export function AppHeader({ center, end }: { center?: React.ReactNode; end?: React.ReactNode }) {
 	const currentUrl = useHref(useLocation())
+	const navigate = useNavigate()
 	return (
 		<header className="flex h-10 items-center gap-3">
 			<div className="flex flex-1">
-				<Link to={$path("/")}>
+				<Link
+					to={$path("/")}
+					onContextMenu={(e) => {
+						e.preventDefault()
+						navigate("/ui-tests")
+					}}
+				>
 					<h1 className="text-2xl">
 						<span className="font-light text-primary-600">Aspects</span>
 						<span className="font-medium text-primary-800">VTT</span>
