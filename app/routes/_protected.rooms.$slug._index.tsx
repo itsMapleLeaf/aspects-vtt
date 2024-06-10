@@ -7,6 +7,7 @@ import { api } from "../../convex/_generated/api.js"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
 import { useNotionData } from "../features/game/NotionDataContext.tsx"
+import { MessageInput } from "../features/messages/MessageInput.tsx"
 import { CombatInitiative } from "../features/rooms/CombatInitiative.tsx"
 import { RoomSettingsForm } from "../features/rooms/RoomSettingsForm.tsx"
 import {
@@ -60,13 +61,21 @@ export default function RoomRoute() {
 						</SceneProvider>
 					</div>
 				)}
-				<div className="pointer-events-children flex h-screen flex-col">
+				<div className="pointer-events-children flex h-screen flex-col overflow-clip">
 					<TranslucentPanel className="flex h-16 flex-col justify-center rounded-none border-0 border-b px-4">
 						<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
 					</TranslucentPanel>
-					<footer className="mx-auto mt-auto p-2">
-						<RoomToolbar />
-					</footer>
+					<div className="flex flex-1 items-end gap-2 p-2">
+						<div className="flex-1"></div>
+						<footer>
+							<RoomToolbar />
+						</footer>
+						<div className="flex flex-1 items-end justify-end">
+							<TranslucentPanel element={<aside />} className="w-[20rem] gap-2 p-2">
+								<MessageInput />
+							</TranslucentPanel>
+						</div>
+					</div>
 				</div>
 				<SceneHeading />
 				<CombatTurnBanner />

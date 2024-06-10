@@ -3,22 +3,20 @@ import type { FunctionReturnType } from "convex/server"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import TextAreaAutosize from "react-textarea-autosize"
 import { api } from "../../../convex/_generated/api.js"
 import { useSafeAction } from "../../common/convex.ts"
 import { Button } from "../../ui/Button.tsx"
-import { FormField } from "../../ui/Form.tsx"
-import { Input } from "../../ui/Input.tsx"
-import { ModalButton, ModalPanel, ModalProvider } from "../../ui/Modal.tsx"
+import { Panel } from "../../ui/Panel.tsx"
 import { usePrompt } from "../../ui/Prompt.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel } from "../../ui/styles.ts"
-import { DiceCounter } from "../dice/DiceCounter.tsx"
-import { diceKindsByName, type DiceKind } from "../dice/diceKinds.tsx"
+import { diceKinds, diceKindsByName, type DiceKind } from "../dice/diceKinds.tsx"
 import { getDiceInputList } from "../dice/getDiceInputList.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 
-export function MessageForm() {
+export function MessageInput() {
 	const room = useRoom()
 	const prompt = usePrompt()
 	const createMessage = useMutation(api.messages.functions.create)
@@ -30,6 +28,12 @@ export function MessageForm() {
 	const [diceCounts, setDiceCounts] = useState<Record<DiceKind["name"], number>>({})
 
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
+
+	const addDie = (kind: DiceKind) =>
+		setDiceCounts((counts) => ({ ...counts, [kind.name]: (counts[kind.name] ?? 0) + 1 }))
+
+	const removeDie = (name: DiceKind["name"]) =>
+		setDiceCounts((counts) => ({ ...counts, [name]: Math.max((counts[name] ?? 0) - 1, 0) }))
 
 	const [, submit] = useSafeAction(async function submit() {
 		await createMessage({
@@ -75,60 +79,76 @@ export function MessageForm() {
 
 	return (
 		<form action={() => submit()} className="flex flex-col gap-2">
-			<DiceCounter value={diceCounts} onChange={setDiceCounts} />
-
-			<Button
-				type="button"
-				icon={<Lucide.RotateCcw />}
-				text="Reset"
-				disabled={totalDice < 1}
-				onClick={() => {
-					setDiceCounts({})
+			<Panel
+				className="focus-within:focus-ring cursor-text transition-colors"
+				onClick={(event) => {
+					event.currentTarget.querySelector("textarea")?.focus()
 				}}
-			/>
-
-			<FormField label="Macros">
-				<div className="flex gap-2 *:flex-1">
-					{macros && macros.length > 0 && (
-						<ModalProvider>
-							{(modal) => (
-								<>
-									<ModalButton render={<Button icon={<Lucide.Play />} text="Run" />} />
-									<ModalPanel title="Run macro" fullHeight>
-										<MacroList
-											macros={macros}
-											onSubmit={(macro) => runMacro({ macro, onSuccess: () => modal.hide() })}
-										/>
-									</ModalPanel>
-								</>
-							)}
-						</ModalProvider>
-					)}
-					<Button
-						type="button"
-						icon={<Lucide.Bookmark />}
-						text="Save"
-						disabled={totalDice < 1}
-						onClick={saveMacro}
-					/>
-				</div>
-			</FormField>
-
-			<hr className="border-primary-300" />
-
-			<div className="flex gap-[inherit]">
-				<Input
-					type="text"
+			>
+				<TextAreaAutosize
+					className="block w-full resize-none rounded bg-transparent px-3 py-2 leading-6 focus-visible:ring-0"
 					aria-label="Message content"
 					placeholder="Say something!"
 					value={content}
 					onChange={(event) => setContent(event.target.value)}
-					className="flex-1"
+				/>
+				<div className="flex w-fit cursor-default flex-wrap gap-1 p-1 empty:hidden">
+					{diceKinds.map((kind) => {
+						const count = diceCounts[kind.name] ?? 0
+						return Iterator.range(count)
+							.map((n) => (
+								<button
+									type="button"
+									className="flex-center relative aspect-square size-8 p-0 opacity-100 transition-opacity hover:opacity-50"
+									onClick={() => removeDie(kind.name)}
+								>
+									<div className="size-full">{kind.element}</div>
+									<span className="sr-only">
+										Remove {kind.name} #{n + 1}
+									</span>
+									<Lucide.X className="absolute size-3 text-white opacity-0 transition-opacity [button:hover>&]:opacity-100" />
+								</button>
+							))
+							.toArray()
+					})}
+				</div>
+			</Panel>
+
+			<div className="grid auto-cols-fr grid-flow-col gap-0.5">
+				{diceKinds.map((kind) => (
+					<Tooltip content={kind.name} key={kind.name}>
+						<button
+							type="button"
+							className="aspect-square p-0 opacity-75 hover:opacity-100"
+							onClick={() => addDie(kind)}
+						>
+							{kind.element}
+						</button>
+					</Tooltip>
+				))}
+			</div>
+
+			<div className="gap-current grid auto-cols-fr grid-flow-col">
+				{/* <Button
+					type="button"
+					icon={<Lucide.Bookmark />}
+					text="Macros"
+					disabled={totalDice < 1}
+					onClick={saveMacro}
+				/> */}
+				<Button
+					type="button"
+					icon={<Lucide.RotateCcw />}
+					text="Reset"
+					disabled={totalDice < 1}
+					onClick={() => {
+						setDiceCounts({})
+					}}
 				/>
 				<Button
 					type="submit"
-					icon={<Lucide.Send />}
 					text="Send"
+					icon={<Lucide.Send />}
 					disabled={totalDice < 1 && content.trim() === ""}
 				/>
 			</div>

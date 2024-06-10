@@ -106,7 +106,12 @@ function defineNumeric({
 		element: (
 			<div className="flex-center-col relative text-primary-700 @container">
 				<div className="size-full *:size-full *:fill-primary-200 *:stroke-1">{icon}</div>
-				<p className={twMerge("absolute text-[length:28cqw] font-semibold", textClassName)}>
+				<p
+					className={twMerge(
+						"absolute hidden text-[length:28cqw] font-semibold @[3rem]:block",
+						textClassName,
+					)}
+				>
 					d{faceCount}
 				</p>
 			</div>
@@ -149,7 +154,9 @@ function defineModifier({
 		element: (
 			<div className={twMerge("flex-center-col relative", className)}>
 				<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />
-				<div className="absolute size-[50%] translate-y-[3px] *:size-full">{icon}</div>
+				<div className="absolute hidden size-[50%] translate-y-[3px] *:size-full @[3rem]:block">
+					{icon}
+				</div>
 			</div>
 		),
 		faces: range.array(1, faceCount + 1).map((face) => ({

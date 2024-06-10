@@ -17,7 +17,8 @@
 		outline: none;
 	}
 
-	:focus-visible {
+	:focus-visible,
+	.focus-ring {
 		@apply ring-2 ring-primary-500;
 	}
 

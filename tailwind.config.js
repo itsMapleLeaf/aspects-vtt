@@ -28,7 +28,8 @@ export default {
 	plugins: [
 		containerQueries,
 		animate,
-		plugin(function customPreflight(api) {
+
+		plugin(function flexShortcuts(api) {
 			api.addComponents({
 				".flex-center, .flex-center-col": {
 					display: "flex",
@@ -42,6 +43,11 @@ export default {
 					justifyContent: "center",
 					alignItems: "center",
 				},
+			})
+		}),
+
+		plugin(function pointerEventsChildren(api) {
+			api.addComponents({
 				".pointer-events-children": {
 					pointerEvents: "none",
 					"& > *": {
@@ -49,6 +55,28 @@ export default {
 					},
 				},
 			})
+		}),
+
+		plugin(function scopedGap(api) {
+			api.addBase({
+				":root": {
+					"--gap": api.theme("gap.2", "0.5rem"),
+				},
+			})
+			api.addUtilities({
+				".gap-current": {
+					gap: "var(--gap)",
+				},
+			})
+			api.matchUtilities(
+				Object.fromEntries(
+					Object.entries(api.theme("gap")).map(([key, value]) => [
+						`.gap-${key}`,
+						{ gap: value, "--gap": value },
+					]),
+				),
+				(value) => ({ gap: value, "--gap": value }),
+			)
 		}),
 	],
 }
