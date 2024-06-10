@@ -50,7 +50,6 @@ export function createFloatingComponents() {
 					<div
 						{...props}
 						ref={floating.refs.setFloating}
-						 
 						style={{ ...floating.floatingStyles, ...props.style }}
 					/>,
 					document.body,
