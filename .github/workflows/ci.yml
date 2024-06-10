@@ -67,4 +67,4 @@ jobs:
       - name: "📝"
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          push_options: --force
+          push_options: --force-with-lease
