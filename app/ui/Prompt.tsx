@@ -2,7 +2,6 @@ import { Focusable } from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import * as React from "react"
 import { createNonEmptyContext, useNonEmptyContext } from "../common/context.tsx"
-import { useEffectEvent } from "../common/react.ts"
 import type { StrictOmit } from "../common/types.ts"
 import { Button } from "./Button.tsx"
 import { FormField, FormLayout } from "./Form.tsx"
@@ -94,9 +93,9 @@ function PromptModalForm() {
 
 export function usePrompt() {
 	const context = useNonEmptyContext(PromptContext)
-	return useEffectEvent((state: StrictOmit<PromptState, "resolve">) => {
+	return function prompt(state: StrictOmit<PromptState, "resolve">) {
 		return new Promise<string | undefined>((resolve) => {
 			context.open({ ...state, resolve })
 		})
-	})
+	}
 }
