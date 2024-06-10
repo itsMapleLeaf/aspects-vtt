@@ -9,15 +9,15 @@ export interface InputProps extends React.ComponentProps<"input">, InputStylePro
 	onChangeValue?: (value: string) => void
 }
 
-export function Input({ icon, tooltip, onChangeValue, ...props }: InputProps) {
-	const [inputStyleProps, inputProps] = extractInputStyleProps(props)
+export function Input({ icon, tooltip, className, onChangeValue, ...props }: InputProps) {
+	const [inputStyleProps, inputProps] = Input.extractStyleProps(props)
 	const field = useField()
 
 	const inputElement = (
 		<input
 			id={field.inputId}
 			{...inputProps}
-			className={inputStyle(inputStyleProps, icon && "pl-9", inputProps.className)}
+			className={Input.style(inputStyleProps, icon && "pl-9")}
 			onChange={(event) => {
 				props.onChange?.(event)
 				onChangeValue?.(event.currentTarget.value)
@@ -26,7 +26,7 @@ export function Input({ icon, tooltip, onChangeValue, ...props }: InputProps) {
 	)
 
 	return (
-		<div className="relative flex items-center">
+		<div className={twMerge("relative flex w-full min-w-0 items-center", className)}>
 			<div className="pointer-events-none absolute left-2 opacity-50 *:size-5 empty:hidden">
 				{icon}
 			</div>
@@ -40,11 +40,7 @@ export interface InputStyleProps {
 	invalid?: boolean
 }
 
-export function extractInputStyleProps<T extends InputStyleProps>({ align, invalid, ...rest }: T) {
-	return [{ align, invalid }, rest] as const
-}
-
-export function inputStyle(props: InputStyleProps, ...classes: ClassNameValue[]) {
+Input.style = function inputStyle(props: InputStyleProps, ...classes: ClassNameValue[]) {
 	return panel(
 		twMerge(
 			"h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-200 px-3 ring-inset transition",
@@ -55,4 +51,12 @@ export function inputStyle(props: InputStyleProps, ...classes: ClassNameValue[])
 			...classes,
 		),
 	)
+}
+
+Input.extractStyleProps = function extractInputStyleProps<T extends InputStyleProps>({
+	align,
+	invalid,
+	...rest
+}: T) {
+	return [{ align, invalid }, rest] as const
 }
