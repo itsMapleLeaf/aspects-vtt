@@ -77,7 +77,9 @@ export function Button({
 				type="button"
 				disabled={pending}
 				{...withMergedClassName(props, "cursor-default", className)}
-				onClick={handleClick}
+				// passing onClick keeps the button from acting as a form submitter,
+				// so only pass handleClick if an onClick is provided
+				onClick={props.onClick && handleClick}
 			>
 				{children}
 			</button>
