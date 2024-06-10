@@ -49,7 +49,7 @@ export function AttributeDiceRollButton({
 			/>
 			<Ariakit.Hovercard
 				className={panel(
-					"flex w-64 translate-y-2 flex-col gap-3 bg-primary-100 p-3 opacity-0 shadow-md shadow-black/50 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
+					"flex w-64 translate-y-2 flex-col gap-3 bg-primary-100 p-3 opacity-0 shadow-md transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				)}
 				portal
 				gutter={8}

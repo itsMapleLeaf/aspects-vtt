@@ -24,5 +24,5 @@ export function PopoverPanel(props: Ariakit.PopoverProps) {
 	)
 }
 PopoverPanel.style = panel(
-	"translate-y-2 bg-primary-100 opacity-0 shadow shadow-black/50 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
+	"translate-y-2 bg-primary-100 opacity-0 shadow transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 )

@@ -25,7 +25,7 @@ export function ToggleableSidebar({
 			<DisclosureProvider open={open} setOpen={setOpen}>
 				<Button
 					icon={<Icon className={side === "right" ? "-scale-x-100" : ""} />}
-					className="shadow-md shadow-black/25"
+					className="shadow-md"
 					element={<Disclosure title={open ? `Hide ${name}` : `Show ${name}`} />}
 				/>
 				<DisclosureContent

@@ -11,7 +11,7 @@ export const MenuButton = Ariakit.MenuButton
 
 export function menuPanelStyle(...classes: ClassNameValue[]) {
 	return panel(
-		"grid translate-y-2 gap-1 p-1 opacity-0 transition shadow-black/50 shadow-md data-[enter]:translate-y-0 data-[enter]:opacity-100",
+		"grid translate-y-2 gap-1 p-1 opacity-0 transition shadow-md data-[enter]:translate-y-0 data-[enter]:opacity-100",
 		classes,
 	)
 }

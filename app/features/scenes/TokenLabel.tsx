@@ -23,7 +23,7 @@ export function TokenLabel(props: { text: string; subText: string }) {
 				className="flex-center absolute inset-x-0 top-full translate-y-2 opacity-0 transition-opacity data-[visible=true]:opacity-100"
 				data-visible={visible}
 			>
-				<div className="flex-center whitespace-nowrap rounded bg-black/50 px-2.5 py-2 text-center shadow shadow-black/50">
+				<div className="flex-center whitespace-nowrap rounded bg-black/50 px-2.5 py-2 text-center shadow">
 					<p className="text-lg/none">{props.text}</p>
 					<p className="mt-0.5 text-base/none opacity-75 empty:hidden">{props.subText}</p>
 				</div>

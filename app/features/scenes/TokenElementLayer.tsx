@@ -114,7 +114,7 @@ function TokenElement({
 						style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
 						emptyIcon={<Lucide.Ghost />}
 						className={{
-							container: "overflow-clip rounded bg-primary-300 shadow-md shadow-black/50",
+							container: "overflow-clip rounded bg-primary-300 shadow-md",
 							image: "object-cover object-top",
 						}}
 					/>
