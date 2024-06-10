@@ -1,4 +1,3 @@
-import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
@@ -61,17 +60,22 @@ export default function RoomRoute() {
 						</SceneProvider>
 					</div>
 				)}
-				<div className="pointer-events-children flex h-screen flex-col overflow-clip">
-					<TranslucentPanel className="flex h-16 flex-col justify-center rounded-none border-0 border-b px-4">
-						<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
-					</TranslucentPanel>
+				<div className="bg-natural-gradient-100 pointer-events-none fixed inset-x-0 top-0 h-40">
+					<div className="flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
+						<AppHeader />
+					</div>
+				</div>
+				<div className="pointer-events-none relative flex h-screen flex-col overflow-clip">
 					<div className="flex flex-1 items-end gap-2 p-2">
 						<div className="flex-1"></div>
-						<footer>
+						<footer className="pointer-events-auto">
 							<RoomToolbar />
 						</footer>
 						<div className="flex flex-1 items-end justify-end">
-							<TranslucentPanel element={<aside />} className="w-[20rem] gap-2 p-2">
+							<TranslucentPanel
+								element={<aside />}
+								className="pointer-events-auto w-[20rem] gap-2 p-2"
+							>
 								<MessageInput />
 							</TranslucentPanel>
 						</div>
@@ -90,7 +94,7 @@ function SceneHeading() {
 	const gameTime = new GameTime(room.gameTime)
 	if (!scene) return
 	return (
-		<h2 className="pointer-events-none fixed inset-x-0 top-16 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)]">
+		<h2 className="pointer-events-none fixed inset-x-0 top-4 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)]">
 			{scene.name}
 			<p className="text-base font-medium tracking-wide">
 				{gameTime.timeOfDayName} - Day {gameTime.day + 1} of {gameTime.monthName.name}, Year{" "}

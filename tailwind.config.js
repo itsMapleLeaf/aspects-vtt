@@ -1,4 +1,5 @@
 import containerQueries from "@tailwindcss/container-queries"
+import Color from "colorjs.io"
 import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
@@ -77,6 +78,28 @@ export default {
 				),
 				(value) => ({ gap: value, "--gap": value }),
 			)
+		}),
+
+		plugin(function naturalGradient(api) {
+			function createNaturalGradient(color, steps) {
+				const stops = Color.steps(color, "transparent", {
+					space: "lch",
+					steps,
+				})
+				for (const stop of stops) {
+					stop.alpha **= 2
+				}
+				return `linear-gradient(to bottom, ${stops.join(", ")})`
+			}
+
+			const entries = Object.fromEntries(
+				Object.entries(theme.colors.primaryStatic).map(([key, value]) => [
+					`.bg-natural-gradient-${key}`,
+					{ backgroundImage: createNaturalGradient(value, 8) },
+				]),
+			)
+
+			api.addUtilities(entries)
 		}),
 	],
 }
