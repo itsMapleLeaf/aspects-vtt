@@ -27,57 +27,6 @@ export function SceneList() {
 
 	return (
 		<ul className="grid grid-cols-[repeat(auto-fill,minmax(theme(spacing.48),1fr))] gap-3">
-			{scenes?.map((scene) => (
-				<li key={scene._id} className="-m-1">
-					<MoreMenu>
-						<button
-							type="button"
-							className="block w-full rounded p-1 transition hover:bg-primary-300"
-							onClick={async () => {
-								await updateRoom({ id: room._id, currentScene: scene._id })
-								modal?.hide()
-							}}
-						>
-							<div
-								className={panel(
-									"flex-center aspect-[4/3] w-full overflow-clip bg-cover bg-center",
-								)}
-							>
-								{(
-									updateRoomState.status === "pending" &&
-									updateRoomState.args.currentScene === scene._id
-								) ?
-									<Loading />
-								: scene.background != null ?
-									<CanvasThumbnail imageUrl={getApiImageUrl(scene.background)} />
-								:	<Lucide.ImageOff className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
-								}
-							</div>
-							<p className="text-pretty px-2 py-1.5 text-center text-xl/tight font-light">
-								{scene.name}
-								{room.currentScene === scene._id && (
-									<span className="text-primary-700 opacity-50 transition group-hover:opacity-100">
-										{" "}
-										(current)
-									</span>
-								)}
-							</p>
-						</button>
-						<MoreMenuPanel>
-							<MoreMenuItem
-								text="Duplicate"
-								icon={<Lucide.Copy />}
-								onClick={() => duplicateScene({ id: scene._id })}
-							/>
-							<MoreMenuItem
-								text="Delete"
-								icon={<Lucide.Trash />}
-								onClick={() => removeScene({ id: scene._id })}
-							/>
-						</MoreMenuPanel>
-					</MoreMenu>
-				</li>
-			))}
 			<li>
 				<button
 					type="button"
@@ -102,6 +51,59 @@ export function SceneList() {
 					<p className="text-pretty p-2 text-center text-xl/none font-light">Create Scene</p>
 				</button>
 			</li>
+			{scenes
+				?.toSorted((a, b) => b._creationTime - a._creationTime)
+				?.map((scene) => (
+					<li key={scene._id} className="-m-1">
+						<MoreMenu>
+							<button
+								type="button"
+								className="block w-full rounded p-1 transition hover:bg-primary-300"
+								onClick={async () => {
+									await updateRoom({ id: room._id, currentScene: scene._id })
+									modal?.hide()
+								}}
+							>
+								<div
+									className={panel(
+										"flex-center aspect-[4/3] w-full overflow-clip bg-cover bg-center",
+									)}
+								>
+									{(
+										updateRoomState.status === "pending" &&
+										updateRoomState.args.currentScene === scene._id
+									) ?
+										<Loading />
+									: scene.background != null ?
+										<CanvasThumbnail imageUrl={getApiImageUrl(scene.background)} />
+									:	<Lucide.ImageOff className="size-16 text-primary-700 opacity-50 transition group-hover:opacity-100" />
+									}
+								</div>
+								<p className="text-pretty px-2 py-1.5 text-center text-xl/tight font-light">
+									{scene.name}
+									{room.currentScene === scene._id && (
+										<span className="text-primary-700 opacity-50 transition group-hover:opacity-100">
+											{" "}
+											(current)
+										</span>
+									)}
+								</p>
+							</button>
+							<MoreMenuPanel>
+								<MoreMenuItem
+									text="Duplicate"
+									icon={<Lucide.Copy />}
+									onClick={() => duplicateScene({ id: scene._id })}
+								/>
+								<MoreMenuItem
+									text="Delete"
+									icon={<Lucide.Trash />}
+									onClick={() => removeScene({ id: scene._id })}
+								/>
+							</MoreMenuPanel>
+						</MoreMenu>
+					</li>
+				))}
 		</ul>
 	)
 }
