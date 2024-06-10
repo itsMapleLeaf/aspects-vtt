@@ -27,6 +27,7 @@ import { SceneMap } from "../features/scenes/SceneMap.tsx"
 import { AppHeader } from "../ui/AppHeader.tsx"
 import { DefinitionList } from "../ui/DefinitionList.tsx"
 import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../ui/Modal.tsx"
+import { TranslucentPanel } from "../ui/Panel.tsx"
 import { ToggleableSidebar } from "../ui/ToggleableSidebar.tsx"
 import { panel, translucentPanel } from "../ui/styles.ts"
 
@@ -67,24 +68,20 @@ export default function RoomRoute() {
 					)}
 
 					<div className="pointer-events-children flex h-screen flex-col">
-						<div
-							className={translucentPanel(
-								"flex h-16 flex-col justify-center rounded-none border-0 border-b px-4",
-							)}
-						>
+						<TranslucentPanel className="flex h-16 flex-col justify-center rounded-none border-0 border-b px-4">
 							<AppHeader
 								end={<UserButton afterSignOutUrl={currentUrl} />}
 								center={<RoomToolbar />}
 							/>
-						</div>
+						</TranslucentPanel>
 						<div className="pointer-events-children flex min-h-0 flex-1 gap-2 p-2">
 							<div className="flex-1">
 								<CharacterListPanel />
 							</div>
 							<div className="flex items-end">
-								<div className={translucentPanel("flex w-[40rem] flex-col gap-2 p-2")}>
+								<TranslucentPanel className="flex w-[40rem] flex-col gap-2 p-2">
 									<PlayerControlsPanel />
-								</div>
+								</TranslucentPanel>
 							</div>
 							<div className="flex-1">
 								<MessagesPanel />
