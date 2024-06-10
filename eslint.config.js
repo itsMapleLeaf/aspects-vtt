@@ -1,7 +1,14 @@
+// @ts-check
 import { fixupConfigRules } from "@eslint/compat"
+// @ts-expect-error
+import js from "@eslint/js"
+// @ts-expect-error
 import reactCompiler from "eslint-plugin-react-compiler"
+// @ts-expect-error
 import reactHooks from "eslint-plugin-react-hooks"
+// @ts-expect-error
 import jsxRuntime from "eslint-plugin-react/configs/jsx-runtime.js"
+// @ts-expect-error
 import reactRecommended from "eslint-plugin-react/configs/recommended.js"
 import globals from "globals"
 import ts from "typescript-eslint"
@@ -11,21 +18,17 @@ export default ts.config(
 		ignores: ["build/", "convex/_generated/"],
 	},
 
-	// recommended configs are too noisy
-	// js.configs.recommended,
-	// ...ts.configs.recommended,
-	// ...ts.configs.stylistic,
+	js.configs.recommended,
+	...ts.configs.recommended,
+	...ts.configs.stylistic,
 
 	{
-		plugins: {
-			"@typescript-eslint": ts.plugin,
-		},
 		languageOptions: {
 			ecmaVersion: "latest",
 			globals: { ...globals.browser, ...globals.node },
 			parser: ts.parser,
 			parserOptions: {
-				project: true,
+				projectService: true,
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},
@@ -38,6 +41,9 @@ export default ts.config(
 			"@typescript-eslint/consistent-type-imports": ["warn", { fixStyle: "inline-type-imports" }],
 			"@typescript-eslint/no-import-type-side-effects": "error",
 			"@typescript-eslint/no-unused-vars": ["warn", { args: "none", varsIgnorePattern: "^_" }],
+			"@typescript-eslint/no-empty-object-type": "off",
+			"@typescript-eslint/no-empty-function": "off",
+			"@typescript-eslint/ban-types": "off",
 		},
 	},
 
@@ -59,8 +65,11 @@ export default ts.config(
 		rules: {
 			"react/no-unescaped-entities": "off",
 			"react/no-unknown-property": "off",
+			"react/prop-types": "off",
+
 			"react-hooks/exhaustive-deps": "warn",
 			"react-hooks/rules-of-hooks": "error",
+
 			"react-compiler/react-compiler": "warn",
 		},
 	}),

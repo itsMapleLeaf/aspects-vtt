@@ -12,7 +12,7 @@ import { translucentPanel } from "./styles.ts"
 type ToastId = string & Brand.Brand<"ToastId">
 const ToastId = Brand.nominal<ToastId>()
 
-export type ToastPresetOptions = {
+export interface ToastPresetOptions {
 	title?: string
 	body?: string
 	duration?: number
@@ -26,7 +26,7 @@ interface ToastState extends ToastOptions {
 	id: ToastId
 }
 
-export type ToastHandle = {
+export interface ToastHandle {
 	hide(): void
 }
 

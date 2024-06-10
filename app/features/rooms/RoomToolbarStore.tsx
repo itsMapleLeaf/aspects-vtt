@@ -5,7 +5,7 @@ export const RoomTool = {
 	Draw: "Draw",
 } as const
 
-type State = {
+interface State {
 	activeTool: (typeof RoomTool)[keyof typeof RoomTool]
 }
 

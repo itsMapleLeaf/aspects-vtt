@@ -222,34 +222,6 @@ async function fetchBlockChildrenContent(parentId: string): Promise<string> {
 	return textBlocks.join("\n\n")
 }
 
-async function getRelatedPages(properties: PageObjectResponse["properties"], name: string) {
-	const property = getPageProperty(properties, name)
-	if (property.type !== "relation") {
-		throw new Error(
-			`Property "${name}" is not a relation property: ${JSON.stringify(property, null, 2)}`,
-		)
-	}
-
-	const client = createNotionClient()
-
-	const responses = await Promise.all(
-		property.relation.map(({ id }) => {
-			return client.pages.retrieve({ page_id: id })
-		}),
-	)
-	return responses.filter(isFullPage)
-}
-
-function getBooleanProperty(properties: PageObjectResponse["properties"], name: string) {
-	const property = getPageProperty(properties, name)
-	if (property.type !== "checkbox") {
-		throw new Error(
-			`Property "${name}" is not a checkbox property: ${JSON.stringify(property, null, 2)}`,
-		)
-	}
-	return property.checkbox
-}
-
 async function promiseAllSuccesses<Input, Output>(
 	values: Iterable<Input>,
 	options: {

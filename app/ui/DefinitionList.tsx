@@ -1,6 +1,6 @@
 import { Fragment } from "react"
 
-type DefinitionListProps = {
+interface DefinitionListProps {
 	items: Iterable<{ name: string; description: string }>
 }
 

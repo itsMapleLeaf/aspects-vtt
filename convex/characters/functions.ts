@@ -7,7 +7,7 @@ import { isTuple } from "../../app/common/array.ts"
 import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomItem } from "../../app/common/random.ts"
 import { CharacterSkillTree } from "../../app/features/characters/skills.ts"
-import { type Doc } from "../_generated/dataModel.js"
+import type { Doc } from "../_generated/dataModel.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
 import {

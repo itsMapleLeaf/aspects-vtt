@@ -9,7 +9,7 @@ import { FormField, FormLayout } from "./Form.tsx"
 import { Input } from "./Input.tsx"
 import { ModalActions, ModalPanel, ModalPanelContent, ModalProvider } from "./Modal.tsx"
 
-type PromptState = {
+interface PromptState {
 	title: string
 	inputLabel: React.ReactNode
 	inputPlaceholder?: string

@@ -1,7 +1,7 @@
 import { twMerge as tw } from "tailwind-merge"
 import { keys } from "../app/common/object.ts"
 
-type UserColor = {
+interface UserColor {
 	style: string
 }
 

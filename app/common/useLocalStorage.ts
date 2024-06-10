@@ -26,12 +26,14 @@ export function useLocalStorage<Value extends JsonValue, SetValue extends (value
 	const [initialized, setInitialized] = useState(false)
 
 	if (!initialized && typeof window !== "undefined") {
-		try {
-			const item = window.localStorage.getItem(key)
-			if (item != null) {
-				setValue(schema.parse(JSON.parse(item)))
+		const localStorageItem = window.localStorage.getItem(key)
+		if (localStorageItem != null) {
+			try {
+				setValue(schema.parse(JSON.parse(localStorageItem)))
+			} catch (error) {
+				console.warn(`Failed to parse localStorage item for key "${key}"`, error)
 			}
-		} catch {}
+		}
 		setInitialized(true)
 	}
 

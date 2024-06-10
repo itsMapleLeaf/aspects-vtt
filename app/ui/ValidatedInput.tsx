@@ -1,7 +1,7 @@
 import { type Ref, useImperativeHandle, useState } from "react"
 import { Input, type InputProps } from "./Input.tsx"
 
-export type ValidatedInputController = {
+export interface ValidatedInputController {
 	set: (value: string) => void
 }
 

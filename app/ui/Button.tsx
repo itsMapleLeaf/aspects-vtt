@@ -3,10 +3,10 @@ import {
 	type ReactElement,
 	type ReactNode,
 	cloneElement,
-	useState,
 } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
+import { useSafeAction } from "../common/convex.ts"
 import type { Disallowed, StrictOmit } from "../common/types.ts"
 import { Loading } from "./Loading.tsx"
 import { Tooltip } from "./Tooltip.tsx"
@@ -41,9 +41,13 @@ export function Button({
 	pending: pendingProp,
 	...props
 }: ButtonProps) {
-	const [onClickPending, setOnClickPending] = useState(false)
+	const [, handleClick, actionPending] = useSafeAction(
+		(event: React.MouseEvent<HTMLButtonElement>) => {
+			return props.onClick?.(event)
+		},
+	)
 	const status = useFormStatus()
-	const pending = pendingProp ?? ((status.pending && props.type === "submit") || onClickPending)
+	const pending = pendingProp ?? ((status.pending && props.type === "submit") || actionPending)
 
 	const className = buttonStyle({ size })
 
@@ -73,13 +77,7 @@ export function Button({
 				type="button"
 				disabled={pending}
 				{...withMergedClassName(props, "cursor-default", className)}
-				onClick={async (event) => {
-					setOnClickPending(true)
-					try {
-						await props.onClick?.(event)
-					} catch {}
-					setOnClickPending(false)
-				}}
+				onClick={handleClick}
 			>
 				{children}
 			</button>

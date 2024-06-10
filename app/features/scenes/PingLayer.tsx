@@ -44,7 +44,7 @@ export function PingLayer() {
 	return HashMap.toEntries(pings).map(([id, ping]) => <PingElement key={id} ping={ping} />)
 }
 
-type Ping = {
+interface Ping {
 	position: Vector
 	colorHue: number
 	name: string

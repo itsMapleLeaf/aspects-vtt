@@ -6,7 +6,7 @@ import { panel } from "./styles.ts"
 
 export type SelectValue = string | number | null
 
-export type SelectOption<T extends SelectValue> = {
+export interface SelectOption<T extends SelectValue> {
 	value: T
 	label: string
 }

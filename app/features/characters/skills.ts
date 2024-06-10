@@ -10,13 +10,7 @@ export class SkillTree {
 	readonly skillsById: ReadonlyMap<string, Skill>
 	readonly skills: readonly Skill[]
 
-	constructor(tree: {
-		[aspectId: string]: {
-			[tierId: string]: {
-				[skillId: string]: { description: string }
-			}
-		}
-	}) {
+	constructor(tree: Record<string, Record<string, Record<string, { description: string }>>>) {
 		this.aspectsById = new Map(
 			Object.entries(tree).map(([aspectId, tierMap]) => [aspectId, new Aspect(aspectId, tierMap)]),
 		)
@@ -37,9 +31,7 @@ export class Aspect {
 
 	constructor(
 		readonly id: string,
-		tierMap: {
-			[tierId: string]: { [skillId: string]: { description: string } }
-		},
+		tierMap: Record<string, Record<string, { description: string }>>,
 	) {
 		this.name = titleCase(id)
 		this.tiers = Object.entries(tierMap).map(([tierId, skills], index) => {
@@ -57,7 +49,7 @@ export class Tier {
 		readonly id: string,
 		readonly number: number,
 		readonly aspect: Aspect,
-		skillMap: { [skillId: string]: { description: string } },
+		skillMap: Record<string, { description: string }>,
 	) {
 		this.name = titleCase(id)
 		this.skillsById = new Map(

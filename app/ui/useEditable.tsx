@@ -8,7 +8,7 @@ export interface EditableOptions<T> {
 	onChangeInternal?: (value: T) => void
 }
 
-type BaseInputProps = {
+interface BaseInputProps {
 	onChange?: (event: TODO) => void
 	onBlur?: (event: TODO) => void
 	onKeyDown?: (event: TODO) => void

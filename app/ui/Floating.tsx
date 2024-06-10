@@ -50,7 +50,7 @@ export function createFloatingComponents() {
 					<div
 						{...props}
 						ref={floating.refs.setFloating}
-						// eslint-disable-next-line react/prop-types
+						 
 						style={{ ...floating.floatingStyles, ...props.style }}
 					/>,
 					document.body,

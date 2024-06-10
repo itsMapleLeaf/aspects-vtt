@@ -4,7 +4,7 @@ import type { DiceInput } from "../../../convex/messages/types.ts"
 import { range } from "../../common/range.ts"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 
-export type DiceStat = {
+export interface DiceStat {
 	name: string
 	min?: number
 	className?: string
@@ -19,14 +19,14 @@ const boostStat = { name: "Boost", className: twMerge("text-green-400") }
 const snagStat = { name: "Snag", className: twMerge("text-red-400") }
 export const diceStats: DiceStat[] = [effectStat, boostStat, snagStat]
 
-export type DiceKind = {
+export interface DiceKind {
 	name: string
 	element: React.ReactElement
 	faces: DiceFace[]
 	explodes?: boolean
 }
 
-export type DiceFace = {
+export interface DiceFace {
 	element: React.ReactElement
 	modifyStats: ReadonlyMap<DiceStat, number>
 }

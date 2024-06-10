@@ -106,7 +106,7 @@ function TokenElement({
 			<div {...tokenSelectStore.selectableProps(token.key)} className="group relative">
 				<div
 					data-is-current-combat-member={isCurrentCombatMember}
-					className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700 "
+					className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700"
 				></div>
 				{token.character && (
 					<UploadedImage

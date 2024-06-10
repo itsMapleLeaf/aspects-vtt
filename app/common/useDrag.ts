@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Vector } from "./vector.ts"
 
-type DragState = {
+interface DragState {
 	start: Vector
 	current: Vector
 }

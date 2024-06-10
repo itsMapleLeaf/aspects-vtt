@@ -52,7 +52,7 @@ export function effectQuery<Args extends PropertyValidators, Output>(options: {
 	args: Args
 	handler: (
 		// hack to satisfy the handler args type
-		// eslint-disable-next-line @typescript-eslint/ban-types
+		 
 		args: Overwrite<ObjectType<Args>, {}>,
 	) => Effect.Effect<Output, unknown, QueryCtxService>
 }) {
@@ -70,7 +70,7 @@ export function effectMutation<Args extends PropertyValidators, Output>(options:
 	args: Args
 	handler: (
 		// hack to satisfy the handler args type
-		// eslint-disable-next-line @typescript-eslint/ban-types
+		 
 		args: Overwrite<ObjectType<Args>, {}>,
 	) => Effect.Effect<Output, unknown, QueryCtxService | MutationCtxService>
 }) {

@@ -45,6 +45,7 @@ export type UndefinedToOptional<T> = Simplify<
 
 export type DietUnknown = {} | undefined | null
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TODO = any
 
 export type ValueOf<T> = T[keyof T]
