@@ -7,8 +7,6 @@ import { api } from "../../convex/_generated/api.js"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
 import { useNotionData } from "../features/game/NotionDataContext.tsx"
-import { MessageForm } from "../features/messages/MessageForm.tsx"
-import { MessageList } from "../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../features/rooms/CombatInitiative.tsx"
 import { RoomSettingsForm } from "../features/rooms/RoomSettingsForm.tsx"
 import {
@@ -25,8 +23,8 @@ import { SceneMap } from "../features/scenes/SceneMap.tsx"
 import { AppHeader } from "../ui/AppHeader.tsx"
 import { DefinitionList } from "../ui/DefinitionList.tsx"
 import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../ui/Modal.tsx"
-import { ToggleableSidebar } from "../ui/ToggleableSidebar.tsx"
-import { panel, translucentPanel } from "../ui/styles.ts"
+import { TranslucentPanel } from "../ui/Panel.tsx"
+import { panel } from "../ui/styles.ts"
 
 export default function RoomRoute() {
 	const currentUrl = useHref(useLocation())
@@ -63,13 +61,9 @@ export default function RoomRoute() {
 					</div>
 				)}
 				<div className="pointer-events-children flex h-screen flex-col">
-					<div
-						className={translucentPanel(
-							"flex h-16 flex-col justify-center rounded-none border-0 border-b px-4",
-						)}
-					>
+					<TranslucentPanel className="flex h-16 flex-col justify-center rounded-none border-0 border-b px-4">
 						<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
-					</div>
+					</TranslucentPanel>
 					<footer className="mx-auto mt-auto p-2">
 						<RoomToolbar />
 					</footer>
@@ -180,19 +174,6 @@ function CombatDetails() {
 				Move meters <abbr title="less than or equal to">≤</abbr> mobility
 			</li>
 		</ul>
-	)
-}
-
-function MessagesPanel() {
-	return (
-		<ToggleableSidebar name="Messages & Dice" side="right">
-			<aside className={translucentPanel("flex h-full w-[24rem] flex-col gap-2 p-2")}>
-				<div className="min-h-0 flex-1">
-					<MessageList />
-				</div>
-				<MessageForm />
-			</aside>
-		</ToggleableSidebar>
 	)
 }
 
