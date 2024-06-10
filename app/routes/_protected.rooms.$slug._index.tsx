@@ -4,9 +4,7 @@ import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useEffect } from "react"
 import { api } from "../../convex/_generated/api.js"
-import { CharacterListPanel } from "../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
-import { PlayerControlsPanel } from "../features/characters/PlayerControlsPanel.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
 import { useNotionData } from "../features/game/NotionDataContext.tsx"
 import { MessageForm } from "../features/messages/MessageForm.tsx"
@@ -55,48 +53,31 @@ export default function RoomRoute() {
 	}, [])
 
 	return (
-		<div className="contents">
-			<CharacterSelectionProvider>
-				<RoomToolbarStore.Provider>
-					{scene && (
-						<div className="fixed inset-0 select-none bg-primary-100">
-							<SceneProvider scene={scene}>
-								<SceneMap />
-							</SceneProvider>
-						</div>
-					)}
-
-					<div className="pointer-events-children flex h-screen flex-col">
-						<div
-							className={translucentPanel(
-								"flex h-16 flex-col justify-center rounded-none border-0 border-b px-4",
-							)}
-						>
-							<AppHeader
-								end={<UserButton afterSignOutUrl={currentUrl} />}
-								center={<RoomToolbar />}
-							/>
-						</div>
-						<div className="pointer-events-children flex min-h-0 flex-1 gap-2 p-2">
-							<div className="flex-1">
-								<CharacterListPanel />
-							</div>
-							<div className="flex items-end">
-								<div className={translucentPanel("flex w-[40rem] flex-col gap-2 p-2")}>
-									<PlayerControlsPanel />
-								</div>
-							</div>
-							<div className="flex-1">
-								<MessagesPanel />
-							</div>
-						</div>
+		<CharacterSelectionProvider>
+			<RoomToolbarStore.Provider>
+				{scene && (
+					<div className="fixed inset-0 select-none bg-primary-100">
+						<SceneProvider scene={scene}>
+							<SceneMap />
+						</SceneProvider>
 					</div>
-
-					<SceneHeading />
-					<CombatTurnBanner />
-				</RoomToolbarStore.Provider>
-			</CharacterSelectionProvider>
-		</div>
+				)}
+				<div className="pointer-events-children flex h-screen flex-col">
+					<div
+						className={translucentPanel(
+							"flex h-16 flex-col justify-center rounded-none border-0 border-b px-4",
+						)}
+					>
+						<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
+					</div>
+					<footer className="mx-auto mt-auto p-2">
+						<RoomToolbar />
+					</footer>
+				</div>
+				<SceneHeading />
+				<CombatTurnBanner />
+			</RoomToolbarStore.Provider>
+		</CharacterSelectionProvider>
 	)
 }
 
