@@ -91,6 +91,12 @@ export function MessageInput() {
 					placeholder="Say something!"
 					value={content}
 					onChange={(event) => setContent(event.target.value)}
+					onKeyDown={(event) => {
+						if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
+							event.preventDefault()
+							submit()
+						}
+					}}
 				/>
 				<div className="flex w-fit cursor-default flex-wrap gap-1 p-1 empty:hidden">
 					{diceKinds.map((kind) => {
