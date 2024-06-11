@@ -98,7 +98,7 @@ export function MessageInput() {
 						}
 					}}
 				/>
-				<div className="flex w-fit cursor-default flex-wrap gap-1 p-1 empty:hidden">
+				<div className="flex w-fit cursor-default flex-wrap gap-1 px-3 pb-3 empty:hidden">
 					{diceKinds.map((kind) => {
 						const count = diceCounts[kind.name] ?? 0
 						return Iterator.range(count)
@@ -134,7 +134,7 @@ export function MessageInput() {
 				))}
 			</div>
 
-			<div className="gap-current grid auto-cols-fr grid-flow-col">
+			<div className="grid auto-cols-fr grid-flow-col gap-current">
 				{/* <Button
 					type="button"
 					icon={<Lucide.Bookmark />}
