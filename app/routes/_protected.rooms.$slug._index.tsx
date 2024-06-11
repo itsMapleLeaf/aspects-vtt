@@ -7,6 +7,7 @@ import { CharacterSelectionProvider } from "../features/characters/CharacterSele
 import { GameTime } from "../features/game/GameTime.tsx"
 import { useNotionData } from "../features/game/NotionDataContext.tsx"
 import { MessageInput } from "../features/messages/MessageInput.tsx"
+import { MessageList } from "../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../features/rooms/CombatInitiative.tsx"
 import { RoomSettingsForm } from "../features/rooms/RoomSettingsForm.tsx"
 import {
@@ -24,6 +25,7 @@ import { AppHeader } from "../ui/AppHeader.tsx"
 import { DefinitionList } from "../ui/DefinitionList.tsx"
 import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../ui/Modal.tsx"
 import { TranslucentPanel } from "../ui/Panel.tsx"
+import { ScrollArea } from "../ui/ScrollArea.tsx"
 import { panel } from "../ui/styles.ts"
 
 export default function RoomRoute() {
@@ -60,29 +62,36 @@ export default function RoomRoute() {
 						</SceneProvider>
 					</div>
 				)}
-				<div className="bg-natural-gradient-100 pointer-events-none fixed inset-x-0 top-0 h-40">
+
+				<div className="pointer-events-none fixed inset-x-0 top-0 z-10 h-40 bg-natural-gradient-100">
 					<div className="flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
 						<AppHeader />
 					</div>
+					<SceneHeading />
+					<CombatTurnBanner />
 				</div>
-				<div className="pointer-events-none relative flex h-screen flex-col overflow-clip">
-					<div className="flex flex-1 items-end gap-2 p-2">
-						<div className="flex-1"></div>
-						<footer className="pointer-events-auto">
-							<RoomToolbar />
-						</footer>
-						<div className="flex flex-1 items-end justify-end">
-							<TranslucentPanel
-								element={<aside />}
-								className="pointer-events-auto w-[20rem] gap-2 p-2"
-							>
-								<MessageInput />
-							</TranslucentPanel>
+
+				<div className="pointer-events-none relative flex h-screen items-end gap-2 overflow-clip p-2">
+					<div className="flex-1"></div>
+
+					<footer className="pointer-events-auto">
+						<RoomToolbar />
+					</footer>
+
+					<div className="flex h-full min-h-0 flex-1 flex-col items-end justify-end">
+						<div className="flex min-h-0 flex-1 flex-col justify-end">
+							<ScrollArea className="pointer-events-auto -mx-2 w-[21rem] *:p-2">
+								<MessageList />
+							</ScrollArea>
 						</div>
+						<TranslucentPanel
+							element={<aside />}
+							className="pointer-events-auto w-[20rem] gap-2 p-2"
+						>
+							<MessageInput />
+						</TranslucentPanel>
 					</div>
 				</div>
-				<SceneHeading />
-				<CombatTurnBanner />
 			</RoomToolbarStore.Provider>
 		</CharacterSelectionProvider>
 	)
@@ -94,7 +103,7 @@ function SceneHeading() {
 	const gameTime = new GameTime(room.gameTime)
 	if (!scene) return
 	return (
-		<h2 className="pointer-events-none fixed inset-x-0 top-4 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)]">
+		<h2 className="pointer-events-none fixed inset-x-0 top-3 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)]">
 			{scene.name}
 			<p className="text-base font-medium tracking-wide">
 				{gameTime.timeOfDayName} - Day {gameTime.day + 1} of {gameTime.monthName.name}, Year{" "}

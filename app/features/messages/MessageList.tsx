@@ -1,103 +1,58 @@
+import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useMutation, useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
 import { formatDistanceToNow } from "date-fns"
 import * as Lucide from "lucide-react"
 import { HelpCircle } from "lucide-react"
-import { Fragment, useEffect, useRef } from "react"
+import { Fragment } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
-import { expect } from "../../common/expect.ts"
 import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
-import { ScrollArea } from "../../ui/ScrollArea.tsx"
+import { TranslucentPanel } from "../../ui/Panel.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/diceKinds.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
+type ApiMessage = FunctionReturnType<typeof api.messages.functions.list>[number]
+
 export function MessageList() {
 	const room = useRoom()
-	const list = useQuery(api.messages.functions.list, { roomId: room._id })?.toReversed() ?? []
-
-	const viewportRef = useRef<HTMLDivElement>(null)
-	const listRef = useRef<HTMLUListElement>(null)
-	const listHeightRef = useRef(0)
-
-	// initialize the list height
-	useEffect(() => {
-		listHeightRef.current = expect(listRef.current).clientHeight
-	}, [])
-
-	// observe changes in the height of the list and update the scroll position by the difference
-	useEffect(() => {
-		const observer = new ResizeObserver(([entry]) => {
-			const { contentRect } = expect(entry)
-			const heightDifference = contentRect.height - listHeightRef.current
-			if (heightDifference > 0) {
-				expect(viewportRef.current).scrollBy({ top: heightDifference })
-			}
-			listHeightRef.current = contentRect.height
-		})
-		observer.observe(expect(listRef.current))
-		return () => observer.disconnect()
-	}, [])
-
-	// scroll the viewport to the bottom when the list is loaded, and when the last list item changes
-	const hasItems = list.length > 0
-	const lastMessage = list.at(-1)
-	useEffect(() => {
-		if (hasItems) {
-			expect(viewportRef.current).scrollTo({
-				top: expect(listRef.current).scrollHeight,
-			})
-		}
-	}, [hasItems, lastMessage])
-
+	const messages = useQuery(api.messages.functions.list, { roomId: room._id })
+	const [animateRef] = useAutoAnimate()
 	return (
-		<ScrollArea viewportRef={viewportRef}>
-			<ul className="flex min-h-full flex-col justify-end gap-2" ref={listRef}>
-				{list.map((message) => (
-					<li key={message._id}>
-						<MessagePanel message={message} />
-					</li>
-				))}
-			</ul>
-		</ScrollArea>
+		<ul className="flex h-fit flex-col gap-2" ref={animateRef}>
+			{messages?.toReversed().map((message) => (
+				<li key={message._id}>
+					<MessagePanel message={message} />
+				</li>
+			))}
+		</ul>
 	)
 }
 
-type ApiMessage = FunctionReturnType<typeof api.messages.functions.list>[number]
-
 function MessagePanel({ message }: { message: ApiMessage }) {
 	return (
-		<MessageMenu message={message}>
-			<div className={panel("flex flex-col gap-1.5 p-3")}>
-				{message.content && (
-					<p className="text-lg empty:hidden">
-						<MessageContent content={message.content} />
-					</p>
-				)}
-				{message.diceRoll && message.diceRoll.dice.length > 0 && (
-					<div className={panel("bg-primary-100/50 px-3 py-2")}>
-						<DiceRollSummary roll={message.diceRoll} />
-					</div>
-				)}
-				<div className="text-sm font-medium leading-tight tracking-wide">
-					{message.user?.character && (
-						<p className="text-primary-900">
-							{message.user.character.displayName} ({message.user.character.displayPronouns})
-						</p>
-					)}
-					<p className="flex gap-1 text-primary-600">
-						<span>{message.user?.name}</span>
-						<span className="first:hidden">•</span>
-						{formatDistanceToNow(new Date(message._creationTime), {
-							addSuffix: true,
-						})}
-					</p>
+		<TranslucentPanel className="flex flex-col gap-1.5 p-3">
+			{message.content && (
+				<p className="text-lg empty:hidden">
+					<MessageContent content={message.content} />
+				</p>
+			)}
+			{message.diceRoll && message.diceRoll.dice.length > 0 && (
+				<div className={panel("bg-primary-100/50 px-3 py-2")}>
+					<DiceRollSummary roll={message.diceRoll} />
 				</div>
-			</div>
-		</MessageMenu>
+			)}
+			<p className="flex gap-1 text-sm font-medium leading-tight tracking-wide text-primary-600">
+				<span>{message.user?.name}</span>
+				<span className="first:hidden">•</span>
+				{formatDistanceToNow(new Date(message._creationTime), {
+					addSuffix: true,
+				})}
+			</p>
+		</TranslucentPanel>
 	)
 }
 
