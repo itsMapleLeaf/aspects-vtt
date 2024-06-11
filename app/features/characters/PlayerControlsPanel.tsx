@@ -6,25 +6,23 @@ import { expect } from "../../common/expect.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
 import { translucentPanel } from "../../ui/styles.ts"
-import { useUser } from "../auth/UserContext.tsx"
 import { diceKindsByName, getDiceKindApiInput } from "../dice/diceKinds.tsx"
-import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
-import { AttributeDiceRollButtonGrid } from "./AttributeDiceRollButtonGrid.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterNotesFields } from "./CharacterForm.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
+import { PlayerAttributeButtons } from "./PlayerAttributeButtons.tsx"
 import { OwnedCharacter } from "./types.ts"
+import { useOwnedCharacter } from "./useOwnedCharacter.tsx"
 
 export function PlayerControlsPanel() {
-	const user = useUser()
-	const ownedCharacter = useCharacters()
-		.filter((character) => character.playerId === user?.clerkId)
-		.find(OwnedCharacter.is)
+	const ownedCharacter = useOwnedCharacter()
 	return ownedCharacter ?
 			<>
-				<AttributeDiceRollButtonGrid characters={[ownedCharacter]} variant="horizontal" />
-				<div className="flex items-stretch gap-2">
+				<PlayerAttributeButtons />
+				<div className="grid auto-cols-fr grid-flow-col gap-2">
 					<CharacterStatusFields character={ownedCharacter} />
-					<div className="self-stretch border-0 border-l border-primary-300" />
+				</div>
+				<div className="grid auto-cols-fr grid-flow-col gap-2">
 					<ActionFatigueButton character={ownedCharacter} />
 					<CharacterNotesButton character={ownedCharacter} />
 				</div>

@@ -9,7 +9,7 @@ import { twMerge } from "tailwind-merge"
 import { useSafeAction } from "../common/convex.ts"
 import type { Disallowed, StrictOmit } from "../common/types.ts"
 import { Loading } from "./Loading.tsx"
-import { Tooltip } from "./Tooltip.tsx"
+import { Tooltip, type TooltipProps } from "./Tooltip.tsx"
 import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName"
 
@@ -17,6 +17,7 @@ interface ButtonPropsBase extends ButtonStyleProps {
 	icon: ReactNode
 	text?: ReactNode
 	tooltip?: ReactNode
+	tooltipPlacement?: TooltipProps["placement"]
 	pending?: boolean
 }
 
@@ -36,9 +37,10 @@ export type ButtonProps = ButtonPropsAsButton | ButtonPropsAsElement
 export function Button({
 	text,
 	icon,
-	tooltip,
 	size = "md",
 	pending: pendingProp,
+	tooltip,
+	tooltipPlacement,
 	...props
 }: ButtonProps) {
 	const [, handleClick, actionPending] = useSafeAction(
@@ -88,7 +90,11 @@ export function Button({
 		return element
 	}
 
-	return <Tooltip content={tooltip}>{element}</Tooltip>
+	return (
+		<Tooltip content={tooltip} placement={tooltipPlacement}>
+			{element}
+		</Tooltip>
+	)
 }
 
 export interface ButtonStyleProps {

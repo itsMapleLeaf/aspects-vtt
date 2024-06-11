@@ -57,11 +57,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<PromptProvider>
-					<Toaster>
-						<Suspense>{children}</Suspense>
-					</Toaster>
-				</PromptProvider>
+				<div className="isolate">
+					<PromptProvider>
+						<Toaster>
+							<Suspense>{children}</Suspense>
+						</Toaster>
+					</PromptProvider>
+				</div>
 				<ScrollRestoration />
 				<Scripts />
 			</body>

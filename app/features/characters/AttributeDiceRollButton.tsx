@@ -6,6 +6,7 @@ import { titleCase } from "../../common/string.ts"
 import type { PartialKeys, PickByValue } from "../../common/types.ts"
 import { Button, type ButtonProps } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
+import { TranslucentPanel } from "../../ui/Panel.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "./types.ts"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
@@ -30,8 +31,9 @@ export function AttributeDiceRollButton({
 			<Ariakit.HovercardAnchor
 				render={
 					<Button
-						icon={<Lucide.Dices />}
+						icon={icon}
 						aria-label={typeof buttonProps.text === "string" ? buttonProps.text : undefined}
+						tooltipPlacement="bottom"
 						{...buttonProps}
 						onClick={async (event) => {
 							await buttonProps.onClick?.(event)
@@ -48,14 +50,13 @@ export function AttributeDiceRollButton({
 				}
 			/>
 			<Ariakit.Hovercard
-				className={panel(
-					"flex w-64 translate-y-2 flex-col gap-3 bg-primary-100 p-3 opacity-0 shadow-md transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
-				)}
+				render={<TranslucentPanel />}
 				portal
 				gutter={8}
 				unmountOnHide
+				className="flex translate-y-2 flex-col gap-2 p-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100"
 			>
-				<div className="flex gap-2 *:flex-1">
+				<div className="flex gap-current *:flex-1">
 					<FormField label="Boost Dice">
 						<CounterInput value={boostCount} onChange={setBoostCount} />
 					</FormField>

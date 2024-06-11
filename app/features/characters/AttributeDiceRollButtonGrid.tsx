@@ -1,3 +1,10 @@
+import {
+	LucideBicepsFlexed,
+	LucideEye,
+	LucideLightbulb,
+	LucideSparkles,
+	LucideWind,
+} from "lucide-react"
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
@@ -5,30 +12,48 @@ import type { ApiCharacter } from "./types.ts"
 
 export function AttributeDiceRollButtonGrid({
 	characters,
-	variant = "stacked",
+	variant = "horizontal",
 	...props
 }: { characters: ApiCharacter[]; variant?: "stacked" | "horizontal" } & ComponentProps<"div">) {
 	return (
 		<div
 			{...props}
 			data-variant={variant}
-			className={twMerge("flex gap-2 data-[variant=stacked]:flex-col", props.className)}
+			className={twMerge(
+				"grid auto-cols-fr grid-flow-col gap-2 data-[variant=stacked]:grid-flow-row",
+				props.className,
+			)}
 		>
-			<div
-				data-variant={variant}
-				className="flex gap-[inherit] *:flex-1 data-[variant=horizontal]:contents"
-			>
-				<AttributeDiceRollButton characters={characters} text="Strength" attribute="strength" />
-				<AttributeDiceRollButton characters={characters} text="Mobility" attribute="mobility" />
-			</div>
-			<div
-				data-variant={variant}
-				className="flex gap-[inherit] *:flex-1 data-[variant=horizontal]:contents"
-			>
-				<AttributeDiceRollButton characters={characters} text="Sense" attribute="sense" />
-				<AttributeDiceRollButton characters={characters} text="Intellect" attribute="intellect" />
-				<AttributeDiceRollButton characters={characters} text="Wit" attribute="wit" />
-			</div>
+			<AttributeDiceRollButton
+				characters={characters}
+				icon={<LucideBicepsFlexed />}
+				tooltip="Strength"
+				attribute="strength"
+			/>
+			<AttributeDiceRollButton
+				characters={characters}
+				icon={<LucideWind />}
+				tooltip="Mobility"
+				attribute="mobility"
+			/>
+			<AttributeDiceRollButton
+				characters={characters}
+				icon={<LucideEye />}
+				tooltip="Sense"
+				attribute="sense"
+			/>
+			<AttributeDiceRollButton
+				characters={characters}
+				icon={<LucideLightbulb />}
+				tooltip="Intellect"
+				attribute="intellect"
+			/>
+			<AttributeDiceRollButton
+				characters={characters}
+				icon={<LucideSparkles />}
+				tooltip="Wit"
+				attribute="wit"
+			/>
 		</div>
 	)
 }

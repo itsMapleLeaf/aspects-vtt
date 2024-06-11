@@ -5,18 +5,15 @@ import { Popover, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { translucentPanel } from "../../ui/styles.ts"
 
-export function Toolbar(props: { children: React.ReactNode }) {
+export function Toolbar(props: React.ComponentProps<"nav">) {
 	return (
-		<nav aria-label="Toolbar" className={translucentPanel("flex gap-2 p-2")}>
+		<nav
+			aria-label="Toolbar"
+			{...props}
+			className={translucentPanel("flex gap-2 p-2", props.className)}
+		>
 			{props.children}
 		</nav>
-	)
-}
-
-function toolbarButtonStyle(...classes: ClassNameValue[]) {
-	return twMerge(
-		"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6 hover:opacity-75",
-		...classes,
 	)
 }
 
@@ -26,22 +23,26 @@ export interface ToolbarButtonProps extends React.ComponentPropsWithoutRef<"butt
 	active?: boolean
 }
 
-export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-	function ToolbarButton({ text, icon, active, ...props }, ref) {
-		return (
-			<Tooltip content={text} placement="bottom">
-				<button
-					type="button"
-					className={toolbarButtonStyle(active && "text-primary-700 opacity-100", props.className)}
-					{...props}
-					ref={ref}
-				>
-					{icon}
-				</button>
-			</Tooltip>
-		)
-	},
-)
+export function ToolbarButton({ text, icon, active, ...props }: ToolbarButtonProps) {
+	return (
+		<Tooltip content={text} placement="bottom">
+			<button
+				type="button"
+				className={ToolbarButton.style(active && "text-primary-700 opacity-100", props.className)}
+				{...props}
+			>
+				{icon}
+			</button>
+		</Tooltip>
+	)
+}
+
+ToolbarButton.style = function toolbarButtonStyle(...classes: ClassNameValue[]) {
+	return twMerge(
+		"flex-center rounded p-2 text-primary-900 opacity-50 transition *:size-6 hover:opacity-75",
+		...classes,
+	)
+}
 
 export function ToolbarPopoverButton(props: {
 	id: string

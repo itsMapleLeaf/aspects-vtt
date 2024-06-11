@@ -45,7 +45,7 @@
 		"isbot": "^5.1.8",
 		"iterator-helpers-polyfill": "3.0.1",
 		"lodash-es": "4.17.21",
-		"lucide-react": "0.383.0",
+		"lucide-react": "0.394.0",
 		"match-sorter": "^6.3.4",
 		"node": "22",
 		"random-word-slugs": "0.1.7",

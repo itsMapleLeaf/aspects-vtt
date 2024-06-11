@@ -1,7 +1,8 @@
-import { useHref, useLocation } from "@remix-run/react"
+import { useNavigate, useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
+import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
-import { useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { api } from "../../convex/_generated/api.js"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
@@ -9,6 +10,7 @@ import { useNotionData } from "../features/game/NotionDataContext.tsx"
 import { MessageInput } from "../features/messages/MessageInput.tsx"
 import { MessageList } from "../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../features/rooms/CombatInitiative.tsx"
+import { RoomOwnerOnly, useCharacters, useRoom } from "../features/rooms/roomContext.tsx"
 import { RoomSettingsForm } from "../features/rooms/RoomSettingsForm.tsx"
 import {
 	Toolbar,
@@ -17,21 +19,26 @@ import {
 	ToolbarSeparator,
 } from "../features/rooms/RoomToolbar.tsx"
 import { RoomTool, RoomToolbarStore } from "../features/rooms/RoomToolbarStore.tsx"
-import { RoomOwnerOnly, useCharacters, useRoom } from "../features/rooms/roomContext.tsx"
 import { SceneProvider } from "../features/scenes/SceneContext.tsx"
 import { SceneList } from "../features/scenes/SceneList.tsx"
 import { SceneMap } from "../features/scenes/SceneMap.tsx"
 import { AppHeader } from "../ui/AppHeader.tsx"
 import { DefinitionList } from "../ui/DefinitionList.tsx"
 import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../ui/Modal.tsx"
-import { TranslucentPanel } from "../ui/Panel.tsx"
+import { Panel, TranslucentPanel } from "../ui/Panel.tsx"
+import { Popover, PopoverPanel, PopoverTrigger } from "../ui/Popover.tsx"
 import { ScrollArea } from "../ui/ScrollArea.tsx"
 import { panel } from "../ui/styles.ts"
 
+const views = {
+	characters: "characters",
+} as const
+
 export default function RoomRoute() {
-	const currentUrl = useHref(useLocation())
 	const room = useRoom()
 	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
+	const { view } = useParams()
+	const navigate = useNavigate()
 
 	const gameTime = new GameTime(room.gameTime)
 	const themeColor = [
@@ -80,20 +87,52 @@ export default function RoomRoute() {
 
 					<div className="flex h-full min-h-0 flex-1 flex-col items-end justify-end">
 						<div className="flex min-h-0 flex-1 flex-col justify-end">
-							<ScrollArea className="pointer-events-auto -mx-2 w-[21rem] *:p-2">
-								<MessageList />
-							</ScrollArea>
+							<MessageListScroller />
 						</div>
-						<TranslucentPanel
-							element={<aside />}
-							className="pointer-events-auto w-[20rem] gap-2 p-2"
-						>
-							<MessageInput />
-						</TranslucentPanel>
+						<div className="flex w-[20rem] flex-col gap-2">
+							<TranslucentPanel element={<aside />} className="pointer-events-auto gap-2 p-2">
+								<MessageInput />
+							</TranslucentPanel>
+							{/* <PlayerControlsPanel /> */}
+						</div>
 					</div>
 				</div>
+
+				<ModalPanel
+					title="Characters"
+					className="max-w-screen-md"
+					open={view === views.characters}
+					onClose={() => navigate("..")}
+				>
+					test
+				</ModalPanel>
 			</RoomToolbarStore.Provider>
 		</CharacterSelectionProvider>
+	)
+}
+
+function MessageListScroller() {
+	const viewportRef = useRef<HTMLDivElement>(null)
+
+	const handleMessageAdded = useCallback(() => {
+		const viewport = viewportRef.current
+		if (!viewport) return
+
+		setTimeout(() => {
+			viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" })
+		}, 300) // wait for
+	}, [])
+
+	return (
+		<ScrollArea
+			className="pointer-events-auto -mr-2 w-[21rem]"
+			viewportRef={viewportRef}
+			scrollbarPosition="inside"
+		>
+			<div className="p-2">
+				<MessageList onMessageAdded={handleMessageAdded} />
+			</div>
+		</ScrollArea>
 	)
 }
 
@@ -114,8 +153,9 @@ function SceneHeading() {
 }
 
 function RoomToolbar() {
+	const toolbarRef = useRef<HTMLElement>(null)
 	return (
-		<Toolbar>
+		<Toolbar ref={toolbarRef}>
 			<RoomOwnerOnly>
 				<ModalProvider>
 					<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
@@ -126,6 +166,26 @@ function RoomToolbar() {
 					</ModalPanel>
 				</ModalProvider>
 			</RoomOwnerOnly>
+
+			<Popover>
+				<PopoverTrigger render={<ToolbarButton icon={<Lucide.Users />} text="Characters" />} />
+				<PopoverPanel
+					getAnchorRect={() => toolbarRef.current?.getBoundingClientRect() ?? null}
+					className="w-[calc(100vw-4rem)] max-w-screen-md p-2"
+				>
+					<ScrollArea scrollbarPosition="outside" className="size-full" wheelDirection="horizontal">
+						<div className="grid h-24 grid-flow-col gap-2">
+							{Iterator.range(64)
+								.map((i) => (
+									<Panel key={i} className="aspect-square">
+										Character {i}
+									</Panel>
+								))
+								.toArray()}
+						</div>
+					</ScrollArea>
+				</PopoverPanel>
+			</Popover>
 
 			<ToolbarSeparator />
 

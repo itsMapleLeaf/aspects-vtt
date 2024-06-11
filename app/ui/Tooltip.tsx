@@ -2,7 +2,7 @@ import * as Ariakit from "@ariakit/react"
 import type * as React from "react"
 import type { StrictOmit } from "../common/types.ts"
 
-interface TooltipProps extends StrictOmit<Ariakit.TooltipAnchorProps, "content"> {
+export interface TooltipProps extends StrictOmit<Ariakit.TooltipAnchorProps, "content"> {
 	content: React.ReactNode
 	children: React.ReactElement
 	placement?: Ariakit.TooltipProviderProps["placement"]

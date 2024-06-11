@@ -5,6 +5,7 @@ export interface ScrollAreaProps {
 	children: React.ReactNode
 	className?: string
 	scrollbarPosition?: "outside" | "inside"
+	wheelDirection?: "vertical" | "horizontal"
 	viewportRef?: React.Ref<HTMLDivElement>
 	onViewportScroll?: (event: React.UIEvent<HTMLDivElement>) => void
 }
@@ -16,6 +17,12 @@ export function ScrollArea(props: ScrollAreaProps) {
 				className="min-h-0 flex-1 [&>div]:!block"
 				ref={props.viewportRef}
 				onScroll={props.onViewportScroll}
+				onWheel={(event) => {
+					if (props.wheelDirection === "horizontal") {
+						event.preventDefault()
+						event.currentTarget.scrollBy(event.deltaY, 0)
+					}
+				}}
 			>
 				{props.children}
 			</RadixScrollArea.Viewport>

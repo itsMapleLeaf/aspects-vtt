@@ -15,6 +15,7 @@ import { panel } from "../../ui/styles.ts"
 import { diceKinds, diceKindsByName, type DiceKind } from "../dice/diceKinds.tsx"
 import { getDiceInputList } from "../dice/getDiceInputList.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { PlayerAttributeButtons } from "../characters/PlayerAttributeButtons.tsx"
 
 export function MessageInput() {
 	const room = useRoom()
@@ -132,6 +133,10 @@ export function MessageInput() {
 						</button>
 					</Tooltip>
 				))}
+			</div>
+
+			<div className="grid auto-cols-fr grid-flow-col gap-current">
+				<PlayerAttributeButtons />
 			</div>
 
 			<div className="grid auto-cols-fr grid-flow-col gap-current">

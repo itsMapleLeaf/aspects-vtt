@@ -4,7 +4,7 @@ import type { FunctionReturnType } from "convex/server"
 import { formatDistanceToNow } from "date-fns"
 import * as Lucide from "lucide-react"
 import { HelpCircle } from "lucide-react"
-import { Fragment } from "react"
+import { Fragment, useLayoutEffect } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../common/array.ts"
 import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
@@ -17,10 +17,18 @@ import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
 type ApiMessage = FunctionReturnType<typeof api.messages.functions.list>[number]
 
-export function MessageList() {
+export function MessageList({ onMessageAdded }: { onMessageAdded: () => void }) {
 	const room = useRoom()
 	const messages = useQuery(api.messages.functions.list, { roomId: room._id })
 	const [animateRef] = useAutoAnimate()
+
+	const lastMessageId = messages?.[0]?._id
+	useLayoutEffect(() => {
+		if (lastMessageId) {
+			onMessageAdded()
+		}
+	}, [lastMessageId, onMessageAdded])
+
 	return (
 		<ul className="flex h-fit flex-col gap-2" ref={animateRef}>
 			{messages?.toReversed().map((message) => (
