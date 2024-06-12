@@ -14,8 +14,8 @@ import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
+import { CharacterImage } from "../characters/CharacterImage.tsx"
 import { useNotionData } from "../game/NotionDataContext.tsx"
-import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
 
 export function CombatInitiative() {
@@ -144,7 +144,10 @@ export function CombatInitiative() {
 									.map((character) => (
 										<MenuItem
 											key={character._id}
-											icon={<UploadedImage id={character.imageId} emptyIcon={<Lucide.Ghost />} />}
+											icon={
+												// <UploadedImage id={character.imageId} fallbackIcon={<Lucide.Ghost />} />
+												<CharacterImage character={character} />
+											}
 											text={character.name}
 											onClick={() =>
 												actions.addMember({

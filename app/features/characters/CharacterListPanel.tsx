@@ -9,9 +9,9 @@ import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { ToggleableSidebar } from "../../ui/ToggleableSidebar.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
-import { UploadedImage } from "../images/UploadedImage.tsx"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { CharacterDnd } from "./CharacterDnd.tsx"
+import { CharacterImage } from "./CharacterImage.tsx"
 import { useCharacterModalContext } from "./CharacterModal.tsx"
 import { useCharacterSelection } from "./CharacterSelectionProvider.tsx"
 import type { ApiCharacter } from "./types.ts"
@@ -79,9 +79,8 @@ function CharacterTile({
 			}}
 		>
 			<div className={panel("flex-center relative aspect-square overflow-clip")}>
-				<UploadedImage
-					id={character.imageId}
-					emptyIcon={<Lucide.Ghost />}
+				<CharacterImage
+					character={character}
 					className={{
 						container: `size-full ${character.visible ? "" : "opacity-50"}`,
 						image: "object-cover object-top",

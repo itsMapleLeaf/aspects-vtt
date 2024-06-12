@@ -3,7 +3,6 @@ import type { FunctionArgs, FunctionReference } from "convex/server"
 import * as Lucide from "lucide-react"
 import React, { useId, useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
-import type { Id } from "../../../convex/_generated/dataModel.js"
 import { useSafeAction } from "../../common/convex.ts"
 import { startCase } from "../../common/string.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
@@ -18,10 +17,10 @@ import { TextArea } from "../../ui/TextArea.tsx"
 import { panel } from "../../ui/styles.ts"
 import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { useNotionData } from "../game/NotionDataContext.tsx"
-import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
+import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterNumberField } from "./CharacterNumberField.tsx"
 import { CharacterRaceAbilityList } from "./CharacterRaceAbilityList.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
@@ -56,7 +55,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 		<div className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto *:shrink-0">
 			{character.isOwner ?
 				<CharacterImageField character={character} />
-			:	<UploadedImage id={character.imageId} />}
+			:	<CharacterImage character={character} />}
 
 			<RoomOwnerOnly>
 				<CharacterSelectField
@@ -280,11 +279,7 @@ function CharacterDiceField({
 	)
 }
 
-function CharacterImageField({
-	character,
-}: {
-	character: { _id: Id<"characters">; imageId?: Id<"_storage"> | null }
-}) {
+function CharacterImageField({ character }: { character: ApiCharacter }) {
 	const update = useMutation(api.characters.functions.update)
 	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
 	const convex = useConvex()
@@ -308,9 +303,9 @@ function CharacterImageField({
 		<FormField label="Image" htmlFor={inputId}>
 			<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-dashed border-primary-300 bg-primary-200/50 transition hover:bg-primary-200/75">
 				{status === "idle" && (
-					<UploadedImage
-						id={character.imageId}
-						emptyIcon={<Lucide.ImagePlus />}
+					<CharacterImage
+						character={character}
+						fallbackIcon={<Lucide.ImagePlus />}
 						className="size-full"
 					/>
 				)}
