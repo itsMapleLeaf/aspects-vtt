@@ -12,7 +12,7 @@
 		"lint": "eslint .",
 		"format": "prettier --write .",
 		"test": "tsx --test",
-		"typecheck": "tsc",
+		"typecheck": "tsc --noEmit",
 		"checks": "run-s --continue-on-error lint format typecheck test",
 		"convex-backend": "nu scripts/convex-backend.nu"
 	},
