@@ -38,6 +38,7 @@ import type * as rooms_combat_functions from "../rooms/combat/functions.js";
 import type * as rooms_combat_helpers from "../rooms/combat/helpers.js";
 import type * as rooms_combat_types from "../rooms/combat/types.js";
 import type * as rooms_functions from "../rooms/functions.js";
+import type * as rooms_helpers from "../rooms/helpers.js";
 import type * as rooms_RoomModel from "../rooms/RoomModel.js";
 import type * as rooms_types from "../rooms/types.js";
 import type * as scenes_functions from "../scenes/functions.js";
@@ -80,6 +81,7 @@ declare const fullApi: ApiFromModules<{
   "rooms/combat/helpers": typeof rooms_combat_helpers;
   "rooms/combat/types": typeof rooms_combat_types;
   "rooms/functions": typeof rooms_functions;
+  "rooms/helpers": typeof rooms_helpers;
   "rooms/RoomModel": typeof rooms_RoomModel;
   "rooms/types": typeof rooms_types;
   "scenes/functions": typeof scenes_functions;

@@ -1,8 +1,10 @@
 import { useConvex, useMutation } from "convex/react"
+import type { FunctionArgs, FunctionReference } from "convex/server"
 import * as Lucide from "lucide-react"
-import { useId, useState } from "react"
+import React, { useId, useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
+import { useSafeAction } from "../../common/convex.ts"
 import { startCase } from "../../common/string.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button } from "../../ui/Button.tsx"
@@ -18,7 +20,7 @@ import { statDiceKinds } from "../dice/diceKinds.tsx"
 import { useNotionData } from "../game/NotionDataContext.tsx"
 import { UploadedImage } from "../images/UploadedImage.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
-import { useRoom } from "../rooms/roomContext.tsx"
+import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 import { CharacterNumberField } from "./CharacterNumberField.tsx"
 import { CharacterRaceAbilityList } from "./CharacterRaceAbilityList.tsx"
@@ -31,6 +33,21 @@ import {
 	type UpdateableCharacterField,
 } from "./types.ts"
 
+function MutationButton<Func extends FunctionReference<"mutation", "public">>({
+	mutationFunction,
+	args,
+	children,
+}: {
+	mutationFunction: Func
+	args: FunctionArgs<Func>
+	children: React.ReactElement<{ onClick?: () => void }>
+}) {
+	const [, mutate] = useSafeAction(useMutation(mutationFunction))
+	return React.cloneElement(children, {
+		onClick: () => mutate(args),
+	})
+}
+
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
 	const notionData = useNotionData()
@@ -40,6 +57,30 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			{character.isOwner ?
 				<CharacterImageField character={character} />
 			:	<UploadedImage id={character.imageId} />}
+
+			<RoomOwnerOnly>
+				<CharacterSelectField
+					character={character}
+					field="playerId"
+					label="Player"
+					options={[
+						...room.players
+							.map((p) => ({ label: p.name, value: p.clerkId }))
+							.toSorted((a, b) => a.label.localeCompare(b.label)),
+						{ id: "none", label: "None", value: null },
+					]}
+				/>
+				<div className="flex flex-wrap gap-3">
+					<CharacterCheckboxField character={character} field="visible" />
+					<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
+				</div>
+				<MutationButton
+					mutationFunction={api.characters.functions.randomize}
+					args={{ id: character._id }}
+				>
+					<Button icon={<Lucide.Shuffle />} text="Randomize" />
+				</MutationButton>
+			</RoomOwnerOnly>
 
 			{character.isOwner ?
 				<div className="flex gap-2 *:min-w-0 *:flex-1">
@@ -64,27 +105,6 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			<div className={panel("p-3")}>
 				<CharacterRaceAbilityList character={character} />
 			</div>
-
-			{room.isOwner && (
-				<CharacterSelectField
-					character={character}
-					field="playerId"
-					label="Player"
-					options={[
-						...room.players
-							.map((p) => ({ label: p.name, value: p.clerkId }))
-							.toSorted((a, b) => a.label.localeCompare(b.label)),
-						{ id: "none", label: "None", value: null },
-					]}
-				/>
-			)}
-
-			{room.isOwner && (
-				<div className="flex flex-wrap gap-3">
-					<CharacterCheckboxField character={character} field="visible" />
-					<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
-				</div>
-			)}
 
 			{OwnedCharacter.is(character) && <CharacterStatusFields character={character} />}
 
