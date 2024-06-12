@@ -4,8 +4,8 @@ import { Context, Data, Effect, pipe } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import type { Awaitable, Overwrite } from "../../app/common/types.js"
 import type { DataModel, Doc, Id, TableNames } from "../_generated/dataModel.js"
-import type { MutationCtx, QueryCtx } from "./ents.js"
-import { mutation, query } from "./ents.js"
+import type { MutationCtx, QueryCtx } from "../_generated/server.js"
+import { mutation, query } from "../_generated/server.js"
 
 export class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {}
 
@@ -141,10 +141,6 @@ export function queryDoc<D extends Doc<TableNames>>(
 
 export function ensureDoc<D extends Doc<TableNames>>(doc: D | undefined | null) {
 	return doc != null ? Effect.succeed(doc) : Effect.fail(new ConvexDocNotFoundError({}))
-}
-
-export function getEntityDoc<T extends TableNames>(table: T, id: Id<T>) {
-	return queryDoc((ctx) => ctx.table(table).get(id).doc())
 }
 
 export function insertDoc<T extends TableNames>(table: T, data: WithoutSystemFields<Doc<T>>) {

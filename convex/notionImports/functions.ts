@@ -12,9 +12,9 @@ import { prettify } from "../../app/common/json.ts"
 import { lines } from "../../app/common/string.ts"
 import { internal } from "../_generated/api"
 import { internalAction } from "../_generated/server"
+import { type QueryCtx, internalMutation, query } from "../_generated/server.js"
 import { convexEnv } from "../env.ts"
 import type { Branded } from "../helpers/convex.ts"
-import { type QueryCtx, internalMutation, query } from "../helpers/ents.ts"
 import { notionImportProperties } from "./types.ts"
 
 export const importData = internalAction({

@@ -37,7 +37,6 @@
 		"@vercel/remix": "2.9.2",
 		"colorjs.io": "0.5.0",
 		"convex": "1.12.1",
-		"convex-ents": "0.7.7",
 		"convex-helpers": "0.1.41",
 		"date-fns": "3.6.0",
 		"effect": "3.3.1",

@@ -1,3 +1,4 @@
+import { getManyFrom } from "convex-helpers/server/relationships"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { ensureViewerCharacterPermissions } from "../characters/helpers.ts"
@@ -19,7 +20,7 @@ export const list = effectQuery({
 			ensureViewerCharacterPermissions(args.characterId),
 			Effect.andThen(() =>
 				withQueryCtx((ctx) =>
-					ctx.table("characters").getX(args.characterId).edge("characterAspectSkills").docs(),
+					getManyFrom(ctx.db, "characterAspectSkills", "characterId", args.characterId),
 				),
 			),
 			Effect.tapError(Effect.logWarning),
@@ -35,9 +36,7 @@ export const create = effectMutation({
 	handler: (args) => {
 		return pipe(
 			ensureViewerCharacterPermissions(args.characterId),
-			Effect.andThen(() =>
-				withMutationCtx((ctx) => ctx.table("characterAspectSkills").insert(args)),
-			),
+			Effect.andThen(() => withMutationCtx((ctx) => ctx.db.insert("characterAspectSkills", args))),
 		)
 	},
 })
@@ -48,13 +47,9 @@ export const remove = effectMutation({
 	},
 	handler: (args) => {
 		return Effect.gen(function* () {
-			const characterAspectSkill = yield* queryDoc((ctx) =>
-				ctx.table("characterAspectSkills").get(args.characterAspectSkillId).doc(),
-			)
+			const characterAspectSkill = yield* queryDoc((ctx) => ctx.db.get(args.characterAspectSkillId))
 			yield* ensureViewerCharacterPermissions(characterAspectSkill.characterId)
-			yield* withMutationCtx((ctx) =>
-				ctx.table("characterAspectSkills").getX(args.characterAspectSkillId).delete(),
-			)
+			yield* withMutationCtx((ctx) => ctx.db.delete(args.characterAspectSkillId))
 		})
 	},
 })

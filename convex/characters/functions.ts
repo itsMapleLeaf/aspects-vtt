@@ -8,16 +8,10 @@ import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomItem } from "../../app/common/random.ts"
 import { CharacterSkillTree } from "../../app/features/characters/skills.ts"
 import type { Doc } from "../_generated/dataModel.js"
+import { mutation, query, type QueryCtx } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
-import {
-	effectMutation,
-	getEntityDoc,
-	insertDoc,
-	updateDoc,
-	withMutationCtx,
-} from "../helpers/effect.ts"
-import { mutation, query, type QueryCtx } from "../helpers/ents.ts"
+import { effectMutation, getDoc, insertDoc, updateDoc, withMutationCtx } from "../helpers/effect.ts"
 import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
 import { RoomModel } from "../rooms/RoomModel.js"
 import { userColorValidator } from "../types.ts"
@@ -43,9 +37,7 @@ export const list = query({
 			return []
 		}
 
-		let query = ctx.db
-			.query("characters")
-			.withIndex("by_room", (q) => q.eq("roomId", room.data._id))
+		let query = ctx.db.query("characters").withIndex("roomId", (q) => q.eq("roomId", room.data._id))
 
 		const isRoomOwner = await room.isOwner()
 		if (!isRoomOwner) {
@@ -101,7 +93,7 @@ export const update = effectMutation({
 	handler: ({ id, ...args }) =>
 		Effect.gen(function* () {
 			yield* ensureViewerCharacterPermissions(id)
-			yield* withMutationCtx((ctx) => ctx.table("characters").getX(id).patch(args))
+			yield* withMutationCtx((ctx) => ctx.db.patch(id, args))
 		}),
 })
 
@@ -135,7 +127,7 @@ export const applyStress = effectMutation({
 
 			const { user, characters } = yield* Effect.all({
 				user: getUserFromIdentityEffect(),
-				characters: Effect.forEach(args.characterIds, (id) => getEntityDoc("characters", id), {
+				characters: Effect.forEach(args.characterIds, getDoc, {
 					concurrency: "unbounded",
 				}),
 			})
@@ -239,9 +231,7 @@ export const setSkillActive = effectMutation({
 				.map((doc) => ({ ...doc, aspectSkillIds: [...doc.aspectSkillIds] }))
 				.filter((doc) => doc.aspectSkillIds.length > 0)
 
-			yield* withMutationCtx((ctx) =>
-				ctx.table("characters").getX(character._id).patch({ learnedAspectSkills }),
-			)
+			yield* withMutationCtx((ctx) => ctx.db.patch(character._id, { learnedAspectSkills }))
 		})
 	},
 })
@@ -277,9 +267,7 @@ export const updateConditions = effectMutation({
 				conditions = []
 			}
 
-			yield* withMutationCtx((ctx) =>
-				ctx.table("characters").getX(character._id).patch({ conditions }),
-			)
+			yield* withMutationCtx((ctx) => ctx.db.patch(character._id, { conditions }))
 		})
 	},
 })

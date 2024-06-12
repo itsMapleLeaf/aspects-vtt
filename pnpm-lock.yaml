@@ -72,9 +72,6 @@ importers:
       convex:
         specifier: 1.12.1
         version: 1.12.1(@clerk/clerk-react@5.2.3(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524)
-      convex-ents:
-        specifier: 0.7.7
-        version: 0.7.7(convex@1.12.1(@clerk/clerk-react@5.2.3(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))
       convex-helpers:
         specifier: 0.1.41
         version: 0.1.41(convex@1.12.1(@clerk/clerk-react@5.2.3(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524)(zod@3.23.8)
@@ -2075,11 +2072,6 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
-
-  convex-ents@0.7.7:
-    resolution: {integrity: sha512-sxZ4D9I5veU/CHDceMhbPT3RzpT/DfT2vpYeHFhgt3DIV6zjqLG+DdEJ+4jKFV2OqNW2RwJV8NhEiUqN281Gcg==}
-    peerDependencies:
-      convex: ^1.11.2
 
   convex-helpers@0.1.41:
     resolution: {integrity: sha512-RnQJOXCAujwRwjNcwzQNJZeNDMe7nKASfC3+5e05wpwg71RSrJdZnDcGlyOZ5f/E53+wnRnuYequnDjjOJWH3A==}
@@ -6568,7 +6560,7 @@ snapshots:
       '@babel/plugin-syntax-typescript': 7.24.7(@babel/core@7.24.7)
       '@vanilla-extract/babel-plugin-debug-ids': 1.0.6
       '@vanilla-extract/css': 1.15.2
-      esbuild: 0.17.6
+      esbuild: 0.17.19
       eval: 0.1.8
       find-up: 5.0.0
       javascript-stringify: 2.1.0
@@ -7002,10 +6994,6 @@ snapshots:
   content-type@1.0.5: {}
 
   convert-source-map@2.0.0: {}
-
-  convex-ents@0.7.7(convex@1.12.1(@clerk/clerk-react@5.2.3(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524)):
-    dependencies:
-      convex: 1.12.1(@clerk/clerk-react@5.2.3(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524)
 
   convex-helpers@0.1.41(convex@1.12.1(@clerk/clerk-react@5.2.3(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react-dom@19.0.0-rc-935180c7e0-20240524(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524))(react@19.0.0-rc-935180c7e0-20240524)(zod@3.23.8):
     dependencies:

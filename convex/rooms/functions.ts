@@ -1,3 +1,5 @@
+import { asyncMap } from "convex-helpers"
+import { getManyFrom, getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
@@ -5,6 +7,7 @@ import { Result } from "../../app/common/Result.ts"
 import { omit } from "../../app/common/object.ts"
 import { range } from "../../app/common/range.ts"
 import type { Id } from "../_generated/dataModel.js"
+import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import {
 	MutationCtxService,
@@ -14,7 +17,6 @@ import {
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.js"
-import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
 import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
 import { roomProperties } from "./types.ts"
@@ -24,29 +26,23 @@ export const get = query({
 	handler: queryHandlerFromEffect((args) =>
 		Effect.gen(function* () {
 			const room = yield* pipe(
-				withQueryCtx((ctx) => ctx.table("rooms").get("slug", args.slug)),
+				withQueryCtx((ctx) => getOneFrom(ctx.db, "rooms", "slug", args.slug)),
 				Effect.flatMap(Effect.fromNullable),
 			)
 
-			const players = yield* withQueryCtx((ctx) =>
-				ctx.table("rooms").get(room._id).edge("players").docs(),
-			)
-
-			const playerUserIds = players?.map((it) => it.userId) ?? []
-			const playerUsers = yield* pipe(
-				withQueryCtx((ctx) =>
-					ctx
-						.table("users")
-						.filter((q) => q.or(...playerUserIds.map((id) => q.eq(q.field("clerkId"), id))))
-						.docs(),
-				),
-			)
+			const playerUsers = yield* withQueryCtx(async (ctx) => {
+				const players = await getManyFrom(ctx.db, "players", "roomId", room._id)
+				const users = await asyncMap(players, (player) =>
+					getOneFrom(ctx.db, "users", "clerkId", player.userId),
+				)
+				return users.filter(Boolean)
+			})
 
 			const identityUser = yield* getUserFromIdentityEffect()
 
 			return {
 				...room,
-				players: playerUsers,
+				players: playerUsers, // TODO: move to a separate query
 				isOwner: identityUser.clerkId === room.ownerId,
 				experience: room.experience ?? 0,
 			}
@@ -67,7 +63,7 @@ export const list = query({
 
 		const memberships = await ctx.db
 			.query("players")
-			.withIndex("by_user", (q) => q.eq("userId", user.clerkId))
+			.withIndex("userId", (q) => q.eq("userId", user.clerkId))
 			.collect()
 
 		const rooms = await Promise.all(memberships.map((player) => ctx.db.get(player.roomId)))
@@ -80,7 +76,7 @@ export const create = mutation({
 		const user = await getUserFromIdentity(ctx).getValueOrThrow()
 		const slug = await generateUniqueSlug(ctx)
 
-		await ctx.table("rooms").insert({
+		await ctx.db.insert("rooms", {
 			name: slug,
 			slug,
 			ownerId: user.clerkId,
@@ -137,12 +133,15 @@ export const join = effectMutation({
 		Effect.gen(function* () {
 			const ctx = yield* MutationCtxService
 			const user = yield* getUserFromIdentityEffect()
-			const player = yield* Effect.tryPromise(() => {
-				return ctx.table("players").get("by_room_and_user", args.id, user.clerkId)
+			const player = yield* Effect.promise(() => {
+				return ctx.db
+					.query("players")
+					.withIndex("roomId_userId", (q) => q.eq("roomId", args.id).eq("userId", user.clerkId))
+					.first()
 			})
 			if (!player) {
-				yield* Effect.tryPromise(() => {
-					return ctx.table("players").insert({
+				yield* Effect.promise(() => {
+					return ctx.db.insert("players", {
 						roomId: args.id,
 						userId: user.clerkId,
 					})

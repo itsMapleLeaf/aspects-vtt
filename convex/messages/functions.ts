@@ -2,11 +2,11 @@ import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { pick } from "../../app/common/object.ts"
+import { mutation, query } from "../_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "../auth/helpers.ts"
 import { CharacterModel } from "../characters/CharacterModel.js"
 import { createDiceRolls } from "../dice/helpers.ts"
 import { QueryCtxService } from "../helpers/effect.js"
-import { mutation, query } from "../helpers/ents.ts"
 import { diceInputValidator } from "./types.ts"
 
 export const list = query({
@@ -16,7 +16,7 @@ export const list = query({
 	async handler(ctx, args) {
 		const result = await ctx.db
 			.query("messages")
-			.withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+			.withIndex("roomId", (q) => q.eq("roomId", args.roomId))
 			.order("desc")
 			.take(20)
 
