@@ -9,7 +9,11 @@ import { expect } from "../../app/common/expect.ts"
 import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomInt, randomItem } from "../../app/common/random.ts"
 import { titleCase } from "../../app/common/string.ts"
-import { Aspect, CharacterSkillTree, Skill } from "../../app/features/characters/skills.ts"
+import {
+	type Aspect,
+	CharacterSkillTree,
+	type Skill,
+} from "../../app/features/characters/skills.ts"
 import type { Doc } from "../_generated/dataModel.js"
 import { mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"

@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs } from "@remix-run/node"
+import type { LoaderFunctionArgs } from "@remix-run/node"
 import { z } from "zod"
 
 const images = import.meta.glob(`./images/*/*.{webp,png,jpg,jpeg}`)
