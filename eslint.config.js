@@ -37,6 +37,7 @@ export default ts.config(
 			"object-shorthand": "warn",
 			"prefer-const": "warn",
 
+			"@typescript-eslint/array-type": ["warn", "array-simple"],
 			"@typescript-eslint/ban-ts-comment": "off",
 			"@typescript-eslint/consistent-type-imports": ["warn", { fixStyle: "inline-type-imports" }],
 			"@typescript-eslint/no-import-type-side-effects": "error",
