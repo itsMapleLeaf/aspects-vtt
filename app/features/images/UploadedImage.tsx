@@ -9,18 +9,20 @@ type UploadedImageProps = Overwrite<
 	ComponentProps<"div">,
 	{
 		id?: Nullish<Id<"_storage">>
-		emptyIcon?: ReactNode
+		fallbackUrl?: string
+		fallbackIcon?: ReactNode
 		className?: string | { container?: string; image?: string }
 	}
 >
 
 export function UploadedImage({
 	id,
-	emptyIcon = <LucideImageOff />,
+	fallbackUrl,
+	fallbackIcon: emptyIcon = <LucideImageOff />,
 	className,
 	...props
 }: UploadedImageProps) {
-	const imageUrl = id ? getApiImageUrl(id) : undefined
+	const imageUrl = id ? getApiImageUrl(id) : fallbackUrl
 	const resolvedClassName = typeof className === "string" ? { container: className } : className
 	return (
 		<div

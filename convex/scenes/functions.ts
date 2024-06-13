@@ -1,7 +1,7 @@
 import { v } from "convex/values"
 import type { Id } from "../_generated/dataModel.js"
+import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { partial, requireDoc } from "../helpers/convex.ts"
-import { type QueryCtx, mutation, query } from "../helpers/ents.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
 import { requireRoomOwner } from "../rooms/functions.ts"
 import { vectorValidator } from "../types.ts"

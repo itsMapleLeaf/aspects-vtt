@@ -5,9 +5,9 @@ import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { getColorStyle, type UserColorName } from "../../../shared/colors.ts"
 import { sortBy } from "../../common/collection.ts"
 import { Vector } from "../../common/vector.ts"
+import { CharacterImage } from "../characters/CharacterImage.tsx"
 import { getThresholds } from "../characters/helpers.ts"
 import type { ApiCharacter } from "../characters/types.ts"
-import { UploadedImage } from "../images/UploadedImage.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { DistanceLabelLayer, DistanceLayer } from "./DistanceLayer.tsx"
 import { PingLayer } from "./PingLayer.tsx"
@@ -109,10 +109,9 @@ function TokenElement({
 					className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700"
 				></div>
 				{token.character && (
-					<UploadedImage
-						id={token.character.imageId}
+					<CharacterImage
+						character={token.character}
 						style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
-						emptyIcon={<Lucide.Ghost />}
 						className={{
 							container: "overflow-clip rounded bg-primary-300 shadow-md",
 							image: "object-cover object-top",

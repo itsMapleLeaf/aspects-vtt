@@ -4,9 +4,9 @@ import { uniqueByProperty } from "../../app/common/collection.ts"
 import { Result } from "../../app/common/Result.ts"
 import type { OmitByValue } from "../../app/common/types.ts"
 import type { Doc, Id } from "../_generated/dataModel"
+import type { MutationCtx, QueryCtx } from "../_generated/server.js"
 import { getUserFromIdentity } from "../auth/helpers.ts"
 import type { Branded } from "../helpers/convex.ts"
-import type { MutationCtx, QueryCtx } from "../helpers/ents.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
 import type { characterProperties } from "./types.ts"
 
@@ -18,11 +18,6 @@ const characterDefaults = {
 	race: "",
 
 	// stats
-	damage: 0,
-	fatigue: 0,
-	currency: 0,
-
-	// attributes
 	strength: 4,
 	sense: 4,
 	mobility: 4,
@@ -30,6 +25,12 @@ const characterDefaults = {
 	wit: 4,
 	damageThresholdDelta: 0,
 	fatigueThresholdDelta: 0,
+	modifiers: [],
+
+	// status
+	damage: 0,
+	fatigue: 0,
+	currency: 0,
 
 	// notes
 	ownerNotes: "",

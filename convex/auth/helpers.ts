@@ -1,11 +1,12 @@
+import { getOneFrom } from "convex-helpers/server/relationships"
 import type { UserIdentity } from "convex/server"
 import { ConvexError } from "convex/values"
 import { Effect, pipe } from "effect"
 import { Result } from "../../app/common/Result.ts"
 import type { Overwrite } from "../../app/common/types.ts"
+import type { QueryCtx } from "../_generated/server.js"
 import type { Branded } from "../helpers/convex.js"
 import { QueryCtxService, queryDoc, withQueryCtx } from "../helpers/effect.ts"
-import type { QueryCtx } from "../helpers/ents.ts"
 
 /** @deprecated */
 export function getIdentity(ctx: QueryCtx) {
@@ -58,7 +59,7 @@ export function getIdentityEffect() {
 
 export function getUserFromClerkId(clerkId: Branded<"clerkId">) {
 	return pipe(
-		queryDoc(async (ctx) => await ctx.table("users").get("clerkId", clerkId).doc()),
+		queryDoc(async (ctx) => await getOneFrom(ctx.db, "users", "clerkId", clerkId)),
 		Effect.catchTag("ConvexDocNotFoundError", () => Effect.fail(new UserNotFoundError())),
 	)
 }

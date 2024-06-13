@@ -1,6 +1,14 @@
-import { brandedString, deprecated, nullable } from "convex-helpers/validators"
+import { brandedString, deprecated, literals, nullable } from "convex-helpers/validators"
 import { v, type Infer } from "convex/values"
 import { userColorValidator } from "../types.ts"
+
+export const characterAttributeValidator = literals(
+	"strength",
+	"sense",
+	"mobility",
+	"intellect",
+	"wit",
+)
 
 export const characterProperties = {
 	// profile
@@ -23,6 +31,16 @@ export const characterProperties = {
 			v.object({
 				aspectId: v.string(),
 				aspectSkillIds: v.array(v.string()),
+			}),
+		),
+	),
+	modifiers: v.optional(
+		v.array(
+			v.object({
+				attribute: characterAttributeValidator,
+				boostDice: v.number(),
+				snagDice: v.number(),
+				attributeDice: v.number(),
 			}),
 		),
 	),

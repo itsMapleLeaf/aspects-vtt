@@ -1,8 +1,8 @@
 import { Effect } from "effect"
 import { roll } from "../../../app/common/random.ts"
 import type { Id } from "../../_generated/dataModel.js"
+import type { QueryCtx } from "../../_generated/server.js"
 import { getDoc } from "../../helpers/effect.ts"
-import type { QueryCtx } from "../../helpers/ents.ts"
 import { getNotionImports } from "../../notionImports/functions.ts"
 import type { AttributeId } from "../../notionImports/types.ts"
 

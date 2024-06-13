@@ -7,10 +7,18 @@ export function NumberField(props: {
 	value: number
 	min?: number
 	onChange: (value: number) => void
+	className?: string
+	placeholder?: string | number
 }) {
 	return (
 		<FormField label={props.label}>
-			<NumberInput value={props.value} min={props.min} onChange={props.onChange} />
+			<NumberInput
+				value={props.value}
+				min={props.min}
+				onChange={props.onChange}
+				className={props.className}
+				placeholder={String(props.placeholder)}
+			/>
 		</FormField>
 	)
 }

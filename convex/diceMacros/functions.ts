@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values"
+import { mutation, query } from "../_generated/server.js"
 import { getIdentity } from "../auth/helpers.ts"
 import { requireDoc } from "../helpers/convex.ts"
-import { mutation, query } from "../helpers/ents.ts"
 import { diceMacroProperties } from "./types.ts"
 
 export const list = query({
@@ -14,9 +14,7 @@ export const list = query({
 
 		return ctx.db
 			.query("diceMacros")
-			.withIndex("by_room_and_user", (q) =>
-				q.eq("roomId", args.roomId).eq("userId", identity.subject),
-			)
+			.withIndex("roomId_userId", (q) => q.eq("roomId", args.roomId).eq("userId", identity.subject))
 			.collect()
 	},
 })

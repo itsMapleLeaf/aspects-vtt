@@ -1,5 +1,5 @@
-import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
 import { brandedString, deprecated } from "convex-helpers/validators"
+import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { characterAspectSkillProperties } from "./characterAspectSkills/types.ts"
 import { characterProperties } from "./characters/types.ts"
@@ -11,24 +11,25 @@ import { roomCombatValidator } from "./rooms/combat/types.ts"
 import { roomProperties } from "./rooms/types.ts"
 import { sceneProperties } from "./scenes/types.ts"
 
-export { schema as default, entDefinitions }
-
-const schema = defineEntSchema({
-	users: defineEnt({
+export default defineSchema({
+	users: defineTable({
 		name: v.string(),
 		avatarUrl: v.optional(v.string()),
-	}).field("clerkId", brandedString("clerkId"), { unique: true }),
+		clerkId: userClerkIdValidator(),
+	}).index("clerkId", ["clerkId"]),
 
-	rooms: defineEnt({
+	rooms: defineTable({
 		...roomProperties,
+		slug: v.string(),
+		ownerId: userClerkIdValidator(),
 		combat: nullish(roomCombatValidator),
 	})
-		.edges("players", { ref: "roomId" })
-		.field("slug", v.string(), { unique: true })
-		.field("ownerId", brandedString("clerkId"), { index: true }),
+		.index("slug", ["slug"])
+		.index("ownerId", ["ownerId"]),
 
-	players: defineEnt({
-		userId: brandedString("clerkId"),
+	players: defineTable({
+		userId: userClerkIdValidator(),
+		roomId: v.id("rooms"),
 		diceMacros: v.optional(
 			v.array(
 				v.object({
@@ -39,39 +40,37 @@ const schema = defineEntSchema({
 			),
 		),
 	})
-		.edge("room", { field: "roomId" })
-		.index("by_user", ["userId"])
-		.index("by_room_and_user", ["roomId", "userId"]),
+		.index("userId", ["userId"])
+		.index("roomId", ["roomId"])
+		.index("roomId_userId", ["roomId", "userId"]),
 
-	diceMacros: defineEnt({
+	diceMacros: defineTable({
 		...diceMacroProperties,
-		userId: brandedString("clerkId"),
-	}).index("by_room_and_user", ["roomId", "userId"]),
+		userId: userClerkIdValidator(),
+	}).index("roomId_userId", ["roomId", "userId"]),
 
-	messages: defineEnt({
+	messages: defineTable({
 		roomId: v.id("rooms"),
-		userId: brandedString("clerkId"),
+		userId: userClerkIdValidator(),
 		content: v.optional(v.string()),
 		diceRoll: v.optional(v.object({ dice: v.array(diceRollValidator) })),
-	}).index("by_room", ["roomId"]),
+	}).index("roomId", ["roomId"]),
 
-	characters: defineEnt({
+	characters: defineTable({
 		...characterProperties,
 		roomId: v.id("rooms"),
 		tokenPosition: deprecated,
-	})
-		.index("by_room", ["roomId"])
-		.edges("characterAspectSkills", { ref: true }),
+	}).index("roomId", ["roomId"]),
 
-	notionImports: defineEnt(notionImportProperties),
+	notionImports: defineTable(notionImportProperties),
 
-	scenes: defineEnt(sceneProperties).index("by_room", ["roomId"]),
+	scenes: defineTable(sceneProperties).index("roomId", ["roomId"]),
 
-	characterAspectSkills: defineEnt({
+	characterAspectSkills: defineTable({
 		...characterAspectSkillProperties,
-	}).edge("character", { field: "characterId" }),
-
-	/* GENERATE-ENT */
+	}).index("characterId", ["characterId"]),
 })
 
-const entDefinitions = getEntDefinitions(schema)
+function userClerkIdValidator() {
+	return brandedString("clerkId")
+}

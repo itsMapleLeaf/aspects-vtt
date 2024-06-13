@@ -1,7 +1,7 @@
 import { v } from "convex/values"
 import type { Nullish } from "../../app/common/types.ts"
 import type { Id } from "../_generated/dataModel"
-import { type MutationCtx, internalQuery, mutation } from "../helpers/ents.ts"
+import { type MutationCtx, internalQuery, mutation } from "../_generated/server.js"
 
 export const getUploadUrl = mutation({
 	handler: async (ctx) => {
