@@ -10,24 +10,19 @@ import { diceKindsByName, getDiceKindApiInput } from "../dice/diceKinds.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterNotesFields } from "./CharacterForm.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
-import { OwnedCharacter } from "./types.ts"
+import type { OwnedCharacter } from "./types.ts"
 import { useOwnedCharacter } from "./useOwnedCharacter.tsx"
 
 export function PlayerControlsPanel() {
 	const ownedCharacter = useOwnedCharacter()
 	return ownedCharacter ?
-			<div className="flex flex-col gap-2">
-				<div className="gap-current flex *:w-[22rem]">
+			<div className="flex gap-2">
+				<div className="contents *:w-[20rem]">
 					<CharacterStatusFields character={ownedCharacter} />
 				</div>
-				<div className="gap-current flex *:flex-1">
-					<ActionFatigueButton character={ownedCharacter} />
-					<CharacterNotesButton character={ownedCharacter} />
-				</div>
-				{/* <div className="grid auto-cols-fr grid-flow-col gap-2">
-				</div>
-				<div className="grid auto-cols-fr grid-flow-col gap-2">
-				</div> */}
+				<div className="w-px bg-primary-300" />
+				<ActionFatigueButton character={ownedCharacter} />
+				<CharacterNotesButton character={ownedCharacter} />
 			</div>
 		:	null
 }
