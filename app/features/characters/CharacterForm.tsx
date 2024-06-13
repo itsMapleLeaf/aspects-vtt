@@ -21,6 +21,7 @@ import { uploadImage } from "../images/uploadImage.ts"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
+import { CharacterModifierFields } from "./CharacterModifierFields.tsx"
 import { CharacterNumberField } from "./CharacterNumberField.tsx"
 import { CharacterRaceAbilityList } from "./CharacterRaceAbilityList.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
@@ -273,6 +274,7 @@ function CharacterDiceField({
 					onChange={(value) => update({ id: character._id, [field]: value })}
 					className="flex-1"
 				/>
+				<CharacterModifierFields character={character} attribute={field} />
 				<AttributeDiceRollButton characters={[{ ...character, ...state.args }]} attribute={field} />
 			</div>
 		</CharacterReadOnlyGuard>

@@ -29,13 +29,12 @@ import {
 import { createMessages } from "../messages/helpers.ts"
 import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
 import { getNotionImports } from "../notionImports/functions.ts"
-import { attributeIdValidator } from "../notionImports/types.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
 import { RoomModel } from "../rooms/RoomModel.js"
 import { userColorValidator } from "../types.ts"
 import { CharacterModel } from "./CharacterModel.js"
-import { ensureViewerCharacterPermissions } from "./helpers.ts"
-import { characterProperties } from "./types.ts"
+import { ensureRoomHasCharacters, ensureViewerCharacterPermissions } from "./helpers.ts"
+import { characterAttributeValidator, characterProperties } from "./types.ts"
 
 export const list = query({
 	args: {
@@ -307,15 +306,82 @@ export const rollAttribute = effectMutation({
 	args: {
 		roomId: v.id("rooms"),
 		characterIds: v.array(v.id("characters")),
-		attribute: attributeIdValidator,
+		attribute: characterAttributeValidator,
+		boostCount: v.optional(v.number()),
+		snagCount: v.optional(v.number()),
 	},
 	handler(args) {
-		return createMessages(
-			args.characterIds.map((id) => ({
-				roomId: args.roomId,
-				content: `${formatCharacterMention(id)} rolled ${titleCase(args.attribute)}`,
-			})),
-		)
+		return Effect.gen(function* () {
+			const characters = yield* ensureRoomHasCharacters(args.roomId, args.characterIds)
+			return yield* createMessages(
+				characters.map((character) => {
+					const statValue = character[args.attribute] ?? 4
+					const modifier = character.modifiers?.find(
+						(modifier) => modifier.attribute === args.attribute,
+					)
+					return {
+						roomId: args.roomId,
+						content: `${formatCharacterMention(character._id)} rolled ${titleCase(args.attribute)}`,
+						dice: [
+							{
+								name: `d${statValue}`,
+								sides: statValue,
+								count: 2 + (modifier?.attributeDice ?? 0),
+							},
+							{
+								name: "boost",
+								sides: 4,
+								count: (args.boostCount ?? 0) + (modifier?.boostDice ?? 0),
+							},
+							{
+								name: "snag",
+								sides: 4,
+								count: (args.snagCount ?? 0) + (modifier?.snagDice ?? 0),
+							},
+						],
+					}
+				}),
+			)
+		})
+	},
+})
+
+export const updateModifier = effectMutation({
+	args: {
+		characterId: v.id("characters"),
+		attribute: characterAttributeValidator,
+		boostDice: v.optional(v.number()),
+		snagDice: v.optional(v.number()),
+		attributeDice: v.optional(v.number()),
+	},
+	handler(args) {
+		return Effect.gen(function* () {
+			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
+
+			const modifiers = new Map(
+				character.modifiers?.map((modifier) => [modifier.attribute, modifier]),
+			)
+
+			modifiers.set(args.attribute, {
+				// defaults
+				attribute: args.attribute,
+				boostDice: 0,
+				snagDice: 0,
+				attributeDice: 0,
+
+				// override with existing
+				...modifiers.get(args.attribute),
+
+				// apply args
+				...pick(args, ["boostDice", "snagDice", "attributeDice"]),
+			})
+
+			yield* withMutationCtx((ctx) =>
+				ctx.db.patch(character._id, {
+					modifiers: [...modifiers.values()],
+				}),
+			)
+		})
 	},
 })
 

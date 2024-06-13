@@ -1,13 +1,17 @@
 import * as Ariakit from "@ariakit/react"
+import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { api } from "../../../convex/_generated/api"
+import { useSafeAction } from "../../common/convex.ts"
 import { clamp } from "../../common/math.ts"
 import { titleCase } from "../../common/string.ts"
-import type { PartialKeys, PickByValue } from "../../common/types.ts"
+import type { PartialKeys } from "../../common/types.ts"
 import { Button, type ButtonProps } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { panel } from "../../ui/styles.ts"
-import type { ApiCharacter } from "./types.ts"
+import { useRoom } from "../rooms/roomContext.tsx"
+import type { ApiAttribute, ApiCharacter } from "./types.ts"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function AttributeDiceRollButton({
@@ -18,12 +22,14 @@ export function AttributeDiceRollButton({
 	...buttonProps
 }: {
 	characters: ApiCharacter[]
-	attribute: keyof PickByValue<ApiCharacter, number>
+	attribute: ApiAttribute["key"]
 	messageContent?: (character: ApiCharacter) => string
 } & PartialKeys<ButtonProps, "icon">) {
 	const [, createAttributeRollMessage] = useCreateAttributeRollMessage()
 	const [boostCount, setBoostCount] = useState(0)
 	const [snagCount, setSnagCount] = useState(0)
+	const [, rollAttribute] = useSafeAction(useMutation(api.characters.functions.rollAttribute))
+	const room = useRoom()
 
 	return (
 		<Ariakit.HovercardProvider placement="top" timeout={350} hideTimeout={0}>
@@ -35,14 +41,13 @@ export function AttributeDiceRollButton({
 						{...buttonProps}
 						onClick={async (event) => {
 							await buttonProps.onClick?.(event)
-							await Promise.all(
-								characters.map((character) =>
-									createAttributeRollMessage({
-										content: messageContent(character),
-										attributeValue: character[attribute],
-									}),
-								),
-							)
+							rollAttribute({
+								roomId: room._id,
+								characterIds: characters.map((character) => character._id),
+								attribute,
+								boostCount,
+								snagCount,
+							})
 						}}
 					/>
 				}

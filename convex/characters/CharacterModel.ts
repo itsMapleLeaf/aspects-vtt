@@ -18,11 +18,6 @@ const characterDefaults = {
 	race: "",
 
 	// stats
-	damage: 0,
-	fatigue: 0,
-	currency: 0,
-
-	// attributes
 	strength: 4,
 	sense: 4,
 	mobility: 4,
@@ -30,6 +25,12 @@ const characterDefaults = {
 	wit: 4,
 	damageThresholdDelta: 0,
 	fatigueThresholdDelta: 0,
+	modifiers: [],
+
+	// status
+	damage: 0,
+	fatigue: 0,
+	currency: 0,
 
 	// notes
 	ownerNotes: "",

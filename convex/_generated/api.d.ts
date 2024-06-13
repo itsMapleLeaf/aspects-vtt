@@ -31,6 +31,7 @@ import type * as helpers_convex from "../helpers/convex.js";
 import type * as helpers_effect from "../helpers/effect.js";
 import type * as http from "../http.js";
 import type * as messages_functions from "../messages/functions.js";
+import type * as messages_helpers from "../messages/helpers.js";
 import type * as messages_types from "../messages/types.js";
 import type * as notionImports_functions from "../notionImports/functions.js";
 import type * as notionImports_types from "../notionImports/types.js";
@@ -74,6 +75,7 @@ declare const fullApi: ApiFromModules<{
   "helpers/effect": typeof helpers_effect;
   http: typeof http;
   "messages/functions": typeof messages_functions;
+  "messages/helpers": typeof messages_helpers;
   "messages/types": typeof messages_types;
   "notionImports/functions": typeof notionImports_functions;
   "notionImports/types": typeof notionImports_types;
