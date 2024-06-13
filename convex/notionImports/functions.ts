@@ -228,7 +228,7 @@ async function promiseAllSuccesses<Input, Output>(
 		map: (input: Input) => Output
 		onError: (error: unknown, value: Input) => void
 	},
-): Promise<Awaited<Output>[]> {
+): Promise<Array<Awaited<Output>>> {
 	const results = await Promise.allSettled(
 		Iterator.from(values).map(async (value) => {
 			try {

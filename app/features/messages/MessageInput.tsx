@@ -12,10 +12,10 @@ import { usePrompt } from "../../ui/Prompt.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
 import { panel } from "../../ui/styles.ts"
+import { PlayerAttributeButtons } from "../characters/PlayerAttributeButtons.tsx"
 import { diceKinds, diceKindsByName, type DiceKind } from "../dice/diceKinds.tsx"
 import { getDiceInputList } from "../dice/getDiceInputList.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { PlayerAttributeButtons } from "../characters/PlayerAttributeButtons.tsx"
 
 export function MessageInput() {
 	const room = useRoom()
@@ -105,6 +105,7 @@ export function MessageInput() {
 						return Iterator.range(count)
 							.map((n) => (
 								<button
+									key={n}
 									type="button"
 									className="flex-center relative aspect-square size-8 p-0 opacity-100 transition-opacity hover:opacity-50"
 									onClick={() => removeDie(kind.name)}
@@ -135,11 +136,11 @@ export function MessageInput() {
 				))}
 			</div>
 
-			<div className="grid auto-cols-fr grid-flow-col gap-current">
+			<div className="gap-current grid auto-cols-fr grid-flow-col">
 				<PlayerAttributeButtons />
 			</div>
 
-			<div className="grid auto-cols-fr grid-flow-col gap-current">
+			<div className="gap-current grid auto-cols-fr grid-flow-col">
 				{/* <Button
 					type="button"
 					icon={<Lucide.Bookmark />}

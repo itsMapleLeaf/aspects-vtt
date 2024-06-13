@@ -25,7 +25,7 @@ export type SelectOption<T> =
 export function Select<T>(props: {
 	label: ReactNode
 	value: T | undefined
-	options: readonly SelectOption<T>[]
+	options: ReadonlyArray<SelectOption<T>>
 	placeholder?: ReactNode
 	onChange: (value: T) => void
 	className?: string

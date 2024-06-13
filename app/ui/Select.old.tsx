@@ -21,7 +21,7 @@ export function Select<T extends SelectValue>({
 }: Overwrite<
 	ComponentPropsWithoutRef<"select">,
 	{
-		options: SelectOption<T>[]
+		options: Array<SelectOption<T>>
 		value: T
 		onChange: (value: T) => void
 	}

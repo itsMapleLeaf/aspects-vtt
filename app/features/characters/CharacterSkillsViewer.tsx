@@ -169,7 +169,7 @@ function SkillList({
 	skills,
 	character,
 }: {
-	skills: (Skill & { learned: boolean; cost: number })[]
+	skills: Array<Skill & { learned: boolean; cost: number }>
 	character: ApiCharacter
 }) {
 	const setSkillActive = useMutation(api.characters.functions.setSkillActive)

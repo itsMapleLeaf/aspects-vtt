@@ -233,7 +233,7 @@ function CharacterSelectField<Field extends UpdateableCharacterField<string | nu
 	character: ApiCharacter
 	field: Field
 	label?: string
-	options: SelectOption<ApiCharacter[Field]>[]
+	options: Array<SelectOption<ApiCharacter[Field]>>
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const value = state.args?.[field] ?? character[field]

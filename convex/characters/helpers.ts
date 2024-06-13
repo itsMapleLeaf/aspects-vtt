@@ -19,12 +19,12 @@ export function ensureViewerCharacterPermissions(characterId: Id<"characters">) 
 
 export class CharactersNotInRoomError {
 	readonly _tag = "CharactersNotInRoomError"
-	constructor(readonly charactersNotInRoom: Doc<"characters">[]) {}
+	constructor(readonly charactersNotInRoom: Array<Doc<"characters">>) {}
 }
 
 export function ensureRoomHasCharacters(
 	roomId: Id<"rooms">,
-	characterIds: readonly Id<"characters">[],
+	characterIds: ReadonlyArray<Id<"characters">>,
 ) {
 	return pipe(
 		Effect.forEach(characterIds, getDoc, { concurrency: "unbounded" }),
