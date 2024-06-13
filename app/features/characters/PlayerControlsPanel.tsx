@@ -5,7 +5,6 @@ import { useSafeAction } from "../../common/convex.ts"
 import { expect } from "../../common/expect.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
-import { TranslucentPanel } from "../../ui/Panel.tsx"
 import { translucentPanel } from "../../ui/styles.ts"
 import { diceKindsByName, getDiceKindApiInput } from "../dice/diceKinds.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
@@ -17,11 +16,11 @@ import { useOwnedCharacter } from "./useOwnedCharacter.tsx"
 export function PlayerControlsPanel() {
 	const ownedCharacter = useOwnedCharacter()
 	return ownedCharacter ?
-			<TranslucentPanel className="flex flex-col items-center gap-2 p-2">
+			<div className="flex flex-col gap-2">
 				<div className="gap-current flex *:w-[22rem]">
 					<CharacterStatusFields character={ownedCharacter} />
 				</div>
-				<div className="gap-current flex">
+				<div className="gap-current flex *:flex-1">
 					<ActionFatigueButton character={ownedCharacter} />
 					<CharacterNotesButton character={ownedCharacter} />
 				</div>
@@ -29,7 +28,7 @@ export function PlayerControlsPanel() {
 				</div>
 				<div className="grid auto-cols-fr grid-flow-col gap-2">
 				</div> */}
-			</TranslucentPanel>
+			</div>
 		:	null
 }
 

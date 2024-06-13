@@ -73,24 +73,25 @@ export default function RoomRoute() {
 				)}
 
 				<div className="bg-natural-gradient-100 pointer-events-none fixed inset-x-0 top-0 z-10 h-40">
-					<div className="flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
+					<div className="absolute inset-x-0 top-0 flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
 						<AppHeader />
 					</div>
+					<div className="flex-center absolute inset-x-0 top-6"></div>
 					<SceneHeading />
 					<CombatTurnBanner />
 				</div>
 
-				<div className="pointer-events-none relative flex h-screen items-end gap-2 overflow-clip p-2">
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
 					<div className="h-[calc(100%-4rem)] min-h-0 flex-1">
 						<TranslucentPanel className="pointer-events-auto h-full w-28 p-1">
 							<CharacterListPanel />
 						</TranslucentPanel>
 					</div>
 
-					<footer className="flex-center pointer-events-auto gap-2">
+					<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
 						<RoomToolbar />
 						<PlayerControlsPanel />
-					</footer>
+					</TranslucentPanel>
 
 					<div className="flex h-full min-h-0 flex-1 flex-col items-end justify-end">
 						<div className="flex min-h-0 flex-1 flex-col justify-end">

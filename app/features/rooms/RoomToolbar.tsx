@@ -3,15 +3,10 @@ import * as React from "react"
 import { type ClassNameValue, twMerge } from "tailwind-merge"
 import { Popover, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
-import { translucentPanel } from "../../ui/styles.ts"
 
 export function Toolbar(props: React.ComponentProps<"nav">) {
 	return (
-		<nav
-			aria-label="Toolbar"
-			{...props}
-			className={translucentPanel("flex gap-2 p-2", props.className)}
-		>
+		<nav aria-label="Toolbar" {...props} className={twMerge("flex gap-2", props.className)}>
 			{props.children}
 		</nav>
 	)
