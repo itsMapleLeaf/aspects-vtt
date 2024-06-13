@@ -136,11 +136,11 @@ export function MessageInput() {
 				))}
 			</div>
 
-			<div className="gap-current grid auto-cols-fr grid-flow-col">
+			<div className="grid auto-cols-fr grid-flow-col gap-current">
 				<PlayerAttributeButtons />
 			</div>
 
-			<div className="gap-current grid auto-cols-fr grid-flow-col">
+			<div className="grid auto-cols-fr grid-flow-col gap-current">
 				{/* <Button
 					type="button"
 					icon={<Lucide.Bookmark />}

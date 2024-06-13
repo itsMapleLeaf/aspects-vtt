@@ -72,7 +72,7 @@ export default function RoomRoute() {
 					</div>
 				)}
 
-				<div className="bg-natural-gradient-100 pointer-events-none fixed inset-x-0 top-0 z-10 h-40">
+				<div className="pointer-events-none fixed inset-x-0 top-0 z-10 h-40 bg-natural-gradient-100">
 					<div className="absolute inset-x-0 top-0 flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
 						<AppHeader />
 					</div>
