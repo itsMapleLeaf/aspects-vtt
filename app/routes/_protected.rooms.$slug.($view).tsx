@@ -2,9 +2,11 @@ import { useNavigate, useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, type RefObject } from "react"
 import { api } from "../../convex/_generated/api.js"
+import { CharacterListPanel } from "../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
+import { PlayerControlsPanel } from "../features/characters/PlayerControlsPanel.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
 import { useNotionData } from "../features/game/NotionDataContext.tsx"
 import { MessageInput } from "../features/messages/MessageInput.tsx"
@@ -70,7 +72,7 @@ export default function RoomRoute() {
 					</div>
 				)}
 
-				<div className="pointer-events-none fixed inset-x-0 top-0 z-10 h-40 bg-natural-gradient-100">
+				<div className="bg-natural-gradient-100 pointer-events-none fixed inset-x-0 top-0 z-10 h-40">
 					<div className="flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
 						<AppHeader />
 					</div>
@@ -79,10 +81,15 @@ export default function RoomRoute() {
 				</div>
 
 				<div className="pointer-events-none relative flex h-screen items-end gap-2 overflow-clip p-2">
-					<div className="flex-1"></div>
+					<div className="h-[calc(100%-4rem)] min-h-0 flex-1">
+						<TranslucentPanel className="pointer-events-auto h-full w-28 p-1">
+							<CharacterListPanel />
+						</TranslucentPanel>
+					</div>
 
-					<footer className="pointer-events-auto">
+					<footer className="flex-center pointer-events-auto gap-2">
 						<RoomToolbar />
+						<PlayerControlsPanel />
 					</footer>
 
 					<div className="flex h-full min-h-0 flex-1 flex-col items-end justify-end">
@@ -167,26 +174,6 @@ function RoomToolbar() {
 				</ModalProvider>
 			</RoomOwnerOnly>
 
-			<Popover>
-				<PopoverTrigger render={<ToolbarButton icon={<Lucide.Users />} text="Characters" />} />
-				<PopoverPanel
-					getAnchorRect={() => toolbarRef.current?.getBoundingClientRect() ?? null}
-					className="w-[calc(100vw-4rem)] max-w-screen-md p-2"
-				>
-					<ScrollArea scrollbarPosition="outside" className="size-full" wheelDirection="horizontal">
-						<div className="grid h-24 grid-flow-col gap-2">
-							{Iterator.range(64)
-								.map((i) => (
-									<Panel key={i} className="aspect-square">
-										Character {i}
-									</Panel>
-								))
-								.toArray()}
-						</div>
-					</ScrollArea>
-				</PopoverPanel>
-			</Popover>
-
 			<ToolbarSeparator />
 
 			<AreaToolButton />
@@ -231,6 +218,30 @@ function RoomToolbar() {
 				</ToolbarPopoverButton>
 			</RoomOwnerOnly>
 		</Toolbar>
+	)
+}
+
+function CharacterListToolbarButton({ toolbarRef }: { toolbarRef: RefObject<HTMLElement> }) {
+	return (
+		<Popover>
+			<PopoverTrigger render={<ToolbarButton icon={<Lucide.Users />} text="Characters" />} />
+			<PopoverPanel
+				getAnchorRect={() => toolbarRef.current?.getBoundingClientRect() ?? null}
+				className="w-[calc(100vw-4rem)] max-w-screen-md p-2"
+			>
+				<ScrollArea scrollbarPosition="outside" className="size-full" wheelDirection="horizontal">
+					<div className="grid h-24 grid-flow-col gap-2">
+						{Iterator.range(64)
+							.map((i) => (
+								<Panel key={i} className="aspect-square">
+									Character {i}
+								</Panel>
+							))
+							.toArray()}
+					</div>
+				</ScrollArea>
+			</PopoverPanel>
+		</Popover>
 	)
 }
 

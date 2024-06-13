@@ -6,9 +6,8 @@ import { groupBy } from "../../common/collection.ts"
 import { Loading } from "../../ui/Loading.tsx"
 import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
-import { ToggleableSidebar } from "../../ui/ToggleableSidebar.tsx"
 import { Tooltip } from "../../ui/Tooltip.tsx"
-import { panel, translucentPanel } from "../../ui/styles.ts"
+import { panel } from "../../ui/styles.ts"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { CharacterDnd } from "./CharacterDnd.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
@@ -41,24 +40,22 @@ export function CharacterListPanel() {
 	)
 
 	return (
-		<ToggleableSidebar name="Characters" side="left">
-			<ScrollArea className={translucentPanel("h-full w-28 p-1")}>
-				<ul className="flex h-full flex-col gap-2">
-					<RoomOwnerOnly>
-						<li>
-							<CreateCharacterButton />
-						</li>
-					</RoomOwnerOnly>
-					{renderList(groups.get("self") ?? [])}
-					{divider}
-					{renderList(groups.get("player") ?? [])}
-					{divider}
-					{renderList(
-						(groups.get("rest") ?? []).toSorted((a, b) => b._creationTime - a._creationTime),
-					)}
-				</ul>
-			</ScrollArea>
-		</ToggleableSidebar>
+		<ScrollArea>
+			<ul className="flex h-full flex-col gap-2">
+				<RoomOwnerOnly>
+					<li>
+						<CreateCharacterButton />
+					</li>
+				</RoomOwnerOnly>
+				{renderList(groups.get("self") ?? [])}
+				{divider}
+				{renderList(groups.get("player") ?? [])}
+				{divider}
+				{renderList(
+					(groups.get("rest") ?? []).toSorted((a, b) => b._creationTime - a._creationTime),
+				)}
+			</ul>
+		</ScrollArea>
 	)
 }
 
