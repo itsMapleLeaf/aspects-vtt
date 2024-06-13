@@ -1,12 +1,11 @@
 import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
-import { Iterator } from "iterator-helpers-polyfill"
 import { pick } from "../../app/common/object.ts"
 import { mutation, query } from "../_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "../auth/helpers.ts"
 import { CharacterModel } from "../characters/CharacterModel.js"
-import { createDiceRolls } from "../dice/helpers.ts"
-import { QueryCtxService } from "../helpers/effect.js"
+import { effectMutation, QueryCtxService } from "../helpers/effect.js"
+import { createMessages } from "./helpers.ts"
 import { diceInputValidator } from "./types.ts"
 
 export const list = query({
@@ -43,30 +42,17 @@ export const list = query({
 	},
 })
 
-export const create = mutation({
+export const create = effectMutation({
 	args: {
 		roomId: v.id("rooms"),
 		content: v.optional(v.string()),
 		dice: v.optional(v.array(diceInputValidator)),
 	},
-	async handler(ctx, { dice = [], content = "", ...args }) {
-		const user = await getUserFromIdentity(ctx).getValueOrThrow()
-		const diceInputCount = dice.reduce((total, input) => total + input.count, 0)
-
-		if (content.trim() === "" && diceInputCount === 0) {
-			throw new ConvexError("Message cannot be empty.")
-		}
-
-		const diceRolls = Iterator.from(createDiceRolls(dice)).toArray()
-
-		const message = {
-			...args,
-			content,
-			userId: user.clerkId,
-			diceRoll: diceRolls.length > 0 ? { dice: diceRolls } : undefined,
-		}
-		await ctx.db.insert("messages", message)
-		return message
+	handler(args) {
+		return createMessages([args]).pipe(
+			Effect.map((messages) => messages[0]),
+			Effect.flatMap((it) => Effect.orDie(Effect.fromNullable(it))),
+		)
 	},
 })
 

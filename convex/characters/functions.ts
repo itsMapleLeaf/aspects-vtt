@@ -1,5 +1,5 @@
 import { literals } from "convex-helpers/validators"
-import { ConvexError, v } from "convex/values"
+import { ConvexError, v, type GenericId } from "convex/values"
 import { Effect } from "effect"
 import { NoSuchElementException } from "effect/Cause"
 import { Iterator } from "iterator-helpers-polyfill"
@@ -10,8 +10,8 @@ import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomInt, randomItem } from "../../app/common/random.ts"
 import { titleCase } from "../../app/common/string.ts"
 import {
-	type Aspect,
 	CharacterSkillTree,
+	type Aspect,
 	type Skill,
 } from "../../app/features/characters/skills.ts"
 import type { Doc } from "../_generated/dataModel.js"
@@ -26,8 +26,10 @@ import {
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.ts"
+import { createMessages } from "../messages/helpers.ts"
 import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
 import { getNotionImports } from "../notionImports/functions.ts"
+import { attributeIdValidator } from "../notionImports/types.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
 import { RoomModel } from "../rooms/RoomModel.js"
 import { userColorValidator } from "../types.ts"
@@ -301,6 +303,22 @@ export const updateConditions = effectMutation({
 	},
 })
 
+export const rollAttribute = effectMutation({
+	args: {
+		roomId: v.id("rooms"),
+		characterIds: v.array(v.id("characters")),
+		attribute: attributeIdValidator,
+	},
+	handler(args) {
+		return createMessages(
+			args.characterIds.map((id) => ({
+				roomId: args.roomId,
+				content: `${formatCharacterMention(id)} rolled ${titleCase(args.attribute)}`,
+			})),
+		)
+	},
+})
+
 function generateRandomCharacterProperties() {
 	return Effect.gen(function* () {
 		const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
@@ -382,4 +400,8 @@ function generateRandomCharacterProperties() {
 
 function greatestBy<T>(items: Iterable<T>, rank: (item: T) => number) {
 	return Iterator.from(items).reduce((a, b) => (rank(a) > rank(b) ? a : b))
+}
+
+function formatCharacterMention(id: GenericId<"characters">) {
+	return `<@${id}>`
 }
