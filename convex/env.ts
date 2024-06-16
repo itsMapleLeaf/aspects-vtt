@@ -14,7 +14,7 @@ export function convexEnv() {
 		.safeParse(process.env)
 
 	if (!result.success) {
-		const issues = result.error.issues.map((i) => `- ${i.path}: ${i.message}`)
+		const issues = result.error.issues.map((i) => `- ${i.path.join(".")}: ${i.message}`)
 		throw new Error(`Missing environment variables:\n${issues.join("\n")}`)
 	}
 	return result.data
