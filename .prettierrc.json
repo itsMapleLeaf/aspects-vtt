@@ -3,6 +3,7 @@
 	"useTabs": true,
 	"printWidth": 100,
 	"experimentalTernaries": true,
+	"quoteProps": "consistent",
 	"plugins": [
 		"prettier-plugin-organize-imports",
 		"prettier-plugin-jsdoc",

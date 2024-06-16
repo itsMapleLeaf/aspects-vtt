@@ -81,9 +81,9 @@ export function useDragSelectStore<T>() {
 
 	function selectableProps(item: T) {
 		return {
-			ref: (element: HTMLElement | null) => selectableRef(item, element),
+			"ref": (element: HTMLElement | null) => selectableRef(item, element),
 			"data-selected": isSelected(item) || undefined,
-			onPointerDown: (event: React.PointerEvent) => {
+			"onPointerDown": (event: React.PointerEvent) => {
 				if (!isSelected(item) && event.buttons === 1) {
 					if (!event.ctrlKey) clear()
 					setItemSelected(item, true)

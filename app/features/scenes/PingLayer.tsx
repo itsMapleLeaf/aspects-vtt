@@ -58,9 +58,9 @@ function PingElement({ ping }: { ping: Ping }) {
 	const style = {
 		translate,
 		"--theme-hue": ping.colorHue,
-		animationDuration: `${pingAnimationDuration}ms`,
-		animationIterationCount: 1,
-		animationFillMode: "both",
+		"animationDuration": `${pingAnimationDuration}ms`,
+		"animationIterationCount": 1,
+		"animationFillMode": "both",
 	} as React.CSSProperties
 
 	return (
