@@ -1,4 +1,3 @@
-import * as Ariakit from "@ariakit/react"
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
@@ -9,11 +8,10 @@ import { titleCase } from "../../common/string.ts"
 import type { PartialKeys } from "../../common/types.ts"
 import { Button, type ButtonProps } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
-import { TranslucentPanel } from "../../ui/Panel.tsx"
+import { Popover, PopoverDismiss, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { panel } from "../../ui/styles.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiAttribute, ApiCharacter } from "./types.ts"
-import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
 export function AttributeDiceRollButton({
 	characters,
@@ -26,41 +24,24 @@ export function AttributeDiceRollButton({
 	attribute: ApiAttribute["key"]
 	messageContent?: (character: ApiCharacter) => string
 } & PartialKeys<ButtonProps, "icon">) {
-	const [, createAttributeRollMessage] = useCreateAttributeRollMessage()
 	const [boostCount, setBoostCount] = useState(0)
 	const [snagCount, setSnagCount] = useState(0)
 	const [, rollAttribute] = useSafeAction(useMutation(api.characters.functions.rollAttribute))
 	const room = useRoom()
 
 	return (
-		<Ariakit.HovercardProvider placement="top" timeout={350} hideTimeout={0}>
-			<Ariakit.HovercardAnchor
+		<Popover placement="top">
+			<PopoverTrigger
 				render={
 					<Button
 						icon={icon}
 						aria-label={typeof buttonProps.text === "string" ? buttonProps.text : undefined}
 						tooltipPlacement="bottom"
 						{...buttonProps}
-						onClick={async (event) => {
-							await buttonProps.onClick?.(event)
-							rollAttribute({
-								roomId: room._id,
-								characterIds: characters.map((character) => character._id),
-								attribute,
-								boostCount,
-								snagCount,
-							})
-						}}
 					/>
 				}
 			/>
-			<Ariakit.Hovercard
-				render={<TranslucentPanel />}
-				portal
-				gutter={8}
-				unmountOnHide
-				className="flex translate-y-2 flex-col gap-2 p-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100"
-			>
+			<PopoverPanel portal gutter={8} unmountOnHide className="flex flex-col gap-2 p-2">
 				<div className="flex gap-current *:flex-1">
 					<FormField label="Boost Dice">
 						<CounterInput value={boostCount} onChange={setBoostCount} />
@@ -69,26 +50,27 @@ export function AttributeDiceRollButton({
 						<CounterInput value={snagCount} onChange={setSnagCount} />
 					</FormField>
 				</div>
-				<Button
-					text="Roll"
-					icon={<Lucide.Dices />}
-					onClick={async () => {
-						await Promise.all(
-							characters.map((character) =>
-								createAttributeRollMessage({
-									content: messageContent(character),
-									attributeValue: character[attribute],
+				<PopoverDismiss
+					render={
+						<Button
+							text="Roll"
+							icon={<Lucide.Dices />}
+							onClick={() => {
+								rollAttribute({
+									roomId: room._id,
+									characterIds: characters.map((character) => character._id),
+									attribute,
 									boostCount,
 									snagCount,
-								}),
-							),
-						)
-						setBoostCount(0)
-						setSnagCount(0)
-					}}
+								})
+								setBoostCount(0)
+								setSnagCount(0)
+							}}
+						/>
+					}
 				/>
-			</Ariakit.Hovercard>
-		</Ariakit.HovercardProvider>
+			</PopoverPanel>
+		</Popover>
 	)
 }
 

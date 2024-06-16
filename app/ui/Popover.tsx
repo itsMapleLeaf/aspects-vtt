@@ -30,3 +30,7 @@ PopoverPanel.style = (...classes: ClassNameValue[]) =>
 		"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 		...classes,
 	)
+
+export function PopoverDismiss(props: Ariakit.PopoverDismissProps) {
+	return <Ariakit.PopoverDismiss {...props} />
+}
