@@ -63,4 +63,24 @@ type ExhaustiveWithKeys<T, K extends PropertyKey> =
 
 type AllKeys<T> = T extends unknown ? keyof T : never
 
+/**
+ * Define the type of a value inline. Useful for defining the type of inferred object properties
+ *
+ * @example
+ * 	// before
+ * 	type Config = {
+ * 		a: SomeSpecificString
+ * 		b: number
+ * 	}
+ * 	const config = makeConfig<Config>({
+ * 		a: "the",
+ * 		b: 42,
+ * 	})
+ *
+ * 	// after
+ * 	const config = makeConfig({
+ * 		a: typed<SomeSpecificString>("the"),
+ * 		b: 42,
+ * 	})
+ */
 export const typed = <T>(value: T) => value
