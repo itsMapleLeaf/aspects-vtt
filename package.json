@@ -12,7 +12,7 @@
 		"lint": "eslint",
 		"format": "run-s --continue-on-error format:*",
 		"format:eslint": "eslint --fix",
-		"format:prettier": "prettier --write .",
+		"format:prettier": "prettier --write . --list-different",
 		"test": "tsx --test",
 		"typecheck": "tsc --noEmit",
 		"checks": "run-s --continue-on-error lint format typecheck test",
