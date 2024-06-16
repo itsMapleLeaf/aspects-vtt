@@ -40,30 +40,32 @@ export function getDiceKindApiInput(kind: DiceKind, count: number): DiceInput {
 	}
 }
 
-export const statDiceKinds: DiceKind[] = [
-	defineNumeric({
+export const statDiceKindsByName = {
+	d4: defineNumeric({
 		faceCount: 4,
 		icon: <Lucide.Triangle />,
 		textClassName: twMerge("translate-y-[3px]"),
 	}),
-	defineNumeric({
+	d6: defineNumeric({
 		faceCount: 6,
 		icon: <Lucide.Square />,
 	}),
-	defineNumeric({
+	d8: defineNumeric({
 		faceCount: 8,
 		icon: <Lucide.Diamond />,
 	}),
-	defineNumeric({
+	d12: defineNumeric({
 		faceCount: 12,
 		icon: <Lucide.Pentagon />,
 		textClassName: twMerge("translate-y-[2px]"),
 	}),
-	defineNumeric({
+	d20: defineNumeric({
 		faceCount: 20,
 		icon: <Lucide.Hexagon />,
 	}),
-]
+}
+
+export const statDiceKinds = Object.values(statDiceKindsByName)
 
 export const numericDiceKinds: DiceKind[] = [
 	...statDiceKinds,
