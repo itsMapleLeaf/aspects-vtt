@@ -45,6 +45,7 @@ export default ts.config(
 			"@typescript-eslint/no-empty-object-type": "off",
 			"@typescript-eslint/no-empty-function": "off",
 			"@typescript-eslint/ban-types": "off",
+			"@typescript-eslint/restrict-template-expressions": "error",
 		},
 	},
 
