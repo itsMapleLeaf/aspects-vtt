@@ -1,10 +1,9 @@
 import { Effect } from "effect"
 import { roll } from "../../../app/common/random.ts"
+import { getAttribute, type Attribute } from "../../../data/attributes.ts"
 import type { Id } from "../../_generated/dataModel.js"
 import type { QueryCtx } from "../../_generated/server.js"
 import { getDoc } from "../../helpers/effect.ts"
-import { getNotionImports } from "../../notionImports/functions.ts"
-import type { AttributeId } from "../../notionImports/types.ts"
 
 class CombatInactiveError {
 	readonly _tag = "CombatInactiveError"
@@ -20,12 +19,9 @@ export function getRoomCombat(roomId: Id<"rooms">) {
 export async function getInitiativeRoll(
 	ctx: QueryCtx,
 	characterId: Id<"characters">,
-	initiativeAttributeId: AttributeId | null,
+	initiativeAttributeId: Attribute["id"] | null,
 ) {
 	const character = await ctx.db.get(characterId)
-
-	const notionImports = await getNotionImports(ctx)
-	const attribute = notionImports?.attributes.find((it) => it.id === initiativeAttributeId)
-
-	return character && attribute ? roll(character[attribute.key] ?? 4) : null
+	const attribute = initiativeAttributeId ? getAttribute(initiativeAttributeId) : null
+	return character && attribute ? roll(character[attribute.id] ?? 4) : null
 }

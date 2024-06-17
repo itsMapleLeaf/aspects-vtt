@@ -31,16 +31,14 @@ const attributeData = {
 	}
 >
 
-export type AttributeNames = keyof typeof attributeData
-
 export interface Attribute {
-	id: AttributeNames
+	id: keyof typeof attributeData
 	name: string
 	description: string
 	get aspect(): Aspect
 }
 
-export function getAttribute(id: keyof typeof attributeData): Attribute {
+export function getAttribute(id: Attribute["id"]): Attribute {
 	return {
 		id,
 		name: titleCase(id),
@@ -51,10 +49,10 @@ export function getAttribute(id: keyof typeof attributeData): Attribute {
 	}
 }
 
-export function getAttributes() {
+export function listAttributes() {
 	return keys(attributeData).map(getAttribute)
 }
 
-export function getAttributeNames() {
+export function listAttributeIds() {
 	return keys(attributeData)
 }

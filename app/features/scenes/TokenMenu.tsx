@@ -21,9 +21,8 @@ import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { useCharacterModalContext } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
-import { CharacterSkillTree } from "../characters/skills.ts"
+import { listCharacterAspectSkills, listCharacterRaceAbilities } from "../characters/helpers.ts"
 import { OwnedCharacter, type ApiCharacter } from "../characters/types.ts"
-import { useCharacterRaceAbilities } from "../characters/useCharacterRaceAbilities.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
@@ -276,22 +275,12 @@ function TokenMenuContent() {
 }
 
 function CharacterAbilityList({ character }: { character: ApiCharacter }) {
-	const raceAbilities = useCharacterRaceAbilities(character)
-
-	if (!character.isOwner) {
-		return (
-			<>
-				<DefinitionList items={raceAbilities} />
-				<p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>
-			</>
-		)
-	}
-
-	const aspectSkills = Iterator.from(character.learnedAspectSkills ?? [])
-		.flatMap((group) => group.aspectSkillIds)
-		.map((id) => CharacterSkillTree.skillsById.get(id))
-		.filter((skill) => skill != null)
-		.toArray()
-
-	return <DefinitionList items={[...raceAbilities, ...aspectSkills]} />
+	const raceAbilities = listCharacterRaceAbilities(character)
+	const aspectSkills = character.isOwner ? listCharacterAspectSkills(character) : []
+	return (
+		<>
+			<DefinitionList items={[...raceAbilities, ...aspectSkills]} />
+			{character.isOwner ? null : <p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>}
+		</>
+	)
 }

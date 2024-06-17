@@ -1,21 +1,20 @@
 import { brandedString, deprecated, literals, nullable } from "convex-helpers/validators"
 import { v, type Infer } from "convex/values"
+import { listAspectNames } from "../../data/aspects.ts"
+import { listAspectSkillIds } from "../../data/aspectSkills.ts"
+import { listAttributeIds } from "../../data/attributes.ts"
+import { listRaceIds } from "../../data/races.ts"
+import { nullish } from "../helpers/convex.ts"
 import { userColorValidator } from "../types.ts"
 
-export const characterAttributeValidator = literals(
-	"strength",
-	"sense",
-	"mobility",
-	"intellect",
-	"wit",
-)
+export const characterAttributeValidator = literals(...listAttributeIds())
 
 export const characterProperties = {
 	// profile
 	name: v.optional(v.string()),
 	pronouns: v.optional(v.string()),
 	imageId: v.optional(v.union(v.id("_storage"), v.null())),
-	race: v.optional(v.string()),
+	race: nullish(literals(...listRaceIds())),
 
 	// stats
 	strength: v.optional(v.number()),
@@ -29,8 +28,8 @@ export const characterProperties = {
 		// keep track of the order of aspects to calculate the correct EXP costs
 		v.array(
 			v.object({
-				aspectId: v.string(),
-				aspectSkillIds: v.array(v.string()),
+				aspectId: literals(...listAspectNames()),
+				aspectSkillIds: v.array(literals(...listAspectSkillIds())),
 			}),
 		),
 	),

@@ -84,10 +84,10 @@ export function getRace(id: Race["id"]): Race {
 	}
 }
 
-export function getRaces() {
+export function listRaces() {
 	return keys(races).map(getRace)
 }
 
-export function getRaceNames() {
+export function listRaceIds() {
 	return keys(races)
 }

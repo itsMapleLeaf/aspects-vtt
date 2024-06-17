@@ -1,6 +1,6 @@
 import { keys } from "../app/common/object.ts"
 import { titleCase } from "../app/common/string.ts"
-import { getAspect, type Aspect, type AspectNames } from "./aspects.ts"
+import { getAspect, type Aspect } from "./aspects.ts"
 
 const aspectSkillData = {
 	// fire
@@ -193,6 +193,11 @@ const aspectSkillData = {
 		tier: 5,
 		description: `Change the weather conditions of the surrounding environment.`,
 	},
+	foresee: {
+		aspect: "wind",
+		tier: 5,
+		description: `Become one with the surrounding environment to predict changing weather conditions in the future.`,
+	},
 
 	// light
 	summonLight: {
@@ -245,7 +250,7 @@ const aspectSkillData = {
 		description: `See through walls and other solid objects.`,
 	},
 
-	healAura: {
+	healingAura: {
 		aspect: "light",
 		tier: 5,
 		description: `Emit a warming glow to heal damage from surrounding characters.`,
@@ -332,7 +337,7 @@ const aspectSkillData = {
 		tier: 5,
 		description: `Create tears in reality to move from one place to another visible location.`,
 	},
-} satisfies Record<string, { aspect: AspectNames; tier: number; description: string }>
+} satisfies Record<string, { aspect: Aspect["id"]; tier: number; description: string }>
 
 const tierNamesByAspect = {
 	fire: ["Alter", "Create", "Control", "Imbue", "Summon"],
@@ -340,18 +345,22 @@ const tierNamesByAspect = {
 	wind: ["Coincide", "Direct", "Shape", "Modulate", "Integrate"],
 	light: ["Illuminate", "Restore", "Bless", "Protect", "Perceive"],
 	darkness: ["Influence", "Curse", "Deceive", "Rewrite", "Dematerialize"],
-} as const satisfies Record<AspectNames, readonly string[]>
+} as const satisfies Record<Aspect["id"], readonly string[]>
+
+export interface AspectSkillTier {
+	name: string
+	number: number
+}
 
 export interface AspectSkill {
 	readonly id: keyof typeof aspectSkillData
 	readonly name: string
 	readonly description: string
 	readonly aspect: Aspect
-	readonly tier: { name: string; number: number }
+	readonly tier: AspectSkillTier
 }
-export type AspectSkillId = AspectSkill["id"]
 
-export function getAspectSkill(id: AspectSkillId): AspectSkill {
+export function getAspectSkill(id: AspectSkill["id"]): AspectSkill {
 	const { tier, description, aspect } = aspectSkillData[id]
 	return {
 		id,
@@ -362,16 +371,27 @@ export function getAspectSkill(id: AspectSkillId): AspectSkill {
 	}
 }
 
-export function getAspectSkills() {
-	return keys(aspectSkillData).map(getAspectSkill)
+export function listAspectSkillIds() {
+	return keys(aspectSkillData)
 }
 
-export function getAspectSkillsByAspect(aspect: AspectNames) {
-	return getAspectSkills().filter((skill) => skill.aspect === getAspect(aspect))
+export function listAspectSkills() {
+	return listAspectSkillIds().map(getAspectSkill)
 }
 
-export function getAspectSkillsByTier(aspect: AspectNames, tier: number) {
-	return getAspectSkills().filter(
-		(skill) => skill.aspect === getAspect(aspect) && skill.tier.number === tier,
+export function listAspectSkillsByAspect(aspectId: Aspect["id"]) {
+	return listAspectSkills().filter((skill) => skill.aspect.id === aspectId)
+}
+
+export function listAspectSkillsByTier(aspectId: Aspect["id"], tierNumber: number) {
+	return listAspectSkills().filter(
+		(skill) => skill.aspect.id === aspectId && skill.tier.number === tierNumber,
 	)
+}
+
+export function listAspectSkillTiers(aspectId: Aspect["id"]): Iterator<AspectSkillTier> {
+	return Iterator.from(tierNamesByAspect[aspectId]).map((name, index) => ({
+		name,
+		number: index + 1,
+	}))
 }

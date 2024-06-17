@@ -1,7 +1,6 @@
 import { literals } from "convex-helpers/validators"
 import { ConvexError, v, type GenericId } from "convex/values"
 import { Effect } from "effect"
-import { NoSuchElementException } from "effect/Cause"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
 import { isTuple } from "../../app/common/array.ts"
@@ -9,26 +8,21 @@ import { expect } from "../../app/common/expect.ts"
 import { fromEntries, omit, pick } from "../../app/common/object.ts"
 import { randomInt, randomItem } from "../../app/common/random.ts"
 import { titleCase } from "../../app/common/string.ts"
+import { getAspect, listAspects, type Aspect } from "../../data/aspects.ts"
 import {
-	CharacterSkillTree,
-	type Aspect,
-	type Skill,
-} from "../../app/features/characters/skills.ts"
+	getAspectSkill,
+	listAspectSkillIds,
+	listAspectSkillsByAspect,
+	type AspectSkill,
+} from "../../data/aspectSkills.ts"
+import { listRaceIds } from "../../data/races.ts"
 import type { Doc } from "../_generated/dataModel.js"
 import { mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
-import {
-	effectMutation,
-	getDoc,
-	insertDoc,
-	updateDoc,
-	withMutationCtx,
-	withQueryCtx,
-} from "../helpers/effect.ts"
+import { effectMutation, getDoc, insertDoc, updateDoc, withMutationCtx } from "../helpers/effect.ts"
 import { createMessages } from "../messages/helpers.ts"
 import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
-import { getNotionImports } from "../notionImports/functions.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
 import { RoomModel } from "../rooms/RoomModel.js"
 import { userColorValidator } from "../types.ts"
@@ -80,7 +74,7 @@ export const create = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			const room = yield* ensureViewerOwnsRoom(args.roomId)
-			const properties = yield* generateRandomCharacterProperties()
+			const properties = generateRandomCharacterProperties()
 			return yield* insertDoc("characters", { ...properties, roomId: room._id })
 		})
 	},
@@ -96,7 +90,7 @@ export const duplicate = effectMutation({
 			const { character } = yield* ensureViewerCharacterPermissions(args.id)
 			const properties = omit(character, ["_id", "_creationTime"])
 			if (args.randomize) {
-				Object.assign(properties, yield* generateRandomCharacterProperties())
+				Object.assign(properties, generateRandomCharacterProperties())
 			}
 			return yield* insertDoc("characters", properties)
 		})
@@ -122,7 +116,7 @@ export const randomize = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			yield* ensureViewerCharacterPermissions(args.id)
-			yield* updateDoc(args.id, yield* generateRandomCharacterProperties())
+			yield* updateDoc(args.id, generateRandomCharacterProperties())
 		})
 	},
 })
@@ -222,18 +216,14 @@ export const applyStress = effectMutation({
 export const setSkillActive = effectMutation({
 	args: {
 		characterId: v.id("characters"),
-		aspectSkillId: v.string(),
+		aspectSkillId: literals(...listAspectSkillIds()),
 		active: v.boolean(),
 	},
 	handler(args) {
 		return Effect.gen(function* () {
 			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
 
-			const skill = yield* Effect.orElseFail(
-				Effect.fromNullable(CharacterSkillTree.skillsById.get(args.aspectSkillId)),
-				() =>
-					new NoSuchElementException(`Couldn't find aspect skill with id "${args.aspectSkillId}"`),
-			)
+			const skill = getAspectSkill(args.aspectSkillId)
 
 			const aspectSkillGroups = new Map(
 				character.learnedAspectSkills?.map((doc) => [
@@ -386,82 +376,71 @@ export const updateModifier = effectMutation({
 })
 
 function generateRandomCharacterProperties() {
-	return Effect.gen(function* () {
-		const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
-		const [strength, sense, mobility, intellect, wit] = dice.sort(() => Math.random() - 0.5)
+	const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
+	const [strength, sense, mobility, intellect, wit] = dice.sort(() => Math.random() - 0.5)
 
-		const adjective = randomItem(getWordsByCategory("adjective", ["personality"])) ?? "A Random"
+	const adjective = randomItem(getWordsByCategory("adjective", ["personality"])) ?? "A Random"
 
-		const notionImports = yield* withQueryCtx(getNotionImports)
-		const race = randomItem(notionImports?.races ?? [])?.name
+	const race = expect(randomItem(listRaceIds()))
 
-		// the character should prefer skills with an aspect that matches their strongest attribute
-		const preferredAspect = greatestBy(
-			[
-				{ stat: strength, aspect: expect(CharacterSkillTree.aspectsById.get("fire")) },
-				{ stat: sense, aspect: expect(CharacterSkillTree.aspectsById.get("water")) },
-				{ stat: mobility, aspect: expect(CharacterSkillTree.aspectsById.get("wind")) },
-				{ stat: intellect, aspect: expect(CharacterSkillTree.aspectsById.get("light")) },
-				{ stat: wit, aspect: expect(CharacterSkillTree.aspectsById.get("darkness")) },
-			],
-			(item) => item.stat,
-		).aspect
+	// the character should prefer skills with an aspect that matches their strongest attribute
+	const preferredAspect = greatestBy(
+		[
+			{ stat: strength, aspect: getAspect("fire") },
+			{ stat: sense, aspect: getAspect("water") },
+			{ stat: mobility, aspect: getAspect("wind") },
+			{ stat: intellect, aspect: getAspect("light") },
+			{ stat: wit, aspect: getAspect("darkness") },
+		],
+		(item) => item.stat,
+	).aspect
 
-		const skillsByAspect = new Map<Aspect["id"], Set<Skill["id"]>>()
+	const skillsByAspect = new Map<Aspect["id"], Set<AspectSkill["id"]>>()
 
-		for (const _ of Iterator.range(randomInt(5, 30))) {
-			// small chance of going outside their preferred aspect
-			const aspect =
-				Math.random() > 0.1 ? preferredAspect : expect(randomItem(CharacterSkillTree.aspects))
+	for (const _i of Iterator.range(randomInt(5, 30))) {
+		// small chance of going outside their preferred aspect
+		const aspect = Math.random() > 0.1 ? preferredAspect : expect(randomItem(listAspects()))
 
-			// valid tiers are ones in which they have a skill, plus one higher
-			const currentTiers = aspect.tiers.filter((tier) =>
-				Iterator.from(skillsByAspect.get(aspect.id) ?? []).some((skillId) =>
-					tier.skillsById.has(skillId),
-				),
-			)
+		const learnedAspectSkills = Iterator.from(skillsByAspect.get(aspect.id) ?? [])
+			.map(getAspectSkill)
+			.toArray()
 
-			// if there are no skills, there is no highest tier
-			const highestTier =
-				currentTiers.length > 0 ? greatestBy(currentTiers, (tier) => tier.number) : undefined
+		const currentHighestTier =
+			learnedAspectSkills.length > 0 ?
+				greatestBy(learnedAspectSkills, (skill) => skill.tier.number).tier.number
+			:	undefined
 
-			let nextTier
-			if (!highestTier) {
-				// no highest tier means no skills yet, so we start at the first
-				nextTier = expect(aspect.tiers[0])
-			} else {
-				// if there's no next higher tier, we're _at_ the highest tier
-				nextTier = aspect.tiers[aspect.tiers.indexOf(highestTier) + 1] ?? highestTier
-			}
+		const nextTier = currentHighestTier ? currentHighestTier + 1 : 1
 
-			// collect all selectable skills from every valid tier
-			const validSkills = new Set([...currentTiers, nextTier].flatMap((tier) => tier.skills))
-			const newSkill = randomItem(validSkills)
-			if (!newSkill) {
-				continue // we ran out of skills for this tier lol
-			}
+		const validSkills = listAspectSkillsByAspect(aspect.id).filter(
+			(skill) => skill.tier.number <= nextTier,
+		)
 
-			skillsByAspect.set(aspect.id, new Set(skillsByAspect.get(aspect.id)).add(newSkill.id))
+		const newSkill = randomItem(validSkills)
+		if (!newSkill) {
+			continue // we ran out of skills for this tier lol
 		}
 
-		return {
-			name: titleCase(`${adjective} ${race}`),
-			pronouns: randomItem(["he/him", "she/her", "they/them", "he/they", "she/they"]),
-			strength,
-			sense,
-			mobility,
-			intellect,
-			wit,
-			race,
-			currency: (Math.floor(Math.random() * 10) + 1) * 50,
-			learnedAspectSkills: Iterator.from(skillsByAspect)
-				.map(([aspectId, skillIds]) => ({
-					aspectId,
-					aspectSkillIds: [...skillIds],
-				}))
-				.toArray(),
-		} satisfies Partial<Doc<"characters">>
-	})
+		skillsByAspect.set(aspect.id, new Set(skillsByAspect.get(aspect.id)).add(newSkill.id))
+	}
+
+	return {
+		name: titleCase(`${adjective} ${race}`),
+		pronouns: randomItem(["he/him", "she/her", "they/them", "he/they", "she/they"]),
+		strength,
+		sense,
+		mobility,
+		intellect,
+		wit,
+		race,
+		currency: (Math.floor(Math.random() * 10) + 1) * 50,
+		learnedAspectSkills: Iterator.from(skillsByAspect)
+			.map(([aspectId, skillIds]) => ({
+				aspectId,
+				aspectSkillIds: [...skillIds],
+			}))
+			.toArray(),
+	} satisfies Partial<Doc<"characters">>
 }
 
 function greatestBy<T>(items: Iterable<T>, rank: (item: T) => number) {

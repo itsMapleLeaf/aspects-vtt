@@ -6,7 +6,6 @@ import { characterProperties } from "./characters/types.ts"
 import { diceMacroProperties } from "./diceMacros/types.ts"
 import { nullish } from "./helpers/convex.ts"
 import { diceInputValidator, diceRollValidator } from "./messages/types.ts"
-import { notionImportProperties } from "./notionImports/types.ts"
 import { roomCombatValidator } from "./rooms/combat/types.ts"
 import { roomProperties } from "./rooms/types.ts"
 import { sceneProperties } from "./scenes/types.ts"
@@ -61,8 +60,6 @@ export default defineSchema({
 		roomId: v.id("rooms"),
 		tokenPosition: deprecated,
 	}).index("roomId", ["roomId"]),
-
-	notionImports: defineTable(notionImportProperties),
 
 	scenes: defineTable(sceneProperties).index("roomId", ["roomId"]),
 

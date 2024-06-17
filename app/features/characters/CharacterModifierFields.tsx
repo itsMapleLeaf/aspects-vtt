@@ -1,17 +1,18 @@
 import { useMutation } from "convex/react"
 import { api } from "../../../convex/_generated/api.js"
+import type { Attribute } from "../../../data/attributes.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { NumberField } from "../../ui/NumberField.tsx"
-import type { ApiAttribute, ApiCharacter } from "./types.ts"
+import type { ApiCharacter } from "./types.ts"
 
 export function CharacterModifierFields({
 	character,
 	attribute,
 }: {
 	character: ApiCharacter
-	attribute: ApiAttribute["key"]
+	attribute: Attribute
 }) {
-	const modifier = character.modifiers?.find((modifier) => modifier.attribute === attribute)
+	const modifier = character.modifiers?.find((modifier) => modifier.attribute === attribute.id)
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.updateModifier))
 
 	const fields = [
@@ -26,7 +27,7 @@ export function CharacterModifierFields({
 			label={field.label}
 			value={state.args?.[field.modification] ?? field.value}
 			onChange={(value) =>
-				update({ characterId: character._id, attribute, [field.modification]: value })
+				update({ characterId: character._id, attribute: attribute.id, [field.modification]: value })
 			}
 			className="w-12 text-center"
 			placeholder={0}

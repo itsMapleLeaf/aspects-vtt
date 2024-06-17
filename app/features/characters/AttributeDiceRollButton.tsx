@@ -2,6 +2,7 @@ import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { api } from "../../../convex/_generated/api"
+import type { Attribute } from "../../../data/attributes.ts"
 import { useSafeAction } from "../../common/convex.ts"
 import { clamp } from "../../common/math.ts"
 import { titleCase } from "../../common/string.ts"
@@ -11,7 +12,7 @@ import { FormField } from "../../ui/Form.tsx"
 import { Popover, PopoverDismiss, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { panel } from "../../ui/styles.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import type { ApiAttribute, ApiCharacter } from "./types.ts"
+import type { ApiCharacter } from "./types.ts"
 
 export function AttributeDiceRollButton({
 	characters,
@@ -21,7 +22,7 @@ export function AttributeDiceRollButton({
 	...buttonProps
 }: {
 	characters: ApiCharacter[]
-	attribute: ApiAttribute["key"]
+	attribute: Attribute["id"]
 	messageContent?: (character: ApiCharacter) => string
 } & PartialKeys<ButtonProps, "icon">) {
 	const [boostCount, setBoostCount] = useState(0)

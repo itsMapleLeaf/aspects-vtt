@@ -15,7 +15,7 @@ const characterDefaults = {
 	name: "",
 	pronouns: "",
 	imageId: null,
-	race: "",
+	race: null,
 
 	// stats
 	strength: 4,

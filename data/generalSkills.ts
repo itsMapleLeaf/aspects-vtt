@@ -45,14 +45,12 @@ They cannot move until you use an action to release them, leave their area, or u
 	},
 } satisfies Record<string, GeneralSkillDefinition>
 
-export type GeneralSkillName = keyof typeof generalSkills
-
 export interface GeneralSkill extends GeneralSkillDefinition {
-	id: GeneralSkillName
+	id: keyof typeof generalSkills
 	name: string
 }
 
-export function getGeneralSkill(name: GeneralSkillName): GeneralSkill {
+export function getGeneralSkill(name: GeneralSkill["id"]): GeneralSkill {
 	return {
 		...generalSkills[name],
 		id: name,
@@ -60,10 +58,10 @@ export function getGeneralSkill(name: GeneralSkillName): GeneralSkill {
 	}
 }
 
-export function getGeneralSkills() {
+export function listGeneralSkills() {
 	return keys(generalSkills).map(getGeneralSkill)
 }
 
-export function getGeneralSkillNames() {
+export function listGeneralSkillIds() {
 	return keys(generalSkills)
 }

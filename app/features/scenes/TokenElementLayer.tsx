@@ -6,7 +6,7 @@ import { getColorStyle, type UserColorName } from "../../../shared/colors.ts"
 import { sortBy } from "../../common/collection.ts"
 import { Vector } from "../../common/vector.ts"
 import { CharacterImage } from "../characters/CharacterImage.tsx"
-import { getThresholds } from "../characters/helpers.ts"
+import { getCharacterStressThresholds } from "../characters/helpers.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { DistanceLabelLayer, DistanceLayer } from "./DistanceLayer.tsx"
@@ -147,7 +147,7 @@ function CharacterTokenDecoration({
 }) {
 	const { scene, viewport } = useSceneContext()
 	const translate = useTokenTranslate(token)
-	const thresholds = getThresholds(character)
+	const thresholds = getCharacterStressThresholds(character)
 	return (
 		<div
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"

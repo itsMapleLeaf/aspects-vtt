@@ -22,7 +22,6 @@ import type * as characters_CharacterModel from "../characters/CharacterModel.js
 import type * as characters_functions from "../characters/functions.js";
 import type * as characters_helpers from "../characters/helpers.js";
 import type * as characters_types from "../characters/types.js";
-import type * as crons from "../crons.js";
 import type * as dice_helpers from "../dice/helpers.js";
 import type * as diceMacros_functions from "../diceMacros/functions.js";
 import type * as diceMacros_types from "../diceMacros/types.js";
@@ -33,8 +32,6 @@ import type * as http from "../http.js";
 import type * as messages_functions from "../messages/functions.js";
 import type * as messages_helpers from "../messages/helpers.js";
 import type * as messages_types from "../messages/types.js";
-import type * as notionImports_functions from "../notionImports/functions.js";
-import type * as notionImports_types from "../notionImports/types.js";
 import type * as rooms_combat_functions from "../rooms/combat/functions.js";
 import type * as rooms_combat_helpers from "../rooms/combat/helpers.js";
 import type * as rooms_combat_types from "../rooms/combat/types.js";
@@ -66,7 +63,6 @@ declare const fullApi: ApiFromModules<{
   "characters/functions": typeof characters_functions;
   "characters/helpers": typeof characters_helpers;
   "characters/types": typeof characters_types;
-  crons: typeof crons;
   "dice/helpers": typeof dice_helpers;
   "diceMacros/functions": typeof diceMacros_functions;
   "diceMacros/types": typeof diceMacros_types;
@@ -77,8 +73,6 @@ declare const fullApi: ApiFromModules<{
   "messages/functions": typeof messages_functions;
   "messages/helpers": typeof messages_helpers;
   "messages/types": typeof messages_types;
-  "notionImports/functions": typeof notionImports_functions;
-  "notionImports/types": typeof notionImports_types;
   "rooms/combat/functions": typeof rooms_combat_functions;
   "rooms/combat/helpers": typeof rooms_combat_helpers;
   "rooms/combat/types": typeof rooms_combat_types;

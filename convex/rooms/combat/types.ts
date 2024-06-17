@@ -1,6 +1,6 @@
-import { deprecated, nullable } from "convex-helpers/validators"
+import { deprecated, literals, nullable } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
-import { attributeIdValidator } from "../../notionImports/types.ts"
+import { listAttributeIds } from "../../../data/attributes.ts"
 
 export const memberValidator = v.object({
 	characterId: v.id("characters"),
@@ -11,7 +11,7 @@ export type CombatMember = Infer<typeof memberValidator>
 export const roomCombatValidator = v.object({
 	currentMemberId: v.optional(nullable(v.id("characters"))),
 	currentRoundNumber: v.number(),
-	initiativeAttribute: nullable(attributeIdValidator),
+	initiativeAttribute: nullable(literals(...listAttributeIds())),
 	memberObjects: v.optional(v.array(memberValidator)),
 	currentMemberIndex: deprecated,
 	members: deprecated,

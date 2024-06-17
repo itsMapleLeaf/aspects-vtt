@@ -3,11 +3,14 @@ import type { FunctionArgs, FunctionReference } from "convex/server"
 import * as Lucide from "lucide-react"
 import React, { useId, useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
+import { getAttribute, type Attribute } from "../../../data/attributes.ts"
+import { listRaces } from "../../../data/races.ts"
 import { useSafeAction } from "../../common/convex.ts"
 import { startCase } from "../../common/string.ts"
 import { useAsyncState } from "../../common/useAsyncState.ts"
 import { Button } from "../../ui/Button.tsx"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
+import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { Loading } from "../../ui/Loading.tsx"
@@ -16,22 +19,16 @@ import { Select, type SelectOption } from "../../ui/Select.tsx"
 import { TextArea } from "../../ui/TextArea.tsx"
 import { panel } from "../../ui/styles.ts"
 import { statDiceKinds } from "../dice/diceKinds.tsx"
-import { useNotionData } from "../game/NotionDataContext.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterModifierFields } from "./CharacterModifierFields.tsx"
 import { CharacterNumberField } from "./CharacterNumberField.tsx"
-import { CharacterRaceAbilityList } from "./CharacterRaceAbilityList.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
-import {
-	OwnedCharacter,
-	type ApiAttribute,
-	type ApiCharacter,
-	type UpdateableCharacterField,
-} from "./types.ts"
+import { listCharacterRaceAbilities } from "./helpers.ts"
+import { OwnedCharacter, type ApiCharacter, type UpdateableCharacterField } from "./types.ts"
 
 function MutationButton<Func extends FunctionReference<"mutation", "public">>({
 	mutationFunction,
@@ -50,7 +47,6 @@ function MutationButton<Func extends FunctionReference<"mutation", "public">>({
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
-	const notionData = useNotionData()
 
 	return (
 		<div className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto *:shrink-0">
@@ -96,14 +92,12 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			<CharacterSelectField
 				character={character}
 				field="race"
-				options={
-					notionData?.races
-						.map((r) => ({ label: r.name, value: r.name }))
-						.toSorted((a, b) => a.label.localeCompare(b.label)) ?? []
-				}
+				options={[...listRaces().map((r) => ({ value: r.id, label: r.name }))].toSorted((a, b) =>
+					a.label.localeCompare(b.label),
+				)}
 			/>
 			<div className={panel("p-3")}>
-				<CharacterRaceAbilityList character={character} />
+				<DefinitionList items={listCharacterRaceAbilities(character)} />
 			</div>
 
 			{OwnedCharacter.is(character) && <CharacterStatusFields character={character} />}
@@ -255,7 +249,7 @@ function CharacterDiceField({
 	label = startCase(field),
 }: {
 	character: ApiCharacter
-	field: ApiAttribute["key"]
+	field: Attribute["id"]
 	label?: string
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
@@ -274,7 +268,7 @@ function CharacterDiceField({
 					onChange={(value) => update({ id: character._id, [field]: value })}
 					className="flex-1"
 				/>
-				<CharacterModifierFields character={character} attribute={field} />
+				<CharacterModifierFields character={character} attribute={getAttribute(field)} />
 				<AttributeDiceRollButton characters={[{ ...character, ...state.args }]} attribute={field} />
 			</div>
 		</CharacterReadOnlyGuard>

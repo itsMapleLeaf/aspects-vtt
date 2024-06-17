@@ -5,10 +5,6 @@ import type { PickByValue } from "../../common/types.js"
 
 export type ApiCharacter = FunctionReturnType<typeof api.characters.functions.list>[number]
 
-export type ApiAttribute = NonNullable<
-	FunctionReturnType<typeof api.notionImports.functions.get>
->["attributes"][number]
-
 /**
  * A field on the character document which also can be updated, so it excludes computed fields, like
  * damage thresholds

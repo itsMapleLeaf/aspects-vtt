@@ -4,57 +4,55 @@ import { getAttribute, type Attribute } from "./attributes.ts"
 
 const aspectData = {
 	fire: {
-		description: import("./aspects/fire.md?raw"),
+		// description: import("./aspects/fire.md?raw"),
 		attribute: "strength",
 	},
 	water: {
-		description: import("./aspects/water.md?raw"),
+		// description: import("./aspects/water.md?raw"),
 		attribute: "sense",
 	},
 	wind: {
-		description: import("./aspects/wind.md?raw"),
+		// description: import("./aspects/wind.md?raw"),
 		attribute: "mobility",
 	},
 	light: {
-		description: import("./aspects/light.md?raw"),
+		// description: import("./aspects/light.md?raw"),
 		attribute: "intellect",
 	},
 	darkness: {
-		description: import("./aspects/darkness.md?raw"),
+		// description: import("./aspects/darkness.md?raw"),
 		attribute: "wit",
 	},
 } as const satisfies Record<
 	string,
 	{
-		description: Promise<{ default: string }>
+		// description: Promise<{ default: string }>
 		attribute: string
 	}
 >
 
 export interface Aspect {
-	readonly id: AspectNames
+	readonly id: keyof typeof aspectData
 	readonly name: string
-	readonly document: Promise<{ default: string }>
+	// readonly document: Promise<{ default: string }>
 	get attribute(): Attribute
 }
 
-export type AspectNames = keyof typeof aspectData
-
-export function getAspect(id: keyof typeof aspectData): Aspect {
+export function getAspect(id: Aspect["id"]): Aspect {
 	return {
 		id,
 		name: titleCase(id),
-		document: aspectData[id].description,
+		// document: aspectData[id].description,
 		get attribute() {
 			return getAttribute(aspectData[id].attribute)
 		},
 	}
 }
 
-export function getAspects() {
+export function listAspects() {
 	return keys(aspectData).map(getAspect)
 }
 
-export function getAspectNames() {
+export function listAspectNames() {
 	return keys(aspectData)
 }

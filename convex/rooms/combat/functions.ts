@@ -1,12 +1,12 @@
-import { nullable } from "convex-helpers/validators"
+import { literals, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { indexLooped, withMovedItem } from "../../../app/common/array.ts"
 import { expect } from "../../../app/common/expect.ts"
+import { listAttributeIds } from "../../../data/attributes.ts"
 import { mutation } from "../../_generated/server.js"
 import { CharacterModel } from "../../characters/CharacterModel.ts"
 import { effectQuery, getDoc } from "../../helpers/effect.ts"
-import { attributeIdValidator } from "../../notionImports/types.ts"
 import { RoomModel } from "../RoomModel.ts"
 import { getInitiativeRoll, getRoomCombat } from "./helpers.ts"
 
@@ -48,7 +48,7 @@ export const getCombatMembers = effectQuery({
 export const start = mutation({
 	args: {
 		id: v.id("rooms"),
-		initiativeAttribute: nullable(attributeIdValidator),
+		initiativeAttribute: nullable(literals(...listAttributeIds())),
 	},
 	handler: async (ctx, { id, ...args }) => {
 		const room = await RoomModel.fromId(ctx, id).getValueOrThrow()

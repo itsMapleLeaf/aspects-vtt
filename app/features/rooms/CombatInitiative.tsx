@@ -4,9 +4,10 @@ import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
+import { getAttribute, listAttributes, type Attribute } from "../../../data/attributes.ts"
 import { withMovedItem } from "../../common/array.ts"
 import { queryMutators } from "../../common/convex.ts"
-import type { Nullish } from "../../common/types.ts"
+import { typed, type Nullish } from "../../common/types.ts"
 import { Button } from "../../ui/Button.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { FormLayout } from "../../ui/Form.tsx"
@@ -15,7 +16,6 @@ import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import { CharacterImage } from "../characters/CharacterImage.tsx"
-import { useNotionData } from "../game/NotionDataContext.tsx"
 import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
 
 export function CombatInitiative() {
@@ -66,8 +66,8 @@ export function CombatInitiative() {
 		removeMember: useMutation(api.rooms.combat.functions.removeMember),
 	}
 
-	const attributes = useAttributes()
-	const initiativeAttribute = attributes.find((it) => it.id === combat?.initiativeAttribute)
+	const initiativeAttribute =
+		combat?.initiativeAttribute && getAttribute(combat.initiativeAttribute)
 
 	if (combat == null) {
 		return <CombatEmptyState />
@@ -258,11 +258,10 @@ export function CombatMemberItem(props: {
 function CombatEmptyState() {
 	const room = useRoom()
 	const startCombat = useMutation(api.rooms.combat.functions.start)
-	const attributes = useAttributes()
 
 	const form = useForm({
 		defaultValues: {
-			initiativeAttribute: attributes.find((it) => it.name.toLowerCase() === "mobility")?.id,
+			initiativeAttribute: typed<Attribute["id"]>("mobility"),
 		},
 	})
 
@@ -273,10 +272,12 @@ function CombatEmptyState() {
 					<Select
 						{...form.bind("initiativeAttribute")}
 						label="Initiative Attribute"
-						options={attributes.map((it) => ({
-							label: it.name,
-							value: it.id,
-						}))}
+						options={listAttributes()
+							.map((it) => ({
+								label: it.name,
+								value: it.id,
+							}))
+							.toArray()}
 					/>
 					<Button
 						text="Start Combat"
@@ -293,11 +294,6 @@ function CombatEmptyState() {
 			</RoomOwnerOnly>
 		</EmptyState>
 	)
-}
-
-function useAttributes() {
-	const notionImports = useNotionData()
-	return notionImports?.attributes ?? []
 }
 
 function useForm<Values>(options: { defaultValues: Partial<Values> }) {

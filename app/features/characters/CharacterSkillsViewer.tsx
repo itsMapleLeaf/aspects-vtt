@@ -8,8 +8,14 @@ import {
 	LucideStars,
 	LucideX,
 } from "lucide-react"
-import { Fragment, type ReactNode, useActionState, useState } from "react"
+import { Fragment, useActionState, useState, type ReactNode } from "react"
 import { api } from "../../../convex/_generated/api"
+import {
+	listAspectSkillsByTier,
+	listAspectSkillTiers,
+	type AspectSkill,
+} from "../../../data/aspectSkills.ts"
+import { getAspect, listAspects } from "../../../data/aspects.ts"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { Loading } from "../../ui/Loading.tsx"
@@ -17,7 +23,6 @@ import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { twc } from "../../ui/twc.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { CharacterSkillTree, type Skill } from "./skills.ts"
 import type { ApiCharacter } from "./types.ts"
 
 export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
@@ -29,31 +34,36 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 	)
 
 	const characterAspectSet = new Set(
-		Iterator.from(character.learnedAspectSkills ?? [])
-			.map((doc) => CharacterSkillTree.aspectsById.get(doc.aspectId))
-			.filter((aspect) => aspect != null),
+		Iterator.from(character.learnedAspectSkills ?? []).map((doc) => doc.aspectId),
 	)
 
 	const characterAspectList = [...characterAspectSet]
 
-	const computedSkillTree = CharacterSkillTree.aspects.map((aspect) => ({
-		...aspect,
-		tiers: aspect.tiers.map((tier) => ({
-			...tier,
-			skills: tier.skills.map((skill) => {
-				// if the character already learned this aspect, calculate the cost based on the aspect index,
-				// otherwise, show how much it'll cost to learn this aspect (as if it's the last aspect in the list)
-				const aspectIndex = characterAspectList.indexOf(aspect)
-				const baseAspectCost = (aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
-				const tierCost = tier.number * 10
-				return {
-					...skill,
-					cost: baseAspectCost + tierCost,
-					learned: characterSkillIds.has(skill.id),
-				}
-			}),
-		})),
-	}))
+	const computedSkillTree = listAspects()
+		.map((aspect) => ({
+			...aspect,
+			tiers: listAspectSkillTiers(aspect.id)
+				.map((tier) => ({
+					...tier,
+					skills: listAspectSkillsByTier(aspect.id, tier.number)
+						.map((skill) => {
+							// if the character already learned this aspect, calculate the cost based on the aspect index,
+							// otherwise, show how much it'll cost to learn this aspect (as if it's the last aspect in the list)
+							const aspectIndex = characterAspectList.indexOf(aspect.id)
+							const baseAspectCost =
+								(aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
+							const tierCost = tier.number * 10
+							return {
+								...skill,
+								cost: baseAspectCost + tierCost,
+								learned: characterSkillIds.has(skill.id),
+							}
+						})
+						.toArray(),
+				}))
+				.toArray(),
+		}))
+		.toArray()
 
 	const usedExperience = Iterator.from(computedSkillTree)
 		.flatMap((aspect) => aspect.tiers)
@@ -75,11 +85,11 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 							<p className="opacity-75">Path:</p>
 							<ul className="flex gap-0.5">
 								{characterAspectList.map((aspect, index) => (
-									<Fragment key={aspect.id}>
+									<Fragment key={aspect}>
 										{index > 0 && (
 											<LucideChevronsRight className="size-5 translate-y-[-0.5px] stroke-[2.5px] opacity-75" />
 										)}
-										<span>{aspect.name}</span>
+										<span>{getAspect(aspect).name}</span>
 									</Fragment>
 								))}
 							</ul>
@@ -88,16 +98,18 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 				</aside>
 
 				<Tabs.List>
-					{CharacterSkillTree.aspects.map((aspect) => (
-						<Tabs.Tab key={aspect.id} className="flex-center-row gap-1.5">
-							{characterAspectList[0] === aspect ?
-								<LucideStars className="size-5" />
-							: characterAspectSet.has(aspect) ?
-								<LucideStar className="size-4" />
-							:	null}
-							<span>{aspect.name}</span>
-						</Tabs.Tab>
-					))}
+					{listAspects()
+						.map((aspect) => (
+							<Tabs.Tab key={aspect.id} className="flex-center-row gap-1.5">
+								{characterAspectList[0] === aspect.id ?
+									<LucideStars className="size-5" />
+								: characterAspectSet.has(aspect.id) ?
+									<LucideStar className="size-4" />
+								:	null}
+								<span>{aspect.name}</span>
+							</Tabs.Tab>
+						))
+						.toArray()}
 				</Tabs.List>
 
 				<section aria-label="Filters" className="flex-center-row p-2">
@@ -119,7 +131,7 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 								})
 								.filter((tier) => tier.skills.length > 0)
 								.map((tier) => (
-									<TierSection key={tier.id} name={tier.name} number={tier.number}>
+									<TierSection key={tier.name} name={tier.name} number={tier.number}>
 										<SkillList skills={tier.skills} character={character} />
 									</TierSection>
 								))
@@ -169,12 +181,12 @@ function SkillList({
 	skills,
 	character,
 }: {
-	skills: Array<Skill & { learned: boolean; cost: number }>
+	skills: Array<AspectSkill & { learned: boolean; cost: number }>
 	character: ApiCharacter
 }) {
 	const setSkillActive = useMutation(api.characters.functions.setSkillActive)
 
-	async function handleToggleSkill(aspectSkillId: string, active: boolean) {
+	async function handleToggleSkill(aspectSkillId: AspectSkill["id"], active: boolean) {
 		try {
 			await setSkillActive({
 				characterId: character._id,

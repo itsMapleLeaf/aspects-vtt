@@ -1,11 +1,11 @@
 import * as Lucide from "lucide-react"
-import { type ReactNode, useState } from "react"
+import { useState, type ReactNode } from "react"
+import { getAttribute, listAttributes, type Attribute } from "../../../data/attributes.ts"
 import { Button } from "../../ui/Button.tsx"
 import { FormActions, FormLayout, FormRow } from "../../ui/Form.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
 import { Select } from "../../ui/Select.tsx"
-import type { ApiAttribute, ApiCharacter } from "../characters/types.ts"
-import { useNotionData } from "../game/NotionDataContext.tsx"
+import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacters } from "../rooms/roomContext.tsx"
 import { useCreateAttributeRollMessage } from "./useCreateAttributeRollMessage.tsx"
 
@@ -18,18 +18,15 @@ export function ContestedRollForm({
 }) {
 	const characters = useCharacters()
 	const selfCharacter = characters.find((c) => c.isOwner)
-
-	const attributes = useNotionData()?.attributes
-	const strengthAttribute = attributes?.find((a) => a.key === "strength")
-
 	const [, createAttributeRollMessage] = useCreateAttributeRollMessage()
+	const strengthAttribute = getAttribute("strength")
 
 	const [values, setValues] = useState<{
 		selfCharacter: ApiCharacter | undefined
-		selfAttribute: ApiAttribute | undefined
+		selfAttribute: Attribute
 		selfBoostCount: number
 		selfSnagCount: number
-		opponentAttribute: ApiAttribute | undefined
+		opponentAttribute: Attribute
 		opponentBoostCount: number
 		opponentSnagCount: number
 	}>({
@@ -112,13 +109,13 @@ export function ContestedRollForm({
 								content: `<@${selfCharacter._id}> (Defending): ${
 									values.selfAttribute?.name ?? "Strength"
 								}`,
-								attributeValue: selfCharacter[values.selfAttribute?.key ?? "strength"],
+								attributeValue: selfCharacter[values.selfAttribute.id],
 								boostCount: values.selfBoostCount,
 								snagCount: values.selfSnagCount,
 							}),
 							createAttributeRollMessage({
 								content: `<@${opponent._id}>: ${values.opponentAttribute?.name ?? "Strength"}`,
-								attributeValue: opponent[values.opponentAttribute?.key ?? "strength"],
+								attributeValue: opponent[values.opponentAttribute.id],
 								boostCount: values.opponentBoostCount,
 								snagCount: values.opponentSnagCount,
 							}),
@@ -130,27 +127,27 @@ export function ContestedRollForm({
 		</FormLayout>
 	)
 }
+
 function AttributeSelectField(props: {
 	label: ReactNode
-	value: ApiAttribute | undefined
-	onChange: (value: ApiAttribute) => void
+	value: Attribute | undefined
+	onChange: (value: Attribute) => void
 	className?: string
 }) {
-	const attributes = useNotionData()?.attributes
 	return (
 		<Select
 			label={props.label}
-			value={props.value?.key}
-			options={
-				attributes?.map((attribute) => ({
+			value={props.value?.id}
+			options={listAttributes()
+				.map((attribute) => ({
 					label: attribute.name,
-					value: attribute.key,
-				})) ?? []
-			}
+					value: attribute.id,
+				}))
+				.toArray()
+				.sort((a, b) => a.label.localeCompare(b.label))}
 			placeholder="Select an attribute"
-			onChange={(key) => {
-				const attribute = attributes?.find((a) => a.key === key)
-				if (attribute) props.onChange(attribute)
+			onChange={(id) => {
+				props.onChange(getAttribute(id))
 			}}
 			className={props.className}
 		/>

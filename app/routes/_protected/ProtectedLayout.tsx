@@ -2,7 +2,6 @@ import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton } from "@clerk/re
 import { useHref, useLocation } from "@remix-run/react"
 import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
 import * as Lucide from "lucide-react"
-import { NotionDataProvider } from "../../features/game/NotionDataContext.tsx"
 import { AppHeaderLayout } from "../../ui/AppHeaderLayout.tsx"
 import { Button } from "../../ui/Button.tsx"
 import { EmptyStatePanel } from "../../ui/EmptyState.tsx"
@@ -17,9 +16,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
 			<Unauthenticated>
 				<UnauthenticatedMessage />
 			</Unauthenticated>
-			<Authenticated>
-				<NotionDataProvider>{children}</NotionDataProvider>
-			</Authenticated>
+			<Authenticated>{children}</Authenticated>
 		</>
 	)
 }

@@ -4,11 +4,11 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useCallback, useEffect, useRef, type RefObject } from "react"
 import { api } from "../../convex/_generated/api.js"
+import { listGeneralSkills } from "../../data/generalSkills.ts"
 import { CharacterListPanel } from "../features/characters/CharacterListPanel.tsx"
 import { CharacterSelectionProvider } from "../features/characters/CharacterSelectionProvider.tsx"
 import { PlayerControlsPanel } from "../features/characters/PlayerControlsPanel.tsx"
 import { GameTime } from "../features/game/GameTime.tsx"
-import { useNotionData } from "../features/game/NotionDataContext.tsx"
 import { MessageInput } from "../features/messages/MessageInput.tsx"
 import { MessageList } from "../features/messages/MessageList.tsx"
 import { CombatInitiative } from "../features/rooms/CombatInitiative.tsx"
@@ -272,10 +272,9 @@ function CombatDetails() {
 }
 
 function GeneralSkillsList() {
-	const notionData = useNotionData()
 	return (
 		<DefinitionList
-			items={notionData?.generalSkills.toSorted((a, b) => a.name.localeCompare(b.name)) ?? []}
+			items={[...listGeneralSkills()].toSorted((a, b) => a.name.localeCompare(b.name)) ?? []}
 		/>
 	)
 }
