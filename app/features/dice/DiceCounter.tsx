@@ -60,7 +60,7 @@ export function DiceCounter({
 								update(kind.name, -1)
 							}}
 						>
-							{kind.element}
+							{kind.render()}
 						</button>
 					</li>
 				))}

@@ -160,7 +160,7 @@ function DiceRollSummary({ roll }: { roll: ApiDiceRoll }) {
 				{diceKinds
 					.flatMap((kind) => diceResultsByKindName.get(kind.name) ?? [])
 					.map((die) => (
-						<li key={die.key}>
+						<li key={die.key} className="*:size-12">
 							<DiceRollIcon die={die} />
 						</li>
 					))}
@@ -171,19 +171,17 @@ function DiceRollSummary({ roll }: { roll: ApiDiceRoll }) {
 
 function DiceRollIcon({ die }: { die: ApiDiceRoll["dice"][number] }) {
 	const kind = diceKindsByName.get(die.name)
+	const face = kind?.faces[die.result - 1]
 	return (
-		<div className="*:size-12">
-			{kind == null ?
-				<Tooltip text={`Unknown dice type "${die.name}"`} className="flex-center-col">
-					<HelpCircle />
-				</Tooltip>
-			:	kind.faces[die.result - 1]?.element ?? (
-					<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
-						<HelpCircle />
-					</Tooltip>
-				)
-			}
-		</div>
+		kind == null ?
+			<Tooltip text={`Unknown dice type "${die.name}"`} className="flex-center-col">
+				<HelpCircle />
+			</Tooltip>
+		: face == null ?
+			<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
+				<HelpCircle />
+			</Tooltip>
+		:	face.render()
 	)
 }
 

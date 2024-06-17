@@ -110,7 +110,7 @@ export function MessageInput() {
 									className="flex-center relative aspect-square size-8 p-0 opacity-100 transition-opacity hover:opacity-50"
 									onClick={() => removeDie(kind.name)}
 								>
-									<div className="size-full">{kind.element}</div>
+									<div className="size-full">{kind.render()}</div>
 									<span className="sr-only">
 										Remove {kind.name} #{n + 1}
 									</span>
@@ -130,7 +130,7 @@ export function MessageInput() {
 							className="aspect-square p-0 opacity-75 hover:opacity-100"
 							onClick={() => addDie(kind)}
 						>
-							{kind.element}
+							{kind.render()}
 						</button>
 					</Tooltip>
 				))}
@@ -191,7 +191,7 @@ function MacroList({
 								Iterator.range(die.count)
 									.map((n) => (
 										<li key={n} className="*:size-12 empty:hidden">
-											{diceKindsByName.get(die.name)?.element}
+											{diceKindsByName.get(die.name)?.render()}
 										</li>
 									))
 									.toArray(),
