@@ -36,6 +36,7 @@ export default ts.config(
 			"no-console": ["error", { allow: ["warn", "info", "error"] }],
 			"object-shorthand": "warn",
 			"prefer-const": "warn",
+			"no-useless-rename": "warn",
 
 			"@typescript-eslint/array-type": ["warn", { default: "array-simple" }],
 			"@typescript-eslint/ban-ts-comment": "off",
