@@ -1,8 +1,9 @@
-import { keys } from "../app/common/object.ts"
+import { expect } from "../app/common/expect.ts"
+import { SafeMap, type SafeMapValue } from "../app/common/SafeMap.ts"
 import { titleCase } from "../app/common/string.ts"
 import { getAspect, type Aspect } from "./aspects.ts"
 
-const aspectSkillData = {
+const aspectSkillsInput = {
 	// fire
 	heatObject: { aspect: "fire", tier: 1, description: `Touch an object to send heat through it.` },
 	heatAir: { aspect: "fire", tier: 1, description: `Heat up the surrounding air.` },
@@ -347,43 +348,32 @@ const tierNamesByAspect = {
 	darkness: ["Influence", "Curse", "Deceive", "Rewrite", "Dematerialize"],
 } as const satisfies Record<Aspect["id"], readonly string[]>
 
-export interface AspectSkillTier {
-	name: string
-	number: number
-}
-
-export interface AspectSkill {
-	readonly id: keyof typeof aspectSkillData
-	readonly name: string
-	readonly description: string
-	readonly aspect: Aspect
-	readonly tier: AspectSkillTier
-}
-
-export function getAspectSkill(id: AspectSkill["id"]): AspectSkill {
-	const { tier, description, aspect } = aspectSkillData[id]
-	return {
+export const AspectSkills = SafeMap.mapRecord(
+	aspectSkillsInput,
+	({ tier, description, aspect }, id) => ({
 		id,
 		name: titleCase(id),
 		description,
-		tier: { number: tier, name: tierNamesByAspect[aspect][0] },
+		tier: { number: tier, name: expect(tierNamesByAspect[aspect][tier - 1]) },
 		aspect: getAspect(aspect),
-	}
-}
+	}),
+)
 
-export function listAspectSkillIds() {
-	return keys(aspectSkillData)
-}
+export type AspectSkill = SafeMapValue<typeof AspectSkills>
+export type AspectSkillTier = AspectSkill["tier"]
 
-export function listAspectSkills() {
-	return listAspectSkillIds().map(getAspectSkill)
-}
+export const getAspectSkill = AspectSkills.get.bind(AspectSkills)
+export const listAspectSkills = AspectSkills.values.bind(AspectSkills)
+export const listAspectSkillIds = AspectSkills.keys.bind(AspectSkills)
 
-export function listAspectSkillsByAspect(aspectId: Aspect["id"]) {
+export function listAspectSkillsByAspect(aspectId: Aspect["id"]): Iterator<AspectSkill> {
 	return listAspectSkills().filter((skill) => skill.aspect.id === aspectId)
 }
 
-export function listAspectSkillsByTier(aspectId: Aspect["id"], tierNumber: number) {
+export function listAspectSkillsByTier(
+	aspectId: Aspect["id"],
+	tierNumber: number,
+): Iterator<AspectSkill> {
 	return listAspectSkills().filter(
 		(skill) => skill.aspect.id === aspectId && skill.tier.number === tierNumber,
 	)

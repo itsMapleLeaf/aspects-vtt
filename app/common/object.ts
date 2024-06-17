@@ -27,6 +27,18 @@ export function* keys<T extends object>(obj: T) {
 	}
 }
 
+export function* values<T extends object>(obj: T) {
+	for (const key in obj) {
+		yield obj[key]
+	}
+}
+
+export function* entries<K extends PropertyKey, V>(obj: Record<K, V>): Iterable<readonly [K, V]> {
+	for (const key in obj) {
+		yield [key, obj[key]] as const
+	}
+}
+
 export function fromEntries<K extends PropertyKey, V>(
 	entries: Iterable<readonly [K, V]>,
 ): Record<K, V> {
