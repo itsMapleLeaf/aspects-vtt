@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
-import { renderElementProp, type ElementProp } from "../lib/react/ElementProp.tsx"
+import { renderElementProp, type ElementProp } from "../helpers/react/ElementProp.tsx"
 
 interface ColumnPropsBase {
 	gap?: 1 | 2 | 3 | 4 | 6

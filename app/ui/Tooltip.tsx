@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import type * as React from "react"
-import type { StrictOmit } from "../lib/types.ts"
+import type { StrictOmit } from "../helpers/types.ts"
 
 export interface TooltipProps extends StrictOmit<Ariakit.TooltipAnchorProps, "content"> {
 	content: React.ReactNode

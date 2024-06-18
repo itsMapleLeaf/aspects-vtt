@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react"
-import type { Overwrite } from "../lib/types.ts"
+import type { Overwrite } from "../helpers/types.ts"
 import { EditableInput } from "./EditableInput.tsx"
 
 export function EditableIntegerInput({

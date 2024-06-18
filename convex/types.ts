@@ -1,6 +1,6 @@
 import { literals } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { getColorNames } from "../app/services/colors.ts"
+import { getColorNames } from "../app/modules/user-colors/data.ts"
 
 export function userColorValidator() {
 	return literals(...getColorNames())

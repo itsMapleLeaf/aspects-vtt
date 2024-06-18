@@ -1,5 +1,5 @@
 import { Effect, pipe } from "effect"
-import { unwrap } from "../../app/lib/errors.ts"
+import { unwrap } from "../../app/helpers/errors.ts"
 import { type QueryCtx, query } from "../_generated/server.js"
 import { effectMutation, withMutationCtx } from "../helpers/effect.ts"
 import { getIdentityEffect, getUserFromClerkId, getUserFromIdentity } from "./helpers.ts"

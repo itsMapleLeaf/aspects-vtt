@@ -1,7 +1,7 @@
 import { readFileSync } from "fs"
 import { z } from "zod"
-import { Aspects } from "../app/data/aspects.ts"
-import { unwrap } from "../app/lib/errors.ts"
+import { unwrap } from "../app/helpers/errors.ts"
+import { Aspects } from "../app/modules/aspects/data.ts"
 
 const notionApiKey = unwrap(process.env.NOTION_API_SECRET)
 

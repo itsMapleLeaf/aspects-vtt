@@ -1,6 +1,6 @@
 import * as React from "react"
-import { setPresentInSet } from "../lib/iterable.ts"
-import { Rect } from "../lib/primitives/Rect.ts"
+import { setPresentInSet } from "../helpers/iterable.ts"
+import { Rect } from "../helpers/Rect.ts"
 import { RectDrawArea } from "./RectDrawArea.tsx"
 
 export type DragSelectStore<T> = ReturnType<typeof useDragSelectStore<T>>

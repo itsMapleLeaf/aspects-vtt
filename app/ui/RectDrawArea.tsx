@@ -1,7 +1,7 @@
 import { useGesture } from "@use-gesture/react"
 import type * as React from "react"
 import { twMerge } from "tailwind-merge"
-import { Rect } from "../lib/primitives/Rect.ts"
+import { Rect } from "../helpers/Rect.ts"
 
 interface RectDrawAreaProps extends React.ComponentProps<"div"> {
 	rect: Rect | undefined

@@ -3,19 +3,19 @@ import { ConvexError, v, type GenericId } from "convex/values"
 import { Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
-import { getAspect, listAspects, type Aspect } from "../../app/data/aspects.ts"
+import { isTuple } from "../../app/helpers/array.ts"
+import { unwrap } from "../../app/helpers/errors.ts"
+import { fromEntries, omit, pick } from "../../app/helpers/object.ts"
+import { randomInt, randomItem } from "../../app/helpers/random.ts"
+import { titleCase } from "../../app/helpers/string.ts"
 import {
 	getAspectSkill,
 	listAspectSkillIds,
 	listAspectSkillsByAspect,
 	type AspectSkill,
-} from "../../app/data/aspectSkills.ts"
-import { listRaceIds } from "../../app/data/races.ts"
-import { isTuple } from "../../app/lib/array.ts"
-import { unwrap } from "../../app/lib/errors.ts"
-import { fromEntries, omit, pick } from "../../app/lib/object.ts"
-import { randomInt, randomItem } from "../../app/lib/random.ts"
-import { titleCase } from "../../app/lib/string.ts"
+} from "../../app/modules/aspect-skills/data.ts"
+import { getAspect, listAspects, type Aspect } from "../../app/modules/aspects/data.ts"
+import { listRaceIds } from "../../app/modules/races/data.ts"
 import type { Doc } from "../_generated/dataModel.js"
 import { mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"

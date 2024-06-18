@@ -1,5 +1,5 @@
 import type { MDXModule } from "mdx/types.js"
-import { titleCase } from "../../lib/string.ts"
+import { titleCase } from "../../helpers/string.ts"
 
 const pages = new Map(
 	Object.entries(import.meta.glob("./content/**/*.md")).map(([id, loader]) => {

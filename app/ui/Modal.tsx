@@ -1,7 +1,7 @@
 import * as Ariakit from "@ariakit/react"
 import { LucideX } from "lucide-react"
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
-import type { StrictOmit } from "../lib/types.ts"
+import type { StrictOmit } from "../helpers/types.ts"
 import { Button, type ButtonPropsAsButton } from "./Button.tsx"
 import { panel } from "./styles.ts"
 import { twc } from "./twc.ts"

@@ -1,6 +1,6 @@
 import { deprecated, literals, nullable } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
-import { listAttributeIds } from "../../../app/data/attributes.ts"
+import { listAttributeIds } from "../../../app/modules/attributes/data.ts"
 
 export const memberValidator = v.object({
 	characterId: v.id("characters"),

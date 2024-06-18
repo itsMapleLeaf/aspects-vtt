@@ -14,7 +14,7 @@
  * 		)
  * 	}
  */
-import type { Nullish, Overwrite } from "../lib/types.ts"
+import type { Nullish, Overwrite } from "../helpers/types.ts"
 
 export type ClassSlots<Keys extends PropertyKey> = { [K in Keys]?: string }
 

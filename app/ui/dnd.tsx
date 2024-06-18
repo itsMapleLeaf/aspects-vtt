@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef } from "react"
-import type { StrictOmit } from "../lib/types.ts"
+import type { StrictOmit } from "../helpers/types.ts"
 
 export function createDndModule<Data>() {
 	function Draggable({ data, ...props }: { data: Data } & ComponentPropsWithoutRef<"div">) {

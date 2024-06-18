@@ -3,8 +3,8 @@ import { getManyFrom, getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
-import { omit } from "../../app/lib/object.ts"
-import { Result } from "../../app/lib/primitives/Result.ts"
+import { omit } from "../../app/helpers/object.ts"
+import { Result } from "../../app/helpers/Result.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
@@ -16,8 +16,8 @@ import {
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.js"
-import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
+import { RoomModel } from "./RoomModel.js"
 import { roomProperties } from "./types.ts"
 
 export const get = query({
