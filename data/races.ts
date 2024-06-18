@@ -69,6 +69,12 @@ export const Races = SafeMap.mapRecord(
 				Nimble: "Your Mobility rolls have +1 boost die.",
 			},
 		},
+		Umbraleth: {
+			abilities: {
+				"Devilish Charm": "Your Wit rolls have +1 boost die.",
+				"Descendant of Darkness": "All of your attribute rolls have +1 boost dice at night.",
+			},
+		},
 	},
 	({ abilities }, id) => ({
 		id,
