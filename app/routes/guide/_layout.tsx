@@ -31,7 +31,6 @@ export default function GuideLayout() {
 		<>
 			<style>{`
 				:root {
-					scrollbar-gutter: stable;
 					overflow-x: clip;
 				}
 			`}</style>
@@ -39,7 +38,8 @@ export default function GuideLayout() {
 			<div className="fixed inset-x-0 top-0 z-10 h-32 p-4 bg-natural-gradient-100">
 				<AppHeader />
 			</div>
-			<div className="relative w-screen">
+
+			<div className="relative w-full">
 				<img
 					src={banner}
 					alt=""
@@ -50,7 +50,7 @@ export default function GuideLayout() {
 			</div>
 
 			<div className="mx-auto flex max-w-screen-lg gap-2 p-4">
-				<div className="w-56">
+				<div className="sticky top-16 h-fit w-56">
 					<ScrollArea>
 						<GuideNav />
 					</ScrollArea>
