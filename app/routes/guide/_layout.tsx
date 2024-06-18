@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react"
 import { Suspense } from "react"
+import banner from "~/assets/banner.webp"
 import { AppHeader } from "../../ui/AppHeader.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
@@ -31,21 +32,31 @@ export default function GuideLayout() {
 			<style>{`
 				:root {
 					scrollbar-gutter: stable;
+					overflow-x: clip;
 				}
 			`}</style>
 
-			<div className="sticky inset-x-0 top-0 z-10 p-4">
+			<div className="fixed inset-x-0 top-0 z-10 h-32 p-4 bg-natural-gradient-100">
 				<AppHeader />
 			</div>
+			<div className="relative w-screen">
+				<img
+					src={banner}
+					alt=""
+					draggable={false}
+					className="aspect-[4/1] w-full object-cover object-[50%,25%]"
+				/>
+				<div className="absolute inset-x-0 bottom-0 h-24 translate-y-px -scale-y-100 bg-natural-gradient-100"></div>
+			</div>
 
-			<div className="mx-auto max-w-screen-lg gap-4 p-4 [--sidebar-width:theme(spacing.56)]">
-				<div className="fixed h-[calc(100dvh-theme(spacing.24))] w-[--sidebar-width]">
+			<div className="mx-auto flex max-w-screen-lg gap-2 p-4">
+				<div className="w-56">
 					<ScrollArea>
 						<GuideNav />
 					</ScrollArea>
 				</div>
 				<Suspense fallback={<Loading />}>
-					<main className="ml-[--sidebar-width] min-w-0 flex-1 pl-2">
+					<main className="min-w-0 flex-1">
 						<Outlet />
 					</main>
 				</Suspense>
