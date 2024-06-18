@@ -9,17 +9,17 @@ Eisenwald is populated by human-like people, or **eisenkind**, with features of 
 Eisenkind receive only a given name at birth, without any family name or last name, simply because the societal need for that hasn’t risen. The origins of these names can be categorized into a few main groups:
 
 1. **Fantasy**: These names have an otherworldly sound and feel to them, inspired by fantasy and mythology.
-    - Masculine examples: Castiel, Astraeus, Asmodai, Rurik, Fenrir, Lucian
-    - Feminine examples: Euthalia, Lirael, Lysandra, Sylvia, Elysia, Lilith
-    - Unisex examples: Aeris, Rowan, Lyric, Talon, Phoenix, Kael
+   - Masculine examples: Castiel, Astraeus, Asmodai, Rurik, Fenrir, Lucian
+   - Feminine examples: Euthalia, Lirael, Lysandra, Sylvia, Elysia, Lilith
+   - Unisex examples: Aeris, Rowan, Lyric, Talon, Phoenix, Kael
 2. **Nature**: These names have roots in the natural world, encompassing flora, fauna, seasons, celestial bodies, and other natural phenomena. For instance:
-    - Masculine examples: Orion, August, Ash, Clay, Hawthorn, Forrest
-    - Feminine examples: Lily, Summer, Luna, Amber, Aurora, Celeste
-    - Unisex examples: River, Winter, Jupiter, Hazel, Robin, Storm
+   - Masculine examples: Orion, August, Ash, Clay, Hawthorn, Forrest
+   - Feminine examples: Lily, Summer, Luna, Amber, Aurora, Celeste
+   - Unisex examples: River, Winter, Jupiter, Hazel, Robin, Storm
 3. **Everyday**: These names are drawn from ordinary everyday objects or concepts that hold a special significance to the individual. This can be a favorite instrument, color, garment, a cherished item, or a comforting idea. Examples include:
-    - Masculine examples: Jet, Oak, Jasper, Reed, Piano, Chip
-    - Feminine examples: Scarlet, Viola, Garnet, Pearl, Velvet, Crystal
-    - Unisex examples: Quill, Sage, Indigo, Echo, Scout, Rogue
+   - Masculine examples: Jet, Oak, Jasper, Reed, Piano, Chip
+   - Feminine examples: Scarlet, Viola, Garnet, Pearl, Velvet, Crystal
+   - Unisex examples: Quill, Sage, Indigo, Echo, Scout, Rogue
 
 # Custom Races
 

@@ -13,7 +13,7 @@ Aquilians exhibit bird-like features, such as feathered wings—either from the 
 
 # History
 
-Compared to other races, Aquilians came about later in Eisenwald’s history. Boasting wings bigger than that of any other known race at the time, many uncertain eisenkind feared and avoided those of this race, leaving them isolated. 
+Compared to other races, Aquilians came about later in Eisenwald’s history. Boasting wings bigger than that of any other known race at the time, many uncertain eisenkind feared and avoided those of this race, leaving them isolated.
 
 This led to Aquilians grouping together. Flight made them especially well-equipped to weather the dangers of the outlands, and they leveraged this power to build settlements of their own, the largest of which being [Aeropolis](../../Locations/Locations/Aeropolis.md).
 

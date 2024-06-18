@@ -20,33 +20,33 @@ Players can spend experience to learn new aspect skills. The cost of an aspect s
 
 To learn a new aspect skill, you **must** have a skill in the previous tier in that aspect. For example: you can’t learn a tier 3 fire skill unless you have at least a tier 1 and tier 2 skill.
 
-|  | First Aspect | Second Aspect | Third Aspect | Fourth Aspect | Fifth Aspect |
-| --- | --- | --- | --- | --- | --- |
-| Tier 1 | 10 | 15 | 20 | 25 | 30 |
-| Tier 2 | 20 | 25 | 30 | 35 | 40 |
-| Tier 3 | 30 | 35 | 40 | 45 | 50 |
-| Tier 4 | 40 | 45 | 50 | 55 | 60 |
-| Tier 5 | 50 | 55 | 60 | 65 | 70 |
+|        | First Aspect | Second Aspect | Third Aspect | Fourth Aspect | Fifth Aspect |
+| ------ | ------------ | ------------- | ------------ | ------------- | ------------ |
+| Tier 1 | 10           | 15            | 20           | 25            | 30           |
+| Tier 2 | 20           | 25            | 30           | 35            | 40           |
+| Tier 3 | 30           | 35            | 40           | 45            | 50           |
+| Tier 4 | 40           | 45            | 50           | 55            | 60           |
+| Tier 5 | 50           | 55            | 60           | 65            | 70           |
 
 ## Using Aspect Skills
 
-Skills can be used at different levels, and the level you use will determine its cost and effectiveness. 
+Skills can be used at different levels, and the level you use will determine its cost and effectiveness.
 
 A character can only use a skill at a level that is **equal or lesser** than their level in that aspect. If an aspect is level 3, you can only use those aspect skills at levels 1 to 3, not 4 or 5.
 
 On the tables below, match the skill with whichever relevant metrics apply, then use whichever fatigue cost is highest, first by dice value, then by dice count.
 
-| Level | 1 | 2 | 3 | 4 | 5 |
-| --- | --- | --- | --- | --- | --- |
-| Fatigue Cost | 1d6 | 2d6 | 3d6 | 4d6 | 5d6 |
-| Distance | ≤ 2m | ≤ 5m | ≤ 10m | ≤ 15m | ≤ 30m |
-| Area Diameter | ≤ 3m | ≤ 5m | ≤ 8m | ≤ 12m | ≤ 20m |
-| Target Count | ≤ 3 | ≤ 5 | ≤ 8 | ≤ 12 | ≤ 20 |
-| Boost Dice | 0 | +1 | +2 | +3 | +4 |
+| Level         | 1    | 2    | 3     | 4     | 5     |
+| ------------- | ---- | ---- | ----- | ----- | ----- |
+| Fatigue Cost  | 1d6  | 2d6  | 3d6   | 4d6   | 5d6   |
+| Distance      | ≤ 2m | ≤ 5m | ≤ 10m | ≤ 15m | ≤ 30m |
+| Area Diameter | ≤ 3m | ≤ 5m | ≤ 8m  | ≤ 12m | ≤ 20m |
+| Target Count  | ≤ 3  | ≤ 5  | ≤ 8   | ≤ 12  | ≤ 20  |
+| Boost Dice    | 0    | +1   | +2    | +3    | +4    |
 
-| Fatigue Cost | 1d6 | 2d6 | 3d6 | 2d20 | 3d20 |
-| --- | --- | --- | --- | --- | --- |
-| Duration | A few seconds / 1 combat round | 30 seconds / 5 combat rounds or less | An hour / until the end of combat | Until the next scene or time of day | A full day |
+| Fatigue Cost | 1d6                            | 2d6                                  | 3d6                               | 2d20                                | 3d20       |
+| ------------ | ------------------------------ | ------------------------------------ | --------------------------------- | ----------------------------------- | ---------- |
+| Duration     | A few seconds / 1 combat round | 30 seconds / 5 combat rounds or less | An hour / until the end of combat | Until the next scene or time of day | A full day |
 
 # Aspect Interaction
 
