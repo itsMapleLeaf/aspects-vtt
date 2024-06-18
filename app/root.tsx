@@ -26,6 +26,7 @@ import { loaderFromEffect } from "./helpers/remix.ts"
 import { UserContext } from "./modules/auth/UserContext.tsx"
 import { clerkConfig } from "./modules/clerk/config.ts"
 import { getConvexClient } from "./modules/convex/helpers.server.ts"
+import { getSiteMeta } from "./modules/meta/helpers.ts"
 import { PromptProvider } from "./ui/Prompt.tsx"
 import { Toaster } from "./ui/Toaster.tsx"
 
@@ -42,10 +43,7 @@ const setupUser = loaderFromEffect(
 export const loader = (args: LoaderFunctionArgs) =>
 	rootAuthLoader(args, (args) => defer({ user: setupUser(args) }))
 
-export const meta: MetaFunction = () => [
-	{ title: "Aspects VTT" },
-	{ description: "A virtual tabletop for the Aspects of Nature tabletop RPG" },
-]
+export const meta: MetaFunction = () => getSiteMeta()
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (

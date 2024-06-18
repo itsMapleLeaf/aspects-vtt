@@ -11,6 +11,9 @@
 		"noEmit": true,
 		"noErrorTruncation": true,
 		"noUncheckedIndexedAccess": true,
+		"paths": {
+			"~/*": ["./app/*"]
+		},
 		"preserveWatchOutput": true,
 		"skipLibCheck": true,
 		"strict": true,
