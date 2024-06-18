@@ -1,17 +1,12 @@
-import { Link, NavLink, useParams } from "@remix-run/react"
-import type { MDXComponents, MDXModule } from "mdx/types"
-import { Suspense, use } from "react"
-import { $params } from "remix-routes"
+import { NavLink, Outlet } from "@remix-run/react"
+import { Suspense } from "react"
 import { AppHeader } from "../../ui/AppHeader.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import "./markdown.css"
-import { getPage, getPageLinks, normalizePageLink } from "./pages.ts"
+import { getPageLinks } from "./pages.ts"
 
-export default function GuideRoute() {
-	const { "*": path } = $params("/guide/*", useParams())
-	const page = getPage(path)
-	const module = page?.load()
+export default function GuideLayout() {
 	return (
 		<>
 			<title>Player Guide | Aspects VTT</title>
@@ -44,29 +39,10 @@ export default function GuideRoute() {
 				</nav>
 				<Suspense fallback={<Loading />}>
 					<main className="ml-[--sidebar-width] min-w-0 flex-1 pl-2">
-						{module ?
-							<PageContent module={module} />
-						:	<p>Page not found</p>}
+						<Outlet />
 					</main>
 				</Suspense>
 			</div>
 		</>
 	)
-}
-
-function PageContent({ module }: { module: Promise<MDXModule> }) {
-	const Content = use(module).default
-	return (
-		<div className="markdown rounded-lg bg-primary-200 p-4">
-			<Content components={mdxComponents} />
-		</div>
-	)
-}
-
-const mdxComponents: MDXComponents = {
-	a: ({ href, children }) => (
-		<Link to={normalizePageLink(href)} className="text-primary-900 underline hover:no-underline">
-			{children}
-		</Link>
-	),
 }

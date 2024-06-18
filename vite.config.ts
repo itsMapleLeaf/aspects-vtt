@@ -12,7 +12,13 @@ import babel from "vite-plugin-babel"
 import inspect from "vite-plugin-inspect"
 
 export default defineConfig({
+	base: "/",
 	plugins: [
+		mdx({
+			remarkPlugins: [remarkGfm],
+			rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "append" }]],
+			providerImportSource: "/app/mdx-components.tsx",
+		}),
 		babel({
 			filter: /\.tsx?$/,
 			babelConfig: {
@@ -20,10 +26,6 @@ export default defineConfig({
 				plugins: ["babel-plugin-react-compiler"],
 				sourceMaps: true,
 			},
-		}),
-		mdx({
-			remarkPlugins: [remarkGfm],
-			rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "append" }]],
 		}),
 		remix({
 			routes: async (defineRoutes) => flatRoutes("routes", defineRoutes),
