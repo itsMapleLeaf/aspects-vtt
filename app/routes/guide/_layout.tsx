@@ -1,6 +1,8 @@
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react"
-import { Suspense } from "react"
+import { Suspense, useRef } from "react"
 import banner from "~/assets/banner.webp"
+import { useWindowEvent } from "~/helpers/dom/events.ts"
+import { unwrap } from "~/helpers/errors.ts"
 import { AppHeader } from "../../ui/AppHeader.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
@@ -39,13 +41,8 @@ export default function GuideLayout() {
 				<AppHeader />
 			</div>
 
-			<div className="relative w-full">
-				<img
-					src={banner}
-					alt=""
-					draggable={false}
-					className="aspect-[4/1] w-full object-cover object-[50%,25%]"
-				/>
+			<div className="relative w-full overflow-clip">
+				<ParallaxBanner />
 				<div className="absolute inset-x-0 bottom-0 h-24 translate-y-px -scale-y-100 bg-natural-gradient-100"></div>
 			</div>
 
@@ -56,12 +53,31 @@ export default function GuideLayout() {
 					</ScrollArea>
 				</div>
 				<Suspense fallback={<Loading />}>
-					<main className="min-w-0 flex-1">
+					<main className="h-[200dvh] min-w-0 flex-1">
 						<Outlet />
 					</main>
 				</Suspense>
 			</div>
 		</>
+	)
+}
+
+function ParallaxBanner() {
+	const ref = useRef<HTMLImageElement>(null)
+
+	useWindowEvent("scroll", () => {
+		const scroll = window.scrollY
+		unwrap(ref.current).style.transform = `translateY(${scroll * 0.75}px)`
+	})
+
+	return (
+		<img
+			src={banner}
+			alt=""
+			draggable={false}
+			className="aspect-[20/7] max-h-[32rem] min-h-[16rem] w-full object-cover object-[50%,25%]"
+			ref={ref}
+		/>
 	)
 }
 
