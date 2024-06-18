@@ -1,7 +1,7 @@
 import { Link, useParams } from "@remix-run/react"
 import type { ReactNode } from "react"
-import { AppHeader } from "../ui/AppHeader.tsx"
-import { ScrollArea } from "../ui/ScrollArea.tsx"
+import { AppHeader } from "../../ui/AppHeader.tsx"
+import { ScrollArea } from "../../ui/ScrollArea.tsx"
 
 export default function UiTests() {
 	return (

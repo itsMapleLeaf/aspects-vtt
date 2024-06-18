@@ -3,23 +3,18 @@ import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import { LucideHome, LucidePlus } from "lucide-react"
 import { $path } from "remix-routes"
-import { api } from "../../convex/_generated/api.js"
-import { useSafeAction } from "../common/convex.ts"
-import { usePendingDelay } from "../common/react.ts"
-import { AppHeader } from "../ui/AppHeader.tsx"
-import { Button } from "../ui/Button.tsx"
-import { Loading } from "../ui/Loading.tsx"
-import { panel } from "../ui/styles.ts"
-import { ProtectedLayout } from "./_protected/ProtectedLayout.tsx"
+import { api } from "../../../../convex/_generated/api.js"
+import { useSafeAction } from "../../../common/convex.ts"
+import { usePendingDelay } from "../../../common/react.ts"
+import { AppHeader } from "../../../ui/AppHeader.tsx"
+import { Button } from "../../../ui/Button.tsx"
+import { Loading } from "../../../ui/Loading.tsx"
+import { panel } from "../../../ui/styles.ts"
 
 // rendering the protected layout here is a workaround;
 // there's a bug in the vercel preset that prevents index routes in layout routes from working
 export default function RoomListRoute() {
-	return (
-		<ProtectedLayout>
-			<Content />
-		</ProtectedLayout>
-	)
+	return <Content />
 }
 
 function Content() {

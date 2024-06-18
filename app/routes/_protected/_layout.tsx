@@ -1,5 +1,5 @@
 import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton } from "@clerk/remix"
-import { useHref, useLocation } from "@remix-run/react"
+import { Outlet, useHref, useLocation } from "@remix-run/react"
 import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
 import * as Lucide from "lucide-react"
 import { AppHeaderLayout } from "../../ui/AppHeaderLayout.tsx"
@@ -7,7 +7,15 @@ import { Button } from "../../ui/Button.tsx"
 import { EmptyStatePanel } from "../../ui/EmptyState.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 
-export function ProtectedLayout({ children }: { children: React.ReactNode }) {
+export default function ProtectedRoute() {
+	return (
+		<ProtectedLayout>
+			<Outlet />
+		</ProtectedLayout>
+	)
+}
+
+function ProtectedLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<>
 			<AuthLoading>
