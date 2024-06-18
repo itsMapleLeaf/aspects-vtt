@@ -11,7 +11,7 @@ Lagorei sport two tall ears, sometimes with tufts of fluff in them, as well as a
 - Many Lagorei possess heightened leg strength, making them great runners and athletes in general.
 - Lagorei evolved to deal with danger by running. This gives them a more sensitive startle response, sometimes causing them to accidentally kick the one who startled them. Very hard.
 
-Back  then, most Lagorei preferred to move often between regions, never staying in one place for very long. Although that tradition stays with a large number of them, many have still opted to settle down around the turn of Eisenwald’s modernization. As a result, Lagorei are known for their depth of worldly knowledge and experience passed between generations of their species.
+Back then, most Lagorei preferred to move often between regions, never staying in one place for very long. Although that tradition stays with a large number of them, many have still opted to settle down around the turn of Eisenwald’s modernization. As a result, Lagorei are known for their depth of worldly knowledge and experience passed between generations of their species.
 
 ![[https://www.pixiv.net/member_illust.php?mode=medium&illust_id=104411988](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=104411988)](Lagorei%20c2e63407dc7e45d1a72a39b402cdf2b8/sample_daba861e3eab4f05e293948e287c195f.jpg)
 

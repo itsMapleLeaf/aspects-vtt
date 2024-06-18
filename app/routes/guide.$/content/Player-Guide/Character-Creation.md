@@ -30,7 +30,7 @@ Defines your characters visual features and core abilities. See [Races of Eisenk
 
 ### Homeland
 
-Your character’s birthplace, which can influence their upbringing in a few ways. See [Locations](Locations.md) 
+Your character’s birthplace, which can influence their upbringing in a few ways. See [Locations](Locations.md)
 
 ### Name
 
@@ -42,11 +42,11 @@ Your character’s gender identity and how others should address them. Feel free
 
 ### Alignment
 
-A foundation for how your character interacts with the world and others. This is optional. See [Alignment](Alignment.md) 
+A foundation for how your character interacts with the world and others. This is optional. See [Alignment](Alignment.md)
 
 ### Strength, Mobility, Sense, Intellect, Wit
 
-These are your character’s stat dice. Assign each one a die from the dice scale. For more details, see [Attributes](Attributes.md) 
+These are your character’s stat dice. Assign each one a die from the dice scale. For more details, see [Attributes](Attributes.md)
 
 <aside>
 ❗ **Do not roll the dice for numbers.** The dice themselves are your attributes!
@@ -68,7 +68,7 @@ The remaining values can be tracked via [AspectsVTT](https://aspects.mapleleaf.d
 
 ### Damage
 
-The amount of damage your character has taken over time. Starts at 0. See [Stress: Damage & Fatigue](Stress-Damage-Fatigue.md) 
+The amount of damage your character has taken over time. Starts at 0. See [Stress: Damage & Fatigue](Stress-Damage-Fatigue.md)
 
 ### Fatigue
 
@@ -76,11 +76,11 @@ The amount of fatigue your character has taken over time. Starts at 0. See [Stre
 
 ### Notes
 
-Notes are this world’s currency. This is the number of notes your character has. This can start at any number, but 100 is a good number. See [Currency](Currency.md) 
+Notes are this world’s currency. This is the number of notes your character has. This can start at any number, but 100 is a good number. See [Currency](Currency.md)
 
 ### Items
 
-The list of items owned by your character. See [Items [WIP]](Items%20%5BWIP%5D%2076b4458d7eee4df9bda397e0928947d0.md) 
+The list of items owned by your character. See [Items [WIP]](Items%20%5BWIP%5D%2076b4458d7eee4df9bda397e0928947d0.md)
 
 ### Trades
 

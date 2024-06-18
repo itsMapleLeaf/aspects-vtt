@@ -1,10 +1,10 @@
 # Attributes
 
-Attributes represent your characters’ aptitude for a given skillset, and each one is assigned [a unique die to roll](Dice.md) at creation. 
+Attributes represent your characters’ aptitude for a given skillset, and each one is assigned [a unique die to roll](Dice.md) at creation.
 
 By default, **attribute rolls are always made with two dice**, and the effect is the total.
 
-Certain abilities may refer to the *value* or *level* of an attribute.
+Certain abilities may refer to the _value_ or _level_ of an attribute.
 
 The **value** of an attribute is the side count of its die. For example: if your intellect uses a d12, then the value of your intellect is 12.
 

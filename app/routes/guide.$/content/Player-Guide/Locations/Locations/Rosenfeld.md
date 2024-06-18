@@ -23,14 +23,11 @@ The south cliffside of the city hosts the air ferry port that allows travel to a
 https://kevin_gnutzmans.artstation.com/projects/QnD988
 
 > todo
-> 
 
 # The Guildhall
 
 > todo
-> 
 
 # The Bazaar
 
 > todo
->

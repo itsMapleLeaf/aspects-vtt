@@ -21,7 +21,7 @@ Any roll can have any number of boost or snag dice.
 
 # Actions
 
-You can perform *any* action (within reason), and DM chooses the best attribute for the action, and whether it requires a dice roll at all.
+You can perform _any_ action (within reason), and DM chooses the best attribute for the action, and whether it requires a dice roll at all.
 
 Dice rolls are required for anything your character wants to do that may or may not succeed. The required effect depends on the difficulty of the task:
 
@@ -161,7 +161,7 @@ Examples of actions:
 - Deciphering an ancient book
 - Disarming a trap so you don’t get crushed by the stone walls closing in on you :)
 
-The GM may also let you do minor actions: something less impactful that doesn’t require a dice roll, and/or something you can offhandedly do alongside a normal action. 
+The GM may also let you do minor actions: something less impactful that doesn’t require a dice roll, and/or something you can offhandedly do alongside a normal action.
 
 Examples of minor actions:
 
@@ -175,26 +175,26 @@ Examples of minor actions:
 1. Pick an aspect skill to use
 2. Choose a level from 1 to 5 (max is your highest skill tier)
 3. Take corresponding fatigue
-    1. Pick the highest fatigue cost of any relevant metrics, by face count then by dice count (e.g. 2d20 > 4d12)
+   1. Pick the highest fatigue cost of any relevant metrics, by face count then by dice count (e.g. 2d20 > 4d12)
 4. Make relevant dice rolls using the aspect’s linked attribute
-    - [Fire](Aspects/Aspects/Fire.md) → [Strength](Attributes/Attributes/Strength.md)
-    - [Water](Aspects/Aspects/Water.md) → [Sense](Attributes/Attributes/Sense.md)
-    - [Wind](Aspects/Aspects/Wind.md) → [Mobility](Attributes/Attributes/Mobility.md)
-    - [Light](Aspects/Aspects/Light.md) → [Intellect](Attributes/Attributes/Intellect.md)
-    - [Darkness](Aspects/Aspects/Darkness.md) → [Wit](Attributes/Attributes/Wit.md)
+   - [Fire](Aspects/Aspects/Fire.md) → [Strength](Attributes/Attributes/Strength.md)
+   - [Water](Aspects/Aspects/Water.md) → [Sense](Attributes/Attributes/Sense.md)
+   - [Wind](Aspects/Aspects/Wind.md) → [Mobility](Attributes/Attributes/Mobility.md)
+   - [Light](Aspects/Aspects/Light.md) → [Intellect](Attributes/Attributes/Intellect.md)
+   - [Darkness](Aspects/Aspects/Darkness.md) → [Wit](Attributes/Attributes/Wit.md)
 5. Resolve effects
 
-| Level | 1 | 2 | 3 | 4 | 5 |
-| --- | --- | --- | --- | --- | --- |
-| Fatigue Cost | 1d6 | 2d6 | 3d6 | 4d6 | 5d6 |
-| Distance | ≤ 2m | ≤ 5m | ≤ 10m | ≤ 15m | ≤ 30m |
-| Area Diameter | ≤ 3m | ≤ 5m | ≤ 8m | ≤ 12m | ≤ 20m |
-| Target Count | ≤ 3 | ≤ 5 | ≤ 8 | ≤ 12 | ≤ 20 |
-| Boost Dice | 0 | +1 | +2 | +3 | +4 |
+| Level         | 1    | 2    | 3     | 4     | 5     |
+| ------------- | ---- | ---- | ----- | ----- | ----- |
+| Fatigue Cost  | 1d6  | 2d6  | 3d6   | 4d6   | 5d6   |
+| Distance      | ≤ 2m | ≤ 5m | ≤ 10m | ≤ 15m | ≤ 30m |
+| Area Diameter | ≤ 3m | ≤ 5m | ≤ 8m  | ≤ 12m | ≤ 20m |
+| Target Count  | ≤ 3  | ≤ 5  | ≤ 8   | ≤ 12  | ≤ 20  |
+| Boost Dice    | 0    | +1   | +2    | +3    | +4    |
 
-| Fatigue Cost | 1d6 | 2d6 | 3d6 | 2d20 | 3d20 |
-| --- | --- | --- | --- | --- | --- |
-| Duration | A few seconds / 1 combat round | 30 seconds / 5 combat rounds or less | An hour / until the end of combat | Until the next scene or time of day | A full day |
+| Fatigue Cost | 1d6                            | 2d6                                  | 3d6                               | 2d20                                | 3d20       |
+| ------------ | ------------------------------ | ------------------------------------ | --------------------------------- | ----------------------------------- | ---------- |
+| Duration     | A few seconds / 1 combat round | 30 seconds / 5 combat rounds or less | An hour / until the end of combat | Until the next scene or time of day | A full day |
 
 <aside>
 ℹ️ If an ability or effect says to apply a dice roll amount to multiple targets, instead of rolling per target, roll **once**, then apply the result.
@@ -203,12 +203,12 @@ Examples of minor actions:
 
 # Learning New Aspect Skills / Spending Experience
 
-Aspect skill cost: 10 * tier + aspect number
+Aspect skill cost: 10 \* tier + aspect number
 
-|  | First Aspect | Second Aspect | Third Aspect | Fourth Aspect | Fifth Aspect |
-| --- | --- | --- | --- | --- | --- |
-| Tier 1 | 10 | 15 | 20 | 25 | 30 |
-| Tier 2 | 20 | 25 | 30 | 35 | 40 |
-| Tier 3 | 30 | 35 | 40 | 45 | 50 |
-| Tier 4 | 40 | 45 | 50 | 55 | 60 |
-| Tier 5 | 50 | 55 | 60 | 65 | 70 |
+|        | First Aspect | Second Aspect | Third Aspect | Fourth Aspect | Fifth Aspect |
+| ------ | ------------ | ------------- | ------------ | ------------- | ------------ |
+| Tier 1 | 10           | 15            | 20           | 25            | 30           |
+| Tier 2 | 20           | 25            | 30           | 35            | 40           |
+| Tier 3 | 30           | 35            | 40           | 45            | 50           |
+| Tier 4 | 40           | 45            | 50           | 55            | 60           |
+| Tier 5 | 50           | 55            | 60           | 65            | 70           |

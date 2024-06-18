@@ -1,6 +1,6 @@
 # Education
 
-Academies in Eisenwald are very fluid, freeform, and practical, resembling colleges or trade schools in real life. 
+Academies in Eisenwald are very fluid, freeform, and practical, resembling colleges or trade schools in real life.
 
 Eisenkind may start attending at any age and for any duration of time, depending on the subject matter.
 

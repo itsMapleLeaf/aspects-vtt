@@ -18,17 +18,17 @@ Modifier dice are d4 dice rolled alongside the main die which add or remove from
 
 There are two kinds of modifier dice: **boost** and **snag**. Boost dice add to the effect, and snag dice subtract from it.
 
-Modifier dice are the *only* way to strengthen or weaken a roll, and there’s no limit to the number of them a roll can have.
+Modifier dice are the _only_ way to strengthen or weaken a roll, and there’s no limit to the number of them a roll can have.
 
 <aside>
 ℹ️ You might ask yourself: why use modifier dice instead of adding or subtracting from the roll?
 
-Depending on how you’ve built your character, it’s easy to accumulate a lot of stress in this game. When that happens, a flat decrease on your rolls can make it difficult to do *anything*, especially with a weaker die, as many of your rolls would be reduced to 1.
+Depending on how you’ve built your character, it’s easy to accumulate a lot of stress in this game. When that happens, a flat decrease on your rolls can make it difficult to do _anything_, especially with a weaker die, as many of your rolls would be reduced to 1.
 
 Modifier dice give you a chance to succeed even when greatly impeded.
 
-This system also allows you to accumulate stress and use it as an *advantage* in certain ways without being completely stunted by it. The [Light](Aspects/Aspects/Light.md) aspect is built around this.
+This system also allows you to accumulate stress and use it as an _advantage_ in certain ways without being completely stunted by it. The [Light](Aspects/Aspects/Light.md) aspect is built around this.
 
-Likewise, boost dice let a player accumulate power with no real ceiling while still keeping a small chance for failure. This adds suspense and even hilarity in moments where you *somehow* manage to defy the odds!
+Likewise, boost dice let a player accumulate power with no real ceiling while still keeping a small chance for failure. This adds suspense and even hilarity in moments where you _somehow_ manage to defy the odds!
 
 </aside>
