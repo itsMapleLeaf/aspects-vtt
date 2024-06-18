@@ -1,6 +1,6 @@
 import { HashMap } from "effect"
 import * as React from "react"
-import { Vector } from "../../common/vector.ts"
+import { Vector } from "../../lib/primitives/Vector.ts"
 import { useRoom, type ApiRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 

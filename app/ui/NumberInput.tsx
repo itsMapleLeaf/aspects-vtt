@@ -1,5 +1,5 @@
 import { type ComponentProps, useRef } from "react"
-import type { StrictOmit } from "../common/types.ts"
+import type { StrictOmit } from "../lib/types.ts"
 import { ValidatedInput, type ValidatedInputController } from "./ValidatedInput.tsx"
 
 type NumberInputProps = StrictOmit<

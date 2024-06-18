@@ -4,9 +4,9 @@ import * as Lucide from "lucide-react"
 import { useRef } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import type { Doc } from "../../../convex/_generated/dataModel.js"
-import { useSafeAction } from "../../common/convex.ts"
-import { loadImage } from "../../common/dom.ts"
-import { expect } from "../../common/expect.ts"
+import { useSafeAction } from "../../lib/convex.ts"
+import { loadImage } from "../../lib/dom/images.ts"
+import { unwrap } from "../../lib/errors.ts"
 import { Button } from "../../ui/Button.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 
@@ -41,7 +41,7 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 				className="w-full"
 				pending={pending}
 				onClick={() => {
-					const input = expect(inputRef.current, "input ref not set")
+					const input = unwrap(inputRef.current, "input ref not set")
 					input.click()
 				}}
 				onDragOver={(event) => {
@@ -50,7 +50,7 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 				}}
 				onDrop={(event) => {
 					event.preventDefault()
-					submit(expect(event.dataTransfer.files[0], "file not set"))
+					submit(unwrap(event.dataTransfer.files[0], "file not set"))
 				}}
 			/>
 			<input

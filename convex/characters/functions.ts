@@ -3,19 +3,19 @@ import { ConvexError, v, type GenericId } from "convex/values"
 import { Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
-import { isTuple } from "../../app/common/array.ts"
-import { expect } from "../../app/common/expect.ts"
-import { fromEntries, omit, pick } from "../../app/common/object.ts"
-import { randomInt, randomItem } from "../../app/common/random.ts"
-import { titleCase } from "../../app/common/string.ts"
-import { getAspect, listAspects, type Aspect } from "../../data/aspects.ts"
+import { getAspect, listAspects, type Aspect } from "../../app/data/aspects.ts"
 import {
 	getAspectSkill,
 	listAspectSkillIds,
 	listAspectSkillsByAspect,
 	type AspectSkill,
-} from "../../data/aspectSkills.ts"
-import { listRaceIds } from "../../data/races.ts"
+} from "../../app/data/aspectSkills.ts"
+import { listRaceIds } from "../../app/data/races.ts"
+import { isTuple } from "../../app/lib/array.ts"
+import { unwrap } from "../../app/lib/errors.ts"
+import { fromEntries, omit, pick } from "../../app/lib/object.ts"
+import { randomInt, randomItem } from "../../app/lib/random.ts"
+import { titleCase } from "../../app/lib/string.ts"
 import type { Doc } from "../_generated/dataModel.js"
 import { mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
@@ -381,7 +381,7 @@ function generateRandomCharacterProperties() {
 
 	const adjective = randomItem(getWordsByCategory("adjective", ["personality"])) ?? "A Random"
 
-	const race = expect(randomItem(listRaceIds()))
+	const race = unwrap(randomItem(listRaceIds()))
 
 	// the character should prefer skills with an aspect that matches their strongest attribute
 	const preferredAspect = greatestBy(
@@ -399,7 +399,7 @@ function generateRandomCharacterProperties() {
 
 	for (const _i of Iterator.range(randomInt(5, 30))) {
 		// small chance of going outside their preferred aspect
-		const aspect = Math.random() > 0.1 ? preferredAspect : expect(randomItem(listAspects()))
+		const aspect = Math.random() > 0.1 ? preferredAspect : unwrap(randomItem(listAspects()))
 
 		const learnedAspectSkills = Iterator.from(skillsByAspect.get(aspect.id) ?? [])
 			.map(getAspectSkill)

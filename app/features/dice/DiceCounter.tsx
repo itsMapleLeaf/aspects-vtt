@@ -1,7 +1,7 @@
 import * as Lucide from "lucide-react"
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
-import type { StrictOmit } from "../../common/types.ts"
+import type { StrictOmit } from "../../lib/types.ts"
 import { panel } from "../../ui/styles.ts"
 import { diceKinds } from "./diceKinds.tsx"
 

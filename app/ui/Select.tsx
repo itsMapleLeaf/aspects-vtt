@@ -1,7 +1,7 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
-import { mod } from "../common/math.ts"
+import { mod } from "../lib/math.ts"
 import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
 import { LoadingDecoration } from "./LoadingDecoration.tsx"

@@ -1,5 +1,5 @@
 import { type ReactNode, createContext, use, useEffect, useMemo, useState } from "react"
-import { useEffectEvent } from "../common/react.ts"
+import { useEffectEvent } from "../lib/react/common.ts"
 
 type Register = () => () => void
 

@@ -1,9 +1,9 @@
 import { readFileSync } from "fs"
 import { z } from "zod"
-import { expect } from "../app/common/expect.ts"
-import { Aspects } from "../data/aspects.ts"
+import { Aspects } from "../app/data/aspects.ts"
+import { unwrap } from "../app/lib/errors.ts"
 
-const notionApiKey = expect(process.env.NOTION_API_SECRET)
+const notionApiKey = unwrap(process.env.NOTION_API_SECRET)
 
 async function main() {
 	// await createDatabasePage(

@@ -1,5 +1,5 @@
 import { v } from "convex/values"
-import type { Nullish } from "../../app/common/types.ts"
+import type { Nullish } from "../../app/lib/types.ts"
 import type { Id } from "../_generated/dataModel"
 import { type MutationCtx, internalQuery, mutation } from "../_generated/server.js"
 

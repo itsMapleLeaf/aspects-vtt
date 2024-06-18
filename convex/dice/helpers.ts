@@ -1,5 +1,5 @@
 import { Iterator } from "iterator-helpers-polyfill"
-import { expect } from "../../app/common/expect.ts"
+import { unwrap } from "../../app/lib/errors.ts"
 import type { DiceInput } from "../messages/types.ts"
 
 export function* createDiceRolls(inputs: DiceInput[]) {
@@ -19,6 +19,6 @@ const getRandomNumber = (() => {
 	/** Returns a random number between 1 and `max` (inclusive). */
 	return function getRandomNumber(max: number) {
 		crypto.getRandomValues(output)
-		return (expect(output[0], "what") % max) + 1
+		return (unwrap(output[0], "what") % max) + 1
 	}
 })()

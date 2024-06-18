@@ -1,8 +1,8 @@
 import { Focusable } from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import * as React from "react"
-import { createNonEmptyContext, useNonEmptyContext } from "../common/context.tsx"
-import type { StrictOmit } from "../common/types.ts"
+import { createStrictContext, useStrictContext } from "../lib/react/strictContext.tsx"
+import type { StrictOmit } from "../lib/types.ts"
 import { Button } from "./Button.tsx"
 import { FormField, FormLayout } from "./Form.tsx"
 import { Input } from "./Input.tsx"
@@ -17,7 +17,7 @@ interface PromptState {
 	resolve: (value: string | undefined) => void
 }
 
-const PromptContext = createNonEmptyContext<{
+const PromptContext = createStrictContext<{
 	currentPrompt: PromptState | undefined
 	open: (state: PromptState) => void
 	close: () => void
@@ -46,7 +46,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
 }
 
 function PromptModalForm() {
-	const context = useNonEmptyContext(PromptContext)
+	const context = useStrictContext(PromptContext)
 	const [value, setValue] = React.useState("")
 	return (
 		<form
@@ -92,7 +92,7 @@ function PromptModalForm() {
 }
 
 export function usePrompt() {
-	const context = useNonEmptyContext(PromptContext)
+	const context = useStrictContext(PromptContext)
 	return function prompt(state: StrictOmit<PromptState, "resolve">) {
 		return new Promise<string | undefined>((resolve) => {
 			context.open({ ...state, resolve })

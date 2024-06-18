@@ -7,10 +7,10 @@ import * as React from "react"
 import { flushSync } from "react-dom"
 import { api } from "../../../convex/_generated/api"
 import type { ApiCharacterCondition } from "../../../convex/characters/types.ts"
-import { getColorNames, getColorStyle } from "../../../shared/colors.ts"
-import { expect } from "../../common/expect.ts"
-import { randomItem } from "../../common/random.ts"
-import { titleCase } from "../../common/string.ts"
+import { unwrap } from "../../lib/errors.ts"
+import { randomItem } from "../../lib/random.ts"
+import { titleCase } from "../../lib/string.ts"
+import { getColorNames, getColorStyle } from "../../services/colors.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { menuItemStyle, menuPanelStyle } from "../../ui/Menu.tsx"
@@ -77,7 +77,7 @@ export function CharacterConditionsListInput({ character }: { character: ApiChar
 						action: {
 							type: "add",
 							name,
-							color: presetColor ?? expect(randomItem(getColorNames())),
+							color: presetColor ?? unwrap(randomItem(getColorNames())),
 						},
 					}).catch(console.error)
 				}}
@@ -120,7 +120,7 @@ function AddConditionInput({
 				flushSync(() => {
 					setName(name)
 				})
-				expect(inputRef.current).form?.requestSubmit()
+				unwrap(inputRef.current).form?.requestSubmit()
 			}}
 		>
 			<div className="relative w-full">
@@ -143,7 +143,7 @@ function AddConditionInput({
 						className="absolute inset-y-0 right-0 flex items-center pr-2 opacity-50 transition hover:opacity-100"
 						onClick={() => {
 							setName("")
-							expect(inputRef.current).focus()
+							unwrap(inputRef.current).focus()
 							setOpen(true)
 						}}
 					>

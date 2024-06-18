@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react"
 import { api } from "../../../convex/_generated/api.js"
-import { useSafeAction } from "../../common/convex.ts"
-import { expect } from "../../common/expect.ts"
+import { useSafeAction } from "../../lib/convex.ts"
+import { unwrap } from "../../lib/errors.ts"
 import {
 	boostDiceKind,
 	getDiceKindApiInput,
@@ -20,7 +20,7 @@ export function useCreateAttributeRollMessage() {
 			boostCount?: number
 			snagCount?: number
 		}) => {
-			const attributeDie = expect(
+			const attributeDie = unwrap(
 				statDiceKinds.find((kind) => kind.faces.length === args.attributeValue),
 				`couldn't find a d${args.attributeValue} dice kind`,
 			)

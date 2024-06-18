@@ -1,7 +1,7 @@
 import { getManyFrom, getOneFrom } from "convex-helpers/server/relationships"
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError } from "convex/values"
-import { Result } from "../../app/common/Result.ts"
+import { Result } from "../../app/lib/primitives/Result.ts"
 import type { Doc, Id } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
 import { getUserFromIdentity } from "../auth/helpers.ts"

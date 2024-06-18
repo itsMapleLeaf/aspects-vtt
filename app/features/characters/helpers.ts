@@ -1,8 +1,8 @@
 import { Iterator } from "iterator-helpers-polyfill"
 import type { Id } from "../../../convex/_generated/dataModel"
-import { getAspectSkill } from "../../../data/aspectSkills.ts"
-import type { Attribute } from "../../../data/attributes.ts"
-import { getRace } from "../../../data/races.ts"
+import { getAspectSkill } from "../../data/aspectSkills.ts"
+import type { Attribute } from "../../data/attributes.ts"
+import { getRace } from "../../data/races.ts"
 import { statDiceKinds, statDiceKindsByName, type DiceKind } from "../dice/diceKinds.tsx"
 import type { ApiCharacter } from "./types.ts"
 

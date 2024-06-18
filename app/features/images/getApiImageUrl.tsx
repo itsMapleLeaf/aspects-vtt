@@ -1,5 +1,5 @@
 import type { Id } from "../../../convex/_generated/dataModel.js"
-import { clientEnv } from "../../env.ts"
+import { clientEnv } from "../../services/env.ts"
 
 export function getApiImageUrl(id: Id<"_storage">) {
 	const url = new URL("/image", clientEnv.VITE_CONVEX_URL.replace(/\.cloud\/*$/, ".site"))

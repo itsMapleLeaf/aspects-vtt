@@ -2,7 +2,7 @@ import { LucideImageOff } from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 import type { Id } from "../../../convex/_generated/dataModel.js"
-import type { Nullish, Overwrite } from "../../common/types.ts"
+import type { Nullish, Overwrite } from "../../lib/types.ts"
 import { getApiImageUrl } from "./getApiImageUrl"
 
 type UploadedImageProps = Overwrite<

@@ -3,7 +3,7 @@ import Color from "colorjs.io"
 import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
-import { theme } from "./app/theme.ts"
+import { theme } from "./app/ui/theme.ts"
 
 /** @satisfies {import("tailwindcss").Config} */
 export default {

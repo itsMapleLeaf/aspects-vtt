@@ -3,9 +3,8 @@ import { getManyFrom, getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
-import { Result } from "../../app/common/Result.ts"
-import { omit } from "../../app/common/object.ts"
-import { range } from "../../app/common/range.ts"
+import { omit } from "../../app/lib/object.ts"
+import { Result } from "../../app/lib/primitives/Result.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
@@ -85,7 +84,7 @@ export const create = mutation({
 		return { slug }
 
 		async function generateUniqueSlug(ctx: QueryCtx): Promise<string> {
-			for (const _attempt of range(10)) {
+			for (const _attempt of Iterator.range(10)) {
 				const slug = generateSlug()
 				const existing = await RoomModel.fromSlug(ctx, slug)
 				if (!existing.value) return slug

@@ -1,9 +1,9 @@
 import { literals, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { indexLooped, withMovedItem } from "../../../app/common/array.ts"
-import { expect } from "../../../app/common/expect.ts"
-import { listAttributeIds } from "../../../data/attributes.ts"
+import { listAttributeIds } from "../../../app/data/attributes.ts"
+import { indexLooped, withMovedItem } from "../../../app/lib/array.ts"
+import { unwrap } from "../../../app/lib/errors.ts"
 import { mutation } from "../../_generated/server.js"
 import { CharacterModel } from "../../characters/CharacterModel.ts"
 import { effectQuery, getDoc } from "../../helpers/effect.ts"
@@ -110,7 +110,7 @@ export const advance = mutation({
 			roomId: room.data._id,
 		})
 
-		const nextMember = expect(indexLooped(members, currentMemberIndex + 1), "No combat member")
+		const nextMember = unwrap(indexLooped(members, currentMemberIndex + 1), "No combat member")
 
 		const nextRoundNumber =
 			combat.currentRoundNumber + (currentMemberIndex === members.length - 1 ? 1 : 0)
@@ -147,7 +147,7 @@ export const back = mutation({
 			throw new Error("Cannot back to the beginning of the combat")
 		}
 
-		const previousMember = expect(
+		const previousMember = unwrap(
 			indexLooped(members, currentMemberIndex - 1),
 			"No previous member",
 		)

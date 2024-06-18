@@ -1,6 +1,6 @@
 import { type PropertyValidators, type Validator, v } from "convex/values"
-import { Result } from "../../app/common/Result.ts"
-import { raise } from "../../app/common/errors.ts"
+import { raise } from "../../app/lib/errors.ts"
+import { Result } from "../../app/lib/primitives/Result.ts"
 import type { Id, TableNames } from "../_generated/dataModel.js"
 import type { QueryCtx } from "../_generated/server.js"
 

@@ -1,5 +1,5 @@
-import { expect } from "../../common/expect.ts"
-import { mod } from "../../common/math.ts"
+import { unwrap } from "../../lib/errors.ts"
+import { mod } from "../../lib/math.ts"
 
 export type GridWorkerMessage =
 	| { type: "init"; canvas: OffscreenCanvas }
@@ -16,7 +16,7 @@ let context: OffscreenCanvasRenderingContext2D | undefined
 self.addEventListener("message", (event: MessageEvent<GridWorkerMessage>) => {
 	if (event.data.type === "init") {
 		canvas = event.data.canvas
-		context = expect(canvas.getContext("2d"), "canvas not supported")
+		context = unwrap(canvas.getContext("2d"), "canvas not supported")
 	}
 
 	if (event.data.type === "render") {

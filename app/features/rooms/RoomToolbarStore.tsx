@@ -1,4 +1,4 @@
-import { createStore } from "../../common/store.tsx"
+import { createStore } from "../../lib/react/store.tsx"
 
 export const RoomTool = {
 	Select: "Select",

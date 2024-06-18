@@ -1,8 +1,8 @@
 import { useMutation } from "convex/react"
 import { api } from "../../../convex/_generated/api"
 import type { Branded } from "../../../convex/helpers/convex.ts"
-import { keyedByProperty } from "../../common/collection.ts"
-import { queryMutators } from "../../common/convex.ts"
+import { queryMutators } from "../../lib/convex.ts"
+import { keyedByProperty } from "../../lib/iterable.ts"
 import { useCharacters } from "../rooms/roomContext.tsx"
 
 export function useAddTokenMutation() {

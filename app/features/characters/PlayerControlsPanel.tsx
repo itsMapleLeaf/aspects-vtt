@@ -1,8 +1,8 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { api } from "../../../convex/_generated/api"
-import { useSafeAction } from "../../common/convex.ts"
-import { expect } from "../../common/expect.ts"
+import { useSafeAction } from "../../lib/convex.ts"
+import { unwrap } from "../../lib/errors.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
 import { translucentPanel } from "../../ui/styles.ts"
@@ -36,7 +36,7 @@ function ActionFatigueButton({ character }: { character: OwnedCharacter }) {
 		const message = await createMessage({
 			roomId: room._id,
 			content: `<@${character._id}>: Action Fatigue`,
-			dice: [getDiceKindApiInput(expect(diceKindsByName.get("d4")), 1)],
+			dice: [getDiceKindApiInput(unwrap(diceKindsByName.get("d4")), 1)],
 		})
 		const result = message.diceRoll?.dice[0]?.result
 		if (result !== undefined) {

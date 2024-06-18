@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
-import { pick } from "../../app/common/object.ts"
+import { pick } from "../../app/lib/object.ts"
 import { mutation, query } from "../_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "../auth/helpers.ts"
 import { CharacterModel } from "../characters/CharacterModel.js"

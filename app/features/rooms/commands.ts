@@ -1,4 +1,4 @@
-import { Emitter } from "../../common/emitter.ts"
+import { Emitter } from "../../lib/primitives/Emitter.ts"
 
 export type RoomCommand = never
 

@@ -2,7 +2,6 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
 import type { DiceInput } from "../../../convex/messages/types.ts"
-import { range } from "../../common/range.ts"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 
 export interface DiceStat {
@@ -166,24 +165,26 @@ function defineModifier({
 				</div>
 			</div>
 		),
-		faces: range.array(1, faceCount + 1).map((face) => ({
-			modifyStats: new Map([
-				[effectStat, face * multiplier],
-				[stat, face],
-			]),
-			render: () => (
-				<Tooltip
-					text={`${name}: ${face}`}
-					placement="top"
-					className={twMerge(
-						"flex-center-col relative transition @container [--icon-gap:9px] *:pointer-events-none hover:brightness-150",
-						className,
-					)}
-				>
-					<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />
-					<p className="absolute translate-y-[3px] text-[length:36cqw] font-semibold">{face}</p>
-				</Tooltip>
-			),
-		})),
+		faces: Iterator.range(1, faceCount + 1)
+			.map((face) => ({
+				modifyStats: new Map([
+					[effectStat, face * multiplier],
+					[stat, face],
+				]),
+				render: () => (
+					<Tooltip
+						text={`${name}: ${face}`}
+						placement="top"
+						className={twMerge(
+							"flex-center-col relative transition @container [--icon-gap:9px] *:pointer-events-none hover:brightness-150",
+							className,
+						)}
+					>
+						<Lucide.Triangle className="size-full fill-primary-200 stroke-1" />
+						<p className="absolute translate-y-[3px] text-[length:36cqw] font-semibold">{face}</p>
+					</Tooltip>
+				),
+			}))
+			.toArray(),
 	}
 }

@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react"
 import { api } from "../../../convex/_generated/api.js"
-import type { Attribute } from "../../../data/attributes.ts"
-import { useAsyncState } from "../../common/useAsyncState.ts"
+import type { Attribute } from "../../data/attributes.ts"
+import { useAsyncState } from "../../lib/react/common.ts"
 import { NumberField } from "../../ui/NumberField.tsx"
 import type { ApiCharacter } from "./types.ts"
 

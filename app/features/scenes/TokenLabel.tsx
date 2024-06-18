@@ -1,7 +1,7 @@
 import * as React from "react"
 import { useState } from "react"
-import { Rect } from "../../common/Rect.ts"
-import { useWindowEvent } from "../../common/useWindowEvent.ts"
+import { useWindowEvent } from "../../lib/dom/events.ts"
+import { Rect } from "../../lib/primitives/Rect.ts"
 
 export function TokenLabel(props: { text: string; subText: string }) {
 	const [visible, setVisible] = useState(false)

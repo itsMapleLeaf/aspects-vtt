@@ -14,8 +14,8 @@ import {
 	listAspectSkillsByTier,
 	listAspectSkillTiers,
 	type AspectSkill,
-} from "../../../data/aspectSkills.ts"
-import { getAspect, listAspects } from "../../../data/aspects.ts"
+} from "../../data/aspectSkills.ts"
+import { getAspect, listAspects } from "../../data/aspects.ts"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { Loading } from "../../ui/Loading.tsx"

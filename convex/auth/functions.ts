@@ -1,5 +1,5 @@
 import { Effect, pipe } from "effect"
-import { expect } from "../../app/common/expect.ts"
+import { unwrap } from "../../app/lib/errors.ts"
 import { type QueryCtx, query } from "../_generated/server.js"
 import { effectMutation, withMutationCtx } from "../helpers/effect.ts"
 import { getIdentityEffect, getUserFromClerkId, getUserFromIdentity } from "./helpers.ts"
@@ -31,7 +31,7 @@ export const setup = effectMutation({
 					Effect.catchTag("UserNotFoundError", () =>
 						withMutationCtx(async (ctx) => {
 							const id = await ctx.db.insert("users", { ...data, clerkId: identity.subject })
-							return expect(await ctx.db.get(id), "user doc was not inserted")
+							return unwrap(await ctx.db.get(id), "user doc was not inserted")
 						}),
 					),
 				)

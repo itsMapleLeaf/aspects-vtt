@@ -1,6 +1,6 @@
 import { Effect } from "effect"
-import { roll } from "../../../app/common/random.ts"
-import { getAttribute, type Attribute } from "../../../data/attributes.ts"
+import { getAttribute, type Attribute } from "../../../app/data/attributes.ts"
+import { roll } from "../../../app/lib/random.ts"
 import type { Id } from "../../_generated/dataModel.js"
 import type { QueryCtx } from "../../_generated/server.js"
 import { getDoc } from "../../helpers/effect.ts"

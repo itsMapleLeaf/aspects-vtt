@@ -1,4 +1,4 @@
-import { Vector } from "../../common/vector.ts"
+import { Vector } from "../../lib/primitives/Vector.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 
 export function DistanceLayer() {

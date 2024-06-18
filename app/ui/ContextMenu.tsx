@@ -1,7 +1,7 @@
 import * as Ariakit from "@ariakit/react"
 import { type ComponentProps, createContext, use, useEffect, useRef, useState } from "react"
-import { createNonEmptyContext, useNonEmptyContext } from "../common/context.tsx"
-import { Vector } from "../common/vector.ts"
+import { Vector } from "../lib/primitives/Vector.ts"
+import { createStrictContext, useStrictContext } from "../lib/react/strictContext.tsx"
 import { Menu, MenuItem, MenuPanel } from "./Menu.tsx"
 
 export interface ContextMenuProps extends ComponentProps<typeof Menu> {
@@ -10,7 +10,7 @@ export interface ContextMenuProps extends ComponentProps<typeof Menu> {
 
 const PointerContext = createContext(Vector.zero)
 const SetPointerContext = createContext((_pointer: Vector) => {})
-const StoreContext = createNonEmptyContext<Ariakit.MenuStore>()
+const StoreContext = createStrictContext<Ariakit.MenuStore>()
 
 export function ContextMenu(props: ContextMenuProps) {
 	const store = Ariakit.useMenuStore()
@@ -33,7 +33,7 @@ export function ContextMenu(props: ContextMenuProps) {
 
 export function ContextMenuTrigger(props: ComponentProps<"div">) {
 	const setPointer = use(SetPointerContext)
-	const store = useNonEmptyContext(StoreContext)
+	const store = useStrictContext(StoreContext)
 
 	return (
 		<div
@@ -52,7 +52,7 @@ export function ContextMenuTrigger(props: ComponentProps<"div">) {
 
 export function ContextMenuPanel(props: ComponentProps<typeof MenuPanel>) {
 	const pointer = use(PointerContext)
-	const store = useNonEmptyContext(StoreContext)
+	const store = useStrictContext(StoreContext)
 	// eslint-disable-next-line react-compiler/react-compiler
 	const open = store.useState("open")
 	const ref = useRef<React.ComponentRef<typeof MenuPanel>>(null)

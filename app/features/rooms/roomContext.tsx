@@ -3,7 +3,7 @@ import type { FunctionReturnType } from "convex/server"
 import { createContext } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
-import { empty, useNonEmptyContext } from "../../common/context.tsx"
+import { empty, useStrictContext } from "../../lib/react/strictContext.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 
 export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.functions.get>>
@@ -28,11 +28,11 @@ export function RoomOwnerOnly({ children }: { children: React.ReactNode }) {
 }
 
 export function useRoom() {
-	return useNonEmptyContext(RoomContext)
+	return useStrictContext(RoomContext)
 }
 
 export function useCharacters() {
-	return useNonEmptyContext(CharacterContext)
+	return useStrictContext(CharacterContext)
 }
 
 export function useCharacter(id: Id<"characters">) {

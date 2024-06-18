@@ -1,9 +1,9 @@
 import { brandedString, deprecated, literals, nullable } from "convex-helpers/validators"
 import { v, type Infer } from "convex/values"
-import { listAspectNames } from "../../data/aspects.ts"
-import { listAspectSkillIds } from "../../data/aspectSkills.ts"
-import { listAttributeIds } from "../../data/attributes.ts"
-import { listRaceIds } from "../../data/races.ts"
+import { listAspectNames } from "../../app/data/aspects.ts"
+import { listAspectSkillIds } from "../../app/data/aspectSkills.ts"
+import { listAttributeIds } from "../../app/data/attributes.ts"
+import { listRaceIds } from "../../app/data/races.ts"
 import { nullish } from "../helpers/convex.ts"
 import { userColorValidator } from "../types.ts"
 

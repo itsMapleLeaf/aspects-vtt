@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Awaitable, DietUnknown, Overwrite, PartialKeys, TODO } from "../common/types.ts"
+import type { Awaitable, DietUnknown, Overwrite, PartialKeys, TODO } from "../lib/types.ts"
 
 export interface EditableOptions<T> {
 	value: T

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
-import { expect } from "../../common/expect.ts"
-import { useSize } from "../../common/useResizeObserver.ts"
+import { useSize } from "../../lib/dom/useResizeObserver.ts"
+import { unwrap } from "../../lib/errors.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 import type { GridWorkerMessage } from "./SceneGrid.worker.ts"
 
@@ -20,7 +20,7 @@ export function SceneGrid() {
 				type: "module",
 			})
 
-			const canvas = expect(canvasRef.current, "canvas ref not set")
+			const canvas = unwrap(canvasRef.current, "canvas ref not set")
 			const offscreen = canvas.transferControlToOffscreen()
 
 			sendMessage(workerRef.current, {

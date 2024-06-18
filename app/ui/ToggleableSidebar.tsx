@@ -2,7 +2,7 @@ import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/reac
 import * as Lucide from "lucide-react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
-import { useLocalStorageState } from "../common/useLocalStorage.ts"
+import { useLocalStorageState } from "../lib/dom/useLocalStorage.ts"
 import { Button } from "./Button.tsx"
 
 export function ToggleableSidebar({

@@ -1,7 +1,7 @@
 import type { FunctionArgs, FunctionReturnType } from "convex/server"
 import { Brand, Option } from "effect"
 import type { api } from "../../../convex/_generated/api.js"
-import type { PickByValue } from "../../common/types.js"
+import type { PickByValue } from "../../lib/types.js"
 
 export type ApiCharacter = FunctionReturnType<typeof api.characters.functions.list>[number]
 

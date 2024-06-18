@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react"
 import { api } from "../../../convex/_generated/api"
-import { patchByKey } from "../../common/collection.ts"
-import { queryMutators } from "../../common/convex.ts"
+import { queryMutators } from "../../lib/convex.ts"
+import { patchByKey } from "../../lib/iterable.ts"
 
 export function useUpdateTokenMutation() {
 	return useMutation(api.scenes.tokens.functions.update).withOptimisticUpdate((store, args) => {

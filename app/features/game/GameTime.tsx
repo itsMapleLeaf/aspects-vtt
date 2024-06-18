@@ -1,5 +1,5 @@
-import { expect } from "../../common/expect.ts"
-import { clamp } from "../../common/math.ts"
+import { unwrap } from "../../lib/errors.ts"
+import { clamp } from "../../lib/math.ts"
 
 export interface GameDate {
 	year: number
@@ -53,7 +53,7 @@ export class GameTime {
 	}
 
 	get monthName() {
-		return expect(GameTime.Months[this.month])
+		return unwrap(GameTime.Months[this.month])
 	}
 
 	get year() {
@@ -73,7 +73,7 @@ export class GameTime {
 	}
 
 	get timeOfDayName() {
-		return expect(GameTime.TimesOfDay[this.timeOfDay])
+		return unwrap(GameTime.TimesOfDay[this.timeOfDay])
 	}
 
 	// visible during the first half of each week

@@ -1,6 +1,6 @@
 import * as Lucide from "lucide-react"
 import { useState, type ReactNode } from "react"
-import { getAttribute, listAttributes, type Attribute } from "../../../data/attributes.ts"
+import { getAttribute, listAttributes, type Attribute } from "../../data/attributes.ts"
 import { Button } from "../../ui/Button.tsx"
 import { FormActions, FormLayout, FormRow } from "../../ui/Form.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
