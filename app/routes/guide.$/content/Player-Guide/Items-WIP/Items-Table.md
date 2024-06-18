@@ -1,0 +1,15 @@
+| ﻿Name | Cost | Effect | Rarity | Usage |
+| --- | --- | --- | --- | --- |
+| [Uncooked Snack](Items-Table/Uncooked-Snack.md) | 5 | Heal 1d4 health and take 1d4 fatigue. Cook to turn into a Filling Snack (Items%20%5BWIP%5D%2076b4458d7eee4df9bda397e0928947d0/Items%20Table%208d9094e2f698472792a0e9cea7f068e1/Filling%20Snack%2060c27f815d9a4f7aa702f9f8362ea27e.md). | Common | Consumable |
+| [Calming Tea](Items-Table/Calming-Tea.md) | 10 | Your next 3 sense rolls have +2 boost dice. | Common | Consumable |
+| [Charming Drink](Items-Table/Charming-Drink.md) | 10 | Your next 3 wit rolls have +2 boost dice. | Common | Consumable |
+| [Filling Snack](Items-Table/Filling-Snack.md) | 10 | Your next 3 strength rolls  have +2 boost dice. | Common | Consumable |
+| [Healthy Snack](Items-Table/Healthy-Snack.md) | 10 | Your next 3 intellect rolls  have +2 boost dice. | Common | Consumable |
+| [Refreshing Drink](Items-Table/Refreshing-Drink.md) | 10 | Your next 3 mobility rolls  have +2 boost dice. | Common | Consumable |
+| [Energizing Drink](Items-Table/Energizing-Drink.md) | 20 | Removes 2d4 fatigue. | Common | Consumable |
+| [Rejuvenating Drink](Items-Table/Rejuvenating-Drink.md) | 20 | Heals 2d4 health. | Common | Consumable |
+| [Blunt Instrument](Items-Table/Blunt-Instrument.md) | 50 | Strike (General%20Skills%207e3cf34ee21e4a9198f205234d32b6cb/General%20Skills%202bc339d7bbc8432c9b15e12af7a2ba0b/Strike%2089017a45b00940da8e242f8ee8daa585.md) attacks made with this object deal 1d4 fatigue. Rolls to break other objects have +2 boost dice. | Uncommon | Tool |
+| [Comfy Coat](Items-Table/Comfy-Coat.md) | 50 | Cold and freezing cold environments do not affect you. Makes hot environments hotter. | Uncommon | Wearable |
+| [Sharp Instrument](Items-Table/Sharp-Instrument.md) | 50 | Strike (General%20Skills%207e3cf34ee21e4a9198f205234d32b6cb/General%20Skills%202bc339d7bbc8432c9b15e12af7a2ba0b/Strike%2089017a45b00940da8e242f8ee8daa585.md) rolls with this weapon deal an extra 1d4 damage. Rolls to cut other objects  have +2 boost dice. | Uncommon | Tool |
+| [Stylish Outfit](Items-Table/Stylish-Outfit.md) | 75 | You have +1 boost dice on your wit rolls. | Rare | Wearable |
+| [Ranged Arrow Weapon](Items-Table/Ranged-Arrow-Weapon.md) | 80 | Make ranged Strike (General%20Skills%207e3cf34ee21e4a9198f205234d32b6cb/General%20Skills%202bc339d7bbc8432c9b15e12af7a2ba0b/Strike%2089017a45b00940da8e242f8ee8daa585.md) actions using your sense instead of your strength. | Rare | Tool |

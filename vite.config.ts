@@ -3,6 +3,7 @@ import { vitePlugin as remix } from "@remix-run/dev"
 import { vercelPreset } from "@vercel/remix/vite"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
+import remarkGfm from "remark-gfm"
 import { remixRoutes } from "remix-routes/vite.js"
 import { visualizer } from "rollup-plugin-visualizer"
 import { defineConfig } from "vite"
@@ -20,6 +21,7 @@ export default defineConfig({
 			},
 		}),
 		mdx({
+			remarkPlugins: [remarkGfm],
 			rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "append" }]],
 		}),
 		remix({
