@@ -44,12 +44,7 @@ After that, link the repo with your Convex project:
 bunx convex dev --once
 ```
 
-Then, copy `.env.convex.example` to `.env.convex.local` and fill in the environment variables. Then you can run `nu scripts/update-convex-env.nu` to update the environment variables in Convex.
-
-```sh
-cp .env.convex.example .env.convex.local
-nu scripts/update-convex-env.nu
-```
+Then add the appropriate environment variables in Convex, as required in `convex/env.ts`
 
 ### Running the app - VSCode
 
