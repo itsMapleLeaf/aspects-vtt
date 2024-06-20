@@ -75,10 +75,11 @@ jobs:
         run: bun install
 
       - name: "💅 Format"
-        run: node --run format
+        run: bun run format
         continue-on-error: true
 
       - name: "📝 Commit changes"
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           push_options: --force-with-lease
+          commit_message: "format"
