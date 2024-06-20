@@ -5,7 +5,7 @@ import { Iterator } from "iterator-helpers-polyfill"
 import type { Awaitable, Overwrite } from "../../app/helpers/types.js"
 import type { DataModel, Doc, Id, TableNames } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
-import { mutation, query } from "../_generated/server.js"
+import { internalMutation, internalQuery, mutation, query } from "../_generated/server.js"
 
 export class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {}
 
@@ -75,6 +75,46 @@ export function effectMutation<Args extends PropertyValidators, Output>(options:
 	) => Effect.Effect<Output, unknown, QueryCtxService | MutationCtxService>
 }) {
 	return mutation({
+		...options,
+		handler(ctx, args) {
+			return Effect.runPromise(
+				pipe(
+					options.handler(args),
+					Effect.provideService(QueryCtxService, ctx),
+					Effect.provideService(MutationCtxService, ctx),
+				),
+			)
+		},
+	})
+}
+
+export function internalEffectQuery<Args extends PropertyValidators, Output>(options: {
+	args: Args
+	handler: (
+		// hack to satisfy the handler args type
+
+		args: Overwrite<ObjectType<Args>, {}>,
+	) => Effect.Effect<Output, unknown, QueryCtxService>
+}) {
+	return internalQuery({
+		args: options.args,
+		handler: (ctx, args) => {
+			return Effect.runPromise(
+				pipe(options.handler(args), Effect.provideService(QueryCtxService, ctx)),
+			)
+		},
+	})
+}
+
+export function internalEffectMutation<Args extends PropertyValidators, Output>(options: {
+	args: Args
+	handler: (
+		// hack to satisfy the handler args type
+
+		args: Overwrite<ObjectType<Args>, {}>,
+	) => Effect.Effect<Output, unknown, QueryCtxService | MutationCtxService>
+}) {
+	return internalMutation({
 		...options,
 		handler(ctx, args) {
 			return Effect.runPromise(

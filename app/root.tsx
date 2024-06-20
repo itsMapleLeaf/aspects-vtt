@@ -7,41 +7,17 @@ import "./root.css"
 import { ClerkApp, useAuth } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
-import {
-	defer,
-	Links,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
-	useLoaderData,
-} from "@remix-run/react"
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { ConvexProviderWithClerk } from "convex/react-clerk"
-import { Effect, pipe } from "effect"
 import { Suspense, useState } from "react"
-import { api } from "../convex/_generated/api"
 import { clientEnv } from "./env.ts"
-import { loaderFromEffect } from "./helpers/remix.ts"
-import { UserContext } from "./modules/auth/UserContext.tsx"
 import { clerkConfig } from "./modules/clerk/config.ts"
-import { getConvexClient } from "./modules/convex/helpers.server.ts"
 import { getSiteMeta } from "./modules/meta/helpers.ts"
 import { PromptProvider } from "./ui/Prompt.tsx"
 import { Toaster } from "./ui/Toaster.tsx"
 
-const setupUser = loaderFromEffect(
-	Effect.gen(function* () {
-		const convex = yield* getConvexClient()
-		return yield* pipe(
-			Effect.tryPromise(() => convex.mutation(api.auth.functions.setup, {})),
-			Effect.orElseSucceed(() => null),
-		)
-	}),
-)
-
-export const loader = (args: LoaderFunctionArgs) =>
-	rootAuthLoader(args, (args) => defer({ user: setupUser(args) }))
+export const loader = (args: LoaderFunctionArgs) => rootAuthLoader(args)
 
 export const meta: MetaFunction = () => getSiteMeta()
 
@@ -70,13 +46,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default ClerkApp(function App() {
-	const { user } = useLoaderData<typeof loader>()
 	const [convex] = useState(() => new ConvexReactClient(clientEnv.VITE_CONVEX_URL))
 	return (
 		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-			<UserContext value={user}>
-				<Outlet />
-			</UserContext>
+			<Outlet />
 		</ConvexProviderWithClerk>
 	)
 }, clerkConfig)

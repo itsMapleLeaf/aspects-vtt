@@ -2,6 +2,7 @@ import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton } from "@clerk/re
 import { Outlet, useHref, useLocation } from "@remix-run/react"
 import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
 import * as Lucide from "lucide-react"
+import { useUser } from "~/modules/auth/hooks.ts"
 import { AppHeaderLayout } from "../../ui/AppHeaderLayout.tsx"
 import { Button } from "../../ui/Button.tsx"
 import { EmptyStatePanel } from "../../ui/EmptyState.tsx"
@@ -24,9 +25,16 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 			<Unauthenticated>
 				<UnauthenticatedMessage />
 			</Unauthenticated>
-			<Authenticated>{children}</Authenticated>
+			<Authenticated>
+				<UserGuard>{children}</UserGuard>
+			</Authenticated>
 		</>
 	)
+}
+
+function UserGuard({ children }: { children: React.ReactNode }) {
+	const user = useUser()
+	return user ? children : <Loading fill="screen" />
 }
 
 function UnauthenticatedMessage() {
