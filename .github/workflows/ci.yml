@@ -22,22 +22,18 @@ jobs:
       fail-fast: false
     name: ${{ matrix.command.name }}
     steps:
-      - name: "🛒"
+      - name: "🛒 Checkout"
         uses: actions/checkout@v4
 
-      - name: "📦"
-        uses: pnpm/action-setup@v4
-
-      - name: "⬢"
-        uses: actions/setup-node@v4
+      - name: "🐰 Setup Bun"
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 22
-          cache: pnpm
+          bun-version: latest
 
-      - name: "📥"
-        run: pnpm install --no-frozen-lockfile
+      - name: "📥 Install dependencies"
+        run: bun install
 
-      - name: "▶️"
+      - name: "▶️ Run ${{ matrix.command.name }}"
         run: ${{ matrix.command.run }}
 
   format:
@@ -46,26 +42,22 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: "🛒"
+      - name: "🛒 Checkout"
         uses: actions/checkout@v4
 
-      - name: "📦"
-        uses: pnpm/action-setup@v4
-
-      - name: "⬢"
-        uses: actions/setup-node@v4
+      - name: "🐰 Setup Bun"
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 22
-          cache: pnpm
+          bun-version: latest
 
-      - name: "📥"
-        run: pnpm install --no-frozen-lockfile
+      - name: "📥 Install dependencies"
+        run: bun install
 
-      - name: "💅"
+      - name: "💅 Format"
         run: node --run format
         continue-on-error: true
 
-      - name: "📝"
+      - name: "📝 Commit changes"
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           push_options: --force-with-lease
