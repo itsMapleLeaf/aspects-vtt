@@ -14,11 +14,11 @@ jobs:
       matrix:
         command:
           - name: lint
-            run: node --run lint
+            run: bun run lint
           - name: typecheck
-            run: node --run build && node --run typecheck
+            run: bun run build && bun run typecheck
           - name: test
-            run: node --run test
+            run: bun run test
       fail-fast: false
     name: ${{ matrix.command.name }}
     steps:
