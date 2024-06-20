@@ -17,7 +17,7 @@ def main [...args] {
 		}
 	}
 
-	^pnpm convex ...$args --url $url --admin-key $admin_key
+	^bunx convex ...$args --url $url --admin-key $admin_key
 }
 
 def "main start" [] {
