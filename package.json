@@ -3,6 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"preinstall": "npx only-allow bun",
 		"build": "remix vite:build",
 		"dev": "run-p --print-label --race \"dev:*\"",
 		"dev:remix": "remix vite:dev",
