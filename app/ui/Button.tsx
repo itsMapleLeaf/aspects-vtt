@@ -13,12 +13,14 @@ import { Tooltip, type TooltipProps } from "./Tooltip.tsx"
 import { panel } from "./styles.ts"
 import { withMergedClassName } from "./withMergedClassName"
 
-interface ButtonPropsBase extends ButtonStyleProps {
+interface ButtonPropsBase {
 	icon: ReactNode
 	text?: ReactNode
 	tooltip?: ReactNode
 	tooltipPlacement?: TooltipProps["placement"]
 	pending?: boolean
+	appearance?: "solid" | "clear"
+	size?: "sm" | "md" | "lg"
 }
 
 export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
@@ -44,14 +46,39 @@ export function Button({
 	...props
 }: ButtonProps) {
 	const [, handleClick, actionPending] = useSafeAction(
-		(event: React.MouseEvent<HTMLButtonElement>) => {
-			return props.onClick?.(event)
+		async (event: React.MouseEvent<HTMLButtonElement>) => {
+			if (props.disabled) return
+			await props.onClick?.(event)
 		},
 	)
+
 	const status = useFormStatus()
 	const pending = pendingProp ?? ((status.pending && props.type === "submit") || actionPending)
 
-	const className = buttonStyle({ size })
+	const className = twMerge(
+		panel(),
+
+		"flex-center-row gap-2",
+
+		size === "sm" && "h-8 px-2",
+		size === "md" && "h-10 px-3",
+		size === "lg" && "h-12 px-4",
+
+		"rounded border border-primary-300",
+
+		"relative before:absolute before:inset-0 before:size-full",
+
+		"transition active:duration-0",
+		"before:transition active:before:duration-0",
+
+		"bg-primary-300/30",
+		"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
+
+		"translate-y-0 active:translate-y-0.5",
+		"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
+
+		"aria-disabled:cursor-not-allowed aria-disabled:opacity-50",
+	)
 
 	const children = (
 		<>
@@ -77,8 +104,10 @@ export function Button({
 			})
 		:	<button
 				type="button"
-				disabled={pending}
 				{...withMergedClassName(props, "cursor-default", className)}
+				// disabling buttons is bad a11y
+				disabled={false}
+				aria-disabled={props.disabled ?? pending}
 				// passing onClick keeps the button from acting as a form submitter,
 				// so only pass handleClick if an onClick is provided
 				onClick={props.onClick && handleClick}
@@ -94,36 +123,5 @@ export function Button({
 		<Tooltip content={tooltip} placement={tooltipPlacement}>
 			{element}
 		</Tooltip>
-	)
-}
-
-export interface ButtonStyleProps {
-	size?: "sm" | "md" | "lg"
-}
-
-export function buttonStyle({ size = "md" }: ButtonStyleProps) {
-	return twMerge(
-		"flex-center-row gap-2",
-
-		size === "sm" && "h-8 px-2",
-		size === "md" && "h-10 px-3",
-		size === "lg" && "h-12 px-4",
-
-		"rounded border border-primary-300",
-
-		"relative before:absolute before:inset-0 before:size-full",
-
-		"transition active:duration-0",
-		"before:transition active:before:duration-0",
-
-		"bg-primary-300/30",
-		"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
-
-		"translate-y-0 active:translate-y-0.5",
-		"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
-
-		"disabled:opacity-50",
-
-		panel(),
 	)
 }
