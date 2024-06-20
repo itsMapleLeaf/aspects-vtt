@@ -66,11 +66,11 @@ export const statDiceKindsByName = {
 		renderIcon: () => <Lucide.Diamond />,
 	}),
 	d10: defineNumeric({
-		faceCount: 8,
+		faceCount: 10,
 		renderIcon: () => <Lucide.Hexagon />,
 	}),
 	d12: defineNumeric({
-		faceCount: 10,
+		faceCount: 12,
 		renderIcon: () => <Lucide.Pentagon />,
 		textClassName: twMerge("translate-y-[2px]"),
 	}),
