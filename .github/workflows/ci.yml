@@ -17,8 +17,6 @@ jobs:
             run: bun run lint
           - name: typecheck
             run: bun run build && bun run typecheck
-          - name: test
-            run: bun run test
       fail-fast: false
     name: ${{ matrix.command.name }}
     steps:
@@ -35,6 +33,29 @@ jobs:
 
       - name: "▶️ Run ${{ matrix.command.name }}"
         run: ${{ matrix.command.run }}
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "🛒 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🐰 Setup Bun"
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      # node is still needed for tests for now
+      - name: "🟢 Setup Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: "📥 Install dependencies"
+        run: bun install
+
+      - name: "🧪 Run tests"
+        run: bun run test
 
   format:
     if: (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/main'
