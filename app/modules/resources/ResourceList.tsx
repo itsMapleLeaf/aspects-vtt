@@ -1,5 +1,4 @@
 import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
-import { Link } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { LucideFolder, LucideFolderOpen } from "lucide-react"
 import { useState } from "react"
@@ -116,31 +115,20 @@ function ResourceFolder({ name, children }: { name: string; children: React.Reac
 }
 
 function ResourceElement({ resource }: { resource: Resource }) {
-	const commonProps = {
-		draggable: true,
-		onDragStart: (event: React.DragEvent) => {
-			event.dataTransfer.dropEffect = "copy"
-			event.dataTransfer.setData("text/plain", JSON.stringify(resource.dragData))
-			event.dataTransfer.setDragImage(
-				event.currentTarget,
-				event.currentTarget.clientWidth / 2,
-				event.currentTarget.clientHeight / 2,
-			)
-		},
-	}
 	return (
-		<Button
-			key={resource.id}
-			text={resource.name}
-			icon={resource.renderIcon()}
-			appearance="clear"
-			className="justify-start"
-			element={
-				resource.action?.type === "link" ? <Link {...commonProps} to={resource.action.location} />
-				: resource.action?.type === "button" ?
-					<button {...commonProps} type="button" onClick={resource.action.onClick} />
-				:	<button {...commonProps} type="button" />
-			}
-		/>
+		<div
+			draggable
+			onDragStart={(event) => {
+				event.dataTransfer.dropEffect = "copy"
+				event.dataTransfer.setData("text/plain", JSON.stringify(resource.dragData))
+				event.dataTransfer.setDragImage(
+					event.currentTarget,
+					event.currentTarget.clientWidth / 2,
+					event.currentTarget.clientHeight / 2,
+				)
+			}}
+		>
+			{resource.renderTreeElement()}
+		</div>
 	)
 }

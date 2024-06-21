@@ -6,8 +6,7 @@ export interface Resource {
 	readonly id: string
 	readonly name: string
 	readonly dragData: object
-	readonly action?: ButtonResourceAction | LinkResourceAction
-	renderIcon(): ReactNode
+	renderTreeElement(): ReactNode
 }
 
 export interface ButtonResourceAction {
