@@ -1,11 +1,13 @@
 import {
-	type ComponentPropsWithoutRef,
+	type ComponentProps,
+	type Key,
 	type ReactElement,
 	type ReactNode,
 	cloneElement,
 } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
+import { usePendingDelay } from "~/helpers/react/hooks.ts"
 import type { Disallowed, StrictOmit } from "../helpers/types.ts"
 import { useSafeAction } from "../modules/convex/helpers.ts"
 import { Loading } from "./Loading.tsx"
@@ -23,15 +25,16 @@ interface ButtonPropsBase {
 	size?: "sm" | "md" | "lg"
 }
 
-export interface ButtonPropsAsButton extends ComponentPropsWithoutRef<"button">, ButtonPropsBase {
+export interface ButtonPropsAsButton extends ComponentProps<"button">, ButtonPropsBase {
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
 }
 
 export interface ButtonPropsAsElement
-	extends Disallowed<StrictOmit<ComponentPropsWithoutRef<"button">, "className">>,
+	extends Disallowed<StrictOmit<ComponentProps<"button">, "className" | "key">>,
 		ButtonPropsBase {
 	element: ReactElement<{ className?: string; children?: React.ReactNode }>
 	className?: string
+	key?: Key
 }
 
 export type ButtonProps = ButtonPropsAsButton | ButtonPropsAsElement
@@ -40,6 +43,7 @@ export function Button({
 	text,
 	icon,
 	size = "md",
+	appearance = "solid",
 	pending: pendingProp,
 	tooltip,
 	tooltipPlacement,
@@ -53,7 +57,9 @@ export function Button({
 	)
 
 	const status = useFormStatus()
-	const pending = pendingProp ?? ((status.pending && props.type === "submit") || actionPending)
+	const pending = usePendingDelay(
+		pendingProp ?? ((status.pending && props.type === "submit") || actionPending),
+	)
 
 	const className = twMerge(
 		panel(),
@@ -64,20 +70,33 @@ export function Button({
 		size === "md" && "h-10 px-3",
 		size === "lg" && "h-12 px-4",
 
-		"rounded border border-primary-300",
-
-		"relative before:absolute before:inset-0 before:size-full",
-
 		"transition active:duration-0",
-		"before:transition active:before:duration-0",
-
-		"bg-primary-300/30",
-		"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
-
 		"translate-y-0 active:translate-y-0.5",
-		"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
 
 		"aria-disabled:cursor-not-allowed aria-disabled:opacity-50",
+
+		appearance === "solid" && [
+			"rounded border border-primary-300",
+
+			"bg-primary-300/30",
+			"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
+
+			"relative before:absolute before:inset-0 before:size-full",
+
+			"before:transition active:before:duration-0",
+
+			"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
+		],
+
+		appearance === "clear" && [
+			"bg-primary-900",
+			"bg-opacity-0 hover:bg-opacity-25 active:bg-opacity-50",
+			"text-opacity-75 hover:text-opacity-100",
+
+			"border-transparent",
+
+			"translate-y-0 active:translate-y-0.5",
+		],
 	)
 
 	const children = (
@@ -90,7 +109,10 @@ export function Button({
 					<Loading size="sm" />
 				:	icon}
 			</span>
-			<span data-size={size} className="relative whitespace-nowrap empty:hidden">
+			<span
+				data-size={size}
+				className="shrink-1 relative min-w-0 overflow-clip text-ellipsis whitespace-nowrap empty:hidden"
+			>
 				{text}
 			</span>
 		</>
