@@ -76,22 +76,19 @@ export function Button({
 		"aria-disabled:cursor-not-allowed aria-disabled:opacity-50",
 
 		appearance === "solid" && [
-			"rounded border border-primary-300",
-
-			"bg-primary-300/30",
 			"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
 
+			"rounded border border-primary-300",
+
 			"relative before:absolute before:inset-0 before:size-full",
-
 			"before:transition active:before:duration-0",
-
 			"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
 		],
 
 		appearance === "clear" && [
 			"bg-primary-900",
 			"bg-opacity-0 hover:bg-opacity-25 active:bg-opacity-50",
-			"text-opacity-75 hover:text-opacity-100",
+			"text-white text-opacity-80 hover:text-opacity-100",
 
 			"border-transparent",
 
