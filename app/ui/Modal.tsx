@@ -1,10 +1,9 @@
 import * as Ariakit from "@ariakit/react"
 import { LucideX } from "lucide-react"
-import type { ComponentPropsWithoutRef, ReactNode } from "react"
+import type { ComponentProps, ComponentPropsWithoutRef, ReactNode } from "react"
 import type { StrictOmit } from "../helpers/types.ts"
 import { Button, type ButtonPropsAsButton } from "./Button.tsx"
 import { panel } from "./styles.ts"
-import { twc } from "./twc.ts"
 import { withMergedClassName } from "./withMergedClassName.ts"
 
 interface ModalBaseProps {
@@ -101,8 +100,8 @@ export function ModalPanel({
 			unmountOnHide
 		>
 			<div className="flex items-center gap-3 border-b border-primary-300 bg-black/25 bg-primary-200 p-3">
-				<div className="flex-1">
-					<Ariakit.DialogHeading className="text-2xl/tight font-light">
+				<div className="min-w-0 flex-1">
+					<Ariakit.DialogHeading className="truncate text-2xl/tight font-light">
 						{title}
 					</Ariakit.DialogHeading>
 					{description && <Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>}
@@ -116,13 +115,17 @@ export function ModalPanel({
 	)
 }
 
-export const ModalPanelContent = twc.div`min-h-0 flex-1 overflow-y-auto bg-primary-100`
+export function ModalPanelContent(props: ComponentProps<"div">) {
+	return <div {...withMergedClassName(props, "min-h-0 flex-1 overflow-y-auto bg-primary-100")} />
+}
 
 export function ModalActions(props: ComponentPropsWithoutRef<"div">) {
 	return <div {...withMergedClassName(props, "flex justify-end gap-2")} />
 }
 
-export const ModalDismiss = Ariakit.DialogDismiss
+export function ModalDismiss(props: Ariakit.DialogDismissProps) {
+	return <Ariakit.DialogDismiss {...props} />
+}
 
 export function useModalContext() {
 	return Ariakit.useDialogContext()
