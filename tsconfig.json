@@ -1,32 +1,30 @@
 {
 	"compilerOptions": {
-		"allowImportingTsExtensions": true,
-		"allowJs": true,
-		"forceConsistentCasingInFileNames": true,
-		"isolatedModules": true,
-		"jsx": "react-jsx",
-		"lib": ["DOM", "DOM.Iterable", "ES2023"],
+		// resolution
 		"module": "Preserve",
 		"moduleDetection": "force",
-		"noEmit": true,
-		"noErrorTruncation": true,
-		"noUncheckedIndexedAccess": true,
+		"lib": ["DOM", "DOM.Iterable", "ES2023"],
+		"jsx": "react-jsx",
+		"allowJs": true,
+		"skipLibCheck": true,
 		"paths": {
 			"~/*": ["./app/*"]
 		},
-		"preserveWatchOutput": true,
-		"skipLibCheck": true,
+
+		// strictness
 		"strict": true,
+		"allowImportingTsExtensions": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"noUncheckedIndexedAccess": true,
+
+		// emit
+		"noEmit": true,
 		"target": "ESNext",
-		"types": [
-			"node",
-			"@remix-run/node",
-			"vite/client",
-			"@total-typescript/ts-reset"
-			// "@remix-run/react/future/single-fetch.d.ts"
-		],
-		"verbatimModuleSyntax": true
+
+		// DX
+		// "noErrorTruncation": true,
+		"preserveWatchOutput": true
 	},
-	"include": ["**/*.ts", "**/*.tsx"],
-	"exclude": ["node_modules", "build", "convex/_generated"]
+	"exclude": ["build", "node_modules"]
 }
