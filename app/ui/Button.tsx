@@ -106,7 +106,7 @@ export function Button({
 				className="flex-center-row relative -mx-0.5 size-5 *:size-5 empty:hidden data-[size=lg]:size-8 *:data-[size=lg]:size-8"
 			>
 				{pending ?
-					<Loading size="sm" />
+					<Loading size="sm" fill="parent" />
 				:	icon}
 			</span>
 			<span
