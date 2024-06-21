@@ -31,6 +31,18 @@ export function ResourceList(props: ResourceListProps) {
 	const user = useUser()
 	const [searchState, setSearch] = useState("")
 	const search = searchState.trim()
+	const scene = useQuery(
+		api.scenes.functions.get,
+		room.currentScene ? { id: room.currentScene } : "skip",
+	)
+
+	const characterOrder = (it: ApiCharacter) => {
+		if (it.playerId === user?.clerkId) return 0
+		if (it.isOwner && !room.isOwner) return 1
+		if (it.playerId) return 2
+		if (scene?.tokens?.some((token) => token.characterId === it._id)) return 3
+		return Number.POSITIVE_INFINITY
+	}
 
 	let tree: ResourceGroup[] = [
 		{
@@ -38,12 +50,8 @@ export function ResourceList(props: ResourceListProps) {
 			name: "Characters",
 			items: characters
 				.filter((character) => character.visible || character.isOwner)
-				.sort((a, b) => b._creationTime - a._creationTime)
-				.sort((a, b) => {
-					const order = (it: ApiCharacter) =>
-						[it.playerId === user?.clerkId, it.isOwner, it.visible].indexOf(true)
-					return order(a) - order(b)
-				})
+				// .sort((a, b) => b._creationTime - a._creationTime)
+				.sort((a, b) => characterOrder(a) - characterOrder(b))
 				.map((character) => CharacterResource.create(character)),
 		},
 		{
