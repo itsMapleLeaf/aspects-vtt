@@ -27,8 +27,6 @@
 		],
 		"verbatimModuleSyntax": true
 	},
-	"mdx": {
-		"checkMdx": true
-	},
+	"include": ["**/*.ts", "**/*.tsx"],
 	"exclude": ["node_modules", "build", "convex/_generated"]
 }
