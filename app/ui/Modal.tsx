@@ -12,6 +12,8 @@ interface ModalBaseProps {
 	description?: React.ReactNode
 	fullHeight?: boolean
 	store?: Ariakit.DialogStore
+	open?: boolean
+	onOpenChange?: (open: boolean) => void
 }
 
 interface ModalAsButtonProps extends ModalBaseProps, StrictOmit<ButtonPropsAsButton, "title"> {}
@@ -42,9 +44,18 @@ type ModalProps = ModalAsButtonProps | ModalWithTriggerProps
  * 	</ModalActions>
  * 	</Modal>
  */
-export function Modal({ children, title, description, fullHeight, store, ...props }: ModalProps) {
+export function Modal({
+	children,
+	title,
+	description,
+	fullHeight,
+	store,
+	open,
+	onOpenChange,
+	...props
+}: ModalProps) {
 	return (
-		<ModalProvider store={store}>
+		<ModalProvider store={store} open={open} setOpen={onOpenChange}>
 			<ModalButton render={"trigger" in props ? props.trigger : <Button {...props} />} />
 			<ModalPanel title={title} description={description} fullHeight={fullHeight}>
 				<ModalPanelContent>{children}</ModalPanelContent>
