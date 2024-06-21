@@ -11,7 +11,7 @@ type UploadedImageProps = Overwrite<
 		id?: Nullish<Id<"_storage">>
 		fallbackUrl?: string
 		fallbackIcon?: ReactNode
-		className?: string | { container?: string; image?: string }
+		className?: string | { container?: string; image?: string; icon?: string }
 	}
 >
 
@@ -40,7 +40,12 @@ export function UploadedImage({
 					)}
 					draggable={false}
 				/>
-			:	<div className="flex-center size-full text-primary-600 opacity-50 *:size-3/4 empty:hidden">
+			:	<div
+					className={twMerge(
+						"flex-center size-full text-primary-600 opacity-50 *:aspect-square *:w-3/4 *:min-w-16 empty:hidden",
+						resolvedClassName?.icon,
+					)}
+				>
 					{emptyIcon}
 				</div>
 			}
