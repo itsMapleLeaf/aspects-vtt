@@ -8,7 +8,7 @@ import { randomItem } from "../../helpers/random.ts"
 import { DragSelectArea } from "../../ui/DragSelect.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { getApiImageUrl } from "../api-images/helpers.ts"
-import { CharacterDnd } from "../characters/CharacterDnd.tsx"
+import { CharacterResource } from "../characters/CharacterResource.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
 import { PingHandler } from "./PingHandler.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
@@ -131,14 +131,23 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
 	return (
-		<CharacterDnd.Dropzone
+		<div
 			className="absolute inset-0"
-			onDrop={(character, event) => {
+			onDragOver={(event) => {
+				event.preventDefault()
+				event.dataTransfer.dropEffect = "copy"
+			}}
+			onDrop={(event) => {
+				event.preventDefault()
+
+				const data = CharacterResource.parseDragData(event.dataTransfer.getData("text"))
+				if (!data) return
+
 				const position = context
 					.mapPositionFromViewportPosition(event.clientX, event.clientY)
 					.floorTo(scene.cellSize).xy
 
-				const existing = tokens.find((it) => it.character?._id === character._id)
+				const existing = tokens.find((it) => it.character?._id === data.characterId)
 				if (existing) {
 					updateToken({
 						key: existing.key,
@@ -148,15 +157,15 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 				} else {
 					addToken({
 						sceneId: scene._id,
-						characterId: character._id,
+						characterId: data.characterId,
 						position,
-						visible: character.visible,
+						visible: data.visible,
 					})
 				}
 			}}
 		>
 			{children}
-		</CharacterDnd.Dropzone>
+		</div>
 	)
 }
 

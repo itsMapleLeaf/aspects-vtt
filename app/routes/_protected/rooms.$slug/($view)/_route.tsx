@@ -1,10 +1,12 @@
-import { useNavigate, useParams } from "@remix-run/react"
+import { useNavigate, useParams, useSearchParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useCallback, useEffect, useRef, type RefObject } from "react"
+import { CharacterEditorModalRoute } from "~/modules/characters/CharacterEditorModalRoute.tsx"
+import { ResourceList } from "~/modules/resources/ResourceList.tsx"
 import { api } from "../../../../../convex/_generated/api.js"
-import { CharacterListPanel } from "../../../../modules/characters/CharacterListPanel.tsx"
+import type { Id } from "../../../../../convex/_generated/dataModel"
 import { CharacterSelectionProvider } from "../../../../modules/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../../../../modules/game/GameTime.tsx"
 import { listGeneralSkills } from "../../../../modules/general-skills/data.ts"
@@ -33,14 +35,13 @@ import { ScrollArea } from "../../../../ui/ScrollArea.tsx"
 import { panel } from "../../../../ui/styles.ts"
 
 const views = {
-	characters: "characters",
+	character: "character",
+	scene: "scene",
 } as const
 
 export default function RoomRoute() {
 	const room = useRoom()
 	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
-	const { view } = useParams()
-	const navigate = useNavigate()
 
 	const gameTime = new GameTime(room.gameTime)
 	const themeColor = [
@@ -83,8 +84,8 @@ export default function RoomRoute() {
 
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
 					<div className="h-[calc(100%-4rem)] min-h-0 flex-1">
-						<TranslucentPanel className="pointer-events-auto h-full w-28 p-1">
-							<CharacterListPanel />
+						<TranslucentPanel className="pointer-events-auto h-full w-64 gap-2 p-2">
+							<ResourceList />
 						</TranslucentPanel>
 					</div>
 
@@ -106,16 +107,33 @@ export default function RoomRoute() {
 					</div>
 				</div>
 
-				<ModalPanel
-					title="Characters"
-					className="max-w-screen-md"
-					open={view === views.characters}
-					onClose={() => navigate("..")}
-				>
-					test
-				</ModalPanel>
+				<CharacterEditorModalRoute />
+				<SceneEditorModalRoute />
 			</RoomToolbarStore.Provider>
 		</CharacterSelectionProvider>
+	)
+}
+
+function SceneEditorModalRoute() {
+	const { view } = useParams()
+	const navigate = useNavigate()
+	const [searchParams] = useSearchParams()
+	const sceneId = searchParams.get("id")
+	const scene = useQuery(
+		api.scenes.functions.get,
+		view === views.scene && sceneId ? { id: sceneId as Id<"scenes"> } : "skip",
+	)
+	return (
+		<ModalPanel
+			title={scene ? `Editing ${scene.name}` : "Edit Scene"}
+			className="max-w-screen-sm"
+			fullHeight
+			unmountOnHide={false}
+			open={view === views.scene}
+			onClose={() => navigate("..")}
+		>
+			(wip)
+		</ModalPanel>
 	)
 }
 
