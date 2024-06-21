@@ -1,6 +1,7 @@
 import { useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
 import { createContext } from "react"
+import type { Nullish } from "~/helpers/types.ts"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import { empty, useStrictContext } from "../../helpers/react/strictContext.tsx"
@@ -35,7 +36,7 @@ export function useCharacters() {
 	return useStrictContext(CharacterContext)
 }
 
-export function useCharacter(id: Id<"characters">) {
+export function useCharacter(id: Nullish<Id<"characters">>) {
 	const characters = useCharacters()
 	return characters.find((c) => c._id === id)
 }
