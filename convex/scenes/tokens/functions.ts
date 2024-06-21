@@ -6,7 +6,7 @@ import { mutation, query } from "../../_generated/server.js"
 import { CharacterModel } from "../../characters/CharacterModel.ts"
 import { type Branded, partial, requireDoc } from "../../helpers/convex.ts"
 import { RoomModel } from "../../rooms/RoomModel.ts"
-import { requireSceneRoomOwner } from "../functions.ts"
+import { requireSceneRoomOwnerOld } from "../functions.ts"
 import { sceneTokenProperties } from "./types.ts"
 
 export type ApiToken = Awaited<ReturnType<typeof list>>[number]
@@ -50,7 +50,7 @@ export const add = mutation({
 	},
 	async handler(ctx, { sceneId, ...args }) {
 		const scene = await requireDoc(ctx, sceneId, "scenes").getValueOrThrow()
-		await requireSceneRoomOwner(ctx, sceneId).getValueOrThrow()
+		await requireSceneRoomOwnerOld(ctx, sceneId).getValueOrThrow()
 
 		if (args.characterId && scene.tokens?.some((token) => token.characterId === args.characterId)) {
 			throw new Error("Character already in scene")
@@ -69,7 +69,7 @@ export const remove = mutation({
 	},
 	async handler(ctx, { sceneId, tokenKey }) {
 		const scene = await requireDoc(ctx, sceneId, "scenes").getValueOrThrow()
-		await requireSceneRoomOwner(ctx, sceneId).getValueOrThrow()
+		await requireSceneRoomOwnerOld(ctx, sceneId).getValueOrThrow()
 
 		return await ctx.db.patch(sceneId, {
 			tokens: scene.tokens?.filter((token) => token.key !== tokenKey),
@@ -85,7 +85,7 @@ export const update = mutation({
 	},
 	async handler(ctx, { sceneId, key, ...args }) {
 		const scene = await requireDoc(ctx, sceneId, "scenes").getValueOrThrow()
-		await requireSceneRoomOwner(ctx, sceneId).getValueOrThrow()
+		await requireSceneRoomOwnerOld(ctx, sceneId).getValueOrThrow()
 
 		return await ctx.db.patch(sceneId, {
 			tokens: scene.tokens?.map((token) => (token.key === key ? { ...token, ...args } : token)),
