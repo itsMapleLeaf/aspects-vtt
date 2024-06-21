@@ -36,8 +36,8 @@ export function SetMapBackgroundButton({ scene }: { scene: Doc<"scenes"> }) {
 	return (
 		<>
 			<Button
-				icon={<Lucide.ImagePlus />}
-				text="Set Background"
+				icon={<Lucide.ImageUp />}
+				text="Set background"
 				className="w-full"
 				pending={pending}
 				onClick={() => {

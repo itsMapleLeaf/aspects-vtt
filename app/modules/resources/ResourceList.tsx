@@ -2,6 +2,8 @@ import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/reac
 import { useQuery } from "convex/react"
 import { LucideFolder, LucideFolderOpen } from "lucide-react"
 import { useState } from "react"
+import { z } from "zod"
+import { useLocalStorageState } from "~/helpers/dom/useLocalStorage.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
@@ -11,6 +13,7 @@ import { useUser } from "../auth/hooks.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { SceneResource } from "../scenes/SceneResource.tsx"
 import type { Resource } from "./Resource.tsx"
 
 interface ResourceGroup {
@@ -43,35 +46,29 @@ export function ResourceList(props: ResourceListProps) {
 				})
 				.map((character) => CharacterResource.create(character)),
 		},
-		// {
-		// 	id: "scenes",
-		// 	name: "Scenes",
-		// 	items: scenes?.map((scene) => ({
-		// 		id: scene._id,
-		// 		name: scene.name,
-		// 		icon: <LucideImage />,
-		// 		location: $path(
-		// 			"/rooms/:slug/:view?",
-		// 			{ slug: room.slug, view: "scene" },
-		// 			{ id: scene._id },
-		// 		),
-		// 	})),
-		// },
+		{
+			id: "scenes",
+			name: "Scenes",
+			items: (scenes ?? []).map((scene) => SceneResource.create(scene)),
+		},
 	]
 
 	if (search) {
 		tree = tree
-			.map((group) => ({
-				...group,
-				children: group.items?.filter((item) =>
-					item.name.toLowerCase().includes(search.toLowerCase()),
-				),
-			}))
+			.map(
+				(group): ResourceGroup => ({
+					...group,
+					items: group.items.filter((item) =>
+						item.name.toLowerCase().includes(search.toLowerCase()),
+					),
+				}),
+			)
 			.filter(
-				(group) =>
-					group.name.toLowerCase().includes(search.toLowerCase()) || group.children?.length,
+				(group) => group.name.toLowerCase().includes(search.toLowerCase()) || group.items?.length,
 			)
 	}
+
+	tree = tree.filter((group) => group.items?.length)
 
 	return (
 		<div {...withMergedClassName(props, "flex flex-col gap-2 h-full")}>
@@ -94,7 +91,7 @@ export function ResourceList(props: ResourceListProps) {
 }
 
 function ResourceFolder({ name, children }: { name: string; children: React.ReactNode }) {
-	const [open, setOpen] = useState(true)
+	const [open, setOpen] = useLocalStorageState(`resource-folder-${name}`, true, z.boolean())
 	return (
 		<DisclosureProvider open={open} setOpen={setOpen}>
 			<Disclosure

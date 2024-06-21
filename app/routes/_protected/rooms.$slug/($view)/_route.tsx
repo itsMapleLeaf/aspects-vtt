@@ -1,12 +1,9 @@
-import { useNavigate, useParams, useSearchParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useCallback, useEffect, useRef, type RefObject } from "react"
-import { CharacterEditorModalRoute } from "~/modules/characters/CharacterEditorModalRoute.tsx"
 import { ResourceList } from "~/modules/resources/ResourceList.tsx"
 import { api } from "../../../../../convex/_generated/api.js"
-import type { Id } from "../../../../../convex/_generated/dataModel"
 import { CharacterSelectionProvider } from "../../../../modules/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../../../../modules/game/GameTime.tsx"
 import { listGeneralSkills } from "../../../../modules/general-skills/data.ts"
@@ -24,20 +21,13 @@ import {
 } from "../../../../modules/rooms/RoomToolbar.tsx"
 import { RoomTool, RoomToolbarStore } from "../../../../modules/rooms/RoomToolbarStore.tsx"
 import { SceneProvider } from "../../../../modules/scenes/SceneContext.tsx"
-import { SceneList } from "../../../../modules/scenes/SceneList.tsx"
 import { SceneMap } from "../../../../modules/scenes/SceneMap.tsx"
 import { AppHeader } from "../../../../ui/AppHeader.tsx"
 import { DefinitionList } from "../../../../ui/DefinitionList.tsx"
-import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "../../../../ui/Modal.tsx"
 import { Panel, TranslucentPanel } from "../../../../ui/Panel.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "../../../../ui/Popover.tsx"
 import { ScrollArea } from "../../../../ui/ScrollArea.tsx"
 import { panel } from "../../../../ui/styles.ts"
-
-const views = {
-	character: "character",
-	scene: "scene",
-} as const
 
 export default function RoomRoute() {
 	const room = useRoom()
@@ -102,38 +92,11 @@ export default function RoomRoute() {
 							<TranslucentPanel element={<aside />} className="pointer-events-auto gap-2 p-2">
 								<MessageInput />
 							</TranslucentPanel>
-							{/* <PlayerControlsPanel /> */}
 						</div>
 					</div>
 				</div>
-
-				<CharacterEditorModalRoute />
-				<SceneEditorModalRoute />
 			</RoomToolbarStore.Provider>
 		</CharacterSelectionProvider>
-	)
-}
-
-function SceneEditorModalRoute() {
-	const { view } = useParams()
-	const navigate = useNavigate()
-	const [searchParams] = useSearchParams()
-	const sceneId = searchParams.get("id")
-	const scene = useQuery(
-		api.scenes.functions.get,
-		view === views.scene && sceneId ? { id: sceneId as Id<"scenes"> } : "skip",
-	)
-	return (
-		<ModalPanel
-			title={scene ? `Editing ${scene.name}` : "Edit Scene"}
-			className="max-w-screen-sm"
-			fullHeight
-			unmountOnHide={false}
-			open={view === views.scene}
-			onClose={() => navigate("..")}
-		>
-			(wip)
-		</ModalPanel>
 	)
 }
 
@@ -182,19 +145,6 @@ function RoomToolbar() {
 	const toolbarRef = useRef<HTMLElement>(null)
 	return (
 		<Toolbar ref={toolbarRef}>
-			<RoomOwnerOnly>
-				<ModalProvider>
-					<ModalButton render={<ToolbarButton text="Scenes" icon={<Lucide.Images />} />} />
-					<ModalPanel title="Scenes" className="max-w-screen-lg">
-						<ModalPanelContent className="p-3">
-							<SceneList />
-						</ModalPanelContent>
-					</ModalPanel>
-				</ModalProvider>
-			</RoomOwnerOnly>
-
-			<ToolbarSeparator />
-
 			<AreaToolButton />
 
 			{/* <ToolbarButton
