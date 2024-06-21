@@ -41,7 +41,7 @@ export function ResourceList(props: ResourceListProps) {
 						[it.playerId === user?.clerkId, it.isOwner, it.visible].indexOf(true)
 					return order(a) - order(b)
 				})
-				.map((character) => CharacterResource.create(character, room.slug)),
+				.map((character) => CharacterResource.create(character)),
 		},
 		// {
 		// 	id: "scenes",

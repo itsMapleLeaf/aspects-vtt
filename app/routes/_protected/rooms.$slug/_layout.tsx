@@ -7,7 +7,6 @@ import { use } from "react"
 import { $params } from "remix-routes"
 import { api } from "../../../../convex/_generated/api.js"
 import { dataFunctionParam, loaderFromEffect } from "../../../helpers/remix.ts"
-import { CharacterModal } from "../../../modules/characters/CharacterModal.tsx"
 import { getConvexClient } from "../../../modules/convex/helpers.server.ts"
 import { RoomProvider } from "../../../modules/rooms/roomContext.tsx"
 import { AuthenticatedAppHeaderLayout } from "../../../ui/AppHeaderLayout.tsx"
@@ -36,9 +35,7 @@ export default function RoomLayout() {
 	const room = useQuery(api.rooms.functions.get, { slug }) ?? use(data.room)
 	return room ?
 			<RoomProvider room={room}>
-				<CharacterModal>
-					<Outlet />
-				</CharacterModal>
+				<Outlet />
 			</RoomProvider>
 		:	<AuthenticatedAppHeaderLayout>
 				<EmptyStatePanel icon={<LucideHelpCircle />} message="That room does not exist." />

@@ -1,39 +1,23 @@
-import { createContext, use, useState, type ContextType, type ReactNode } from "react"
-import type { Id } from "../../../convex/_generated/dataModel"
+import type { ComponentProps } from "react"
 import { ModalPanel, ModalProvider } from "../../ui/Modal.tsx"
-import { useCharacter } from "../rooms/roomContext.tsx"
 import { CharacterEditor } from "./CharacterEditor.tsx"
+import type { ApiCharacter } from "./types.ts"
 
-const CharacterModalContext = createContext({
-	show(characterId: Id<"characters">) {
-		console.warn("Attempted to call show() outside of a CharacterModal.Provider")
-	},
-})
-
-export function CharacterModal({ children }: { children: ReactNode }) {
-	const [open, setOpen] = useState(false)
-	const [characterId, setCharacterId] = useState<Id<"characters">>()
-	const character = useCharacter(characterId)
-
-	const context: ContextType<typeof CharacterModalContext> = {
-		show(characterId) {
-			setOpen(true)
-			setCharacterId(characterId)
-		},
-	}
-
+export function CharacterModal({
+	character,
+	children,
+	...props
+}: { character: ApiCharacter } & ComponentProps<typeof ModalProvider>) {
 	return (
-		<CharacterModalContext value={context}>
-			{children}
-			<ModalProvider open={open} setOpen={setOpen}>
-				<ModalPanel title="Character Profile" fullHeight>
-					{character && <CharacterEditor character={character} />}
-				</ModalPanel>
-			</ModalProvider>
-		</CharacterModalContext>
+		<ModalProvider {...props}>
+			{(store) => (
+				<>
+					{typeof children === "function" ? children(store) : children}
+					<ModalPanel title="Character Profile" fullHeight>
+						<CharacterEditor character={character} />
+					</ModalPanel>
+				</>
+			)}
+		</ModalProvider>
 	)
-}
-
-export function useCharacterModalContext() {
-	return use(CharacterModalContext)
 }

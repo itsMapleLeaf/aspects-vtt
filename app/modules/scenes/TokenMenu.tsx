@@ -3,6 +3,7 @@ import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { createPortal } from "react-dom"
+import { ModalButton } from "~/ui/Modal.tsx"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../helpers/Rect.ts"
 import { Vector } from "../../helpers/Vector.ts"
@@ -18,7 +19,7 @@ import { panel, translucentPanel } from "../../ui/styles.ts"
 import { AttributeDiceRollButtonGrid } from "../attributes/AttributeDiceRollButtonGrid.tsx"
 import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
-import { useCharacterModalContext } from "../characters/CharacterModal.tsx"
+import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import { listCharacterAspectSkills, listCharacterRaceAbilities } from "../characters/helpers.ts"
@@ -103,7 +104,6 @@ function TokenMenuContent() {
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
 	const updateCharacter = useMutation(api.characters.functions.update)
-	const characterModal = useCharacterModalContext()
 
 	// filter out empty token arrays to avoid "flash of empty content" while closing
 	const selectedTokens = useFilter(selectedTokensInput, (it) => it.length > 0)
@@ -175,11 +175,9 @@ function TokenMenuContent() {
 				)}
 
 				{singleSelectedCharacter && (
-					<Button
-						text="Profile"
-						icon={<Lucide.BookUser />}
-						onClick={() => characterModal.show(singleSelectedCharacter._id)}
-					/>
+					<CharacterModal character={singleSelectedCharacter}>
+						<Button text="Profile" icon={<Lucide.BookUser />} element={<ModalButton />} />
+					</CharacterModal>
 				)}
 
 				{selectedTokens.length >= 2 && (
