@@ -10,7 +10,7 @@ import { FormField } from "../../ui/Form.tsx"
 import { Popover, PopoverDismiss, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
-import { useSafeAction } from "../convex/helpers.ts"
+import { useSafeAction } from "../convex/hooks.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { Attribute } from "./data.ts"
 

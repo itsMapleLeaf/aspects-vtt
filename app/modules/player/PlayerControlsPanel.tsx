@@ -9,7 +9,7 @@ import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { useOwnedCharacter } from "../characters/helpers.ts"
 import type { OwnedCharacter } from "../characters/types.ts"
-import { useSafeAction } from "../convex/helpers.ts"
+import { useSafeAction } from "../convex/hooks.ts"
 import { diceKindsByName, getDiceKindApiInput } from "../dice/data.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 
