@@ -1,18 +1,19 @@
 import { Vector } from "../../helpers/Vector.ts"
+import { useCurrentScene } from "./hooks.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 
 export function DistanceLayer() {
+	const scene = useCurrentScene()
 	const context = useSceneContext()
 
-	if (!context.isDraggingTokens) {
-		return
-	}
+	if (!scene) return
+	if (!context.isDraggingTokens) return
 
 	return context.selectedTokens.map((token) => {
 		if (!token.character) return
 
 		const start = Vector.from(token.position)
-			.roundedTo(context.scene.cellSize)
+			.roundedTo(scene.cellSize)
 			.times(context.viewport.scale)
 
 		const end = start.plus(context.tokenDragOffset.times(context.viewport.scale))
@@ -24,7 +25,7 @@ export function DistanceLayer() {
 					className="absolute left-0 top-0 box-content outline outline-4 outline-primary-800"
 					style={{
 						translate: Vector.from(Math.min(start.x, end.x), end.y)
-							.plus((context.scene.cellSize * context.viewport.scale) / 2)
+							.plus((scene.cellSize * context.viewport.scale) / 2)
 							.css.translate(),
 						height: 0,
 						width: Math.abs(end.x - start.x),
@@ -36,7 +37,7 @@ export function DistanceLayer() {
 					className="absolute left-0 top-0 box-content outline outline-4 outline-primary-800"
 					style={{
 						translate: Vector.from(start.x, Math.min(start.y, end.y))
-							.plus((context.scene.cellSize * context.viewport.scale) / 2)
+							.plus((scene.cellSize * context.viewport.scale) / 2)
 							.css.translate(),
 						width: 0,
 						height: Math.abs(end.y - start.y),
@@ -47,7 +48,7 @@ export function DistanceLayer() {
 				<div
 					className="absolute left-0 top-0 scale-[0.3] rounded-full bg-primary-800"
 					style={{
-						...Vector.from(context.scene.cellSize * context.viewport.scale).toSize(),
+						...Vector.from(scene.cellSize * context.viewport.scale).toSize(),
 						translate: start.css.translate(),
 					}}
 				/>
@@ -56,7 +57,7 @@ export function DistanceLayer() {
 				<div
 					className="absolute left-0 top-0 scale-[0.3] rounded-full bg-primary-800"
 					style={{
-						...Vector.from(context.scene.cellSize * context.viewport.scale).toSize(),
+						...Vector.from(scene.cellSize * context.viewport.scale).toSize(),
 						translate: end.css.translate(),
 					}}
 				/>
@@ -66,20 +67,18 @@ export function DistanceLayer() {
 }
 
 export function DistanceLabelLayer() {
+	const scene = useCurrentScene()
 	const context = useSceneContext()
 
-	if (context.tokenDragOffset.equals(Vector.zero)) {
-		return
-	}
+	if (!scene) return
+	if (context.tokenDragOffset.equals(Vector.zero)) return
 
 	return context.selectedTokens.map((token) => {
 		if (!token.character) return
 
 		// this game system uses manhattan distance
-		const gridStart = Vector.from(token.position).dividedBy(context.scene.cellSize).rounded
-		const gridEnd = gridStart.plus(
-			context.tokenDragOffset.dividedBy(context.scene.cellSize),
-		).rounded
+		const gridStart = Vector.from(token.position).dividedBy(scene.cellSize).rounded
+		const gridEnd = gridStart.plus(context.tokenDragOffset.dividedBy(scene.cellSize)).rounded
 		const distance = Math.abs(gridEnd.x - gridStart.x) + Math.abs(gridEnd.y - gridStart.y)
 
 		return (
@@ -87,12 +86,12 @@ export function DistanceLabelLayer() {
 				key={token.key}
 				className="flex-center absolute left-0 top-0"
 				style={{
-					...Vector.from(context.scene.cellSize * context.viewport.scale).toSize(),
+					...Vector.from(scene.cellSize * context.viewport.scale).toSize(),
 					translate: Vector.from(token.position)
-						.roundedTo(context.scene.cellSize)
+						.roundedTo(scene.cellSize)
 						.plus(context.tokenDragOffset)
 						.times(context.viewport.scale)
-						.minus(0, context.scene.cellSize * context.viewport.scale * 0.8)
+						.minus(0, scene.cellSize * context.viewport.scale * 0.8)
 						.css.translate(),
 				}}
 			>

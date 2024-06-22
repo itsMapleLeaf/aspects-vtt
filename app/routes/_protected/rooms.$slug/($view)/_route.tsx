@@ -1,8 +1,9 @@
 import { useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
-import { useCallback, useEffect, useRef, type RefObject } from "react"
+import { Suspense, useCallback, useEffect, useRef, type RefObject } from "react"
 import { ResourceList } from "~/modules/resources/ResourceList.tsx"
+import { Loading } from "~/ui/Loading.tsx"
 import { api } from "../../../../../convex/_generated/api.js"
 import { CharacterSelectionProvider } from "../../../../modules/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../../../../modules/game/GameTime.tsx"
@@ -30,38 +31,20 @@ import { ScrollArea } from "../../../../ui/ScrollArea.tsx"
 import { panel } from "../../../../ui/styles.ts"
 
 export default function RoomRoute() {
-	const room = useRoom()
-	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
-
-	const gameTime = new GameTime(room.gameTime)
-	const themeColor = [
-		145, // daytime
-		70, // evening
-		305, // night
-	][gameTime.timeOfDay]
-
-	useEffect(() => {
-		if (themeColor !== undefined) {
-			document.body.style.setProperty("--theme-hue", String(themeColor))
-		}
-	}, [themeColor])
-
-	useEffect(() => {
-		return () => {
-			document.body.style.removeProperty("--theme-hue")
-		}
-	}, [])
-
 	return (
 		<CharacterSelectionProvider>
+			<Suspense>
+				<RoomTimedThemeEffect />
+			</Suspense>
+
 			<RoomToolbarStore.Provider>
-				{scene && (
-					<div className="fixed inset-0 select-none bg-primary-100">
-						<SceneProvider scene={scene}>
+				<div className="fixed inset-0 select-none bg-primary-100">
+					<Suspense fallback={<Loading fill="parent" />}>
+						<SceneProvider>
 							<SceneMap />
 						</SceneProvider>
-					</div>
-				)}
+					</Suspense>
+				</div>
 
 				<div className="pointer-events-none fixed inset-x-0 top-0 z-10 h-40 bg-natural-gradient-100">
 					<div className="absolute inset-x-0 top-0 flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
@@ -98,6 +81,30 @@ export default function RoomRoute() {
 			</RoomToolbarStore.Provider>
 		</CharacterSelectionProvider>
 	)
+}
+
+function RoomTimedThemeEffect() {
+	const room = useRoom()
+	const gameTime = new GameTime(room.gameTime)
+	const themeColor = [
+		145, // daytime
+		70, // evening
+		305, // night
+	][gameTime.timeOfDay]
+
+	useEffect(() => {
+		if (themeColor !== undefined) {
+			document.body.style.setProperty("--theme-hue", String(themeColor))
+		}
+	}, [themeColor])
+
+	useEffect(() => {
+		return () => {
+			document.body.style.removeProperty("--theme-hue")
+		}
+	}, [])
+
+	return null
 }
 
 function MessageListScroller() {

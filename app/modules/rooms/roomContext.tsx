@@ -1,27 +1,12 @@
-import { useQuery } from "convex/react"
+import { useParams } from "@remix-run/react"
 import type { FunctionReturnType } from "convex/server"
-import { createContext } from "react"
+import { $params } from "remix-routes"
 import type { Nullish } from "~/helpers/types.ts"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
-import { empty, useStrictContext } from "../../helpers/react/strictContext.tsx"
-import type { ApiCharacter } from "../characters/types.ts"
+import { useQuerySuspense } from "../convex/suspense.ts"
 
 export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.functions.get>>
-
-const RoomContext = createContext<ApiRoom | typeof empty>(empty)
-const CharacterContext = createContext<ApiCharacter[] | typeof empty>(empty)
-
-export function RoomProvider({ room, children }: { room: ApiRoom; children: React.ReactNode }) {
-	const characters = useQuery(api.characters.functions.list, {
-		roomId: room._id,
-	})
-	return (
-		<RoomContext.Provider value={room}>
-			<CharacterContext.Provider value={characters ?? []}>{children}</CharacterContext.Provider>
-		</RoomContext.Provider>
-	)
-}
 
 export function RoomOwnerOnly({ children }: { children: React.ReactNode }) {
 	const room = useRoom()
@@ -29,11 +14,17 @@ export function RoomOwnerOnly({ children }: { children: React.ReactNode }) {
 }
 
 export function useRoom() {
-	return useStrictContext(RoomContext)
+	const params = $params("/rooms/:slug", useParams())
+	const room = useQuerySuspense(api.rooms.functions.get, { slug: params.slug })
+	if (!room) {
+		throw new Response("Room not found", { status: 404 })
+	}
+	return room
 }
 
 export function useCharacters() {
-	return useStrictContext(CharacterContext)
+	const room = useRoom()
+	return useQuerySuspense(api.characters.functions.list, { roomId: room._id })
 }
 
 export function useCharacter(id: Nullish<Id<"characters">>) {

@@ -3,6 +3,7 @@ import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { createPortal } from "react-dom"
+import { unwrap } from "~/helpers/errors.ts"
 import { ModalButton } from "~/ui/Modal.tsx"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../helpers/Rect.ts"
@@ -99,7 +100,7 @@ export function TokenMenu() {
 }
 
 function TokenMenuContent() {
-	const { scene, tokenSelectStore, selectedTokens: selectedTokensInput } = useSceneContext()
+	const { tokenSelectStore, selectedTokens: selectedTokensInput } = useSceneContext()
 	const room = useRoom()
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
@@ -194,14 +195,14 @@ function TokenMenuContent() {
 					/>
 				)}
 
-				{room.isOwner && scene && selectedTokens.some((it) => !it.visible) && (
+				{room.isOwner && room.currentScene && selectedTokens.some((it) => !it.visible) && (
 					<Button
 						tooltip="Show token"
 						icon={<Lucide.Image />}
 						onClick={() => {
 							for (const token of selectedTokens) {
 								updateToken({
-									sceneId: scene._id,
+									sceneId: unwrap(room.currentScene),
 									key: token.key,
 									visible: true,
 								})
@@ -210,14 +211,14 @@ function TokenMenuContent() {
 					/>
 				)}
 
-				{room.isOwner && scene && selectedTokens.some((it) => it.visible) && (
+				{room.isOwner && room.currentScene && selectedTokens.some((it) => it.visible) && (
 					<Button
 						tooltip="Hide token"
 						icon={<Lucide.ImageOff />}
 						onClick={() => {
 							for (const token of selectedTokens) {
 								updateToken({
-									sceneId: scene._id,
+									sceneId: unwrap(room.currentScene),
 									key: token.key,
 									visible: false,
 								})
@@ -256,13 +257,13 @@ function TokenMenuContent() {
 					/>
 				)}
 
-				{scene && selectedTokens.length > 0 && (
+				{room.currentScene && selectedTokens.length > 0 && (
 					<Button
 						tooltip="Remove"
 						icon={<Lucide.Trash />}
 						onClick={() => {
 							for (const token of selectedTokens) {
-								removeToken({ sceneId: scene._id, tokenKey: token.key })
+								removeToken({ sceneId: unwrap(room.currentScene), tokenKey: token.key })
 							}
 						}}
 					/>

@@ -1,16 +1,11 @@
 import { type LoaderFunctionArgs, defer } from "@remix-run/node"
-import { Outlet, useLoaderData, useParams } from "@remix-run/react"
-import { useQuery } from "convex/react"
+import { Outlet } from "@remix-run/react"
 import { Effect } from "effect"
-import { LucideHelpCircle } from "lucide-react"
-import { use } from "react"
-import { $params } from "remix-routes"
+import { Suspense } from "react"
+import { Loading } from "~/ui/Loading.tsx"
 import { api } from "../../../../convex/_generated/api.js"
 import { dataFunctionParam, loaderFromEffect } from "../../../helpers/remix.ts"
 import { getConvexClient } from "../../../modules/convex/helpers.server.ts"
-import { RoomProvider } from "../../../modules/rooms/roomContext.tsx"
-import { AuthenticatedAppHeaderLayout } from "../../../ui/AppHeaderLayout.tsx"
-import { EmptyStatePanel } from "../../../ui/EmptyState.tsx"
 
 const getRoom = loaderFromEffect(
 	Effect.gen(function* () {
@@ -30,14 +25,9 @@ export const loader = (args: LoaderFunctionArgs) =>
 	})
 
 export default function RoomLayout() {
-	const data = useLoaderData<typeof loader>()
-	const { slug } = $params("/rooms/:slug", useParams())
-	const room = useQuery(api.rooms.functions.get, { slug }) ?? use(data.room)
-	return room ?
-			<RoomProvider room={room}>
-				<Outlet />
-			</RoomProvider>
-		:	<AuthenticatedAppHeaderLayout>
-				<EmptyStatePanel icon={<LucideHelpCircle />} message="That room does not exist." />
-			</AuthenticatedAppHeaderLayout>
+	return (
+		<Suspense fallback={<Loading fill="screen" />}>
+			<Outlet />
+		</Suspense>
+	)
 }

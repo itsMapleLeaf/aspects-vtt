@@ -1,8 +1,6 @@
 import { useGesture, useWheel } from "@use-gesture/react"
-import { useQuery } from "convex/react"
 import * as React from "react"
 import { useState } from "react"
-import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../helpers/Rect.ts"
 import { randomItem } from "../../helpers/random.ts"
 import { DragSelectArea } from "../../ui/DragSelect.tsx"
@@ -11,11 +9,13 @@ import { getApiImageUrl } from "../api-images/helpers.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import { parseResourceDragData } from "../resources/Resource.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { PingHandler } from "./PingHandler.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { SceneGrid } from "./SceneGrid.tsx"
 import { TokenElementLayer } from "./TokenElementLayer.tsx"
 import { TokenMenu } from "./TokenMenu.tsx"
+import { useCurrentScene, useCurrentSceneTokens } from "./hooks.ts"
 import { useAddTokenMutation } from "./useAddTokenMutation.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
@@ -108,9 +108,10 @@ function DragHandler({ children }: { children: React.ReactNode }) {
 }
 
 function SceneBackground() {
-	const { scene, viewport } = useSceneContext()
+	const scene = useCurrentScene()
+	const { viewport } = useSceneContext()
 
-	return scene.background ?
+	return scene?.background ?
 			<img
 				src={getApiImageUrl(scene.background)}
 				alt=""
@@ -127,10 +128,17 @@ function SceneBackground() {
 }
 
 function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
-	const { scene, ...context } = useSceneContext()
-	const tokens = useQuery(api.scenes.tokens.functions.list, { sceneId: scene._id }) ?? []
+	const { currentScene } = useRoom()
+	const {
+		scene: { cellSize },
+		...context
+	} = useSceneContext()
+	const tokens = useCurrentSceneTokens()
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
+
+	if (!currentScene) return null
+
 	return (
 		<div
 			className="absolute inset-0"
@@ -146,18 +154,18 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 
 				const position = context
 					.mapPositionFromViewportPosition(event.clientX, event.clientY)
-					.floorTo(scene.cellSize).xy
+					.floorTo(cellSize).xy
 
 				const existing = tokens.find((it) => it.character?._id === data.characterId)
 				if (existing) {
 					updateToken({
 						key: existing.key,
-						sceneId: scene._id,
+						sceneId: currentScene,
 						position,
 					})
 				} else {
 					addToken({
-						sceneId: scene._id,
+						sceneId: currentScene,
 						characterId: data.characterId,
 						position,
 						visible: data.visible,
@@ -172,6 +180,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 
 function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 	const { scene, viewport } = useSceneContext()
+	const { currentScene } = useRoom()
 	const roomToolbarActions = RoomToolbarStore.useActions()
 	const addToken = useAddTokenMutation()
 	const [previewArea, setPreviewArea] = useState<Rect>()
@@ -190,6 +199,8 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 		})
 
 	const gridSize = gridSnappedPreviewArea?.size.dividedBy(scene.cellSize * viewport.scale).rounded
+
+	if (!currentScene) return null
 
 	return (
 		<RectDrawArea
@@ -210,7 +221,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 				const size = gridSnappedPreviewArea.size.dividedBy(viewport.scale).toSize()
 
 				addToken({
-					sceneId: scene._id,
+					sceneId: currentScene,
 					visible: true,
 					position,
 					area: {

@@ -54,22 +54,29 @@ function TokenElement({
 	token: ApiToken
 	isCurrentCombatMember: boolean
 }) {
-	const { scene, viewport, tokens, tokenSelectStore, tokenDragOffset, setTokenDragOffset } =
-		useSceneContext()
+	const {
+		scene: { cellSize },
+		viewport,
+		tokens,
+		tokenSelectStore,
+		tokenDragOffset,
+		setTokenDragOffset,
+	} = useSceneContext()
+
+	const { currentScene } = useRoom()
 
 	const translate = useTokenTranslate(token)
 	const updateToken = useUpdateTokenMutation()
 
 	function updateSelectedTokenPositions() {
+		if (!currentScene) return
 		for (const token of tokens) {
 			if (!tokenSelectStore.isSelected(token.key)) continue
 
-			const position = Vector.from(token.position)
-				.roundedTo(scene.cellSize)
-				.plus(tokenDragOffset).xy
+			const position = Vector.from(token.position).roundedTo(cellSize).plus(tokenDragOffset).xy
 
 			updateToken({
-				sceneId: scene._id,
+				sceneId: currentScene,
 				key: token.key,
 				position,
 			})
@@ -111,7 +118,7 @@ function TokenElement({
 				{token.character && (
 					<CharacterImage
 						character={token.character}
-						style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}
+						style={Vector.from(cellSize).times(viewport.scale).toSize()}
 						className={{
 							container: "overflow-clip rounded bg-primary-300 shadow-md",
 							image: "object-cover object-top",
@@ -121,10 +128,7 @@ function TokenElement({
 				{token.area && (
 					<div
 						className="rounded border-4 border-blue-500 bg-blue-500/30"
-						style={Vector.fromSize(token.area)
-							.roundedTo(scene.cellSize)
-							.times(viewport.scale)
-							.toSize()}
+						style={Vector.fromSize(token.area).roundedTo(cellSize).times(viewport.scale).toSize()}
 					/>
 				)}
 				{token.visible ? null : (
@@ -145,7 +149,10 @@ function CharacterTokenDecoration({
 	token: ApiToken
 	character: ApiCharacter
 }) {
-	const { scene, viewport } = useSceneContext()
+	const {
+		scene: { cellSize },
+		viewport,
+	} = useSceneContext()
 	const translate = useTokenTranslate(token)
 	const thresholds = getCharacterStressThresholds(character)
 	return (
@@ -153,7 +160,7 @@ function CharacterTokenDecoration({
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"
 			style={{ translate }}
 		>
-			<div className="relative" style={Vector.from(scene.cellSize).times(viewport.scale).toSize()}>
+			<div className="relative" style={Vector.from(cellSize).times(viewport.scale).toSize()}>
 				<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
 					{character.conditions.map((condition) => (
 						<CharacterTokenConditionBadge key={condition.name} condition={condition} />
@@ -209,14 +216,17 @@ function CharacterTokenConditionBadge({
 }
 
 function AreaSizeLabel({ token, area }: { token: ApiToken; area: NonNullable<ApiToken["area"]> }) {
-	const { scene, viewport } = useSceneContext()
+	const {
+		scene: { cellSize },
+		viewport,
+	} = useSceneContext()
 	const translate = useTokenTranslate(token)
-	const dimensions = Vector.fromSize(area).dividedBy(scene.cellSize).rounded
+	const dimensions = Vector.fromSize(area).dividedBy(cellSize).rounded
 	return (
 		<div
 			className="flex-center pointer-events-none absolute left-0 top-0 origin-top-left"
 			style={{
-				...Vector.fromSize(area).roundedTo(scene.cellSize).toSize(),
+				...Vector.fromSize(area).roundedTo(cellSize).toSize(),
 				scale: viewport.scale,
 				translate,
 			}}
@@ -229,10 +239,15 @@ function AreaSizeLabel({ token, area }: { token: ApiToken; area: NonNullable<Api
 }
 
 function useTokenTranslate(token: ApiToken) {
-	const { scene, viewport, tokenSelectStore, tokenDragOffset } = useSceneContext()
+	const {
+		scene: { cellSize },
+		viewport,
+		tokenSelectStore,
+		tokenDragOffset,
+	} = useSceneContext()
 	const isSelected = tokenSelectStore.isSelected(token.key)
 	return Vector.from(token.position)
-		.roundedTo(scene.cellSize)
+		.roundedTo(cellSize)
 		.times(viewport.scale)
 		.plus(isSelected ? tokenDragOffset.times(viewport.scale) : Vector.zero)
 		.css.translate()
