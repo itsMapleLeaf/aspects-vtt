@@ -9,8 +9,8 @@
 		},
 		{
 			"label": "dev:remix",
-			"command": "node",
-			"args": ["--run", "dev:remix"],
+			"command": "bun",
+			"args": ["run", "dev:remix"],
 			"isBackground": true,
 			"icon": { "id": "run" },
 			"problemMatcher": [
@@ -31,8 +31,8 @@
 		},
 		{
 			"label": "dev:convex",
-			"command": "node",
-			"args": ["--run", "dev:convex"],
+			"command": "bun",
+			"args": ["run", "dev:convex"],
 			"isBackground": true,
 			"icon": { "id": "run" },
 			"problemMatcher": [
