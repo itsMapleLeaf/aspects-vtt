@@ -18,11 +18,11 @@ import { PlayerAttributeButtons } from "../player/PlayerAttributeButtons.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function MessageInput() {
-	const room = useRoom()
+	const { _id: roomId } = useRoom()
 	const prompt = usePrompt()
 	const createMessage = useMutation(api.messages.functions.create)
 
-	const macros = useQuery(api.diceMacros.functions.list, { roomId: room._id })
+	const macros = useQuery(api.diceMacros.functions.list, { roomId })
 	const createMacro = useMutation(api.diceMacros.functions.create)
 
 	const [content, setContent] = useState("")
@@ -38,7 +38,7 @@ export function MessageInput() {
 
 	const [, submit] = useSafeAction(async function submit() {
 		await createMessage({
-			roomId: room._id,
+			roomId,
 			content,
 			dice: getDiceInputList(diceCounts).toArray(),
 		})
@@ -58,7 +58,7 @@ export function MessageInput() {
 
 		await createMacro({
 			name,
-			roomId: room._id,
+			roomId,
 			dice: getDiceInputList(diceCounts).toArray(),
 		})
 	}
@@ -71,7 +71,7 @@ export function MessageInput() {
 		onSuccess: () => void
 	}) {
 		await createMessage({
-			roomId: room._id,
+			roomId,
 			content,
 			dice: macro.dice,
 		})
@@ -110,7 +110,9 @@ export function MessageInput() {
 									className="flex-center relative aspect-square size-8 p-0 opacity-100 transition-opacity hover:opacity-50"
 									onClick={() => removeDie(kind.name)}
 								>
-									<div className="size-full">{kind.render()}</div>
+									<div className="size-full">
+										<kind.Component />
+									</div>
 									<span className="sr-only">
 										Remove {kind.name} #{n + 1}
 									</span>
@@ -124,15 +126,14 @@ export function MessageInput() {
 
 			<div className="grid auto-cols-fr grid-flow-col gap-0.5">
 				{diceKinds.map((kind) => (
-					<Tooltip content={kind.name} key={kind.name}>
-						<button
-							type="button"
-							className="aspect-square p-0 opacity-75 hover:opacity-100"
-							onClick={() => addDie(kind)}
-						>
-							{kind.render()}
-						</button>
-					</Tooltip>
+					<button
+						key={kind.name}
+						type="button"
+						className="aspect-square p-0 opacity-75 hover:opacity-100"
+						onClick={() => addDie(kind)}
+					>
+						<kind.Component />
+					</button>
 				))}
 			</div>
 
@@ -189,11 +190,14 @@ function MacroList({
 						<ul className="flex flex-wrap gap-2 border-t border-primary-300 bg-black/25 p-2">
 							{macro.dice.map((die) =>
 								Iterator.range(die.count)
-									.map((n) => (
-										<li key={n} className="*:size-12 empty:hidden">
-											{diceKindsByName.get(die.name)?.render()}
-										</li>
-									))
+									.map((n) => {
+										const Component = diceKindsByName.get(die.name)?.Component
+										return (
+											<li key={n} className="*:size-12 empty:hidden">
+												{Component && <Component />}
+											</li>
+										)
+									})
 									.toArray(),
 							)}
 						</ul>

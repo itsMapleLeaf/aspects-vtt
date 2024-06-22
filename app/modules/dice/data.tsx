@@ -1,6 +1,7 @@
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import type React from "react"
+import { useMemo } from "react"
 import { twMerge } from "tailwind-merge"
 import type { DiceInput } from "../../../convex/messages/types.ts"
 import { Tooltip } from "../../ui/Tooltip.tsx"
@@ -15,12 +16,12 @@ export interface DiceKind {
 	name: string
 	faces: DiceFace[]
 	explodes?: boolean
-	render: () => React.ReactElement
+	Component: () => React.ReactElement
 }
 
 export interface DiceFace {
 	modifyStats: ReadonlyMap<DiceStat, number>
-	render: () => React.ReactElement
+	Component: () => React.ReactElement
 }
 
 const effectStat = {
@@ -116,29 +117,39 @@ function defineNumeric({
 	const name = `d${faceCount}`
 	return {
 		name,
-		render: () => (
-			<Diecon
-				shape={renderIcon()}
-				symbol={
-					<p className={twMerge("text-[length:28cqw] font-semibold", textClassName)}>
-						d{faceCount}
-					</p>
-				}
-				tooltip={name}
-			/>
-		),
-		faces: Iterator.range(1, faceCount + 1)
-			.map((n) => ({
-				render: () => (
+		Component: function NumericDie() {
+			return useMemo(
+				() => (
 					<Diecon
 						shape={renderIcon()}
 						symbol={
-							<p className={twMerge("text-[length:36cqw] font-semibold", textClassName)}>{n}</p>
+							<p className={twMerge("text-[length:28cqw] font-semibold", textClassName)}>
+								d{faceCount}
+							</p>
 						}
-						tooltip={`${name}: ${n}`}
-						className={n === faceCount ? "text-primary-700" : ""}
+						tooltip={name}
 					/>
 				),
+				[],
+			)
+		},
+		faces: Iterator.range(1, faceCount + 1)
+			.map((n) => ({
+				Component: function NumericDieFace() {
+					return useMemo(
+						() => (
+							<Diecon
+								shape={renderIcon()}
+								symbol={
+									<p className={twMerge("text-[length:36cqw] font-semibold", textClassName)}>{n}</p>
+								}
+								tooltip={`${name}: ${n}`}
+								className={n === faceCount ? "text-primary-700" : ""}
+							/>
+						),
+						[],
+					)
+				},
 				modifyStats: new Map([
 					[effectStat, n],
 					[baseStat, n],
@@ -164,28 +175,38 @@ function defineModifier({
 	const faceCount = 6
 	return {
 		name,
-		render: () => (
-			<Diecon
-				shape={<Lucide.Square />}
-				symbol={renderIcon()}
-				tooltip={name}
-				className={className}
-			/>
-		),
+		Component: function ModifierDie() {
+			return useMemo(
+				() => (
+					<Diecon
+						shape={<Lucide.Square />}
+						symbol={renderIcon()}
+						tooltip={name}
+						className={className}
+					/>
+				),
+				[],
+			)
+		},
 		faces: Iterator.range(1, faceCount + 1)
 			.map((face) => ({
 				modifyStats: new Map([
 					[effectStat, face * multiplier],
 					[stat, face],
 				]),
-				render: () => (
-					<Diecon
-						shape={<Lucide.Square />}
-						symbol={<p className="text-[length:36cqw] font-semibold">{face}</p>}
-						tooltip={`${name}: ${face}`}
-						className={className}
-					/>
-				),
+				Component: function ModifierDieFace() {
+					return useMemo(
+						() => (
+							<Diecon
+								shape={<Lucide.Square />}
+								symbol={<p className="text-[length:36cqw] font-semibold">{face}</p>}
+								tooltip={`${name}: ${face}`}
+								className={className}
+							/>
+						),
+						[],
+					)
+				},
 			}))
 			.toArray(),
 	}

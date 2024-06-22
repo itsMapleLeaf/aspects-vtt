@@ -33,8 +33,9 @@ export const SceneResource = defineResource({
 		id: scene._id,
 		name: scene.name,
 		dragData: { sceneId: scene._id },
-		TreeItemElement: () => <SceneTreeElement scene={scene} />,
 	}),
+
+	TreeItem: ({ scene }: { scene: ApiScene }) => <SceneTreeElement scene={scene} />,
 
 	CreateMenuItem: () => <MenuItem icon={<LucideImagePlus />} text="Scene" />,
 })

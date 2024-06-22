@@ -181,7 +181,7 @@ function DiceRollIcon({ die }: { die: ApiDiceRoll["dice"][number] }) {
 			<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
 				<HelpCircle />
 			</Tooltip>
-		:	face.render()
+		:	<face.Component />
 	)
 }
 

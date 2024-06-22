@@ -1,5 +1,5 @@
 import { useMutation } from "convex/react"
-import { useRef, type ComponentProps } from "react"
+import { startTransition, useRef, type ComponentProps } from "react"
 import { api } from "../../../convex/_generated/api"
 import { Vector } from "../../helpers/Vector.ts"
 import { useUser } from "../auth/hooks.ts"
@@ -30,10 +30,12 @@ export function PingHandler(props: ComponentProps<"div">) {
 
 	const handlePing = (event: { clientX: number; clientY: number }): void => {
 		if (!user) return
-		ping({
-			roomId: room._id,
-			position: context.mapPositionFromViewportPosition(event.clientX, event.clientY).xy,
-			key: crypto.randomUUID(),
+		startTransition(() => {
+			ping({
+				roomId: room._id,
+				position: context.mapPositionFromViewportPosition(event.clientX, event.clientY).xy,
+				key: crypto.randomUUID(),
+			})
 		})
 	}
 

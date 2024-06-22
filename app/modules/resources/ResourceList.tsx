@@ -3,6 +3,7 @@ import { useQuery } from "convex/react"
 import { LucideFolder, LucideFolderOpen, LucidePlus } from "lucide-react"
 import React, { useState } from "react"
 import { useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
+import type { JsonValue } from "~/helpers/json.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { Menu, MenuButton, MenuPanel } from "~/ui/Menu.tsx"
@@ -12,8 +13,7 @@ import { api } from "../../../convex/_generated/api"
 import { useUser } from "../auth/hooks.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
-import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
-import { SceneResource } from "../scenes/SceneResource.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { listResourceDefinitions, type Resource } from "./Resource.tsx"
 
 interface ResourceGroup {
@@ -25,58 +25,57 @@ interface ResourceGroup {
 export interface ResourceListProps extends React.ComponentProps<"div"> {}
 
 export function ResourceList(props: ResourceListProps) {
-	const room = useRoom()
-	const characters = useCharacters()
-	const scenes = useQuery(api.scenes.functions.list, { roomId: room._id })
+	const { _id: roomId, isOwner, currentScene } = useRoom()
+	const characters = useQuery(api.characters.functions.list, { roomId })
+	const scenes = useQuery(api.scenes.functions.list, { roomId })
 	const user = useUser()
 	const [searchState, setSearch] = useState("")
 	const search = searchState.trim()
-	const scene = useQuery(
-		api.scenes.functions.get,
-		room.currentScene ? { id: room.currentScene } : "skip",
-	)
+	const scene = useQuery(api.scenes.functions.get, currentScene ? { id: currentScene } : "skip")
 
 	const characterOrder = (it: ApiCharacter) => {
 		if (it.playerId === user?.clerkId) return 0
-		if (it.isOwner && !room.isOwner) return 1
+		if (it.isOwner && !isOwner) return 1
 		if (it.playerId) return 2
 		if (scene?.tokens?.some((token) => token.characterId === it._id)) return 3
 		return Number.POSITIVE_INFINITY
 	}
 
-	let tree: ResourceGroup[] = [
-		{
-			id: "characters",
-			name: "Characters",
-			items: characters
-				.filter((character) => character.visible || character.isOwner)
-				// .sort((a, b) => b._creationTime - a._creationTime)
-				.sort((a, b) => characterOrder(a) - characterOrder(b))
-				.map((character) => CharacterResource.create(character)),
-		},
-		{
-			id: "scenes",
-			name: "Scenes",
-			items: (scenes ?? []).map((scene) => SceneResource.create(scene)),
-		},
-	]
+	// const characterItems = (characters ?? [])
+	// 	.filter((character) => character.visible || character.isOwner)
+	// 	// .sort((a, b) => b._creationTime - a._creationTime)
+	// 	.sort((a, b) => characterOrder(a) - characterOrder(b))
+	// 	.map((character) => CharacterResource.create(character))
 
-	if (search) {
-		tree = tree
-			.map(
-				(group): ResourceGroup => ({
-					...group,
-					items: group.items.filter((item) =>
-						item.name.toLowerCase().includes(search.toLowerCase()),
-					),
-				}),
-			)
-			.filter(
-				(group) => group.name.toLowerCase().includes(search.toLowerCase()) || group.items?.length,
-			)
-	}
+	// let tree: ResourceGroup[] = [
+	// 	{
+	// 		id: "characters",
+	// 		name: "Characters",
+	// 		items: characterItems,
+	// 	},
+	// 	{
+	// 		id: "scenes",
+	// 		name: "Scenes",
+	// 		items: (scenes ?? []).map((scene) => SceneResource.create(scene)),
+	// 	},
+	// ]
 
-	tree = tree.filter((group) => group.items?.length)
+	// if (search) {
+	// 	tree = tree
+	// 		.map(
+	// 			(group): ResourceGroup => ({
+	// 				...group,
+	// 				items: group.items.filter((item) =>
+	// 					item.name.toLowerCase().includes(search.toLowerCase()),
+	// 				),
+	// 			}),
+	// 		)
+	// 		.filter(
+	// 			(group) => group.name.toLowerCase().includes(search.toLowerCase()) || group.items?.length,
+	// 		)
+	// }
+
+	// tree = tree.filter((group) => group.items?.length)
 
 	return (
 		<div {...withMergedClassName(props, "flex flex-col gap-2 h-full")}>
@@ -87,13 +86,24 @@ export function ResourceList(props: ResourceListProps) {
 			<div className="min-h-0 flex-1">
 				<ScrollArea>
 					<div className="pr-3">
-						{tree.map((group) => (
+						{/* {tree.map((group) => (
 							<ResourceFolder key={group.id} name={group.name}>
 								{group.items?.map((resource) => (
 									<ResourceElement key={resource.id} resource={resource} />
 								))}
 							</ResourceFolder>
-						))}
+						))} */}
+
+						<ResourceFolder name="Characters">
+							{characters?.map((character) => (
+								<ResourceElement
+									key={character._id}
+									dragData={CharacterResource.create(character).dragData}
+								>
+									<CharacterResource.TreeItem character={character} />
+								</ResourceElement>
+							))}
+						</ResourceFolder>
 					</div>
 				</ScrollArea>
 			</div>
@@ -136,13 +146,19 @@ function ResourceFolder({ name, children }: { name: string; children: React.Reac
 	)
 }
 
-function ResourceElement({ resource }: { resource: Resource }) {
+function ResourceElement({
+	children,
+	dragData,
+}: {
+	children: React.ReactNode
+	dragData: JsonValue
+}) {
 	return (
 		<div
 			draggable
 			onDragStart={(event) => {
 				event.dataTransfer.dropEffect = "copy"
-				event.dataTransfer.setData("text/plain", JSON.stringify(resource.dragData))
+				event.dataTransfer.setData("text/plain", JSON.stringify(dragData))
 				event.dataTransfer.setDragImage(
 					event.currentTarget,
 					event.currentTarget.clientWidth / 2,
@@ -150,7 +166,7 @@ function ResourceElement({ resource }: { resource: Resource }) {
 				)
 			}}
 		>
-			<resource.TreeItemElement />
+			{children}
 		</div>
 	)
 }

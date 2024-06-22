@@ -1,5 +1,5 @@
 import type { Location } from "@remix-run/react"
-import type { ComponentType } from "react"
+import type { ComponentType, ReactNode } from "react"
 import type { ZodType, ZodTypeDef } from "zod"
 import type { JsonObject } from "~/helpers/json.ts"
 
@@ -7,7 +7,6 @@ export interface Resource {
 	readonly id: string
 	readonly name: string
 	readonly dragData: object
-	readonly TreeItemElement: ComponentType<{}>
 }
 
 export interface ButtonResourceAction {
@@ -28,6 +27,7 @@ export interface ResourceDefinitionConfig {
 	resource: Resource
 	createArgs: unknown[]
 	dragData: unknown
+	treeItemProps: Record<string, unknown>
 }
 
 export interface RegisteredResourceDefinition {
@@ -40,15 +40,22 @@ export interface ResourceDefinition<
 > extends RegisteredResourceDefinition {
 	readonly create: (...args: Config["createArgs"]) => Config["resource"]
 	readonly dragDataSchema: ZodType<Config["dragData"], ZodTypeDef, JsonObject>
+	readonly TreeItem: (props: Config["treeItemProps"]) => ReactNode
 }
 
 const resourceDefinitions = new Map<string, RegisteredResourceDefinition>()
 
-export function defineResource<resource extends Resource, createArgs extends unknown[], dragData>(
+export function defineResource<
+	resource extends Resource,
+	createArgs extends unknown[],
+	dragData,
+	treeItemProps extends Record<string, unknown>,
+>(
 	definition: ResourceDefinition<{
 		resource: resource
 		createArgs: createArgs
 		dragData: dragData
+		treeItemProps: treeItemProps
 	}>,
 ) {
 	resourceDefinitions.set(definition.name, definition)

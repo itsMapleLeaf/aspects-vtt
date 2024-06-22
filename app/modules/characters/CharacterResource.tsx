@@ -30,23 +30,24 @@ export const CharacterResource = defineResource({
 		id: character._id,
 		name: character.displayName,
 		dragData: { characterId: character._id, visible: character.visible },
-		TreeItemElement: () => (
-			<CharacterModal character={character}>
-				<Button
-					text={character.displayName}
-					icon={
-						<CharacterImage
-							character={character}
-							className={{ image: "rounded-full object-cover object-top" }}
-						/>
-					}
-					appearance="clear"
-					className="w-full justify-start"
-					element={<ModalButton />}
-				/>
-			</CharacterModal>
-		),
 	}),
+
+	TreeItem: ({ character }: { character: ApiCharacter }) => (
+		<CharacterModal character={character}>
+			<Button
+				text={character.displayName}
+				icon={
+					<CharacterImage
+						character={character}
+						className={{ image: "rounded-full object-cover object-top" }}
+					/>
+				}
+				appearance="clear"
+				className="w-full justify-start"
+				element={<ModalButton />}
+			/>
+		</CharacterModal>
+	),
 
 	CreateMenuItem: (props) => (
 		<NewCharacterForm {...props}>

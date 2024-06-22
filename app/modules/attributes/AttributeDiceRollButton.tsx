@@ -3,7 +3,6 @@ import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { api } from "../../../convex/_generated/api"
 import { clamp } from "../../helpers/math.ts"
-import { titleCase } from "../../helpers/string.ts"
 import type { PartialKeys } from "../../helpers/types.ts"
 import { Button, type ButtonProps } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
@@ -17,26 +16,25 @@ import type { Attribute } from "./data.ts"
 export function AttributeDiceRollButton({
 	characters,
 	attribute,
-	messageContent = (character) => `<@${character._id}>: ${titleCase(attribute)}`,
-	icon = <Lucide.Dices />,
+	icon,
+	text,
 	...buttonProps
 }: {
 	characters: ApiCharacter[]
 	attribute: Attribute["id"]
-	messageContent?: (character: ApiCharacter) => string
 } & PartialKeys<ButtonProps, "icon">) {
 	const [boostCount, setBoostCount] = useState(0)
 	const [snagCount, setSnagCount] = useState(0)
 	const [, rollAttribute] = useSafeAction(useMutation(api.characters.functions.rollAttribute))
-	const room = useRoom()
+	const { _id: roomId } = useRoom()
 
 	return (
 		<Popover placement="top">
 			<PopoverTrigger
 				render={
 					<Button
-						icon={icon}
-						aria-label={typeof buttonProps.text === "string" ? buttonProps.text : undefined}
+						icon={icon ?? <Lucide.Dices />}
+						aria-label={typeof text === "string" ? text : undefined}
 						tooltipPlacement="bottom"
 						{...buttonProps}
 					/>
@@ -58,7 +56,7 @@ export function AttributeDiceRollButton({
 							icon={<Lucide.Dices />}
 							onClick={() => {
 								rollAttribute({
-									roomId: room._id,
+									roomId,
 									characterIds: characters.map((character) => character._id),
 									attribute,
 									boostCount,
