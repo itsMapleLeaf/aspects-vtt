@@ -1,15 +1,15 @@
-import {
+import React, {
 	type ComponentProps,
 	type Key,
 	type ReactElement,
 	type ReactNode,
 	cloneElement,
+	useTransition,
 } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import { usePendingDelay } from "~/helpers/react/hooks.ts"
 import type { Disallowed, StrictOmit } from "../helpers/types.ts"
-import { useSafeAction } from "../modules/convex/helpers.ts"
 import { Loading } from "./Loading.tsx"
 import { Tooltip, type TooltipProps } from "./Tooltip.tsx"
 import { panel } from "./styles.ts"
@@ -32,7 +32,11 @@ export interface ButtonPropsAsButton extends ComponentProps<"button">, ButtonPro
 export interface ButtonPropsAsElement
 	extends Disallowed<StrictOmit<ComponentProps<"button">, "className" | "key">>,
 		ButtonPropsBase {
-	element: ReactElement<{ className?: string; children?: React.ReactNode }>
+	element: ReactElement<{
+		className?: string
+		children?: React.ReactNode
+		onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
+	}>
 	className?: string
 	key?: Key
 }
@@ -49,16 +53,11 @@ export function Button({
 	tooltipPlacement,
 	...props
 }: ButtonProps) {
-	const [, handleClick, actionPending] = useSafeAction(
-		async (event: React.MouseEvent<HTMLButtonElement>) => {
-			if (props.disabled) return
-			await props.onClick?.(event)
-		},
-	)
+	const [transitionPending, startTransition] = useTransition()
 
 	const status = useFormStatus()
 	const pending = usePendingDelay(
-		pendingProp ?? ((status.pending && props.type === "submit") || actionPending),
+		pendingProp ?? (transitionPending || (status.pending && props.type === "submit")),
 	)
 
 	const className = twMerge(
@@ -115,11 +114,21 @@ export function Button({
 		</>
 	)
 
+	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		startTransition(() => {
+			if ((props.type ?? "button") === "submit" && event.currentTarget.form) {
+				event.currentTarget.form.requestSubmit()
+			}
+			props.onClick?.(event)
+		})
+	}
+
 	const element =
 		"element" in props ?
 			cloneElement(props.element, {
 				className: twMerge(className, props.className),
 				children,
+				onClick: handleClick,
 			})
 		:	<button
 				type="button"
@@ -127,9 +136,7 @@ export function Button({
 				// disabling buttons is bad a11y
 				disabled={false}
 				aria-disabled={props.disabled ?? pending}
-				// passing onClick keeps the button from acting as a form submitter,
-				// so only pass handleClick if an onClick is provided
-				onClick={props.onClick && handleClick}
+				onClick={handleClick}
 			>
 				{children}
 			</button>
