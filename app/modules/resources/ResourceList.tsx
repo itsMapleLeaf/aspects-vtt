@@ -2,8 +2,7 @@ import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/reac
 import { useQuery } from "convex/react"
 import { LucideFolder, LucideFolderOpen } from "lucide-react"
 import { useState } from "react"
-import { z } from "zod"
-import { useLocalStorageState } from "~/helpers/dom/useLocalStorage.ts"
+import { useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
@@ -99,7 +98,7 @@ export function ResourceList(props: ResourceListProps) {
 }
 
 function ResourceFolder({ name, children }: { name: string; children: React.ReactNode }) {
-	const [open, setOpen] = useLocalStorageState(`resource-folder-${name}`, true, z.boolean())
+	const [open, setOpen] = useLocalStorageSwitch(`resource-folder-${name}`, true)
 	return (
 		<DisclosureProvider open={open} setOpen={setOpen}>
 			<Disclosure

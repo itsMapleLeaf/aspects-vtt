@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { z } from "zod"
 
 type JsonValue =
 	| string
@@ -16,6 +17,11 @@ export function useLocalStorageState<T extends JsonValue>(
 	},
 ) {
 	return useLocalStorage(key, schema, useState(initialValue))
+}
+
+const booleanSchema = z.boolean()
+export function useLocalStorageSwitch(key: string, defaultOn: boolean) {
+	return useLocalStorageState(key, defaultOn, booleanSchema)
 }
 
 export function useLocalStorage<Value extends JsonValue, SetValue extends (value: Value) => void>(
