@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import { twMerge, type ClassNameValue } from "tailwind-merge"
-import { Button } from "./Button.tsx"
+import { Button, type ButtonProps } from "./Button.tsx"
 import { panel } from "./styles.ts"
 
 export function Menu(props: Ariakit.MenuProviderProps) {
@@ -29,23 +29,18 @@ MenuPanel.style = function menuPanelStyle(...classes: ClassNameValue[]) {
 	)
 }
 
-export interface MenuItemProps extends Ariakit.MenuItemProps<"div"> {
-	text: string
-	icon: React.ReactNode
-	onClick?: (event: React.MouseEvent<HTMLElement>) => unknown
-}
+export interface MenuItemProps
+	extends Ariakit.MenuItemProps<"div">,
+		Pick<ButtonProps, "text" | "icon" | "pending"> {}
 
-export function MenuItem({ text, icon, ref, ...props }: MenuItemProps) {
+export function MenuItem({ text, icon, pending, ...props }: MenuItemProps) {
 	return (
-		<Ariakit.MenuItem
-			{...props}
-			render={
-				<Button
-					text={text}
-					icon={icon}
-					className="cursor-default justify-start border-none text-left"
-				/>
-			}
+		<Button
+			text={text}
+			icon={icon}
+			pending={pending}
+			className="cursor-default justify-start border-none text-left"
+			element={<Ariakit.MenuItem {...props} />}
 		/>
 	)
 }
