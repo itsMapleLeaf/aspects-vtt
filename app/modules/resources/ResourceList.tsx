@@ -107,9 +107,9 @@ function NewResourceMenu() {
 		<Menu open={menuOpen} setOpen={setMenuOpen}>
 			<Button icon={<LucidePlus />} tooltip="Add new..." element={<MenuButton />} />
 			<MenuPanel unmountOnHide={false}>
-				{[...ResourceClass.resourceTypes].map((resourceType) =>
-					resourceType.renderCreateMenuItem({ afterCreate: () => setMenuOpen(false) }),
-				)}
+				{[...ResourceClass.resourceTypes].map(([name, resourceType]) => (
+					<resourceType.CreateMenuItem key={name} afterCreate={() => setMenuOpen(false)} />
+				))}
 			</MenuPanel>
 		</Menu>
 	)
@@ -150,7 +150,7 @@ function ResourceElement({ resource }: { resource: Resource }) {
 				)
 			}}
 		>
-			{resource.renderTreeElement()}
+			<resource.TreeItemElement />
 		</div>
 	)
 }

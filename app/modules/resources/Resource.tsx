@@ -1,12 +1,12 @@
 import type { Location } from "@remix-run/react"
-import type { ReactNode } from "react"
+import type { ComponentType } from "react"
 import type { ZodType, ZodTypeDef } from "zod"
 
 export interface Resource {
 	readonly id: string
 	readonly name: string
 	readonly dragData: object
-	readonly renderTreeElement: () => ReactNode
+	readonly TreeItemElement: ComponentType<{}>
 }
 
 export interface ButtonResourceAction {
@@ -19,18 +19,21 @@ export interface LinkResourceAction {
 	location: string | Location
 }
 
+export interface ResourceMenuItemProps {
+	afterCreate: () => void
+}
+
 export abstract class ResourceClass<T extends Resource> {
-	static readonly resourceTypes = new Set<ResourceClass<Resource>>()
+	static readonly resourceTypes = new Map<string, ResourceClass<Resource>>()
 
 	abstract readonly dragDataSchema: ZodType<T["dragData"], ZodTypeDef, unknown>
+	abstract readonly CreateMenuItem: ComponentType<ResourceMenuItemProps>
 
 	constructor() {
-		ResourceClass.resourceTypes.add(this)
+		ResourceClass.resourceTypes.set(this.constructor.name, this)
 	}
 
 	abstract create(...args: unknown[]): T
-
-	abstract renderCreateMenuItem(args: { afterCreate: () => void }): ReactNode
 
 	parseDragData(input: string, ..._args: unknown[]): T["dragData"] | null {
 		try {

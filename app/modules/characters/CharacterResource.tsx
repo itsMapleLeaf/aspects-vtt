@@ -4,7 +4,11 @@ import { useState } from "react"
 import { z } from "zod"
 import { CharacterImage } from "~/modules/characters/CharacterImage.tsx"
 import type { ApiCharacter } from "~/modules/characters/types.ts"
-import { ResourceClass, type Resource } from "~/modules/resources/Resource"
+import {
+	ResourceClass,
+	type Resource,
+	type ResourceMenuItemProps,
+} from "~/modules/resources/Resource"
 import { Button } from "~/ui/Button.tsx"
 import { MenuItem } from "~/ui/Menu.tsx"
 import { ModalButton } from "~/ui/Modal.tsx"
@@ -18,7 +22,7 @@ export interface CharacterResource extends Resource {
 	readonly dragData: { characterId: Id<"characters">; visible: boolean }
 }
 
-export const CharacterResource = new (class extends ResourceClass<CharacterResource> {
+class CharacterResourceClass extends ResourceClass<CharacterResource> {
 	readonly dragDataSchema = z.object({
 		characterId: z.custom<Id<"characters">>((input) => typeof input === "string"),
 		visible: z.boolean(),
@@ -29,7 +33,7 @@ export const CharacterResource = new (class extends ResourceClass<CharacterResou
 			id: character._id,
 			name: character.displayName,
 			dragData: { characterId: character._id, visible: character.visible },
-			renderTreeElement: () => (
+			TreeItemElement: () => (
 				<CharacterModal character={character}>
 					<Button
 						text={character.displayName}
@@ -48,11 +52,9 @@ export const CharacterResource = new (class extends ResourceClass<CharacterResou
 		}
 	}
 
-	renderCreateMenuItem(
-		args: Parameters<ResourceClass<CharacterResource>["renderCreateMenuItem"]>[0],
-	) {
+	CreateMenuItem = (props: ResourceMenuItemProps) => {
 		return (
-			<NewCharacterForm {...args}>
+			<NewCharacterForm {...props}>
 				<MenuItem
 					icon={<LucideUserPlus2 />}
 					text="Character"
@@ -62,7 +64,8 @@ export const CharacterResource = new (class extends ResourceClass<CharacterResou
 			</NewCharacterForm>
 		)
 	}
-})()
+}
+export const CharacterResource = new CharacterResourceClass()
 
 interface NewCharacterFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
 	afterCreate?: (id: Id<"characters">) => void

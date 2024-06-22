@@ -22,7 +22,7 @@ export interface SceneResource extends Resource {
 	readonly dragData: { sceneId: Id<"scenes"> }
 }
 
-export const SceneResource = new (class extends ResourceClass<SceneResource> {
+class SceneResourceClass extends ResourceClass<SceneResource> {
 	readonly dragDataSchema = z.object({
 		sceneId: z.custom<Id<"scenes">>((input) => typeof input === "string"),
 	})
@@ -32,14 +32,15 @@ export const SceneResource = new (class extends ResourceClass<SceneResource> {
 			id: scene._id,
 			name: scene.name,
 			dragData: { sceneId: scene._id },
-			renderTreeElement: () => <SceneTreeElement scene={scene} />,
+			TreeItemElement: () => <SceneTreeElement scene={scene} />,
 		}
 	}
 
-	renderCreateMenuItem() {
+	CreateMenuItem = () => {
 		return <MenuItem icon={<LucideImagePlus />} text="Scene" />
 	}
-})()
+}
+export const SceneResource = new SceneResourceClass()
 
 function SceneTreeElement({ scene }: { scene: ApiScene }) {
 	const room = useRoom()
