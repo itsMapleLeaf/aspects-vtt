@@ -1,5 +1,6 @@
 import { type ReactNode, createContext, isValidElement, use, useId, useMemo } from "react"
 import { twMerge } from "tailwind-merge"
+import type { Nullish } from "~/helpers/types.ts"
 import { useConsumer, useConsumerProvider } from "./ConsumerContext.tsx"
 import { twc } from "./twc.ts"
 
@@ -12,6 +13,19 @@ export const FormLayout = twc.div`flex flex-col gap-3 p-3`
 export const FormRow = twc.div`flex flex-wrap gap-3`
 
 export const FormActions = twc.div`flex flex-wrap justify-end gap-3`
+
+export function FormErrors({ errors }: { errors: Nullish<string | Iterable<string>> }) {
+	const uniqueErrors: string[] = typeof errors === "string" ? [errors] : [...new Set(errors)]
+	return (
+		<div className="flex flex-col gap-1 empty:hidden">
+			{uniqueErrors.map((error) => (
+				<p key={error} className="text-red-400">
+					{error}
+				</p>
+			))}
+		</div>
+	)
+}
 
 export function FormField({
 	label,

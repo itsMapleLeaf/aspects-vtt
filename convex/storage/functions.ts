@@ -1,7 +1,6 @@
 import { v } from "convex/values"
-import type { Nullish } from "../../app/helpers/types.ts"
-import type { Id } from "../_generated/dataModel"
-import { type MutationCtx, internalQuery, mutation } from "../_generated/server.js"
+import { internalQuery, mutation } from "../_generated/server.js"
+import { effectMutation, withMutationCtx } from "../helpers/effect.ts"
 
 export const getUploadUrl = mutation({
 	handler: async (ctx) => {
@@ -18,16 +17,11 @@ export const getMetadata = internalQuery({
 	},
 })
 
-export async function replaceFile(
-	ctx: MutationCtx,
-	current: Nullish<Id<"_storage">>,
-	next: Nullish<Id<"_storage">>,
-) {
-	if (next === undefined) {
-		return current
-	}
-	if (current) {
-		await ctx.storage.delete(current)
-	}
-	return next
-}
+export const remove = effectMutation({
+	args: {
+		storageId: v.id("_storage"),
+	},
+	handler(args) {
+		return withMutationCtx((ctx) => ctx.storage.delete(args.storageId))
+	},
+})

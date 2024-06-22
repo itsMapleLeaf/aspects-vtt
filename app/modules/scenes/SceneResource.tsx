@@ -4,16 +4,17 @@ import { LucideCheck, LucideImage, LucideImagePlay } from "lucide-react"
 import { useActionState, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
+import { loadImage } from "~/helpers/dom/images.ts"
 import { ResourceClass, type Resource } from "~/modules/resources/Resource"
-import { SetMapBackgroundButton } from "~/modules/tokens/SetMapBackgroundButton.tsx"
 import { Button } from "~/ui/Button.tsx"
-import { FormField, FormLayout, FormRow } from "~/ui/Form.tsx"
+import { FormErrors, FormField, FormLayout, FormRow } from "~/ui/Form.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { Menu } from "~/ui/Menu.tsx"
-import { Modal } from "~/ui/Modal.tsx"
+import { Modal, useModalContext } from "~/ui/Modal.tsx"
 import { useToaster } from "~/ui/Toaster.tsx"
 import { api } from "../../../convex/_generated/api"
 import type { Id } from "../../../convex/_generated/dataModel"
+import { ImageUploader } from "../api-images/ImageUploader.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiScene } from "./types.ts"
 
@@ -38,9 +39,36 @@ export const SceneResource = new (class extends ResourceClass<SceneResource> {
 
 function SceneTreeElement({ scene }: { scene: ApiScene }) {
 	const room = useRoom()
+	const isCurrent = room.currentScene === scene._id
+	const [open, setOpen] = useState(false)
+
+	return (
+		<Menu>
+			<Modal
+				text={scene.name}
+				icon={isCurrent ? <LucideImagePlay /> : <LucideImage />}
+				appearance="clear"
+				className={twMerge(
+					"w-full justify-start",
+					isCurrent && "text-primary-800 text-opacity-100",
+				)}
+				title={`Editing ${scene.name}`}
+				open={open}
+				onOpenChange={setOpen}
+			>
+				<SceneEditor scene={scene} />
+			</Modal>
+		</Menu>
+	)
+}
+
+function SceneEditor({ scene }: { scene: ApiScene }) {
+	const room = useRoom()
 	const updateScene = useMutation(api.scenes.functions.update)
 	const updateRoom = useMutation(api.rooms.functions.update)
 	const toast = useToaster()
+	const isCurrent = room.currentScene === scene._id
+	const modal = useModalContext()
 
 	const [state, action] = useActionState(async (_: unknown, formData: FormData) => {
 		const schema = z.object({
@@ -69,68 +97,49 @@ function SceneTreeElement({ scene }: { scene: ApiScene }) {
 		return {}
 	}, {})
 
-	const [open, setOpen] = useState(false)
-
-	const isCurrent = room.currentScene === scene._id
-
 	return (
-		<Menu>
-			<Modal
-				text={scene.name}
-				icon={isCurrent ? <LucideImagePlay /> : <LucideImage />}
-				appearance="clear"
-				className={twMerge(
-					"w-full justify-start",
-					isCurrent && "text-primary-800 text-opacity-100",
+		<form className="contents" action={action}>
+			<FormLayout>
+				<FormErrors errors={state.errors?.formErrors} />
+
+				<FormRow>
+					<FormField label="Scene name" className="flex-1">
+						<Input defaultValue={scene.name} />
+						<FormErrors errors={state.errors?.fieldErrors.name} />
+					</FormField>
+					<FormField label="Cell size" className="w-24">
+						<Input align="center" value={scene.cellSize} required pattern="\d+" />
+						<FormErrors errors={state.errors?.fieldErrors.cellSize} />
+					</FormField>
+				</FormRow>
+
+				<ImageUploader
+					imageId={scene.background}
+					onUpload={async (imageId, file) => {
+						const { width, height } = await loadImage(URL.createObjectURL(file))
+						await updateScene({
+							id: scene._id,
+							background: imageId,
+							backgroundDimensions: { x: width, y: height },
+						})
+					}}
+					onRemove={async () => {
+						await updateScene({ id: scene._id, background: null })
+					}}
+				/>
+
+				{isCurrent ? null : (
+					<Button
+						text="Set as current scene"
+						icon={<LucideCheck />}
+						onClick={async () => {
+							await updateRoom({ id: scene.roomId, currentScene: scene._id })
+							modal?.hide()
+						}}
+						className="w-full"
+					/>
 				)}
-				title={`Editing ${scene.name}`}
-				open={open}
-				onOpenChange={setOpen}
-			>
-				<form className="contents" action={action}>
-					<FormLayout>
-						{state.errors?.formErrors &&
-							[...new Set(state.errors.formErrors)].map((error) => (
-								<p key={error} className="text-red-500">
-									{error}
-								</p>
-							))}
-
-						<FormField label="Scene name">
-							<Input defaultValue={scene.name} />
-							{state.errors?.fieldErrors.name && (
-								<p className="text-red-500">{state.errors.fieldErrors.name}</p>
-							)}
-						</FormField>
-
-						<FormRow className="items-end">
-							<FormField label="Cell size" className="w-1/2 min-w-24">
-								<Input align="center" value={scene.cellSize} required pattern="\d+" />
-								{state.errors?.fieldErrors.cellSize && (
-									<p className="text-red-500">{state.errors.fieldErrors.cellSize}</p>
-								)}
-							</FormField>
-							<div className="flex-1">
-								<SetMapBackgroundButton scene={scene} />
-							</div>
-						</FormRow>
-
-						{isCurrent ? null : (
-							<FormRow>
-								<Button
-									text="Set as current scene"
-									icon={<LucideCheck />}
-									onClick={async () => {
-										await updateRoom({ id: scene.roomId, currentScene: scene._id })
-										setOpen(false)
-									}}
-									className="w-full"
-								/>
-							</FormRow>
-						)}
-					</FormLayout>
-				</form>
-			</Modal>
-		</Menu>
+			</FormLayout>
+		</form>
 	)
 }

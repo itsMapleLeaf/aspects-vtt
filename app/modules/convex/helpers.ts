@@ -19,7 +19,7 @@ export function useMutationState<F extends FunctionReference<"mutation", "public
 	return useAsyncState(useMutation(funcRef))
 }
 
-type ActionState<T> = Exhaustive<
+export type ActionState<T> = Exhaustive<
 	| { type: "idle" }
 	| { type: "success"; value: T }
 	| { type: "error"; value?: T; error: NonNullable<unknown> }

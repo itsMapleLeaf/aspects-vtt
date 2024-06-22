@@ -1,7 +1,8 @@
-import { useConvex, useMutation } from "convex/react"
+import { useMutation } from "convex/react"
 import type { FunctionArgs, FunctionReference } from "convex/server"
 import * as Lucide from "lucide-react"
-import React, { useId, useState } from "react"
+import React, { useId } from "react"
+import { $path } from "remix-routes"
 import { api } from "../../../convex/_generated/api.js"
 import { useAsyncState } from "../../helpers/react/hooks.ts"
 import { startCase } from "../../helpers/string.ts"
@@ -10,12 +11,11 @@ import { CheckboxField } from "../../ui/CheckboxField.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
-import { Loading } from "../../ui/Loading.tsx"
 import { ReadOnlyField } from "../../ui/ReadOnlyField.tsx"
 import { Select, type SelectOption } from "../../ui/Select.tsx"
 import { TextArea } from "../../ui/TextArea.tsx"
 import { panel } from "../../ui/styles.ts"
-import { uploadImage } from "../api-images/helpers.ts"
+import { ImageUploader } from "../api-images/ImageUploader.tsx"
 import { AttributeDiceRollButton } from "../attributes/AttributeDiceRollButton.tsx"
 import { getAttribute, type Attribute } from "../attributes/data.ts"
 import { useSafeAction } from "../convex/helpers.ts"
@@ -52,7 +52,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 		<div className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto *:shrink-0">
 			{character.isOwner ?
 				<CharacterImageField character={character} />
-			:	<CharacterImage character={character} />}
+			:	<CharacterImage character={character} className="aspect-square" />}
 
 			<RoomOwnerOnly>
 				<CharacterSelectField
@@ -277,61 +277,32 @@ function CharacterDiceField({
 
 function CharacterImageField({ character }: { character: ApiCharacter }) {
 	const update = useMutation(api.characters.functions.update)
-	const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle")
-	const convex = useConvex()
-	const inputId = useId()
 
-	async function upload(file: File) {
-		setStatus("uploading")
-		try {
-			await update({
-				id: character._id,
-				imageId: await uploadImage(file, convex),
-			})
-			setStatus("idle")
-		} catch (error) {
-			console.error(error)
-			setStatus("error")
-		}
-	}
+	const fallbackUrl =
+		character.race ?
+			$path(
+				"/characters/fallback/:race",
+				{ race: character.race.toLowerCase() },
+				{
+					seed: String(
+						Iterator.from(character.name).reduce(
+							// modulo to ensure the number doesn't get too horrendously big on long names
+							(total, char) => (total + char.charCodeAt(0)) % 1_000_000,
+							0,
+						),
+					),
+				},
+			)
+		:	undefined
 
 	return (
-		<FormField label="Image" htmlFor={inputId}>
-			<div className="relative flex aspect-square w-full items-center justify-center overflow-clip rounded border border-dashed border-primary-300 bg-primary-200/50 transition hover:bg-primary-200/75">
-				{status === "idle" && (
-					<CharacterImage
-						character={character}
-						fallbackIcon={<Lucide.ImagePlus />}
-						className="size-full"
-					/>
-				)}
-				{status === "uploading" && <Loading />}
-				{status === "error" && <Lucide.FileX2 />}
-				<input
-					id={inputId}
-					aria-label="Upload image"
-					type="file"
-					className="absolute inset-0 opacity-0"
-					accept="image/*"
-					onChange={(event) => {
-						const file = event.target.files?.[0]
-						event.target.value = ""
-						if (file) {
-							upload(file)
-						}
-					}}
-				/>
-				{character.imageId && (
-					<Button
-						icon={<Lucide.Trash />}
-						title="Remove image"
-						onClick={async () => {
-							await update({ id: character._id, imageId: null })
-						}}
-						className="absolute right-0 top-0 m-2"
-					/>
-				)}
-			</div>
+		<FormField label="Image">
+			<ImageUploader
+				imageId={character.imageId}
+				fallbackUrl={fallbackUrl}
+				onUpload={(imageId) => update({ id: character._id, imageId })}
+				onRemove={() => update({ id: character._id, imageId: null })}
+			/>
 		</FormField>
 	)
 }

@@ -1,50 +1,20 @@
-import { useMutation, useQuery } from "convex/react"
 import { LucideChevronsLeft, LucideChevronsRight, LucideClock, LucideSunrise } from "lucide-react"
-import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
-import { EditableInput } from "../../ui/EditableInput.tsx"
 import { EditableIntegerInput } from "../../ui/EditableIntegerInput.tsx"
-import { FormField, FormLayout, FormRow } from "../../ui/Form.tsx"
+import { FormField, FormLayout } from "../../ui/Form.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { EditableSelect } from "../../ui/Select.tsx"
 import { GameTime } from "../game/GameTime.tsx"
-import { SetMapBackgroundButton } from "../tokens/SetMapBackgroundButton.tsx"
 import { useRoom } from "./roomContext.tsx"
 import { useUpdateRoomMutation } from "./useUpdateRoomMutation.tsx"
 
 export function RoomSettingsForm() {
 	const room = useRoom()
-	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
 	const updateRoom = useUpdateRoomMutation()
-	const updateScene = useMutation(api.scenes.functions.update)
 	const gameTime = new GameTime(room.gameTime)
 
 	return (
 		<FormLayout>
-			{scene && (
-				<>
-					<FormField label="Scene Name">
-						<EditableInput
-							value={scene.name}
-							onSubmit={(name) => updateScene({ id: scene._id, name })}
-						/>
-					</FormField>
-
-					<FormRow className="items-end">
-						<FormField label="Cell Size" className="basis-24">
-							<EditableIntegerInput
-								align="center"
-								value={scene.cellSize}
-								onSubmit={(cellSize) => updateScene({ id: scene._id, cellSize })}
-							/>
-						</FormField>
-						<div className="flex-1">
-							<SetMapBackgroundButton scene={scene} />
-						</div>
-					</FormRow>
-				</>
-			)}
-
 			<FormField label="Experience">
 				<EditableIntegerInput
 					value={room.experience}

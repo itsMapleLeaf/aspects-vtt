@@ -1,6 +1,7 @@
 import { LucideGhost } from "lucide-react"
 import type { ComponentProps } from "react"
 import { $path } from "remix-routes"
+import type { StrictOmit } from "~/helpers/types.ts"
 import { UploadedImage } from "../api-images/UploadedImage.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -9,7 +10,7 @@ export function CharacterImage({
 	...props
 }: {
 	character: ApiCharacter
-} & ComponentProps<typeof UploadedImage>) {
+} & StrictOmit<ComponentProps<typeof UploadedImage>, "imageId">) {
 	const fallbackUrl =
 		character.race ?
 			$path(
@@ -29,7 +30,7 @@ export function CharacterImage({
 
 	return (
 		<UploadedImage
-			id={character.imageId}
+			imageId={character.imageId}
 			fallbackUrl={fallbackUrl}
 			fallbackIcon={<LucideGhost />}
 			{...props}
