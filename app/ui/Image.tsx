@@ -25,7 +25,7 @@ export function Image({ src, fallbackIcon = <LucideImageOff />, className, ...pr
 				/>
 			:	<div
 					className={twMerge(
-						"flex-center aspect-square size-full text-primary-600 opacity-50 *:aspect-square *:size-[min(8rem,max(75%,min(4rem,100%)))] empty:hidden",
+						"flex-center aspect-square w-3/4 min-w-[min(4rem,100%)] max-w-32 text-primary-600 opacity-50 *:size-full empty:hidden",
 						resolvedClassName?.icon,
 					)}
 				>
