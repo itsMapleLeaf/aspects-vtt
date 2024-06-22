@@ -5,7 +5,7 @@ import { useActionState, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { loadImage } from "~/helpers/dom/images.ts"
-import { ResourceClass, type Resource } from "~/modules/resources/Resource"
+import { defineResource, type Resource } from "~/modules/resources/Resource"
 import { Button } from "~/ui/Button.tsx"
 import { FormErrors, FormField, FormLayout, FormRow } from "~/ui/Form.tsx"
 import { Input } from "~/ui/Input.tsx"
@@ -22,25 +22,22 @@ export interface SceneResource extends Resource {
 	readonly dragData: { sceneId: Id<"scenes"> }
 }
 
-class SceneResourceClass extends ResourceClass<SceneResource> {
-	readonly dragDataSchema = z.object({
+export const SceneResource = defineResource({
+	name: "SceneResource",
+
+	dragDataSchema: z.object({
 		sceneId: z.custom<Id<"scenes">>((input) => typeof input === "string"),
-	})
+	}),
 
-	create(scene: ApiScene): SceneResource {
-		return {
-			id: scene._id,
-			name: scene.name,
-			dragData: { sceneId: scene._id },
-			TreeItemElement: () => <SceneTreeElement scene={scene} />,
-		}
-	}
+	create: (scene: ApiScene) => ({
+		id: scene._id,
+		name: scene.name,
+		dragData: { sceneId: scene._id },
+		TreeItemElement: () => <SceneTreeElement scene={scene} />,
+	}),
 
-	CreateMenuItem = () => {
-		return <MenuItem icon={<LucideImagePlus />} text="Scene" />
-	}
-}
-export const SceneResource = new SceneResourceClass()
+	CreateMenuItem: () => <MenuItem icon={<LucideImagePlus />} text="Scene" />,
+})
 
 function SceneTreeElement({ scene }: { scene: ApiScene }) {
 	const room = useRoom()

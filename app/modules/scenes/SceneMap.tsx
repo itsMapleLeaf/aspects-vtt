@@ -9,6 +9,7 @@ import { DragSelectArea } from "../../ui/DragSelect.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { getApiImageUrl } from "../api-images/helpers.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
+import { parseResourceDragData } from "../resources/Resource.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
 import { PingHandler } from "./PingHandler.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
@@ -140,7 +141,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 			onDrop={(event) => {
 				event.preventDefault()
 
-				const data = CharacterResource.parseDragData(event.dataTransfer.getData("text"))
+				const data = parseResourceDragData(CharacterResource, event.dataTransfer.getData("text"))
 				if (!data) return
 
 				const position = context

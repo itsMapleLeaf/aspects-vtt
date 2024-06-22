@@ -14,7 +14,7 @@ import { CharacterResource } from "../characters/CharacterResource.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { SceneResource } from "../scenes/SceneResource.tsx"
-import { ResourceClass, type Resource } from "./Resource.tsx"
+import { listResourceDefinitions, type Resource } from "./Resource.tsx"
 
 interface ResourceGroup {
 	id: string
@@ -107,8 +107,8 @@ function NewResourceMenu() {
 		<Menu open={menuOpen} setOpen={setMenuOpen}>
 			<Button icon={<LucidePlus />} tooltip="Add new..." element={<MenuButton />} />
 			<MenuPanel unmountOnHide={false}>
-				{[...ResourceClass.resourceTypes].map(([name, resourceType]) => (
-					<resourceType.CreateMenuItem key={name} afterCreate={() => setMenuOpen(false)} />
+				{[...listResourceDefinitions()].map((definition) => (
+					<definition.CreateMenuItem key={definition.name} afterCreate={() => setMenuOpen(false)} />
 				))}
 			</MenuPanel>
 		</Menu>
