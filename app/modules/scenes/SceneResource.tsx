@@ -1,6 +1,6 @@
 import { useMutation } from "convex/react"
 import { ConvexError } from "convex/values"
-import { LucideCheck, LucideImage, LucideImagePlay } from "lucide-react"
+import { LucideCheck, LucideImage, LucideImagePlay, LucideImagePlus } from "lucide-react"
 import { useActionState, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
@@ -9,7 +9,7 @@ import { ResourceClass, type Resource } from "~/modules/resources/Resource"
 import { Button } from "~/ui/Button.tsx"
 import { FormErrors, FormField, FormLayout, FormRow } from "~/ui/Form.tsx"
 import { Input } from "~/ui/Input.tsx"
-import { Menu } from "~/ui/Menu.tsx"
+import { Menu, MenuItem } from "~/ui/Menu.tsx"
 import { Modal, useModalContext } from "~/ui/Modal.tsx"
 import { useToaster } from "~/ui/Toaster.tsx"
 import { api } from "../../../convex/_generated/api"
@@ -34,6 +34,10 @@ export const SceneResource = new (class extends ResourceClass<SceneResource> {
 			dragData: { sceneId: scene._id },
 			renderTreeElement: () => <SceneTreeElement scene={scene} />,
 		}
+	}
+
+	renderCreateMenuItem() {
+		return <MenuItem icon={<LucideImagePlus />} text="Scene" />
 	}
 })()
 

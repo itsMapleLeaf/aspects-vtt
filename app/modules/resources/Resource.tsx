@@ -6,7 +6,7 @@ export interface Resource {
 	readonly id: string
 	readonly name: string
 	readonly dragData: object
-	renderTreeElement(): ReactNode
+	readonly renderTreeElement: () => ReactNode
 }
 
 export interface ButtonResourceAction {
@@ -20,9 +20,17 @@ export interface LinkResourceAction {
 }
 
 export abstract class ResourceClass<T extends Resource> {
+	static readonly resourceTypes = new Set<ResourceClass<Resource>>()
+
 	abstract readonly dragDataSchema: ZodType<T["dragData"], ZodTypeDef, unknown>
 
+	constructor() {
+		ResourceClass.resourceTypes.add(this)
+	}
+
 	abstract create(...args: unknown[]): T
+
+	abstract renderCreateMenuItem(args: { afterCreate: () => void }): ReactNode
 
 	parseDragData(input: string, ..._args: unknown[]): T["dragData"] | null {
 		try {

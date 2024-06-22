@@ -1,29 +1,20 @@
 import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
-import { useMutation, useQuery } from "convex/react"
-import {
-	LucideFolder,
-	LucideFolderOpen,
-	LucideImagePlus,
-	LucidePlus,
-	LucideUserPlus2,
-} from "lucide-react"
+import { useQuery } from "convex/react"
+import { LucideFolder, LucideFolderOpen, LucidePlus } from "lucide-react"
 import React, { useState } from "react"
 import { useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
-import { Menu, MenuButton, MenuItem, MenuPanel } from "~/ui/Menu.tsx"
+import { Menu, MenuButton, MenuPanel } from "~/ui/Menu.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api"
-import type { Id } from "../../../convex/_generated/dataModel"
 import { useUser } from "../auth/hooks.ts"
-import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
-import { useSafeAction } from "../convex/hooks.ts"
-import { useCharacter, useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { SceneResource } from "../scenes/SceneResource.tsx"
-import type { Resource } from "./Resource.tsx"
+import { ResourceClass, type Resource } from "./Resource.tsx"
 
 interface ResourceGroup {
 	id: string
@@ -116,49 +107,11 @@ function NewResourceMenu() {
 		<Menu open={menuOpen} setOpen={setMenuOpen}>
 			<Button icon={<LucidePlus />} tooltip="Add new..." element={<MenuButton />} />
 			<MenuPanel unmountOnHide={false}>
-				<NewCharacterForm afterCreate={() => setMenuOpen(false)}>
-					<MenuItem
-						icon={<LucideUserPlus2 />}
-						text="Character"
-						hideOnClick={false}
-						render={<button type="submit" />}
-					/>
-				</NewCharacterForm>
-				<MenuItem icon={<LucideImagePlus />} text="Scene" />
+				{[...ResourceClass.resourceTypes].map((resourceType) =>
+					resourceType.renderCreateMenuItem({ afterCreate: () => setMenuOpen(false) }),
+				)}
 			</MenuPanel>
 		</Menu>
-	)
-}
-
-interface NewCharacterFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
-	afterCreate?: (id: Id<"characters">) => void
-}
-
-function NewCharacterForm({ afterCreate, children, ...props }: NewCharacterFormProps) {
-	const room = useRoom()
-	const createCharacter = useMutation(api.characters.functions.create)
-	const [characterModalOpen, setCharacterModalOpen] = useState(false)
-	const [createCharacterState, createCharacterAction] = useSafeAction(
-		async (_formData: FormData) => {
-			const id = await createCharacter({ roomId: room._id })
-			setCharacterModalOpen(true)
-			afterCreate?.(id)
-			return id
-		},
-	)
-	const createdCharacter = useCharacter(createCharacterState.value)
-
-	return (
-		<form {...props} action={createCharacterAction}>
-			{children}
-			{createdCharacter && (
-				<CharacterModal
-					character={createdCharacter}
-					open={characterModalOpen}
-					setOpen={setCharacterModalOpen}
-				/>
-			)}
-		</form>
 	)
 }
 
