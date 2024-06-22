@@ -69,6 +69,7 @@ export default ts.config(
 			"react/no-unescaped-entities": "off",
 			"react/no-unknown-property": "off",
 			"react/prop-types": "off",
+			"react/jsx-no-undef": "off",
 
 			"react-hooks/exhaustive-deps": "warn",
 			"react-hooks/rules-of-hooks": "error",
