@@ -5,7 +5,7 @@ import { mod } from "../helpers/math.ts"
 import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
 import { LoadingDecoration } from "./LoadingDecoration.tsx"
-import { menuItemStyle, menuPanelStyle } from "./Menu.tsx"
+import { MenuItem, MenuPanel } from "./Menu.tsx"
 import { type EditableProps, useEditable } from "./useEditable.tsx"
 
 export type SelectOption<T> =
@@ -83,12 +83,18 @@ export function Select<T>(props: {
 					}
 				/>
 			</FormField>
-			<Ariakit.SelectPopover portal gutter={8} sameWidth unmountOnHide className={menuPanelStyle()}>
+			<Ariakit.SelectPopover
+				portal
+				gutter={8}
+				sameWidth
+				unmountOnHide
+				className={MenuPanel.style()}
+			>
 				{props.options.map((option) => (
 					<Ariakit.SelectItem
 						key={getOptionId(option)}
 						value={getOptionId(option)}
-						className={menuItemStyle()}
+						className={MenuItem.style()}
 					>
 						{option.icon}
 						{option.label}

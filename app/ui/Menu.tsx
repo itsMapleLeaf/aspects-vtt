@@ -7,13 +7,8 @@ export function Menu(props: Ariakit.MenuProviderProps) {
 	return <Ariakit.MenuProvider {...props} />
 }
 
-export const MenuButton = Ariakit.MenuButton
-
-export function menuPanelStyle(...classes: ClassNameValue[]) {
-	return panel(
-		"grid translate-y-2 gap-1 p-1 opacity-0 transition shadow-md data-[enter]:translate-y-0 data-[enter]:opacity-100",
-		classes,
-	)
+export function MenuButton(props: Ariakit.MenuButtonProps) {
+	return <Ariakit.MenuButton {...props} />
 }
 
 export function MenuPanel(props: Ariakit.MenuProps) {
@@ -23,19 +18,18 @@ export function MenuPanel(props: Ariakit.MenuProps) {
 			gutter={8}
 			unmountOnHide
 			{...props}
-			className={twMerge(menuPanelStyle(), props.className)}
+			className={twMerge(MenuPanel.style(), props.className)}
 		/>
 	)
 }
-
-export function menuItemStyle(...classes: ClassNameValue[]) {
-	return twMerge(
-		"flex cursor-default gap-2 rounded-sm px-2 py-2 transition duration-75 data-[active-item]:bg-primary-100 data-[active-item]:text-primary-700",
+MenuPanel.style = function menuPanelStyle(...classes: ClassNameValue[]) {
+	return panel(
+		"grid translate-y-2 gap-1 p-1 opacity-0 transition shadow-md data-[enter]:translate-y-0 data-[enter]:opacity-100",
 		classes,
 	)
 }
 
-interface MenuItemProps extends Ariakit.MenuItemProps<"div"> {
+export interface MenuItemProps extends Ariakit.MenuItemProps<"div"> {
 	text: string
 	icon: React.ReactNode
 	onClick?: (event: React.MouseEvent<HTMLElement>) => unknown
@@ -53,5 +47,11 @@ export function MenuItem({ text, icon, ref, ...props }: MenuItemProps) {
 				/>
 			}
 		/>
+	)
+}
+MenuItem.style = function menuItemStyle(...classes: ClassNameValue[]) {
+	return twMerge(
+		"flex cursor-default gap-2 rounded-sm px-2 py-2 transition duration-75 data-[active-item]:bg-primary-100 data-[active-item]:text-primary-700",
+		classes,
 	)
 }

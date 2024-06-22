@@ -12,7 +12,7 @@ import { randomItem } from "../../helpers/random.ts"
 import { titleCase } from "../../helpers/string.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
-import { menuItemStyle, menuPanelStyle } from "../../ui/Menu.tsx"
+import { MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { panel } from "../../ui/styles.ts"
 import { getColorNames, getColorStyle } from "../user-colors/data.ts"
 import type { ApiCharacter } from "./types.ts"
@@ -154,7 +154,7 @@ function AddConditionInput({
 			<Ariakit.ComboboxPopover
 				gutter={4}
 				sameWidth
-				className={menuPanelStyle()}
+				className={MenuPanel.style()}
 				flip={false}
 				unmountOnHide
 			>
@@ -162,7 +162,7 @@ function AddConditionInput({
 					<Ariakit.ComboboxItem
 						key={condition.name}
 						value={condition.name}
-						className={menuItemStyle()}
+						className={MenuItem.style()}
 					>
 						{condition.name}
 					</Ariakit.ComboboxItem>
