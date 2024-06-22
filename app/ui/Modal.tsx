@@ -27,22 +27,26 @@ type ModalProps = ModalAsButtonProps | ModalWithTriggerProps
 /**
  * @example
  * 	// using built-in button
- * 	<Modal title="Delete Character" text="Delete Character" icon={<LucideTrash />}>
- * 	<p>Are you sure you want to delete this character?</p>
- * 	<ModalActions>
- * 	<ModalDismiss>Cancel</ModalDismiss>
- * 	<Button type="submit">Delete</Button>
- * 	</ModalActions>
- * 	</Modal>
+ * 	const Example = () => (
+ * 		<Modal title="Delete Character" text="Delete Character" icon={<LucideTrash />}>
+ * 			<p>Are you sure you want to delete this character?</p>
+ * 			<ModalActions>
+ * 				<ModalDismiss>Cancel</ModalDismiss>
+ * 				<Button type="submit">Delete</Button>
+ * 			</ModalActions>
+ * 		</Modal>
+ * 	)
  *
  * 	// using custom button
- * 	<Modal title="Delete Character" trigger={<DeleteButton />}>
- * 	<p>Are you sure you want to delete this character?</p>
- * 	<ModalActions>
- * 	<ModalDismiss>Cancel</ModalDismiss>
- * 	<Button type="submit">Delete</Button>
- * 	</ModalActions>
- * 	</Modal>
+ * 	const CustomButtonExample = () => (
+ * 		<Modal title="Delete Character" trigger={<DeleteButton />}>
+ * 			<p>Are you sure you want to delete this character?</p>
+ * 			<ModalActions>
+ * 				<ModalDismiss>Cancel</ModalDismiss>
+ * 				<Button type="submit">Delete</Button>
+ * 			</ModalActions>
+ * 		</Modal>
+ * 	)
  */
 export function Modal({
 	children,
