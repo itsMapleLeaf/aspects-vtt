@@ -4,32 +4,36 @@ import { unwrap } from "../../helpers/errors.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 import type { GridWorkerMessage } from "./SceneGrid.worker.ts"
 
-const sendMessage = (worker: Worker, message: GridWorkerMessage) => {
-	worker.postMessage(message, message.type === "init" ? [message.canvas] : [])
+let worker: Worker | undefined
+if (typeof window !== "undefined") {
+	worker = new Worker(new URL("./SceneGrid.worker.ts", import.meta.url), {
+		type: "module",
+	})
+}
+
+const sendMessage = (message: GridWorkerMessage) => {
+	worker?.postMessage(message, message.type === "init" ? [message.canvas] : [])
 }
 
 export function SceneGrid() {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
-	const size = useSize(canvasRef)
+	const offscreenRef = useRef<OffscreenCanvas>(null)
 	const { scene, viewport } = useSceneContext()
-	const workerRef = useRef<Worker>(undefined)
+	const size = useSize(canvasRef)
 
 	useEffect(() => {
-		if (!workerRef.current) {
-			workerRef.current = new Worker(new URL("./SceneGrid.worker.ts", import.meta.url), {
-				type: "module",
-			})
-
-			const canvas = unwrap(canvasRef.current, "canvas ref not set")
-			const offscreen = canvas.transferControlToOffscreen()
-
-			sendMessage(workerRef.current, {
+		const canvas = unwrap(canvasRef.current, "canvas ref not set")
+		if (!offscreenRef.current) {
+			const offscreen = (offscreenRef.current ??= canvas.transferControlToOffscreen())
+			sendMessage({
 				type: "init",
 				canvas: offscreen,
 			})
 		}
+	}, [])
 
-		sendMessage(workerRef.current, {
+	useEffect(() => {
+		sendMessage({
 			type: "render",
 			canvasSize: size.xy,
 			viewportOffset: viewport.offset.xy,
