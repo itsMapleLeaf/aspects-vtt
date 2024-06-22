@@ -1,11 +1,14 @@
 import { useGesture, useWheel } from "@use-gesture/react"
 import * as React from "react"
 import { useState } from "react"
+import { loadImage } from "~/helpers/dom/images.ts"
 import { Rect } from "../../helpers/Rect.ts"
 import { randomItem } from "../../helpers/random.ts"
 import { DragSelectArea } from "../../ui/DragSelect.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { getApiImageUrl } from "../api-images/helpers.ts"
+import { useOffscreenCanvas } from "../canvas/offscreen.ts"
+import type { OffscreenCanvasOperation } from "../canvas/offscreen.worker.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import { parseResourceDragData } from "../resources/Resource.tsx"
 import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
@@ -109,22 +112,44 @@ function DragHandler({ children }: { children: React.ReactNode }) {
 
 function SceneBackground() {
 	const scene = useCurrentScene()
+	const bitmap = useImageBitmap(scene?.background && getApiImageUrl(scene.background))
+	const { containerRef, render } = useOffscreenCanvas()
 	const { viewport } = useSceneContext()
 
-	return scene?.background ?
-			<img
-				src={getApiImageUrl(scene.background)}
-				alt=""
-				draggable={false}
-				style={{
-					width: scene.backgroundDimensions?.x,
-					height: scene.backgroundDimensions?.y,
-					scale: viewport.scale,
-					translate: `${viewport.offset.x}px ${viewport.offset.y}px`,
-				}}
-				className="max-w-[unset] origin-top-left"
-			/>
-		:	null
+	React.useEffect(() => {
+		if (!bitmap) return
+		const operations: OffscreenCanvasOperation[] = [
+			{
+				type: "drawImage",
+				image: bitmap,
+				args: [0, 0, 100, 100, viewport.offset.x, viewport.offset.y, 100, 100],
+			},
+		]
+		render(operations)
+	}, [bitmap, render, viewport.offset.x, viewport.offset.y])
+
+	return <div className="absolute inset-0 size-full" ref={containerRef} />
+}
+
+function useImageBitmap(backgroundUrl: string | null | undefined) {
+	const [bitmap, setBitmap] = React.useState<ImageBitmap>()
+	React.useEffect(() => {
+		if (!backgroundUrl) {
+			setBitmap(undefined)
+			return
+		}
+
+		let ignore = false
+		void (async () => {
+			const image = await loadImage(backgroundUrl)
+			const bitmap = await createImageBitmap(image)
+			if (!ignore) setBitmap(bitmap)
+		})()
+		return () => {
+			ignore = true
+		}
+	}, [backgroundUrl])
+	return bitmap
 }
 
 function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {

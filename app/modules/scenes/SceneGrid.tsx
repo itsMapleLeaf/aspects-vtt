@@ -14,28 +14,35 @@ export function SceneGrid() {
 	const { scene, viewport } = useSceneContext()
 	const workerRef = useRef<Worker>(undefined)
 
-	useEffect(() => {
-		if (!workerRef.current) {
-			workerRef.current = new Worker(new URL("./SceneGrid.worker.ts", import.meta.url), {
-				type: "module",
-			})
+	// useEffect(() => {
+	// 	if (!workerRef.current) {
+	// 		workerRef.current = new Worker(new URL("./SceneGrid.worker.ts", import.meta.url), {
+	// 			type: "module",
+	// 		})
 
-			const canvas = unwrap(canvasRef.current, "canvas ref not set")
-			const offscreen = canvas.transferControlToOffscreen()
+	// 		const canvas = unwrap(canvasRef.current, "canvas ref not set")
+	// 		const offscreen = canvas.transferControlToOffscreen()
 
-			sendMessage(workerRef.current, {
-				type: "init",
-				canvas: offscreen,
-			})
-		}
+	// 		sendMessage(workerRef.current, {
+	// 			type: "init",
+	// 			canvas: offscreen,
+	// 		})
+	// 	}
 
-		sendMessage(workerRef.current, {
-			type: "render",
-			canvasSize: size.xy,
-			viewportOffset: viewport.offset.xy,
-			cellSize: scene.cellSize * viewport.scale,
-		})
-	}, [scene.cellSize, size, viewport])
+	// 	sendMessage(workerRef.current, {
+	// 		type: "render",
+	// 		canvasSize: size.xy,
+	// 		viewportOffset: viewport.offset.xy,
+	// 		cellSize: scene.cellSize * viewport.scale,
+	// 	})
+	// }, [scene.cellSize, size, viewport])
+
+	// useEffect(() => {
+	// 	return () => {
+	// 		workerRef.current?.terminate()
+	// 		workerRef.current = undefined
+	// 	}
+	// }, [])
 
 	return (
 		<canvas className="absolute inset-0 size-full" width={size.x} height={size.y} ref={canvasRef} />
