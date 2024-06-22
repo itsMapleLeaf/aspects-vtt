@@ -14,6 +14,7 @@ import { useUser } from "../auth/hooks.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { SceneResource } from "../scenes/SceneResource.tsx"
 import { listResourceDefinitions, type Resource } from "./Resource.tsx"
 
 interface ResourceGroup {
@@ -86,14 +87,6 @@ export function ResourceList(props: ResourceListProps) {
 			<div className="min-h-0 flex-1">
 				<ScrollArea>
 					<div className="pr-3">
-						{/* {tree.map((group) => (
-							<ResourceFolder key={group.id} name={group.name}>
-								{group.items?.map((resource) => (
-									<ResourceElement key={resource.id} resource={resource} />
-								))}
-							</ResourceFolder>
-						))} */}
-
 						<ResourceFolder name="Characters">
 							{characters?.map((character) => (
 								<ResourceElement
@@ -101,6 +94,13 @@ export function ResourceList(props: ResourceListProps) {
 									dragData={CharacterResource.create(character).dragData}
 								>
 									<CharacterResource.TreeItem character={character} />
+								</ResourceElement>
+							))}
+						</ResourceFolder>
+						<ResourceFolder name="Scenes">
+							{scenes?.map((scene) => (
+								<ResourceElement key={scene._id} dragData={scene}>
+									<SceneResource.TreeItem scene={scene} />
 								</ResourceElement>
 							))}
 						</ResourceFolder>
