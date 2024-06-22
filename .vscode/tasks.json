@@ -5,10 +5,7 @@
 			"label": "dev",
 			"dependsOn": ["dev:remix", "dev:convex"],
 			"dependsOrder": "parallel",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
+			"group": "build"
 		},
 		{
 			"label": "dev:remix",
@@ -30,9 +27,7 @@
 			"runOptions": {
 				"instanceLimit": 1
 			},
-			"group": {
-				"kind": "build"
-			}
+			"group": "build"
 		},
 		{
 			"label": "dev:convex",
@@ -55,25 +50,15 @@
 			"runOptions": {
 				"instanceLimit": 1
 			},
-			"group": {
-				"kind": "build"
-			}
+			"group": "build"
 		},
 		{
 			"label": "tsc: watch",
-			"type": "shell",
-			"icon": { "id": "tools" },
-			"command": "node",
-			"args": ["node_modules/typescript/bin/tsc", "--watch"],
-			"problemMatcher": ["$tsc-watch"],
-			"isBackground": true,
-			"group": {
-				"kind": "build",
-				"isDefault": false
-			},
-			"runOptions": {
-				"instanceLimit": 1
-			}
+			"type": "typescript",
+			"option": "watch",
+			"tsconfig": "tsconfig.json",
+			"group": "build",
+			"isBackground": true
 		}
 	]
 }
