@@ -122,7 +122,7 @@ function SceneBackground() {
 					scale: viewport.scale,
 					translate: `${viewport.offset.x}px ${viewport.offset.y}px`,
 				}}
-				className="max-w-[unset] origin-top-left"
+				className="max-w-[unset] origin-top-left will-change-transform"
 			/>
 		:	null
 }

@@ -38,7 +38,7 @@ export default function RoomRoute() {
 			</Suspense>
 
 			<RoomToolbarStore.Provider>
-				<div className="fixed inset-0 select-none bg-primary-100">
+				<div className="fixed inset-0 select-none overflow-clip bg-primary-100">
 					<Suspense fallback={<Loading fill="parent" />}>
 						<SceneProvider>
 							<SceneMap />
