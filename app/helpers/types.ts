@@ -31,9 +31,12 @@ export type OmitByValue<Source, Value> = Simplify<{
 
 export type Awaitable<T> = T | PromiseLike<T>
 
-export type PartialKeys<T, K extends PropertyKey> = Omit<T, K> & {
+export type OptionalKeys<T, K extends PropertyKey> = Omit<T, K> & {
 	[k in Extract<K, keyof T>]?: T[k]
 }
+
+/** @deprecated */
+export type PartialKeys<T, K extends PropertyKey> = OptionalKeys<T, K>
 
 export type UndefinedToOptional<T> = Simplify<
 	{
