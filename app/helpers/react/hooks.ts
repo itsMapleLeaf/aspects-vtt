@@ -46,7 +46,7 @@ export function useDelayedValue<T>(value: T, delay: number, init?: T): T {
 }
 
 export function usePendingDelay(pendingInput: boolean) {
-	return useDelayedValue(pendingInput, pendingInput ? 300 : 500, false)
+	return useDelayedValue(pendingInput, pendingInput ? 100 : 500, false)
 }
 
 export function useEffectEvent<Args extends unknown[], Return>(fn: (...args: Args) => Return) {
