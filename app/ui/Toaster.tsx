@@ -55,7 +55,7 @@ export function Toaster({ children }: { children: React.ReactNode }) {
 		const id = ToastId(crypto.randomUUID())
 		setToasts((toasts) => [...toasts, { ...toast, id, visible: true }])
 
-		let timeout: NodeJS.Timeout | undefined
+		let timeout: ReturnType<typeof setTimeout> | undefined
 		if (Number.isFinite(duration)) {
 			timeout = setTimeout(() => {
 				remove(id)
