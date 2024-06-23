@@ -136,7 +136,7 @@ function SceneBackground() {
 			className="absolute left-0 top-0 origin-top-left will-change-transform"
 			style={{
 				scale: viewport.scale,
-				translate: viewport.offset.css.translate(),
+				translate: viewport.offset.floor.css.translate(),
 			}}
 		>
 			{tilePositions
@@ -150,7 +150,7 @@ function SceneBackground() {
 							height: tileSize,
 							translate: position.times(tileSize).css.translate(),
 						}}
-						className="absolute left-0 top-0 origin-top-left will-change-transform"
+						className="absolute left-0 top-0 origin-top-left scale-[1.002] will-change-transform"
 					/>
 				))
 				.toArray()}
