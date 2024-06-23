@@ -1,6 +1,8 @@
 import { useGesture, useWheel } from "@use-gesture/react"
+import { Iterator } from "iterator-helpers-polyfill"
 import * as React from "react"
 import { useState } from "react"
+import { Vector } from "~/helpers/Vector.ts"
 import { Rect } from "../../helpers/Rect.ts"
 import { randomItem } from "../../helpers/random.ts"
 import { DragSelectArea } from "../../ui/DragSelect.tsx"
@@ -110,21 +112,68 @@ function DragHandler({ children }: { children: React.ReactNode }) {
 function SceneBackground() {
 	const scene = useCurrentScene()
 	const { viewport } = useSceneContext()
+	const tileSize = 1024
+	const windowSize = useWindowSize()
 
-	return scene?.background ?
-			<img
-				src={getApiImageUrl(scene.background)}
-				alt=""
-				draggable={false}
-				style={{
-					width: scene.backgroundDimensions?.x,
-					height: scene.backgroundDimensions?.y,
-					scale: viewport.scale,
-					translate: `${viewport.offset.x}px ${viewport.offset.y}px`,
-				}}
-				className="max-w-[unset] origin-top-left will-change-transform"
-			/>
-		:	null
+	if (!scene?.background) return null
+
+	const tileStart = viewport.offset.dividedBy(-tileSize * viewport.scale).floor
+	const tileEnd = tileStart
+		.plus(windowSize.dividedBy(viewport.scale).dividedBy(tileSize).ceiling)
+		.plus(1)
+
+	const backgroundSize = Vector.from(scene?.backgroundDimensions ?? Vector.zero)
+
+	const clampedTileStart = Vector.bottomRightMost(tileStart, Vector.zero)
+	const clampedTileEnd = Vector.topLeftMost(tileEnd, backgroundSize.dividedBy(tileSize).ceiling)
+
+	const tilePositions = Iterator.range(clampedTileStart.x, clampedTileEnd.x).flatMap((x) =>
+		Iterator.range(clampedTileStart.y, clampedTileEnd.y).map((y) => Vector.from(x, y)),
+	)
+
+	return (
+		<div
+			className="absolute left-0 top-0 origin-top-left will-change-transform"
+			style={{
+				scale: viewport.scale,
+				translate: viewport.offset.css.translate(),
+			}}
+		>
+			{tilePositions
+				.map((position) => (
+					<div
+						key={position.x + "-" + position.y}
+						style={{
+							backgroundImage: `url(${getApiImageUrl(scene.background!)}?area=${position.x * tileSize},${position.y * tileSize},${tileSize},${tileSize})`,
+							backgroundRepeat: "no-repeat",
+							width: tileSize,
+							height: tileSize,
+							translate: position.times(tileSize).css.translate(),
+						}}
+						className="absolute left-0 top-0 origin-top-left will-change-transform"
+					/>
+				))
+				.toArray()}
+		</div>
+	)
+}
+
+function useWindowSize() {
+	const [windowSize, setWindowSize] = useState<Vector>(() => {
+		return typeof window !== "undefined" ?
+				Vector.from(window.innerWidth, window.innerHeight)
+			:	Vector.zero
+	})
+
+	React.useEffect(() => {
+		const handleResize = () => {
+			setWindowSize(Vector.from(window.innerWidth, window.innerHeight))
+		}
+		window.addEventListener("resize", handleResize)
+		return () => window.removeEventListener("resize", handleResize)
+	}, [])
+
+	return windowSize
 }
 
 function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
