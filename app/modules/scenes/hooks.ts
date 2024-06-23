@@ -5,10 +5,7 @@ import { useRoom } from "../rooms/roomContext.tsx"
 
 export function useCurrentScene() {
 	const room = useRoom()
-	return useQuerySuspense(
-		api.scenes.functions.get,
-		room.currentScene ? { id: room.currentScene } : "skip",
-	)
+	return useQuerySuspense(api.scenes.functions.getCurrent, { roomId: room._id })
 }
 
 export function useCurrentSceneTokens() {
