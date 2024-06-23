@@ -7,25 +7,30 @@ import { z } from "zod"
 import { clientEnv } from "~/env.ts"
 import { unwrap } from "~/helpers/errors.ts"
 
-const cache = new LRUCache<string, Promise<Response>>({
+const cache = new LRUCache<string, Promise<Uint8Array>>({
 	max: 1000,
 	ttl: Duration.toMillis(Duration.hours(1)),
 })
+
+const headers = {
+	"Content-Type": "image/webp",
+	"Cache-Control": "public, max-age=31536000",
+}
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const url = new URL(request.url)
 	const cached = cache.get(url.href)
 	if (cached) {
-		return await cached
+		return new Response(await cached, { headers })
 	}
 
 	const { id } = $params("/images/:id", params)
-	const promise = serveApiImage(id, request, url)
+	const promise = processApiImage(id, request, url)
 	cache.set(url.href, promise)
-	return await promise
+	return new Response(await promise, { headers })
 }
 
-async function serveApiImage(id: string, request: Request, url: URL) {
+async function processApiImage(id: string, request: Request, url: URL) {
 	const apiImageUrl = new URL("/image", clientEnv.VITE_CONVEX_URL.replace(/\.cloud\/*$/, ".site"))
 	apiImageUrl.searchParams.set("id", id)
 
@@ -42,13 +47,7 @@ async function serveApiImage(id: string, request: Request, url: URL) {
 		const rect = areaParamSchema.parse(areaParam)
 		data = await cropImage(data, ...rect)
 	}
-
-	return new Response(data, {
-		headers: {
-			"Content-Type": "image/webp",
-			"Cache-Control": "public, max-age=31536000",
-		},
-	})
+	return data
 }
 
 async function cropImage(input: Uint8Array, x: number, y: number, width: number, height: number) {
