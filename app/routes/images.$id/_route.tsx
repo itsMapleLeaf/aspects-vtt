@@ -32,10 +32,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 async function processApiImage(id: string, request: Request, url: URL) {
 	const apiImageUrl = new URL("/image", clientEnv.VITE_CONVEX_URL.replace(/\.cloud\/*$/, ".site"))
-	apiImageUrl.host = "www." + apiImageUrl.host
 	apiImageUrl.searchParams.set("id", id)
 
-	const response = await fetch(apiImageUrl.href, request)
+	const response = await fetch(apiImageUrl.href)
 	let data: Uint8Array = new Uint8Array(await response.arrayBuffer())
 
 	const areaParam = url.searchParams.get("area")
