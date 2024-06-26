@@ -29,7 +29,10 @@ export function TokenElementLayer() {
 			{sortBy(tokens, (it) => (it.character ? 1 : 0)).map((token) => (
 				<TokenElement
 					token={token}
-					isCurrentCombatMember={token.character?._id === room.combat?.currentMemberId}
+					isCurrentCombatMember={
+						token.character?._id === room.combat?.currentMemberId &&
+						room.combat?.currentMemberId != null
+					}
 					key={token.key}
 				/>
 			))}
