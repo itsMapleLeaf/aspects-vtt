@@ -172,6 +172,10 @@ export const ping = effectMutation({
 	},
 })
 
+export function isRoomOwner(roomId: Id<"rooms">) {
+	return Effect.isSuccess(getRoomAsOwner(roomId))
+}
+
 export function getRoomAsOwner(roomId: Id<"rooms">) {
 	return Effect.filterOrFail(
 		Effect.all({

@@ -1,17 +1,14 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react"
-import { useMutation, useQuery } from "convex/react"
+import { useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
 import { formatDistanceToNow } from "date-fns"
-import * as Lucide from "lucide-react"
 import { HelpCircle } from "lucide-react"
 import { Fragment, useLayoutEffect } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../helpers/array.ts"
-import { MoreMenu, MoreMenuItem, MoreMenuPanel } from "../../ui/MoreMenu.tsx"
 import { TranslucentPanel } from "../../ui/Panel.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
-import type { ApiCharacter } from "../characters/types.ts"
 import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/data.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
@@ -64,55 +61,55 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 	)
 }
 
-function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) {
-	// const sceneContext = useSceneContext()
-	const updateCharacter = useMutation(api.characters.functions.update)
-	const diceTotal = props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ?? 0
+// function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) {
+// 	// const sceneContext = useSceneContext()
+// 	const updateCharacter = useMutation(api.characters.functions.update)
+// 	const diceTotal = props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ?? 0
 
-	function updateCharacters(
-		getArgs: (character: ApiCharacter) => Partial<Parameters<typeof updateCharacter>[0]>,
-	) {
-		// for (const character of sceneContext.selectedCharacters()) {
-		// 	updateCharacter({ ...getArgs(character), id: character._id })
-		// }
-	}
+// 	function updateCharacters(
+// 		getArgs: (character: ApiCharacter) => Partial<Parameters<typeof updateCharacter>[0]>,
+// 	) {
+// 		// for (const character of sceneContext.selectedCharacters()) {
+// 		// 	updateCharacter({ ...getArgs(character), id: character._id })
+// 		// }
+// 	}
 
-	return (
-		<MoreMenu>
-			{props.children}
-			<MoreMenuPanel>
-				<MoreMenuItem
-					icon={<Lucide.Heart />}
-					text="Heal selected characters"
-					onClick={() => {
-						updateCharacters((it) => ({ damage: it.damage - diceTotal }))
-					}}
-				/>
-				<MoreMenuItem
-					icon={<Lucide.HeartCrack />}
-					text="Damage selected characters"
-					onClick={() => {
-						updateCharacters((it) => ({ damage: it.damage + diceTotal }))
-					}}
-				/>
-				<MoreMenuItem
-					icon={<Lucide.Zap />}
-					text="Refresh selected characters"
-					onClick={() => {
-						updateCharacters((it) => ({ fatigue: it.fatigue - diceTotal }))
-					}}
-				/>
-				<MoreMenuItem
-					icon={<Lucide.ZapOff />}
-					text="Exhaust selected characters"
-					onClick={() => {
-						updateCharacters((it) => ({ fatigue: it.fatigue + diceTotal }))
-					}}
-				/>
-			</MoreMenuPanel>
-		</MoreMenu>
-	)
-}
+// 	return (
+// 		<MoreMenu>
+// 			{props.children}
+// 			<MoreMenuPanel>
+// 				<MoreMenuItem
+// 					icon={<Lucide.Heart />}
+// 					text="Heal selected characters"
+// 					onClick={() => {
+// 						updateCharacters((it) => ({ damage: it.damage - diceTotal }))
+// 					}}
+// 				/>
+// 				<MoreMenuItem
+// 					icon={<Lucide.HeartCrack />}
+// 					text="Damage selected characters"
+// 					onClick={() => {
+// 						updateCharacters((it) => ({ damage: it.damage + diceTotal }))
+// 					}}
+// 				/>
+// 				<MoreMenuItem
+// 					icon={<Lucide.Zap />}
+// 					text="Refresh selected characters"
+// 					onClick={() => {
+// 						updateCharacters((it) => ({ fatigue: it.fatigue - diceTotal }))
+// 					}}
+// 				/>
+// 				<MoreMenuItem
+// 					icon={<Lucide.ZapOff />}
+// 					text="Exhaust selected characters"
+// 					onClick={() => {
+// 						updateCharacters((it) => ({ fatigue: it.fatigue + diceTotal }))
+// 					}}
+// 				/>
+// 			</MoreMenuPanel>
+// 		</MoreMenu>
+// 	)
+// }
 
 type ApiDiceRoll = NonNullable<ApiMessage["diceRoll"]>
 
@@ -208,7 +205,7 @@ function Mention({ characterId }: { characterId: string }) {
 				// todo: select the token on the map
 			}}
 		>
-			{character ? character.displayName : "unknown character"}
+			{character?.name ?? "unknown character"}
 		</button>
 	)
 }

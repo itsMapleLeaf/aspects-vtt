@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Awaitable, DietUnknown, Overwrite, PartialKeys, TODO } from "../helpers/types.ts"
+import type { Awaitable, DietUnknown, OptionalKeys, Overwrite, TODO } from "../helpers/types.ts"
 
 export interface EditableOptions<T> {
 	value: T
@@ -14,9 +14,9 @@ interface BaseInputProps {
 	onKeyDown?: (event: TODO) => void
 }
 
-export type EditableProps<Props extends object, Value> = PartialKeys<
+export type EditableProps<Props extends object, Value> = OptionalKeys<
 	Overwrite<Props, EditableOptions<Value>>,
-	keyof BaseInputProps
+	Extract<keyof BaseInputProps, keyof Overwrite<Props, EditableOptions<Value>>>
 >
 
 interface ChangeEventLike<Value> {

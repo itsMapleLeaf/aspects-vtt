@@ -24,7 +24,8 @@ import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import { listCharacterAspectSkills, listCharacterRaceAbilities } from "../characters/helpers.ts"
-import { OwnedCharacter, type ApiCharacter } from "../characters/types.ts"
+import { useCharacterUpdatePermission } from "../characters/hooks.ts"
+import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
@@ -119,6 +120,8 @@ function TokenMenuContent() {
 	const singleSelectedCharacter =
 		selectedCharacters.length === 1 ? selectedCharacters[0] : undefined
 
+	const hasPermissions = useCharacterUpdatePermission(singleSelectedCharacter)
+
 	return (
 		<div className="flex-center gap-3">
 			<div className={translucentPanel("flex justify-center gap-2 p-2")}>
@@ -126,14 +129,14 @@ function TokenMenuContent() {
 					<Menu placement="top">
 						<MenuButton render={<Button text="Status" icon={<Lucide.HeartPulse />} />} />
 						<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
-							{singleSelectedCharacter && OwnedCharacter.is(singleSelectedCharacter) && (
+							{singleSelectedCharacter && hasPermissions && (
 								<div className="flex gap-2 *:flex-1 empty:hidden">
 									<CharacterStatusFields character={singleSelectedCharacter} />
 								</div>
 							)}
 							<div className="flex gap-[inherit] *:flex-1 empty:hidden">
 								<StressUpdateMenu characters={selectedCharacters}>
-									<Button text="Advanced stress update" icon={<Lucide.WandSparkles />} />
+									<Button text="Advanced vitality update" icon={<Lucide.WandSparkles />} />
 								</StressUpdateMenu>
 							</div>
 							{singleSelectedCharacter && (
@@ -166,7 +169,7 @@ function TokenMenuContent() {
 					</Menu>
 				)}
 
-				{singleSelectedCharacter && (
+				{singleSelectedCharacter && hasPermissions && (
 					<Menu placement="top">
 						<MenuButton render={<Button text="Notes" icon={<Lucide.NotebookPen />} />} />
 						<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
@@ -275,11 +278,12 @@ function TokenMenuContent() {
 
 function CharacterAbilityList({ character }: { character: ApiCharacter }) {
 	const raceAbilities = listCharacterRaceAbilities(character)
-	const aspectSkills = character.isOwner ? listCharacterAspectSkills(character) : []
+	const hasPermission = useCharacterUpdatePermission(character)
+	const aspectSkills = hasPermission ? listCharacterAspectSkills(character) : []
 	return (
 		<>
 			<DefinitionList items={[...raceAbilities, ...aspectSkills]} />
-			{character.isOwner ? null : <p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>}
+			{hasPermission ? null : <p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>}
 		</>
 	)
 }

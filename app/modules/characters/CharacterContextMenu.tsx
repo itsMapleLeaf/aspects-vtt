@@ -30,7 +30,8 @@ export function CharacterContextMenu(props: {
 					<ModalPanel
 						title={
 							<>
-								<span className="opacity-50">Contested Roll vs.</span> {props.character.displayName}
+								<span className="opacity-50">Contested Roll vs.</span>{" "}
+								{props.character.name ?? "???"}
 							</>
 						}
 					>

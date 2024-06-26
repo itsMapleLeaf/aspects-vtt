@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { ReadOnlyField } from "../../ui/ReadOnlyField.tsx"
+import { useCharacterUpdatePermission } from "./hooks.ts"
 import type { ApiCharacter } from "./types.ts"
 
 export function CharacterReadOnlyGuard({
@@ -13,5 +14,6 @@ export function CharacterReadOnlyGuard({
 	value: ReactNode
 	children: React.ReactNode
 }) {
-	return character.isOwner ? children : <ReadOnlyField label={label} value={value} />
+	const hasUpdatePermissions = useCharacterUpdatePermission(character)
+	return hasUpdatePermissions ? children : <ReadOnlyField label={label} value={value} />
 }

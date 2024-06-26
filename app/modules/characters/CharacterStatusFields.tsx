@@ -1,41 +1,41 @@
-import { LucideBanknote, LucideHeartCrack, LucideZap } from "lucide-react"
+import { LucideBanknote, LucideHeartCrack, LucideSun } from "lucide-react"
 import { twMerge } from "tailwind-merge"
 import { CharacterNumberField } from "./CharacterNumberField.tsx"
-import type { OwnedCharacter } from "./types.ts"
+import { useCharacterUpdatePermission } from "./hooks.ts"
+import type { ApiCharacter } from "./types.ts"
 
 export function CharacterStatusFields({
 	character,
 	className,
 }: {
-	character: OwnedCharacter
+	character: ApiCharacter
 	className?: string
 }) {
-	const damageThreshold = character.strength + character.mobility + character.damageThresholdDelta
-	const fatigueThreshold =
-		character.sense + character.intellect + character.wit + character.fatigueThresholdDelta
-
-	return character.isOwner ?
+	const hasPermission = useCharacterUpdatePermission(character)
+	return hasPermission ?
 			<div className={twMerge("grid grid-flow-col items-center gap-2", className)}>
 				<div className="relative flex items-center">
 					<CharacterNumberField
 						character={character}
-						field="damage"
+						field="health"
 						icon={<LucideHeartCrack className="translate-x-[1px]" />}
 						label={null}
-						tooltip={`Damage`}
+						tooltip={`Health`}
 					/>
-					<div className="pointer-events-none absolute right-3 opacity-50">/ {damageThreshold}</div>
+					<div className="pointer-events-none absolute right-3 opacity-50">
+						/ {character.healthMax}
+					</div>
 				</div>
 				<div className="relative flex items-center">
 					<CharacterNumberField
 						character={character}
-						field="fatigue"
-						icon={<LucideZap className="translate-x-[2px]" />}
+						field="resolve"
+						icon={<LucideSun className="translate-x-[2px]" />}
 						label={null}
-						tooltip={`Fatigue`}
+						tooltip={`Resolve`}
 					/>
 					<div className="pointer-events-none absolute right-3 opacity-50">
-						/ {fatigueThreshold}
+						/ {character.resolveMax}
 					</div>
 				</div>
 				<CharacterNumberField

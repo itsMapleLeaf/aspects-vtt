@@ -1,6 +1,7 @@
+import { getManyFrom } from "convex-helpers/server/relationships"
 import { literals } from "convex-helpers/validators"
 import { ConvexError, v, type GenericId } from "convex/values"
-import { Effect } from "effect"
+import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
 import { isTuple } from "../../app/helpers/array.ts"
@@ -17,53 +18,45 @@ import {
 import { getAspect, listAspects, type Aspect } from "../../app/modules/aspects/data.ts"
 import { listRaceIds } from "../../app/modules/races/data.ts"
 import type { Doc } from "../_generated/dataModel.js"
-import { mutation, query } from "../_generated/server.js"
-import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
+import { getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
-import { effectMutation, getDoc, insertDoc, updateDoc, withMutationCtx } from "../helpers/effect.ts"
+import {
+	effectMutation,
+	effectQuery,
+	getDoc,
+	insertDoc,
+	updateDoc,
+	withMutationCtx,
+	withQueryCtx,
+} from "../helpers/effect.ts"
 import { createMessages } from "../messages/helpers.ts"
 import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
-import { RoomModel } from "../rooms/RoomModel.js"
 import { userColorValidator } from "../types.ts"
-import { CharacterModel } from "./CharacterModel.js"
-import { ensureRoomHasCharacters, ensureViewerCharacterPermissions } from "./helpers.ts"
+import {
+	ensureRoomHasCharacters,
+	ensureViewerCharacterPermissions,
+	normalizeCharacter,
+	protectCharacter,
+} from "./helpers.ts"
 import { characterAttributeValidator, characterProperties } from "./types.ts"
 
-export const list = query({
+export const list = effectQuery({
 	args: {
-		roomId: v.string(),
+		roomId: v.id("rooms"),
 	},
-	handler: async (ctx, args) => {
-		const { value: user, error: userError } = await getUserFromIdentity(ctx)
-		if (!user) {
-			console.warn("Attempted to list characters without a user.", userError)
-			return []
-		}
-
-		const roomId = ctx.db.normalizeId("rooms", args.roomId)
-		const { value: room } =
-			roomId ? await RoomModel.fromId(ctx, roomId) : await RoomModel.fromSlug(ctx, args.roomId)
-		if (!room) {
-			return []
-		}
-
-		let query = ctx.db.query("characters").withIndex("roomId", (q) => q.eq("roomId", room.data._id))
-
-		const isRoomOwner = await room.isOwner()
-		if (!isRoomOwner) {
-			query = query.filter((q) =>
-				q.or(q.eq(q.field("visible"), true), q.eq(q.field("playerId"), user.clerkId)),
+	handler(args) {
+		return Effect.gen(function* () {
+			const characters = yield* withQueryCtx((ctx) =>
+				getManyFrom(ctx.db, "characters", "roomId", args.roomId),
 			)
-		}
-
-		const docs = await query.collect()
-
-		const results = await Promise.all(
-			docs.map((doc) => new CharacterModel(ctx, doc)).map((model) => model.getComputedData()),
+			return yield* Effect.allSuccesses(
+				Iterator.from(characters).map(normalizeCharacter).map(protectCharacter),
+			)
+		}).pipe(
+			Effect.tapError(Console.warn),
+			Effect.orElseSucceed(() => []),
 		)
-
-		return results.sort((a, b) => a.name.localeCompare(b.name))
 	},
 })
 
@@ -121,20 +114,22 @@ export const randomize = effectMutation({
 	},
 })
 
-export const remove = mutation({
+export const remove = effectMutation({
 	args: {
 		id: v.id("characters"),
 	},
-	handler: async (ctx, args) => {
-		const character = await CharacterModel.get(ctx, args.id).getValueOrThrow()
-		await character.delete(ctx)
+	handler(args) {
+		return Effect.gen(function* () {
+			const { character } = yield* ensureViewerCharacterPermissions(args.id)
+			yield* withMutationCtx((ctx) => ctx.db.delete(character._id))
+		})
 	},
 })
 
 export const applyStress = effectMutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
-		properties: v.array(literals("damage", "fatigue")),
+		properties: v.array(literals("health", "resolve")),
 		amount: v.number(),
 		dice: v.array(diceInputValidator),
 		delta: literals(-1, 1), // whether to add or subtract the dice result
@@ -175,16 +170,16 @@ export const applyStress = effectMutation({
 			})
 
 			const characterMentions = listFormat.format(
-				characters.map((character) => `<@${character._id}>`),
+				characters.map((it) => formatCharacterMention(it._id)),
 			)
 
 			const stressTypes = listFormat.format(args.properties)
 
 			let content
 			if (amount > 0) {
-				content = `Dealt ${Math.abs(amount)} ${stressTypes} to ${characterMentions}.`
+				content = `Healed ${characterMentions} for ${Math.abs(amount)} ${stressTypes}.`
 			} else if (amount < 0) {
-				content = `Healed ${Math.abs(amount)} ${stressTypes} from ${characterMentions}.`
+				content = `Removed ${Math.abs(amount)} ${stressTypes} from ${characterMentions}.`
 			} else {
 				content = `No damage or healing was applied.`
 			}

@@ -1,44 +1,41 @@
 import { ConvexError, v } from "convex/values"
-import { Effect } from "effect"
-import { pick } from "../../app/helpers/object.ts"
-import { mutation, query } from "../_generated/server.js"
+import { Console, Effect } from "effect"
+import { Iterator } from "iterator-helpers-polyfill"
+import { pick } from "~/helpers/object.ts"
+import { mutation } from "../_generated/server.js"
 import { getUserFromClerkId, getUserFromIdentity } from "../auth/helpers.ts"
-import { CharacterModel } from "../characters/CharacterModel.js"
-import { effectMutation, QueryCtxService } from "../helpers/effect.js"
+import { effectMutation, effectQuery, withQueryCtx } from "../helpers/effect.js"
 import { createMessages } from "./helpers.ts"
 import { diceInputValidator } from "./types.ts"
 
-export const list = query({
+export const list = effectQuery({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	async handler(ctx, args) {
-		const result = await ctx.db
-			.query("messages")
-			.withIndex("roomId", (q) => q.eq("roomId", args.roomId))
-			.order("desc")
-			.take(20)
+	handler(args) {
+		return Effect.gen(function* () {
+			const messages = yield* withQueryCtx((ctx) =>
+				ctx.db
+					.query("messages")
+					.withIndex("roomId", (q) => q.eq("roomId", args.roomId))
+					.order("desc")
+					.take(20),
+			)
 
-		return await Promise.all(
-			result.map(async ({ userId, ...message }) => {
-				const user = await Effect.runPromise(
-					getUserFromClerkId(userId).pipe(
-						Effect.provideService(QueryCtxService, ctx),
-						Effect.tapError(Effect.logWarning),
-						Effect.orElseSucceed(() => null),
+			return yield* Effect.allSuccesses(
+				Iterator.from(messages).map((message) =>
+					Effect.gen(function* () {
+						const user = yield* getUserFromClerkId(message.userId).pipe(
+							Effect.map((user) => pick(user, ["name", "avatarUrl"])),
+							Effect.catchTag("UserNotFoundError", () => Effect.succeed(null)),
+						)
+						return { ...message, user }
+					}).pipe(
+						Effect.tapError((cause) => Console.warn("message failed", message, cause, message)),
 					),
-				)
-				const { value: character } = await CharacterModel.fromPlayerId(ctx, userId)
-				const data = await character?.getComputedData()
-				return {
-					...message,
-					user: user && {
-						...pick(user, ["name", "avatarUrl"]),
-						character: data && pick(data, ["displayName", "displayPronouns"]),
-					},
-				}
-			}),
-		)
+				),
+			)
+		})
 	},
 })
 

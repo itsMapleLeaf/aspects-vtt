@@ -8,19 +8,21 @@ import { LoadingDecoration } from "./LoadingDecoration.tsx"
 import { MenuItem, MenuPanel } from "./Menu.tsx"
 import { type EditableProps, useEditable } from "./useEditable.tsx"
 
-export type SelectOption<T> =
-	| {
-			id?: string | undefined
-			value: Extract<T, string>
-			label: ReactNode
-			icon?: ReactNode
-	  }
-	| {
-			id: string
-			value: T
-			label: ReactNode
-			icon?: ReactNode
-	  }
+export interface SelectOptionWithoutId<T> {
+	id?: string | undefined
+	value: Extract<T, string>
+	label: ReactNode
+	icon?: ReactNode
+}
+
+export interface SelectOptionWithId<T> {
+	id: string
+	value: T
+	label: ReactNode
+	icon?: ReactNode
+}
+
+export type SelectOption<T> = SelectOptionWithoutId<T> | SelectOptionWithId<T>
 
 export function Select<T>(props: {
 	label: ReactNode

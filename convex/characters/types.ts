@@ -1,4 +1,4 @@
-import { brandedString, deprecated, literals, nullable } from "convex-helpers/validators"
+import { brandedString, literals, nullable } from "convex-helpers/validators"
 import { v, type Infer } from "convex/values"
 import { listAspectSkillIds } from "../../app/modules/aspect-skills/data.ts"
 import { listAspectNames } from "../../app/modules/aspects/data.ts"
@@ -22,17 +22,6 @@ export const characterProperties = {
 	mobility: v.optional(v.number()),
 	intellect: v.optional(v.number()),
 	wit: v.optional(v.number()),
-	damageThresholdDelta: v.optional(v.number()),
-	fatigueThresholdDelta: v.optional(v.number()),
-	learnedAspectSkills: v.optional(
-		// keep track of the order of aspects to calculate the correct EXP costs
-		v.array(
-			v.object({
-				aspectId: literals(...listAspectNames()),
-				aspectSkillIds: v.array(literals(...listAspectSkillIds())),
-			}),
-		),
-	),
 	modifiers: v.optional(
 		v.array(
 			v.object({
@@ -43,10 +32,19 @@ export const characterProperties = {
 			}),
 		),
 	),
+	learnedAspectSkills: v.optional(
+		// keep track of the order of aspects to calculate the correct EXP costs
+		v.array(
+			v.object({
+				aspectId: literals(...listAspectNames()),
+				aspectSkillIds: v.array(literals(...listAspectSkillIds())),
+			}),
+		),
+	),
 
 	// status
-	damage: v.optional(v.number()),
-	fatigue: v.optional(v.number()),
+	health: v.optional(v.number()),
+	resolve: v.optional(v.number()),
 	currency: v.optional(v.number()),
 	conditions: v.optional(v.array(characterConditionValidator())),
 
@@ -58,13 +56,6 @@ export const characterProperties = {
 	visible: v.optional(v.boolean()),
 	nameVisible: v.optional(v.boolean()),
 	playerId: v.optional(nullable(brandedString("clerkId"))),
-
-	// deprecated
-	token: deprecated,
-	coreAspect: deprecated,
-	aspectSkills: deprecated,
-	damageThreshold: deprecated,
-	fatigueThreshold: deprecated,
 }
 
 function characterConditionValidator() {

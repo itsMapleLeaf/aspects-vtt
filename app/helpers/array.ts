@@ -47,6 +47,20 @@ export function isTuple<T, Length extends number>(
 	return input.length === length
 }
 
+export function upsertArray<T>(
+	array: readonly T[],
+	condition: (item: T) => boolean,
+	update: (item: T) => T,
+	create: () => T,
+) {
+	for (const [index, item] of array.entries()) {
+		if (condition(item)) {
+			return array.with(index, update(item))
+		}
+	}
+	return [...array, create()]
+}
+
 type Tuple<T, N extends number> =
 	N extends N ?
 		number extends N ?

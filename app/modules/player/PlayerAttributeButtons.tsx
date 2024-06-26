@@ -1,5 +1,5 @@
 import { AttributeDiceRollButtonGrid } from "../attributes/AttributeDiceRollButtonGrid.tsx"
-import { useOwnedCharacter } from "../characters/helpers.ts"
+import { useOwnedCharacter } from "../characters/hooks.ts"
 
 export function PlayerAttributeButtons() {
 	const ownedCharacter = useOwnedCharacter()

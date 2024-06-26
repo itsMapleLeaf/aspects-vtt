@@ -28,14 +28,14 @@ export const CharacterResource = defineResource({
 
 	create: (character: ApiCharacter) => ({
 		id: character._id,
-		name: character.displayName,
-		dragData: { characterId: character._id, visible: character.visible },
+		name: character.name ?? "???",
+		dragData: { characterId: character._id, visible: character.visible ?? false },
 	}),
 
 	TreeItem: ({ character }: { character: ApiCharacter }) => (
 		<CharacterModal character={character}>
 			<Button
-				text={character.displayName}
+				text={character.name ?? "???"}
 				icon={
 					<CharacterImage
 						character={character}

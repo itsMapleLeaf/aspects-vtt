@@ -192,7 +192,7 @@ export function CombatMemberItem(props: {
 		<>
 			<div className="grid gap-1 px-3 py-2">
 				<h4 className="text-2xl font-light">
-					{character?.displayName ?? "???"}{" "}
+					{character?.name ?? "???"}{" "}
 					{room.isOwner && character?.visible !== true && (
 						<span className="opacity-50">(hidden)</span>
 					)}

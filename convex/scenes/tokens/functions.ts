@@ -1,45 +1,46 @@
 import { brandedString } from "convex-helpers/validators"
 import { type Infer, v } from "convex/values"
+import { Console, Effect } from "effect"
 import { omit } from "../../../app/helpers/object.ts"
-import type { UndefinedToOptional } from "../../../app/helpers/types.ts"
-import { mutation, query } from "../../_generated/server.js"
-import { CharacterModel } from "../../characters/CharacterModel.ts"
+import { typed, type UndefinedToOptional } from "../../../app/helpers/types.ts"
+import { mutation } from "../../_generated/server.js"
+import { normalizeCharacter, protectCharacter } from "../../characters/helpers.ts"
 import { type Branded, partial, requireDoc } from "../../helpers/convex.ts"
-import { RoomModel } from "../../rooms/RoomModel.ts"
+import { effectQuery, getDoc } from "../../helpers/effect.ts"
+import { isRoomOwner } from "../../rooms/functions.ts"
 import { requireSceneRoomOwnerOld } from "../functions.ts"
 import { sceneTokenProperties } from "./types.ts"
 
 export type ApiToken = Awaited<ReturnType<typeof list>>[number]
 
-export const list = query({
+export const list = effectQuery({
 	args: {
 		sceneId: v.id("scenes"),
 	},
-	async handler(ctx, args) {
-		const scene = await requireDoc(ctx, args.sceneId, "scenes").getValueOrThrow()
+	handler(args) {
+		return Effect.gen(function* () {
+			const scene = yield* getDoc(args.sceneId)
+			const isOwner = yield* isRoomOwner(scene.roomId)
 
-		const room = await RoomModel.fromId(ctx, scene.roomId).getValueOrNull()
-		if (!room) {
-			console.warn(`Attempt to list tokens from scene ${args.sceneId} with nonexistent room`)
-			return []
-		}
+			const visibleTokens = isOwner ? scene.tokens : scene.tokens?.filter((token) => token.visible)
 
-		const tokens = await Promise.all(
-			scene.tokens?.map(async (token) => {
-				const character =
-					token.characterId && (await CharacterModel.get(ctx, token.characterId).getValueOrNull())
-				return {
-					...token,
-					character: await character?.getComputedData(),
-				}
-			}) ?? [],
+			const tokens = yield* Effect.forEach(visibleTokens ?? [], (token) =>
+				Effect.fromNullable(token.characterId).pipe(
+					Effect.flatMap(getDoc),
+					Effect.map(normalizeCharacter),
+					// for our purposes here, every token is visible
+					Effect.flatMap((it) => protectCharacter({ ...it, visible: typed<boolean>(true) })),
+					Effect.orElseSucceed(() => null),
+					Effect.map((character) => ({ ...token, character })),
+				),
+			)
+
+			return tokens.filter((it) => it.area || it.character)
+		}).pipe(
+			Effect.tapError(Console.warn),
+			Effect.orElseSucceed(() => []),
+			Effect.map((value) => [...value]), // get rid of the never[] type
 		)
-
-		if (await room.isOwner()) {
-			return tokens
-		}
-
-		return tokens.filter((token) => token.visible)
 	},
 })
 

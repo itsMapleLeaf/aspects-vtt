@@ -5,26 +5,27 @@ export const Races = SafeMap.mapRecord(
 	{
 		Aquilian: {
 			abilities: {
-				"Flight": "Your movement speed is doubled while in the air.",
+				"Flight": "In combat, spend 1 resolve to stay airborne until the start of your next turn.",
 				"One with the Wind": "You are immune to damage from Wind.",
 			},
 		},
 		Arctana: {
 			abilities: {
-				"Oddly Approachable": "Other characters’ Wit rolls against you have +1 snag die.",
-				"Natural Intellect": "Your Intellect rolls have +1 boost die.",
+				"Natural Intellect": "Your @Intellect rolls have +1 boost die.",
+				"Resourceful": "You have one extra action point.",
 			},
 		},
 		Cetacian: {
 			abilities: {
-				"Aquatic Affinity": "Your movement speed is doubled while swimming.",
+				"Aquatic Affinity":
+					"In combat, spend one resolve to double your movement speed underwater for the turn.",
 				"Sensory Superiority": "Your Sense rolls have +1 boost die",
 			},
 		},
 		Felirian: {
 			abilities: {
-				Restful: "You may take 1 fatigue during a rest.",
-				Slippery: "You may roll an extra die when using @Dodge.",
+				Slippery: "You have +1 boost die when using Dodge.",
+				Restful: "You have +1 boost die when resting.",
 			},
 		},
 		Lagorei: {
@@ -32,7 +33,7 @@ export const Races = SafeMap.mapRecord(
 				"Unwavering Kick":
 					"You can only use your feet for Strike actions, and you roll with +1 boost die.",
 				"Leap of Confidence":
-					"When using Dash, you always roll with an additional attribute die, you are in the air while moving, and you can only move in a straight line.",
+					"Spend 1 resolve to leap: double your movement, you are in the air while moving, and you can only move in a straight line.",
 			},
 		},
 		Marenti: {
@@ -43,31 +44,33 @@ export const Races = SafeMap.mapRecord(
 		},
 		Myrmadon: {
 			abilities: {
-				"Spelunker": "When using Dash, you may burrow through dirt to roll with an extra die.",
+				"Spelunker": "Spend 1 resolve to burrow through dirt and double your movement.",
 				"Claws": "All strike rolls have +1 boost dice.",
-				"Protective Scales": "Your damage threshold is increased by 10.",
+				"Protective Scales": "Your max health is increased by 10.",
 			},
+			healthBonus: 10,
 		},
 		Pyra: {
 			abilities: {
 				"Tail Whip":
-					"Use your tail to knock nearby characters prone. They take 1d4 damage. Until the start of their turn, their physical rolls have +1 snag die.",
-				"Caldera": "You are immune to damage from fire and heat.",
+					"Use your tail to knock nearby characters prone. They lose their remaining actions.",
+				"Descendant of the Caldera": "You are immune to damage from fire and heat.",
 			},
 		},
 		Renari: {
 			abilities: {
 				"Sneak Attack":
-					"In combat, when targeting an enemy who hasn’t taken their turn yet, roll with an extra attribute die.",
+					"In combat, when attacking an enemy who hasn’t taken their turn yet, double your attack roll.",
 				"Adaptable":
 					"Before the start of combat, you may swap two of your attribute dice until the end of combat.",
 			},
 		},
 		Sylvanix: {
 			abilities: {
-				Resolute: "Your fatigue threshold is increased by 10.",
+				Resolute: "Your max resolve is increased by 10.",
 				Nimble: "Your Mobility rolls have +1 boost die.",
 			},
+			resolveBonus: 10,
 		},
 		Umbraleth: {
 			abilities: {
@@ -76,10 +79,12 @@ export const Races = SafeMap.mapRecord(
 			},
 		},
 	},
-	({ abilities }, id) => ({
+	(entry, id) => ({
 		id,
 		name: titleCase(id),
-		abilities,
+		abilities: entry.abilities,
+		healthBonus: "healthBonus" in entry ? entry.healthBonus : 0,
+		resolveBonus: "resolveBonus" in entry ? entry.resolveBonus : 0,
 	}),
 )
 

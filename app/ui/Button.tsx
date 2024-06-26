@@ -116,9 +116,9 @@ export function Button({
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		startTransition(() => {
-			if ((props.type ?? "button") === "submit" && event.currentTarget.form) {
-				event.currentTarget.form.requestSubmit()
-			}
+			// if ((props.type ?? "button") === "submit" && event.currentTarget.form) {
+			// 	event.currentTarget.form.requestSubmit()
+			// }
 			props.onClick?.(event)
 		})
 	}

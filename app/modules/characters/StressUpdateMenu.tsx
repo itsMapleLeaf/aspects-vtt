@@ -15,6 +15,27 @@ import { DiceCounter } from "../dice/DiceCounter.tsx"
 import { getDiceInputList } from "../dice/helpers.ts"
 import type { ApiCharacter } from "./types.ts"
 
+const stressTypeOptions = [
+	{
+		id: "health",
+		value: ["health"],
+		label: "Health",
+		icon: <Lucide.Heart />,
+	},
+	{
+		id: "resolve",
+		value: ["resolve"],
+		label: "Resolve",
+		icon: <Lucide.Sun />,
+	},
+	{
+		id: "both",
+		value: ["health", "resolve"],
+		label: "Health & Resolve",
+		icon: <Lucide.Activity />,
+	},
+] as const
+
 export function StressUpdateMenu({
 	children,
 	characters,
@@ -26,42 +47,21 @@ export function StressUpdateMenu({
 	const applyStress = useMutation(api.characters.functions.applyStress)
 	const [amount, setAmount] = useState(0)
 	const [dice, setDice] = useState<Record<string, number>>({})
-	const [operation, setOperation] = useState<"hurt" | "heal">("hurt")
-
-	const stressTypeOptions = [
-		{
-			id: "damage",
-			value: ["damage"],
-			label: "Damage",
-			icon: <Lucide.Heart />,
-		},
-		{
-			id: "fatigue",
-			value: ["fatigue"],
-			label: "Fatigue",
-			icon: <Lucide.Zap />,
-		},
-		{
-			id: "both",
-			value: ["damage", "fatigue"],
-			label: "Damage & Fatigue",
-			icon: <Lucide.Activity />,
-		},
-	] as const
+	const [operation, setOperation] = useState<"heal" | "damage">("heal")
 
 	const [stressTypes, setStressTypes] = useState<(typeof stressTypeOptions)[number]["value"]>(
 		stressTypeOptions[0].value,
 	)
 
 	return (
-		<Modal trigger={children} title="Update stress" store={dialog}>
+		<Modal trigger={children} title="Update vitality" store={dialog}>
 			<form
 				className="contents"
 				action={async () => {
 					await applyStress({
 						characterIds: characters.map((it) => it._id),
 						amount,
-						delta: operation === "heal" ? -1 : 1,
+						delta: operation === "damage" ? -1 : 1,
 						dice: [...getDiceInputList(dice)],
 						properties: [...stressTypes],
 					})
@@ -70,10 +70,7 @@ export function StressUpdateMenu({
 			>
 				<FormLayout>
 					<div className="flex flex-wrap gap-2 *:flex-1 *:basis-32">
-						<FormField
-							label="Amount"
-							description="Positive amounts add stress, negative amounts remove it."
-						>
+						<FormField label="Amount" description="Positive amounts heal, negative amounts hurt.">
 							<NumberInput
 								value={amount}
 								onChange={setAmount}
@@ -83,7 +80,7 @@ export function StressUpdateMenu({
 							/>
 						</FormField>
 						<Select
-							label="Stress Type"
+							label="Stat"
 							options={stressTypeOptions}
 							value={stressTypes}
 							onChange={setStressTypes}
@@ -96,20 +93,20 @@ export function StressUpdateMenu({
 								<ButtonOption
 									name="operation"
 									type="radio"
-									text="Hurt"
-									icon={<Lucide.ChevronsDown />}
-									className="text-red-300"
-									checked={operation === "hurt"}
-									onChange={() => setOperation("hurt")}
+									text="Heal"
+									icon={<Lucide.Heart />}
+									className="text-green-300"
+									checked={operation === "heal"}
+									onChange={() => setOperation("heal")}
 								/>
 								<ButtonOption
 									name="operation"
 									type="radio"
-									text="Heal"
-									icon={<Lucide.ChevronsUp />}
-									className="text-green-300"
-									checked={operation === "heal"}
-									onChange={() => setOperation("heal")}
+									text="Damage"
+									icon={<Lucide.Flame />}
+									className="text-red-300"
+									checked={operation === "damage"}
+									onChange={() => setOperation("damage")}
 								/>
 							</ButtonOptionGroup>
 							<DiceCounter value={dice} onChange={setDice} />

@@ -59,7 +59,18 @@ export default defineSchema({
 		...characterProperties,
 		roomId: v.id("rooms"),
 		tokenPosition: deprecated,
-	}).index("roomId", ["roomId"]),
+		token: deprecated,
+		coreAspect: deprecated,
+		aspectSkills: deprecated,
+		damageThreshold: deprecated,
+		fatigueThreshold: deprecated,
+		damage: deprecated,
+		fatigue: deprecated,
+		damageThresholdDelta: deprecated,
+		fatigueThresholdDelta: deprecated,
+	})
+		.index("roomId", ["roomId"])
+		.index("playerId", ["playerId"]),
 
 	scenes: defineTable(sceneProperties).index("roomId", ["roomId"]),
 

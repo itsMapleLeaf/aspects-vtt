@@ -1,12 +1,15 @@
 import * as Lucide from "lucide-react"
 import { useState, type ReactNode } from "react"
+import type { Nullish } from "~/helpers/types.ts"
+import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { FormActions, FormLayout, FormRow } from "../../ui/Form.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
 import { Select } from "../../ui/Select.tsx"
 import { getAttribute, listAttributes, type Attribute } from "../attributes/data.ts"
-import { useCreateAttributeRollMessage } from "../attributes/useCreateAttributeRollMessage.tsx"
-import { useCharacters } from "../rooms/roomContext.tsx"
+import { useMutationAction } from "../convex/hooks.ts"
+import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { useOwnedCharacter } from "./hooks.ts"
 import type { ApiCharacter } from "./types.ts"
 
 export function ContestedRollForm({
@@ -16,13 +19,14 @@ export function ContestedRollForm({
 	opponent: ApiCharacter
 	onRoll?: () => void
 }) {
+	const room = useRoom()
 	const characters = useCharacters()
-	const selfCharacter = characters.find((c) => c.isOwner)
-	const [, createAttributeRollMessage] = useCreateAttributeRollMessage()
+	const selfCharacter = useOwnedCharacter()
 	const strengthAttribute = getAttribute("strength")
+	const [, rollAttribute] = useMutationAction(api.characters.functions.rollAttribute)
 
 	const [values, setValues] = useState<{
-		selfCharacter: ApiCharacter | undefined
+		selfCharacter: Nullish<ApiCharacter>
 		selfAttribute: Attribute
 		selfBoostCount: number
 		selfSnagCount: number
@@ -48,7 +52,7 @@ export function ContestedRollForm({
 			<Select
 				label="Character"
 				options={characters.map((c) => ({
-					label: c.displayName,
+					label: c.name ?? "???",
 					value: c._id,
 				}))}
 				value={values.selfCharacter?._id}
@@ -105,17 +109,17 @@ export function ContestedRollForm({
 							return
 						}
 						await Promise.all([
-							createAttributeRollMessage({
-								content: `<@${selfCharacter._id}> (Defending): ${
-									values.selfAttribute?.name ?? "Strength"
-								}`,
-								attributeValue: selfCharacter[values.selfAttribute.id],
+							rollAttribute({
+								characterIds: [selfCharacter._id],
+								roomId: room._id,
+								attribute: values.selfAttribute.id,
 								boostCount: values.selfBoostCount,
 								snagCount: values.selfSnagCount,
 							}),
-							createAttributeRollMessage({
-								content: `<@${opponent._id}>: ${values.opponentAttribute?.name ?? "Strength"}`,
-								attributeValue: opponent[values.opponentAttribute.id],
+							rollAttribute({
+								characterIds: [opponent._id],
+								roomId: room._id,
+								attribute: values.opponentAttribute.id,
 								boostCount: values.opponentBoostCount,
 								snagCount: values.opponentSnagCount,
 							}),

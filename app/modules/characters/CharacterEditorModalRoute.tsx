@@ -12,7 +12,7 @@ export function CharacterEditorModalRoute() {
 	const character = useCharacter(characterId as Id<"characters"> | null)
 	return (
 		<ModalPanel
-			title={character ? `${character.displayName}'s Profile` : "Character Profile"}
+			title={character?.name ? `${character.name}'s Profile` : "Character Profile"}
 			className="max-w-screen-sm"
 			fullHeight
 			unmountOnHide={false}

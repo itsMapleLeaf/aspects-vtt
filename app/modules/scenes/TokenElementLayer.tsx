@@ -5,7 +5,6 @@ import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { sortBy } from "../../helpers/iterable.ts"
 import { Vector } from "../../helpers/Vector.ts"
 import { CharacterImage } from "../characters/CharacterImage.tsx"
-import { getCharacterStressThresholds } from "../characters/helpers.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { getColorStyle, type UserColorName } from "../user-colors/data.ts"
@@ -157,7 +156,6 @@ function CharacterTokenDecoration({
 		viewport,
 	} = useSceneContext()
 	const translate = useTokenTranslate(token)
-	const thresholds = getCharacterStressThresholds(character)
 	return (
 		<div
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"
@@ -168,34 +166,38 @@ function CharacterTokenDecoration({
 					{character.conditions.map((condition) => (
 						<CharacterTokenConditionBadge key={condition.name} condition={condition} />
 					))}
-					{character.damage > thresholds.damage && (
+					{character.health !== undefined && character.health <= 0 && (
 						<CharacterTokenConditionBadge condition={{ name: "Incapacitated", color: "red" }} />
 					)}
-					{character.fatigue > thresholds.fatigue && (
+					{character.resolve !== undefined && character.resolve <= 0 && (
 						<CharacterTokenConditionBadge condition={{ name: "Exhausted", color: "purple" }} />
 					)}
-					{character.damage > 0 && (
-						<TokenMeter
-							value={character.damage / thresholds.damage}
-							className={{
-								base: "text-red-400",
-								warning: "text-red-400",
-								danger: "text-red-400",
-							}}
-						/>
-					)}
-					{character.fatigue > 0 && (
-						<TokenMeter
-							value={character.fatigue / thresholds.fatigue}
-							className={{
-								base: "text-purple-400",
-								warning: "text-purple-400",
-								danger: "text-purple-400",
-							}}
-						/>
-					)}
+					{character.health != null &&
+						character.healthMax != null &&
+						character.health < character.healthMax && (
+							<TokenMeter
+								value={character.health / character.healthMax}
+								className={{
+									base: "text-red-400",
+									warning: "text-red-400",
+									danger: "text-red-400",
+								}}
+							/>
+						)}
+					{character.resolve != null &&
+						character.resolveMax != null &&
+						character.resolve < character.resolveMax && (
+							<TokenMeter
+								value={character.resolve / character.resolveMax}
+								className={{
+									base: "text-purple-400",
+									warning: "text-purple-400",
+									danger: "text-purple-400",
+								}}
+							/>
+						)}
 				</div>
-				<TokenLabel text={character.displayName} subText={character.displayPronouns} />
+				<TokenLabel text={character.name ?? "???"} subText={character.pronouns ?? ""} />
 			</div>
 		</div>
 	)

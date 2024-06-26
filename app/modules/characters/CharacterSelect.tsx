@@ -16,7 +16,7 @@ export function CharacterSelect({
 		<Select
 			options={characters.map((character) => ({
 				value: character._id,
-				label: character.displayName,
+				label: character.name ?? "???",
 			}))}
 			value={selected}
 			onChange={(id) => onChange(id)}

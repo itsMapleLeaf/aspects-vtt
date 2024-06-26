@@ -1,8 +1,6 @@
 import { useMutation } from "convex/react"
-import type { FunctionArgs, FunctionReference } from "convex/server"
 import * as Lucide from "lucide-react"
-import React, { useId } from "react"
-import { $path } from "remix-routes"
+import { useId } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { useAsyncState } from "../../helpers/react/hooks.ts"
 import { startCase } from "../../helpers/string.ts"
@@ -18,41 +16,24 @@ import { panel } from "../../ui/styles.ts"
 import { ImageUploader } from "../api-images/ImageUploader.tsx"
 import { AttributeDiceRollButton } from "../attributes/AttributeDiceRollButton.tsx"
 import { getAttribute, type Attribute } from "../attributes/data.ts"
-import { useSafeAction } from "../convex/hooks.ts"
+import { MutationButton } from "../convex/MutationButton.tsx"
 import { statDiceKinds } from "../dice/data.tsx"
 import { listRaces } from "../races/data.ts"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterModifierFields } from "./CharacterModifierFields.tsx"
-import { CharacterNumberField } from "./CharacterNumberField.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
-import { listCharacterRaceAbilities } from "./helpers.ts"
-import { OwnedCharacter, type ApiCharacter, type UpdateableCharacterField } from "./types.ts"
-
-function MutationButton<Func extends FunctionReference<"mutation", "public">>({
-	mutationFunction,
-	args,
-	children,
-}: {
-	mutationFunction: Func
-	args: FunctionArgs<Func>
-	children: React.ReactElement<{ onClick?: () => void }>
-}) {
-	const [, mutate] = useSafeAction(useMutation(mutationFunction))
-	return React.cloneElement(children, {
-		onClick: () => mutate(args),
-	})
-}
+import { getCharacterFallbackImageUrl, listCharacterRaceAbilities } from "./helpers.ts"
+import { useCharacterUpdatePermission } from "./hooks.ts"
+import type { ApiCharacter, UpdateableCharacterField } from "./types.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
-
+	const hasUpdatePermissions = useCharacterUpdatePermission(character)
 	return (
 		<div className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto *:shrink-0">
-			{character.isOwner ?
-				<CharacterImageField character={character} />
-			:	<CharacterImage character={character} className="aspect-square" />}
+			<CharacterImageField character={character} />
 
 			<RoomOwnerOnly>
 				<CharacterSelectField
@@ -78,14 +59,14 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				</MutationButton>
 			</RoomOwnerOnly>
 
-			{character.isOwner ?
+			{hasUpdatePermissions ?
 				<div className="flex gap-2 *:min-w-0 *:flex-1">
 					<CharacterInputField character={character} field="name" />
 					<CharacterInputField character={character} field="pronouns" />
 				</div>
 			:	<div className="flex gap-2 *:min-w-0 *:flex-1">
-					<ReadOnlyField label="Name" value={character.displayName} />
-					<ReadOnlyField label="Pronouns" value={character.displayPronouns} />
+					<ReadOnlyField label="Name" value={character.name ?? "???"} />
+					{character.pronouns && <ReadOnlyField label="Pronouns" value={character.pronouns} />}
 				</div>
 			}
 
@@ -96,28 +77,13 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					a.label.localeCompare(b.label),
 				)}
 			/>
-			<div className={panel("p-3")}>
+			<div className={panel("p-3 empty:hidden")}>
 				<DefinitionList items={listCharacterRaceAbilities(character)} />
 			</div>
 
-			{OwnedCharacter.is(character) && <CharacterStatusFields character={character} />}
+			<CharacterStatusFields character={character} />
 
-			{character.isOwner && (
-				<div className="flex gap-2 *:flex-1">
-					<CharacterNumberField
-						character={character}
-						field="damageThresholdDelta"
-						label="Damage Threshold Modifier"
-					/>
-					<CharacterNumberField
-						character={character}
-						field="fatigueThresholdDelta"
-						label="Fatigue Threshold Modifier"
-					/>
-				</div>
-			)}
-
-			{character.isOwner && (
+			{hasUpdatePermissions && (
 				<>
 					<CharacterDiceField character={character} field="strength" />
 					<CharacterDiceField character={character} field="mobility" />
@@ -159,6 +125,11 @@ function CharacterInputField({
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const inputId = useId()
+
+	if (character[field] === undefined) {
+		return null
+	}
+
 	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -183,6 +154,11 @@ function CharacterTextAreaField({
 	label?: string
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+
+	if (character[field] === undefined) {
+		return null
+	}
+
 	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -206,6 +182,11 @@ function CharacterCheckboxField({
 	label?: string
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+
+	if (character[field] === undefined) {
+		return null
+	}
+
 	const value = state.args?.[field] ?? character[field] ?? false
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -227,9 +208,14 @@ function CharacterSelectField<Field extends UpdateableCharacterField<string | nu
 	character: ApiCharacter
 	field: Field
 	label?: string
-	options: Array<SelectOption<ApiCharacter[Field]>>
+	options: Array<SelectOption<NonNullable<ApiCharacter[Field]> | null>>
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+
+	if (character[field] === undefined) {
+		return null
+	}
+
 	const value = state.args?.[field] ?? character[field]
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -253,16 +239,21 @@ function CharacterDiceField({
 	label?: string
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+
+	if (character[field] === undefined) {
+		return null
+	}
+
 	const value = state.args?.[field] ?? character[field]
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
 			<div className="flex items-end gap-2">
 				<Select
 					label={label}
-					options={statDiceKinds.map((kind) => ({
+					options={statDiceKinds.map((kind, index) => ({
 						id: kind.name,
 						label: kind.name,
-						value: kind.faces.length,
+						value: index + 1,
 					}))}
 					value={value}
 					onChange={(value) => update({ id: character._id, [field]: value })}
@@ -276,33 +267,17 @@ function CharacterDiceField({
 }
 
 function CharacterImageField({ character }: { character: ApiCharacter }) {
+	const hasUpdatePermission = useCharacterUpdatePermission(character)
 	const update = useMutation(api.characters.functions.update)
-
-	const fallbackUrl =
-		character.race ?
-			$path(
-				"/characters/fallback/:race",
-				{ race: character.race.toLowerCase() },
-				{
-					seed: String(
-						Iterator.from(character.name).reduce(
-							// modulo to ensure the number doesn't get too horrendously big on long names
-							(total, char) => (total + char.charCodeAt(0)) % 1_000_000,
-							0,
-						),
-					),
-				},
-			)
-		:	undefined
-
-	return (
-		<FormField label="Image">
-			<ImageUploader
-				imageId={character.imageId}
-				fallbackUrl={fallbackUrl}
-				onUpload={(imageId) => update({ id: character._id, imageId })}
-				onRemove={() => update({ id: character._id, imageId: null })}
-			/>
-		</FormField>
-	)
+	const fallbackUrl = getCharacterFallbackImageUrl(character)
+	return hasUpdatePermission ?
+			<FormField label="Image">
+				<ImageUploader
+					imageId={character.imageId}
+					fallbackUrl={fallbackUrl}
+					onUpload={(imageId) => update({ id: character._id, imageId })}
+					onRemove={() => update({ id: character._id, imageId: null })}
+				/>
+			</FormField>
+		:	<CharacterImage character={character} className="aspect-square" />
 }

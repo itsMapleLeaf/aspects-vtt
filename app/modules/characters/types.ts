@@ -1,5 +1,4 @@
 import type { FunctionArgs, FunctionReturnType } from "convex/server"
-import { Brand, Option } from "effect"
 import type { api } from "../../../convex/_generated/api.js"
 import type { PickByValue } from "../../helpers/types.js"
 
@@ -10,13 +9,6 @@ export type ApiCharacter = FunctionReturnType<typeof api.characters.functions.li
  * damage thresholds
  */
 export type UpdateableCharacterField<ValueType> = Extract<
-	keyof PickByValue<ApiCharacter, ValueType>,
+	keyof PickByValue<ApiCharacter, ValueType | undefined>,
 	keyof FunctionArgs<typeof api.characters.functions.update>
 >
-
-export type OwnedCharacter = ApiCharacter & Brand.Brand<"OwnedCharacter">
-export const OwnedCharacter = Brand.refined<OwnedCharacter>((character) =>
-	character.isOwner ?
-		Option.none()
-	:	Option.some(Brand.error("Not an owned character", { character })),
-)

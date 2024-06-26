@@ -26,7 +26,7 @@ interface ResourceGroup {
 export interface ResourceListProps extends React.ComponentProps<"div"> {}
 
 export function ResourceList(props: ResourceListProps) {
-	const { _id: roomId, isOwner, currentScene } = useRoom()
+	const { _id: roomId, currentScene } = useRoom()
 	const characters = useQuery(api.characters.functions.list, { roomId })
 	const scenes = useQuery(api.scenes.functions.list, { roomId })
 	const user = useUser()
@@ -36,9 +36,8 @@ export function ResourceList(props: ResourceListProps) {
 
 	const characterOrder = (it: ApiCharacter) => {
 		if (it.playerId === user?.clerkId) return 0
-		if (it.isOwner && !isOwner) return 1
-		if (it.playerId) return 2
-		if (scene?.tokens?.some((token) => token.characterId === it._id)) return 3
+		if (it.playerId) return 1
+		if (scene?.tokens?.some((token) => token.characterId === it._id)) return 2
 		return Number.POSITIVE_INFINITY
 	}
 
@@ -88,14 +87,16 @@ export function ResourceList(props: ResourceListProps) {
 				<ScrollArea>
 					<div className="pr-3">
 						<ResourceFolder name="Characters">
-							{characters?.map((character) => (
-								<ResourceElement
-									key={character._id}
-									dragData={CharacterResource.create(character).dragData}
-								>
-									<CharacterResource.TreeItem character={character} />
-								</ResourceElement>
-							))}
+							{characters
+								?.toSorted((a, b) => characterOrder(a) - characterOrder(b))
+								.map((character) => (
+									<ResourceElement
+										key={character._id}
+										dragData={CharacterResource.create(character).dragData}
+									>
+										<CharacterResource.TreeItem character={character} />
+									</ResourceElement>
+								))}
 						</ResourceFolder>
 						<ResourceFolder name="Scenes">
 							{scenes?.map((scene) => (

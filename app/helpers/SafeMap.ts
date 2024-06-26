@@ -9,10 +9,10 @@ export class SafeMap<K, V> {
 		this.#items = new Map(items)
 	}
 
-	static mapRecord<const Key extends PropertyKey, const InputValue, const MappedValue>(
-		record: Record<Key, InputValue>,
-		map: (value: InputValue, key: Key) => MappedValue,
-	): SafeMap<Key, MappedValue> {
+	static mapRecord<const Input extends Record<PropertyKey, unknown>, const MappedValue>(
+		record: Input,
+		map: (value: Input[keyof Input], key: keyof Input) => MappedValue,
+	): SafeMap<keyof Input, MappedValue> {
 		return new SafeMap(Iterator.from(entries(record)).map(([key, value]) => [key, map(value, key)]))
 	}
 

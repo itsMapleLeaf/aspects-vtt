@@ -2,6 +2,7 @@ import { useQuery } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { Suspense, useCallback, useEffect, useRef, type RefObject } from "react"
+import { useOwnedCharacter } from "~/modules/characters/hooks.ts"
 import { ResourceList } from "~/modules/resources/ResourceList.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { api } from "../../../../../convex/_generated/api.js"
@@ -12,7 +13,7 @@ import { MessageInput } from "../../../../modules/messages/MessageInput.tsx"
 import { MessageList } from "../../../../modules/messages/MessageList.tsx"
 import { PlayerControlsPanel } from "../../../../modules/player/PlayerControlsPanel.tsx"
 import { CombatInitiative } from "../../../../modules/rooms/CombatInitiative.tsx"
-import { RoomOwnerOnly, useCharacters, useRoom } from "../../../../modules/rooms/roomContext.tsx"
+import { RoomOwnerOnly, useRoom } from "../../../../modules/rooms/roomContext.tsx"
 import { RoomSettingsForm } from "../../../../modules/rooms/RoomSettingsForm.tsx"
 import {
 	Toolbar,
@@ -256,9 +257,9 @@ function GeneralSkillsList() {
 
 function CombatTurnBanner() {
 	const room = useRoom()
-	const characters = useCharacters()
+	const character = useOwnedCharacter()
 	const isTurn =
-		!room.isOwner && characters.find((c) => c._id === room.combat?.currentMemberId)?.isOwner
+		room.combat?.currentMemberId && character && room.combat.currentMemberId === character._id
 	return (
 		<div
 			className={panel(

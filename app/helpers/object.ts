@@ -1,10 +1,7 @@
 import type { Simplify, StrictOmit } from "./types.ts"
 
-export function pick<T extends object, K extends PropertyKey>(
-	obj: T,
-	keys: K[],
-): Simplify<Pick<T, Extract<K, keyof T>>> {
-	const result = {} as Pick<T, Extract<K, keyof T>>
+export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Simplify<Pick<T, K>> {
+	const result = {} as Pick<T, K>
 	for (const key of keys) {
 		if (key in obj) {
 			result[key as keyof typeof result] = obj[key as keyof typeof result]
@@ -33,7 +30,9 @@ export function* values<T extends object>(obj: T) {
 	}
 }
 
-export function* entries<K extends PropertyKey, V>(obj: Record<K, V>): Iterable<readonly [K, V]> {
+export function* entries<T extends Record<PropertyKey, unknown>>(
+	obj: T,
+): Iterable<readonly [keyof T, T[keyof T]]> {
 	for (const key in obj) {
 		yield [key, obj[key]] as const
 	}

@@ -1,13 +1,12 @@
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError, type ObjectType } from "convex/values"
-import { uniqueByProperty } from "../../app/helpers/iterable.ts"
 import { Result } from "../../app/helpers/Result.ts"
 import type { OmitByValue } from "../../app/helpers/types.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
-import { getUserFromIdentity } from "../auth/helpers.ts"
 import type { Branded } from "../helpers/convex.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
+import { normalizeCharacter } from "./helpers.ts"
 import type { characterProperties } from "./types.ts"
 
 const characterDefaults = {
@@ -23,13 +22,9 @@ const characterDefaults = {
 	mobility: 4,
 	intellect: 4,
 	wit: 4,
-	damageThresholdDelta: 0,
-	fatigueThresholdDelta: 0,
 	modifiers: [],
 
 	// status
-	damage: 0,
-	fatigue: 0,
 	currency: 0,
 
 	// notes
@@ -42,6 +37,7 @@ const characterDefaults = {
 	playerId: null,
 } satisfies OmitByValue<ObjectType<typeof characterProperties>, null | undefined>
 
+/** @deprecated */
 export class CharacterModel {
 	readonly ctx
 	readonly doc
@@ -81,23 +77,7 @@ export class CharacterModel {
 	}
 
 	async getComputedData() {
-		const room = await this.getRoom()
-		const isRoomOwner = await room.isOwner()
-		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
-		const isCharacterOwner = isRoomOwner || this.data.playerId === user.clerkId
-		const canSeeName = this.data.nameVisible || isCharacterOwner
-		return {
-			...this.data,
-			isOwner: isCharacterOwner,
-			displayName: canSeeName ? this.data.name : "???",
-			displayPronouns: canSeeName ? this.data.pronouns : "",
-			conditions: [
-				...uniqueByProperty(
-					(this.data.conditions ?? []).toSorted((a, b) => a.name.localeCompare(b.name)),
-					"name",
-				),
-			],
-		}
+		return normalizeCharacter(this.data)
 	}
 
 	async update(ctx: MutationCtx, updates: Partial<WithoutSystemFields<Doc<"characters">>>) {

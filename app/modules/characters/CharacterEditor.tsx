@@ -2,12 +2,14 @@ import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { Tabs } from "~/ui/Tabs.tsx"
 import { CharacterForm } from "./CharacterForm.tsx"
 import { CharacterSkillsViewer } from "./CharacterSkillsViewer.tsx"
+import { useCharacterUpdatePermission } from "./hooks.ts"
 import type { ApiCharacter } from "./types.ts"
 
 export function CharacterEditor({ character }: { character: ApiCharacter }) {
+	const hasPermission = useCharacterUpdatePermission(character)
 	return (
 		<div className="flex h-full min-h-0 flex-col">
-			{character.isOwner ?
+			{hasPermission ?
 				<Tabs>
 					<Tabs.List className="p-2">
 						<Tabs.Tab>Profile</Tabs.Tab>
