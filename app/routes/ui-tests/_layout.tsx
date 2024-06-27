@@ -21,7 +21,7 @@ export default function UiTests() {
 						</Link>
 					))}
 				</nav>
-				<div className="flex-1">
+				<div className="grid flex-1 gap-4">
 					<Outlet />
 				</div>
 			</div>
