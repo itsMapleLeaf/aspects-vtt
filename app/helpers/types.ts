@@ -64,8 +64,6 @@ type ExhaustiveWithKeys<T, K extends PropertyKey> =
 	T extends object ? { [P in Extract<K, keyof T>]: T[P] } & { [P in Exclude<K, keyof T>]?: never }
 	:	never
 
-type AllKeys<T> = T extends unknown ? keyof T : never
-
 /**
  * Define the type of a value inline. Useful for defining the type of inferred object properties
  *
@@ -87,3 +85,7 @@ type AllKeys<T> = T extends unknown ? keyof T : never
  * 	})
  */
 export const typed = <T>(value: T) => value
+
+export type AllKeys<T> = T extends NonNullable<unknown> ? keyof T : never
+
+export type AllValues<T> = T extends NonNullable<unknown> ? T[keyof T] : never

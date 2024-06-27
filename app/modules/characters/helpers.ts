@@ -21,9 +21,8 @@ export function getCharacterAttributeDiceKind(
 }
 
 export function listCharacterRaceAbilities(character: ApiCharacter) {
-	if (!character.race) return Iterator.from([])
-	const race = getRace(character.race)
-	return Iterator.from(entries(race.abilities))
+	const race = character.race && getRace(character.race)
+	return Iterator.from(race ? entries(race.abilities) : [])
 		.map(([name, description]) => ({
 			name,
 			description,
