@@ -8,7 +8,6 @@ import { useAsyncState } from "../../helpers/react/hooks.ts"
 import { startCase } from "../../helpers/string.ts"
 import { Button } from "../../ui/Button.tsx"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
-import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField, useField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { ReadOnlyField } from "../../ui/ReadOnlyField.tsx"
@@ -19,10 +18,11 @@ import type { Attribute } from "../attributes/data.ts"
 import { statDiceKinds } from "../dice/data.tsx"
 import { listRaces } from "../races/data.ts"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
+import { CharacterAbilityList } from "./CharacterAbilityList.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
-import { getCharacterFallbackImageUrl, listCharacterRaceAbilities } from "./helpers.ts"
+import { getCharacterFallbackImageUrl } from "./helpers.ts"
 import { useCharacterUpdatePermission } from "./hooks.ts"
 import type { ApiCharacter, UpdateableCharacterField } from "./types.ts"
 
@@ -104,13 +104,13 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				</FormField>
 			)}
 
+			<CharacterNotesFields character={character} />
+
 			<FormField label="Abilities">
 				<Panel className="p-3 empty:hidden">
-					<DefinitionList items={listCharacterRaceAbilities(character)} />
+					<CharacterAbilityList character={character} />
 				</Panel>
 			</FormField>
-
-			<CharacterNotesFields character={character} />
 		</div>
 	)
 }

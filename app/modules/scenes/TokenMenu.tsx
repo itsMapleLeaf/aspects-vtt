@@ -11,21 +11,19 @@ import { Vector } from "../../helpers/Vector.ts"
 import { randomItem } from "../../helpers/random.ts"
 import { useFilter } from "../../helpers/react/hooks.ts"
 import { Button } from "../../ui/Button.tsx"
-import { DefinitionList } from "../../ui/DefinitionList.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { AttributeDiceRollButtonGrid } from "../attributes/AttributeDiceRollButtonGrid.tsx"
+import { CharacterAbilityList } from "../characters/CharacterAbilityList.tsx"
 import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
-import { listCharacterAspectSkills, listCharacterRaceAbilities } from "../characters/helpers.ts"
 import { useCharacterUpdatePermission } from "../characters/hooks.ts"
-import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
@@ -273,17 +271,5 @@ function TokenMenuContent() {
 				)}
 			</div>
 		</div>
-	)
-}
-
-function CharacterAbilityList({ character }: { character: ApiCharacter }) {
-	const raceAbilities = listCharacterRaceAbilities(character)
-	const hasPermission = useCharacterUpdatePermission(character)
-	const aspectSkills = hasPermission ? listCharacterAspectSkills(character) : []
-	return (
-		<>
-			<DefinitionList items={[...raceAbilities, ...aspectSkills]} />
-			{hasPermission ? null : <p className="mt-1.5 opacity-75">Aspect skills are hidden.</p>}
-		</>
 	)
 }
