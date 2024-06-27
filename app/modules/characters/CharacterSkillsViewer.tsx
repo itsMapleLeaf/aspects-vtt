@@ -2,16 +2,15 @@ import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import {
 	LucideChevronsRight,
-	LucideHelpCircle,
+	LucideGraduationCap,
+	LucideList,
 	LucidePlus,
 	LucideStar,
 	LucideStars,
 	LucideX,
 } from "lucide-react"
-import { Fragment, useActionState, useState, type ReactNode } from "react"
+import { Fragment, useActionState, type ReactNode } from "react"
 import { api } from "../../../convex/_generated/api"
-import { CheckboxField } from "../../ui/CheckboxField.tsx"
-import { EmptyState } from "../../ui/EmptyState.tsx"
 import { Loading } from "../../ui/Loading.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
@@ -27,7 +26,6 @@ import type { ApiCharacter } from "./types.ts"
 
 export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
-	const [showingLearned, setShowingLearned] = useState(false)
 
 	const characterSkillIds = new Set(
 		Iterator.from(character.learnedAspectSkills ?? []).flatMap((doc) => doc.aspectSkillIds),
@@ -71,6 +69,48 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 		.filter((skill) => skill.learned)
 		.reduce((total, skill) => total + skill.cost, 0)
 
+	const viewGroups = [
+		computedSkillTree.map((aspect) => ({
+			title: aspect.name,
+			icon:
+				characterAspectList[0] === aspect.id ? <LucideStars className="size-5" />
+				: characterAspectSet.has(aspect.id) ? <LucideStar className="size-4" />
+				: null,
+			content: aspect.tiers.map((tier) => (
+				<TierSection key={tier.name} name={tier.name} number={tier.number}>
+					<SkillList skills={tier.skills} character={character} />
+				</TierSection>
+			)),
+		})),
+		[
+			{
+				title: "Learned",
+				icon: <LucideGraduationCap className="size-5" />,
+				content: computedSkillTree.map((aspect) =>
+					aspect.tiers
+						.map((tier) => ({ ...tier, skills: tier.skills.filter((skill) => skill.learned) }))
+						.filter((tier) => tier.skills.length > 0)
+						.map((tier) => (
+							<TierSection key={tier.name} name={tier.name} number={tier.number}>
+								<SkillList skills={tier.skills} character={character} />
+							</TierSection>
+						)),
+				),
+			},
+			{
+				title: "All",
+				icon: <LucideList className="size-5" />,
+				content: computedSkillTree.map((aspect) =>
+					aspect.tiers.map((tier) => (
+						<TierSection key={tier.name} name={`${aspect.name}: ${tier.name}`} number={tier.number}>
+							<SkillList skills={tier.skills} character={character} />
+						</TierSection>
+					)),
+				),
+			},
+		],
+	]
+
 	return (
 		<Tabs>
 			<div className="flex h-full flex-col gap-2">
@@ -97,59 +137,26 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 					)}
 				</aside>
 
-				<Tabs.List>
-					{listAspects()
-						.map((aspect) => (
-							<Tabs.Tab key={aspect.id} className="flex-center-row gap-1.5">
-								{characterAspectList[0] === aspect.id ?
-									<LucideStars className="size-5" />
-								: characterAspectSet.has(aspect.id) ?
-									<LucideStar className="size-4" />
-								:	null}
-								<span>{aspect.name}</span>
-							</Tabs.Tab>
-						))
-						.toArray()}
+				<Tabs.List className="flex flex-col">
+					{viewGroups.map((group, index) => (
+						<div key={index} className="flex gap-2 *:flex-1">
+							{group.map((view) => (
+								<Tabs.Tab key={view.title} id={view.title} className="flex-center-row gap-1.5">
+									{view.icon}
+									<span>{view.title}</span>
+								</Tabs.Tab>
+							))}
+						</div>
+					))}
 				</Tabs.List>
-
-				<section aria-label="Filters" className="flex-center-row p-2">
-					<CheckboxField
-						label="Only show learned skills"
-						checked={showingLearned}
-						onChange={(event) => setShowingLearned(event.target.checked)}
-					/>
-				</section>
 
 				<div className="min-h-0 flex-1">
 					<ScrollArea>
-						{computedSkillTree.map((aspect) => {
-							const tierItems = Iterator.from(aspect.tiers)
-								.map((tier) => {
-									return showingLearned ?
-											{ ...tier, skills: tier.skills.filter((s) => s.learned) }
-										:	tier
-								})
-								.filter((tier) => tier.skills.length > 0)
-								.map((tier) => (
-									<TierSection key={tier.name} name={tier.name} number={tier.number}>
-										<SkillList skills={tier.skills} character={character} />
-									</TierSection>
-								))
-								.toArray()
-
-							return (
-								<Tabs.Panel key={aspect.id} className="grid gap-4 px-2">
-									{tierItems.length > 0 ?
-										tierItems
-									:	<EmptyState
-											icon={<LucideHelpCircle />}
-											message="Nothing here."
-											className="py-24"
-										/>
-									}
-								</Tabs.Panel>
-							)
-						})}
+						{viewGroups.flat().map((view) => (
+							<Tabs.Panel key={view.title} id={view.title} className="grid gap-4 px-2">
+								{view.content}
+							</Tabs.Panel>
+						))}
 					</ScrollArea>
 				</div>
 			</div>
