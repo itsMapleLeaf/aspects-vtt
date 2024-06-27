@@ -147,7 +147,6 @@ function AttributeSelectField(props: {
 					label: attribute.name,
 					value: attribute.id,
 				}))
-				.toArray()
 				.sort((a, b) => a.label.localeCompare(b.label))}
 			placeholder="Select an attribute"
 			onChange={(id) => {

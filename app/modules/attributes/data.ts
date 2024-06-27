@@ -1,42 +1,51 @@
-import { SafeMap, type SafeMapValue } from "../../helpers/SafeMap.ts"
+import { mapValues } from "~/helpers/object.ts"
+import type { ValueOf } from "~/helpers/types.ts"
 import { titleCase } from "../../helpers/string.ts"
 import { getAspect } from "../aspects/data.ts"
 
-export const Attributes = SafeMap.mapRecord(
+const attributes = mapValues(
 	{
 		strength: {
 			description: "Physical force and resilience.",
-			aspect: "fire",
+			aspect: "fire" as const,
 		},
 		sense: {
 			description: "Perception, environmental awareness, focus, mental resilience.",
-			aspect: "water",
+			aspect: "water" as const,
 		},
 		mobility: {
 			description: "Speed, agility, reflexes, reaction time.",
-			aspect: "wind",
+			aspect: "wind" as const,
 		},
 		intellect: {
 			description: "Book knowledge, problem-solving, and memory.",
-			aspect: "light",
+			aspect: "light" as const,
 		},
 		wit: {
 			description: "Social aptitude, cunning, intimidation.",
-			aspect: "darkness",
+			aspect: "darkness" as const,
 		},
 	},
-	({ aspect, description }, id) => ({
+	(value, id) => ({
 		id,
 		name: titleCase(id),
-		description,
+		description: value.description,
 		get aspect() {
-			return getAspect(aspect)
+			return getAspect(value.aspect)
 		},
 	}),
 )
 
-export type Attribute = SafeMapValue<typeof Attributes>
+export type Attribute = ValueOf<typeof attributes>
 
-export const getAttribute = Attributes.get.bind(Attributes)
-export const listAttributes = Attributes.values.bind(Attributes)
-export const listAttributeIds = Attributes.keys.bind(Attributes)
+export function getAttribute(id: Attribute["id"]) {
+	return attributes[id]
+}
+
+export function listAttributes() {
+	return Object.values(attributes)
+}
+
+export function listAttributeIds() {
+	return Object.keys(attributes) as Array<Attribute["id"]>
+}

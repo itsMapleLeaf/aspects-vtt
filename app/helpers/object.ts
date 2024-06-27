@@ -44,9 +44,13 @@ export function fromEntries<K extends PropertyKey, V>(
 	return Object.fromEntries(entries) as Record<K, V>
 }
 
-export function mapValues<In, Out>(
-	obj: Record<string, In>,
-	fn: (value: In) => Out,
-): Record<string, Out> {
-	return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, fn(value)]))
+export function mapValues<T extends Record<PropertyKey, unknown>, V>(
+	obj: T,
+	fn: (value: T[keyof T], key: keyof T) => V,
+) {
+	const result = {} as Record<keyof T, V>
+	for (const key of keys(obj)) {
+		result[key] = fn(obj[key], key)
+	}
+	return result
 }

@@ -272,12 +272,10 @@ function CombatEmptyState() {
 					<Select
 						{...form.bind("initiativeAttribute")}
 						label="Initiative Attribute"
-						options={listAttributes()
-							.map((it) => ({
-								label: it.name,
-								value: it.id,
-							}))
-							.toArray()}
+						options={listAttributes().map((it) => ({
+							label: it.name,
+							value: it.id,
+						}))}
 					/>
 					<Button
 						text="Start Combat"
