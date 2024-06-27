@@ -107,7 +107,7 @@ export function ModalPanel({
 			}
 			{...props}
 			className={panel(
-				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col overflow-clip rounded-md bg-primary-100 shadow-lg [--gutter:2rem] [--height:calc(min(100%-var(--gutter),64rem))]",
+				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col overflow-clip rounded-md bg-primary-100 shadow-lg [--gutter:2rem] [--height:calc(min(100%-var(--gutter),72rem))]",
 				"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				fullHeight ? "h-[--height]" : "h-fit max-h-[--height]",
 				className,
