@@ -7,6 +7,7 @@ import {
 	LucideInfo,
 } from "lucide-react"
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { translucentPanel } from "./styles.ts"
 
 type ToastId = string & Brand.Brand<"ToastId">
@@ -92,16 +93,27 @@ export function Toaster({ children }: { children: React.ReactNode }) {
 	return (
 		<ToastContext.Provider value={context}>
 			{children}
-			<div
-				className="pointer-events-children fixed inset-y-0 left-0 flex flex-col justify-end gap-3 p-3"
-				ref={animateRef}
-			>
-				{toasts.map((toast) => (
-					<ToastElement {...toast} key={toast.id} onDismiss={() => remove(toast.id)} />
-				))}
-			</div>
+			<Portal>
+				<div
+					className="pointer-events-children fixed inset-y-0 left-0 z-10 flex flex-col justify-end gap-3 p-3"
+					ref={animateRef}
+				>
+					{toasts.map((toast) => (
+						<ToastElement {...toast} key={toast.id} onDismiss={() => remove(toast.id)} />
+					))}
+				</div>
+			</Portal>
 		</ToastContext.Provider>
 	)
+}
+
+function Portal({ children }: { children: React.ReactNode }) {
+	const isClient = React.useSyncExternalStore(
+		() => () => {},
+		() => true,
+		() => false,
+	)
+	return isClient ? createPortal(children, document.body) : null
 }
 
 export function useToaster() {
