@@ -1,12 +1,10 @@
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { Link, Outlet, useLoaderData } from "@remix-run/react"
-import { unwrap } from "~/helpers/errors.ts"
 import { AppHeader } from "../../ui/AppHeader.tsx"
+import { getTestCaseSlugs } from "./helpers.ts"
 
 export async function loader({ request }: LoaderFunctionArgs) {
-	const caseSlugs = Object.keys(import.meta.glob("./*/_route.tsx")).map((path) =>
-		unwrap(path.split("/")[1]),
-	)
+	const caseSlugs = getTestCaseSlugs()
 	return { caseSlugs }
 }
 
