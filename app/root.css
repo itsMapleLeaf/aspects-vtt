@@ -26,4 +26,8 @@
 	[role="button"] {
 		cursor: unset;
 	}
+
+	hr {
+		@apply border-primary-300;
+	}
 }

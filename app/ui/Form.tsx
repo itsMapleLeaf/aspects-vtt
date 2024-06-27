@@ -65,5 +65,7 @@ export function FormField({
 
 export function useField() {
 	useConsumer()
-	return use(FieldContext)
+	const context = use(FieldContext)
+	const fallbackInputId = useId()
+	return { ...context, inputId: context.inputId || fallbackInputId }
 }

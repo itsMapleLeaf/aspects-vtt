@@ -1,3 +1,4 @@
+import { LucideX } from "lucide-react"
 import { type ComponentProps, type ReactNode, useState } from "react"
 import { useSafeAction } from "~/modules/convex/hooks.ts"
 import { Button } from "./Button.tsx"
@@ -14,7 +15,7 @@ export function ConfirmModalButton({
 	title,
 	message,
 	cancelText,
-	cancelIcon,
+	cancelIcon = <LucideX />,
 	confirmText,
 	confirmIcon,
 	onConfirm,
@@ -23,7 +24,7 @@ export function ConfirmModalButton({
 	title: ReactNode
 	message: ReactNode
 	cancelText: ReactNode
-	cancelIcon: ReactNode
+	cancelIcon?: ReactNode
 	confirmText: ReactNode
 	confirmIcon: ReactNode
 	onConfirm: () => unknown

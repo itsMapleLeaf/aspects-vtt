@@ -1,27 +1,25 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useId } from "react"
+import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
+import { Panel } from "~/ui/Panel.tsx"
 import { api } from "../../../convex/_generated/api.js"
 import { useAsyncState } from "../../helpers/react/hooks.ts"
 import { startCase } from "../../helpers/string.ts"
 import { Button } from "../../ui/Button.tsx"
 import { CheckboxField } from "../../ui/CheckboxField.tsx"
 import { DefinitionList } from "../../ui/DefinitionList.tsx"
-import { FormField } from "../../ui/Form.tsx"
+import { FormField, useField } from "../../ui/Form.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { ReadOnlyField } from "../../ui/ReadOnlyField.tsx"
 import { Select, type SelectOption } from "../../ui/Select.tsx"
 import { TextArea } from "../../ui/TextArea.tsx"
-import { panel } from "../../ui/styles.ts"
 import { ImageUploader } from "../api-images/ImageUploader.tsx"
-import { AttributeDiceRollButton } from "../attributes/AttributeDiceRollButton.tsx"
-import { getAttribute, type Attribute } from "../attributes/data.ts"
-import { MutationButton } from "../convex/MutationButton.tsx"
+import type { Attribute } from "../attributes/data.ts"
 import { statDiceKinds } from "../dice/data.tsx"
 import { listRaces } from "../races/data.ts"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
-import { CharacterModifierFields } from "./CharacterModifierFields.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
 import { getCharacterFallbackImageUrl, listCharacterRaceAbilities } from "./helpers.ts"
@@ -31,70 +29,110 @@ import type { ApiCharacter, UpdateableCharacterField } from "./types.ts"
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
 	const hasUpdatePermissions = useCharacterUpdatePermission(character)
+	const randomize = useMutation(api.characters.functions.randomize)
 	return (
-		<div className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto *:shrink-0">
-			<CharacterImageField character={character} />
-
+		<div className="flex h-full min-h-0 flex-1 flex-col gap-2 overflow-y-auto *:shrink-0">
 			<RoomOwnerOnly>
-				<CharacterSelectField
-					character={character}
-					field="playerId"
-					label="Player"
-					options={[
-						...room.players
-							.map((p) => ({ label: p.name, value: p.clerkId }))
-							.toSorted((a, b) => a.label.localeCompare(b.label)),
-						{ id: "none", label: "None", value: null },
-					]}
-				/>
-				<div className="flex flex-wrap gap-3">
+				<div className="flex items-end gap-current *:flex-1">
+					<CharacterSelectField
+						character={character}
+						field="playerId"
+						label="Player"
+						options={[
+							...room.players
+								.map((p) => ({ label: p.name, value: p.clerkId }))
+								.toSorted((a, b) => a.label.localeCompare(b.label)),
+							{ id: "none", label: "None", value: null },
+						]}
+					/>
+					<ConfirmModalButton
+						title="Randomize character"
+						message="This will randomize all attributes and dice rolls. Are you sure?"
+						confirmText="Yes, randomize"
+						confirmIcon={<Lucide.Shuffle />}
+						cancelText="No, keep current values"
+						cancelIcon={<Lucide.X />}
+						onConfirm={() => randomize({ id: character._id })}
+						render={<Button icon={<Lucide.Shuffle />} text="Randomize" />}
+					/>
+				</div>
+				<div className="flex flex-wrap gap-current">
 					<CharacterCheckboxField character={character} field="visible" />
 					<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
 				</div>
-				<MutationButton
-					mutationFunction={api.characters.functions.randomize}
-					args={{ id: character._id }}
-				>
-					<Button icon={<Lucide.Shuffle />} text="Randomize" />
-				</MutationButton>
+				<hr />
 			</RoomOwnerOnly>
 
-			{hasUpdatePermissions ?
-				<div className="flex gap-2 *:min-w-0 *:flex-1">
-					<CharacterInputField character={character} field="name" />
-					<CharacterInputField character={character} field="pronouns" />
+			<div className="flex gap-current">
+				<div className="flex flex-1 flex-col gap-current">
+					<CharacterImageField character={character} />
+					{hasUpdatePermissions ?
+						<>
+							<CharacterInputField character={character} field="name" />
+							<CharacterInputField character={character} field="pronouns" />
+						</>
+					:	<>
+							<ReadOnlyField label="Name" value={character.name ?? "???"} />
+							{character.pronouns && <ReadOnlyField label="Pronouns" value={character.pronouns} />}
+						</>
+					}
+					<CharacterSelectField
+						character={character}
+						field="race"
+						options={[...listRaces().map((r) => ({ value: r.id, label: r.name }))].toSorted(
+							(a, b) => a.label.localeCompare(b.label),
+						)}
+					/>
 				</div>
-			:	<div className="flex gap-2 *:min-w-0 *:flex-1">
-					<ReadOnlyField label="Name" value={character.name ?? "???"} />
-					{character.pronouns && <ReadOnlyField label="Pronouns" value={character.pronouns} />}
-				</div>
-			}
-
-			<CharacterSelectField
-				character={character}
-				field="race"
-				options={[...listRaces().map((r) => ({ value: r.id, label: r.name }))].toSorted((a, b) =>
-					a.label.localeCompare(b.label),
+				{hasUpdatePermissions && (
+					<div className="flex flex-col gap-current">
+						<Panel className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-3">
+							<AttributePoints character={character} />
+							<CharacterAttributeField character={character} field="strength" />
+							<CharacterAttributeField character={character} field="mobility" />
+							<CharacterAttributeField character={character} field="sense" />
+							<CharacterAttributeField character={character} field="intellect" />
+							<CharacterAttributeField character={character} field="wit" />
+						</Panel>
+					</div>
 				)}
-			/>
-			<div className={panel("p-3 empty:hidden")}>
-				<DefinitionList items={listCharacterRaceAbilities(character)} />
 			</div>
 
-			<CharacterStatusFields character={character} />
-
 			{hasUpdatePermissions && (
-				<>
-					<CharacterDiceField character={character} field="strength" />
-					<CharacterDiceField character={character} field="mobility" />
-					<CharacterDiceField character={character} field="sense" />
-					<CharacterDiceField character={character} field="intellect" />
-					<CharacterDiceField character={character} field="wit" />
-				</>
+				<FormField label="Status">
+					<CharacterStatusFields character={character} />
+				</FormField>
 			)}
+
+			<FormField label="Abilities">
+				<Panel className="p-3 empty:hidden">
+					<DefinitionList items={listCharacterRaceAbilities(character)} />
+				</Panel>
+			</FormField>
 
 			<CharacterNotesFields character={character} />
 		</div>
+	)
+}
+
+function AttributePoints({ character }: { character: Required<ApiCharacter> }) {
+	const total =
+		character.strength + character.mobility + character.sense + character.intellect + character.wit
+	const max = 15
+	return (
+		<p className="text-center text-lg/tight font-light">
+			Attribute points:{" "}
+			<strong
+				className={
+					total < max ? "text-green-400"
+					: total > max ?
+						"text-red-400"
+					:	""
+				}
+			>
+				{total}/{max}
+			</strong>
+		</p>
 	)
 }
 
@@ -229,7 +267,7 @@ function CharacterSelectField<Field extends UpdateableCharacterField<string | nu
 	)
 }
 
-function CharacterDiceField({
+function CharacterAttributeField({
 	character,
 	field,
 	label = startCase(field),
@@ -245,24 +283,59 @@ function CharacterDiceField({
 	}
 
 	const value = state.args?.[field] ?? character[field]
+	const DiceComponent = statDiceKinds[value - 1]?.Component
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
 			<div className="flex items-end gap-2">
-				<Select
-					label={label}
-					options={statDiceKinds.map((kind, index) => ({
-						id: kind.name,
-						label: kind.name,
-						value: index + 1,
-					}))}
-					value={value}
-					onChange={(value) => update({ id: character._id, [field]: value })}
-					className="flex-1"
-				/>
-				<CharacterModifierFields character={character} attribute={getAttribute(field)} />
-				<AttributeDiceRollButton characters={[{ ...character, ...state.args }]} attribute={field} />
+				<FormField label={label}>
+					<DotCounterInput
+						count={5}
+						value={value}
+						onChange={(value) => update({ id: character._id, [field]: value })}
+					/>
+				</FormField>
+				<div className="size-12">{DiceComponent && <DiceComponent />}</div>
+				{/* <CharacterModifierFields character={character} attribute={getAttribute(field)} />
+				<AttributeDiceRollButton characters={[{ ...character, ...state.args }]} attribute={field} /> */}
 			</div>
 		</CharacterReadOnlyGuard>
+	)
+}
+
+/** Renders a horizontal list of circles to represent a counter. */
+function DotCounterInput({
+	count,
+	value,
+	onChange,
+	...props
+}: {
+	count: number
+	value: number
+	onChange: (value: number) => void
+} & React.HTMLAttributes<HTMLDivElement>) {
+	const { inputId } = useField()
+	return (
+		<div className="-mx-1.5 flex items-center px-1 py-1" {...props}>
+			{[...Array(count).keys()].map((index) => (
+				<label
+					key={index}
+					htmlFor={`${inputId}-${index}`}
+					className="block px-1 leading-none transition-transform will-change-transform hover:-translate-y-0.5 active:translate-y-0 active:duration-0"
+				>
+					<input
+						type="radio"
+						id={`${inputId}-${index}`}
+						name={inputId}
+						value={index + 1}
+						checked={value === index + 1}
+						onChange={(event) => onChange(Number(event.target.value))}
+						data-filled={value >= index + 1 || undefined}
+						className="block size-6 appearance-none rounded-full border-2 border-white bg-opacity-25 transition-colors checked:border-primary-800 data-[filled]:border-primary-800 data-[filled]:bg-primary-800"
+					/>
+					<span className="sr-only">{index + 1}</span>
+				</label>
+			))}
+		</div>
 	)
 }
 

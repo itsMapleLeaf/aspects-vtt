@@ -2,8 +2,8 @@ import { Effect, pipe } from "effect"
 import { sum } from "lodash-es"
 import { clamp } from "~/helpers/math.ts"
 import { pick } from "~/helpers/object.ts"
-import type { Nullish, RequiredKeys } from "~/helpers/types.ts"
-import { statDiceKindsByName } from "~/modules/dice/data.tsx"
+import type { RequiredKeys } from "~/helpers/types.ts"
+import { getAttributePower, normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
 import { Races } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import { UnauthorizedError, getUserFromIdentityEffect } from "../auth/helpers.ts"
@@ -20,11 +20,13 @@ export function normalizeCharacter(character: Doc<"characters">) {
 		wit: normalizeAttributeValue(character.wit),
 	}
 
-	const healthMax = sum([stats.strength, stats.mobility, race?.healthBonus ?? 0].map(getStatPower))
+	const healthMax = sum(
+		[stats.strength, stats.mobility, race?.healthBonus ?? 0].map(getAttributePower),
+	)
 	const health = clamp(character.health ?? healthMax, 0, healthMax)
 
 	const resolveMax = sum(
-		[stats.intellect, stats.wit, stats.sense, race?.resolveBonus ?? 0].map(getStatPower),
+		[stats.intellect, stats.wit, stats.sense, race?.resolveBonus ?? 0].map(getAttributePower),
 	)
 	const resolve = clamp(character.resolve ?? resolveMax, 0, resolveMax)
 
@@ -55,26 +57,6 @@ export function normalizeCharacter(character: Doc<"characters">) {
 
 		resolve,
 		resolveMax,
-	}
-
-	function getStatDie(stat: number) {
-		return (
-			[
-				statDiceKindsByName.d4,
-				statDiceKindsByName.d6,
-				statDiceKindsByName.d8,
-				statDiceKindsByName.d10,
-				statDiceKindsByName.d12,
-			][stat - 1] ?? statDiceKindsByName.d4
-		)
-	}
-
-	function getStatPower(stat: number) {
-		return getStatDie(stat).faces.length
-	}
-
-	function normalizeAttributeValue(value: Nullish<number>) {
-		return clamp(value ?? 1, 1, 5)
 	}
 }
 

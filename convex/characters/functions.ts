@@ -4,9 +4,10 @@ import { ConvexError, v, type GenericId } from "convex/values"
 import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
+import { AttributeTotal } from "~/modules/attributes/constants.ts"
 import { isTuple } from "../../app/helpers/array.ts"
 import { unwrap } from "../../app/helpers/errors.ts"
-import { fromEntries, omit, pick } from "../../app/helpers/object.ts"
+import { fromEntries, keys, omit, pick } from "../../app/helpers/object.ts"
 import { randomInt, randomItem } from "../../app/helpers/random.ts"
 import { titleCase } from "../../app/helpers/string.ts"
 import {
@@ -371,21 +372,27 @@ export const updateModifier = effectMutation({
 })
 
 function generateRandomCharacterProperties() {
-	const dice: [number, number, number, number, number] = [4, 6, 8, 12, 20]
-	const [strength, sense, mobility, intellect, wit] = dice.sort(() => Math.random() - 0.5)
-
-	const adjective = randomItem(getWordsByCategory("adjective", ["personality"])) ?? "A Random"
-
-	const race = unwrap(randomItem(listRaceIds()))
+	const attributes = {
+		strength: 1,
+		sense: 1,
+		mobility: 1,
+		intellect: 1,
+		wit: 1,
+	}
+	for (let i = 5; i < AttributeTotal; i++) {
+		const validAttributes = keys(attributes).filter((key) => attributes[key] < 5)
+		const randomKey = unwrap(randomItem(validAttributes))
+		attributes[randomKey] += 1
+	}
 
 	// the character should prefer skills with an aspect that matches their strongest attribute
 	const preferredAspect = greatestBy(
 		[
-			{ stat: strength, aspect: getAspect("fire") },
-			{ stat: sense, aspect: getAspect("water") },
-			{ stat: mobility, aspect: getAspect("wind") },
-			{ stat: intellect, aspect: getAspect("light") },
-			{ stat: wit, aspect: getAspect("darkness") },
+			{ stat: attributes.strength, aspect: getAspect("fire") },
+			{ stat: attributes.sense, aspect: getAspect("water") },
+			{ stat: attributes.mobility, aspect: getAspect("wind") },
+			{ stat: attributes.intellect, aspect: getAspect("light") },
+			{ stat: attributes.wit, aspect: getAspect("darkness") },
 		],
 		(item) => item.stat,
 	).aspect
@@ -419,14 +426,13 @@ function generateRandomCharacterProperties() {
 		skillsByAspect.set(aspect.id, new Set(skillsByAspect.get(aspect.id)).add(newSkill.id))
 	}
 
+	const race = unwrap(randomItem(listRaceIds()))
+	const adjective = randomItem(getWordsByCategory("adjective", ["personality"])) ?? "A Random"
+
 	return {
+		...attributes,
 		name: titleCase(`${adjective} ${race}`),
 		pronouns: randomItem(["he/him", "she/her", "they/them", "he/they", "she/they"]),
-		strength,
-		sense,
-		mobility,
-		intellect,
-		wit,
 		race,
 		currency: (Math.floor(Math.random() * 10) + 1) * 50,
 		learnedAspectSkills: Iterator.from(skillsByAspect)

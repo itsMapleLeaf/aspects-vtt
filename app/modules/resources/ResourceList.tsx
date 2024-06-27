@@ -41,42 +41,6 @@ export function ResourceList(props: ResourceListProps) {
 		return Number.POSITIVE_INFINITY
 	}
 
-	// const characterItems = (characters ?? [])
-	// 	.filter((character) => character.visible || character.isOwner)
-	// 	// .sort((a, b) => b._creationTime - a._creationTime)
-	// 	.sort((a, b) => characterOrder(a) - characterOrder(b))
-	// 	.map((character) => CharacterResource.create(character))
-
-	// let tree: ResourceGroup[] = [
-	// 	{
-	// 		id: "characters",
-	// 		name: "Characters",
-	// 		items: characterItems,
-	// 	},
-	// 	{
-	// 		id: "scenes",
-	// 		name: "Scenes",
-	// 		items: (scenes ?? []).map((scene) => SceneResource.create(scene)),
-	// 	},
-	// ]
-
-	// if (search) {
-	// 	tree = tree
-	// 		.map(
-	// 			(group): ResourceGroup => ({
-	// 				...group,
-	// 				items: group.items.filter((item) =>
-	// 					item.name.toLowerCase().includes(search.toLowerCase()),
-	// 				),
-	// 			}),
-	// 		)
-	// 		.filter(
-	// 			(group) => group.name.toLowerCase().includes(search.toLowerCase()) || group.items?.length,
-	// 		)
-	// }
-
-	// tree = tree.filter((group) => group.items?.length)
-
 	return (
 		<div {...withMergedClassName(props, "flex flex-col gap-2 h-full")}>
 			<div className="flex gap-2">
@@ -136,7 +100,7 @@ function ResourceFolder({ name, children }: { name: string; children: React.Reac
 						icon={open ? <LucideFolderOpen /> : <LucideFolder />}
 						text={name}
 						appearance="clear"
-						className="w-full justify-start"
+						className="w-full justify-start [&:has(+:empty)]:hidden"
 					/>
 				}
 			>
