@@ -11,7 +11,6 @@ import { GameTime } from "../../../../modules/game/GameTime.tsx"
 import { listGeneralSkills } from "../../../../modules/general-skills/data.ts"
 import { MessageInput } from "../../../../modules/messages/MessageInput.tsx"
 import { MessageList } from "../../../../modules/messages/MessageList.tsx"
-import { PlayerControlsPanel } from "../../../../modules/player/PlayerControlsPanel.tsx"
 import { CombatInitiative } from "../../../../modules/rooms/CombatInitiative.tsx"
 import { RoomOwnerOnly, useRoom } from "../../../../modules/rooms/roomContext.tsx"
 import { RoomSettingsForm } from "../../../../modules/rooms/RoomSettingsForm.tsx"
@@ -65,7 +64,6 @@ export default function RoomRoute() {
 
 					<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
 						<RoomToolbar />
-						<PlayerControlsPanel />
 					</TranslucentPanel>
 
 					<div className="flex h-full min-h-0 flex-1 flex-col items-end justify-end">
