@@ -344,13 +344,11 @@ function CharacterImageField({ character }: { character: ApiCharacter }) {
 	const update = useMutation(api.characters.functions.update)
 	const fallbackUrl = getCharacterFallbackImageUrl(character)
 	return hasUpdatePermission ?
-			<FormField label="Image">
-				<ImageUploader
-					imageId={character.imageId}
-					fallbackUrl={fallbackUrl}
-					onUpload={(imageId) => update({ id: character._id, imageId })}
-					onRemove={() => update({ id: character._id, imageId: null })}
-				/>
-			</FormField>
+			<ImageUploader
+				imageId={character.imageId}
+				fallbackUrl={fallbackUrl}
+				onUpload={(imageId) => update({ id: character._id, imageId })}
+				onRemove={() => update({ id: character._id, imageId: null })}
+			/>
 		:	<CharacterImage character={character} className="aspect-square" />
 }
