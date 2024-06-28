@@ -31,6 +31,8 @@ export type OmitByValue<Source, Value> = Simplify<{
 
 export type Awaitable<T> = T | PromiseLike<T>
 
+export type MaybePromise<T> = T | Promise<T>
+
 export type OptionalKeys<T, K extends keyof T> = Simplify<Omit<T, K> & Partial<Pick<T, K>>>
 
 export type RequiredKeys<T, K extends keyof T> = Simplify<Omit<T, K> & Required<Pick<T, K>>>

@@ -11,8 +11,8 @@ import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.
 import {
 	MutationCtxService,
 	effectMutation,
+	effectQuery,
 	getDoc,
-	queryHandlerFromEffect,
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.js"
@@ -20,10 +20,10 @@ import { memberValidator } from "./combat/types.ts"
 import { RoomModel } from "./RoomModel.js"
 import { roomProperties } from "./types.ts"
 
-export const get = query({
+export const get = effectQuery({
 	args: { slug: v.string() },
-	handler: queryHandlerFromEffect((args) =>
-		Effect.gen(function* () {
+	handler(args) {
+		return Effect.gen(function* () {
 			const room = yield* pipe(
 				withQueryCtx((ctx) => getOneFrom(ctx.db, "rooms", "slug", args.slug)),
 				Effect.flatMap(Effect.fromNullable),
@@ -48,8 +48,8 @@ export const get = query({
 		}).pipe(
 			Effect.tapError(Effect.logWarning),
 			Effect.orElseSucceed(() => null),
-		),
-	),
+		)
+	},
 })
 
 export const list = query({

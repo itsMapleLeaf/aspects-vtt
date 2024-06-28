@@ -14,7 +14,6 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as auth_functions from "../auth/functions.js";
 import type * as auth_helpers from "../auth/helpers.js";
 import type * as characterAspectSkills_functions from "../characterAspectSkills/functions.js";
 import type * as characterAspectSkills_types from "../characterAspectSkills/types.js";
@@ -43,7 +42,7 @@ import type * as scenes_functions from "../scenes/functions.js";
 import type * as scenes_tokens_functions from "../scenes/tokens/functions.js";
 import type * as scenes_tokens_types from "../scenes/tokens/types.js";
 import type * as scenes_types from "../scenes/types.js";
-import type * as storage_functions from "../storage/functions.js";
+import type * as storage from "../storage.js";
 import type * as types from "../types.js";
 import type * as users from "../users.js";
 
@@ -56,7 +55,6 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  "auth/functions": typeof auth_functions;
   "auth/helpers": typeof auth_helpers;
   "characterAspectSkills/functions": typeof characterAspectSkills_functions;
   "characterAspectSkills/types": typeof characterAspectSkills_types;
@@ -85,7 +83,7 @@ declare const fullApi: ApiFromModules<{
   "scenes/tokens/functions": typeof scenes_tokens_functions;
   "scenes/tokens/types": typeof scenes_tokens_types;
   "scenes/types": typeof scenes_types;
-  "storage/functions": typeof storage_functions;
+  storage: typeof storage;
   types: typeof types;
   users: typeof users;
 }>;

@@ -1,8 +1,15 @@
-import { getOneFrom } from "convex-helpers/server/relationships"
 import { brandedString } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Effect } from "effect"
-import { internalEffectMutation, withMutationCtx, withQueryCtx } from "./helpers/effect.ts"
+import type { Branded } from "./helpers/convex.ts"
+import { Convex, effectQuery, internalEffectMutation } from "./helpers/effect.ts"
+
+export const me = effectQuery({
+	args: {},
+	handler() {
+		return getCurrentUser().pipe(Effect.orElseSucceed(() => null))
+	},
+})
 
 export const upsert = internalEffectMutation({
 	args: {
@@ -11,26 +18,21 @@ export const upsert = internalEffectMutation({
 		clerkId: brandedString("clerkId"),
 	},
 	handler(args) {
-		return Effect.gen(function* () {
-			const existing = yield* withQueryCtx((ctx) =>
-				getOneFrom(ctx.db, "users", "clerkId", args.clerkId),
-			)
-
-			return yield* withMutationCtx(async (ctx) => {
-				if (existing) {
-					await ctx.db.patch(existing._id, {
-						name: args.name,
-						avatarUrl: args.avatarUrl,
-					})
-				} else {
-					await ctx.db.insert("users", {
-						name: args.name,
-						avatarUrl: args.avatarUrl,
-						clerkId: args.clerkId,
-					})
-				}
-			})
-		})
+		return getUserByClerkId(args.clerkId).pipe(
+			Effect.flatMap((existing) =>
+				Convex.db.patch(existing._id, {
+					name: args.name,
+					avatarUrl: args.avatarUrl,
+				}),
+			),
+			Effect.catchTag("ConvexDocNotFoundError", () =>
+				Convex.db.insert("users", {
+					name: args.name,
+					avatarUrl: args.avatarUrl,
+					clerkId: args.clerkId,
+				}),
+			),
+		)
 	},
 })
 
@@ -39,18 +41,26 @@ export const remove = internalEffectMutation({
 		clerkId: brandedString("clerkId"),
 	},
 	handler(args) {
-		return Effect.gen(function* () {
-			const existing = yield* withQueryCtx((ctx) =>
-				getOneFrom(ctx.db, "users", "clerkId", args.clerkId),
-			)
-
-			if (!existing) {
-				return null
-			}
-
-			return yield* withMutationCtx(async (ctx) => {
-				await ctx.db.delete(existing._id)
-			})
-		})
+		return getUserByClerkId(args.clerkId).pipe(
+			Effect.flatMap((existing) => Convex.db.delete(existing._id)),
+			Effect.catchTag("ConvexDocNotFoundError", () => Effect.void),
+		)
 	},
 })
+
+export function getCurrentUser() {
+	return Effect.gen(function* () {
+		const identity = yield* Convex.auth.getUserIdentity()
+		return yield* Convex.db
+			.query("users")
+			.withIndex("clerkId", (q) => q.eq("clerkId", identity.subject as Branded<"clerkId">))
+			.first()
+	})
+}
+
+export function getUserByClerkId(clerkId: Branded<"clerkId">) {
+	return Convex.db
+		.query("users")
+		.withIndex("clerkId", (q) => q.eq("clerkId", clerkId))
+		.first()
+}

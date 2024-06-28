@@ -31,7 +31,7 @@ http.route({
 			})
 		}
 
-		const metadata = await ctx.runQuery(internal.storage.functions.getMetadata, {
+		const metadata = await ctx.runQuery(internal.storage.getMetadata, {
 			storageId: storageId as Id<"_storage">,
 		})
 

@@ -1,12 +1,11 @@
-import { getOneFrom } from "convex-helpers/server/relationships"
 import type { UserIdentity } from "convex/server"
 import { ConvexError } from "convex/values"
-import { Effect, pipe } from "effect"
+import { Effect } from "effect"
 import { Result } from "../../app/helpers/Result.ts"
-import type { Overwrite } from "../../app/helpers/types.ts"
 import type { QueryCtx } from "../_generated/server.js"
 import type { Branded } from "../helpers/convex.js"
-import { QueryCtxService, queryDoc, withQueryCtx } from "../helpers/effect.ts"
+import { Convex, QueryCtxService } from "../helpers/effect.ts"
+import { getCurrentUser, getUserByClerkId } from "../users.ts"
 
 /** @deprecated */
 export function getIdentity(ctx: QueryCtx) {
@@ -26,46 +25,36 @@ export function getUserFromIdentity(ctx: QueryCtx) {
 		if (!identity) {
 			throw new ConvexError("Not logged in")
 		}
-		return await Effect.runPromise(
-			pipe(
-				getUserFromClerkId(identity.subject as Branded<"clerkId">),
-				Effect.provideService(QueryCtxService, ctx),
-			),
+		return await getUserByClerkId(identity.subject as Branded<"clerkId">).pipe(
+			Effect.provideService(QueryCtxService, ctx),
+			Effect.runPromise,
 		)
 	})
 }
 
-export class NotLoggedInError {
-	readonly _tag = "NotLoggedInError"
-}
-
+/** @deprecated */
 export class UserNotFoundError {
 	readonly _tag = "UserNotFoundError"
 }
 
+/** @deprecated */
 export class UnauthorizedError {
 	readonly _tag = "UnauthorizedError"
 }
 
+/** @deprecated */
 export function getIdentityEffect() {
-	return withQueryCtx((ctx) => ctx.auth.getUserIdentity()).pipe(
-		Effect.filterOrFail(
-			(identity) => identity !== null,
-			() => new NotLoggedInError(),
-		),
-		Effect.map((identity) => identity as Overwrite<UserIdentity, { subject: Branded<"clerkId"> }>),
-	)
+	return Convex.auth.getUserIdentity()
 }
 
+/** @deprecated */
 export function getUserFromClerkId(clerkId: Branded<"clerkId">) {
-	return pipe(
-		queryDoc(async (ctx) => await getOneFrom(ctx.db, "users", "clerkId", clerkId)),
+	return getUserByClerkId(clerkId).pipe(
 		Effect.catchTag("ConvexDocNotFoundError", () => Effect.fail(new UserNotFoundError())),
 	)
 }
 
+/** @deprecated */
 export function getUserFromIdentityEffect() {
-	return getIdentityEffect().pipe(
-		Effect.flatMap((identity) => getUserFromClerkId(identity.subject)),
-	)
+	return getCurrentUser()
 }

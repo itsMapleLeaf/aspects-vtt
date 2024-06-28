@@ -26,7 +26,7 @@ import {
 	effectQuery,
 	getDoc,
 	insertDoc,
-	updateDoc,
+	patchDoc,
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.ts"
@@ -110,7 +110,7 @@ export const randomize = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			yield* ensureViewerCharacterPermissions(args.id)
-			yield* updateDoc(args.id, generateRandomCharacterProperties())
+			yield* patchDoc(args.id, generateRandomCharacterProperties())
 		})
 	},
 })
@@ -194,7 +194,7 @@ export const applyStress = effectMutation({
 							Math.max((character[property] ?? 0) + amount, 0),
 						]),
 					)
-					return updateDoc(character._id, data)
+					return patchDoc(character._id, data)
 				},
 				{ concurrency: "unbounded" },
 			)

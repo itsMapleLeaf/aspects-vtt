@@ -25,8 +25,8 @@ export function ImageUploader(props: ImageUploaderProps) {
 }
 
 function useImageUploaderState({ imageId, fallbackUrl, onUpload, ...props }: ImageUploaderProps) {
-	const getUploadUrl = useMutation(api.storage.functions.getUploadUrl)
-	const removeFile = useMutation(api.storage.functions.remove)
+	const getUploadUrl = useMutation(api.storage.getUploadUrl)
+	const removeFile = useMutation(api.storage.remove)
 
 	const [state, upload, pending] = useSafeAction(async function upload(file: File) {
 		const url = await getUploadUrl({})
