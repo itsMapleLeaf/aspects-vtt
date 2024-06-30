@@ -3,9 +3,9 @@ import { Suspense, useRef } from "react"
 import banner from "~/assets/banner.webp"
 import { useWindowEvent } from "~/helpers/dom/events.ts"
 import { unwrap } from "~/helpers/errors.ts"
-import { AppHeader } from "../../ui/AppHeader.tsx"
-import { Loading } from "../../ui/Loading.tsx"
-import { ScrollArea } from "../../ui/ScrollArea.tsx"
+import { AppHeader } from "~/ui/AppHeader.tsx"
+import { Loading } from "~/ui/Loading.tsx"
+import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import "./markdown.css"
 
 export async function loader() {

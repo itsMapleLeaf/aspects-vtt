@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { Link, Outlet, useLoaderData } from "@remix-run/react"
-import { AppHeader } from "../../ui/AppHeader.tsx"
-import { getTestCaseSlugs } from "./helpers.ts"
+import { AppHeader } from "~/ui/AppHeader.tsx"
+import { getTestCaseSlugs } from "./test-cases.ts"
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const caseSlugs = getTestCaseSlugs()
