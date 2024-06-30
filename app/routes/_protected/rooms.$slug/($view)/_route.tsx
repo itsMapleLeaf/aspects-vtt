@@ -1,34 +1,21 @@
 import { useQuery } from "convex/react"
-import { Iterator } from "iterator-helpers-polyfill"
-import * as Lucide from "lucide-react"
-import { Suspense, useCallback, useEffect, useRef, type RefObject } from "react"
-import { useOwnedCharacter } from "~/modules/characters/hooks.ts"
+import { Suspense, useCallback, useEffect, useRef } from "react"
+import { CombatTurnBanner } from "~/modules/combat/CombatTurnBanner.tsx"
 import { ResourceList } from "~/modules/resources/ResourceList.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { api } from "../../../../../convex/_generated/api.js"
 import { CharacterSelectionProvider } from "../../../../modules/characters/CharacterSelectionProvider.tsx"
 import { GameTime } from "../../../../modules/game/GameTime.tsx"
-import { listGeneralSkills } from "../../../../modules/general-skills/data.ts"
 import { MessageInput } from "../../../../modules/messages/MessageInput.tsx"
 import { MessageList } from "../../../../modules/messages/MessageList.tsx"
-import { CombatInitiative } from "../../../../modules/rooms/CombatInitiative.tsx"
-import { RoomOwnerOnly, useRoom } from "../../../../modules/rooms/roomContext.tsx"
-import { RoomSettingsForm } from "../../../../modules/rooms/RoomSettingsForm.tsx"
-import {
-	Toolbar,
-	ToolbarButton,
-	ToolbarPopoverButton,
-	ToolbarSeparator,
-} from "../../../../modules/rooms/RoomToolbar.tsx"
-import { RoomTool, RoomToolbarStore } from "../../../../modules/rooms/RoomToolbarStore.tsx"
+import { useRoom } from "../../../../modules/rooms/roomContext.tsx"
+import { RoomToolbar } from "../../../../modules/rooms/RoomToolbar.tsx"
+import { RoomToolbarStore } from "../../../../modules/rooms/RoomToolbarStore.tsx"
 import { SceneProvider } from "../../../../modules/scenes/SceneContext.tsx"
 import { SceneMap } from "../../../../modules/scenes/SceneMap.tsx"
 import { AppHeader } from "../../../../ui/AppHeader.tsx"
-import { DefinitionList } from "../../../../ui/DefinitionList.tsx"
-import { Panel, TranslucentPanel } from "../../../../ui/Panel.tsx"
-import { Popover, PopoverPanel, PopoverTrigger } from "../../../../ui/Popover.tsx"
+import { TranslucentPanel } from "../../../../ui/Panel.tsx"
 import { ScrollArea } from "../../../../ui/ScrollArea.tsx"
-import { panel } from "../../../../ui/styles.ts"
 
 export default function RoomRoute() {
 	return (
@@ -144,129 +131,5 @@ function SceneHeading() {
 				{gameTime.year + 1}
 			</p>
 		</h2>
-	)
-}
-
-function RoomToolbar() {
-	const toolbarRef = useRef<HTMLElement>(null)
-	return (
-		<Toolbar ref={toolbarRef}>
-			<AreaToolButton />
-
-			{/* <ToolbarButton
-				text="Reset View"
-				icon={<Lucide.Compass />}
-				onClick={() => {
-					// todo
-				}}
-			/> */}
-
-			<ToolbarSeparator />
-
-			<ToolbarPopoverButton
-				id="combatInitiative"
-				text="Combat Initiative"
-				icon={<Lucide.ListStart />}
-			>
-				<div className="p-4">
-					<CombatInitiative />
-				</div>
-			</ToolbarPopoverButton>
-
-			<ToolbarPopoverButton id="generalSkills" text="General Skills" icon={<Lucide.Hammer />}>
-				<div className="p-4">
-					<GeneralSkillsList />
-				</div>
-			</ToolbarPopoverButton>
-
-			<ToolbarPopoverButton id="combatInfo" text="Combat Info" icon={<Lucide.Swords />}>
-				<div className="p-4">
-					<CombatDetails />
-				</div>
-			</ToolbarPopoverButton>
-
-			<ToolbarSeparator />
-
-			<RoomOwnerOnly>
-				<ToolbarPopoverButton id="settings" text="Settings" icon={<Lucide.Settings />}>
-					<RoomSettingsForm />
-				</ToolbarPopoverButton>
-			</RoomOwnerOnly>
-		</Toolbar>
-	)
-}
-
-function CharacterListToolbarButton({ toolbarRef }: { toolbarRef: RefObject<HTMLElement> }) {
-	return (
-		<Popover>
-			<PopoverTrigger render={<ToolbarButton icon={<Lucide.Users />} text="Characters" />} />
-			<PopoverPanel
-				getAnchorRect={() => toolbarRef.current?.getBoundingClientRect() ?? null}
-				className="w-[calc(100vw-4rem)] max-w-screen-md p-2"
-			>
-				<ScrollArea scrollbarPosition="outside" className="size-full" wheelDirection="horizontal">
-					<div className="grid h-24 grid-flow-col gap-2">
-						{Iterator.range(64)
-							.map((i) => (
-								<Panel key={i} className="aspect-square">
-									Character {i}
-								</Panel>
-							))
-							.toArray()}
-					</div>
-				</ScrollArea>
-			</PopoverPanel>
-		</Popover>
-	)
-}
-
-function AreaToolButton() {
-	const state = RoomToolbarStore.useState()
-	const actions = RoomToolbarStore.useActions()
-	return (
-		<ToolbarButton
-			text="Draw Area"
-			icon={<Lucide.SquareDashedMousePointer />}
-			active={state.activeTool === RoomTool.Draw}
-			onClick={actions.toggleDrawTool}
-		/>
-	)
-}
-
-function CombatDetails() {
-	return (
-		<ul className="flex list-inside list-disc flex-col gap-1.5">
-			<li>Make one action</li>
-			<li>Take 1 fatigue → one extra action</li>
-			<li>
-				Move meters <abbr title="less than or equal to">≤</abbr> mobility
-			</li>
-		</ul>
-	)
-}
-
-function GeneralSkillsList() {
-	return (
-		<DefinitionList
-			items={[...listGeneralSkills()].toSorted((a, b) => a.name.localeCompare(b.name)) ?? []}
-		/>
-	)
-}
-
-function CombatTurnBanner() {
-	const room = useRoom()
-	const character = useOwnedCharacter()
-	const isTurn =
-		room.combat?.currentMemberId && character && room.combat.currentMemberId === character._id
-	return (
-		<div
-			className={panel(
-				"flex-center invisible fixed inset-x-0 top-20 mx-auto max-w-sm translate-y-2 p-3 text-center opacity-0 shadow-md transition-all",
-				isTurn && "visible translate-y-0 opacity-100",
-			)}
-		>
-			<h2 className="text-2xl font-light">It's your turn!</h2>
-			<p>What will you do?</p>
-		</div>
 	)
 }

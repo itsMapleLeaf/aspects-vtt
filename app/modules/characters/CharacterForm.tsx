@@ -99,9 +99,9 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			</div>
 
 			{hasUpdatePermissions && (
-				<FormField label="Status">
+				<div className="grid grid-flow-col gap-current">
 					<CharacterStatusFields character={character} />
-				</FormField>
+				</div>
 			)}
 
 			<CharacterNotesFields character={character} />

@@ -23,6 +23,8 @@ interface ButtonPropsBase {
 	pending?: boolean
 	appearance?: "solid" | "clear"
 	size?: "sm" | "md" | "lg"
+	square?: boolean
+	active?: boolean
 }
 
 export interface ButtonPropsAsButton extends ComponentProps<"button">, ButtonPropsBase {
@@ -48,6 +50,8 @@ export function Button({
 	icon,
 	size = "md",
 	appearance = "solid",
+	square,
+	active,
 	pending: pendingProp,
 	tooltip,
 	tooltipPlacement,
@@ -65,9 +69,9 @@ export function Button({
 
 		"flex-center-row gap-2",
 
-		size === "sm" && "h-8 px-2",
-		size === "md" && "h-10 px-3",
-		size === "lg" && "h-12 px-4",
+		size === "sm" && (square ? "size-8" : "h-8 px-2"),
+		size === "md" && (square ? "size-10" : "h-10 px-3"),
+		size === "lg" && (square ? "size-12" : "h-12 px-4"),
 
 		"transition active:duration-0",
 		"translate-y-0 active:translate-y-0.5",
@@ -82,6 +86,8 @@ export function Button({
 			"relative before:absolute before:inset-0 before:size-full",
 			"before:transition active:before:duration-0",
 			"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
+
+			active && "text-primary-800",
 		],
 
 		appearance === "clear" && [
@@ -92,6 +98,8 @@ export function Button({
 			"border-transparent",
 
 			"translate-y-0 active:translate-y-0.5",
+
+			active && "bg-primary-800 bg-opacity-10 text-primary-800 text-opacity-100",
 		],
 	)
 
@@ -99,7 +107,7 @@ export function Button({
 		<>
 			<span
 				data-size={size}
-				className="flex-center-row relative -mx-0.5 size-5 *:size-5 empty:hidden data-[size=lg]:size-8 *:data-[size=lg]:size-8"
+				className="flex-center-row relative -mx-0.5 size-5 *:size-full empty:hidden data-[size=lg]:size-8 data-[size=md]:size-6"
 			>
 				{pending ?
 					<Loading size="sm" fill="parent" />
