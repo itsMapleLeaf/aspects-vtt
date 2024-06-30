@@ -2,6 +2,7 @@ import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton } from "@clerk/re
 import { Outlet, useHref, useLocation } from "@remix-run/react"
 import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
 import * as Lucide from "lucide-react"
+import { Suspense } from "react"
 import { useUser } from "~/modules/auth/hooks.ts"
 import { AppHeaderLayout } from "~/ui/AppHeaderLayout.tsx"
 import { Button } from "~/ui/Button.tsx"
@@ -11,7 +12,9 @@ import { Loading } from "~/ui/Loading.tsx"
 export default function ProtectedRoute() {
 	return (
 		<ProtectedLayout>
-			<Outlet />
+			<Suspense fallback={<Loading fill="screen" />}>
+				<Outlet />
+			</Suspense>
 		</ProtectedLayout>
 	)
 }

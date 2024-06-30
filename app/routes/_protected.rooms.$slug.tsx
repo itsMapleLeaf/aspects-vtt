@@ -37,30 +37,41 @@ export default function RoomRoute() {
 					<div className="absolute inset-x-0 top-0 flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
 						<AppHeader />
 					</div>
-					<div className="flex-center absolute inset-x-0 top-6"></div>
-					<SceneHeading />
-					<CombatTurnBanner />
+					<Suspense>
+						<SceneHeading />
+					</Suspense>
+					<Suspense>
+						<CombatTurnBanner />
+					</Suspense>
 				</div>
 
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
 					<div className="h-[calc(100%-4rem)] min-h-0 flex-1">
 						<TranslucentPanel className="pointer-events-auto h-full w-64 gap-2 p-2">
-							<ResourceList />
+							<Suspense fallback={<Loading fill="parent" />}>
+								<ResourceList />
+							</Suspense>
 						</TranslucentPanel>
 					</div>
 
 					<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
-						<RoomToolbar />
+						<Suspense>
+							<RoomToolbar />
+						</Suspense>
 					</TranslucentPanel>
 
-					<div className="flex h-full min-h-0 flex-1 flex-col items-end justify-end">
-						<div className="flex min-h-0 flex-1 flex-col justify-end">
-							<MessageListScroller />
-						</div>
-						<div className="flex w-[20rem] flex-col gap-2">
-							<TranslucentPanel element={<aside />} className="pointer-events-auto gap-2 p-2">
-								<MessageInput />
-							</TranslucentPanel>
+					<div className="flex h-full min-h-0 flex-1 flex-col items-end">
+						<div className="flex h-full min-h-0 w-[20rem] flex-1 flex-col">
+							<Suspense fallback={<Loading fill="parent" />}>
+								<div className="flex min-h-0 flex-1 flex-col justify-end">
+									<MessageListScroller />
+								</div>
+								<div className="flex flex-col gap-2">
+									<TranslucentPanel element={<aside />} className="pointer-events-auto gap-2 p-2">
+										<MessageInput />
+									</TranslucentPanel>
+								</div>
+							</Suspense>
 						</div>
 					</div>
 				</div>
@@ -106,15 +117,17 @@ function MessageListScroller() {
 	}, [])
 
 	return (
-		<ScrollArea
-			className="pointer-events-auto -mr-2 w-[21rem]"
-			viewportRef={viewportRef}
-			scrollbarPosition="inside"
-		>
-			<div className="p-2">
-				<MessageList onMessageAdded={handleMessageAdded} />
-			</div>
-		</ScrollArea>
+		<div className="-mx-2 h-full">
+			<ScrollArea
+				className="pointer-events-auto"
+				viewportRef={viewportRef}
+				scrollbarPosition="inside"
+			>
+				<div className="p-2">
+					<MessageList onMessageAdded={handleMessageAdded} />
+				</div>
+			</ScrollArea>
+		</div>
 	)
 }
 
