@@ -5,7 +5,7 @@
 	"scripts": {
 		"preinstall": "npx only-allow bun",
 		"build": "remix vite:build",
-		"dev": "run-p --race \"dev:*\"",
+		"dev": "run-p --race --print-label \"dev:*\"",
 		"dev:remix": "remix vite:dev",
 		"dev:convex": "convex dev --tail-logs",
 		"preview": "dotenv -c -- remix-serve ./build/server/index.js",
