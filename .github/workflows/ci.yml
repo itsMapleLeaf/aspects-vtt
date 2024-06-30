@@ -59,10 +59,6 @@ jobs:
 
   playwright:
     runs-on: ubuntu-latest
-    env:
-      CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
-      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-      VITE_CONVEX_URL: ${{ vars.VITE_CONVEX_URL }}
     steps:
       - name: "🛒 Checkout"
         uses: actions/checkout@v4
@@ -80,6 +76,10 @@ jobs:
 
       - name: "🧪 Run Playwright tests"
         run: bunx playwright test
+        env:
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          VITE_CONVEX_URL: ${{ vars.VITE_CONVEX_URL }}
 
       - name: "📝 Upload Playwright report"
         uses: actions/upload-artifact@v3
