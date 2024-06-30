@@ -3,10 +3,10 @@ import { Outlet, useHref, useLocation } from "@remix-run/react"
 import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useUser } from "~/modules/auth/hooks.ts"
-import { AppHeaderLayout } from "../../ui/AppHeaderLayout.tsx"
-import { Button } from "../../ui/Button.tsx"
-import { EmptyStatePanel } from "../../ui/EmptyState.tsx"
-import { Loading } from "../../ui/Loading.tsx"
+import { AppHeaderLayout } from "~/ui/AppHeaderLayout.tsx"
+import { Button } from "~/ui/Button.tsx"
+import { EmptyStatePanel } from "~/ui/EmptyState.tsx"
+import { Loading } from "~/ui/Loading.tsx"
 
 export default function ProtectedRoute() {
 	return (
