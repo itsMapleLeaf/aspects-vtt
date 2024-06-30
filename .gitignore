@@ -8,3 +8,5 @@ node_modules
 .vscode/settings.json
 .vercel
 /convex-backend
+/playwright-report
+/test-results
