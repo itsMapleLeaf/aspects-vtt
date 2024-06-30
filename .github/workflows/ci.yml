@@ -28,7 +28,7 @@ jobs:
         with:
           bun-version: latest
 
-      - name: "📥 Install dependencies"
+      - name: "📦 Install dependencies"
         run: bun install
 
       - name: "▶️ Run ${{ matrix.command.name }}"
@@ -51,11 +51,39 @@ jobs:
         with:
           node-version: "22"
 
-      - name: "📥 Install dependencies"
+      - name: "📦 Install dependencies"
         run: bun install
 
       - name: "🧪 Run tests"
         run: bun run test
+
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "🛒 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🐰 Setup Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: "📦 Install dependencies"
+        run: bun install
+
+      - name: "🌐 Install Playwright browsers"
+        run: bunx playwright install
+
+      - name: "🧪 Run Playwright tests"
+        run: bunx playwright test
+
+      - name: "📝 Upload Playwright report"
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 3
 
   format:
     if: (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/main'
@@ -71,7 +99,7 @@ jobs:
         with:
           bun-version: latest
 
-      - name: "📥 Install dependencies"
+      - name: "📦 Install dependencies"
         run: bun install
 
       - name: "💅 Format"
