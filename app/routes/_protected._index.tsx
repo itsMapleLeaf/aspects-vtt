@@ -11,13 +11,7 @@ import { Loading } from "~/ui/Loading.tsx"
 import { panel } from "~/ui/styles.ts"
 import { api } from "../../convex/_generated/api.js"
 
-// rendering the protected layout here is a workaround;
-// there's a bug in the vercel preset that prevents index routes in layout routes from working
 export default function RoomListRoute() {
-	return <Content />
-}
-
-function Content() {
 	const rooms = useQuery(api.rooms.functions.list, {})
 	const createRoom = useMutation(api.rooms.functions.create)
 	const navigate = useNavigate()
