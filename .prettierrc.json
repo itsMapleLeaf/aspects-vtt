@@ -12,6 +12,12 @@
 	"tailwindFunctions": ["twMerge", "twc"],
 	"overrides": [
 		{
+			"files": "package.json",
+			"options": {
+				"useTabs": false
+			}
+		},
+		{
 			"files": "{pnpm-lock.yaml,convex/_generated/**}",
 			"options": {
 				"requirePragma": true
