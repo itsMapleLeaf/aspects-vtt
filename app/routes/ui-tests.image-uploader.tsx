@@ -1,6 +1,6 @@
 import bannerUrl from "~/assets/banner.webp"
 import { ImageUploader } from "~/modules/api-images/ImageUploader.tsx"
-import { PageSection } from "../PageSection.tsx"
+import { PageSection } from "./ui-tests/PageSection.tsx"
 
 export default function ImageUploaderTest() {
 	return (

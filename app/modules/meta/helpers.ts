@@ -1,7 +1,8 @@
 import type { MetaDescriptor } from "@remix-run/react"
-import banner from "../../assets/banner.webp"
 
-const site = {
+const bannerUrl = new URL("../../assets/banner.webp", import.meta.url).href
+
+export const site = {
 	title: "Aspects of Nature",
 	description: "Harness the power of nature to further your destiny.",
 	domain: "https://aspects.mapleleaf.dev",
@@ -22,13 +23,13 @@ export function getSiteMeta(
 		{ property: "og:type", content: "website" },
 		{ property: "og:title", content: title },
 		{ property: "og:description", content: description },
-		{ property: "og:image", content: options.image ?? banner },
+		{ property: "og:image", content: options.image ?? bannerUrl },
 
 		{ name: "twitter:card", content: "summary_large_image" },
 		{ name: "twitter:domain", content: site.domain },
 		{ name: "twitter:url", content: site.domain },
 		{ name: "twitter:title", content: title },
 		{ name: "twitter:description", content: description },
-		{ name: "twitter:image", content: options.image ?? banner },
+		{ name: "twitter:image", content: options.image ?? bannerUrl },
 	]
 }

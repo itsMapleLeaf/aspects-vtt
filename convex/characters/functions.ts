@@ -37,6 +37,7 @@ import { userColorValidator } from "../types.ts"
 import {
 	ensureRoomHasCharacters,
 	ensureViewerCharacterPermissions,
+	getCharacterAttributeDiceInputs,
 	normalizeCharacter,
 	protectCharacter,
 } from "./helpers.ts"
@@ -301,30 +302,11 @@ export const rollAttribute = effectMutation({
 			const characters = yield* ensureRoomHasCharacters(args.roomId, args.characterIds)
 			return yield* createMessages(
 				characters.map((character) => {
-					const statValue = character[args.attribute] ?? 4
-					const modifier = character.modifiers?.find(
-						(modifier) => modifier.attribute === args.attribute,
-					)
+					const dice = getCharacterAttributeDiceInputs({ ...args, character })
 					return {
 						roomId: args.roomId,
 						content: `${formatCharacterMention(character._id)} rolled ${titleCase(args.attribute)}`,
-						dice: [
-							{
-								name: `d${statValue}`,
-								sides: statValue,
-								count: 2 + (modifier?.attributeDice ?? 0),
-							},
-							{
-								name: "boost",
-								sides: 4,
-								count: (args.boostCount ?? 0) + (modifier?.boostDice ?? 0),
-							},
-							{
-								name: "snag",
-								sides: 4,
-								count: (args.snagCount ?? 0) + (modifier?.snagDice ?? 0),
-							},
-						],
+						dice,
 					}
 				}),
 			)

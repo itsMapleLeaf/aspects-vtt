@@ -1,5 +1,5 @@
 import { LucideFileQuestion } from "lucide-react"
-import { EmptyState } from "../../../ui/EmptyState.tsx"
+import { EmptyState } from "~/ui/EmptyState.tsx"
 
 import type { LoaderFunctionArgs } from "@remix-run/node"
 

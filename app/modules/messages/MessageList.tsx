@@ -3,7 +3,7 @@ import { useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
 import { formatDistanceToNow } from "date-fns"
 import { HelpCircle } from "lucide-react"
-import { Fragment, useLayoutEffect } from "react"
+import { Fragment, useEffect } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { chunk } from "../../helpers/array.ts"
 import { TranslucentPanel } from "../../ui/Panel.tsx"
@@ -20,7 +20,7 @@ export function MessageList({ onMessageAdded }: { onMessageAdded: () => void }) 
 	const [animateRef] = useAutoAnimate()
 
 	const lastMessageId = messages?.[0]?._id
-	useLayoutEffect(() => {
+	useEffect(() => {
 		if (lastMessageId) {
 			onMessageAdded()
 		}

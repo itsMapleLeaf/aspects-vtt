@@ -6,12 +6,15 @@ import {
 	getFunctionName,
 	type OptionalRestArgs,
 } from "convex/server"
+import { LRUCache } from "lru-cache"
 import { use, useEffect } from "react"
 import { clientEnv } from "~/env.ts"
 
 type PublicQuery = FunctionReference<"query", "public">
 
-const cache = new Map<string, Promise<unknown>>()
+const cache = new LRUCache<string, Promise<unknown>>({
+	max: 100,
+})
 
 export function useQuerySuspense<Q extends PublicQuery>(
 	query: Q,

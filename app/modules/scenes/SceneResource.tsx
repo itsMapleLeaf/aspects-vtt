@@ -1,7 +1,6 @@
 import { useConvex, useMutation } from "convex/react"
 import { LucideDoorOpen, LucideImage, LucideImagePlay, LucideImagePlus } from "lucide-react"
 import React, { useEffect, useState } from "react"
-import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { loadImage } from "~/helpers/dom/images.ts"
 import type { Overwrite } from "~/helpers/types.ts"
@@ -63,11 +62,8 @@ function SceneTreeElement({ scene }: { scene: ApiScene }) {
 						text={scene.name}
 						icon={isCurrent ? <LucideImagePlay /> : <LucideImage />}
 						appearance="clear"
-						className={twMerge(
-							"w-full justify-start",
-							isCurrent &&
-								"bg-primary-800 bg-opacity-10 text-primary-800 text-opacity-100 hover:bg-opacity-25",
-						)}
+						active={isCurrent}
+						className="w-full justify-start"
 					/>
 				}
 			/>

@@ -2,7 +2,7 @@ import { LucideCheck, LucideTrash, LucideX } from "lucide-react"
 import { Button } from "~/ui/Button.tsx"
 import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
 import { useToaster } from "~/ui/Toaster.tsx"
-import { PageSection } from "../PageSection.tsx"
+import { PageSection } from "./ui-tests/PageSection.tsx"
 
 export default function ConfirmModalTest() {
 	const toast = useToaster()

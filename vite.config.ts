@@ -6,7 +6,6 @@ import rehypeSlug from "rehype-slug"
 import remarkFrontmatter from "remark-frontmatter"
 import remarkGfm from "remark-gfm"
 import remarkMdxFrontmatter from "remark-mdx-frontmatter"
-import { flatRoutes } from "remix-flat-routes"
 import { remixRoutes } from "remix-routes/vite.js"
 import { visualizer } from "rollup-plugin-visualizer"
 import { defineConfig } from "vite"
@@ -32,8 +31,6 @@ export default defineConfig({
 			},
 		}),
 		remix({
-			routes: async (defineRoutes) => flatRoutes("routes", defineRoutes),
-			ignoredRouteFiles: ["**/*"],
 			future: {
 				v3_fetcherPersist: true,
 				v3_relativeSplatPath: true,
