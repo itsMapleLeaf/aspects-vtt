@@ -3,7 +3,10 @@ import { sum } from "lodash-es"
 import { clamp } from "~/helpers/math.ts"
 import { pick } from "~/helpers/object.ts"
 import type { RequiredKeys } from "~/helpers/types.ts"
+import type { Attribute } from "~/modules/attributes/data.ts"
 import { getAttributePower, normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
+import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
+import { boostDiceKind, getDiceKindApiInput, snagDiceKind } from "~/modules/dice/data.tsx"
 import { Races } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import { UnauthorizedError, getUserFromIdentityEffect } from "../auth/helpers.ts"
@@ -137,4 +140,18 @@ export function ensureRoomHasCharacters(
 				:	Effect.fail(new CharactersNotInRoomError(charactersNotInRoom))
 		}),
 	)
+}
+
+export function getCharacterAttributeDiceInputs(args: {
+	character: Doc<"characters">
+	attribute: Attribute["id"]
+	boostCount?: number
+	snagCount?: number
+}) {
+	const attributeDiceKind = getCharacterAttributeDiceKind(args.character, args.attribute)
+	return [
+		getDiceKindApiInput(attributeDiceKind, 2),
+		getDiceKindApiInput(boostDiceKind, args.boostCount ?? 0),
+		getDiceKindApiInput(snagDiceKind, args.snagCount ?? 0),
+	]
 }

@@ -4,20 +4,21 @@ import { entries } from "~/helpers/object.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { getAspectSkill } from "../aspect-skills/data.ts"
 import type { Attribute } from "../attributes/data.ts"
+import { normalizeAttributeValue } from "../attributes/helpers.ts"
 import { statDiceKinds, statDiceKindsByName, type DiceKind } from "../dice/data.tsx"
 import { getRace } from "../races/data.ts"
-import type { ApiCharacter } from "./types.ts"
+import type { ApiCharacter, CharacterAttributeValues } from "./types.ts"
 
 export function formatCharacterMention(character: { _id: Id<"characters"> }) {
 	return `<@${character._id}>`
 }
 
 export function getCharacterAttributeDiceKind(
-	character: ApiCharacter,
-	attribute: Attribute,
+	character: CharacterAttributeValues,
+	attributeId: Attribute["id"],
 ): DiceKind {
-	const kind = statDiceKinds.find((kind) => kind.faces.length === character[attribute.id])
-	return kind ?? statDiceKindsByName.d4
+	const value = normalizeAttributeValue(character[attributeId])
+	return statDiceKinds[value - 1] ?? statDiceKindsByName.d4
 }
 
 export function listCharacterRaceAbilities(character: ApiCharacter) {
