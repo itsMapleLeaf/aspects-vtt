@@ -76,7 +76,7 @@ jobs:
         run: bun install
 
       - name: "🌐 Install Playwright browsers"
-        run: bunx playwright install --with-deps chrome firefox
+        run: bunx playwright install --with-deps chromium firefox
 
       - name: "🧪 Run Playwright tests"
         run: bunx playwright test
