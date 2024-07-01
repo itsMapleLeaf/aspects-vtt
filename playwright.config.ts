@@ -21,9 +21,13 @@ export default defineConfig({
 			use: { ...devices["Desktop Firefox"] },
 		},
 	],
-	webServer: {
-		command: "bun run dev:remix",
-		url: "http://localhost:5173",
-		reuseExistingServer: !process.env.CI,
-	},
+	webServer: [
+		{
+			command: "bun run dev:remix",
+			url: "http://localhost:5173",
+			reuseExistingServer: !process.env.CI,
+			stdout: "pipe",
+		},
+	],
+	globalSetup: "./tests/global-setup.ts",
 })
