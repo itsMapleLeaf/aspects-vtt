@@ -1,21 +1,25 @@
 import * as Lucide from "lucide-react"
 import type { Falsy } from "~/helpers/types.ts"
 import { Button } from "~/ui/Button.tsx"
+import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "~/ui/Modal.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { useOwnedCharacter } from "../characters/hooks.ts"
 import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
+import { QuickReference } from "../game/QuickReference.tsx"
 import { useRoom } from "./roomContext.tsx"
 import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
 import { RoomTool, RoomToolbarStore } from "./RoomToolbarStore.tsx"
 
-interface ToolbarItem {
+type ToolbarItem = {
 	name: string
 	icon: React.ReactNode
 	active?: boolean
-	onClick?: () => void
-	popoverContent?: React.ReactNode
-}
+} & (
+	| { type: "button"; onClick: () => void }
+	| { type: "popover"; content: React.ReactNode }
+	| { type: "modal"; title: string; panel: React.ReactNode }
+)
 
 const separator = Symbol("separator")
 
@@ -27,6 +31,7 @@ export function RoomToolbar() {
 
 	const toolbarItems: Array<ToolbarItem | typeof separator | Falsy> = [
 		{
+			type: "button",
 			name: "Draw Area",
 			icon: <Lucide.SquareDashedMousePointer />,
 			active: state.activeTool === RoomTool.Draw,
@@ -34,14 +39,16 @@ export function RoomToolbar() {
 		},
 		separator,
 		{
+			type: "popover",
 			name: "Actions",
 			icon: <Lucide.Zap />,
-			popoverContent: <p>todo figure this out</p>,
+			content: <p>todo figure this out</p>,
 		},
 		character && {
+			type: "popover",
 			name: "Status",
 			icon: <Lucide.BarChart2 />,
-			popoverContent: (
+			content: (
 				<div className="grid w-48 gap-2 p-2">
 					<CharacterStatusFields character={character} />
 				</div>
@@ -49,29 +56,37 @@ export function RoomToolbar() {
 		},
 		separator,
 		room.isOwner && {
+			type: "popover",
 			name: "Date & Time",
 			icon: <Lucide.CalendarClock />,
-			popoverContent: (
+			content: (
 				<div className="w-96">
 					<DateTimeSettingsForm />
 				</div>
 			),
 		},
 		room.isOwner && {
+			type: "popover",
 			name: "Settings",
 			icon: <Lucide.Settings />,
-			popoverContent: (
+			content: (
 				<div className="w-64">
 					<RoomSettingsForm />
 				</div>
 			),
 		},
 		{
+			type: "modal",
 			name: "Help",
 			icon: <Lucide.HelpCircle />,
-			onClick: () => {
-				// todo
-			},
+			title: "Help",
+			panel: (
+				<ModalPanel title="Quick Reference" className="max-w-screen-md" fullHeight>
+					<ModalPanelContent>
+						<QuickReference />
+					</ModalPanelContent>
+				</ModalPanel>
+			),
 		},
 	]
 
@@ -79,10 +94,20 @@ export function RoomToolbar() {
 		<nav aria-label="Toolbar" className="flex gap-2">
 			{toolbarItems.filter(Boolean).map((item, i) =>
 				item === separator ? <ToolbarSeparator key={i} />
-				: item.popoverContent ?
+				: item.type === "button" ?
+					<Button
+						key={i}
+						icon={item.icon}
+						tooltip={item.name}
+						appearance="clear"
+						size="md"
+						square
+						active={item.active}
+						onClick={item.onClick}
+					/>
+				: item.type === "popover" ?
 					<Popover key={i}>
 						<PopoverTrigger
-							onClick={item.onClick}
 							render={
 								<Button
 									key={i}
@@ -95,18 +120,26 @@ export function RoomToolbar() {
 								/>
 							}
 						/>
-						<PopoverPanel gutter={16}>{item.popoverContent}</PopoverPanel>
+						<PopoverPanel gutter={16}>{item.content}</PopoverPanel>
 					</Popover>
-				:	<Button
-						key={i}
-						icon={item.icon}
-						tooltip={item.name}
-						appearance="clear"
-						size="md"
-						square
-						active={item.active}
-						onClick={item.onClick}
-					/>,
+				: item.type === "modal" ?
+					<ModalProvider key={i}>
+						<ModalButton
+							render={
+								<Button
+									key={i}
+									icon={item.icon}
+									tooltip={item.name}
+									appearance="clear"
+									size="md"
+									square
+									active={item.active}
+								/>
+							}
+						/>
+						{item.panel}
+					</ModalProvider>
+				:	null,
 			)}
 		</nav>
 	)
