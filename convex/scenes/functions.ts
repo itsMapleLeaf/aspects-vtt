@@ -1,5 +1,5 @@
 import { v } from "convex/values"
-import { Console, Effect } from "effect"
+import { Effect } from "effect"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { partial, requireDoc } from "../helpers/convex.ts"
@@ -29,8 +29,10 @@ export const get = effectQuery({
 	handler(args) {
 		return requireSceneRoomOwner(args.id).pipe(
 			Effect.map(({ scene }) => scene),
-			Effect.tapError(Console.warn),
-			Effect.orElseSucceed(() => null),
+			Effect.catchTag("RoomNotOwnedError", () => Effect.succeed(null)),
+			Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
+			Effect.catchTag("NotLoggedInError", () => Effect.succeed(null)),
+			Effect.orDie,
 		)
 	},
 })
