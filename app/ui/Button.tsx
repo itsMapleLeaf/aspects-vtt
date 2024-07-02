@@ -25,6 +25,7 @@ interface ButtonPropsBase {
 	size?: "sm" | "md" | "lg"
 	square?: boolean
 	active?: boolean
+	align?: "start" | "middle" | "end"
 }
 
 export interface ButtonPropsAsButton extends ComponentProps<"button">, ButtonPropsBase {
@@ -55,6 +56,7 @@ export function Button({
 	pending: pendingProp,
 	tooltip,
 	tooltipPlacement,
+	align = "middle",
 	...props
 }: ButtonProps) {
 	const [transitionPending, startTransition] = useTransition()
@@ -67,11 +69,15 @@ export function Button({
 	const className = twMerge(
 		panel(),
 
-		"flex-center-row gap-2",
+		"flex items-center gap-2 text-left",
 
 		size === "sm" && (square ? "size-8" : "h-8 px-2"),
 		size === "md" && (square ? "size-10" : "h-10 px-3"),
 		size === "lg" && (square ? "size-12" : "h-12 px-4"),
+
+		align === "start" && "justify-start",
+		align === "middle" && "justify-center",
+		align === "end" && "justify-end",
 
 		"transition active:duration-0",
 		"translate-y-0 active:translate-y-0.5",
