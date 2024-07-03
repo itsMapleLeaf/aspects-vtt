@@ -1,5 +1,6 @@
 import * as Lucide from "lucide-react"
 import { Button } from "~/ui/Button.tsx"
+import { FormLayout } from "~/ui/Form.tsx"
 import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "~/ui/Modal.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
@@ -15,6 +16,23 @@ export function RoomToolbar() {
 	const actions = RoomToolbarStore.useActions()
 	const character = useOwnedCharacter()
 
+	const aspect =
+		character?.learnedAspectSkills?.length ?
+			character?.learnedAspectSkills?.reduce((a, b) =>
+				a.aspectSkillIds.length > b.aspectSkillIds.length ? a : b,
+			).aspectId
+		:	undefined
+
+	// yes, i'm petty
+	// prettier-ignore
+	const aspectIcon =
+		aspect === "fire" ? <Lucide.Flame /> :
+		aspect === "water" ? <Lucide.Droplet /> :
+		aspect === "wind" ? <Lucide.Wind /> :
+		aspect === "light" ? <Lucide.Sun /> :
+		aspect === "darkness" ? <Lucide.Moon /> :
+		<Lucide.Tornado />
+
 	return (
 		<nav aria-label="Toolbar" className="flex gap-2">
 			<ToolbarButton
@@ -26,8 +44,8 @@ export function RoomToolbar() {
 
 			<ToolbarSeparator />
 
-			<ToolbarPopover icon={<Lucide.Zap />} tooltip="Actions">
-				<p>todo figure this out</p>
+			<ToolbarPopover icon={aspectIcon} tooltip="Aspect Art">
+				<AspectArtStats />
 			</ToolbarPopover>
 
 			{character && (
@@ -125,5 +143,13 @@ function ToolbarModal({
 			<ModalButton render={<ToolbarButton icon={icon} tooltip={tooltip} />} />
 			{children}
 		</ModalProvider>
+	)
+}
+
+function AspectArtStats() {
+	return (
+		<FormLayout>
+			<p>placeholder</p>
+		</FormLayout>
 	)
 }
