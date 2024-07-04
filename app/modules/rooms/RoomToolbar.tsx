@@ -44,9 +44,11 @@ export function RoomToolbar() {
 
 			<ToolbarSeparator />
 
-			<ToolbarPopover icon={aspectIcon} tooltip="Aspect Art">
-				<AspectArtStats />
-			</ToolbarPopover>
+			<RoomOwnerOnly>
+				<ToolbarPopover icon={aspectIcon} tooltip="Aspect Art">
+					<AspectArtStats />
+				</ToolbarPopover>
+			</RoomOwnerOnly>
 
 			{character && (
 				<ToolbarPopover icon={<Lucide.HeartPulse />} tooltip="Status">
