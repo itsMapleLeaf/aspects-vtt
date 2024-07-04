@@ -17,6 +17,7 @@ import { withMergedClassName } from "./withMergedClassName"
 
 interface ButtonPropsBase {
 	icon: ReactNode
+	/** @deprecated Use `children` instead */
 	text?: ReactNode
 	tooltip?: ReactNode
 	tooltipPlacement?: TooltipProps["placement"]
@@ -57,6 +58,7 @@ export function Button({
 	tooltip,
 	tooltipPlacement,
 	align = "middle",
+	children,
 	...props
 }: ButtonProps) {
 	const [transitionPending, startTransition] = useTransition()
@@ -109,7 +111,7 @@ export function Button({
 		],
 	)
 
-	const children = (
+	const buttonChildren = (
 		<>
 			<span
 				data-size={size}
@@ -123,7 +125,7 @@ export function Button({
 				data-size={size}
 				className="shrink-1 relative min-w-0 overflow-clip text-ellipsis whitespace-nowrap empty:hidden"
 			>
-				{text}
+				{children ?? text}
 			</span>
 		</>
 	)
@@ -141,7 +143,7 @@ export function Button({
 		"element" in props ?
 			cloneElement(props.element, {
 				className: twMerge(className, props.className),
-				children,
+				children: buttonChildren,
 				onClick: handleClick,
 			})
 		:	<button
@@ -152,7 +154,7 @@ export function Button({
 				aria-disabled={props.disabled ?? pending}
 				onClick={handleClick}
 			>
-				{children}
+				{buttonChildren}
 			</button>
 
 	if (!tooltip) {
