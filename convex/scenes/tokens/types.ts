@@ -4,7 +4,7 @@ import { v } from "convex/values"
 export const sceneTokenProperties = {
 	key: brandedString("token"),
 	position: v.object({ x: v.number(), y: v.number() }),
-	visible: v.boolean(),
+	visible: v.optional(v.boolean()),
 	characterId: v.optional(v.id("characters")),
 	area: v.optional(
 		v.object({

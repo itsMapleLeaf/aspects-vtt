@@ -16,7 +16,7 @@ import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { twc } from "../../ui/twc.ts"
 import { listAspectSkillsByTier, listAspectSkillTiers, type Skill } from "../aspect-skills/data.ts"
-import { getAspect, listAspects } from "../aspects/data.ts"
+import { getAspect, listAspects, type Aspect } from "../aspects/data.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -124,7 +124,7 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 										{index > 0 && (
 											<LucideChevronsRight className="size-5 translate-y-[-0.5px] stroke-[2.5px] opacity-75" />
 										)}
-										<span>{getAspect(aspect).name}</span>
+										<span>{getAspect(aspect as Aspect["id"]).name}</span>
 									</Fragment>
 								))}
 							</ul>

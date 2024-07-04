@@ -2,7 +2,7 @@ import { Iterator } from "iterator-helpers-polyfill"
 import { $path } from "remix-routes"
 import { entries } from "~/helpers/object.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
-import { getAspectSkill } from "../aspect-skills/data.ts"
+import { getAspectSkill, SkillId } from "../aspect-skills/data.ts"
 import type { Attribute } from "../attributes/data.ts"
 import { normalizeAttributeValue } from "../attributes/helpers.ts"
 import { statDiceKinds, statDiceKindsByName, type DiceKind } from "../dice/data.tsx"
@@ -34,7 +34,7 @@ export function listCharacterRaceAbilities(character: ApiCharacter) {
 export function listCharacterAspectSkills(character: ApiCharacter) {
 	return Iterator.from(character.learnedAspectSkills ?? [])
 		?.flatMap((group) => group.aspectSkillIds)
-		.map(getAspectSkill)
+		.map((id) => getAspectSkill(SkillId(id)))
 		.filter((skill) => skill != null)
 }
 

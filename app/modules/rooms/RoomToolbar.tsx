@@ -31,7 +31,7 @@ export function RoomToolbar() {
 			</ToolbarPopover>
 
 			{character && (
-				<ToolbarPopover icon={<Lucide.BarChart2 />} tooltip="Status">
+				<ToolbarPopover icon={<Lucide.HeartPulse />} tooltip="Status">
 					<div className="grid w-48 gap-2 p-2">
 						<CharacterStatusFields character={character} />
 					</div>
