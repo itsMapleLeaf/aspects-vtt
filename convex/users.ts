@@ -5,7 +5,6 @@ import type { Branded } from "./helpers/convex.ts"
 import { Convex, effectQuery, internalEffectMutation } from "./helpers/effect.ts"
 
 export const me = effectQuery({
-	args: {},
 	handler() {
 		return getCurrentUser().pipe(Effect.orElseSucceed(() => null))
 	},

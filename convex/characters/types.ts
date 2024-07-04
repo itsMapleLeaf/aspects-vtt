@@ -1,7 +1,5 @@
 import { brandedString, literals, nullable } from "convex-helpers/validators"
 import { v, type Infer } from "convex/values"
-import { listAspectSkillIds } from "../../app/modules/aspect-skills/data.ts"
-import { listAspectNames } from "../../app/modules/aspects/data.ts"
 import { listAttributeIds } from "../../app/modules/attributes/data.ts"
 import { listRaceIds } from "../../app/modules/races/data.ts"
 import { nullish } from "../helpers/convex.ts"
@@ -36,8 +34,8 @@ export const characterProperties = {
 		// keep track of the order of aspects to calculate the correct EXP costs
 		v.array(
 			v.object({
-				aspectId: literals(...listAspectNames()),
-				aspectSkillIds: v.array(literals(...listAspectSkillIds())),
+				aspectId: v.string(),
+				aspectSkillIds: v.array(v.string()),
 			}),
 		),
 	),

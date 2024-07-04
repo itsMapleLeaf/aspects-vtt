@@ -15,12 +15,8 @@ import { Loading } from "../../ui/Loading.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { twc } from "../../ui/twc.ts"
-import {
-	listAspectSkillsByTier,
-	listAspectSkillTiers,
-	type AspectSkill,
-} from "../aspect-skills/data.ts"
-import { getAspect, listAspects } from "../aspects/data.ts"
+import { listAspectSkillsByTier, listAspectSkillTiers, type Skill } from "../aspect-skills/data.ts"
+import { getAspect, listAspects, type Aspect } from "../aspects/data.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -40,26 +36,21 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 	const computedSkillTree = listAspects()
 		.map((aspect) => ({
 			...aspect,
-			tiers: listAspectSkillTiers(aspect.id)
-				.map((tier) => ({
-					...tier,
-					skills: listAspectSkillsByTier(aspect.id, tier.number)
-						.map((skill) => {
-							// if the character already learned this aspect, calculate the cost based on the aspect index,
-							// otherwise, show how much it'll cost to learn this aspect (as if it's the last aspect in the list)
-							const aspectIndex = characterAspectList.indexOf(aspect.id)
-							const baseAspectCost =
-								(aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
-							const tierCost = tier.number * 10
-							return {
-								...skill,
-								cost: baseAspectCost + tierCost,
-								learned: characterSkillIds.has(skill.id),
-							}
-						})
-						.toArray(),
-				}))
-				.toArray(),
+			tiers: listAspectSkillTiers(aspect.id).map((tier) => ({
+				...tier,
+				skills: listAspectSkillsByTier(aspect.id, tier.number).map((skill) => {
+					// if the character already learned this aspect, calculate the cost based on the aspect index,
+					// otherwise, show how much it'll cost to learn this aspect (as if it's the last aspect in the list)
+					const aspectIndex = characterAspectList.indexOf(aspect.id)
+					const baseAspectCost = (aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
+					const tierCost = tier.number * 10
+					return {
+						...skill,
+						cost: baseAspectCost + tierCost,
+						learned: characterSkillIds.has(skill.id),
+					}
+				}),
+			})),
 		}))
 		.toArray()
 
@@ -91,7 +82,11 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 						.map((tier) => ({ ...tier, skills: tier.skills.filter((skill) => skill.learned) }))
 						.filter((tier) => tier.skills.length > 0)
 						.map((tier) => (
-							<TierSection key={tier.name} name={tier.name} number={tier.number}>
+							<TierSection
+								key={tier.name}
+								name={`${aspect.name}: ${tier.name}`}
+								number={tier.number}
+							>
 								<SkillList skills={tier.skills} character={character} />
 							</TierSection>
 						)),
@@ -129,7 +124,7 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 										{index > 0 && (
 											<LucideChevronsRight className="size-5 translate-y-[-0.5px] stroke-[2.5px] opacity-75" />
 										)}
-										<span>{getAspect(aspect).name}</span>
+										<span>{getAspect(aspect as Aspect["id"]).name}</span>
 									</Fragment>
 								))}
 							</ul>
@@ -188,12 +183,12 @@ function SkillList({
 	skills,
 	character,
 }: {
-	skills: Array<AspectSkill & { learned: boolean; cost: number }>
+	skills: Array<Skill & { learned: boolean; cost: number }>
 	character: ApiCharacter
 }) {
 	const setSkillActive = useMutation(api.characters.functions.setSkillActive)
 
-	async function handleToggleSkill(aspectSkillId: AspectSkill["id"], active: boolean) {
+	async function handleToggleSkill(aspectSkillId: Skill["id"], active: boolean) {
 		try {
 			await setSkillActive({
 				characterId: character._id,
