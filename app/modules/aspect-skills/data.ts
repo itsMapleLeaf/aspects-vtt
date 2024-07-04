@@ -46,32 +46,30 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Alter",
 				skills: {
 					heatObject: {
-						description: "Touch an object to send heat through it.",
+						description: `Touch an object to send heat through it.`,
 					},
 					heatAir: {
-						description: "Heat up the surrounding air.",
+						description: `Heat up the surrounding air.`,
 					},
-					propelFire: {
-						description: "Turn an existing flame into a projectile which ignites on impact.",
+					alterFlame: {
+						description: `Manipulate a flame within range without changing the temperature or the amount of it.`,
+					},
+					redirect: {
+						description: `Take lightning or electricity and redirect it someplace else.`,
 					},
 				},
 			},
 			{
 				name: "Create",
 				skills: {
-					propelLightning: {
-						description: "Take lightning or electricity and redirect it someplace else.",
-					},
 					makeLightning: {
-						description:
-							"Create a sphere of fire in your palm, enough to power or short-circuit small or medium size devices.",
+						description: `Create a sphere of fire in your palm, enough to power or short-circuit small to medium size devices.`,
 					},
 					makeFlame: {
-						description: "Create a fire in your palm around the size of a baseball.",
+						description: `Create a fire in your palm around the size of a baseball.`,
 					},
 					becomeFlame: {
-						description:
-							"Engulf yourself in a bright crackling ember. While in this state, double all damage dealt and all damage received.",
+						description: `Engulf yourself or another character in a bright crackling ember. While in this state, double all damage dealt and all damage received.`,
 					},
 				},
 			},
@@ -79,16 +77,16 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Control",
 				skills: {
 					fireResistance: {
-						description: "You are less likely to be damaged by fire.",
+						description: `Before taking damage from fire, roll strength and reduce it by that amount.`,
 					},
 					lightningResistance: {
-						description: "Lightning has a chance to fizzle or reflect on contact.",
+						description: `Before taking damage from lightning, roll strength and reduce it by that amount.`,
 					},
 					suppress: {
-						description: "Immediately extinguish any number of exposed fires.",
+						description: `Immediately extinguish any number of exposed fires.`,
 					},
 					insulate: {
-						description: "Cancel the flow of electricity in the surrounding air or in an object.",
+						description: `Cancel the flow of electricity in the surrounding air or in an object.`,
 					},
 				},
 			},
@@ -96,17 +94,16 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Imbue",
 				skills: {
 					sparkObject: {
-						description: "Touch an object to send electricity through it.",
+						description: `Touch an object to send electricity through it.`,
 					},
 					sparkAir: {
-						description: "Lightly electrify the air around you.",
+						description: `Lightly electrify the air around you.`,
 					},
 					quake: {
-						description:
-							"Stomp the ground to create a straight line of molten cracks through the ground.",
+						description: `Create molten cracks through stone or metal.`,
 					},
 					ignite: {
-						description: "Set fire to a nearby surface.",
+						description: `Set fire to a surface.`,
 					},
 				},
 			},
@@ -114,17 +111,16 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Summon",
 				skills: {
 					fireball: {
-						description: "Create and propel a large ball of fire that bursts on impact.",
+						description: `Create and propel a large ball of fire that bursts on impact.`,
 					},
 					arcOfFlame: {
-						description:
-							"Swipe your hand or foot to create a massive arc of flame in front of yourself.",
+						description: `Swipe your hand or foot to create a massive arc of flame in front of yourself.`,
 					},
 					cinderStorm: {
-						description: "Summon a storm of raining fireballs.",
+						description: `Summon a storm of raining fireballs.`,
 					},
 					lightningStorm: {
-						description: "Summon lightning to strike several areas.",
+						description: `Summon lightning to strike several areas.`,
 					},
 				},
 			},
@@ -136,13 +132,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Alter",
 				skills: {
 					frostTouch: {
-						description: "Touch a surface to send cooling through it.",
+						description: `Touch a surface to send cooling through it.`,
 					},
 					cooling: {
-						description: "Lower the temperature of surrounding air.",
+						description: `Lower the temperature of surrounding air.`,
 					},
 					moisten: {
-						description: "Modify the humidity of surrounding air.",
+						description: `Increase the humidity of surrounding air.`,
 					},
 				},
 			},
@@ -150,10 +146,10 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Reform",
 				skills: {
 					shapeWater: {
-						description: "Move, shape, or propel gatherings of water.",
+						description: `Move, shape, or propel gatherings of water.`,
 					},
 					shapeIce: {
-						description: "Move, break, or reform chunks of ice.",
+						description: `Move, break, or reform chunks of ice.`,
 					},
 				},
 			},
@@ -161,22 +157,22 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Transform",
 				skills: {
 					condensate: {
-						description: "Gather and collect moisture in the surrounding air into water.",
+						description: `Gather and collect moisture in the surrounding air into water.`,
 					},
 					rapidMelt: {
-						description: "Rapidly turn ice into water.",
+						description: `Rapidly turn ice into water.`,
 					},
 					flashFreeze: {
-						description: "Rapidly turn bodies of water into ice.",
+						description: `Rapidly turn bodies of water into ice.`,
 					},
 					solidify: {
-						description: "Rapidly turn air moisture into ice.",
+						description: `Rapidly turn air moisture into ice.`,
 					},
 					evaporate: {
-						description: "Rapidly evaporate bodies of water.",
+						description: `Rapidly evaporate bodies of water.`,
 					},
 					vaporize: {
-						description: "Rapidly turn ice into air moisture.",
+						description: `Rapidly turn ice into air moisture.`,
 					},
 				},
 			},
@@ -184,13 +180,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Sense",
 				skills: {
 					whispersOfTheMist: {
-						description: "Increase awareness of object through surrounding air moisture.",
+						description: `Increase awareness of object through surrounding air moisture.`,
 					},
 					whispersOfTheSea: {
-						description: "Increase awareness of object through bodies of water.",
+						description: `Increase awareness of object through bodies of water.`,
 					},
 					whispersOfFrost: {
-						description: "Increase awareness of object through vibrations of ice.",
+						description: `Increase awareness of object through vibrations of ice.`,
 					},
 				},
 			},
@@ -198,8 +194,7 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Detect",
 				skills: {
 					ensnareWater: {
-						description:
-							"When learning this skill, choose any liquid. You can control it as if it were water. You may learn this skill multiple times with different choices.",
+						description: `When learning this skill, choose any liquid. You can control it as if it were water. You may learn this skill multiple times with different choices.`,
 					},
 				},
 			},
@@ -211,8 +206,7 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Coincide",
 				skills: {
 					formOfAFeather: {
-						description:
-							"Move as if under reduced gravity. Fall slowly, jump higher, and perform eased acrobatics.",
+						description: `Move as if under reduced gravity. Fall slowly, jump higher, and perform eased acrobatics.`,
 					},
 				},
 			},
@@ -220,15 +214,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Direct",
 				skills: {
 					gust: {
-						description:
-							"Create variable-strength haphazard gusts of wind to apply sudden impulses to objects and yourself.",
+						description: `Create variable-strength haphazard gusts of wind to apply sudden impulses to objects and yourself.`,
 					},
 					breeze: {
-						description:
-							"Increase the wind speed around you to apply sustained forces to objects and yourself. This can allow you to fly.",
+						description: `Increase the wind speed around you to apply sustained forces to objects and yourself. This can allow you to fly.`,
 					},
 					dampenWind: {
-						description: "Decrease or completely cancel the surrounding flow of wind.",
+						description: `Decrease or completely cancel the surrounding flow of wind.`,
 					},
 				},
 			},
@@ -236,14 +228,10 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Shape",
 				skills: {
 					shapeWind: {
-						description:
-							"Choose a shape when learning this skill, such as a sphere, walls, spikes, or blades. Morph wind into that shape and control its movement. You may learn this skill multiple times with different choices.",
+						description: `Morph wind into a simple shape and control its movement.`,
 					},
 					modulate: {
-						description: "Control the volume and propagation of sound in the surrounding area.",
-					},
-					integrate: {
-						description: "Change the weather conditions of the surrounding environment.",
+						description: `Control the volume and propagation of sound.`,
 					},
 				},
 			},
@@ -251,15 +239,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Modulate",
 				skills: {
 					condenseAir: {
-						description:
-							"Thicken the density of surrounding air, applying more apparent pressure to those within.",
+						description: `Thicken the density of the air, applying more apparent pressure to those within.`,
 					},
 					disperse: {
-						description:
-							"Decrease the density of surrounding air to a vacuum, depriving subjects within of breathing air.",
+						description: `Decrease the density of air to a vacuum, depriving subjects within of breathing air.`,
 					},
 					alterSound: {
-						description: "Control the volume and propagation of sound in the surrounding area.",
+						description: `Control the volume and propagation of sound in the surrounding area.`,
 					},
 				},
 			},
@@ -267,11 +253,10 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Integrate",
 				skills: {
 					alterAtmosphere: {
-						description: "Change the weather conditions of the surrounding environment.",
+						description: `Change the weather conditions of the surrounding environment.`,
 					},
 					foresee: {
-						description:
-							"Become one with the surrounding environment to predict changing weather conditions in the future.",
+						description: `Become one with the surrounding environment to predict changing weather conditions in the future.`,
 					},
 				},
 			},
@@ -283,11 +268,10 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Illuminate",
 				skills: {
 					summonLight: {
-						description: "Create and control floating orbs of light.",
+						description: `Create and control floating orbs of light.`,
 					},
 					illuminatingTouch: {
-						description:
-							"Touch an object, person, or surface to give them a warming glow. Focusing to maintain.",
+						description: `Give a target a warming glow.`,
 					},
 				},
 			},
@@ -295,14 +279,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Restore",
 				skills: {
 					healingLight: {
-						description: "Touch a character to heal their damage.",
+						description: `Touch a character to heal their damage.`,
 					},
 					comfortingLight: {
-						description: "Touch a character to heal their fatigue.",
+						description: `Touch a character to heal their fatigue.`,
 					},
 					strengtheningLight: {
-						description:
-							"Touch a character to strengthen them and temporarily increase the power of their actions.",
+						description: `Touch a character to strengthen them and temporarily increase the power of their actions.`,
 					},
 				},
 			},
@@ -310,15 +293,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Bless",
 				skills: {
 					barrier: {
-						description: "Conjure large walls of solidified light.",
+						description: `Conjure large walls of solidified light.`,
 					},
 					rayOfProtection: {
-						description:
-							"Touch a target to surround them with a shield of light that protects them from damaging threats. Focus to maintain.",
+						description: `Create a shield of light that protects others from damaging threats.`,
 					},
 					rayOfJustice: {
-						description:
-							"Conjure and direct sharp spears of light towards one or more targets of your choosing.",
+						description: `Conjure and direct sharp spears of light.`,
 					},
 				},
 			},
@@ -326,11 +307,10 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Protect",
 				skills: {
 					discernReality: {
-						description:
-							"See everything around you as it is, unaffected by mirages, invisibility, faces, and other forms of light and perception-altering illusions.",
+						description: `See everything around you as it is, unaffected by mirages, invisibility, faces, and other forms of light and perception-altering illusions.`,
 					},
 					pierceReality: {
-						description: "See through walls and other solid objects.",
+						description: `See through walls and other solid objects.`,
 					},
 				},
 			},
@@ -338,13 +318,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Perceive",
 				skills: {
 					healingAura: {
-						description: "Emit a warming glow to heal damage from surrounding characters.",
+						description: `Emit a warming glow to heal damage from surrounding characters.`,
 					},
 					comfortingAura: {
-						description: "Emit a comforting glow to heal fatigue from surrounding characters.",
+						description: `Emit a comforting glow to heal fatigue from surrounding characters.`,
 					},
 					strengtheningAura: {
-						description: "Emit an uplifting glow to strengthen surrounding characters.",
+						description: `Emit an uplifting glow to strengthen surrounding characters.`,
 					},
 				},
 			},
@@ -356,19 +336,16 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Influence",
 				skills: {
 					intimidate: {
-						description: "Induce feelings of dread in a character you can see.",
+						description: `Induce feelings of dread in a character you can see.`,
 					},
 					charm: {
-						description:
-							"Induce feelings of favor or attraction in a character you can see, towards yourself or another character.",
+						description: `Induce feelings of favor or attraction in a character you can see, towards yourself or another character.`,
 					},
 					spotlight: {
-						description:
-							"Increase your presence or that of another nearby character, such that it’s much harder to overlook you.",
+						description: `Increase your presence or that of another nearby character, such that it’s much harder to overlook you.`,
 					},
 					sneak: {
-						description:
-							"Lower your presence or that of another nearby character, such that others are less likely to notice you.",
+						description: `Lower your presence or that of another nearby character, such that others are less likely to notice you.`,
 					},
 				},
 			},
@@ -376,10 +353,10 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Curse",
 				skills: {
 					auraOfWeakness: {
-						description: "Take on a dark, overpowering glow that physically weakens those nearby.",
+						description: `Take on a dark, overpowering glow that physically weakens other characters.`,
 					},
 					auraOfSickness: {
-						description: "Take on a dark, foreboding glow that mentally weakens those nearby.",
+						description: `Take on a dark, foreboding glow that mentally weakens other characters.`,
 					},
 				},
 			},
@@ -387,14 +364,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Deceive",
 				skills: {
 					invisibility: {
-						description: "Turn invisible, such that visible light passes through you.",
+						description: `Turn invisible, such that visible light passes through you, and vice versa.`,
 					},
 					disguise: {
-						description: "Change the outward appearance of a character or object you can see.",
+						description: `Change the outward appearance of a character or object you can see.`,
 					},
 					facade: {
-						description:
-							"Create identical but untouchable mirror images of a character or object you can see.",
+						description: `Create identical but untouchable mirror images of a character or object you can see.`,
 					},
 				},
 			},
@@ -402,15 +378,13 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Rewrite",
 				skills: {
 					alterEmotion: {
-						description:
-							"Choose an emotion when learning this skill. Touch a character to change the strength of that emotion in them. You may learn this skill multiple times with different choices.",
+						description: `Touch a character to change the strength of a chosen emotion in them.`,
 					},
 					alterSenses: {
-						description:
-							"Choose a sense when learning this skill. Amplify or dampen that sense of a person you can touch. You may learn this skill multiple times with different choices.",
+						description: `Amplify or dampen a chosen sense of a person you can touch.`,
 					},
 					alterMemories: {
-						description: "Change the memories of a character you can touch.",
+						description: `Change the memories of a character you can touch.`,
 					},
 				},
 			},
@@ -418,11 +392,10 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Dematerialize",
 				skills: {
 					phase: {
-						description: "Float and phase through solid objects.",
+						description: `Float and phase through solid objects.`,
 					},
 					riftwalk: {
-						description:
-							"Create tears in reality to move from one place to another visible location.",
+						description: `Create tears in reality that allow you to move from one place to another.`,
 					},
 				},
 			},
