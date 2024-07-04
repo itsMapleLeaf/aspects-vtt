@@ -1,4 +1,5 @@
 import type {
+	ArgsArrayForOptionalValidator,
 	DocumentByInfo,
 	DocumentByName,
 	ExpressionOrValue,
@@ -15,9 +16,9 @@ import type {
 	SystemTableNames,
 	WithoutSystemFields,
 } from "convex/server"
-import type { ObjectType, PropertyValidators } from "convex/values"
+import type { PropertyValidators } from "convex/values"
 import { Context, Data, Effect, pipe } from "effect"
-import type { Awaitable, Nullish, Overwrite } from "../../app/helpers/types.js"
+import type { Awaitable, Nullish } from "../../app/helpers/types.js"
 import type { DataModel, Id, TableNames } from "../_generated/dataModel.js"
 import type { ActionCtx, MutationCtx, QueryCtx } from "../_generated/server.js"
 import {
@@ -50,105 +51,115 @@ export class NotLoggedInError extends Data.TaggedError("NotLoggedInError")<{}> {
 
 export class FileNotFoundError extends Data.TaggedError("FileNotFoundError")<{}> {}
 
-export function effectQuery<Args extends PropertyValidators, Output>(options: {
-	args: Args
-	handler: (
-		args: Overwrite<ObjectType<Args>, {}>,
-	) => Effect.Effect<Output, unknown, QueryCtxService>
-}) {
+interface EffectBuilderOptions<
+	Args extends PropertyValidators | void,
+	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
+	Output,
+	Service,
+> {
+	args?: Args
+	handler: (...args: ArgsArray) => Effect.Effect<Output, unknown, Service>
+}
+
+export function effectQuery<
+	Args extends PropertyValidators | void,
+	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
+	Output,
+>(options: EffectBuilderOptions<Args, ArgsArray, Output, QueryCtxService>) {
 	return query({
 		args: options.args,
-		handler: (ctx, args) => {
-			return Effect.runPromise(
-				pipe(options.handler(args), Effect.provideService(QueryCtxService, ctx)),
+		handler(ctx, ...args: ArgsArray) {
+			return pipe(
+				options.handler(...args),
+				Effect.provideService(QueryCtxService, ctx),
+				Effect.runPromise,
 			)
 		},
 	})
 }
 
-export function effectMutation<Args extends PropertyValidators, Output>(options: {
-	args: Args
-	handler: (
-		args: Overwrite<ObjectType<Args>, {}>,
-	) => Effect.Effect<Output, unknown, QueryCtxService | MutationCtxService>
-}) {
+export function effectMutation<
+	Args extends PropertyValidators,
+	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
+	Output,
+>(options: EffectBuilderOptions<Args, ArgsArray, Output, QueryCtxService | MutationCtxService>) {
 	return mutation({
 		...options,
-		handler(ctx, args) {
-			return Effect.runPromise(
-				pipe(
-					options.handler(args),
-					Effect.provideService(QueryCtxService, ctx),
-					Effect.provideService(MutationCtxService, ctx),
-				),
+		handler(ctx, ...args: ArgsArray) {
+			return pipe(
+				options.handler(...args),
+				Effect.provideService(QueryCtxService, ctx),
+				Effect.provideService(MutationCtxService, ctx),
+				Effect.runPromise,
 			)
 		},
 	})
 }
 
-export function effectAction<Args extends PropertyValidators, Output>(options: {
-	args: Args
-	handler: (
-		args: Overwrite<ObjectType<Args>, {}>,
-	) => Effect.Effect<Output, unknown, ActionCtxService>
-}) {
+export function effectAction<
+	Args extends PropertyValidators,
+	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
+	Output,
+>(options: EffectBuilderOptions<Args, ArgsArray, Output, ActionCtxService>) {
 	return action({
 		...options,
-		handler(ctx, args) {
-			return Effect.runPromise(
-				pipe(options.handler(args), Effect.provideService(ActionCtxService, ctx)),
+		handler(ctx, ...args: ArgsArray) {
+			return pipe(
+				options.handler(...args),
+				Effect.provideService(ActionCtxService, ctx),
+				Effect.runPromise,
 			)
 		},
 	})
 }
 
-export function internalEffectQuery<Args extends PropertyValidators, Output>(options: {
-	args: Args
-	handler: (
-		args: Overwrite<ObjectType<Args>, {}>,
-	) => Effect.Effect<Output, unknown, QueryCtxService>
-}) {
+export function internalEffectQuery<
+	Args extends PropertyValidators,
+	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
+	Output,
+>(options: EffectBuilderOptions<Args, ArgsArray, Output, QueryCtxService>) {
 	return internalQuery({
-		args: options.args,
-		handler: (ctx, args) => {
-			return Effect.runPromise(
-				pipe(options.handler(args), Effect.provideService(QueryCtxService, ctx)),
+		...options,
+		handler(ctx, ...args: ArgsArray) {
+			return pipe(
+				options.handler(...args),
+				Effect.provideService(QueryCtxService, ctx),
+				Effect.runPromise,
 			)
 		},
 	})
 }
 
-export function internalEffectMutation<Args extends PropertyValidators, Output>(options: {
-	args: Args
-	handler: (
-		args: Overwrite<ObjectType<Args>, {}>,
-	) => Effect.Effect<Output, unknown, QueryCtxService | MutationCtxService>
-}) {
+export function internalEffectMutation<
+	Args extends PropertyValidators,
+	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
+	Output,
+>(options: EffectBuilderOptions<Args, ArgsArray, Output, QueryCtxService | MutationCtxService>) {
 	return internalMutation({
 		...options,
-		handler(ctx, args) {
-			return Effect.runPromise(
-				pipe(
-					options.handler(args),
-					Effect.provideService(QueryCtxService, ctx),
-					Effect.provideService(MutationCtxService, ctx),
-				),
+		handler(ctx, ...args: ArgsArray) {
+			return pipe(
+				options.handler(...args),
+				Effect.provideService(QueryCtxService, ctx),
+				Effect.provideService(MutationCtxService, ctx),
+				Effect.runPromise,
 			)
 		},
 	})
 }
 
-export function internalEffectAction<Args extends PropertyValidators, Output>(options: {
-	args: Args
-	handler: (
-		args: Overwrite<ObjectType<Args>, {}>,
-	) => Effect.Effect<Output, unknown, ActionCtxService>
-}) {
+export function internalEffectAction<
+	Args extends PropertyValidators,
+	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
+	Output,
+>(options: EffectBuilderOptions<Args, ArgsArray, Output, ActionCtxService>) {
 	return internalAction({
 		...options,
-		handler(ctx, args) {
-			return Effect.runPromise(
-				pipe(options.handler(args), Effect.provideService(ActionCtxService, ctx)),
+		handler(ctx, ...args: ArgsArray) {
+			return pipe(
+				options.handler(...args),
+				Effect.provideService(ActionCtxService, ctx),
+				Effect.runPromise,
 			)
 		},
 	})
@@ -190,6 +201,7 @@ class ConvexEffectDb {
 		return MutationCtxService.pipe(Effect.flatMap((ctx) => Effect.promise(() => ctx.db.delete(id))))
 	}
 }
+
 class ConvexEffectSystemDb {
 	get<T extends SystemTableNames>(id: Id<T>) {
 		return QueryCtxService.pipe(
