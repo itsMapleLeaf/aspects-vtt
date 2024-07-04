@@ -14,7 +14,7 @@
     "format:eslint": "eslint --fix",
     "format:prettier": "prettier --write . --list-different",
     "test": "tsx --test \"app/**/*.test.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "remix-routes && tsc --noEmit",
     "checks": "run-s --continue-on-error format typecheck test"
   },
   "dependencies": {

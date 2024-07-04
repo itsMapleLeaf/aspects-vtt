@@ -20,7 +20,7 @@ jobs:
           - name: lint
             run: bun run lint
           - name: typecheck
-            run: bun run build && bun run typecheck
+            run: bun run typecheck
       fail-fast: false
     name: ${{ matrix.command.name }}
     steps:
