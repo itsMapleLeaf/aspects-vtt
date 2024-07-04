@@ -1,5 +1,6 @@
 import { Tab, TabList, TabPanel, TabProvider } from "@ariakit/react"
 import * as Lucide from "lucide-react"
+import { isValidElement } from "react"
 import { Fragment } from "react/jsx-runtime"
 import { z } from "zod"
 import { useLocalStorageState } from "~/helpers/dom/useLocalStorage.ts"
@@ -14,25 +15,21 @@ export function QuickReference() {
 			icon: <Lucide.Zap />,
 			content: (
 				<>
-					<h3 className="mt-6 text-2xl font-light">Push Yourself</h3>
-					<p className="my-1">
+					<ActionSection title="Push Yourself">
 						Spend <strong>2 resolve</strong> to add one boost die to your roll. You can only do this
 						once per action.
-					</p>
-					<h3 className="mt-6 text-2xl font-light">Assist</h3>
-					<p className="my-1">
+					</ActionSection>
+					<ActionSection title="Assist">
 						Spend <strong>1 resolve</strong> to add one boost die to an ally's roll. You can only do
 						this once per action. You must describe how you're helping them.
-					</p>
-					<h3 className="mt-6 text-2xl font-light">Rest</h3>
-					<p className="my-1">
+					</ActionSection>
+					<ActionSection title="Rest">
 						Rest in-game and gain 1d4 resolve per hour rested. You cannot make any actions or change
 						locations while resting, but you can play out downtime.
-					</p>
+					</ActionSection>
 					{actions.map((action) => (
 						<Fragment key={action.name}>
-							<h3 className="mt-6 text-2xl font-light">{action.name}</h3>
-							<p className="my-1 whitespace-pre-line">{action.description}</p>
+							<ActionSection title={action.name}>{action.description}</ActionSection>
 							<aside className="my-1 whitespace-pre-line text-pretty text-sm italic text-primary-800 opacity-60">
 								{action.notes}
 							</aside>
@@ -42,14 +39,50 @@ export function QuickReference() {
 			),
 		},
 		{
-			title: "Attacks",
-			icon: <Lucide.Swords />,
-			content: <p>todo</p>,
+			title: "Aspect Art",
+			icon: <Lucide.Flame />,
+			content: (
+				<>
+					<p>You can spend points from your aspect art roll to modify it in one of a few ways:</p>
+					<ActionSection title="Area">
+						<p>Add an area of effect.</p>
+						<p>Cost: 2 points / +3m area size</p>
+					</ActionSection>
+					<ActionSection title="Path">
+						<p>Add a path of effect.</p>
+						<p>Cost: 1 point / +5m path length</p>
+					</ActionSection>
+					<ActionSection title="Target">
+						<p>Add an additional target.</p>
+						<p>Cost: 2 points / +1 target</p>
+					</ActionSection>
+					<ActionSection title="Range">
+						<p>Increase your max range.</p>
+						<p>Cost: 1 point / +5m of distance</p>
+					</ActionSection>
+					<ActionSection title="Duration">
+						<p>Make it last longer.</p>
+						<p>Cost: 1 point / +1 minute or +1 combat round</p>
+					</ActionSection>
+				</>
+			),
 		},
 		{
-			title: "Aspect Skills",
-			icon: <Lucide.Flame />,
-			content: <p>todo</p>,
+			title: "Attacks",
+			icon: <Lucide.Swords />,
+			content: (
+				<>
+					<p>Any action can be made into an attack. To make an attack:</p>
+					<ol className="my-2 grid list-inside list-decimal gap-2 pl-2">
+						<li>If you haven't, describe narratively how you're attacking.</li>
+						<li>Make the appropriate attribute roll.</li>
+						<li>
+							Subtract the target's defense (Strength + Mobility) from the result, and they take
+							that much damage. If the roll is less than the defense, they take no damage.
+						</li>
+					</ol>
+				</>
+			),
 		},
 	]
 
@@ -96,5 +129,19 @@ export function QuickReference() {
 				</div>
 			</TabProvider>
 		</div>
+	)
+}
+
+interface ActionSectionProps {
+	title: string
+	children: React.ReactNode
+}
+
+export function ActionSection({ title, children }: ActionSectionProps) {
+	return (
+		<>
+			<h3 className="mt-6 text-2xl font-light">{title}</h3>
+			{isValidElement(children) ? children : <p className="my-1">{children}</p>}
+		</>
 	)
 }
