@@ -14,7 +14,7 @@ import {
 	getAspectSkill,
 	listAspectSkillIds,
 	listAspectSkillsByAspect,
-	type AspectSkill,
+	type Skill,
 } from "../../app/modules/aspect-skills/data.ts"
 import { getAspect, listAspects, type Aspect } from "../../app/modules/aspects/data.ts"
 import { listRaceIds } from "../../app/modules/races/data.ts"
@@ -131,7 +131,7 @@ export const remove = effectMutation({
 export const applyStress = effectMutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
-		properties: v.array(literals("health", "resolve")),
+		properties: v.array(literals("health" as const, "resolve" as const)),
 		amount: v.number(),
 		dice: v.array(diceInputValidator),
 		delta: literals(-1, 1), // whether to add or subtract the dice result
@@ -379,7 +379,7 @@ function generateRandomCharacterProperties() {
 		(item) => item.stat,
 	).aspect
 
-	const skillsByAspect = new Map<Aspect["id"], Set<AspectSkill["id"]>>()
+	const skillsByAspect = new Map<Aspect["id"], Set<Skill["id"]>>()
 
 	for (const _i of Iterator.range(randomInt(5, 30))) {
 		// small chance of going outside their preferred aspect
