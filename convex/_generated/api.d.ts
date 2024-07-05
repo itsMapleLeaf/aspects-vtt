@@ -27,6 +27,7 @@ import type * as diceMacros_types from "../diceMacros/types.js";
 import type * as env from "../env.js";
 import type * as helpers_convex from "../helpers/convex.js";
 import type * as helpers_effect from "../helpers/effect.js";
+import type * as helpers_partial from "../helpers/partial.js";
 import type * as http from "../http.js";
 import type * as messages_functions from "../messages/functions.js";
 import type * as messages_helpers from "../messages/helpers.js";
@@ -68,6 +69,7 @@ declare const fullApi: ApiFromModules<{
   env: typeof env;
   "helpers/convex": typeof helpers_convex;
   "helpers/effect": typeof helpers_effect;
+  "helpers/partial": typeof helpers_partial;
   http: typeof http;
   "messages/functions": typeof messages_functions;
   "messages/helpers": typeof messages_helpers;

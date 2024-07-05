@@ -13,7 +13,7 @@
     "format": "run-s --continue-on-error \"format:*\"",
     "format:eslint": "eslint --fix",
     "format:prettier": "prettier --write . --list-different",
-    "test": "tsx --test \"app/**/*.test.{ts,tsx}\"",
+    "test": "tsx --test \"{app,convex}/**/*.test.{ts,tsx}\"",
     "typecheck": "remix-routes && tsc --noEmit",
     "checks": "run-s --continue-on-error format typecheck test"
   },
