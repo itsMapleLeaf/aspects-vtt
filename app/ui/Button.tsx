@@ -114,20 +114,20 @@ export function Button({
 
 	const buttonChildren = (
 		<>
-			<span
+			<div
 				data-size={size}
-				className="flex-center-row relative -mx-0.5 size-5 shrink-0 *:size-full empty:hidden data-[size=lg]:size-8 data-[size=md]:size-6"
+				className="flex-center-row relative -mx-0.5 size-5 shrink-0 *:size-5 empty:hidden data-[size=lg]:size-8 data-[size=md]:size-6 *:data-[size=lg]:size-8 *:data-[size=md]:size-6"
 			>
 				{pending ?
 					<Loading size="sm" fill="parent" />
 				:	icon}
-			</span>
-			<span
+			</div>
+			<div
 				data-size={size}
 				className="shrink-1 relative min-w-0 overflow-clip text-ellipsis whitespace-nowrap empty:hidden"
 			>
 				{children ?? text}
-			</span>
+			</div>
 		</>
 	)
 
