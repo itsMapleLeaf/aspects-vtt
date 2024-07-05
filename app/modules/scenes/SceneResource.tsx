@@ -1,4 +1,4 @@
-import { useConvex, useMutation } from "convex/react"
+import { useMutation } from "convex/react"
 import { LucideDoorOpen, LucideImage, LucideImagePlay, LucideImagePlus } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import { z } from "zod"
@@ -153,18 +153,13 @@ function SceneEditor({ scene }: { scene: ApiScene }) {
 
 function NewSceneButton(props: React.HTMLAttributes<HTMLButtonElement>) {
 	const createScene = useMutation(api.scenes.functions.create)
-	const convex = useConvex()
 	const room = useRoom()
-	const [open, setOpen] = useState(false)
 
-	const [state, action] = useSafeAction(async () => {
-		const id = await createScene({ name: "New Scene", roomId: room._id })
-		const scene = await convex.query(api.scenes.functions.get, { id })
-		setOpen(true)
-		return { scene }
+	const [, action] = useSafeAction(async () => {
+		await createScene({ name: "New Scene", roomId: room._id })
 	})
 
-	const button = (
+	return (
 		<button
 			{...props}
 			onClick={(event) => {
@@ -173,10 +168,4 @@ function NewSceneButton(props: React.HTMLAttributes<HTMLButtonElement>) {
 			}}
 		/>
 	)
-
-	return state.value?.scene ?
-			<SceneEditorModal open={open} setOpen={setOpen} scene={state.value.scene}>
-				{button}
-			</SceneEditorModal>
-		:	button
 }

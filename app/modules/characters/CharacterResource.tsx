@@ -1,6 +1,5 @@
 import { useMutation } from "convex/react"
 import { LucideUserPlus2 } from "lucide-react"
-import { useState } from "react"
 import { z } from "zod"
 import { CharacterImage } from "~/modules/characters/CharacterImage.tsx"
 import type { ApiCharacter } from "~/modules/characters/types.ts"
@@ -11,7 +10,7 @@ import { ModalButton } from "~/ui/Modal.tsx"
 import { api } from "../../../convex/_generated/api"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { useSafeAction } from "../convex/hooks.ts"
-import { useCharacter, useRoom } from "../rooms/roomContext.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterModal } from "./CharacterModal.tsx"
 
 export interface CharacterResource extends Resource {
@@ -65,27 +64,16 @@ interface NewCharacterFormProps extends React.FormHTMLAttributes<HTMLFormElement
 function NewCharacterForm({ afterCreate, children, ...props }: NewCharacterFormProps) {
 	const room = useRoom()
 	const createCharacter = useMutation(api.characters.functions.create)
-	const [characterModalOpen, setCharacterModalOpen] = useState(false)
-	const [createCharacterState, createCharacterAction] = useSafeAction(
-		async (_formData: FormData) => {
-			const id = await createCharacter({ roomId: room._id })
-			setCharacterModalOpen(true)
-			afterCreate?.(id)
-			return id
-		},
-	)
-	const createdCharacter = useCharacter(createCharacterState.value)
+
+	const [, createCharacterAction] = useSafeAction(async (_formData: FormData) => {
+		const id = await createCharacter({ roomId: room._id })
+		afterCreate?.(id)
+		return id
+	})
 
 	return (
 		<form {...props} action={createCharacterAction}>
 			{children}
-			{createdCharacter && (
-				<CharacterModal
-					character={createdCharacter}
-					open={characterModalOpen}
-					setOpen={setCharacterModalOpen}
-				/>
-			)}
 		</form>
 	)
 }
