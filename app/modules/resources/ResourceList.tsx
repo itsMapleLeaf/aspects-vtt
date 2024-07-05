@@ -1,27 +1,21 @@
 import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
 import { useQuery } from "convex/react"
-import { LucideFolder, LucideFolderOpen, LucidePlus } from "lucide-react"
+import { LucideFolder, LucideFolderOpen, LucideImagePlus, LucideUserPlus2 } from "lucide-react"
 import React, { useState } from "react"
 import { useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
 import type { JsonValue } from "~/helpers/json.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
-import { Menu, MenuButton, MenuPanel } from "~/ui/Menu.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api"
 import { useUser } from "../auth/hooks.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
+import { NewCharacterForm } from "../characters/NewCharacterForm.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
-import { useRoom } from "../rooms/roomContext.tsx"
+import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
+import { NewSceneForm } from "../scenes/NewSceneForm.tsx"
 import { SceneResource } from "../scenes/SceneResource.tsx"
-import { listResourceDefinitions, type Resource } from "./Resource.tsx"
-
-interface ResourceGroup {
-	id: string
-	name: string
-	items: Resource[]
-}
 
 export interface ResourceListProps extends React.ComponentProps<"div"> {}
 
@@ -45,67 +39,90 @@ export function ResourceList(props: ResourceListProps) {
 		<div {...withMergedClassName(props, "flex flex-col gap-2 h-full")}>
 			<div className="flex gap-2">
 				<Input placeholder="Search..." value={search} onChangeValue={setSearch} />
-				<NewResourceMenu />
 			</div>
 			<div className="min-h-0 flex-1">
 				<ScrollArea>
-					<div className="pr-3">
-						<ResourceFolder name="Characters">
-							{characters
-								?.toSorted((a, b) => characterOrder(a) - characterOrder(b))
-								.map((character) => (
-									<ResourceElement
-										key={character._id}
-										dragData={CharacterResource.create(character).dragData}
-									>
-										<CharacterResource.TreeItem character={character} />
-									</ResourceElement>
-								))}
-						</ResourceFolder>
-						<ResourceFolder name="Scenes">
-							{scenes?.map((scene) => (
-								<ResourceElement key={scene._id} dragData={scene}>
-									<SceneResource.TreeItem scene={scene} />
+					<ResourceFolder
+						name="Characters"
+						end={
+							<RoomOwnerOnly>
+								<NewCharacterForm>
+									<Button
+										type="submit"
+										icon={<LucideUserPlus2 />}
+										appearance="clear"
+										square
+										tooltip="Add character"
+									/>
+								</NewCharacterForm>
+							</RoomOwnerOnly>
+						}
+					>
+						{characters
+							?.toSorted((a, b) => characterOrder(a) - characterOrder(b))
+							.map((character) => (
+								<ResourceElement
+									key={character._id}
+									dragData={CharacterResource.create(character).dragData}
+								>
+									<CharacterResource.TreeItem character={character} />
 								</ResourceElement>
 							))}
-						</ResourceFolder>
-					</div>
+					</ResourceFolder>
+					<ResourceFolder
+						name="Scenes"
+						end={
+							<RoomOwnerOnly>
+								<NewSceneForm>
+									<Button
+										type="submit"
+										icon={<LucideImagePlus />}
+										appearance="clear"
+										square
+										tooltip="Add scene"
+									/>
+								</NewSceneForm>
+							</RoomOwnerOnly>
+						}
+					>
+						{scenes?.map((scene) => (
+							<ResourceElement key={scene._id} dragData={scene}>
+								<SceneResource.TreeItem scene={scene} />
+							</ResourceElement>
+						))}
+					</ResourceFolder>
 				</ScrollArea>
 			</div>
 		</div>
 	)
 }
 
-function NewResourceMenu() {
-	const [menuOpen, setMenuOpen] = useState(false)
-	return (
-		<Menu open={menuOpen} setOpen={setMenuOpen}>
-			<Button icon={<LucidePlus />} tooltip="Add new..." element={<MenuButton />} />
-			<MenuPanel unmountOnHide={false}>
-				{[...listResourceDefinitions()].map((definition) => (
-					<definition.CreateMenuItem key={definition.name} afterCreate={() => setMenuOpen(false)} />
-				))}
-			</MenuPanel>
-		</Menu>
-	)
-}
-
-function ResourceFolder({ name, children }: { name: string; children: React.ReactNode }) {
+function ResourceFolder({
+	name,
+	children,
+	end,
+}: {
+	name: string
+	children: React.ReactNode
+	end?: React.ReactNode
+}) {
 	const [open, setOpen] = useLocalStorageSwitch(`resource-folder-${name}`, true)
 	return (
 		<DisclosureProvider open={open} setOpen={setOpen}>
-			<Disclosure
-				render={
-					<Button
-						icon={open ? <LucideFolderOpen /> : <LucideFolder />}
-						text={name}
-						appearance="clear"
-						className="w-full justify-start [&:has(+:empty)]:hidden"
-					/>
-				}
-			>
-				{name}
-			</Disclosure>
+			<div className="flex gap-1 [&:has(+:empty)]:hidden">
+				<Disclosure
+					render={
+						<Button
+							icon={open ? <LucideFolderOpen /> : <LucideFolder />}
+							appearance="clear"
+							className="w-full justify-start"
+						/>
+					}
+				>
+					{name}
+				</Disclosure>
+				{end}
+			</div>
 			<DisclosureContent className="flex flex-col pl-2">{children}</DisclosureContent>
 		</DisclosureProvider>
 	)

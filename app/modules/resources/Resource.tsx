@@ -1,5 +1,5 @@
 import type { Location } from "@remix-run/react"
-import type { ComponentType, ReactNode } from "react"
+import type { ReactNode } from "react"
 import type { ZodType, ZodTypeDef } from "zod"
 import type { JsonObject } from "~/helpers/json.ts"
 
@@ -32,7 +32,6 @@ export interface ResourceDefinitionConfig {
 
 export interface RegisteredResourceDefinition {
 	readonly name: string
-	readonly CreateMenuItem: ComponentType<ResourceMenuItemProps>
 }
 
 export interface ResourceDefinition<

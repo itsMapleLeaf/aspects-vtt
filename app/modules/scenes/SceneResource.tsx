@@ -1,5 +1,5 @@
 import { useMutation } from "convex/react"
-import { LucideDoorOpen, LucideImage, LucideImagePlay, LucideImagePlus } from "lucide-react"
+import { LucideDoorOpen, LucideImage, LucideImagePlay } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import { z } from "zod"
 import { loadImage } from "~/helpers/dom/images.ts"
@@ -9,7 +9,6 @@ import { Button } from "~/ui/Button.tsx"
 import { EditableInput } from "~/ui/EditableInput.tsx"
 import { EditableIntegerInput } from "~/ui/EditableIntegerInput.tsx"
 import { FormField, FormLayout, FormRow } from "~/ui/Form.tsx"
-import { MenuItem } from "~/ui/Menu.tsx"
 import {
 	ModalButton,
 	ModalPanel,
@@ -21,7 +20,7 @@ import {
 import { api } from "../../../convex/_generated/api"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { ImageUploader } from "../api-images/ImageUploader.tsx"
-import { useMutationAction, useSafeAction } from "../convex/hooks.ts"
+import { useMutationAction } from "../convex/hooks.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiScene } from "./types.ts"
 
@@ -43,12 +42,6 @@ export const SceneResource = defineResource({
 	}),
 
 	TreeItem: ({ scene }: { scene: ApiScene }) => <SceneTreeElement scene={scene} />,
-
-	CreateMenuItem: () => (
-		<MenuItem icon={<LucideImagePlus />} render={<NewSceneButton />}>
-			Scene
-		</MenuItem>
-	),
 })
 
 function SceneTreeElement({ scene }: { scene: ApiScene }) {
@@ -148,24 +141,5 @@ function SceneEditor({ scene }: { scene: ApiScene }) {
 				/>
 			)}
 		</FormLayout>
-	)
-}
-
-function NewSceneButton(props: React.HTMLAttributes<HTMLButtonElement>) {
-	const createScene = useMutation(api.scenes.functions.create)
-	const room = useRoom()
-
-	const [, action] = useSafeAction(async () => {
-		await createScene({ name: "New Scene", roomId: room._id })
-	})
-
-	return (
-		<button
-			{...props}
-			onClick={(event) => {
-				action()
-				props.onClick?.(event)
-			}}
-		/>
 	)
 }
