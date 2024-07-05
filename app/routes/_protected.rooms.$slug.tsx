@@ -6,6 +6,7 @@ import { GameTime } from "~/modules/game/GameTime.tsx"
 import { MessageInput } from "~/modules/messages/MessageInput.tsx"
 import { MessageList } from "~/modules/messages/MessageList.tsx"
 import { ResourceList } from "~/modules/resources/ResourceList.tsx"
+import { CombatInitiativePanel } from "~/modules/rooms/CombatInitiative.tsx"
 import { useRoom } from "~/modules/rooms/roomContext.tsx"
 import { RoomToolbar } from "~/modules/rooms/RoomToolbar.tsx"
 import { RoomToolbarStore } from "~/modules/rooms/RoomToolbarStore.tsx"
@@ -16,6 +17,7 @@ import { Loading } from "~/ui/Loading.tsx"
 import { TranslucentPanel } from "~/ui/Panel.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { api } from "../../convex/_generated/api.js"
+import { AutoAnimate } from "../ui/AutoAnimate.js"
 
 export default function RoomRoute() {
 	return (
@@ -46,13 +48,14 @@ export default function RoomRoute() {
 				</div>
 
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
-					<div className="h-[calc(100%-4rem)] min-h-0 flex-1">
-						<TranslucentPanel className="pointer-events-auto h-full w-64 gap-2 p-2">
+					<AutoAnimate className="flex h-[calc(100%-4rem)] min-h-0 flex-1 flex-col gap-2">
+						<CombatInitiativePanel className="pointer-events-auto w-64" />
+						<TranslucentPanel className="pointer-events-auto w-64 flex-1 gap-2 p-2">
 							<Suspense fallback={<Loading fill="parent" />}>
 								<ResourceList />
 							</Suspense>
 						</TranslucentPanel>
-					</div>
+					</AutoAnimate>
 
 					<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
 						<Suspense>

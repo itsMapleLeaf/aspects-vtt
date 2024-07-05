@@ -10,7 +10,7 @@ export function CombatTurnBanner() {
 	return (
 		<div
 			className={panel(
-				"flex-center invisible fixed inset-x-0 top-20 mx-auto max-w-sm translate-y-2 p-3 text-center opacity-0 shadow-md transition-all",
+				"flex-center invisible fixed inset-x-0 top-24 mx-auto max-w-sm translate-y-2 p-3 text-center opacity-0 shadow-md transition-all",
 				isTurn && "visible translate-y-0 opacity-100",
 			)}
 		>

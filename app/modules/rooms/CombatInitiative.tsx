@@ -1,7 +1,14 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useState } from "react"
+import { Suspense, useState } from "react"
+import { twMerge } from "tailwind-merge"
+import { Input } from "~/ui/Input.tsx"
+import { Loading } from "~/ui/Loading.tsx"
+import { Panel, TranslucentPanel } from "~/ui/Panel.tsx"
+import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
+import { ScrollArea } from "~/ui/ScrollArea.tsx"
+import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import { withMovedItem } from "../../helpers/array.ts"
@@ -9,13 +16,12 @@ import { typed, type Nullish } from "../../helpers/types.ts"
 import { Button } from "../../ui/Button.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { FormLayout } from "../../ui/Form.tsx"
-import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/Menu.tsx"
 import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
-import { panel } from "../../ui/styles.ts"
 import { getAttribute, listAttributes, type Attribute } from "../attributes/data.ts"
 import { CharacterImage } from "../characters/CharacterImage.tsx"
 import { queryMutators } from "../convex/helpers.ts"
+import { useCurrentSceneTokens } from "../scenes/hooks.ts"
 import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
 
 export function CombatInitiative() {
@@ -74,7 +80,6 @@ export function CombatInitiative() {
 	}
 
 	const isRoundStart = combat.currentRoundNumber === 1 && currentMemberIndex === 0
-	const combatMemberIds = new Set(members?.map((it) => it.characterId))
 
 	return (
 		<section className="flex h-full flex-col gap-3">
@@ -89,81 +94,78 @@ export function CombatInitiative() {
 				)}
 			</p>
 
-			<ol className="grid items-start gap-3" ref={animateRef}>
-				{members?.map((member, index) => (
-					<li key={member.characterId}>
-						<CombatMemberItem
-							characterId={member.characterId}
-							initiative={member.initiative}
-							isCurrent={member.characterId === currentMemberId}
-							index={index}
-							onDrop={(fromIndex) =>
-								moveMember({
-									id: room._id,
-									fromIndex,
-									toIndex: index,
-								})
-							}
-							onSetCurrentMember={(characterId) =>
-								setCurrentMember({
-									id: room._id,
-									characterId: member.characterId,
-								})
-							}
-						/>
-					</li>
-				))}
-			</ol>
+			<ScrollArea className="-mx-3 h-[240px]">
+				<ol ref={animateRef} className="divide-y divide-primary-300 px-3 *:py-2">
+					{members?.map((member, index) => (
+						<li key={member.characterId}>
+							<CombatMemberItem
+								characterId={member.characterId}
+								initiative={member.initiative}
+								isCurrent={member.characterId === currentMemberId}
+								index={index}
+								onDrop={(fromIndex) =>
+									moveMember({
+										id: room._id,
+										fromIndex,
+										toIndex: index,
+									})
+								}
+								onSetCurrentMember={(characterId) =>
+									setCurrentMember({
+										id: room._id,
+										characterId: member.characterId,
+									})
+								}
+							/>
+						</li>
+					))}
+				</ol>
+			</ScrollArea>
 
 			<RoomOwnerOnly>
-				<div className="grid auto-cols-fr grid-flow-col gap-3">
+				<div className="flex justify-between">
 					<Button
-						text="Reset"
+						tooltip="Reset"
 						icon={<Lucide.RotateCcw />}
+						square
+						appearance="clear"
 						onClick={() => actions.reset({ id: room._id })}
 					/>
+					{characters && (
+						<Popover placement="bottom">
+							<Button
+								icon={<Lucide.Plus />}
+								tooltip="Add Member"
+								square
+								appearance="clear"
+								element={<PopoverTrigger />}
+							/>
+							<PopoverPanel className="flex min-h-0 w-64 flex-col gap-2 p-2">
+								<AddCombatMemberListbox />
+							</PopoverPanel>
+						</Popover>
+					)}
 					<Button
-						text="Back"
+						tooltip="End Combat"
+						square
+						appearance="clear"
+						icon={<Lucide.X />}
+						onClick={() => actions.endCombat({ id: room._id })}
+					/>
+					<Button
+						tooltip="Back"
 						icon={<Lucide.ChevronsLeft />}
+						square
+						appearance="clear"
 						onClick={() => actions.back({ id: room._id })}
 						disabled={isRoundStart}
 					/>
 					<Button
-						text="Advance"
+						tooltip="Advance"
 						icon={<Lucide.ChevronsRight />}
+						square
+						appearance="clear"
 						onClick={() => actions.advance({ id: room._id })}
-					/>
-				</div>
-				<div className="grid auto-cols-fr grid-flow-col gap-3">
-					{characters && (
-						<Menu placement="bottom">
-							<Button icon={<Lucide.Plus />} text="Add Member" element={<MenuButton />} />
-							<MenuPanel>
-								{characters
-									.filter((character) => !combatMemberIds.has(character._id))
-									.map((character) => (
-										<MenuItem
-											key={character._id}
-											icon={
-												// <UploadedImage id={character.imageId} fallbackIcon={<Lucide.Ghost />} />
-												<CharacterImage character={character} />
-											}
-											text={character.name}
-											onClick={() =>
-												actions.addMember({
-													id: room._id,
-													characterId: character._id,
-												})
-											}
-										/>
-									))}
-							</MenuPanel>
-						</Menu>
-					)}
-					<Button
-						text="End Combat"
-						icon={<Lucide.X />}
-						onClick={() => actions.endCombat({ id: room._id })}
 					/>
 				</div>
 			</RoomOwnerOnly>
@@ -171,7 +173,67 @@ export function CombatInitiative() {
 	)
 }
 
-export function CombatMemberItem(props: {
+function AddCombatMemberListbox() {
+	const characters = useCharacters()
+	const tokens = useCurrentSceneTokens()
+	const room = useRoom()
+	const addMember = useMutation(api.rooms.combat.functions.addMember)
+
+	const combatMemberIds = new Set(room.combat?.memberObjects?.map((it) => it.characterId) ?? [])
+	const tokenIds = new Set(tokens.map((it) => it.characterId).filter(Boolean))
+
+	const validCharacterIds = new Set(
+		characters.map((it) => it._id).filter((it) => tokenIds.has(it) && !combatMemberIds.has(it)),
+	)
+
+	return (
+		<>
+			<Input />
+			<Panel className="min-h-0 flex-1">
+				<ScrollArea className="max-h-[420px]">
+					<div className="flex flex-col">
+						{characters
+							.filter((character) => validCharacterIds.has(character._id))
+							.map((character) => (
+								<Button
+									key={character._id}
+									icon={<CharacterImage character={character} />}
+									appearance="clear"
+									align="start"
+									onClick={() =>
+										addMember({
+											id: room._id,
+											characterId: character._id,
+										})
+									}
+								>
+									{character.name}
+								</Button>
+							))}
+					</div>
+				</ScrollArea>
+			</Panel>
+		</>
+	)
+}
+
+export function CombatInitiativePanel(props: React.ComponentProps<typeof TranslucentPanel>) {
+	const room = useRoom()
+
+	if (!room.combat && !room.isOwner) {
+		return null
+	}
+
+	return (
+		<TranslucentPanel {...withMergedClassName(props, "p-3")}>
+			<Suspense fallback={<Loading fill="parent" />}>
+				<CombatInitiative />
+			</Suspense>
+		</TranslucentPanel>
+	)
+}
+
+function CombatMemberItem(props: {
 	characterId: Id<"characters">
 	initiative: Nullish<number>
 	isCurrent: boolean
@@ -183,41 +245,43 @@ export function CombatMemberItem(props: {
 	const character = useCharacter(props.characterId)
 	const removeMember = useMutation(api.rooms.combat.functions.removeMember)
 
-	const className = panel(
-		"h-22 flex w-full items-center justify-between text-start transition-[color,border-color,opacity]",
+	const className = twMerge(
+		"flex w-full items-center justify-between text-start transition-[color,border-color,opacity]",
 		props.isCurrent ? "" : "opacity-50",
 	)
 
 	const content = (
 		<>
-			<div className="grid gap-1 px-3 py-2">
-				<h4 className="text-2xl font-light">
+			<div className="grid">
+				<h4 className="text-xl font-light">
 					{character?.name ?? "???"}{" "}
 					{room.isOwner && character?.visible !== true && (
 						<span className="opacity-50">(hidden)</span>
 					)}
 				</h4>
-				{character && (
-					<p className="flex gap-3">
-						<Tooltip text="Damage" className="flex gap-1">
-							<Lucide.HeartCrack className="text-red-400" />
-							<span className="text-lg text-red-400">
-								{character.damage}/{character.damageThreshold}
+				<p className="flex items-center gap-2 empty:hidden">
+					{character?.health != null && character?.healthMax != null && (
+						<Tooltip text="Health" className="flex gap-1">
+							<Lucide.Heart className="size-5 text-red-400" />
+							<span className="leading-5 text-red-400">
+								{character.health}/{character.healthMax}
 							</span>
 						</Tooltip>
-						<Tooltip text="Fatigue" className="flex gap-1">
-							<Lucide.Brain className="text-purple-400" />
-							<span className="text-lg text-purple-400">
-								{character.fatigue}/{character.fatigueThreshold}
+					)}
+					{character?.resolve != null && character?.resolveMax != null && (
+						<Tooltip text="Resolve" className="flex gap-1">
+							<Lucide.Brain className="size-5 text-purple-400" />
+							<span className="leading-5 text-purple-400">
+								{character.resolve}/{character.resolveMax}
 							</span>
 						</Tooltip>
-					</p>
-				)}
-				{props.initiative != null && (
-					<aside className="text-sm font-bold uppercase tracking-wide text-primary-600">
+					)}
+				</p>
+				{/* {props.initiative != null && (
+					<aside className="mt-1 text-[13px] font-bold uppercase tracking-wide text-primary-600">
 						Initiative {props.initiative}
 					</aside>
-				)}
+				)} */}
 			</div>
 		</>
 	)
