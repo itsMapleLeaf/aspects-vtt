@@ -1,10 +1,12 @@
 import { useGesture } from "@use-gesture/react"
 import * as Lucide from "lucide-react"
+import { useState } from "react"
 import { twMerge } from "tailwind-merge"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { sortBy } from "../../helpers/iterable.ts"
 import { Vector } from "../../helpers/Vector.ts"
 import { CharacterImage } from "../characters/CharacterImage.tsx"
+import { CharacterModal } from "../characters/CharacterModal.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { getColorStyle, type UserColorName } from "../user-colors/data.ts"
@@ -105,42 +107,58 @@ function TokenElement({
 		},
 	)
 
+	const [characterModalOpen, setCharacterModalOpen] = useState(false)
+
 	return (
-		<div
-			{...bind()}
-			data-hidden={!token.visible || undefined}
-			className="absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
-			style={{ translate }}
-		>
-			<div {...tokenSelectStore.selectableProps(token.key)} className="group relative">
-				<div
-					data-is-current-combat-member={isCurrentCombatMember}
-					className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700"
-				></div>
-				{token.character && (
-					<CharacterImage
-						character={token.character}
-						style={Vector.from(cellSize).times(viewport.scale).toSize()}
-						className={{
-							container: "overflow-clip rounded bg-primary-300 shadow-md",
-							image: "object-cover object-top",
-						}}
-					/>
-				)}
-				{token.area && (
+		<>
+			<div
+				{...bind()}
+				data-hidden={!token.visible || undefined}
+				className="absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
+				style={{ translate }}
+				onDoubleClick={() => {
+					if (!token.character) return
+					setCharacterModalOpen(true)
+				}}
+			>
+				<div {...tokenSelectStore.selectableProps(token.key)} className="group relative">
 					<div
-						className="rounded border-4 border-blue-500 bg-blue-500/30"
-						style={Vector.fromSize(token.area).roundedTo(cellSize).times(viewport.scale).toSize()}
-					/>
-				)}
-				{token.visible ? null : (
-					<div className="flex-center absolute inset-0">
-						<Lucide.EyeOff className="size-2/3 opacity-50" />
-					</div>
-				)}
-				<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+						data-is-current-combat-member={isCurrentCombatMember}
+						className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700"
+					></div>
+					{token.character && (
+						<CharacterImage
+							character={token.character}
+							style={Vector.from(cellSize).times(viewport.scale).toSize()}
+							className={{
+								container: "overflow-clip rounded bg-primary-300 shadow-md",
+								image: "object-cover object-top",
+							}}
+						/>
+					)}
+					{token.area && (
+						<div
+							className="rounded border-4 border-blue-500 bg-blue-500/30"
+							style={Vector.fromSize(token.area).roundedTo(cellSize).times(viewport.scale).toSize()}
+						/>
+					)}
+					{token.visible ? null : (
+						<div className="flex-center absolute inset-0">
+							<Lucide.EyeOff className="size-2/3 opacity-50" />
+						</div>
+					)}
+					<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+				</div>
 			</div>
-		</div>
+
+			{token.character && (
+				<CharacterModal
+					open={characterModalOpen}
+					setOpen={setCharacterModalOpen}
+					character={token.character}
+				/>
+			)}
+		</>
 	)
 }
 
