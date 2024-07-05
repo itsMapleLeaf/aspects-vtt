@@ -1,18 +1,20 @@
 import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
 import { useQuery } from "convex/react"
+import * as Lucide from "lucide-react"
 import { LucideFolder, LucideFolderOpen, LucideImagePlus, LucideUserPlus2 } from "lucide-react"
 import React, { useState } from "react"
-import { useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
+import { z } from "zod"
+import { nonEmpty } from "~/helpers/array.ts"
+import { useLocalStorageState, useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
 import type { JsonValue } from "~/helpers/json.ts"
+import { mod } from "~/helpers/math.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api"
-import { useUser } from "../auth/hooks.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import { NewCharacterForm } from "../characters/NewCharacterForm.tsx"
-import type { ApiCharacter } from "../characters/types.ts"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { NewSceneForm } from "../scenes/NewSceneForm.tsx"
 import { SceneResource } from "../scenes/SceneResource.tsx"
@@ -20,25 +22,64 @@ import { SceneResource } from "../scenes/SceneResource.tsx"
 export interface ResourceListProps extends React.ComponentProps<"div"> {}
 
 export function ResourceList(props: ResourceListProps) {
-	const { _id: roomId, currentScene } = useRoom()
+	const { _id: roomId } = useRoom()
 	const characters = useQuery(api.characters.functions.list, { roomId })
 	const scenes = useQuery(api.scenes.functions.list, { roomId })
-	const user = useUser()
 	const [searchState, setSearch] = useState("")
 	const search = searchState.trim()
-	const scene = useQuery(api.scenes.functions.get, currentScene ? { id: currentScene } : "skip")
 
-	const characterOrder = (it: ApiCharacter) => {
-		if (it.playerId === user?.clerkId) return 0
-		if (it.playerId) return 1
-		if (scene?.tokens?.some((token) => token.characterId === it._id)) return 2
-		return Number.POSITIVE_INFINITY
+	interface Sortable {
+		name?: string
+		_creationTime: number
 	}
+
+	const sorts = nonEmpty([
+		{
+			id: "recently-created",
+			name: "Recently created",
+			icon: <Lucide.Clock />,
+			sort: (a: Sortable, b: Sortable) => b._creationTime - a._creationTime,
+		},
+		{
+			id: "alphabetical",
+			name: "Alphabetical",
+			icon: <Lucide.ArrowDownAZ />,
+			sort: (a: Sortable, b: Sortable) => (a.name ?? "").localeCompare(b.name ?? ""),
+		},
+	])
+
+	const [sortId, setSortId] = useLocalStorageState(
+		"resource-list-sort",
+		sorts[0].id ?? null,
+		z.string(),
+	)
+	const currentSort = sorts.find((it) => it.id === sortId) ?? sorts[0]
+
+	const sortItems = <T extends Sortable>(items: Iterable<T>) =>
+		Array.from(items).toSorted(currentSort.sort)
 
 	return (
 		<div {...withMergedClassName(props, "flex flex-col gap-2 h-full")}>
 			<div className="flex gap-2">
-				<Input placeholder="Search..." value={search} onChangeValue={setSearch} />
+				<Input
+					placeholder="Search..."
+					value={search}
+					onChangeValue={setSearch}
+					className="flex-1"
+				/>
+				<Button
+					icon={currentSort.icon}
+					tooltip="Toggle sort"
+					appearance="clear"
+					square
+					onClick={() => {
+						setSortId((sortId) => {
+							const index = sorts.findIndex((it) => it.id === sortId)
+							const nextSort = (index > -1 && sorts[mod(index - 1, sorts.length)]) || sorts[0]
+							return nextSort.id
+						})
+					}}
+				/>
 			</div>
 			<div className="min-h-0 flex-1">
 				<ScrollArea>
@@ -58,16 +99,14 @@ export function ResourceList(props: ResourceListProps) {
 							</RoomOwnerOnly>
 						}
 					>
-						{characters
-							?.toSorted((a, b) => characterOrder(a) - characterOrder(b))
-							.map((character) => (
-								<ResourceElement
-									key={character._id}
-									dragData={CharacterResource.create(character).dragData}
-								>
-									<CharacterResource.TreeItem character={character} />
-								</ResourceElement>
-							))}
+						{sortItems(characters ?? []).map((character) => (
+							<ResourceElement
+								key={character._id}
+								dragData={CharacterResource.create(character).dragData}
+							>
+								<CharacterResource.TreeItem character={character} />
+							</ResourceElement>
+						))}
 					</ResourceFolder>
 					<ResourceFolder
 						name="Scenes"
@@ -85,7 +124,7 @@ export function ResourceList(props: ResourceListProps) {
 							</RoomOwnerOnly>
 						}
 					>
-						{scenes?.map((scene) => (
+						{sortItems(scenes ?? []).map((scene) => (
 							<ResourceElement key={scene._id} dragData={scene}>
 								<SceneResource.TreeItem scene={scene} />
 							</ResourceElement>

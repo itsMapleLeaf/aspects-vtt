@@ -70,3 +70,12 @@ type Tuple<T, N extends number> =
 
 type _TupleOf<T, N extends number, R extends readonly unknown[]> =
 	R["length"] extends N ? R : _TupleOf<T, N, readonly [T, ...R]>
+
+export type NonEmptyArray<T> = [T, ...T[]]
+export function nonEmpty<T>(items: Iterable<T>): NonEmptyArray<T> {
+	const [first, ...rest] = items
+	if (first === undefined) {
+		throw new Error("Expected non-empty iterable")
+	}
+	return [first, ...rest]
+}
