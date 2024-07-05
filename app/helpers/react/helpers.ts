@@ -1,4 +1,5 @@
 import { type ReactNode, isValidElement } from "react"
+import type { Nullish } from "../types.ts"
 
 export function isReactNode(value: unknown): value is ReactNode {
 	return (
@@ -11,4 +12,15 @@ export function isReactNode(value: unknown): value is ReactNode {
 		isValidElement(value) ||
 		(Array.isArray(value) && value.every(isReactNode))
 	)
+}
+export function combineRefs<T>(...refs: Array<Nullish<React.Ref<T>>>) {
+	return (element: T | null) => {
+		for (const ref of refs) {
+			if (typeof ref === "function") {
+				ref(element)
+			} else if (ref != null) {
+				ref.current = element
+			}
+		}
+	}
 }
