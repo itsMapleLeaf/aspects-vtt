@@ -162,7 +162,15 @@ function NewSceneButton(props: React.HTMLAttributes<HTMLButtonElement>) {
 		return { scene }
 	})
 
-	const button = <button onClick={() => action()} {...props} />
+	const button = (
+		<button
+			{...props}
+			onClick={(event) => {
+				action()
+				props.onClick?.(event)
+			}}
+		/>
+	)
 
 	return state.value?.scene ?
 			<SceneEditorModal open={open} setOpen={setOpen} scene={state.value.scene}>
