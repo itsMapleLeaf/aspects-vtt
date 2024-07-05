@@ -220,7 +220,7 @@ export const setSkillActive = effectMutation({
 		return Effect.gen(function* () {
 			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
 
-			const skill = getAspectSkill(args.aspectSkillId)
+			const skill = yield* Effect.fromNullable(getAspectSkill(args.aspectSkillId))
 
 			const aspectSkillGroups = new Map(
 				character.learnedAspectSkills?.map((doc) => [
@@ -387,6 +387,7 @@ function generateRandomCharacterProperties() {
 
 		const learnedAspectSkills = Iterator.from(skillsByAspect.get(aspect.id) ?? [])
 			.map(getAspectSkill)
+			.filter((skill) => skill != null)
 			.toArray()
 
 		const currentHighestTier =

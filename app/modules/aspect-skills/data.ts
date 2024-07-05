@@ -442,7 +442,7 @@ const aspectSkillsById: Record<SkillId, Skill> = fromEntries(
 
 const allSkills = Iterator.from(values(aspectSkillsById)).flatten()
 
-export const getAspectSkill = (id: SkillId) => unwrap(aspectSkillsById[id])
+export const getAspectSkill = (id: SkillId) => aspectSkillsById[id]
 export const listAspectSkills = () => allSkills
 export const listAspectSkillIds = () => Iterator.from(keys(aspectSkillsById))
 
