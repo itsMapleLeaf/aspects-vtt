@@ -49,12 +49,13 @@ export default function RoomRoute() {
 
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
 					<AutoAnimate className="flex h-[calc(100%-4rem)] min-h-0 flex-1 flex-col gap-2">
-						<CombatInitiativePanel className="pointer-events-auto w-64" />
-						<TranslucentPanel className="pointer-events-auto w-64 flex-1 gap-2 p-2">
+						<TranslucentPanel className="pointer-events-auto flex min-h-0 w-64 flex-1 flex-col gap-2 p-2">
 							<Suspense fallback={<Loading fill="parent" />}>
 								<ResourceList />
 							</Suspense>
 						</TranslucentPanel>
+
+						<CombatInitiativePanel className="pointer-events-auto w-64" />
 					</AutoAnimate>
 
 					<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
