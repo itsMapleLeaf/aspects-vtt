@@ -1,5 +1,5 @@
+import { describe, it } from "bun:test"
 import { strict as assert } from "node:assert/strict"
-import { describe, it } from "node:test"
 import { sortBy } from "./iterable.ts"
 
 describe("sortBy", () => {

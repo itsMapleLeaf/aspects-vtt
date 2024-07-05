@@ -1,4 +1,4 @@
-name: ci
+name: checks
 
 on:
   push:
@@ -16,13 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        command:
-          - name: lint
-            run: bun run lint
-          - name: typecheck
-            run: bun run typecheck
-      fail-fast: false
-    name: ${{ matrix.command.name }}
+        command: [lint, typecheck, test]
     steps:
       - name: "🛒 Checkout"
         uses: actions/checkout@v4
@@ -35,31 +29,8 @@ jobs:
       - name: "📦 Install dependencies"
         run: bun install
 
-      - name: "▶️ Run ${{ matrix.command.name }}"
-        run: ${{ matrix.command.run }}
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "🛒 Checkout"
-        uses: actions/checkout@v4
-
-      - name: "🐰 Setup Bun"
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      # node is still needed for tests for now
-      - name: "🟢 Setup Node"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: "📦 Install dependencies"
-        run: bun install
-
-      - name: "🧪 Run tests"
-        run: bun run test
+      - name: "▶️ Run ${{ matrix.command }}"
+        run: bun run ${{ matrix.command }}
 
   playwright:
     runs-on: ubuntu-latest

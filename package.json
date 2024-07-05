@@ -13,7 +13,7 @@
     "format": "run-s --continue-on-error \"format:*\"",
     "format:eslint": "eslint --fix",
     "format:prettier": "prettier --write . --list-different",
-    "test": "tsx --test \"{app,convex}/**/*.test.{ts,tsx}\"",
+    "test": "bun test app convex",
     "typecheck": "remix-routes && tsc --noEmit",
     "checks": "run-s --continue-on-error format typecheck test"
   },
@@ -93,7 +93,6 @@
     "rollup-plugin-visualizer": "5.12.0",
     "tailwindcss": "3.4.4",
     "tailwindcss-animate": "1.0.7",
-    "tsx": "4.16.2",
     "typescript": "5.5.3",
     "typescript-eslint": "8.0.0-alpha.29",
     "vite": "5.3.3",
