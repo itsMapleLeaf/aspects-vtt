@@ -34,7 +34,7 @@ export interface ButtonPropsAsButton extends ComponentProps<"button">, ButtonPro
 }
 
 export interface ButtonPropsAsElement
-	extends Disallowed<StrictOmit<ComponentProps<"button">, "className" | "key">>,
+	extends Disallowed<StrictOmit<ComponentProps<"button">, "className" | "key" | "children">>,
 		ButtonPropsBase {
 	element: ReactElement<{
 		className?: string
@@ -42,6 +42,7 @@ export interface ButtonPropsAsElement
 		onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
 	}>
 	className?: string
+	children?: React.ReactNode
 	key?: Key
 }
 
