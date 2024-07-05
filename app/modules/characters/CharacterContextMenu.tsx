@@ -21,11 +21,9 @@ export function CharacterContextMenu(props: {
 						{props.children}
 					</ContextMenuTrigger>
 					<ContextMenuPanel>
-						<ContextMenuItem
-							icon={<Lucide.Swords />}
-							text="Contested roll..."
-							onClick={store.show}
-						/>
+						<ContextMenuItem icon={<Lucide.Swords />} onClick={store.show}>
+							Contested roll...
+						</ContextMenuItem>
 					</ContextMenuPanel>
 					<ModalPanel
 						title={

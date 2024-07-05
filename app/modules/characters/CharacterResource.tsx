@@ -51,12 +51,9 @@ export const CharacterResource = defineResource({
 
 	CreateMenuItem: (props) => (
 		<NewCharacterForm {...props}>
-			<MenuItem
-				icon={<LucideUserPlus2 />}
-				text="Character"
-				hideOnClick={false}
-				render={<button type="submit" />}
-			/>
+			<MenuItem icon={<LucideUserPlus2 />} hideOnClick={false} render={<button type="submit" />}>
+				Character
+			</MenuItem>
 		</NewCharacterForm>
 	),
 })

@@ -45,7 +45,9 @@ export const SceneResource = defineResource({
 	TreeItem: ({ scene }: { scene: ApiScene }) => <SceneTreeElement scene={scene} />,
 
 	CreateMenuItem: () => (
-		<MenuItem icon={<LucideImagePlus />} text="Scene" render={<NewSceneButton />} />
+		<MenuItem icon={<LucideImagePlus />} render={<NewSceneButton />}>
+			Scene
+		</MenuItem>
 	),
 })
 
