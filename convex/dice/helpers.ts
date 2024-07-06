@@ -2,7 +2,7 @@ import { Iterator } from "iterator-helpers-polyfill"
 import { unwrap } from "../../app/helpers/errors.ts"
 import type { DiceInput } from "../messages/types.ts"
 
-export function* createDiceRolls(inputs: DiceInput[]) {
+export function* createDiceRolls(inputs: Iterable<DiceInput>) {
 	for (const { name, sides, count, explodes } of inputs) {
 		for (const _ of Iterator.range(count)) {
 			let result

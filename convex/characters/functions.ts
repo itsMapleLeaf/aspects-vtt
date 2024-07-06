@@ -5,6 +5,7 @@ import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
 import { AttributeTotal } from "~/modules/attributes/constants.ts"
+import { getDiceKindApiInput, statDiceKindsByName } from "~/modules/dice/data.tsx"
 import { isTuple } from "../../app/helpers/array.ts"
 import { unwrap } from "../../app/helpers/errors.ts"
 import { fromEntries, keys, omit, pick } from "../../app/helpers/object.ts"
@@ -22,6 +23,7 @@ import type { Doc } from "../_generated/dataModel.js"
 import { getUserFromIdentityEffect } from "../auth/helpers.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
 import {
+	Convex,
 	effectMutation,
 	effectQuery,
 	getDoc,
@@ -34,6 +36,7 @@ import { createMessages } from "../messages/helpers.ts"
 import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
 import { userColorValidator } from "../types.ts"
+import { getCurrentUser } from "../users.ts"
 import {
 	ensureRoomHasCharacters,
 	ensureViewerCharacterPermissions,
@@ -349,6 +352,36 @@ export const updateModifier = effectMutation({
 					modifiers: [...modifiers.values()],
 				}),
 			)
+		})
+	},
+})
+
+export const rest = effectMutation({
+	args: {
+		id: v.id("characters"),
+		hours: v.number(),
+	},
+	handler(args) {
+		return Effect.gen(function* () {
+			const character = normalizeCharacter(yield* Convex.db.get(args.id))
+			const user = yield* getCurrentUser()
+			const rolls = Array.from(
+				createDiceRolls([getDiceKindApiInput(statDiceKindsByName.d4, args.hours)]),
+			)
+			const restoredAmount = rolls.reduce((total, die) => total + die.result, 0)
+
+			yield* Convex.db.insert("messages", {
+				roomId: character.roomId,
+				userId: user.clerkId,
+				content: `${formatCharacterMention(character._id)} rested for ${args.hours} hours and gained ${restoredAmount} resolve.`,
+				diceRoll: {
+					dice: rolls,
+				},
+			})
+
+			yield* Convex.db.patch(character._id, {
+				resolve: Math.min(character.resolve + restoredAmount, character.resolveMax),
+			})
 		})
 	},
 })

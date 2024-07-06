@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react"
 import { Button } from "~/ui/Button.tsx"
 import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "~/ui/Modal.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
+import { CharacterRestForm } from "../characters/CharacterRestForm.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { useOwnedCharacter } from "../characters/hooks.ts"
 import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
@@ -51,11 +52,16 @@ export function RoomToolbar() {
 			</RoomOwnerOnly>
 
 			{character && (
-				<ToolbarPopover icon={<Lucide.HeartPulse />} tooltip="Status">
-					<div className="grid w-48 gap-2 p-2">
-						<CharacterStatusFields character={character} />
-					</div>
-				</ToolbarPopover>
+				<>
+					<ToolbarPopover icon={<Lucide.HeartPulse />} tooltip="Status">
+						<div className="grid w-48 gap-2 p-2">
+							<CharacterStatusFields character={character} />
+						</div>
+					</ToolbarPopover>
+					<ToolbarPopover icon={<Lucide.FlameKindling />} tooltip="Rest">
+						<CharacterRestForm character={character} />
+					</ToolbarPopover>
+				</>
 			)}
 
 			<ToolbarSeparator />

@@ -17,6 +17,7 @@ export function Input({ icon, tooltip, className, onChangeValue, ...props }: Inp
 		<input
 			id={field.inputId}
 			{...inputProps}
+			aria-invalid={props.invalid}
 			className={Input.style(inputStyleProps, icon && "pl-9")}
 			onChange={(event) => {
 				props.onChange?.(event)

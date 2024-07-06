@@ -85,7 +85,7 @@ export function Button({
 		"transition active:duration-0",
 		"translate-y-0 active:translate-y-0.5",
 
-		"aria-disabled:cursor-not-allowed aria-disabled:opacity-50",
+		"aria-disabled:pointer-events-none aria-disabled:opacity-50",
 
 		appearance === "solid" && [
 			"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
@@ -151,12 +151,13 @@ export function Button({
 				onClick: handleClick,
 			})
 		:	<button
-				type="button"
 				{...withMergedClassName(props, "cursor-default", className)}
+				onClick={handleClick}
 				// disabling buttons is bad a11y
 				disabled={false}
 				aria-disabled={props.disabled ?? pending}
-				onClick={handleClick}
+				// don't cause form submissions when disabled
+				type={props.disabled ? "button" : props.type}
 			>
 				{buttonChildren}
 			</button>

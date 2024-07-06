@@ -1,4 +1,5 @@
 import { type ComponentProps, useRef } from "react"
+import { clamp } from "~/helpers/math.ts"
 import type { StrictOmit } from "../helpers/types.ts"
 import { ValidatedInput, type ValidatedInputController } from "./ValidatedInput.tsx"
 
@@ -19,7 +20,7 @@ export function NumberInput({
 	value,
 	onChange,
 	min = 0, // this is a bad default generally, but Aspects rarely deals with negative numbers
-	max,
+	max = Number.POSITIVE_INFINITY,
 	step = 1,
 	requireInteger = true,
 	fallback,
@@ -30,7 +31,7 @@ export function NumberInput({
 	return (
 		<ValidatedInput
 			{...props}
-			value={value}
+			value={clamp(value, min, max)}
 			fallback={fallback}
 			controllerRef={controllerRef}
 			parse={(input) => {
@@ -39,8 +40,8 @@ export function NumberInput({
 
 				const value = Number(input)
 				if (!Number.isFinite(value)) return
-				if (min != null && value < min) return
-				if (max != null && value > max) return
+				if (value < min) return
+				if (value > max) return
 				if (requireInteger && !Number.isSafeInteger(value)) return
 
 				return value
