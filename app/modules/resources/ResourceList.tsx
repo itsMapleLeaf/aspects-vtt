@@ -87,59 +87,61 @@ export function ResourceList(props: ResourceListProps) {
 				/>
 			</div>
 			<div className="min-h-0 flex-1">
-				<ScrollArea>
-					<ResourceFolder
-						name="Characters"
-						end={
-							<RoomOwnerOnly>
-								<NewCharacterForm>
-									<Button
-										type="submit"
-										icon={<LucideUserPlus2 />}
-										appearance="clear"
-										square
-										tooltip="Add character"
-									/>
-								</NewCharacterForm>
-							</RoomOwnerOnly>
-						}
-					>
-						{sortItems(characters ?? [])
-							.sort(
-								(a, b) =>
-									Number(sceneCharacterIds.has(b._id)) - Number(sceneCharacterIds.has(a._id)),
-							)
-							.map((character) => (
-								<ResourceElement
-									key={character._id}
-									dragData={CharacterResource.create(character).dragData}
-								>
-									<CharacterResource.TreeItem character={character} />
+				<ScrollArea className="-ml-2 -mr-2">
+					<div className="pl-2 pr-3">
+						<ResourceFolder
+							name="Characters"
+							end={
+								<RoomOwnerOnly>
+									<NewCharacterForm>
+										<Button
+											type="submit"
+											icon={<LucideUserPlus2 />}
+											appearance="clear"
+											square
+											tooltip="Add character"
+										/>
+									</NewCharacterForm>
+								</RoomOwnerOnly>
+							}
+						>
+							{sortItems(characters ?? [])
+								.sort(
+									(a, b) =>
+										Number(sceneCharacterIds.has(b._id)) - Number(sceneCharacterIds.has(a._id)),
+								)
+								.map((character) => (
+									<ResourceElement
+										key={character._id}
+										dragData={CharacterResource.create(character).dragData}
+									>
+										<CharacterResource.TreeItem character={character} />
+									</ResourceElement>
+								))}
+						</ResourceFolder>
+						<ResourceFolder
+							name="Scenes"
+							end={
+								<RoomOwnerOnly>
+									<NewSceneForm>
+										<Button
+											type="submit"
+											icon={<LucideImagePlus />}
+											appearance="clear"
+											square
+											tooltip="Add scene"
+										/>
+									</NewSceneForm>
+								</RoomOwnerOnly>
+							}
+						>
+							{sortItems(scenes ?? []).map((scene) => (
+								<ResourceElement key={scene._id} dragData={scene}>
+									<SceneResource.TreeItem scene={scene} />
 								</ResourceElement>
 							))}
-					</ResourceFolder>
-					<ResourceFolder
-						name="Scenes"
-						end={
-							<RoomOwnerOnly>
-								<NewSceneForm>
-									<Button
-										type="submit"
-										icon={<LucideImagePlus />}
-										appearance="clear"
-										square
-										tooltip="Add scene"
-									/>
-								</NewSceneForm>
-							</RoomOwnerOnly>
-						}
-					>
-						{sortItems(scenes ?? []).map((scene) => (
-							<ResourceElement key={scene._id} dragData={scene}>
-								<SceneResource.TreeItem scene={scene} />
-							</ResourceElement>
-						))}
-					</ResourceFolder>
+						</ResourceFolder>
+					</div>
 				</ScrollArea>
 			</div>
 		</div>
