@@ -1,6 +1,5 @@
 import { Iterator } from "iterator-helpers-polyfill"
 import { $path } from "remix-routes"
-import { entries } from "~/helpers/object.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { getAspectSkill, SkillId } from "../aspect-skills/data.ts"
 import type { Attribute } from "../attributes/data.ts"
@@ -23,12 +22,7 @@ export function getCharacterAttributeDiceKind(
 
 export function listCharacterRaceAbilities(character: ApiCharacter) {
 	const race = character.race && getRace(character.race)
-	return Iterator.from(race ? entries(race.abilities) : [])
-		.map(([name, description]) => ({
-			name,
-			description,
-		}))
-		.toArray()
+	return Object.values(race?.abilities ?? {})
 }
 
 export function listCharacterAspectSkills(character: ApiCharacter) {

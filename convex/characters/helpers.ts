@@ -7,13 +7,13 @@ import type { Attribute } from "~/modules/attributes/data.ts"
 import { getAttributePower, normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
 import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
 import { boostDiceKind, getDiceKindApiInput, snagDiceKind } from "~/modules/dice/data.tsx"
-import { Races } from "~/modules/races/data.ts"
+import { getRace } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
-import { UnauthorizedError, getUserFromIdentityEffect } from "../auth/helpers.ts"
+import { getUserFromIdentityEffect, UnauthorizedError } from "../auth/helpers.ts"
 import { getDoc } from "../helpers/effect.ts"
 
 export function normalizeCharacter(character: Doc<"characters">) {
-	const race = character.race && Races.get(character.race)
+	const race = character.race && getRace(character.race)
 
 	const stats = {
 		strength: normalizeAttributeValue(character.strength),

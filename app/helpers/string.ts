@@ -18,6 +18,23 @@ export function splitByCase(text: string): string[] {
 	return [...(text.match(/[A-Z]?[a-z]+/g) ?? [])]
 }
 
+const articles = new Set([
+	"a",
+	"an",
+	"the",
+	"of",
+	"in",
+	"for",
+	"on",
+	"at",
+	"by",
+	"to",
+	"from",
+	"with",
+])
+
 export function titleCase(text: string) {
-	return splitByCase(text).map(startCase).join(" ")
+	return splitByCase(text)
+		.map((word) => (articles.has(word) ? word.toLocaleLowerCase() : startCase(word)))
+		.join(" ")
 }
