@@ -67,6 +67,16 @@ const inputs: Record<string, RaceInput> = {
 			},
 		},
 	},
+	Macridian: {
+		abilities: {
+			naturalRoamer: {
+				description: `You don't take travel fatigue.`,
+			},
+			furyFromDownUnder: {
+				description: `When pushing yourself, gain +1 boost die.`,
+			},
+		},
+	},
 	Marenti: {
 		abilities: {
 			quietAsAMouse: {
