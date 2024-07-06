@@ -5,7 +5,7 @@ import { ContextMenu } from "~/ui/ContextMenu.new.tsx"
 export function RoomOwnerContextMenu(props: ComponentProps<typeof ContextMenu>) {
 	const room = useRoom()
 	if (!room.isOwner) {
-		return props.children
+		return props.trigger
 	}
 	return <ContextMenu {...props} />
 }
