@@ -2,29 +2,40 @@ import * as FloatingUI from "@floating-ui/react-dom"
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
+import { useState } from "react"
 import { createPortal } from "react-dom"
 import { unwrap } from "~/helpers/errors.ts"
+import { CheckboxField } from "~/ui/CheckboxField.tsx"
+import { Input } from "~/ui/Input.tsx"
 import { ModalButton } from "~/ui/Modal.tsx"
+import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
+import { Select } from "~/ui/Select.tsx"
+import { useNumberInput } from "~/ui/useNumberInput.tsx"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../helpers/Rect.ts"
 import { Vector } from "../../helpers/Vector.ts"
 import { randomItem } from "../../helpers/random.ts"
 import { useFilter } from "../../helpers/react/hooks.ts"
 import { Button } from "../../ui/Button.tsx"
-import { FormField } from "../../ui/Form.tsx"
+import { FormField, FormLayout, FormRow } from "../../ui/Form.tsx"
 import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { AttributeDiceRollButtonGrid } from "../attributes/AttributeDiceRollButtonGrid.tsx"
+import { type Attribute, listAttributeIds, listAttributes } from "../attributes/data.ts"
 import { CharacterAbilityList } from "../characters/CharacterAbilityList.tsx"
 import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
+import { CharacterImage } from "../characters/CharacterImage.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
+import { CharacterSearchList } from "../characters/CharacterSearchList.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
-import { useCharacterUpdatePermission } from "../characters/hooks.ts"
-import { useRoom } from "../rooms/roomContext.tsx"
+import { useCharacterUpdatePermission, useOwnedCharacters } from "../characters/hooks.ts"
+import type { ApiCharacter } from "../characters/types.ts"
+import { useSafeAction } from "../convex/hooks.ts"
+import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
@@ -104,6 +115,7 @@ function TokenMenuContent() {
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
 	const updateCharacter = useMutation(api.characters.functions.update)
+	const ownedCharacters = useOwnedCharacters()
 
 	// filter out empty token arrays to avoid "flash of empty content" while closing
 	const selectedTokens = useFilter(selectedTokensInput, (it) => it.length > 0)
@@ -125,7 +137,7 @@ function TokenMenuContent() {
 			<div className={translucentPanel("flex justify-center gap-2 p-2")}>
 				{selectionHasCharacters && (
 					<Menu placement="top">
-						<MenuButton render={<Button text="Status" icon={<Lucide.HeartPulse />} />} />
+						<MenuButton render={<Button tooltip="Status" icon={<Lucide.HeartPulse />} />} />
 						<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
 							{singleSelectedCharacter && hasPermissions && (
 								<div className="flex gap-2 *:flex-1 empty:hidden">
@@ -148,7 +160,7 @@ function TokenMenuContent() {
 
 				{selectionHasCharacters && (
 					<Menu placement="top">
-						<MenuButton render={<Button text="Abilities" icon={<Lucide.BarChartBig />} />} />
+						<MenuButton render={<Button tooltip="Abilities" icon={<Lucide.BarChartBig />} />} />
 						<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
 							{singleSelectedCharacter && (
 								<div className={panel()}>
@@ -167,19 +179,28 @@ function TokenMenuContent() {
 					</Menu>
 				)}
 
-				{singleSelectedCharacter && hasPermissions && (
+				{selectionHasCharacters && (ownedCharacters.length > 0 || room.isOwner) && (
 					<Menu placement="top">
-						<MenuButton render={<Button text="Notes" icon={<Lucide.NotebookPen />} />} />
-						<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
-							<CharacterNotesFields character={singleSelectedCharacter} />
+						<MenuButton render={<Button tooltip="Attack" icon={<Lucide.Swords />} />} />
+						<MenuPanel className={translucentPanel("max-w-[360px]")} gutter={16}>
+							<CharacterAttackForm characters={selectedCharacters} />
 						</MenuPanel>
 					</Menu>
 				)}
 
 				{singleSelectedCharacter && (
 					<CharacterModal character={singleSelectedCharacter}>
-						<Button text="Profile" icon={<Lucide.BookUser />} element={<ModalButton />} />
+						<Button tooltip="Profile" icon={<Lucide.BookUser />} element={<ModalButton />} />
 					</CharacterModal>
+				)}
+
+				{singleSelectedCharacter && hasPermissions && (
+					<Menu placement="top">
+						<MenuButton render={<Button tooltip="Notes" icon={<Lucide.NotebookPen />} />} />
+						<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
+							<CharacterNotesFields character={singleSelectedCharacter} />
+						</MenuPanel>
+					</Menu>
 				)}
 
 				{selectedTokens.length >= 2 && (
@@ -272,4 +293,125 @@ function TokenMenuContent() {
 			</div>
 		</div>
 	)
+}
+
+function CharacterAttackForm({ characters }: { characters: ApiCharacter[] }) {
+	const allCharacters = useCharacters()
+	const ownedCharacters = useOwnedCharacters()
+	const room = useRoom()
+
+	const attackers = room.isOwner ? allCharacters : ownedCharacters
+	const defaultAttacker = attackers[0]
+
+	const [attacker, setAttacker] = useState(attackers[0])
+
+	const [attributeId, setAttributeId] = useState<Attribute["id"]>(() => {
+		if (!defaultAttacker) return "strength"
+		// use their strongest attribute by default
+		return greatestBy(listAttributeIds(), (it) => defaultAttacker[it] ?? 0)
+	})
+
+	const boostCountInput = useNumberInput({ defaultValue: 0 })
+	const snagCountInput = useNumberInput({ defaultValue: 0 })
+	const [pushYourself, setPushYourself] = useState(false)
+	const valid = boostCountInput.valid && snagCountInput.valid
+
+	const attack = useMutation(api.characters.functions.attack)
+	const updateCharacter = useMutation(api.characters.functions.update)
+
+	const [, action] = useSafeAction(async (_data: FormData) => {
+		if (!valid) return
+		if (!attacker) return
+
+		if (pushYourself && attacker.resolve != null) {
+			await updateCharacter({
+				id: attacker._id,
+				resolve: attacker.resolve - 2,
+			})
+		}
+
+		await attack({
+			attackerId: attacker._id,
+			defenderIds: characters.map((it) => it._id),
+			attackerAttribute: attributeId,
+			boostCount: boostCountInput.value + (pushYourself ? 1 : 0),
+			snagCount: snagCountInput.value,
+		})
+	})
+
+	const [open, setOpen] = useState(false)
+
+	return (
+		<form action={action}>
+			<FormLayout>
+				<FormField label="Attacker" className="items-stretch">
+					<Popover placement="bottom-start" open={open} setOpen={setOpen}>
+						<PopoverTrigger
+							render={
+								<Button
+									align="start"
+									icon={
+										attacker ?
+											<CharacterImage
+												character={attacker}
+												className={{ image: "rounded-full object-cover object-top" }}
+											/>
+										:	<Lucide.UserPlus2 />
+									}
+								/>
+							}
+						>
+							{attacker ? attacker.name : "Select attacker"}
+						</PopoverTrigger>
+						<PopoverPanel className="flex w-64 flex-col gap-2 p-2">
+							<CharacterSearchList
+								characters={attackers}
+								onSelect={(character) => {
+									setAttacker(character)
+									setOpen(false)
+								}}
+							/>
+						</PopoverPanel>
+					</Popover>
+				</FormField>
+
+				<Select
+					label="Attribute"
+					options={listAttributes().map((it) => ({
+						label: it.name,
+						value: it.id,
+					}))}
+					value={attributeId}
+					onChange={setAttributeId}
+				/>
+
+				<FormRow>
+					<FormField label="Boost dice" className="flex-1">
+						<Input {...boostCountInput.props} />
+					</FormField>
+					<FormField label="Snag dice" className="flex-1">
+						<Input {...snagCountInput.props} />
+					</FormField>
+				</FormRow>
+
+				<CheckboxField
+					label="Push yourself"
+					checked={pushYourself}
+					onChange={(event) => setPushYourself(event.target.checked)}
+				/>
+
+				<Button type="submit" icon={<Lucide.Swords />}>
+					{characters.length > 1 ?
+						<>
+							Attack <strong>{characters.length}</strong> characters
+						</>
+					:	<>Attack</>}
+				</Button>
+			</FormLayout>
+		</form>
+	)
+}
+
+function greatestBy<T>(items: Iterable<T>, rank: (item: T) => number) {
+	return Iterator.from(items).reduce((a, b) => (rank(a) > rank(b) ? a : b))
 }

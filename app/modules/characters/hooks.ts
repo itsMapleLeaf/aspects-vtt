@@ -35,8 +35,17 @@ export function useCharacterUpdatePermission(
 	return character.playerId === user.clerkId
 }
 
-export function useOwnedCharacter() {
+export function useOwnedCharacters() {
 	const user = useUser()
 	const characters = useCharacters()
-	return user && characters.find((character) => character.playerId === user?.clerkId)
+	return user ?
+			(characters.filter((character) => character.playerId === user?.clerkId) as Array<
+				Required<ApiCharacter>
+			>)
+		:	[]
+}
+
+/** @deprecated Use {@link useOwnedCharacters} */
+export function useOwnedCharacter() {
+	return useOwnedCharacters()[0]
 }

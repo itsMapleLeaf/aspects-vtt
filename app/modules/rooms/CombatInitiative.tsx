@@ -3,9 +3,8 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Suspense, useState } from "react"
 import { twMerge } from "tailwind-merge"
-import { Input } from "~/ui/Input.tsx"
 import { Loading } from "~/ui/Loading.tsx"
-import { Panel, TranslucentPanel } from "~/ui/Panel.tsx"
+import { TranslucentPanel } from "~/ui/Panel.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
@@ -19,7 +18,7 @@ import { FormLayout } from "../../ui/Form.tsx"
 import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { getAttribute, listAttributes, type Attribute } from "../attributes/data.ts"
-import { CharacterImage } from "../characters/CharacterImage.tsx"
+import { CharacterSearchList } from "../characters/CharacterSearchList.tsx"
 import { queryMutators } from "../convex/helpers.ts"
 import { useCurrentSceneTokens } from "../scenes/hooks.ts"
 import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
@@ -187,33 +186,10 @@ function AddCombatMemberListbox() {
 	)
 
 	return (
-		<>
-			<Input />
-			<Panel className="min-h-0 flex-1">
-				<ScrollArea className="max-h-[420px]">
-					<div className="flex flex-col">
-						{characters
-							.filter((character) => validCharacterIds.has(character._id))
-							.map((character) => (
-								<Button
-									key={character._id}
-									icon={<CharacterImage character={character} />}
-									appearance="clear"
-									align="start"
-									onClick={() =>
-										addMember({
-											id: room._id,
-											characterId: character._id,
-										})
-									}
-								>
-									{character.name}
-								</Button>
-							))}
-					</div>
-				</ScrollArea>
-			</Panel>
-		</>
+		<CharacterSearchList
+			characters={characters.filter((it) => validCharacterIds.has(it._id))}
+			onSelect={(character) => addMember({ id: room._id, characterId: character._id })}
+		/>
 	)
 }
 

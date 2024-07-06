@@ -116,7 +116,11 @@ export function ensureViewerCharacterPermissions(characterId: Id<"characters">) 
 		})
 		const room = yield* getDoc(character.roomId)
 		if (room.ownerId === user.clerkId || character.playerId === user.clerkId) {
-			return { user, character, room }
+			return {
+				user,
+				character: normalizeCharacter(character),
+				room,
+			}
 		}
 		return yield* Effect.fail(new UnauthorizedError())
 	})

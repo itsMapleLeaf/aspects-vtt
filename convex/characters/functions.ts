@@ -389,6 +389,58 @@ export const rest = effectMutation({
 	},
 })
 
+export const attack = effectMutation({
+	args: {
+		attackerId: v.id("characters"),
+		defenderIds: v.array(v.id("characters")),
+		attackerAttribute: characterAttributeValidator,
+		boostCount: v.optional(v.number()),
+		snagCount: v.optional(v.number()),
+	},
+	handler(args) {
+		return Effect.gen(function* () {
+			const user = yield* getCurrentUser()
+			const attacker = normalizeCharacter(yield* Convex.db.get(args.attackerId))
+
+			for (const defenderId of args.defenderIds) {
+				const defender = normalizeCharacter(yield* Convex.db.get(defenderId))
+
+				const attackerRoll = Array.from(
+					createDiceRolls(
+						getCharacterAttributeDiceInputs({
+							character: attacker,
+							attribute: args.attackerAttribute,
+							boostCount: args.boostCount,
+							snagCount: args.snagCount,
+						}),
+					),
+				)
+
+				const potentialDamage = attackerRoll.reduce((total, die) => total + die.result, 0)
+				const netDamage = Math.max(potentialDamage - defender.defense, 0)
+
+				const message =
+					netDamage > 0 ?
+						`${formatCharacterMention(attacker._id)} attacked ${formatCharacterMention(defender._id)} for ${netDamage} damage.`
+					:	`${formatCharacterMention(attacker._id)} attacked ${formatCharacterMention(defender._id)}, but failed.`
+
+				yield* Convex.db.insert("messages", {
+					roomId: attacker.roomId,
+					userId: user.clerkId,
+					content: `${message} (${potentialDamage} vs ${defender.defense})`,
+					diceRoll: {
+						dice: attackerRoll,
+					},
+				})
+
+				yield* Convex.db.patch(defender._id, {
+					health: defender.health - netDamage,
+				})
+			}
+		})
+	},
+})
+
 function generateRandomCharacterProperties() {
 	const attributes = {
 		strength: 1,
