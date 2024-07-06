@@ -38,3 +38,6 @@ export function titleCase(text: string) {
 		.map((word) => (articles.has(word) ? word.toLocaleLowerCase() : startCase(word)))
 		.join(" ")
 }
+export function pluralize(word: string, count: number, pluralWord?: string) {
+	return count === 1 ? word : pluralWord ?? word + "s"
+}

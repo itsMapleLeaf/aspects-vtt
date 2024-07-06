@@ -10,7 +10,7 @@ import { isTuple } from "../../app/helpers/array.ts"
 import { unwrap } from "../../app/helpers/errors.ts"
 import { fromEntries, keys, omit, pick } from "../../app/helpers/object.ts"
 import { randomInt, randomItem } from "../../app/helpers/random.ts"
-import { titleCase } from "../../app/helpers/string.ts"
+import { pluralize, titleCase } from "../../app/helpers/string.ts"
 import {
 	getAspectSkill,
 	listAspectSkillIds,
@@ -373,7 +373,10 @@ export const rest = effectMutation({
 			yield* Convex.db.insert("messages", {
 				roomId: character.roomId,
 				userId: user.clerkId,
-				content: `${formatCharacterMention(character._id)} rested for ${args.hours} hours and gained ${restoredAmount} resolve.`,
+				content: `${formatCharacterMention(character._id)} rested for ${args.hours} ${pluralize(
+					"hour",
+					args.hours,
+				)} and gained ${restoredAmount} resolve.`,
 				diceRoll: {
 					dice: rolls,
 				},

@@ -1,5 +1,6 @@
 import * as Lucide from "lucide-react"
 import { useState, type ReactNode } from "react"
+import { pluralize } from "~/helpers/string.ts"
 import { Button } from "~/ui/Button.tsx"
 import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "~/ui/Modal.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
@@ -301,10 +302,6 @@ function ModifierRow({
 			</div>
 		</div>
 	)
-}
-
-function pluralize(word: string, count: number, pluralWord?: string) {
-	return count === 1 ? word : pluralWord ?? word + "s"
 }
 
 function useMap<Key, Value, Fallback = undefined>(options?: { fallback?: () => Fallback }) {
