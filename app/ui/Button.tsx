@@ -124,7 +124,10 @@ export function Button({
 			</div>
 			<div
 				data-size={size}
-				className="shrink-1 relative min-w-0 overflow-clip text-ellipsis whitespace-nowrap empty:hidden"
+				className={twMerge(
+					"relative min-w-0 overflow-clip text-ellipsis whitespace-nowrap empty:hidden",
+					align === "start" ? "flex-1" : "shrink-1",
+				)}
 			>
 				{children ?? text}
 			</div>
