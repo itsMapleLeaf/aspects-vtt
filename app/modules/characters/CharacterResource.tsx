@@ -1,3 +1,4 @@
+import { LucideEyeOff } from "lucide-react"
 import { z } from "zod"
 import { CharacterImage } from "~/modules/characters/CharacterImage.tsx"
 import type { ApiCharacter } from "~/modules/characters/types.ts"
@@ -6,6 +7,7 @@ import { Button } from "~/ui/Button.tsx"
 import { ModalButton } from "~/ui/Modal.tsx"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { CharacterModal } from "./CharacterModal.tsx"
+import { useCharacterUpdatePermission } from "./hooks.ts"
 
 export interface CharacterResource extends Resource {
 	readonly dragData: { characterId: Id<"characters">; visible: boolean }
@@ -26,9 +28,15 @@ export const CharacterResource = defineResource({
 	}),
 
 	TreeItem: ({ character }: { character: ApiCharacter }) => (
+		<CharacterResourceTreeItem character={character} />
+	),
+})
+
+function CharacterResourceTreeItem({ character }: { character: ApiCharacter }) {
+	const hasPermission = useCharacterUpdatePermission(character)
+	return (
 		<CharacterModal character={character}>
 			<Button
-				text={character.name ?? "???"}
 				icon={
 					<CharacterImage
 						character={character}
@@ -38,7 +46,16 @@ export const CharacterResource = defineResource({
 				appearance="clear"
 				className="w-full justify-start"
 				element={<ModalButton />}
-			/>
+				tooltip={hasPermission && !character.nameVisible && character.name}
+				tooltipPlacement="right"
+			>
+				<div className="flex flex-1 items-center gap-1.5">
+					<div className="min-w-0 truncate">
+						{character.nameVisible ? character.name : <em className="inline-block pr-1">???</em>}
+					</div>
+					{character.visible ? null : <LucideEyeOff className="size-5 opacity-50" />}
+				</div>
+			</Button>
 		</CharacterModal>
-	),
-})
+	)
+}

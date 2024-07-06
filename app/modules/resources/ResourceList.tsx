@@ -18,6 +18,7 @@ import { NewCharacterForm } from "../characters/NewCharacterForm.tsx"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { NewSceneForm } from "../scenes/NewSceneForm.tsx"
 import { SceneResource } from "../scenes/SceneResource.tsx"
+import { useCurrentSceneTokens } from "../scenes/hooks.ts"
 
 export interface ResourceListProps extends React.ComponentProps<"div"> {}
 
@@ -25,6 +26,10 @@ export function ResourceList(props: ResourceListProps) {
 	const { _id: roomId } = useRoom()
 	const characters = useQuery(api.characters.functions.list, { roomId })
 	const scenes = useQuery(api.scenes.functions.list, { roomId })
+
+	const tokens = useCurrentSceneTokens()
+	const sceneCharacterIds = new Set(tokens.map((it) => it.characterId).filter(Boolean))
+
 	const [searchState, setSearch] = useState("")
 	const search = searchState.trim()
 
@@ -99,14 +104,19 @@ export function ResourceList(props: ResourceListProps) {
 							</RoomOwnerOnly>
 						}
 					>
-						{sortItems(characters ?? []).map((character) => (
-							<ResourceElement
-								key={character._id}
-								dragData={CharacterResource.create(character).dragData}
-							>
-								<CharacterResource.TreeItem character={character} />
-							</ResourceElement>
-						))}
+						{sortItems(characters ?? [])
+							.sort(
+								(a, b) =>
+									Number(sceneCharacterIds.has(b._id)) - Number(sceneCharacterIds.has(a._id)),
+							)
+							.map((character) => (
+								<ResourceElement
+									key={character._id}
+									dragData={CharacterResource.create(character).dragData}
+								>
+									<CharacterResource.TreeItem character={character} />
+								</ResourceElement>
+							))}
 					</ResourceFolder>
 					<ResourceFolder
 						name="Scenes"

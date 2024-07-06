@@ -82,26 +82,22 @@ export function protectCharacter<T extends Doc<"characters">>(character: T) {
 			return character
 		}
 
+		const publicProperties = [
+			"_id",
+			"_creationTime",
+			"imageId",
+			"conditions",
+			"race",
+			"visible",
+			"nameVisible",
+		] as const
+
 		if (character.visible && character.nameVisible) {
-			return pick(character, [
-				"_id",
-				"_creationTime",
-				"imageId",
-				"conditions",
-				"race",
-				"name",
-				"pronouns",
-			]) as ProtectedCharacter<T>
+			return pick(character, [...publicProperties, "name", "pronouns"]) as ProtectedCharacter<T>
 		}
 
 		if (character.visible) {
-			return pick(character, [
-				"_id",
-				"_creationTime",
-				"imageId",
-				"conditions",
-				"race",
-			]) as ProtectedCharacter<T>
+			return pick(character, publicProperties) as ProtectedCharacter<T>
 		}
 
 		return yield* Effect.fail(new CharacterAccessError(character._id))

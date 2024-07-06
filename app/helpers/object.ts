@@ -1,7 +1,10 @@
 import { unwrap } from "./errors.ts"
 import type { AllKeys, AllValues, Simplify, StrictOmit } from "./types.ts"
 
-export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Simplify<Pick<T, K>> {
+export function pick<T extends object, K extends keyof T>(
+	obj: T,
+	keys: readonly K[],
+): Simplify<Pick<T, K>> {
 	const result = {} as Pick<T, K>
 	for (const key of keys) {
 		if (key in obj) {
