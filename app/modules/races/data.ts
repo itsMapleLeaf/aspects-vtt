@@ -1,11 +1,13 @@
 import { Brand } from "effect"
 import { mapValues } from "~/helpers/object.ts"
 import { titleCase } from "~/helpers/string.ts"
+import type { Attribute } from "../attributes/data.ts"
 
 export interface RaceInput {
 	abilities: Record<string, { description: string }>
 	healthBonus?: number
 	resolveBonus?: number
+	attributeRollBonuses?: Partial<Record<Attribute["id"], { boost: number }>>
 }
 
 const inputs: Record<string, RaceInput> = {
@@ -22,11 +24,14 @@ const inputs: Record<string, RaceInput> = {
 	Arctana: {
 		abilities: {
 			naturalIntellect: {
-				description: `Your @Intellect rolls have +1 boost die.`,
+				description: `Your Intellect rolls have +1 boost die.`,
 			},
 			resourceful: {
 				description: `You have one extra action point.`,
 			},
+		},
+		attributeRollBonuses: {
+			intellect: { boost: 1 },
 		},
 	},
 	Cetacian: {
@@ -35,8 +40,11 @@ const inputs: Record<string, RaceInput> = {
 				description: `In combat, spend one resolve to double your movement speed underwater for the turn.`,
 			},
 			sensorySuperiority: {
-				description: `Your Sense rolls have +1 boost die`,
+				description: `Your Sense rolls have +1 boost die.`,
 			},
+		},
+		attributeRollBonuses: {
+			sense: { boost: 1 },
 		},
 	},
 	Felirian: {
@@ -113,6 +121,9 @@ const inputs: Record<string, RaceInput> = {
 			},
 		},
 		resolveBonus: 10,
+		attributeRollBonuses: {
+			mobility: { boost: 1 },
+		},
 	},
 	Umbraleth: {
 		abilities: {
@@ -122,6 +133,9 @@ const inputs: Record<string, RaceInput> = {
 			descendantOfDarkness: {
 				description: `All of your attribute rolls have +1 boost dice at night.`,
 			},
+		},
+		attributeRollBonuses: {
+			wit: { boost: 1 },
 		},
 	},
 }
@@ -135,6 +149,7 @@ export interface Race {
 	readonly abilities: Record<string, RaceAbility>
 	readonly healthBonus: number
 	readonly resolveBonus: number
+	readonly attributeRollBonuses: Partial<Record<Attribute["id"], { boost: number }>>
 }
 
 export interface RaceAbility {
@@ -157,6 +172,7 @@ export function getRace(id: RaceId): Race | undefined {
 		})),
 		healthBonus: input.healthBonus ?? 0,
 		resolveBonus: input.resolveBonus ?? 0,
+		attributeRollBonuses: input.attributeRollBonuses ?? {},
 	}
 }
 

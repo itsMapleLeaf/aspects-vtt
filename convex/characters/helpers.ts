@@ -145,9 +145,18 @@ export function getCharacterAttributeDiceInputs(args: {
 	snagCount?: number
 }) {
 	const attributeDiceKind = getCharacterAttributeDiceKind(args.character, args.attribute)
+
+	let boostCount = args.boostCount ?? 0
+	if (args.character.race) {
+		const bonus = getRace(args.character.race)?.attributeRollBonuses?.[args.attribute]?.boost
+		if (bonus) {
+			boostCount += bonus
+		}
+	}
+
 	return [
 		getDiceKindApiInput(attributeDiceKind, 2),
-		getDiceKindApiInput(boostDiceKind, args.boostCount ?? 0),
+		getDiceKindApiInput(boostDiceKind, boostCount),
 		getDiceKindApiInput(snagDiceKind, args.snagCount ?? 0),
 	]
 }
