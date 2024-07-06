@@ -6,6 +6,7 @@ import { defineResource, type Resource } from "~/modules/resources/Resource"
 import { Button } from "~/ui/Button.tsx"
 import { ModalButton } from "~/ui/Modal.tsx"
 import type { Id } from "../../../convex/_generated/dataModel"
+import { useUser } from "../auth/hooks.ts"
 import { CharacterModal } from "./CharacterModal.tsx"
 import { useCharacterUpdatePermission } from "./hooks.ts"
 
@@ -33,6 +34,7 @@ export const CharacterResource = defineResource({
 })
 
 function CharacterResourceTreeItem({ character }: { character: ApiCharacter }) {
+	const user = useUser()
 	const hasPermission = useCharacterUpdatePermission(character)
 	return (
 		<CharacterModal character={character}>
@@ -47,6 +49,7 @@ function CharacterResourceTreeItem({ character }: { character: ApiCharacter }) {
 				className="w-full"
 				align="start"
 				element={<ModalButton />}
+				active={user?.clerkId === character.playerId}
 			>
 				<div className="flex min-w-0 flex-1 items-center gap-1">
 					<div className="min-w-0 shrink-0 truncate">
