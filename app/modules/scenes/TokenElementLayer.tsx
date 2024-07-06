@@ -196,8 +196,8 @@ function CharacterTokenDecoration({
 							<TokenMeter
 								value={character.health / character.healthMax}
 								className={{
-									base: "text-red-400",
-									warning: "text-red-400",
+									base: "text-green-400",
+									warning: "text-green-400",
 									danger: "text-red-400",
 								}}
 							/>
@@ -208,14 +208,19 @@ function CharacterTokenDecoration({
 							<TokenMeter
 								value={character.resolve / character.resolveMax}
 								className={{
-									base: "text-purple-400",
-									warning: "text-purple-400",
+									base: "text-blue-400",
+									warning: "text-blue-400",
 									danger: "text-purple-400",
 								}}
 							/>
 						)}
 				</div>
-				<TokenLabel text={character.name ?? "???"} subText={character.pronouns ?? ""} />
+				<TokenLabel
+					text={character.name ?? "???"}
+					subText={[character.pronouns, character.defense && `DEF ${character.defense}`]
+						.filter(Boolean)
+						.join("\n")}
+				/>
 			</div>
 		</div>
 	)

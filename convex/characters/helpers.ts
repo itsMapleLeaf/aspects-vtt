@@ -33,6 +33,8 @@ export function normalizeCharacter(character: Doc<"characters">) {
 	)
 	const resolve = clamp(character.resolve ?? resolveMax, 0, resolveMax)
 
+	const defense = getAttributePower(stats.strength) + getAttributePower(stats.mobility)
+
 	return {
 		name: "",
 		pronouns: "",
@@ -60,6 +62,8 @@ export function normalizeCharacter(character: Doc<"characters">) {
 
 		resolve,
 		resolveMax,
+
+		defense,
 	}
 }
 

@@ -13,9 +13,9 @@ export function TokenMeter({
 			aria-hidden
 			className={twMerge(
 				"relative h-3 w-24 rounded border border-current shadow transition-all",
-				value < 0.5 ? className.base
-				: value < 0.8 ? className.warning
-				: className.danger,
+				value <= 0.2 ? className.danger
+				: value <= 0.5 ? className.warning
+				: className.base,
 			)}
 		>
 			<div
