@@ -1,6 +1,6 @@
 import { useMutation } from "convex/react"
-import { FunctionReference, OptionalRestArgs } from "convex/server"
-import { StrictOmit } from "~/helpers/types.ts"
+import type { FunctionReference, OptionalRestArgs } from "convex/server"
+import type { StrictOmit } from "~/helpers/types.ts"
 import { DeleteForm } from "~/ui/DeleteForm.tsx"
 
 export function ConvexDeleteForm<Fn extends FunctionReference<"mutation", "public">>({
