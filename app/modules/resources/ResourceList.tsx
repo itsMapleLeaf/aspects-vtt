@@ -209,7 +209,7 @@ function ResourceElement({
 	return (
 		<div className="flex gap-1">
 			<div
-				className="flex-1"
+				className="min-w-0 flex-1"
 				draggable
 				onDragStart={(event) => {
 					event.dataTransfer.dropEffect = "copy"

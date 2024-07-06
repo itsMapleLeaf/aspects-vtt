@@ -47,14 +47,17 @@ function CharacterResourceTreeItem({ character }: { character: ApiCharacter }) {
 				className="w-full"
 				align="start"
 				element={<ModalButton />}
-				tooltip={hasPermission && !character.nameVisible && character.name}
-				tooltipPlacement="right"
 			>
-				<div className="flex flex-1 items-center gap-1.5">
-					<div className="min-w-0 flex-1 truncate">
+				<div className="flex min-w-0 flex-1 items-center gap-1">
+					<div className="min-w-0 shrink-0 truncate">
 						{character.nameVisible ? character.name : <em className="inline-block pr-1">???</em>}
 					</div>
-					{character.visible ? null : <LucideEyeOff className="size-5 opacity-50" />}
+					{hasPermission && !character.nameVisible && (
+						<div className="min-w-0 truncate opacity-75">({character.name})</div>
+					)}
+					{character.visible ? null : (
+						<LucideEyeOff className="ml-auto size-5 shrink-0 opacity-50" />
+					)}
 				</div>
 			</Button>
 		</CharacterModal>
