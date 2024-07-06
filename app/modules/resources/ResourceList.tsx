@@ -15,6 +15,7 @@ import { MenuItem } from "~/ui/Menu.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api"
+import { useUser } from "../auth/hooks.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import { NewCharacterForm } from "../characters/NewCharacterForm.tsx"
 import { ConvexDeleteForm } from "../convex/ConvexDeleteForm.tsx"
@@ -30,6 +31,7 @@ export function ResourceList(props: ResourceListProps) {
 	const { _id: roomId } = useRoom()
 	const characters = useQuery(api.characters.functions.list, { roomId })
 	const scenes = useQuery(api.scenes.functions.list, { roomId })
+	const user = useUser()
 
 	const tokens = useCurrentSceneTokens()
 	const sceneCharacterIds = new Set(tokens.map((it) => it.characterId).filter(Boolean))
@@ -110,9 +112,14 @@ export function ResourceList(props: ResourceListProps) {
 							}
 						>
 							{sortItems(characters ?? [])
+								// i'm so sorry
 								.sort(
 									(a, b) =>
 										Number(sceneCharacterIds.has(b._id)) - Number(sceneCharacterIds.has(a._id)),
+								)
+								.sort(
+									(a, b) =>
+										Number(user?.clerkId === b.playerId) - Number(user?.clerkId === a.playerId),
 								)
 								.map((character) => (
 									<ResourceElement
