@@ -1,6 +1,6 @@
-import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { CheckboxField } from "~/ui/CheckboxField.tsx"
 import { api } from "../../../convex/_generated/api"
 import { clamp } from "../../helpers/math.ts"
 import type { PartialKeys } from "../../helpers/types.ts"
@@ -9,7 +9,7 @@ import { FormField } from "../../ui/Form.tsx"
 import { Popover, PopoverDismiss, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
-import { useSafeAction } from "../convex/hooks.ts"
+import { useMutationAction } from "../convex/hooks.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { Attribute } from "./data.ts"
 
@@ -25,7 +25,9 @@ export function AttributeDiceRollButton({
 } & PartialKeys<ButtonProps, "icon">) {
 	const [boostCount, setBoostCount] = useState(0)
 	const [snagCount, setSnagCount] = useState(0)
-	const [, rollAttribute] = useSafeAction(useMutation(api.characters.functions.rollAttribute))
+	const [pushYourself, setPushYourself] = useState(false)
+	const [, rollAttribute] = useMutationAction(api.characters.functions.rollAttribute)
+	const [, updateCharacter] = useMutationAction(api.characters.functions.update)
 	const { _id: roomId } = useRoom()
 
 	return (
@@ -49,6 +51,11 @@ export function AttributeDiceRollButton({
 						<CounterInput value={snagCount} onChange={setSnagCount} />
 					</FormField>
 				</div>
+				<CheckboxField
+					label="Push yourself"
+					checked={pushYourself}
+					onChange={(event) => setPushYourself(event.target.checked)}
+				/>
 				<PopoverDismiss
 					render={
 						<Button
@@ -58,9 +65,20 @@ export function AttributeDiceRollButton({
 									roomId,
 									characterIds: characters.map((character) => character._id),
 									attribute,
-									boostCount,
+									boostCount: boostCount + (pushYourself ? 1 : 0),
 									snagCount,
 								})
+
+								if (pushYourself) {
+									for (const character of characters) {
+										if (!character.resolve) continue
+										updateCharacter({
+											id: character._id,
+											resolve: character.resolve - 2,
+										})
+									}
+								}
+
 								setBoostCount(0)
 								setSnagCount(0)
 							}}
