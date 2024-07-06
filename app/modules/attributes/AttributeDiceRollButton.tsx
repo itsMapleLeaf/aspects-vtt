@@ -52,7 +52,6 @@ export function AttributeDiceRollButton({
 				<PopoverDismiss
 					render={
 						<Button
-							text="Roll"
 							icon={<Lucide.Dices />}
 							onClick={() => {
 								rollAttribute({
@@ -65,7 +64,9 @@ export function AttributeDiceRollButton({
 								setBoostCount(0)
 								setSnagCount(0)
 							}}
-						/>
+						>
+							Roll
+						</Button>
 					}
 				/>
 			</PopoverPanel>
