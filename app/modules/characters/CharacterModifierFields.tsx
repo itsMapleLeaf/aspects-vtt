@@ -30,7 +30,7 @@ export function CharacterModifierFields({
 				update({ characterId: character._id, attribute: attribute.id, [field.modification]: value })
 			}
 			className="w-12 text-center"
-			placeholder={0}
+			placeholder="0"
 		/>
 	))
 }
