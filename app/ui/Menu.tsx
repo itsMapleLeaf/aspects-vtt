@@ -31,15 +31,17 @@ MenuPanel.style = function menuPanelStyle(...classes: ClassNameValue[]) {
 
 export interface MenuItemProps
 	extends Ariakit.MenuItemProps<"div">,
-		Pick<ButtonProps, "icon" | "pending"> {}
+		Pick<ButtonProps, "icon" | "pending"> {
+	type?: "button" | "submit"
+}
 
-export function MenuItem({ icon, pending, ...props }: MenuItemProps) {
+export function MenuItem({ icon, pending, type = "button", ...props }: MenuItemProps) {
 	return (
 		<Button
 			icon={icon}
 			pending={pending}
 			className="cursor-default justify-start border-none text-left"
-			element={<Ariakit.MenuItem {...props} />}
+			element={<Ariakit.MenuItem {...props} render={<button type={type} />} />}
 		>
 			{props.children}
 		</Button>

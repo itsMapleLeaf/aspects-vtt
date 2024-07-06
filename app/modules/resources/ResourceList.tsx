@@ -1,5 +1,6 @@
 import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
 import { useQuery } from "convex/react"
+import type { FunctionReference, OptionalRestArgs } from "convex/server"
 import * as Lucide from "lucide-react"
 import { LucideFolder, LucideFolderOpen, LucideImagePlus, LucideUserPlus2 } from "lucide-react"
 import React, { useState } from "react"
@@ -10,11 +11,14 @@ import type { JsonValue } from "~/helpers/json.ts"
 import { mod } from "~/helpers/math.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
+import { MenuItem } from "~/ui/Menu.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import { NewCharacterForm } from "../characters/NewCharacterForm.tsx"
+import { ConvexDeleteForm } from "../convex/ConvexDeleteForm.tsx"
+import { RoomOwnerContextMenu } from "../rooms/RoomOwnerContextMenu.tsx"
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { NewSceneForm } from "../scenes/NewSceneForm.tsx"
 import { SceneResource } from "../scenes/SceneResource.tsx"
@@ -115,7 +119,14 @@ export function ResourceList(props: ResourceListProps) {
 										key={character._id}
 										dragData={CharacterResource.create(character).dragData}
 									>
-										<CharacterResource.TreeItem character={character} />
+										<ResourceMenu
+											kind="character"
+											name={character.name ?? "this character"}
+											deleteMutation={api.characters.functions.remove}
+											deleteArgs={{ id: character._id }}
+										>
+											<CharacterResource.TreeItem character={character} />
+										</ResourceMenu>
 									</ResourceElement>
 								))}
 						</ResourceFolder>
@@ -137,7 +148,14 @@ export function ResourceList(props: ResourceListProps) {
 						>
 							{sortItems(scenes ?? []).map((scene) => (
 								<ResourceElement key={scene._id} dragData={scene}>
-									<SceneResource.TreeItem scene={scene} />
+									<ResourceMenu
+										kind="scene"
+										name={scene.name}
+										deleteMutation={api.scenes.functions.remove}
+										deleteArgs={{ id: scene._id }}
+									>
+										<SceneResource.TreeItem scene={scene} />
+									</ResourceMenu>
 								</ResourceElement>
 							))}
 						</ResourceFolder>
@@ -182,24 +200,54 @@ function ResourceFolder({
 function ResourceElement({
 	children,
 	dragData,
+	end,
 }: {
 	children: React.ReactNode
 	dragData: JsonValue
+	end?: React.ReactNode
 }) {
 	return (
-		<div
-			draggable
-			onDragStart={(event) => {
-				event.dataTransfer.dropEffect = "copy"
-				event.dataTransfer.setData("text/plain", JSON.stringify(dragData))
-				event.dataTransfer.setDragImage(
-					event.currentTarget,
-					event.currentTarget.clientWidth / 2,
-					event.currentTarget.clientHeight / 2,
-				)
-			}}
-		>
-			{children}
+		<div className="flex gap-1">
+			<div
+				className="flex-1"
+				draggable
+				onDragStart={(event) => {
+					event.dataTransfer.dropEffect = "copy"
+					event.dataTransfer.setData("text/plain", JSON.stringify(dragData))
+					event.dataTransfer.setDragImage(
+						event.currentTarget,
+						event.currentTarget.clientWidth / 2,
+						event.currentTarget.clientHeight / 2,
+					)
+				}}
+			>
+				{children}
+			</div>
+			{end}
 		</div>
+	)
+}
+
+function ResourceMenu<DeleteMutation extends FunctionReference<"mutation", "public">>({
+	kind,
+	name,
+	deleteMutation,
+	deleteArgs,
+	children,
+}: {
+	kind: string
+	name: string
+	deleteMutation: DeleteMutation
+	deleteArgs: OptionalRestArgs<DeleteMutation>[0]
+	children: React.ReactNode
+}) {
+	return (
+		<RoomOwnerContextMenu trigger={children}>
+			<ConvexDeleteForm kind={kind} name={name} mutation={deleteMutation} args={deleteArgs}>
+				<MenuItem icon={<Lucide.Trash />} hideOnClick={false} type="submit">
+					Delete {name}
+				</MenuItem>
+			</ConvexDeleteForm>
+		</RoomOwnerContextMenu>
 	)
 }
