@@ -2,9 +2,7 @@ node_modules
 /.cache
 /build
 *.env*
-!.env
 !.env.example
-!.env.convex.example
 .vscode/settings.json
 .vercel
 /convex-backend
