@@ -1,4 +1,5 @@
 import containerQueries from "@tailwindcss/container-queries"
+import typography from "@tailwindcss/typography"
 import Color from "colorjs.io"
 import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
@@ -29,6 +30,7 @@ export default {
 	plugins: [
 		containerQueries,
 		animate,
+		typography,
 
 		plugin(function flexShortcuts(api) {
 			api.addComponents({
