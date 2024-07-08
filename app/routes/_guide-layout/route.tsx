@@ -33,7 +33,7 @@ export default function GuideLayout() {
 				</div>
 				<Suspense fallback={<Loading />}>
 					<main className="h-[200dvh] min-w-0 flex-1">
-						<div className="prose prose-invert prose-headings:font-light prose-headings:mb-2 prose-headings:mt-10 relative rounded-lg bg-primary-200 p-4 text-primary-900 shadow-md">
+						<div className="prose prose-invert relative rounded-lg bg-primary-200 p-4 text-primary-900 shadow-md prose-headings:mb-2 prose-headings:mt-10 prose-headings:font-light">
 							<Outlet />
 						</div>
 					</main>
