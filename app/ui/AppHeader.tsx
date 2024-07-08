@@ -1,6 +1,6 @@
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/remix"
 import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
-import { LucideLogIn } from "lucide-react"
+import { LucideBookOpen, LucideLogIn } from "lucide-react"
 import { $path } from "remix-routes"
 import { Button } from "./Button.tsx"
 
@@ -9,7 +9,7 @@ export function AppHeader({ center, end }: { center?: React.ReactNode; end?: Rea
 	const navigate = useNavigate()
 	return (
 		<header className="flex h-10 items-center gap-3">
-			<div className="flex flex-1">
+			<div className="flex flex-1 items-center gap-12">
 				<Link
 					to={$path("/")}
 					onContextMenu={(e) => {
@@ -21,6 +21,10 @@ export function AppHeader({ center, end }: { center?: React.ReactNode; end?: Rea
 						<span className="font-light text-primary-600">Aspects</span>
 						<span className="font-medium text-primary-800">VTT</span>
 					</h1>
+				</Link>
+				<Link to="/guide" className="flex items-center gap-2">
+					<LucideBookOpen className="text-primary-600" />
+					<span className="font-medium text-primary-800">Guide</span>
 				</Link>
 			</div>
 			{center}
