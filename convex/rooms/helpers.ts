@@ -1,6 +1,6 @@
 import { Effect } from "effect"
 import type { Id } from "../_generated/dataModel"
-import { getIdentityEffect } from "../auth/helpers.ts"
+import { getIdentityEffect } from "../auth.ts"
 import { getDoc } from "../helpers/effect.ts"
 
 export class RoomNotOwnedError {

@@ -1,3 +1,4 @@
+import { Iterator } from "iterator-helpers-polyfill"
 import { unwrap } from "./errors.ts"
 import { entries } from "./object.ts"
 import type { AllKeys, AllValues } from "./types.ts"

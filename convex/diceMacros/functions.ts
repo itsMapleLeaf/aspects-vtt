@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values"
 import { mutation, query } from "../_generated/server.js"
-import { getIdentity } from "../auth/helpers.ts"
+import { getIdentity } from "../auth.ts"
 import { requireDoc } from "../helpers/convex.ts"
 import { diceMacroProperties } from "./types.ts"
 

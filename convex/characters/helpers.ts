@@ -9,7 +9,7 @@ import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
 import { boostDiceKind, getDiceKindApiInput, snagDiceKind } from "~/modules/dice/data.tsx"
 import { getRace } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
-import { getUserFromIdentityEffect, UnauthorizedError } from "../auth/helpers.ts"
+import { getUserFromIdentityEffect, UnauthorizedError } from "../auth.ts"
 import { getDoc } from "../helpers/effect.ts"
 
 export function normalizeCharacter(character: Doc<"characters">) {

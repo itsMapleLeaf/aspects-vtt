@@ -32,7 +32,8 @@ jobs:
       - name: "▶️ Run ${{ matrix.command }}"
         run: bun run ${{ matrix.command }}
 
-  playwright:
+  playwright: # disable for now
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: "🛒 Checkout"

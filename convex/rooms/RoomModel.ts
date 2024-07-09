@@ -4,7 +4,7 @@ import { ConvexError } from "convex/values"
 import { Result } from "../../app/helpers/Result.ts"
 import type { Doc, Id } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
-import { getUserFromIdentity } from "../auth/helpers.ts"
+import { getUserFromIdentity } from "../auth.ts"
 
 export class RoomModel {
 	private readonly ctx

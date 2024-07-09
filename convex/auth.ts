@@ -1,11 +1,28 @@
 import type { UserIdentity } from "convex/server"
-import { ConvexError } from "convex/values"
+import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
-import { Result } from "../../app/helpers/Result.ts"
-import type { QueryCtx } from "../_generated/server.js"
-import type { Branded } from "../helpers/convex.js"
-import { Convex, QueryCtxService } from "../helpers/effect.ts"
-import { getCurrentUser, getUserByClerkId } from "../users.ts"
+import { Result } from "../app/helpers/Result.ts"
+import type { QueryCtx } from "./_generated/server.js"
+import type { Branded } from "./helpers/convex.js"
+import { Convex, effectMutation, QueryCtxService } from "./helpers/effect.ts"
+import { getCurrentUser, getUserByClerkId, upsertUser } from "./users.ts"
+
+export const setup = effectMutation({
+	args: {
+		name: v.string(),
+		avatarUrl: v.optional(v.string()),
+		clerkId: v.string(),
+	},
+	handler(args) {
+		return Effect.gen(function* () {
+			yield* upsertUser({
+				name: args.name,
+				avatarUrl: args.avatarUrl,
+				clerkId: args.clerkId as Branded<"clerkId">,
+			})
+		})
+	},
+})
 
 /** @deprecated */
 export function getIdentity(ctx: QueryCtx) {

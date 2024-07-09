@@ -17,21 +17,7 @@ export const upsert = internalEffectMutation({
 		clerkId: brandedString("clerkId"),
 	},
 	handler(args) {
-		return getUserByClerkId(args.clerkId).pipe(
-			Effect.flatMap((existing) =>
-				Convex.db.patch(existing._id, {
-					name: args.name,
-					avatarUrl: args.avatarUrl,
-				}),
-			),
-			Effect.catchTag("ConvexDocNotFoundError", () =>
-				Convex.db.insert("users", {
-					name: args.name,
-					avatarUrl: args.avatarUrl,
-					clerkId: args.clerkId,
-				}),
-			),
-		)
+		return upsertUser(args)
 	},
 })
 
@@ -46,6 +32,28 @@ export const remove = internalEffectMutation({
 		)
 	},
 })
+
+export function upsertUser(args: {
+	avatarUrl?: string | undefined
+	name: string
+	clerkId: string & { _: "clerkId" }
+}) {
+	return getUserByClerkId(args.clerkId).pipe(
+		Effect.flatMap((existing) =>
+			Convex.db.patch(existing._id, {
+				name: args.name,
+				avatarUrl: args.avatarUrl,
+			}),
+		),
+		Effect.catchTag("ConvexDocNotFoundError", () =>
+			Convex.db.insert("users", {
+				name: args.name,
+				avatarUrl: args.avatarUrl,
+				clerkId: args.clerkId,
+			}),
+		),
+	)
+}
 
 export function getCurrentUser() {
 	return Effect.gen(function* () {

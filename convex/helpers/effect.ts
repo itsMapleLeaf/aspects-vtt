@@ -4,6 +4,8 @@ import type {
 	DocumentByName,
 	ExpressionOrValue,
 	FilterBuilder,
+	GenericActionCtx,
+	GenericDataModel,
 	GenericTableInfo,
 	IndexNames,
 	IndexRange,
@@ -20,7 +22,7 @@ import type { PropertyValidators } from "convex/values"
 import { Context, Data, Effect, pipe } from "effect"
 import type { Awaitable, Nullish } from "../../app/helpers/types.js"
 import type { DataModel, Id, TableNames } from "../_generated/dataModel.js"
-import type { ActionCtx, MutationCtx, QueryCtx } from "../_generated/server.js"
+import type { MutationCtx, QueryCtx } from "../_generated/server.js"
 import {
 	action,
 	internalAction,
@@ -39,7 +41,7 @@ export class MutationCtxService extends Context.Tag("MutationCtxService")<
 
 export class ActionCtxService extends Context.Tag("ActionCtxService")<
 	ActionCtxService,
-	ActionCtx
+	GenericActionCtx<GenericDataModel>
 >() {}
 
 export class ConvexDocNotFoundError extends Data.TaggedError("ConvexDocNotFoundError")<{
@@ -106,7 +108,10 @@ export function effectAction<
 		handler(ctx, ...args: ArgsArray) {
 			return pipe(
 				options.handler(...args),
-				Effect.provideService(ActionCtxService, ctx),
+				Effect.provideService(
+					ActionCtxService,
+					ctx as unknown as GenericActionCtx<GenericDataModel>,
+				),
 				Effect.runPromise,
 			)
 		},
@@ -158,7 +163,10 @@ export function internalEffectAction<
 		handler(ctx, ...args: ArgsArray) {
 			return pipe(
 				options.handler(...args),
-				Effect.provideService(ActionCtxService, ctx),
+				Effect.provideService(
+					ActionCtxService,
+					ctx as unknown as GenericActionCtx<GenericDataModel>,
+				),
 				Effect.runPromise,
 			)
 		},

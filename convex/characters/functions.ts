@@ -20,7 +20,7 @@ import {
 import { getAspect, listAspects, type Aspect } from "../../app/modules/aspects/data.ts"
 import { listRaceIds } from "../../app/modules/races/data.ts"
 import type { Doc } from "../_generated/dataModel.js"
-import { getUserFromIdentityEffect } from "../auth/helpers.ts"
+import { getUserFromIdentityEffect } from "../auth.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
 import {
 	Convex,

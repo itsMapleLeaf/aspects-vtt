@@ -1,6 +1,6 @@
 import { Effect } from "effect"
 import type { Id } from "../_generated/dataModel"
-import { getIdentityEffect } from "../auth/helpers.ts"
+import { getIdentityEffect } from "../auth.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
 import type { Branded } from "../helpers/convex.ts"
 import { getDoc, insertDoc } from "../helpers/effect.ts"

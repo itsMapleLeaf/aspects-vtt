@@ -8,7 +8,7 @@ import { omit } from "../../app/helpers/object.ts"
 import { Result } from "../../app/helpers/Result.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
-import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth/helpers.ts"
+import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth.ts"
 import {
 	MutationCtxService,
 	effectMutation,

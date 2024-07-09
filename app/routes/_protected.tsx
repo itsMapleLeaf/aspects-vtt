@@ -1,13 +1,13 @@
-import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton } from "@clerk/remix"
+import { ClerkLoaded, ClerkLoading, SignInButton, SignUpButton, useUser } from "@clerk/remix"
 import { Outlet, useHref, useLocation } from "@remix-run/react"
-import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
+import { AuthLoading, Authenticated, Unauthenticated, useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { Suspense } from "react"
-import { useUser } from "~/modules/auth/hooks.ts"
+import { Suspense, useEffect } from "react"
 import { AppHeaderLayout } from "~/ui/AppHeaderLayout.tsx"
 import { Button } from "~/ui/Button.tsx"
 import { EmptyStatePanel } from "~/ui/EmptyState.tsx"
 import { Loading } from "~/ui/Loading.tsx"
+import { api } from "../../convex/_generated/api.js"
 
 export default function ProtectedRoute() {
 	return (
@@ -36,8 +36,20 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 }
 
 function UserGuard({ children }: { children: React.ReactNode }) {
-	const user = useUser()
-	return user ? children : <Loading fill="screen" />
+	const { user: clerkUser } = useUser()
+	const convexUser = useQuery(api.users.me)
+	const setup = useMutation(api.auth.setup)
+
+	useEffect(() => {
+		if (!clerkUser) return
+		setup({
+			name: clerkUser.username || clerkUser.id,
+			avatarUrl: clerkUser.imageUrl,
+			clerkId: clerkUser.id,
+		})
+	}, [clerkUser, setup])
+
+	return convexUser ? children : <Loading fill="screen" />
 }
 
 function UnauthenticatedMessage() {
