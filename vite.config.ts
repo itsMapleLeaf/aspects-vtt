@@ -14,7 +14,7 @@ import inspect from "vite-plugin-inspect"
 import tsconfigPaths from "vite-plugin-tsconfig-paths"
 
 export default defineConfig({
-	base: "/",
+	// base: "/",
 	plugins: [
 		tsconfigPaths(),
 		mdx({
@@ -43,4 +43,7 @@ export default defineConfig({
 		inspect(),
 		visualizer({ emitFile: true, filename: "build/stats.html" }),
 	],
+	optimizeDeps: {
+		force: true,
+	},
 })

@@ -15,7 +15,9 @@
     "format:prettier": "prettier --write . --list-different",
     "test": "bun test app convex",
     "typecheck": "remix-routes && tsc --noEmit",
-    "checks": "run-s --continue-on-error format typecheck test"
+    "checks": "run-s --continue-on-error format typecheck test",
+    "convex-backend": "cd convex-backend && ./convex-local-backend",
+    "convex-backend-fresh": "cd convex-backend && rm -rf convex_local_storage convex_local_backend.sqlite3 && ./convex-local-backend"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.7",
@@ -73,12 +75,14 @@
     "@types/react": "^19.0.0-alpha.5",
     "@types/react-dom": "^19.0.0-alpha.5",
     "@types/unzipper": "^0.10.9",
+    "@types/wait-on": "^5.3.4",
     "babel-plugin-react-compiler": "^0.0.0-experimental-696af53-20240625",
     "dotenv-cli": "^7.4.2",
     "eslint": "^9.6.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-compiler": "^0.0.0-experimental-0998c1e-20240625",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "execa": "^9.3.0",
     "globals": "^15.8.0",
     "npm-run-all": "^4.1.5",
     "only-allow": "^1.2.1",
@@ -99,7 +103,8 @@
     "vite": "^5.3.3",
     "vite-plugin-babel": "^1.2.0",
     "vite-plugin-inspect": "^0.8.4",
-    "vite-plugin-tsconfig-paths": "^1.4.1"
+    "vite-plugin-tsconfig-paths": "^1.4.1",
+    "wait-on": "^7.2.0"
   },
   "overrides": {
     "@types/react": "npm:types-react@^19.0.0-alpha.5",

@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		// resolution
 		"module": "Preserve",
+		"moduleResolution": "Bundler",
 		"moduleDetection": "force",
 		"lib": ["DOM", "DOM.Iterable", "ES2023"],
 		"jsx": "react-jsx",
