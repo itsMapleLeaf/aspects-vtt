@@ -10,7 +10,7 @@ import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { getApiImageUrl } from "../api-images/helpers.ts"
 import { CharacterResource } from "../characters/CharacterResource.tsx"
 import { parseResourceDragData } from "../resources/Resource.tsx"
-import { RoomTool, RoomToolbarStore } from "../rooms/RoomToolbarStore.tsx"
+import type { RoomToolbarStore } from "../rooms/RoomToolbarStore.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { PingHandler } from "./PingHandler.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
@@ -21,8 +21,7 @@ import { useCurrentScene, useCurrentSceneTokens } from "./hooks.ts"
 import { useAddTokenMutation } from "./useAddTokenMutation.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
-export function SceneMap() {
-	const state = RoomToolbarStore.useState()
+export function SceneMap({ store }: { store: RoomToolbarStore }) {
 	const { tokenSelectStore } = useSceneContext()
 	return (
 		<WheelHandler>
@@ -31,8 +30,8 @@ export function SceneMap() {
 			<DragHandler>
 				<PingHandler>
 					<CharacterTokenDropzone>
-						{state.activeTool === RoomTool.Draw ?
-							<RectTokenDrawArea>
+						{store.activeTool === "Draw" ?
+							<RectTokenDrawArea onTokenAdded={store.activateSelectTool}>
 								<TokenElementLayer />
 							</RectTokenDrawArea>
 						:	<DragSelectArea className="absolute inset-0" {...tokenSelectStore.areaProps()}>
@@ -227,10 +226,15 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 	)
 }
 
-function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
+function RectTokenDrawArea({
+	children,
+	onTokenAdded,
+}: {
+	children: React.ReactNode
+	onTokenAdded?: () => void
+}) {
 	const { scene, viewport } = useSceneContext()
 	const { currentScene } = useRoom()
-	const roomToolbarActions = RoomToolbarStore.useActions()
 	const addToken = useAddTokenMutation()
 	const [previewArea, setPreviewArea] = useState<Rect>()
 
@@ -278,7 +282,7 @@ function RectTokenDrawArea({ children }: { children: React.ReactNode }) {
 						color: randomItem(["red", "orange", "yellow", "green", "blue", "purple"]),
 					},
 				})
-				roomToolbarActions.enableSelectTool()
+				onTokenAdded?.()
 				setPreviewArea(undefined)
 			}}
 		>

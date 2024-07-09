@@ -1,6 +1,5 @@
 import { useQuery } from "convex/react"
 import { Suspense, useCallback, useEffect, useRef } from "react"
-import { CharacterSelectionProvider } from "~/modules/characters/CharacterSelectionProvider.tsx"
 import { CombatTurnBanner } from "~/modules/combat/CombatTurnBanner.tsx"
 import { GameTime } from "~/modules/game/GameTime.tsx"
 import { MessageInput } from "~/modules/messages/MessageInput.tsx"
@@ -9,7 +8,7 @@ import { ResourceList } from "~/modules/resources/ResourceList.tsx"
 import { CombatInitiativePanel } from "~/modules/rooms/CombatInitiative.tsx"
 import { useRoom } from "~/modules/rooms/roomContext.tsx"
 import { RoomToolbar } from "~/modules/rooms/RoomToolbar.tsx"
-import { RoomToolbarStore } from "~/modules/rooms/RoomToolbarStore.tsx"
+import { useRoomToolbarStore } from "~/modules/rooms/RoomToolbarStore.ts"
 import { SceneProvider } from "~/modules/scenes/SceneContext.tsx"
 import { SceneMap } from "~/modules/scenes/SceneMap.tsx"
 import { AppHeader } from "~/ui/AppHeader.tsx"
@@ -17,70 +16,69 @@ import { Loading } from "~/ui/Loading.tsx"
 import { TranslucentPanel } from "~/ui/Panel.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { api } from "../../convex/_generated/api.js"
-import { AutoAnimate } from "../ui/AutoAnimate.js"
+import { AutoAnimate } from "../ui/AutoAnimate.tsx"
 
 export default function RoomRoute() {
+	const store = useRoomToolbarStore()
 	return (
-		<CharacterSelectionProvider>
+		<>
 			<Suspense>
 				<RoomTimedThemeEffect />
 			</Suspense>
 
-			<RoomToolbarStore.Provider>
-				<div className="fixed inset-0 select-none overflow-clip bg-primary-100">
-					<Suspense fallback={<Loading fill="parent" />}>
-						<SceneProvider>
-							<SceneMap />
-						</SceneProvider>
-					</Suspense>
+			<div className="fixed inset-0 select-none overflow-clip bg-primary-100">
+				<Suspense fallback={<Loading fill="parent" />}>
+					<SceneProvider>
+						<SceneMap store={store} />
+					</SceneProvider>
+				</Suspense>
+			</div>
+
+			<div className="pointer-events-none fixed inset-x-0 top-0 z-10 h-40 bg-natural-gradient-100">
+				<div className="absolute inset-x-0 top-0 flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
+					<AppHeader />
 				</div>
+				<Suspense>
+					<SceneHeading />
+				</Suspense>
+				<Suspense>
+					<CombatTurnBanner />
+				</Suspense>
+			</div>
 
-				<div className="pointer-events-none fixed inset-x-0 top-0 z-10 h-40 bg-natural-gradient-100">
-					<div className="absolute inset-x-0 top-0 flex flex-col justify-center p-4 [&_:is(a,button)]:pointer-events-auto">
-						<AppHeader />
-					</div>
-					<Suspense>
-						<SceneHeading />
-					</Suspense>
-					<Suspense>
-						<CombatTurnBanner />
-					</Suspense>
-				</div>
-
-				<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
-					<AutoAnimate className="flex h-[calc(100%-4rem)] min-h-0 flex-1 flex-col gap-2">
-						<TranslucentPanel className="pointer-events-auto flex min-h-0 w-64 flex-1 flex-col gap-2 p-2">
-							<Suspense fallback={<Loading fill="parent" />}>
-								<ResourceList />
-							</Suspense>
-						</TranslucentPanel>
-
-						<CombatInitiativePanel className="pointer-events-auto w-64" />
-					</AutoAnimate>
-
-					<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
-						<Suspense>
-							<RoomToolbar />
+			<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
+				<AutoAnimate className="flex h-[calc(100%-4rem)] min-h-0 flex-1 flex-col gap-2">
+					<TranslucentPanel className="pointer-events-auto flex min-h-0 w-64 flex-1 flex-col gap-2 p-2">
+						<Suspense fallback={<Loading fill="parent" />}>
+							<ResourceList />
 						</Suspense>
 					</TranslucentPanel>
 
-					<div className="flex h-full min-h-0 flex-1 flex-col items-end">
-						<div className="flex h-full min-h-0 w-[20rem] flex-1 flex-col">
-							<Suspense fallback={<Loading fill="parent" />}>
-								<div className="flex min-h-0 flex-1 flex-col justify-end">
-									<MessageListScroller />
-								</div>
-								<div className="flex flex-col gap-2">
-									<TranslucentPanel element={<aside />} className="pointer-events-auto gap-2 p-2">
-										<MessageInput />
-									</TranslucentPanel>
-								</div>
-							</Suspense>
-						</div>
+					<CombatInitiativePanel className="pointer-events-auto w-64" />
+				</AutoAnimate>
+
+				<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
+					<Suspense>
+						<RoomToolbar store={store} />
+					</Suspense>
+				</TranslucentPanel>
+
+				<div className="flex h-full min-h-0 flex-1 flex-col items-end">
+					<div className="flex h-full min-h-0 w-[20rem] flex-1 flex-col">
+						<Suspense fallback={<Loading fill="parent" />}>
+							<div className="flex min-h-0 flex-1 flex-col justify-end">
+								<MessageListScroller />
+							</div>
+							<div className="flex flex-col gap-2">
+								<TranslucentPanel element={<aside />} className="pointer-events-auto gap-2 p-2">
+									<MessageInput />
+								</TranslucentPanel>
+							</div>
+						</Suspense>
 					</div>
 				</div>
-			</RoomToolbarStore.Provider>
-		</CharacterSelectionProvider>
+			</div>
+		</>
 	)
 }
 

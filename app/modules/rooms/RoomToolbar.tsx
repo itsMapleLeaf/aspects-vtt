@@ -11,11 +11,9 @@ import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
 import { QuickReference } from "../game/QuickReference.tsx"
 import { RoomOwnerOnly } from "./roomContext.tsx"
 import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
-import { RoomTool, RoomToolbarStore } from "./RoomToolbarStore.tsx"
+import type { RoomToolbarStore } from "./RoomToolbarStore.ts"
 
-export function RoomToolbar() {
-	const state = RoomToolbarStore.useState()
-	const actions = RoomToolbarStore.useActions()
+export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 	const character = useOwnedCharacter()
 
 	const aspect =
@@ -40,8 +38,8 @@ export function RoomToolbar() {
 			<ToolbarButton
 				icon={<Lucide.SquareDashedMousePointer />}
 				tooltip="Draw Area"
-				active={state.activeTool === RoomTool.Draw}
-				onClick={actions.toggleDrawTool}
+				active={store.activeTool === "Draw"}
+				onClick={store.toggleDrawTool}
 			/>
 
 			<ToolbarSeparator />
