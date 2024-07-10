@@ -1,6 +1,7 @@
 import { useQuery } from "convex/react"
 import { Suspense, useCallback, useEffect, useRef } from "react"
 import { CombatTurnBanner } from "~/modules/combat/CombatTurnBanner.tsx"
+import { useMutationAction } from "~/modules/convex/hooks.ts"
 import { GameTime } from "~/modules/game/GameTime.tsx"
 import { MessageInput } from "~/modules/messages/MessageInput.tsx"
 import { MessageList } from "~/modules/messages/MessageList.tsx"
@@ -23,6 +24,7 @@ export default function RoomRoute() {
 	return (
 		<>
 			<Suspense>
+				<JoinRoomEffect />
 				<RoomTimedThemeEffect />
 			</Suspense>
 
@@ -80,6 +82,15 @@ export default function RoomRoute() {
 			</div>
 		</>
 	)
+}
+
+function JoinRoomEffect() {
+	const room = useRoom()
+	const [, join] = useMutationAction(api.rooms.functions.join)
+	useEffect(() => {
+		join({ id: room._id })
+	}, [join, room._id])
+	return null
 }
 
 function RoomTimedThemeEffect() {
