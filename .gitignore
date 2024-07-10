@@ -8,3 +8,5 @@ node_modules
 /convex-backend
 /playwright-report
 /test-results
+/bin
+/data

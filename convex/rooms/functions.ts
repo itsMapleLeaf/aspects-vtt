@@ -10,6 +10,7 @@ import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth.ts"
 import {
+	Convex,
 	MutationCtxService,
 	effectMutation,
 	effectQuery,
@@ -18,6 +19,7 @@ import {
 	withQueryCtx,
 } from "../helpers/effect.js"
 import { memberValidator } from "./combat/types.ts"
+import { ensureViewerOwnsRoom } from "./helpers.ts"
 import { RoomModel } from "./RoomModel.js"
 import { roomProperties } from "./types.ts"
 
@@ -117,11 +119,14 @@ export const update = mutation({
 	},
 })
 
-export const remove = mutation({
-	args: { id: v.id("rooms") },
-	handler: async (ctx, args) => {
-		const room = await RoomModel.fromId(ctx, args.id).getValueOrThrow()
-		await room.delete(ctx)
+export const remove = effectMutation({
+	args: { slug: v.string() },
+	handler(args) {
+		return Effect.gen(function* () {
+			const room = yield* getRoomBySlug(args.slug)
+			yield* ensureViewerOwnsRoom(room._id)
+			yield* Convex.db.delete(room._id)
+		})
 	},
 })
 
@@ -194,4 +199,11 @@ export function requireRoomOwner(ctx: QueryCtx, roomId: Id<"rooms">) {
 		await room.assertOwned()
 		return room
 	})
+}
+
+export function getRoomBySlug(slug: string) {
+	return Convex.db
+		.query("rooms")
+		.withIndex("slug", (q) => q.eq("slug", slug))
+		.first()
 }
