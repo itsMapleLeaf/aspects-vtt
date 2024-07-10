@@ -16,9 +16,7 @@
     "typecheck": "remix-routes && tsc --noEmit",
     "checks": "run-s --continue-on-error format typecheck test",
     "test": "bun test app convex",
-    "e2e": "dotenvx run -f .env.test -- sh -c 'convex deploy --cmd \"bun playwright test\" --cmd-url-env-var-name VITE_CONVEX_URL --preview-create $CONVEX_PREVIEW_DEPLOY_NAME'",
-    "convex-backend": "nu scripts/convex-backend.nu",
-    "dev-convex-backend": "VITE_CONVEX_URL=http://localhost:3210 bun run dev:remix"
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.7",

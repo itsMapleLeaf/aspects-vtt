@@ -30,13 +30,7 @@ export default defineConfig({
 	],
 	webServer: [
 		{
-			command: "bun run convex-backend start",
-			port: 3210,
-			reuseExistingServer: !process.env.CI,
-			stdout: "pipe",
-		},
-		{
-			command: "bun run dev-convex-backend",
+			command: "bun run dev",
 			url: "http://localhost:5173",
 			reuseExistingServer: !process.env.CI,
 			stdout: "pipe",
