@@ -28,7 +28,7 @@ export const list = effectQuery({
 			const tokens = yield* Effect.forEach(visibleTokens ?? [], (token) =>
 				Effect.fromNullable(token.characterId).pipe(
 					Effect.flatMap(getDoc),
-					Effect.map(normalizeCharacter),
+					Effect.flatMap(normalizeCharacter),
 					// for our purposes here, every token is visible
 					Effect.flatMap((it) => protectCharacter({ ...it, visible: typed<boolean>(true) })),
 					Effect.orElseSucceed(() => null),

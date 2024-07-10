@@ -6,7 +6,6 @@ import type { Doc, Id } from "../_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
 import type { Branded } from "../helpers/convex.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
-import { normalizeCharacter } from "./helpers.ts"
 import type { characterProperties } from "./types.ts"
 
 const characterDefaults = {
@@ -74,10 +73,6 @@ export class CharacterModel {
 
 	async getRoom() {
 		return await RoomModel.fromId(this.ctx, this.data.roomId).getValueOrThrow()
-	}
-
-	async getComputedData() {
-		return normalizeCharacter(this.data)
 	}
 
 	async update(ctx: MutationCtx, updates: Partial<WithoutSystemFields<Doc<"characters">>>) {

@@ -10,61 +10,69 @@ import { boostDiceKind, getDiceKindApiInput, snagDiceKind } from "~/modules/dice
 import { getRace } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import { getUserFromIdentityEffect, UnauthorizedError } from "../auth.ts"
-import { getDoc } from "../helpers/effect.ts"
+import { Convex, getDoc } from "../helpers/effect.ts"
 
 export function normalizeCharacter(character: Doc<"characters">) {
-	const race = character.race && getRace(character.race)
+	return Effect.gen(function* () {
+		const identity = yield* Convex.auth
+			.getUserIdentity()
+			.pipe(Effect.catchTag("NotLoggedInError", () => Effect.succeed(null)))
 
-	const stats = {
-		strength: normalizeAttributeValue(character.strength),
-		sense: normalizeAttributeValue(character.sense),
-		mobility: normalizeAttributeValue(character.mobility),
-		intellect: normalizeAttributeValue(character.intellect),
-		wit: normalizeAttributeValue(character.wit),
-	}
+		const race = character.race && getRace(character.race)
 
-	const healthMax = sum(
-		[stats.strength, stats.mobility, race?.healthBonus ?? 0].map(getAttributePower),
-	)
-	const health = clamp(character.health ?? healthMax, 0, healthMax)
+		const stats = {
+			strength: normalizeAttributeValue(character.strength),
+			sense: normalizeAttributeValue(character.sense),
+			mobility: normalizeAttributeValue(character.mobility),
+			intellect: normalizeAttributeValue(character.intellect),
+			wit: normalizeAttributeValue(character.wit),
+		}
 
-	const resolveMax = sum(
-		[stats.intellect, stats.wit, stats.sense, race?.resolveBonus ?? 0].map(getAttributePower),
-	)
-	const resolve = clamp(character.resolve ?? resolveMax, 0, resolveMax)
+		const healthMax = sum(
+			[stats.strength, stats.mobility, race?.healthBonus ?? 0].map(getAttributePower),
+		)
+		const health = clamp(character.health ?? healthMax, 0, healthMax)
 
-	const defense = getAttributePower(stats.strength) + getAttributePower(stats.mobility)
+		const resolveMax = sum(
+			[stats.intellect, stats.wit, stats.sense, race?.resolveBonus ?? 0].map(getAttributePower),
+		)
+		const resolve = clamp(character.resolve ?? resolveMax, 0, resolveMax)
 
-	return {
-		name: "",
-		pronouns: "",
-		imageId: null,
-		race: null,
+		const defense = getAttributePower(stats.strength) + getAttributePower(stats.mobility)
 
-		modifiers: [],
-		learnedAspectSkills: [],
+		return {
+			name: "",
+			pronouns: "",
+			imageId: null,
+			race: null,
 
-		ownerNotes: "",
-		playerNotes: "",
+			modifiers: [],
+			learnedAspectSkills: [],
 
-		currency: 0,
-		conditions: [],
+			ownerNotes: "",
+			playerNotes: "",
 
-		visible: false,
-		nameVisible: false,
-		playerId: null,
+			currency: 0,
+			conditions: [],
 
-		...character,
-		...stats,
+			visible: false,
+			nameVisible: false,
+			playerId: null,
 
-		health,
-		healthMax,
+			...character,
+			...stats,
 
-		resolve,
-		resolveMax,
+			health,
+			healthMax,
 
-		defense,
-	}
+			resolve,
+			resolveMax,
+
+			defense,
+
+			isOwner: character.playerId != null && identity?.subject === character.playerId,
+		}
+	})
 }
 
 export class CharacterAccessError {
@@ -118,8 +126,8 @@ export function ensureViewerCharacterPermissions(characterId: Id<"characters">) 
 		if (room.ownerId === user.clerkId || character.playerId === user.clerkId) {
 			return {
 				user,
-				character: normalizeCharacter(character),
 				room,
+				character: yield* normalizeCharacter(character),
 			}
 		}
 		return yield* Effect.fail(new UnauthorizedError())

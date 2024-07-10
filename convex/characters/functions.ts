@@ -56,7 +56,9 @@ export const list = effectQuery({
 				getManyFrom(ctx.db, "characters", "roomId", args.roomId),
 			)
 			return yield* Effect.allSuccesses(
-				Iterator.from(characters).map(normalizeCharacter).map(protectCharacter),
+				Iterator.from(characters).map((it) =>
+					normalizeCharacter(it).pipe(Effect.flatMap(protectCharacter)),
+				),
 			)
 		}).pipe(
 			Effect.tapError(Console.warn),
@@ -363,7 +365,7 @@ export const rest = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const character = normalizeCharacter(yield* Convex.db.get(args.id))
+			const character = yield* normalizeCharacter(yield* Convex.db.get(args.id))
 			const user = yield* getCurrentUser()
 			const rolls = Array.from(
 				createDiceRolls([getDiceKindApiInput(statDiceKindsByName.d4, args.hours)]),
@@ -400,10 +402,10 @@ export const attack = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			const user = yield* getCurrentUser()
-			const attacker = normalizeCharacter(yield* Convex.db.get(args.attackerId))
+			const attacker = yield* normalizeCharacter(yield* Convex.db.get(args.attackerId))
 
 			for (const defenderId of args.defenderIds) {
-				const defender = normalizeCharacter(yield* Convex.db.get(defenderId))
+				const defender = yield* normalizeCharacter(yield* Convex.db.get(defenderId))
 
 				const attackerRoll = Array.from(
 					createDiceRolls(
