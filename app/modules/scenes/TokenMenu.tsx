@@ -35,7 +35,7 @@ import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import { useCharacterUpdatePermission, useOwnedCharacters } from "../characters/hooks.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useSafeAction } from "../convex/hooks.ts"
-import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
@@ -296,14 +296,16 @@ function TokenMenuContent() {
 }
 
 function CharacterAttackForm({ characters }: { characters: ApiCharacter[] }) {
-	const allCharacters = useCharacters()
-	const ownedCharacters = useOwnedCharacters()
 	const room = useRoom()
+	const { tokens } = useSceneContext()
 
-	const attackers = room.isOwner ? allCharacters : ownedCharacters
-	const defaultAttacker = attackers[0]
+	let attackers = tokens.map((it) => it.character).filter(Boolean)
+	if (!room.isOwner) {
+		attackers = attackers.filter((it) => it.isOwner)
+	}
 
-	const [attacker, setAttacker] = useState(attackers[0])
+	const defaultAttacker = attackers.find((it) => it.isOwner) ?? attackers[0]
+	const [attacker, setAttacker] = useState(defaultAttacker)
 
 	const [attributeId, setAttributeId] = useState<Attribute["id"]>(() => {
 		if (!defaultAttacker) return "strength"
@@ -341,26 +343,20 @@ function CharacterAttackForm({ characters }: { characters: ApiCharacter[] }) {
 
 	const [open, setOpen] = useState(false)
 
+	const attackerIcon =
+		attacker ?
+			<CharacterImage
+				character={attacker}
+				className={{ image: "rounded-full object-cover object-top" }}
+			/>
+		:	<Lucide.UserPlus2 />
+
 	return (
 		<form action={action}>
 			<FormLayout>
 				<FormField label="Attacker" className="items-stretch">
 					<Popover placement="bottom-start" open={open} setOpen={setOpen}>
-						<PopoverTrigger
-							render={
-								<Button
-									align="start"
-									icon={
-										attacker ?
-											<CharacterImage
-												character={attacker}
-												className={{ image: "rounded-full object-cover object-top" }}
-											/>
-										:	<Lucide.UserPlus2 />
-									}
-								/>
-							}
-						>
+						<PopoverTrigger render={<Button align="start" icon={attackerIcon} />}>
 							{attacker ? attacker.name : "Select attacker"}
 						</PopoverTrigger>
 						<PopoverPanel className="flex w-64 flex-col gap-2 p-2">
@@ -401,11 +397,13 @@ function CharacterAttackForm({ characters }: { characters: ApiCharacter[] }) {
 				/>
 
 				<Button type="submit" icon={<Lucide.Swords />}>
-					{characters.length > 1 ?
+					Attack
+					{characters.length > 1 && (
 						<>
-							Attack <strong>{characters.length}</strong> characters
+							{" "}
+							<strong>{characters.length}</strong> characters
 						</>
-					:	<>Attack</>}
+					)}
 				</Button>
 			</FormLayout>
 		</form>
