@@ -215,12 +215,7 @@ function CharacterTokenDecoration({
 							/>
 						)}
 				</div>
-				<TokenLabel
-					text={character.name ?? "???"}
-					subText={[character.pronouns, character.defense && `DEF ${character.defense}`]
-						.filter(Boolean)
-						.join("\n")}
-				/>
+				<TokenLabel text={character.name ?? "???"} subText={character.pronouns} />
 			</div>
 		</div>
 	)

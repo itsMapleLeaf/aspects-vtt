@@ -5,6 +5,7 @@ import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
 import { AttributeTotal } from "~/modules/attributes/constants.ts"
+import { getAttributePower } from "~/modules/attributes/helpers.ts"
 import { getDiceKindApiInput, statDiceKindsByName } from "~/modules/dice/data.tsx"
 import { isTuple } from "../../app/helpers/array.ts"
 import { unwrap } from "../../app/helpers/errors.ts"
@@ -419,17 +420,28 @@ export const attack = effectMutation({
 				)
 
 				const potentialDamage = attackerRoll.reduce((total, die) => total + die.result, 0)
-				const netDamage = Math.max(potentialDamage - defender.defense, 0)
 
-				const message =
-					netDamage > 0 ?
-						`${formatCharacterMention(attacker._id)} attacked ${formatCharacterMention(defender._id)} for ${netDamage} damage.`
-					:	`${formatCharacterMention(attacker._id)} attacked ${formatCharacterMention(defender._id)}, but failed.`
+				const attackerMention = formatCharacterMention(attacker._id)
+				const defenderMention = formatCharacterMention(defender._id)
+
+				const mobility = getAttributePower(defender.mobility)
+				const strength = getAttributePower(defender.strength)
+
+				let message
+				let netDamage
+
+				if (potentialDamage < mobility) {
+					netDamage = 0
+					message = `${attackerMention} tried to attack ${defenderMention} for ${potentialDamage}, but they evaded.`
+				} else {
+					netDamage = potentialDamage - strength
+					message = `${attackerMention} attacked ${defenderMention} for ${potentialDamage} damage. They defended, reducing it to ${netDamage}.`
+				}
 
 				yield* Convex.db.insert("messages", {
 					roomId: attacker.roomId,
 					userId: user.clerkId,
-					content: `${message} (${potentialDamage} vs ${defender.defense})`,
+					content: message,
 					diceRoll: {
 						dice: attackerRoll,
 					},

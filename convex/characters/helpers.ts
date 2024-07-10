@@ -68,8 +68,6 @@ export function normalizeCharacter(character: Doc<"characters">) {
 			resolve,
 			resolveMax,
 
-			defense,
-
 			isOwner: character.playerId != null && identity?.subject === character.playerId,
 		}
 	})
