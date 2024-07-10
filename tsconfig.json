@@ -21,7 +21,7 @@
 
 		// emit
 		"noEmit": true,
-		"target": "ES2023",
+		"target": "ESNext",
 
 		// DX
 		// "noErrorTruncation": true,
