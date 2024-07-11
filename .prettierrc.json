@@ -1,4 +1,12 @@
 {
-  "useTabs": true,
-  "semi": false
+	"useTabs": true,
+	"semi": false,
+	"overrides": [
+		{
+			"files": ["package.json"],
+			"options": {
+				"useTabs": false
+			}
+		}
+	]
 }
