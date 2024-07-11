@@ -24,7 +24,7 @@ export function Loading(props: ComponentProps<"div">) {
 			],
 			{
 				duration: 800,
-				delay: 200,
+				delay: 50,
 				easing: "ease-in-out",
 				fill: "both",
 			},
