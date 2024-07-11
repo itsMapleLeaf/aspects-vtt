@@ -1,2 +1,0 @@
-search: https:\/\/www\.notion\.so/(.+?)-[0-9a-f]{32}(?:\?pvs=21)?
-replace: #\L$1
