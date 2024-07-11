@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm-run-all --parallel dev:vite dev:convex",
-    "dev:vite": "vite --open",
+    "dev": "npm-run-all --parallel --print-label dev:*",
+    "dev:app": "vite --open",
     "dev:convex": "convex dev",
     "build": "vite build",
     "lint": "tsc && eslint .  --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@auth/core": "^0.34.1",
@@ -23,6 +24,7 @@
     "valibot": "^0.36.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.45.1",
     "@types/bun": "^1.1.6",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
