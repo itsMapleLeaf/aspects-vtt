@@ -4,11 +4,17 @@ import { ConvexError } from "convex/values"
 import { useState } from "react"
 import { api } from "../convex/_generated/api.js"
 import { Doc } from "../convex/_generated/dataModel.js"
+import { DesignSystem } from "./ui/design-system.tsx"
+import { Loading } from "./ui/loading.tsx"
 
 export function App() {
+	return <DesignSystem />
+}
+
+function Main() {
 	const user = useQuery(api.auth.me)
 	return user === undefined ? (
-		<p>Loading...</p>
+		<Loading />
 	) : user === null ? (
 		<AuthForm />
 	) : (
