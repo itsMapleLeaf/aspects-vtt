@@ -1,8 +1,8 @@
 import { LucideBan, LucidePointer } from "lucide-react"
 import { Button } from "./button.tsx"
+import { Heading } from "./heading.tsx"
 import { Column, Row } from "./layout.tsx"
 import { Loading } from "./loading.tsx"
-import { Heading } from "./text.tsx"
 
 export function DesignSystem() {
 	return (
