@@ -1,8 +1,10 @@
+import { getSecret } from "./secrets.ts"
+
 export default {
-  providers: [
-    {
-      domain: process.env.CONVEX_SITE_URL,
-      applicationID: "convex",
-    },
-  ],
-};
+	providers: [
+		{
+			domain: getSecret("CONVEX_SITE_URL"),
+			applicationID: "convex",
+		},
+	],
+}

@@ -1,30 +1,14 @@
-import { Chat } from "@/Chat/Chat";
-import { ChatHeader } from "@/Chat/ChatIntro";
-import { Layout } from "@/Layout";
-import { SignInForm } from "@/SignInForm";
-import { UserMenu } from "@/components/UserMenu";
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { useAuthActions } from "@convex-dev/auth/react"
 
-export default function App() {
-  const user = useQuery(api.users.viewer);
-  return (
-    <Layout
-      menu={
-        <Authenticated>
-          <UserMenu>{user?.name ?? user?.email}</UserMenu>
-        </Authenticated>
-      }
-    >
-      <>
-        <Authenticated>
-          <ChatHeader />
-          <Chat viewer={(user ?? {})._id!} />
-        </Authenticated>
-        <Unauthenticated>
-          <SignInForm />
-        </Unauthenticated>
-      </>
-    </Layout>
-  );
+export function App() {
+	const auth = useAuthActions()
+	return (
+		<button
+			onClick={() => {
+				auth.signIn("discord").catch(console.error)
+			}}
+		>
+			Sign in with Discord
+		</button>
+	)
 }
