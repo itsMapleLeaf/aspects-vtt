@@ -6,10 +6,9 @@ export function Loading(props: ComponentProps<"div">) {
 	const icons = [
 		<Lucide.Flame key="icon" />,
 		<Lucide.Droplet key="icon" />,
-		<Lucide.Wind key="icon" />,
+		<Lucide.Tornado key="icon" />,
 		<Lucide.Sun key="icon" />,
 		<Lucide.Moon key="icon" />,
-		<Lucide.Zap key="icon" />,
 	]
 
 	const [index, setIndex] = useState(0)
