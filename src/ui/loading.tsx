@@ -4,11 +4,11 @@ import { twMerge } from "tailwind-merge"
 
 export function Loading(props: ComponentProps<"div">) {
 	const icons = [
-		<Lucide.Flame key="icon" />,
-		<Lucide.Droplet key="icon" />,
-		<Lucide.Tornado key="icon" />,
-		<Lucide.Sun key="icon" />,
-		<Lucide.Moon key="icon" />,
+		<Lucide.Flame />,
+		<Lucide.Droplet />,
+		<Lucide.Tornado />,
+		<Lucide.Sun />,
+		<Lucide.Moon />,
 	]
 
 	const [index, setIndex] = useState(0)

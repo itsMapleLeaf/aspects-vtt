@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge"
 
 export function mergeClassProp<Props extends { className?: string }>(
 	props: Props,
-	className: string,
+	...baseClasses: string[]
 ) {
-	return { ...props, className: twMerge(props.className, className) }
+	return { ...props, className: twMerge(baseClasses, props.className) }
 }

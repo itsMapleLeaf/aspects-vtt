@@ -1,6 +1,18 @@
-import { ComponentProps } from "react"
+import { ComponentProps, createContext, useContext } from "react"
 import { mergeClassProp } from "./helpers.ts"
 
 export function Heading(props: ComponentProps<"h1">) {
-	return <h1 {...mergeClassProp(props, "text-3xl font-light")} />
+	const level = useContext(HeadingLevelContext)
+	const Tag = `h${level}`
+	return <Tag {...mergeClassProp(props, "text-3xl font-light")} />
+}
+
+const HeadingLevelContext = createContext(1)
+export function HeadingLevel({ children }: { children: React.ReactNode }) {
+	const currentLevel = useContext(HeadingLevelContext)
+	return (
+		<HeadingLevelContext.Provider value={Math.min(currentLevel + 1, 6)}>
+			{children}
+		</HeadingLevelContext.Provider>
+	)
 }
