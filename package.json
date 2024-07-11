@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm-run-all --parallel --print-label dev:*",
-    "dev:app": "vite --open",
-    "dev:convex": "convex dev",
+    "dev": "npm-run-all --parallel --print-label 'dev:*'",
+    "dev:app": "vite",
+    "dev:convex": "convex dev --tail-logs",
     "build": "vite build",
     "lint": "tsc && eslint .  --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write .",
