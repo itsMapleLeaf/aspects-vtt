@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@auth/core": "^0.34.1",
-    "@convex-dev/auth": "^0.0.32",
+    "@convex-dev/auth": "^0.0.35",
     "@fontsource-variable/nunito": "^5.0.19",
     "@icons-pack/react-simple-icons": "^9.6.0",
     "@remix-run/node": "^2.10.2",
@@ -23,6 +23,7 @@
     "convex": "^1.13.0",
     "effect": "^3.5.0",
     "isbot": "^5.1.12",
+    "lucia": "^3.2.0",
     "lucide-react": "^0.407.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

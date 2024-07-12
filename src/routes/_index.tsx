@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
-import { useQuery } from "convex/react"
+import { useConvexAuth, useQuery } from "convex/react"
 import { LucideDoorOpen, LucideUserPlus } from "lucide-react"
 import { ComponentProps, useState } from "react"
 import { twMerge } from "tailwind-merge"
@@ -14,14 +14,16 @@ import { Loading } from "../ui/loading.tsx"
 
 export default function Index() {
 	const user = useQuery(api.users.me)
+	const auth = useConvexAuth()
+	const loading = user === undefined || auth.isLoading
 	return (
 		<>
-			{user === undefined ? null : user === null ? (
+			{loading ? null : user === null ? (
 				<AuthForm />
 			) : (
 				<WelcomeMessage user={user} />
 			)}
-			<LoadingCover visible={user === undefined} />
+			<LoadingCover visible={loading} />
 		</>
 	)
 }
@@ -57,13 +59,13 @@ function WelcomeMessage({ user }: { user: Doc<"users"> }) {
 
 function AuthForm() {
 	const auth = useAuthActions()
-	const [flow, setFlow] = useState<"signIn" | "signUp">("signIn")
+	const [action, setAction] = useState<"login" | "register">("login")
 	const [error, setError] = useState<string>()
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		const form = new FormData(event.currentTarget)
-		auth.signIn("password", form).catch((error) => {
+		auth.signIn("credentials", form).catch((error) => {
 			if (error instanceof Error) {
 				setError(error.message)
 			} else {
@@ -73,10 +75,10 @@ function AuthForm() {
 	}
 
 	return (
-		<main className="flex flex-col py-24 h-screen min-h-fit px-4 items-center justify-center">
+		<main className="flex flex-col py-24 h-screen gap-6 min-h-fit px-4 first:*:mt-auto last:*:mb-auto *:mx-auto *:shrink-0">
 			<HeadingLevel>
-				<Heading className="text-4xl mb-6 text-center text-balance max-w-80">
-					{flow === "signIn" ? "Sign in" : "Create an account"} to continue.
+				<Heading className="text-4xl text-center text-balance max-w-80">
+					{action === "login" ? "Sign in" : "Create an account"} to continue.
 				</Heading>
 
 				<Panel className="p-4 w-[320px]">
@@ -97,7 +99,7 @@ function AuthForm() {
 						</Row>
 
 						<Heading className="text-xl">
-							{flow === "signUp" ? "Register" : "Sign in"} with email
+							{action === "register" ? "Register" : "Sign in"} with a password
 						</Heading>
 
 						<form
@@ -106,13 +108,25 @@ function AuthForm() {
 							}}
 							className="flex flex-col gap-4 w-full"
 						>
-							<InputField type="email" name="email" label="Email" required />
+							<InputField
+								type="text"
+								name="handle"
+								label="Account handle"
+								description={
+									action === "register" &&
+									"You'll use this to sign in. Only use letters, numbers, underscores (_) and periods (.)."
+								}
+								required
+							/>
 
-							{flow === "signUp" && (
+							{action === "register" && (
 								<InputField
 									type="text"
 									name="name"
 									label="Display name"
+									description={
+										action === "register" && "This is the name others will see."
+									}
 									required
 								/>
 							)}
@@ -121,19 +135,20 @@ function AuthForm() {
 								type="password"
 								name="password"
 								label="Password"
+								description={action === "register" && "Make it strong!"}
 								required
 							/>
 
-							<input type="hidden" name="flow" value={flow} />
+							<input type="hidden" name="action" value={action} />
 
 							<Button
 								type="submit"
 								className="self-center"
 								icon={
-									flow === "signIn" ? <LucideDoorOpen /> : <LucideUserPlus />
+									action === "login" ? <LucideDoorOpen /> : <LucideUserPlus />
 								}
 							>
-								{flow === "signIn" ? "Sign in" : "Create account"}
+								{action === "login" ? "Sign in" : "Create account"}
 							</Button>
 
 							{error && <ErrorText>{error}</ErrorText>}
@@ -141,25 +156,25 @@ function AuthForm() {
 					</Column>
 				</Panel>
 
-				<p className="text-stone-400 text-center mt-4">
-					{flow === "signIn" && (
+				<p className="text-stone-400 text-center">
+					{action === "login" && (
 						<>
 							don't have an account?{" "}
 							<button
 								type="button"
-								onClick={() => setFlow("signUp")}
+								onClick={() => setAction("register")}
 								className="text-stone-200 underline hover:no-underline cursor-pointer"
 							>
 								register
 							</button>
 						</>
 					)}
-					{flow === "signUp" && (
+					{action === "register" && (
 						<>
 							already have an account?{" "}
 							<button
 								type="button"
-								onClick={() => setFlow("signIn")}
+								onClick={() => setAction("login")}
 								className="text-stone-200 underline hover:no-underline cursor-pointer"
 							>
 								sign in
@@ -186,15 +201,22 @@ function Panel(props: ComponentProps<"div">) {
 
 function Field({
 	label,
+	description,
 	children,
 	...props
-}: ComponentProps<"div"> & { label: string }) {
+}: ComponentProps<"div"> & {
+	label: React.ReactNode
+	description?: React.ReactNode
+}) {
 	return (
 		<div {...mergeClassProp(props, "flex flex-col gap-1")}>
 			<label htmlFor={props.id} className="text-sm font-bold leading-4">
 				{label}
 			</label>
 			{children}
+			{description && (
+				<p className="text-stone-400 text-sm leading-4">{description}</p>
+			)}
 		</div>
 	)
 }
@@ -212,10 +234,14 @@ function Input(props: ComponentProps<"input">) {
 
 function InputField({
 	label,
+	description,
 	...props
-}: ComponentProps<"input"> & { label: string }) {
+}: ComponentProps<"input"> & {
+	label: React.ReactNode
+	description?: React.ReactNode
+}) {
 	return (
-		<Field label={label}>
+		<Field label={label} description={description}>
 			<Input {...mergeClassProp(props, "w-full")} />
 		</Field>
 	)
