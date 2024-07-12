@@ -1,7 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
 import { useQuery } from "convex/react"
-import { ConvexError } from "convex/values"
 import { LucideDoorOpen, LucideUserPlus } from "lucide-react"
 import { ComponentProps, useState } from "react"
 import { twMerge } from "tailwind-merge"
@@ -14,7 +13,7 @@ import { Column, Row } from "../ui/layout.tsx"
 import { Loading } from "../ui/loading.tsx"
 
 export default function Index() {
-	const user = useQuery(api.auth.me)
+	const user = useQuery(api.users.me)
 	return (
 		<>
 			{user === undefined ? null : user === null ? (
@@ -65,10 +64,10 @@ function AuthForm() {
 		event.preventDefault()
 		const form = new FormData(event.currentTarget)
 		auth.signIn("password", form).catch((error) => {
-			if (error instanceof ConvexError) {
+			if (error instanceof Error) {
 				setError(error.message)
 			} else {
-				setError("Something went wrong, please try again.")
+				setError(String(error))
 			}
 		})
 	}

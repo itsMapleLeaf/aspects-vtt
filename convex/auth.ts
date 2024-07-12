@@ -1,10 +1,6 @@
 import Discord from "@auth/core/providers/discord"
 import { Password } from "@convex-dev/auth/providers/Password"
 import { convexAuth } from "@convex-dev/auth/server"
-import { Effect, pipe } from "effect"
-import { query } from "./_generated/server"
-import { getAuthUser } from "./lib/auth.ts"
-import { endpoint } from "./lib/effect.ts"
 
 export const { auth, signIn, signOut, store } = convexAuth({
 	providers: [
@@ -18,11 +14,4 @@ export const { auth, signIn, signOut, store } = convexAuth({
 			},
 		}),
 	],
-})
-
-export const me = endpoint(query, {
-	handler: pipe(
-		getAuthUser(),
-		Effect.orElseSucceed(() => null),
-	),
 })

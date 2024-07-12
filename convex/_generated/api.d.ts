@@ -22,6 +22,7 @@ import type * as lib_effect from "../lib/effect.js";
 import type * as lib_rooms from "../lib/rooms.js";
 import type * as rooms from "../rooms.js";
 import type * as secrets from "../secrets.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   "lib/rooms": typeof lib_rooms;
   rooms: typeof rooms;
   secrets: typeof secrets;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
