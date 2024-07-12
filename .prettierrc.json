@@ -1,6 +1,8 @@
 {
 	"useTabs": true,
 	"semi": false,
+	"plugins": ["prettier-plugin-jsdoc", "prettier-plugin-tailwindcss"],
+	"tailwindFunctions": ["twMerge", "mergeClassProp"],
 	"overrides": [
 		{
 			"files": ["package.json"],
