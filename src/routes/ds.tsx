@@ -1,11 +1,13 @@
-import { Heading, LucideBan, LucidePointer } from "lucide-react"
+import { Link } from "@remix-run/react"
+import { LucideBan, LucideLink, LucidePointer } from "lucide-react"
 import { Button } from "../ui/button.tsx"
+import { Heading } from "../ui/heading.tsx"
 import { Column, Row } from "../ui/layout.tsx"
 import { Loading } from "../ui/loading.tsx"
 
-export function DesignSystem() {
+export default function DesignSystem() {
 	return (
-		<Column className="p-4 gap-8">
+		<Column className="gap-8 p-4">
 			<section>
 				<Heading className="mb-3 text-3xl text-stone-300">Button</Heading>
 				<Column className="gap-2">
@@ -17,7 +19,7 @@ export function DesignSystem() {
 						<Button appearance="solid" icon={<LucideBan />} disabled>
 							but you cannot
 						</Button>
-						<Button appearance="solid" pending>
+						<Button appearance="solid" icon={null} pending>
 							loading...
 						</Button>
 					</Row>
@@ -29,7 +31,7 @@ export function DesignSystem() {
 						<Button appearance="clear" icon={<LucideBan />} disabled>
 							but you cannot
 						</Button>
-						<Button appearance="clear" pending>
+						<Button appearance="clear" icon={null} pending>
 							loading...
 						</Button>
 					</Row>
@@ -37,7 +39,13 @@ export function DesignSystem() {
 						<p>Icon only</p>
 						<Button appearance="clear" icon={<LucidePointer />}></Button>
 						<Button appearance="clear" icon={<LucideBan />} disabled></Button>
-						<Button appearance="clear" pending></Button>
+						<Button appearance="clear" icon={null} pending></Button>
+					</Row>
+					<Row className="items-center">
+						<p>Link button</p>
+						<Button element={<Link to="?test" />} icon={<LucideLink />}>
+							it's a link
+						</Button>
 					</Row>
 				</Column>
 			</section>
