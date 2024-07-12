@@ -17,6 +17,10 @@ import type {
 import type * as auth from "../auth.js";
 import type * as errors from "../errors.js";
 import type * as http from "../http.js";
+import type * as lib_auth from "../lib/auth.js";
+import type * as lib_effect from "../lib/effect.js";
+import type * as lib_rooms from "../lib/rooms.js";
+import type * as rooms from "../rooms.js";
 import type * as secrets from "../secrets.js";
 
 /**
@@ -31,6 +35,10 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   errors: typeof errors;
   http: typeof http;
+  "lib/auth": typeof lib_auth;
+  "lib/effect": typeof lib_effect;
+  "lib/rooms": typeof lib_rooms;
+  rooms: typeof rooms;
   secrets: typeof secrets;
 }>;
 export declare const api: FilterApi<

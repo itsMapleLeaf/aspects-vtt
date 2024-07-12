@@ -8,4 +8,11 @@ export default defineSchema({
 		...authTables.users.validator.fields,
 		name: v.string(),
 	}),
+	rooms: defineTable({
+		name: v.string(),
+		slug: v.string(),
+		owner: v.id("users"),
+	})
+		.index("slug", ["slug"])
+		.index("owner", ["owner"]),
 })

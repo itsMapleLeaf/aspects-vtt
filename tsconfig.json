@@ -5,6 +5,7 @@
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
 		"module": "Preserve",
 		"skipLibCheck": true,
+		"allowJs": true,
 
 		/* Bundler mode */
 		"moduleResolution": "bundler",
@@ -22,5 +23,5 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedIndexedAccess": true
 	},
-	"exclude": ["node_modules", "dist", "convex/_generated"]
+	"exclude": ["node_modules", "dist"]
 }
