@@ -1,0 +1,57 @@
+@keyframes wipe-down {
+	0% {
+		clip-path: inset(0 0 100% 0);
+	}
+	50% {
+		clip-path: inset(0 0 0 0);
+	}
+	100% {
+		clip-path: inset(100% 0 0 0);
+	}
+}
+
+.wipe-down {
+	animation: wipe-down 1s theme(transitionTimingFunction.out) infinite;
+}
+
+@keyframes peek {
+	0% {
+		opacity: 0;
+	}
+	1% {
+		opacity: 1;
+	}
+	19% {
+		opacity: 1;
+	}
+	20% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.first-icon {
+	animation: peek 5s linear infinite both;
+}
+
+.second-icon {
+	animation: peek 5s linear infinite both;
+	animation-delay: 1s;
+}
+
+.third-icon {
+	animation: peek 5s linear infinite both;
+	animation-delay: 2s;
+}
+
+.fourth-icon {
+	animation: peek 5s linear infinite both;
+	animation-delay: 3s;
+}
+
+.fifth-icon {
+	animation: peek 5s linear infinite both;
+	animation-delay: 4s;
+}

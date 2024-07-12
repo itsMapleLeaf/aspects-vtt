@@ -43,7 +43,7 @@ export function Button({
 const styles = {
 	appearance: {
 		solid: twMerge(`
-			bg-stone-900 hover:[&:not(:disabled)]:bg-stone-800 active:[&:not(:disabled)]:bg-stone-700
+			bg-stone-800 hover:[&:not(:disabled)]:bg-stone-900 active:[&:not(:disabled)]:bg-stone-700
 			border-stone-700 hover:[&:not(:disabled)]:border-stone-600
 		`),
 		clear: twMerge(`

@@ -5,19 +5,24 @@
   "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel --print-label 'dev:*'",
-    "dev:app": "vite",
+    "dev:app": "remix vite:dev",
     "dev:convex": "convex dev --tail-logs",
-    "build": "vite build",
+    "build": "remiv vite:build",
     "format": "prettier --write .",
-    "preview": "vite preview",
+    "preview": "remix-serve ./build/server/index.js",
     "e2e": "playwright test"
   },
   "dependencies": {
     "@auth/core": "^0.34.1",
     "@convex-dev/auth": "^0.0.32",
     "@fontsource-variable/nunito": "^5.0.19",
+    "@icons-pack/react-simple-icons": "^9.6.0",
+    "@remix-run/node": "^2.10.2",
+    "@remix-run/react": "^2.10.2",
+    "@remix-run/server-runtime": "^2.10.2",
     "convex": "^1.13.0",
     "effect": "^3.5.0",
+    "isbot": "^5.1.12",
     "lucide-react": "^0.407.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -28,6 +33,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.45.1",
+    "@remix-run/dev": "^2.10.2",
+    "@remix-run/serve": "^2.10.2",
     "@types/bun": "^1.1.6",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
@@ -39,7 +46,7 @@
     "postcss": "^8.4.39",
     "prettier": "3.3.2",
     "tailwindcss": "^3.4.4",
-    "typescript": "^5.2.2",
+    "typescript": "^5.6.0-dev.20240711",
     "vite": "^5.3.1"
   }
 }
