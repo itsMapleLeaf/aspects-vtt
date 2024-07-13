@@ -1,4 +1,4 @@
-import { ComponentProps } from "react"
+import { ComponentProps, useId } from "react"
 import { Field } from "./form.tsx"
 import { mergeClassProp } from "./helpers.ts"
 
@@ -21,9 +21,21 @@ export function InputField({
 	label: React.ReactNode
 	description?: React.ReactNode
 }) {
+	const id = useId()
+	const inputId = `${id}-input`
+	const descriptionId = `${id}-description`
 	return (
-		<Field label={label} description={description}>
-			<Input {...mergeClassProp(props, "w-full")} />
+		<Field
+			inputId={inputId}
+			label={label}
+			description={description}
+			descriptionId={descriptionId}
+		>
+			<Input
+				id={inputId}
+				aria-describedby={descriptionId}
+				{...mergeClassProp(props, "w-full")}
+			/>
 		</Field>
 	)
 }

@@ -1,4 +1,5 @@
 import React from "react"
+import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import { mergeClassProp } from "./helpers.ts"
 import { Loading } from "./loading.tsx"
@@ -14,7 +15,7 @@ export interface ButtonProps extends SlotProps {
 
 export function Button({
 	appearance = "solid",
-	pending,
+	pending: pendingProp,
 	icon: iconProp,
 	element,
 	type = "button",
@@ -22,6 +23,9 @@ export function Button({
 	children,
 	...props
 }: ButtonProps) {
+	const status = useFormStatus()
+
+	const pending = pendingProp ?? status.pending
 	const icon = pending ? <Loading /> : iconProp
 
 	const buttonClass = twMerge(
@@ -53,7 +57,7 @@ const styles = {
 			`border-base-700 bg-base-800 hover:[&:not(:disabled)]:border-base-600 hover:[&:not(:disabled)]:bg-base-900 active:[&:not(:disabled)]:bg-base-700`,
 		),
 		clear: twMerge(
-			`hover:[&:not(:disabled)]:border-base-800 hover:[&:not(:disabled)]:bg-base-800 active:[&:not(:disabled)]:border-base-700 active:[&:not(:disabled)]:bg-base-700 bg-transparent`,
+			`bg-transparent hover:[&:not(:disabled)]:border-base-800 hover:[&:not(:disabled)]:bg-base-800 active:[&:not(:disabled)]:border-base-700 active:[&:not(:disabled)]:bg-base-700`,
 		),
 	},
 }
