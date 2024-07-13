@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dev",
+			"dependsOn": ["dev:app", "dev:convex"],
+			"dependsOrder": "parallel",
+			"group": "build"
+		},
+		{
+			"label": "dev:app",
+			"type": "shell",
+			"command": ["bun", "run", "dev:app"],
+			"group": "build",
+			"isBackground": true
+		},
+		{
+			"label": "dev:convex",
+			"type": "shell",
+			"command": ["bun", "run", "dev:convex"],
+			"group": "build",
+			"isBackground": true
+		}
+	]
+}
