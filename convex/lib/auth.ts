@@ -1,7 +1,6 @@
 import { Data, Effect, pipe } from "effect"
 import { QueryCtx } from "../_generated/server.js"
 import { auth } from "../auth.ts"
-import { Errors } from "../errors.ts"
 import { FunctionContextService } from "./effect.ts"
 
 export class UnauthenticatedError extends Data.TaggedError(
@@ -26,7 +25,7 @@ export function getAuthUser() {
 		return yield* Effect.filterOrDie(
 			Effect.promise(() => ctx.db.get(userId)),
 			(user) => user !== null,
-			() => new Error(Errors.USER_NOT_FOUND),
+			() => new Error(`Couldn't find user with ID "${userId}"`),
 		)
 	})
 }
