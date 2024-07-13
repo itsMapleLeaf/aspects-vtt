@@ -1,5 +1,5 @@
-/// <reference types="vite/client" />
-/// <reference types="@remix-run/node" />
+import "@remix-run/node"
+import "vite/client"
 
 interface ImportMetaEnv {
 	readonly VITE_CONVEX_URL: string

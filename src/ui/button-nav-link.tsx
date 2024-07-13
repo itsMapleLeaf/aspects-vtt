@@ -9,7 +9,7 @@ export function ButtonNavLink({
 	to: string
 }) {
 	return (
-		<NavLink to={to} prefetch="intent">
+		<NavLink to={to} prefetch="render">
 			{(state) => (
 				<Button
 					pending={state.isPending || state.isTransitioning}

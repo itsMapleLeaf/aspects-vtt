@@ -1,58 +1,26 @@
 import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
+import { Outlet } from "@remix-run/react"
 import { useConvexAuth, useQuery } from "convex/react"
 import { LucideDoorOpen, LucideUserPlus } from "lucide-react"
-import { ComponentProps, useState } from "react"
-import { twMerge } from "tailwind-merge"
+import { useState } from "react"
 import { api } from "../../convex/_generated/api.js"
-import { Doc } from "../../convex/_generated/dataModel.js"
 import { Button } from "../ui/button.tsx"
+import { FormError } from "../ui/form.tsx"
 import { Heading, HeadingLevel } from "../ui/heading.tsx"
-import { mergeClassProp } from "../ui/helpers.ts"
+import { InputField } from "../ui/input.tsx"
 import { Column, Row } from "../ui/layout.tsx"
-import { Loading } from "../ui/loading.tsx"
+import { LoadingCover } from "../ui/loading.tsx"
+import { Panel } from "../ui/panel.tsx"
 
-export default function Index() {
+export default function ProtectedLayout() {
 	const user = useQuery(api.users.me)
 	const auth = useConvexAuth()
 	const loading = user === undefined || auth.isLoading
 	return (
 		<>
-			{loading ? null : user === null ? (
-				<AuthForm />
-			) : (
-				<WelcomeMessage user={user} />
-			)}
+			{loading ? null : user === null ? <AuthForm /> : <Outlet />}
 			<LoadingCover visible={loading} />
-		</>
-	)
-}
-
-function LoadingCover({ visible }: { visible: boolean }) {
-	return (
-		<div
-			className={twMerge(
-				"bg-base-900 invisible fixed inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-1000",
-				visible && "visible opacity-100",
-			)}
-		>
-			<Loading className="size-24" />
-		</div>
-	)
-}
-
-function WelcomeMessage({ user }: { user: Doc<"users"> }) {
-	const auth = useAuthActions()
-	return (
-		<>
-			<p>hi, {user.name}!</p>
-			<button
-				onClick={() => {
-					auth.signOut().catch(console.error)
-				}}
-			>
-				Sign out
-			</button>
 		</>
 	)
 }
@@ -93,9 +61,9 @@ function AuthForm() {
 						</Button>
 
 						<Row className="w-full items-center gap-2">
-							<div className="bg-base-700 h-px flex-1"></div>
+							<div className="h-px flex-1 bg-base-700"></div>
 							<p className="text-base-400">or</p>
-							<div className="bg-base-700 h-px flex-1"></div>
+							<div className="h-px flex-1 bg-base-700"></div>
 						</Row>
 
 						<Heading className="text-xl">
@@ -151,19 +119,19 @@ function AuthForm() {
 								{action === "login" ? "Sign in" : "Create account"}
 							</Button>
 
-							{error && <ErrorText>{error}</ErrorText>}
+							{error && <FormError>{error}</FormError>}
 						</form>
 					</Column>
 				</Panel>
 
-				<p className="text-base-400 text-center">
+				<p className="text-center text-base-400">
 					{action === "login" && (
 						<>
 							don't have an account?{" "}
 							<button
 								type="button"
 								onClick={() => setAction("register")}
-								className="text-base-200 cursor-pointer underline hover:no-underline"
+								className="cursor-pointer text-base-200 underline hover:no-underline"
 							>
 								register
 							</button>
@@ -175,7 +143,7 @@ function AuthForm() {
 							<button
 								type="button"
 								onClick={() => setAction("login")}
-								className="text-base-200 cursor-pointer underline hover:no-underline"
+								className="cursor-pointer text-base-200 underline hover:no-underline"
 							>
 								sign in
 							</button>
@@ -184,71 +152,5 @@ function AuthForm() {
 				</p>
 			</HeadingLevel>
 		</main>
-	)
-}
-
-function Panel(props: ComponentProps<"div">) {
-	return (
-		<div
-			{...props}
-			className={twMerge(
-				"bg-base-900 border-base-700 rounded border shadow",
-				props.className,
-			)}
-		/>
-	)
-}
-
-function Field({
-	label,
-	description,
-	children,
-	...props
-}: ComponentProps<"div"> & {
-	label: React.ReactNode
-	description?: React.ReactNode
-}) {
-	return (
-		<div {...mergeClassProp(props, "flex flex-col gap-1")}>
-			<label htmlFor={props.id} className="text-sm font-bold leading-4">
-				{label}
-			</label>
-			{children}
-			{description && (
-				<p className="text-base-400 text-sm leading-4">{description}</p>
-			)}
-		</div>
-	)
-}
-
-function Input(props: ComponentProps<"input">) {
-	return (
-		<input
-			{...mergeClassProp(
-				props,
-				"border-base-700 bg-base-800 text-base-300 rounded border p-2",
-			)}
-		/>
-	)
-}
-
-function InputField({
-	label,
-	description,
-	...props
-}: ComponentProps<"input"> & {
-	label: React.ReactNode
-	description?: React.ReactNode
-}) {
-	return (
-		<Field label={label} description={description}>
-			<Input {...mergeClassProp(props, "w-full")} />
-		</Field>
-	)
-}
-
-function ErrorText(props: ComponentProps<"p">) {
-	return (
-		<p {...mergeClassProp(props, "text-center font-medium text-red-400")} />
 	)
 }

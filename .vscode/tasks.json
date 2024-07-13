@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"label": "dev",
-			"dependsOn": ["dev:app", "dev:convex"],
+			"dependsOn": ["dev:app", "dev:convex", "tsc:watch"],
 			"dependsOrder": "parallel",
 			"group": "build"
 		},
@@ -18,6 +18,14 @@
 			"label": "dev:convex",
 			"type": "shell",
 			"command": ["bun", "run", "dev:convex"],
+			"group": "build",
+			"isBackground": true
+		},
+		{
+			"label": "tsc:watch",
+			"type": "typescript",
+			"option": "watch",
+			"tsconfig": "./tsconfig.json",
 			"group": "build",
 			"isBackground": true
 		}
