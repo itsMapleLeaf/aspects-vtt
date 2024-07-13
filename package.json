@@ -25,8 +25,8 @@
     "isbot": "^5.1.12",
     "lucia": "^3.2.0",
     "lucide-react": "^0.407.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.0.0-rc-df5f2736-20240712",
+    "react-dom": "^19.0.0-rc-df5f2736-20240712",
     "react-error-boundary": "^4.0.13",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
@@ -38,8 +38,8 @@
     "@remix-run/serve": "^2.10.2",
     "@types/bun": "^1.1.6",
     "@types/node": "^20.14.9",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
+    "@types/react": "npm:types-react@^19.0.0-alpha.3",
+    "@types/react-dom": "npm:types-react-dom@^19.0.0-alpha.3",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
     "dotenv": "^16.4.5",
@@ -51,5 +51,9 @@
     "tailwindcss": "^3.4.4",
     "typescript": "^5.6.0-dev.20240711",
     "vite": "^5.3.1"
+  },
+  "overrides": {
+    "@types/react": "npm:types-react@^19.0.0-alpha.3",
+    "@types/react-dom": "npm:types-react-dom@^19.0.0-alpha.3"
   }
 }
