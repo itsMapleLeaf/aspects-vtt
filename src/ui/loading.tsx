@@ -8,15 +8,15 @@ export function Loading(props: ComponentProps<"div">) {
 		<div
 			{...props}
 			className={twMerge(
-				"text-stone-700 size-24 *:size-full wipe-down relative",
+				"loading wipe-down relative size-24 text-stone-500 *:size-full",
 				props.className,
 			)}
 		>
-			<Lucide.Flame className="first-icon absolute inset-0 size-full" />
-			<Lucide.Droplet className="second-icon absolute inset-0 size-full" />
-			<Lucide.Tornado className="third-icon absolute inset-0 size-full" />
-			<Lucide.Sun className="fourth-icon absolute inset-0 size-full" />
-			<Lucide.Moon className="fifth-icon absolute inset-0 size-full" />
+			<Lucide.Flame className="loading peek absolute inset-0 size-full [animation-delay:0]" />
+			<Lucide.Droplet className="loading peek absolute inset-0 size-full [animation-delay:1s]" />
+			<Lucide.Tornado className="loading peek absolute inset-0 size-full [animation-delay:2s]" />
+			<Lucide.Sun className="loading peek absolute inset-0 size-full [animation-delay:3s]" />
+			<Lucide.Moon className="loading peek absolute inset-0 size-full [animation-delay:4s]" />
 		</div>
 	)
 }

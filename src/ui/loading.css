@@ -10,10 +10,6 @@
 	}
 }
 
-.wipe-down {
-	animation: wipe-down 1s theme(transitionTimingFunction.out) infinite;
-}
-
 @keyframes peek {
 	0% {
 		opacity: 0;
@@ -32,26 +28,14 @@
 	}
 }
 
-.first-icon {
-	animation: peek 5s linear infinite both;
+.loading.wipe-down {
+	animation: wipe-down 1s theme(transitionTimingFunction.out) infinite;
 }
 
-.second-icon {
-	animation: peek 5s linear infinite both;
-	animation-delay: 1s;
-}
-
-.third-icon {
-	animation: peek 5s linear infinite both;
-	animation-delay: 2s;
-}
-
-.fourth-icon {
-	animation: peek 5s linear infinite both;
-	animation-delay: 3s;
-}
-
-.fifth-icon {
-	animation: peek 5s linear infinite both;
-	animation-delay: 4s;
+.loading.peek {
+	animation-name: peek;
+	animation-duration: 5s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-fill-mode: both;
 }
