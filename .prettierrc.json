@@ -9,6 +9,12 @@
 			"options": {
 				"useTabs": false
 			}
+		},
+		{
+			"files": ["convex/_generated/**/*"],
+			"options": {
+				"requirePragma": true
+			}
 		}
 	]
 }
