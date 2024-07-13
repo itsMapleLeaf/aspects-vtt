@@ -2,6 +2,7 @@
 import animate from "tailwindcss-animate"
 import colors from "tailwindcss/colors.js"
 import defaultTheme from "tailwindcss/defaultTheme.js"
+import plugin from "tailwindcss/plugin"
 
 /** @type {import("tailwindcss").Config} */
 export default {
@@ -17,5 +18,14 @@ export default {
 			},
 		},
 	},
-	plugins: [animate],
+	plugins: [
+		animate,
+		plugin(function customStyles(api) {
+			api.addComponents({
+				".margin-center": {
+					"@apply *:mx-auto first:*:mt-auto last:*:mb-auto": {},
+				},
+			})
+		}),
+	],
 }

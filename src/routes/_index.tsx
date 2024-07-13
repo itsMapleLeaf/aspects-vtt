@@ -4,10 +4,10 @@ import { Heading } from "../ui/heading.tsx"
 
 export default function Landing() {
 	return (
-		<main className="flex h-screen w-screen flex-col gap-3 *:mx-auto first:*:mt-auto last:*:mb-auto">
+		<main className="margin-center flex h-screen w-screen flex-col gap-3">
 			<Heading className="text-5xl">
 				<span className="text-base-300">Aspects</span>
-				<span className="text-accent-500 font-medium">VTT</span>
+				<span className="font-medium text-accent-500">VTT</span>
 			</Heading>
 			<p>A virtual tabletop for the Aspects of Nature TTRPG.</p>
 			<ButtonNavLink to="/play/create" icon={<LucideDices />}>
