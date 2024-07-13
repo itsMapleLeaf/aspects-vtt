@@ -8,7 +8,7 @@ export function Loading(props: ComponentProps<"div">) {
 		<div
 			{...props}
 			className={twMerge(
-				"loading wipe-down relative size-24 text-stone-500 *:size-full",
+				"loading wipe-down text-base-500 relative size-24 *:size-full",
 				props.className,
 			)}
 		>

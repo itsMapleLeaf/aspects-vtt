@@ -9,7 +9,7 @@ export default function DesignSystem() {
 	return (
 		<Column className="gap-8 p-4">
 			<section>
-				<Heading className="mb-3 text-3xl text-stone-300">Button</Heading>
+				<Heading className="text-base-300 mb-3 text-3xl">Button</Heading>
 				<Column className="gap-2">
 					<Row className="items-center">
 						<p>Solid</p>
@@ -51,7 +51,7 @@ export default function DesignSystem() {
 			</section>
 
 			<section>
-				<Heading className="mb-3 text-3xl text-stone-300">
+				<Heading className="text-base-300 mb-3 text-3xl">
 					Loading animations
 				</Heading>
 				<Row>

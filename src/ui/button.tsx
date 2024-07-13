@@ -50,10 +50,10 @@ export function Button({
 const styles = {
 	appearance: {
 		solid: twMerge(
-			`border-stone-700 bg-stone-800 hover:[&:not(:disabled)]:border-stone-600 hover:[&:not(:disabled)]:bg-stone-900 active:[&:not(:disabled)]:bg-stone-700`,
+			`border-base-700 bg-base-800 hover:[&:not(:disabled)]:border-base-600 hover:[&:not(:disabled)]:bg-base-900 active:[&:not(:disabled)]:bg-base-700`,
 		),
 		clear: twMerge(
-			`bg-transparent hover:[&:not(:disabled)]:border-stone-800 hover:[&:not(:disabled)]:bg-stone-800 active:[&:not(:disabled)]:border-stone-700 active:[&:not(:disabled)]:bg-stone-700`,
+			`hover:[&:not(:disabled)]:border-base-800 hover:[&:not(:disabled)]:bg-base-800 active:[&:not(:disabled)]:border-base-700 active:[&:not(:disabled)]:bg-base-700 bg-transparent`,
 		),
 	},
 }
