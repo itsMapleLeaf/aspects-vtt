@@ -73,8 +73,8 @@
     "@types/lodash-es": "^4.17.12",
     "@types/mdx": "^2.0.13",
     "@types/node": "^20.14.10",
-    "@types/react": "^19.0.0-alpha.5",
-    "@types/react-dom": "^19.0.0-alpha.5",
+    "@types/react": "npm:types-react@^19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@^19.0.0-rc.1",
     "@types/unzipper": "^0.10.9",
     "@types/wait-on": "^5.3.4",
     "babel-plugin-react-compiler": "^0.0.0-experimental-696af53-20240625",
@@ -108,8 +108,8 @@
     "wait-on": "^7.2.0"
   },
   "overrides": {
-    "@types/react": "npm:types-react@^19.0.0-alpha.5",
-    "@types/react-dom": "npm:types-react-dom@^19.0.0-alpha.5",
+    "@types/react": "npm:types-react@^19.0.0-rc.1",
+    "@types/react-dom": "npm:types-react-dom@^19.0.0-rc.1",
     "commander": "^11"
   }
 }
