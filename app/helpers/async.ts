@@ -18,3 +18,7 @@ export async function promiseAllObject<Promises extends Record<string, unknown>>
 	)
 	return result as { [K in keyof Promises]: Awaited<Promises[K]> }
 }
+
+export async function parallel<In, Out>(inputs: Iterable<In>, fn: (input: In) => Promise<Out>) {
+	return Promise.all([...inputs].map(fn))
+}
