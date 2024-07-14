@@ -292,17 +292,6 @@ class EffectQueryInitializer<Info extends GenericTableInfo> extends EffectQuery<
 
 export const Convex = {
 	db: new ConvexEffectDb(),
-	auth: {
-		getUserIdentity() {
-			return QueryCtxService.pipe(
-				Effect.flatMap((ctx) => Effect.promise(() => ctx.auth.getUserIdentity())),
-				Effect.filterOrFail(
-					(identity) => identity !== null,
-					() => new NotLoggedInError(),
-				),
-			)
-		},
-	},
 	storage: {
 		getUrl(storageId: Id<"_storage">) {
 			return QueryCtxService.pipe(

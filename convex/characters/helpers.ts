@@ -10,13 +10,12 @@ import { boostDiceKind, getDiceKindApiInput, snagDiceKind } from "~/modules/dice
 import { getRace } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import { getUserFromIdentityEffect, UnauthorizedError } from "../auth.ts"
-import { Convex, getDoc } from "../helpers/effect.ts"
+import { getDoc } from "../helpers/effect.ts"
+import { getCurrentUserId } from "../users.ts"
 
 export function normalizeCharacter(character: Doc<"characters">) {
 	return Effect.gen(function* () {
-		const identity = yield* Convex.auth
-			.getUserIdentity()
-			.pipe(Effect.catchTag("NotLoggedInError", () => Effect.succeed(null)))
+		const user = yield* getCurrentUserId()
 
 		const race = character.race && getRace(character.race)
 
@@ -38,8 +37,6 @@ export function normalizeCharacter(character: Doc<"characters">) {
 		)
 		const resolve = clamp(character.resolve ?? resolveMax, 0, resolveMax)
 
-		const defense = getAttributePower(stats.strength) + getAttributePower(stats.mobility)
-
 		return {
 			name: "",
 			pronouns: "",
@@ -57,7 +54,7 @@ export function normalizeCharacter(character: Doc<"characters">) {
 
 			visible: false,
 			nameVisible: false,
-			playerId: null,
+			player: null,
 
 			...character,
 			...stats,
@@ -68,7 +65,7 @@ export function normalizeCharacter(character: Doc<"characters">) {
 			resolve,
 			resolveMax,
 
-			isOwner: character.playerId != null && identity?.subject === character.playerId,
+			isOwner: character.player != null && user === character.player,
 		}
 	})
 }
@@ -88,7 +85,7 @@ export function protectCharacter<T extends Doc<"characters">>(character: T) {
 		const user = yield* getUserFromIdentityEffect()
 		const room = yield* getDoc(character.roomId)
 
-		if (room.ownerId === user.clerkId || character.playerId === user.clerkId) {
+		if (room.owner === user._id || character.player === user._id) {
 			return character
 		}
 
@@ -121,7 +118,7 @@ export function ensureViewerCharacterPermissions(characterId: Id<"characters">) 
 			character: getDoc(characterId),
 		})
 		const room = yield* getDoc(character.roomId)
-		if (room.ownerId === user.clerkId || character.playerId === user.clerkId) {
+		if (room.owner === user._id || character.player === user._id) {
 			return {
 				user,
 				room,

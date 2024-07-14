@@ -1,9 +1,8 @@
 import { Effect } from "effect"
 import type { Id } from "../_generated/dataModel"
-import { getIdentityEffect } from "../auth.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
-import type { Branded } from "../helpers/convex.ts"
 import { getDoc, insertDoc } from "../helpers/effect.ts"
+import { getCurrentUserId } from "../users.ts"
 import type { DiceInput } from "./types.ts"
 
 export class EmptyMessageError {
@@ -25,13 +24,13 @@ export function createMessages(
 					return yield* Effect.fail(new EmptyMessageError())
 				}
 
-				const identity = yield* getIdentityEffect()
+				const user = yield* getCurrentUserId()
 				const diceRolls = Iterator.from(createDiceRolls(dice)).toArray()
 
 				const id = yield* insertDoc("messages", {
 					roomId: input.roomId,
 					content,
-					userId: identity.subject as Branded<"clerkId">,
+					user,
 					diceRoll: diceRolls.length > 0 ? { dice: diceRolls } : undefined,
 				})
 

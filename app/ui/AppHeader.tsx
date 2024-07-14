@@ -1,4 +1,3 @@
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/remix"
 import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
 import * as Lucide from "lucide-react"
 import { $path } from "remix-routes"
@@ -33,7 +32,7 @@ export function AppHeader({ center, end }: { center?: React.ReactNode; end?: Rea
 			</div>
 			{center}
 			<div className="flex flex-1 justify-end gap-2">
-				{end !== undefined ?
+				{/* {end !== undefined ?
 					end
 				:	<>
 						<SignedIn>
@@ -45,7 +44,7 @@ export function AppHeader({ center, end }: { center?: React.ReactNode; end?: Rea
 							</SignInButton>
 						</SignedOut>
 					</>
-				}
+				} */}
 			</div>
 		</header>
 	)

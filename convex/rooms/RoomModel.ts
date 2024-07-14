@@ -4,7 +4,7 @@ import { ConvexError } from "convex/values"
 import { Result } from "../../app/helpers/Result.ts"
 import type { Doc, Id } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
-import { getUserFromIdentity } from "../auth.ts"
+import { auth } from "../auth.ts"
 
 export class RoomModel {
 	private readonly ctx
@@ -41,8 +41,7 @@ export class RoomModel {
 	}
 
 	async isOwner() {
-		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
-		return this.data.ownerId === user.clerkId
+		return this.data.owner === (await auth.getUserId(this.ctx))
 	}
 
 	async assertOwned() {
@@ -54,15 +53,6 @@ export class RoomModel {
 	async getPlayers() {
 		const rooms = await getManyFrom(this.ctx.db, "players", "roomId", this.data._id)
 		return rooms ?? []
-	}
-
-	getIdentityPlayer() {
-		return getUserFromIdentity(this.ctx).map((user) => {
-			return this.ctx.db
-				.query("players")
-				.withIndex("roomId_userId", (q) => q.eq("roomId", this.data._id).eq("userId", user.clerkId))
-				.first()
-		})
 	}
 
 	async update(ctx: MutationCtx, args: Partial<WithoutSystemFields<Doc<"rooms">>>) {
@@ -79,14 +69,5 @@ export class RoomModel {
 			throw new ConvexError("You don't have permission to delete this room.")
 		}
 		await ctx.db.delete(this.data._id)
-	}
-
-	async join(ctx: MutationCtx) {
-		const user = await getUserFromIdentity(this.ctx).getValueOrThrow()
-		if (await this.getIdentityPlayer().getValueOrNull()) return
-		await ctx.db.insert("players", {
-			userId: user.clerkId,
-			roomId: this.data._id,
-		})
 	}
 }

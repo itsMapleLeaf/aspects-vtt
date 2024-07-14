@@ -30,6 +30,7 @@ import type * as helpers_effect from "../helpers/effect.js";
 import type * as helpers_partial from "../helpers/partial.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
+import type * as images_node from "../images_node.js";
 import type * as messages_functions from "../messages/functions.js";
 import type * as messages_helpers from "../messages/helpers.js";
 import type * as messages_types from "../messages/types.js";
@@ -76,6 +77,7 @@ declare const fullApi: ApiFromModules<{
   "helpers/partial": typeof helpers_partial;
   http: typeof http;
   images: typeof images;
+  images_node: typeof images_node;
   "messages/functions": typeof messages_functions;
   "messages/helpers": typeof messages_helpers;
   "messages/types": typeof messages_types;

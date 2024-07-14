@@ -33,9 +33,11 @@ import {
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.ts"
+import { partial } from "../helpers/partial.ts"
 import { createMessages } from "../messages/helpers.ts"
 import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
+import schema from "../schema.ts"
 import { userColorValidator } from "../types.ts"
 import { getCurrentUser } from "../users.ts"
 import {
@@ -45,7 +47,7 @@ import {
 	normalizeCharacter,
 	protectCharacter,
 } from "./helpers.ts"
-import { characterAttributeValidator, characterProperties } from "./types.ts"
+import { characterAttributeValidator } from "./types.ts"
 
 export const list = effectQuery({
 	args: {
@@ -100,7 +102,7 @@ export const duplicate = effectMutation({
 
 export const update = effectMutation({
 	args: {
-		...characterProperties,
+		...partial(schema.tables.characters.validator.fields),
 		id: v.id("characters"),
 	},
 	handler: ({ id, ...args }) =>
@@ -208,7 +210,7 @@ export const applyStress = effectMutation({
 
 			yield* insertDoc("messages", {
 				roomId,
-				userId: user.clerkId,
+				user: user._id,
 				content,
 				diceRoll: diceRolls && { dice: diceRolls },
 			})
@@ -375,7 +377,7 @@ export const rest = effectMutation({
 
 			yield* Convex.db.insert("messages", {
 				roomId: character.roomId,
-				userId: user.clerkId,
+				user: user._id,
 				content: `${formatCharacterMention(character._id)} rested for ${args.hours} ${pluralize(
 					"hour",
 					args.hours,
@@ -440,7 +442,7 @@ export const attack = effectMutation({
 
 				yield* Convex.db.insert("messages", {
 					roomId: attacker.roomId,
-					userId: user.clerkId,
+					user: user._id,
 					content: message,
 					diceRoll: {
 						dice: attackerRoll,

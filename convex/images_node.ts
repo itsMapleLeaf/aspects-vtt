@@ -80,3 +80,22 @@ export const createImageFromUrl = internalAction({
 		})
 	},
 })
+
+export const setUserImageFromDiscord = internalAction({
+	args: {
+		userId: v.id("users"),
+		name: v.string(),
+		discordUserId: v.string(),
+		discordImageSnowflake: v.string(),
+	},
+	async handler(ctx, args) {
+		const image = await createImageFromUrl(ctx, {
+			name: `avatar_${args.name}`,
+			url: `https://cdn.discordapp.com/avatars/${args.discordUserId}/${args.discordImageSnowflake}.webp`,
+		})
+		await ctx.runMutation(internal.users.update, {
+			id: args.userId,
+			image,
+		})
+	},
+})

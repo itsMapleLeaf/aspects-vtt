@@ -1,7 +1,7 @@
 import { Effect } from "effect"
 import type { Id } from "../_generated/dataModel"
-import { getIdentityEffect } from "../auth.ts"
-import { getDoc } from "../helpers/effect.ts"
+import { Convex } from "../helpers/effect.ts"
+import { getCurrentUser } from "../users.ts"
 
 export class RoomNotOwnedError {
 	readonly _tag = "RoomNotOwnedError"
@@ -9,13 +9,13 @@ export class RoomNotOwnedError {
 
 export function ensureViewerOwnsRoom(roomId: Id<"rooms">) {
 	return Effect.gen(function* () {
-		const { identity, room } = yield* Effect.all({
-			identity: getIdentityEffect(),
-			room: getDoc(roomId),
+		const { viewer, room } = yield* Effect.all({
+			viewer: getCurrentUser(),
+			room: Convex.db.get(roomId),
 		})
-		if (room.ownerId !== identity.subject) {
-			return yield* Effect.fail(new RoomNotOwnedError())
+		if (room.owner === viewer._id) {
+			return room
 		}
-		return room
+		return yield* Effect.fail(new RoomNotOwnedError())
 	})
 }

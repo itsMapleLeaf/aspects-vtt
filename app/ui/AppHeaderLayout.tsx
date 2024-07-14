@@ -1,4 +1,3 @@
-import { UserButton } from "@clerk/remix"
 import { useHref, useLocation } from "@remix-run/react"
 import { twMerge } from "tailwind-merge"
 import { AppHeader } from "./AppHeader.tsx"
@@ -28,7 +27,8 @@ export function AuthenticatedAppHeaderLayout({
 	const currentUrl = useHref(useLocation())
 	return (
 		<div className={twMerge("grid content-start gap-4 p-4", className)}>
-			<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
+			<AppHeader end={null} />
+			{/* <AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} /> */}
 			{children}
 		</div>
 	)

@@ -49,7 +49,7 @@ function CharacterResourceTreeItem({ character }: { character: ApiCharacter }) {
 				className="w-full"
 				align="start"
 				element={<ModalButton />}
-				active={user?.clerkId === character.playerId}
+				active={character.player != null && user?._id === character.player}
 			>
 				<div className="flex min-w-0 flex-1 items-center gap-1">
 					<div className="min-w-0 shrink-0 truncate">

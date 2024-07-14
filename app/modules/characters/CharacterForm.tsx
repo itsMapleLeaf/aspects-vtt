@@ -36,11 +36,11 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				<div className="flex items-end gap-current *:flex-1">
 					<CharacterSelectField
 						character={character}
-						field="playerId"
+						field="player"
 						label="Player"
 						options={[
 							...room.players
-								.map((p) => ({ label: p.name, value: p.clerkId }))
+								.map((p) => ({ label: p.name, value: p._id }))
 								.toSorted((a, b) => a.label.localeCompare(b.label)),
 							{ id: "none", label: "None", value: null },
 						]}

@@ -4,15 +4,13 @@ installIntoGlobal()
 import "@fontsource-variable/nunito"
 import "./root.css"
 
-import { ClerkApp, useAuth } from "@clerk/remix"
 import { rootAuthLoader } from "@clerk/remix/ssr.server"
+import { ConvexAuthProvider } from "@convex-dev/auth/react"
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
-import { ConvexProviderWithClerk } from "convex/react-clerk"
 import { Suspense, useState } from "react"
 import { clientEnv } from "./env.ts"
-import { clerkConfig } from "./modules/clerk/config.ts"
 import { getSiteMeta } from "./modules/meta/helpers.ts"
 import { PromptProvider } from "./ui/Prompt.tsx"
 import { Toaster } from "./ui/Toaster.tsx"
@@ -45,11 +43,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-export default ClerkApp(function App() {
+export default function App() {
 	const [convex] = useState(() => new ConvexReactClient(clientEnv.VITE_CONVEX_URL))
 	return (
-		<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+		<ConvexAuthProvider client={convex}>
 			<Outlet />
-		</ConvexProviderWithClerk>
+		</ConvexAuthProvider>
 	)
-}, clerkConfig)
+}

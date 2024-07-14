@@ -117,10 +117,7 @@ export function ResourceList(props: ResourceListProps) {
 									(a, b) =>
 										Number(sceneCharacterIds.has(b._id)) - Number(sceneCharacterIds.has(a._id)),
 								)
-								.sort(
-									(a, b) =>
-										Number(user?.clerkId === b.playerId) - Number(user?.clerkId === a.playerId),
-								)
+								.sort((a, b) => Number(user?._id === b.player) - Number(user?._id === a.player))
 								.map((character) => (
 									<ResourceElement
 										key={character._id}

@@ -1,14 +1,15 @@
-import { brandedString } from "convex-helpers/validators"
-import type { WithoutSystemFields } from "convex/server"
-import { Effect } from "effect"
-import type { Doc } from "./_generated/dataModel"
-import type { Branded } from "./helpers/convex.ts"
+import { v } from "convex/values"
+import { Effect, pipe } from "effect"
+import { auth } from "./auth.ts"
 import {
 	Convex,
 	effectQuery,
 	internalEffectMutation,
 	internalEffectQuery,
+	NotLoggedInError,
+	QueryCtxService,
 } from "./helpers/effect.ts"
+import { partial } from "./helpers/partial.ts"
 import schema from "./schema.ts"
 
 export const me = effectQuery({
@@ -23,47 +24,36 @@ export const list = internalEffectQuery({
 	},
 })
 
-export const upsert = internalEffectMutation({
+export const update = internalEffectMutation({
 	args: {
-		...schema.tables.users.validator.fields,
+		...partial(schema.tables.users.validator.fields),
+		id: v.id("users"),
 	},
-	handler(args) {
-		return upsertUser(args)
+	handler({ id, ...args }) {
+		return Convex.db.patch(id, args)
 	},
 })
 
 export const remove = internalEffectMutation({
 	args: {
-		clerkId: brandedString("clerkId"),
+		id: v.id("users"),
 	},
 	handler(args) {
-		return getUserByClerkId(args.clerkId).pipe(
-			Effect.flatMap((existing) => Convex.db.delete(existing._id)),
-			Effect.catchTag("ConvexDocNotFoundError", () => Effect.void),
-		)
+		return Convex.db.delete(args.id)
 	},
 })
 
-export function upsertUser(args: WithoutSystemFields<Doc<"users">>) {
-	return getUserByClerkId(args.clerkId).pipe(
-		Effect.flatMap((existing) => Convex.db.patch(existing._id, args)),
-		Effect.catchTag("ConvexDocNotFoundError", () => Convex.db.insert("users", args)),
+export function getCurrentUserId() {
+	return pipe(
+		QueryCtxService,
+		Effect.flatMap((ctx) => Effect.promise(() => auth.getUserId(ctx))),
+		Effect.filterOrFail(
+			(id) => id != null,
+			() => new NotLoggedInError(),
+		),
 	)
 }
 
 export function getCurrentUser() {
-	return Effect.gen(function* () {
-		const identity = yield* Convex.auth.getUserIdentity()
-		return yield* Convex.db
-			.query("users")
-			.withIndex("clerkId", (q) => q.eq("clerkId", identity.subject as Branded<"clerkId">))
-			.first()
-	})
-}
-
-export function getUserByClerkId(clerkId: Branded<"clerkId">) {
-	return Convex.db
-		.query("users")
-		.withIndex("clerkId", (q) => q.eq("clerkId", clerkId))
-		.first()
+	return pipe(getCurrentUserId(), Effect.flatMap(Convex.db.get))
 }

@@ -1,23 +1,21 @@
-import { asyncMap } from "convex-helpers"
-import { getManyFrom, getOneFrom } from "convex-helpers/server/relationships"
+import { getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { Iterator } from "iterator-helpers-polyfill"
 import { generateSlug } from "random-word-slugs"
 import { omit } from "../../app/helpers/object.ts"
 import { Result } from "../../app/helpers/Result.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
-import { getUserFromIdentity, getUserFromIdentityEffect } from "../auth.ts"
+import { UnauthorizedError, getUserFromIdentity, getUserFromIdentityEffect } from "../auth.ts"
 import {
 	Convex,
 	MutationCtxService,
 	effectMutation,
 	effectQuery,
-	getDoc,
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.js"
+import { getCurrentUser, getCurrentUserId } from "../users.ts"
 import { memberValidator } from "./combat/types.ts"
 import { ensureViewerOwnsRoom } from "./helpers.ts"
 import { RoomModel } from "./RoomModel.js"
@@ -32,20 +30,27 @@ export const get = effectQuery({
 				Effect.flatMap(Effect.fromNullable),
 			)
 
-			const playerUsers = yield* withQueryCtx(async (ctx) => {
-				const players = await getManyFrom(ctx.db, "players", "roomId", room._id)
-				const users = await asyncMap(players, (player) =>
-					getOneFrom(ctx.db, "users", "clerkId", player.userId),
-				)
-				return users.filter(Boolean)
-			})
+			const players = yield* Convex.db
+				.query("players")
+				.withIndex("roomId", (q) => q.eq("roomId", room._id))
+				.collect()
 
-			const identityUser = yield* getUserFromIdentityEffect()
+			const playerUsers = yield* pipe(
+				players.map((it) => it.user).filter(Boolean),
+				Effect.forEach((id) =>
+					pipe(
+						Convex.db.get(id),
+						Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
+					),
+				),
+			)
+
+			const currentUserId = yield* getCurrentUserId()
 
 			return {
 				...room,
-				players: playerUsers, // TODO: move to a separate query
-				isOwner: identityUser.clerkId === room.ownerId,
+				players: playerUsers.filter(Boolean), // TODO: move to a separate query
+				isOwner: currentUserId === room.owner,
 				experience: room.experience ?? 0,
 			}
 		}).pipe(
@@ -65,7 +70,7 @@ export const list = query({
 
 		const memberships = await ctx.db
 			.query("players")
-			.withIndex("userId", (q) => q.eq("userId", user.clerkId))
+			.withIndex("user", (q) => q.eq("user", user._id))
 			.collect()
 
 		const rooms = await Promise.all(memberships.map((player) => ctx.db.get(player.roomId)))
@@ -73,28 +78,30 @@ export const list = query({
 	},
 })
 
-export const create = mutation({
-	handler: async (ctx) => {
-		const user = await getUserFromIdentity(ctx).getValueOrThrow()
-		const slug = await generateUniqueSlug(ctx)
+export const create = effectMutation({
+	handler: () => {
+		return Effect.gen(function* () {
+			const user = yield* getCurrentUser()
+			const slug = yield* pipe(generateUniqueSlug, Effect.retry({ times: 10 }))
 
-		await ctx.db.insert("rooms", {
-			name: slug,
-			slug,
-			ownerId: user.clerkId,
+			yield* Convex.db.insert("rooms", {
+				name: slug,
+				slug,
+				owner: user._id,
+			})
+
+			return { slug }
 		})
-
-		return { slug }
-
-		async function generateUniqueSlug(ctx: QueryCtx): Promise<string> {
-			for (const _attempt of Iterator.range(10)) {
-				const slug = generateSlug()
-				const existing = await RoomModel.fromSlug(ctx, slug)
-				if (!existing.value) return slug
-			}
-			throw new ConvexError("Failed to generate a unique slug")
-		}
 	},
+})
+
+const generateUniqueSlug = Effect.gen(function* () {
+	const slug = generateSlug()
+	const existing = yield* getRoomBySlug(slug)
+	if (!existing) {
+		return slug
+	}
+	return yield* Effect.fail(new ConvexError("A room with that slug already exists"))
 })
 
 export const update = mutation({
@@ -137,18 +144,18 @@ export const join = effectMutation({
 	handler: (args) =>
 		Effect.gen(function* () {
 			const ctx = yield* MutationCtxService
-			const user = yield* getUserFromIdentityEffect()
+			const user = yield* getCurrentUser()
 			const player = yield* Effect.promise(() => {
 				return ctx.db
 					.query("players")
-					.withIndex("roomId_userId", (q) => q.eq("roomId", args.id).eq("userId", user.clerkId))
+					.withIndex("roomId_user", (q) => q.eq("roomId", args.id).eq("user", user._id))
 					.first()
 			})
 			if (!player) {
 				yield* Effect.promise(() => {
 					return ctx.db.insert("players", {
 						roomId: args.id,
-						userId: user.clerkId,
+						user: user._id,
 					})
 				})
 			}
@@ -183,13 +190,12 @@ export function isRoomOwner(roomId: Id<"rooms">) {
 }
 
 export function getRoomAsOwner(roomId: Id<"rooms">) {
-	return Effect.filterOrFail(
-		Effect.all({
-			room: getDoc(roomId),
-			user: getUserFromIdentityEffect(),
-		}),
-		({ room, user }) => room.ownerId === user.clerkId,
-		() => new ConvexError("You do not own this room."),
+	return pipe(
+		Effect.all([Convex.db.get(roomId), getCurrentUserId()]),
+		Effect.filterOrFail(
+			([room, user]) => room.owner === user,
+			() => new UnauthorizedError(),
+		),
 	)
 }
 

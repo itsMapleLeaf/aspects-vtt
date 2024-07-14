@@ -3,8 +3,8 @@ import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { pick } from "~/helpers/object.ts"
 import { mutation } from "../_generated/server.js"
-import { getUserFromClerkId, getUserFromIdentity } from "../auth.ts"
-import { effectMutation, effectQuery, withQueryCtx } from "../helpers/effect.js"
+import { getUserFromIdentity } from "../auth.ts"
+import { Convex, effectMutation, effectQuery, withQueryCtx } from "../helpers/effect.js"
 import { createMessages } from "./helpers.ts"
 import { diceInputValidator } from "./types.ts"
 
@@ -25,9 +25,11 @@ export const list = effectQuery({
 			return yield* Effect.allSuccesses(
 				Iterator.from(messages).map((message) =>
 					Effect.gen(function* () {
-						const user = yield* getUserFromClerkId(message.userId).pipe(
+						const user = yield* Effect.fromNullable(message.user).pipe(
+							Effect.flatMap(Convex.db.get),
 							Effect.map((user) => pick(user, ["name", "avatarUrl"])),
-							Effect.catchTag("UserNotFoundError", () => Effect.succeed(null)),
+							Effect.catchTag("NoSuchElementException", () => Effect.succeed(null)),
+							Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
 						)
 						return { ...message, user }
 					}).pipe(
@@ -63,7 +65,7 @@ export const remove = mutation({
 		const message = await ctx.db.get(id)
 		if (!message) return
 
-		if (message.userId !== user.clerkId) {
+		if (message.user !== user._id) {
 			throw new ConvexError("You don't have permission to do that.")
 		}
 

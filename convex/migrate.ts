@@ -1,43 +1,60 @@
-"use node"
+// @ts-nocheck
+import { internalMutation } from "./_generated/server.js"
 
-import { createClerkClient } from "@clerk/remix/api.server"
-import { omit } from "~/helpers/object.ts"
-import { internal } from "./_generated/api.js"
-import { action } from "./_generated/server.js"
-import { createImageFromUrl } from "./images.node.ts"
-import { getConvexSecret } from "./secrets.ts"
-
-export const users = action({
+export const clerkIdsToUserIds = internalMutation({
 	async handler(ctx) {
-		const clerk = createClerkClient({
-			secretKey: getConvexSecret("CLERK_SECRET_KEY"),
-		})
+		for await (const room of ctx.db.query("rooms")) {
+			const user = await ctx.db
+				.query("users")
+				.withIndex("clerkId", (q) => q.eq("clerkId", room.ownerId))
+				.first()
 
-		const failedUsers = []
-
-		for (const user of await ctx.runQuery(internal.users.list, {})) {
-			try {
-				const clerkUser = await clerk.users.getUser(user.clerkId)
-
-				const image = await createImageFromUrl(ctx, {
-					name: `avatar_${user.name}`,
-					url: clerkUser.imageUrl,
-				})
-
-				await ctx.runMutation(internal.users.upsert, {
-					...omit(user, ["_id", "_creationTime"]),
-					email: clerkUser.emailAddresses.map((it) => it.emailAddress).find(Boolean),
-					image,
-				})
-			} catch (error) {
-				failedUsers.push({ user, error })
+			if (user) {
+				await ctx.db.patch(room._id, { owner: user._id })
 			}
 		}
 
-		if (failedUsers.length > 0) {
-			console.info(`Failed to migrate ${failedUsers.length} users:`)
-			for (const { user, error } of failedUsers) {
-				console.info(`  ${user.clerkId} (${user.name})`, error)
+		for await (const player of ctx.db.query("players")) {
+			const user = await ctx.db
+				.query("users")
+				.withIndex("clerkId", (q) => q.eq("clerkId", player.userId))
+				.first()
+
+			if (user) {
+				await ctx.db.patch(player._id, { user: user._id })
+			}
+		}
+
+		for await (const messages of ctx.db.query("messages")) {
+			const user = await ctx.db
+				.query("users")
+				.withIndex("clerkId", (q) => q.eq("clerkId", messages.userId))
+				.first()
+
+			if (user) {
+				await ctx.db.patch(messages._id, { user: user._id })
+			}
+		}
+
+		for await (const characters of ctx.db.query("characters")) {
+			const user = await ctx.db
+				.query("users")
+				.withIndex("clerkId", (q) => q.eq("clerkId", characters.playerId))
+				.first()
+
+			if (user) {
+				await ctx.db.patch(characters._id, { player: user._id })
+			}
+		}
+
+		for await (const diceMacros of ctx.db.query("diceMacros")) {
+			const user = await ctx.db
+				.query("users")
+				.withIndex("clerkId", (q) => q.eq("clerkId", diceMacros.userId))
+				.first()
+
+			if (user) {
+				await ctx.db.patch(diceMacros._id, { user: user._id })
 			}
 		}
 	},

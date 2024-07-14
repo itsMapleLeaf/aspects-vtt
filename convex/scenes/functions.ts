@@ -1,5 +1,6 @@
 import { v } from "convex/values"
 import { Effect } from "effect"
+import { parallel } from "~/helpers/async.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { requireDoc } from "../helpers/convex.ts"
@@ -63,16 +64,20 @@ export const create = mutation({
 		const room = await requireRoomOwner(ctx, args.roomId).getValueOrThrow()
 		const players = await room.getPlayers()
 
-		const characters = await ctx.db
-			.query("characters")
-			.filter((q) => q.or(...players.map((player) => q.eq(q.field("playerId"), player.userId))))
-			.collect()
+		const characters = await parallel(
+			players,
+			async (player) =>
+				await ctx.db
+					.query("characters")
+					.withIndex("player", (q) => q.eq("player", player.user))
+					.collect(),
+		)
 
 		return await ctx.db.insert("scenes", {
 			...args,
 			background: null,
 			cellSize: 70,
-			tokens: characters.map((character, index) =>
+			tokens: characters.flat().map((character, index) =>
 				createToken({
 					position: { x: index * 70, y: 0 },
 					visible: true,

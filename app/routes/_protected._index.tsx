@@ -1,4 +1,3 @@
-import { UserButton } from "@clerk/remix"
 import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import { LucideHome, LucidePlus } from "lucide-react"
@@ -25,7 +24,8 @@ export default function RoomListRoute() {
 
 	return (
 		<div className="flex h-dvh flex-col gap-4 p-4">
-			<AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} />
+			<AppHeader end={null} />
+			{/* <AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} /> */}
 			{rooms === undefined ?
 				loading && <Loading fill="parent" />
 			:	<main>

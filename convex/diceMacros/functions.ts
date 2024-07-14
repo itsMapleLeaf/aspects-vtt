@@ -1,47 +1,52 @@
 import { ConvexError, v } from "convex/values"
-import { mutation, query } from "../_generated/server.js"
-import { getIdentity } from "../auth.ts"
-import { requireDoc } from "../helpers/convex.ts"
+import { Effect, pipe } from "effect"
+import { Convex, effectMutation, effectQuery } from "../helpers/effect.ts"
+import { getCurrentUserId } from "../users.ts"
 import { diceMacroProperties } from "./types.ts"
 
-export const list = query({
+export const list = effectQuery({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	async handler(ctx, args) {
-		const identity = await getIdentity(ctx).getValueOrNull()
-		if (!identity) return []
-
-		return ctx.db
-			.query("diceMacros")
-			.withIndex("roomId_userId", (q) => q.eq("roomId", args.roomId).eq("userId", identity.subject))
-			.collect()
+	handler(args) {
+		return pipe(
+			getCurrentUserId(),
+			Effect.flatMap((user) =>
+				Convex.db
+					.query("diceMacros")
+					.withIndex("roomId_user", (q) => q.eq("roomId", args.roomId).eq("user", user))
+					.collect(),
+			),
+			Effect.orElseSucceed(() => []),
+		)
 	},
 })
 
-export const create = mutation({
+export const create = effectMutation({
 	args: diceMacroProperties,
-	async handler(ctx, args) {
-		const user = await getIdentity(ctx).getValueOrThrow()
-		return await ctx.db.insert("diceMacros", {
-			...args,
-			userId: user.subject,
-		})
+	handler(args) {
+		return pipe(
+			getCurrentUserId(),
+			Effect.flatMap((user) => Convex.db.insert("diceMacros", { ...args, user })),
+		)
 	},
 })
 
-export const remove = mutation({
+export const remove = effectMutation({
 	args: {
 		id: v.id("diceMacros"),
 	},
-	async handler(ctx, args) {
-		const user = await getIdentity(ctx).getValueOrThrow()
-
-		const macro = await requireDoc(ctx, args.id, "diceMacros").getValueOrThrow()
-		if (macro.userId !== user.subject) {
-			throw new ConvexError("Insufficient permissions")
-		}
-
-		await ctx.db.delete(macro._id)
+	handler(args) {
+		return pipe(
+			Effect.all({
+				user: getCurrentUserId(),
+				macro: Convex.db.get(args.id),
+			}),
+			Effect.filterOrFail(
+				({ user, macro }) => macro.user === user,
+				() => new ConvexError("Insufficient permissions"),
+			),
+			Effect.flatMap(({ macro }) => Convex.db.delete(macro._id)),
+		)
 	},
 })
