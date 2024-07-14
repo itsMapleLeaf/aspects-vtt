@@ -22,6 +22,18 @@ export default defineSchema({
 		clerkId: userClerkIdValidator(),
 	}).index("clerkId", ["clerkId"]),
 
+	images: defineTable({
+		name: v.string(),
+		hash: v.string(),
+		sizes: v.array(
+			v.object({
+				width: v.number(),
+				height: v.number(),
+				storageId: v.id("_storage"),
+			}),
+		),
+	}).index("hash", ["hash"]),
+
 	rooms: defineTable({
 		...roomProperties,
 		slug: v.string(),

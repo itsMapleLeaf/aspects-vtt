@@ -1,8 +1,15 @@
 import { brandedString } from "convex-helpers/validators"
-import { v } from "convex/values"
+import type { WithoutSystemFields } from "convex/server"
 import { Effect } from "effect"
+import type { Doc } from "./_generated/dataModel"
 import type { Branded } from "./helpers/convex.ts"
-import { Convex, effectQuery, internalEffectMutation } from "./helpers/effect.ts"
+import {
+	Convex,
+	effectQuery,
+	internalEffectMutation,
+	internalEffectQuery,
+} from "./helpers/effect.ts"
+import schema from "./schema.ts"
 
 export const me = effectQuery({
 	handler() {
@@ -10,11 +17,15 @@ export const me = effectQuery({
 	},
 })
 
+export const list = internalEffectQuery({
+	handler() {
+		return Convex.db.query("users").collect()
+	},
+})
+
 export const upsert = internalEffectMutation({
 	args: {
-		name: v.string(),
-		avatarUrl: v.optional(v.string()),
-		clerkId: brandedString("clerkId"),
+		...schema.tables.users.validator.fields,
 	},
 	handler(args) {
 		return upsertUser(args)
@@ -33,25 +44,10 @@ export const remove = internalEffectMutation({
 	},
 })
 
-export function upsertUser(args: {
-	avatarUrl?: string | undefined
-	name: string
-	clerkId: string & { _: "clerkId" }
-}) {
+export function upsertUser(args: WithoutSystemFields<Doc<"users">>) {
 	return getUserByClerkId(args.clerkId).pipe(
-		Effect.flatMap((existing) =>
-			Convex.db.patch(existing._id, {
-				name: args.name,
-				avatarUrl: args.avatarUrl,
-			}),
-		),
-		Effect.catchTag("ConvexDocNotFoundError", () =>
-			Convex.db.insert("users", {
-				name: args.name,
-				avatarUrl: args.avatarUrl,
-				clerkId: args.clerkId,
-			}),
-		),
+		Effect.flatMap((existing) => Convex.db.patch(existing._id, args)),
+		Effect.catchTag("ConvexDocNotFoundError", () => Convex.db.insert("users", args)),
 	)
 }
 
