@@ -1,4 +1,3 @@
-import { setupClerkTestingToken } from "@clerk/testing/playwright"
 import { expect, test as it, type Page } from "@playwright/test"
 import { ConvexHttpClient } from "convex/browser"
 import { api } from "../convex/_generated/api.js"
@@ -6,7 +5,6 @@ import type { Branded } from "../convex/helpers/convex.js"
 import { ConvexTestDb } from "./helpers/convex.js"
 
 async function login(page: Page) {
-	await setupClerkTestingToken({ page })
 	await page.goto("/")
 	await page.getByText("Sign in").first().click()
 	await page.getByLabel("Email").fill("testuser")

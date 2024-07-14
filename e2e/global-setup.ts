@@ -1,6 +1,3 @@
-import { clerkSetup } from "@clerk/testing/playwright"
-import test from "@playwright/test"
-
 // const backendRoot = resolve(import.meta.dirname, "../convex-backend")
 // const backendExecutable = resolve(backendRoot, "convex-local-backend")
 // const backendFixtures = resolve(backendRoot, "fixtures")
@@ -27,7 +24,3 @@ import test from "@playwright/test"
 // 	const fixturePath = resolve(backendFixtures, `${test.info().parallelIndex}`)
 // 	await rm(fixturePath, { recursive: true, force: true })
 // })
-
-test("setup clerk", async () => {
-	await clerkSetup()
-})

@@ -20,8 +20,6 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.7",
-    "@clerk/remix": "^4.2.1",
-    "@clerk/themes": "^2.1.10",
     "@floating-ui/react-dom": "^2.1.1",
     "@fontsource-variable/nunito": "^5.0.19",
     "@formkit/auto-animate": "^0.8.2",
@@ -53,13 +51,12 @@
     "sharp": "^0.33.4",
     "svix": "^1.24.0",
     "tailwind-merge": "^2.4.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@auth/core": "^0.34.1",
+    "@convex-dev/auth": "^0.0.36"
   },
   "devDependencies": {
-    "@auth/core": "^0.34.1",
     "@biomejs/biome": "^1.8.3",
-    "@clerk/testing": "^1.1.8",
-    "@convex-dev/auth": "^0.0.36",
     "@eslint/compat": "^1.1.0",
     "@eslint/js": "^9.6.0",
     "@mdx-js/rollup": "^3.0.1",

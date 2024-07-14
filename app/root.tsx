@@ -4,9 +4,8 @@ installIntoGlobal()
 import "@fontsource-variable/nunito"
 import "./root.css"
 
-import { rootAuthLoader } from "@clerk/remix/ssr.server"
 import { ConvexAuthProvider } from "@convex-dev/auth/react"
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node"
+import type { MetaFunction } from "@remix-run/node"
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { Suspense, useState } from "react"
@@ -14,8 +13,6 @@ import { clientEnv } from "./env.ts"
 import { getSiteMeta } from "./modules/meta/helpers.ts"
 import { PromptProvider } from "./ui/Prompt.tsx"
 import { Toaster } from "./ui/Toaster.tsx"
-
-export const loader = (args: LoaderFunctionArgs) => rootAuthLoader(args)
 
 export const meta: MetaFunction = () => getSiteMeta()
 
