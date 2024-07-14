@@ -1,3 +1,4 @@
+import { authTables } from "@convex-dev/auth/server"
 import { brandedString, deprecated } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
@@ -11,9 +12,13 @@ import { roomProperties } from "./rooms/types.ts"
 import { sceneProperties } from "./scenes/types.ts"
 
 export default defineSchema({
+	...authTables,
+
 	users: defineTable({
+		...authTables.users.validator.fields,
 		name: v.string(),
 		avatarUrl: v.optional(v.string()),
+		image: v.optional(v.id("images")),
 		clerkId: userClerkIdValidator(),
 	}).index("clerkId", ["clerkId"]),
 

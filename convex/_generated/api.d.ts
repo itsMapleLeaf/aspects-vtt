@@ -43,6 +43,7 @@ import type * as scenes_functions from "../scenes/functions.js";
 import type * as scenes_tokens_functions from "../scenes/tokens/functions.js";
 import type * as scenes_tokens_types from "../scenes/tokens/types.js";
 import type * as scenes_types from "../scenes/types.js";
+import type * as secrets from "../secrets.js";
 import type * as storage from "../storage.js";
 import type * as testing from "../testing.js";
 import type * as types from "../types.js";
@@ -86,6 +87,7 @@ declare const fullApi: ApiFromModules<{
   "scenes/tokens/functions": typeof scenes_tokens_functions;
   "scenes/tokens/types": typeof scenes_tokens_types;
   "scenes/types": typeof scenes_types;
+  secrets: typeof secrets;
   storage: typeof storage;
   testing: typeof testing;
   types: typeof types;

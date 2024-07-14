@@ -1,5 +1,8 @@
 import * as z from "zod"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { getConvexSecret } from "./secrets.ts"
 
+/** @deprecated Use {@link getConvexSecret} */
 export function convexEnv() {
 	const result = z
 		.object({

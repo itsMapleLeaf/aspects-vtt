@@ -5,10 +5,13 @@ import { Webhook } from "svix"
 import { internal } from "./_generated/api"
 import type { Id } from "./_generated/dataModel"
 import { httpAction } from "./_generated/server"
+import { auth } from "./auth"
 import { convexEnv } from "./env.ts"
 import type { Branded } from "./helpers/convex.ts"
 
 const http = httpRouter()
+
+auth.addHttpRoutes(http)
 
 http.route({
 	path: "/image",

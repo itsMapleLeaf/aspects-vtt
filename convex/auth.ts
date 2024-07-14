@@ -1,3 +1,4 @@
+import { convexAuth } from "@convex-dev/auth/server"
 import type { UserIdentity } from "convex/server"
 import { ConvexError, v } from "convex/values"
 import { Effect } from "effect"
@@ -6,6 +7,10 @@ import type { QueryCtx } from "./_generated/server.js"
 import type { Branded } from "./helpers/convex.js"
 import { Convex, effectMutation, QueryCtxService } from "./helpers/effect.ts"
 import { getCurrentUser, getUserByClerkId, upsertUser } from "./users.ts"
+
+export const { auth, signIn, signOut, store } = convexAuth({
+	providers: [],
+})
 
 export const setup = effectMutation({
 	args: {
