@@ -1,4 +1,4 @@
-import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
+import { Link, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import { LucideHome, LucidePlus } from "lucide-react"
 import { $path } from "remix-routes"
@@ -14,7 +14,6 @@ export default function RoomListRoute() {
 	const rooms = useQuery(api.rooms.functions.list, {})
 	const createRoom = useMutation(api.rooms.functions.create)
 	const navigate = useNavigate()
-	const currentUrl = useHref(useLocation())
 	const loading = usePendingDelay(rooms === undefined)
 
 	const [, submit] = useSafeAction(async () => {
@@ -24,8 +23,7 @@ export default function RoomListRoute() {
 
 	return (
 		<div className="flex h-dvh flex-col gap-4 p-4">
-			<AppHeader end={null} />
-			{/* <AppHeader end={<UserButton afterSignOutUrl={currentUrl} />} /> */}
+			<AppHeader />
 			{rooms === undefined ?
 				loading && <Loading fill="parent" />
 			:	<main>

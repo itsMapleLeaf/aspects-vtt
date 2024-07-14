@@ -1,10 +1,10 @@
-import { Link, useHref, useLocation, useNavigate } from "@remix-run/react"
+import { Link, useNavigate } from "@remix-run/react"
 import * as Lucide from "lucide-react"
 import { $path } from "remix-routes"
 import { Button } from "./Button.tsx"
+import { UserButton } from "./UserButton.tsx"
 
-export function AppHeader({ center, end }: { center?: React.ReactNode; end?: React.ReactNode }) {
-	const currentUrl = useHref(useLocation())
+export function AppHeader({ center }: { center?: React.ReactNode }) {
 	const navigate = useNavigate()
 	return (
 		<header className="flex h-10 items-center gap-3">
@@ -32,19 +32,7 @@ export function AppHeader({ center, end }: { center?: React.ReactNode; end?: Rea
 			</div>
 			{center}
 			<div className="flex flex-1 justify-end gap-2">
-				{/* {end !== undefined ?
-					end
-				:	<>
-						<SignedIn>
-							<UserButton afterSignOutUrl={currentUrl} />
-						</SignedIn>
-						<SignedOut>
-							<SignInButton mode="modal" forceRedirectUrl={currentUrl}>
-								<Button icon={<Lucide.LogIn />} text="Sign in" />
-							</SignInButton>
-						</SignedOut>
-					</>
-				} */}
+				<UserButton />
 			</div>
 		</header>
 	)
