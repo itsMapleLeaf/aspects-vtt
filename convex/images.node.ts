@@ -23,7 +23,11 @@ export const createImageFromUrl = internalAction({
 		const hash = createHash("sha256").update(new Uint8Array(data)).digest("hex")
 		const existing = await ctx.runQuery(internal.images.getByHash, { hash })
 		if (existing) {
-			log("Found existing image", existing)
+			log("Found existing image", existing._id)
+			await ctx.runMutation(internal.images.update, {
+				id: existing._id,
+				name: args.name,
+			})
 			return existing._id
 		}
 

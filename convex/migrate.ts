@@ -20,7 +20,7 @@ export const users = action({
 				const clerkUser = await clerk.users.getUser(user.clerkId)
 
 				const image = await createImageFromUrl(ctx, {
-					name: `avatar_${user.clerkId}`,
+					name: `avatar_${user.name}`,
 					url: clerkUser.imageUrl,
 				})
 
