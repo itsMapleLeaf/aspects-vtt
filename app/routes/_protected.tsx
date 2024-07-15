@@ -1,5 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react"
-import { SiDiscord } from "@icons-pack/react-simple-icons"
+// @ts-expect-error
+import SiDiscord from "@icons-pack/react-simple-icons/icons/SiDiscord.mjs"
 import { Outlet, useHref, useLocation } from "@remix-run/react"
 import { useConvexAuth, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
