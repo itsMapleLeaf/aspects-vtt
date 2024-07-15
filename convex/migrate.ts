@@ -6,7 +6,7 @@ export const clerkIdsToUserIds = internalMutation({
 		for await (const room of ctx.db.query("rooms")) {
 			const user = await ctx.db
 				.query("users")
-				.withIndex("clerkId", (q) => q.eq("clerkId", room.ownerId))
+				.filter((q) => q.eq(q.field("clerkId"), room.ownerId))
 				.first()
 
 			if (user) {
@@ -17,7 +17,7 @@ export const clerkIdsToUserIds = internalMutation({
 		for await (const player of ctx.db.query("players")) {
 			const user = await ctx.db
 				.query("users")
-				.withIndex("clerkId", (q) => q.eq("clerkId", player.userId))
+				.filter((q) => q.eq(q.field("clerkId"), player.userId))
 				.first()
 
 			if (user) {
@@ -28,7 +28,7 @@ export const clerkIdsToUserIds = internalMutation({
 		for await (const messages of ctx.db.query("messages")) {
 			const user = await ctx.db
 				.query("users")
-				.withIndex("clerkId", (q) => q.eq("clerkId", messages.userId))
+				.filter((q) => q.eq(q.field("clerkId"), messages.userId))
 				.first()
 
 			if (user) {
@@ -39,7 +39,7 @@ export const clerkIdsToUserIds = internalMutation({
 		for await (const characters of ctx.db.query("characters")) {
 			const user = await ctx.db
 				.query("users")
-				.withIndex("clerkId", (q) => q.eq("clerkId", characters.playerId))
+				.filter((q) => q.eq(q.field("clerkId"), characters.playerId))
 				.first()
 
 			if (user) {
@@ -50,7 +50,7 @@ export const clerkIdsToUserIds = internalMutation({
 		for await (const diceMacros of ctx.db.query("diceMacros")) {
 			const user = await ctx.db
 				.query("users")
-				.withIndex("clerkId", (q) => q.eq("clerkId", diceMacros.userId))
+				.filter((q) => q.eq(q.field("clerkId"), diceMacros.userId))
 				.first()
 
 			if (user) {
