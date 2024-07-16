@@ -1,4 +1,5 @@
 import { authTables } from "@convex-dev/auth/server"
+import { migrationsTable } from "convex-helpers/server/migrations"
 import { brandedString, deprecated, literals, nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
@@ -14,6 +15,8 @@ import { sceneProperties } from "./scenes/types.ts"
 
 export default defineSchema({
 	...authTables,
+
+	migrations: migrationsTable,
 
 	users: defineTable({
 		...authTables.users.validator.fields,
