@@ -1,7 +1,7 @@
-import { type ClassNameValue, twMerge } from "tailwind-merge"
+import { twMerge, type ClassNameValue } from "tailwind-merge"
 import { useField } from "./Form.tsx"
-import { panel } from "./styles.ts"
 import { Tooltip } from "./Tooltip.tsx"
+import { panel } from "./styles.ts"
 
 export interface InputProps extends React.ComponentProps<"input">, InputStyleProps {
 	icon?: React.ReactNode

@@ -1,8 +1,8 @@
 import type { ComponentProps } from "react"
 import { Input } from "./Input.tsx"
 import { LoadingDecoration } from "./LoadingDecoration.tsx"
-import { type ClassSlotProps, resolveClasses } from "./classSlots.tsx"
-import { type EditableProps, useEditable } from "./useEditable.tsx"
+import { resolveClasses, type ClassSlotProps } from "./classSlots.tsx"
+import { useEditable, type EditableProps } from "./useEditable.tsx"
 
 export function EditableInput(
 	props: ClassSlotProps<"wrapper" | "input", EditableProps<ComponentProps<typeof Input>, string>>,

@@ -1,4 +1,4 @@
-import { type PropertyValidators, v, type Validator } from "convex/values"
+import { v, type PropertyValidators, type Validator } from "convex/values"
 
 export function partial<T extends PropertyValidators>(obj: T) {
 	return Object.fromEntries(

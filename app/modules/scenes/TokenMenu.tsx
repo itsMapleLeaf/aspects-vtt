@@ -135,7 +135,7 @@ function TokenMenuContent() {
 									<CharacterStatusFields character={singleSelectedCharacter} />
 								</div>
 							)}
-							<div className="flex gap-[inherit] *:flex-1 empty:hidden">
+							<div className="gap-[inherit] flex *:flex-1 empty:hidden">
 								<StressUpdateMenu characters={selectedCharacters}>
 									<Button text="Advanced vitality update" icon={<Lucide.WandSparkles />} />
 								</StressUpdateMenu>

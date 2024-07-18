@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { Vector } from "../Vector.ts"
 import { unwrap } from "../errors.ts"
 import type { Nullish } from "../types.ts"
-import { Vector } from "../Vector.ts"
 
 export function useResizeObserver<T extends Element>(
 	ref: Nullish<T> | React.RefObject<Nullish<T>>,

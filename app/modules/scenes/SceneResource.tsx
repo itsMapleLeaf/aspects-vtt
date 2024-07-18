@@ -14,8 +14,8 @@ import {
 	ModalPanel,
 	ModalPanelContent,
 	ModalProvider,
-	type ModalProviderProps,
 	useModalContext,
+	type ModalProviderProps,
 } from "~/ui/Modal.tsx"
 import { api } from "../../../convex/_generated/api"
 import type { Id } from "../../../convex/_generated/dataModel"

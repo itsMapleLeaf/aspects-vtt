@@ -2,10 +2,10 @@ import { getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
-import { omit } from "../../app/helpers/object.ts"
 import { Result } from "../../app/helpers/Result.ts"
+import { omit } from "../../app/helpers/object.ts"
 import type { Id } from "../_generated/dataModel.js"
-import { type QueryCtx, mutation, query } from "../_generated/server.js"
+import { mutation, query, type QueryCtx } from "../_generated/server.js"
 import { UnauthorizedError, getUserFromIdentity, getUserFromIdentityEffect } from "../auth.ts"
 import {
 	Convex,
@@ -16,9 +16,9 @@ import {
 	withQueryCtx,
 } from "../helpers/effect.js"
 import { getCurrentUser, getCurrentUserId } from "../users.ts"
+import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
 import { ensureViewerOwnsRoom } from "./helpers.ts"
-import { RoomModel } from "./RoomModel.js"
 import { roomProperties } from "./types.ts"
 
 export const get = effectQuery({

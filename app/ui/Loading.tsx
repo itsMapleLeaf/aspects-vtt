@@ -27,7 +27,7 @@ export function LoadingIcon(props: ComponentProps<"div">) {
 	return (
 		<div
 			className={twMerge(
-				"grid aspect-square w-full animate-spin grid-cols-2 grid-rows-2 gap-[12%] [animation-timing-function:ease]",
+				"gap-[12%] grid aspect-square w-full animate-spin grid-cols-2 grid-rows-2 [animation-timing-function:ease]",
 				props.className,
 			)}
 		>

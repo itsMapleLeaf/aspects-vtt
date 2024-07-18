@@ -1,4 +1,4 @@
-import { type ComponentProps, useRef } from "react"
+import { useRef, type ComponentProps } from "react"
 import { clamp } from "~/helpers/math.ts"
 import type { StrictOmit } from "../helpers/types.ts"
 import { ValidatedInput, type ValidatedInputController } from "./ValidatedInput.tsx"
