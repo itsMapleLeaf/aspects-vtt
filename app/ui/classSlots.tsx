@@ -14,21 +14,22 @@
  * 		)
  * 	}
  */
-import type { Nullish, Overwrite } from "../helpers/types.ts"
+import type { Overwrite } from "../helpers/types.ts"
 
-export type ClassSlots<Keys extends PropertyKey> = { [K in Keys]?: string }
+export type ClassSlotProp<Keys extends string> =
+	| Partial<Record<Keys, string>>
+	| string
+	| null
+	| undefined
 
 export type ClassSlotProps<
-	Keys extends PropertyKey,
+	Keys extends string,
 	BaseProps extends object = Record<string, never>,
-> = Overwrite<BaseProps, { className?: string | ClassSlots<Keys> }>
+> = Overwrite<BaseProps, { className?: ClassSlotProp<Keys> }>
 
-export function resolveClasses<Keys extends PropertyKey>(
-	prop: Nullish<string | ClassSlots<Keys>>,
-	defaultKey: NoInfer<Keys>,
-): ClassSlots<Keys> {
-	if (prop == null) return {}
-	if (typeof prop === "object") return prop
-	// @ts-expect-error: not sure why this is an error
-	return { [defaultKey]: prop }
+export function resolveClasses<T extends Record<string, string>>(
+	classes: Partial<T> | string | null | undefined,
+	primary: keyof T,
+) {
+	return typeof classes === "string" ? { [primary]: classes } : classes ?? {}
 }
