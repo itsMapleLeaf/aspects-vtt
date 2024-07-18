@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react"
 import type { OptionalKeys } from "~/helpers/types.ts"
-import { ModalPanel, ModalProvider } from "../../ui/Modal.tsx"
+import { ModalButton, ModalPanel, ModalProvider } from "../../ui/Modal.tsx"
 import { CharacterEditor } from "./CharacterEditor.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -23,3 +23,4 @@ export function CharacterModal({ character, children, ...props }: CharacterModal
 		</ModalProvider>
 	)
 }
+CharacterModal.Button = ModalButton

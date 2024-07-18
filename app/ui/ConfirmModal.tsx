@@ -4,6 +4,7 @@ import { useSafeAction } from "~/modules/convex/hooks.ts"
 import { Button } from "~/ui/Button.tsx"
 import {
 	ModalActions,
+	ModalButton,
 	ModalDismiss,
 	ModalPanel,
 	ModalPanelContent,
@@ -65,3 +66,5 @@ export function ConfirmModal({
 		</ModalProvider>
 	)
 }
+
+ConfirmModal.Button = ModalButton

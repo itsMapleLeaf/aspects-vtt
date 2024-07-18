@@ -31,6 +31,7 @@ export function ContextMenu(props: ContextMenuProps) {
 	)
 }
 
+ContextMenu.Trigger = ContextMenuTrigger
 export function ContextMenuTrigger(props: ComponentProps<"div">) {
 	const setPointer = use(SetPointerContext)
 	const store = useStrictContext(StoreContext)
@@ -50,6 +51,7 @@ export function ContextMenuTrigger(props: ComponentProps<"div">) {
 	)
 }
 
+ContextMenu.Panel = ContextMenuPanel
 export function ContextMenuPanel(props: ComponentProps<typeof MenuPanel>) {
 	const pointer = use(PointerContext)
 	const store = useStrictContext(StoreContext)
@@ -74,4 +76,5 @@ export function ContextMenuPanel(props: ComponentProps<typeof MenuPanel>) {
 	return <MenuPanel getAnchorRect={() => pointer} ref={ref} {...props} />
 }
 
+ContextMenu.Item = MenuItem
 export const ContextMenuItem = MenuItem
