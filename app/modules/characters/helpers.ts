@@ -1,7 +1,8 @@
 import { Iterator } from "iterator-helpers-polyfill"
 import { $path } from "remix-routes"
+import type { Nullish } from "~/helpers/types.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
-import { getAspectSkill, SkillId } from "../aspect-skills/data.ts"
+import { getAspectSkill, SkillId, type Skill } from "../aspect-skills/data.ts"
 import type { Attribute } from "../attributes/data.ts"
 import { normalizeAttributeValue } from "../attributes/helpers.ts"
 import { statDiceKinds, statDiceKindsByName, type DiceKind } from "../dice/data.tsx"
@@ -29,10 +30,13 @@ export function listCharacterAspectSkills(character: ApiCharacter) {
 	return Iterator.from(character.learnedAspectSkills ?? [])
 		?.flatMap((group) => group.aspectSkillIds)
 		.map((id) => getAspectSkill(SkillId(id)))
-		.filter((skill) => skill != null)
+		.filter((skill): skill is Skill => skill != null)
 }
 
-export function getCharacterFallbackImageUrl(character: ApiCharacter) {
+export function getCharacterFallbackImageUrl(character: {
+	_id: Id<"characters">
+	race?: Nullish<string>
+}) {
 	return character.race ?
 			$path(
 				"/characters/fallback/:race",

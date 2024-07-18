@@ -25,6 +25,7 @@ import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import { useCharacterUpdatePermission, useOwnedCharacters } from "../characters/hooks.ts"
+import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
@@ -112,7 +113,7 @@ function TokenMenuContent() {
 
 	const selectedCharacters = Iterator.from(selectedTokens)
 		.map((it) => it.character)
-		.filter((it) => it != null)
+		.filter((it): it is ApiCharacter => it != null)
 		.toArray()
 
 	const selectionHasCharacters = selectedCharacters.length > 0

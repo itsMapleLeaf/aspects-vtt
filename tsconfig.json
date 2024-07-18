@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		// resolution
-		"module": "Preserve",
+		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"moduleDetection": "force",
 		"lib": ["DOM", "DOM.Iterable", "ES2023"],

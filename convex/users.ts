@@ -1,5 +1,6 @@
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
+import type { Id } from "./_generated/dataModel"
 import { auth } from "./auth.ts"
 import {
 	Convex,
@@ -48,7 +49,7 @@ export function getCurrentUserId() {
 		QueryCtxService,
 		Effect.flatMap((ctx) => Effect.promise(() => auth.getUserId(ctx))),
 		Effect.filterOrFail(
-			(id) => id != null,
+			(id): id is Id<"users"> => id != null,
 			() => new NotLoggedInError(),
 		),
 	)
