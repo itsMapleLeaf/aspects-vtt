@@ -1,22 +1,18 @@
 import { LucideGhost } from "lucide-react"
 import type { ComponentProps } from "react"
-import type { StrictOmit } from "~/helpers/types.ts"
-import { UploadedImage } from "../api-images/UploadedImage.tsx"
-import { getCharacterFallbackImageUrl } from "./helpers.ts"
-import type { ApiCharacter } from "./types.ts"
+import type { Nullish, StrictOmit } from "~/helpers/types.ts"
+import type { Id } from "../../../convex/_generated/dataModel"
+import { ApiImage } from "../api-images/ApiImage.tsx"
 
 export function CharacterImage({
 	character,
 	...props
 }: {
-	character: ApiCharacter
-} & StrictOmit<ComponentProps<typeof UploadedImage>, "imageId">) {
-	return (
-		<UploadedImage
-			imageId={character.imageId}
-			fallbackUrl={getCharacterFallbackImageUrl(character)}
-			fallbackIcon={<LucideGhost />}
-			{...props}
-		/>
-	)
+	character: {
+		_id: Id<"characters">
+		image?: Nullish<Id<"images">>
+		race?: Nullish<string>
+	}
+} & StrictOmit<ComponentProps<typeof ApiImage>, "imageId">) {
+	return <ApiImage imageId={character.image} fallback={<LucideGhost />} {...props} />
 }

@@ -1,25 +1,33 @@
 import { useQuery } from "convex/react"
 import { LucideImageOff } from "lucide-react"
 import type { ComponentProps, ReactElement } from "react"
+import { twMerge } from "tailwind-merge"
 import type { Nullish } from "~/helpers/types.ts"
+import { type ClassSlotProps, resolveClasses } from "~/ui/classSlots.tsx"
 import { Loading } from "~/ui/Loading.tsx"
-import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel"
+
+export interface ApiImageProps extends ClassSlotProps<"wrapper" | "image", ComponentProps<"div">> {
+	imageId: Nullish<Id<"images">>
+	fallback?: ReactElement
+}
 
 export function ApiImage({
 	imageId,
 	fallback = <LucideImageOff />,
+	className,
 	...props
-}: { imageId: Nullish<Id<"images">>; fallback?: ReactElement } & ComponentProps<"div">) {
+}: ApiImageProps) {
 	const url = useQuery(api.images.getBestUrl, imageId ? { id: imageId } : "skip")
+	const classes = resolveClasses(className, "wrapper")
 	return (
-		<div {...withMergedClassName(props, "*:size-full")}>
-			{url === undefined ?
+		<div {...props} className={twMerge("*:size-full", classes.wrapper)}>
+			{imageId != null && url === undefined ?
 				<Loading />
-			: url === null ?
+			: url == null ?
 				fallback
-			:	<img src={url} alt="" />}
+			:	<img src={url} alt="" className={classes.image} />}
 		</div>
 	)
 }

@@ -68,10 +68,7 @@ export function CharacterAttackForm({ characters }: { characters: ApiCharacter[]
 
 	const attackerIcon =
 		attacker ?
-			<CharacterImage
-				character={attacker}
-				className={{ image: "rounded-full object-cover object-top" }}
-			/>
+			<CharacterImage character={attacker} className="rounded-full object-cover object-top" />
 		:	<Lucide.UserPlus2 />
 
 	return (

@@ -86,7 +86,7 @@ export default defineSchema({
 		// profile
 		name: v.optional(v.string()),
 		pronouns: v.optional(v.string()),
-		imageId: v.optional(v.union(v.id("_storage"), v.null())),
+		image: nullish(v.id("images")),
 		race: nullish(literals(...listRaceIds())),
 
 		// stats
@@ -131,6 +131,7 @@ export default defineSchema({
 		player: v.optional(nullable(v.id("users"))),
 		playerId: deprecated,
 
+		imageId: deprecated,
 		tokenPosition: deprecated,
 		token: deprecated,
 		coreAspect: deprecated,

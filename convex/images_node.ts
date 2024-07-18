@@ -5,7 +5,21 @@ import { createHash } from "node:crypto"
 import sharp from "sharp"
 import { internal } from "./_generated/api.js"
 import type { Id } from "./_generated/dataModel.js"
-import { internalAction } from "./_generated/server.js"
+import { action, type ActionCtx, internalAction } from "./_generated/server.js"
+
+export const createImage = action({
+	args: {
+		name: v.string(),
+		storageId: v.id("_storage"),
+	},
+	async handler(ctx, args): Promise<Id<"images">> {
+		const blob = await ctx.storage.get(args.storageId)
+		if (!blob) {
+			throw new Error(`Image not found in storage: ${args.storageId}`)
+		}
+		return await createImageFromBlob(ctx, args.name, blob)
+	},
+})
 
 export const createImageFromUrl = internalAction({
 	args: {
@@ -13,71 +27,8 @@ export const createImageFromUrl = internalAction({
 		url: v.string(),
 	},
 	async handler(ctx, args): Promise<Id<"images">> {
-		const log = (...values: unknown[]) =>
-			console.info(`[image ${args.name} from ${args.url}]\n->`, ...values)
-
 		const response = await fetch(args.url)
-		const data = await response.arrayBuffer()
-		log("Fetched image")
-
-		const hash = createHash("sha256").update(new Uint8Array(data)).digest("hex")
-		const existing = await ctx.runQuery(internal.images.getByHash, { hash })
-		if (existing) {
-			log("Found existing image", existing._id)
-			await ctx.runMutation(internal.images.update, {
-				id: existing._id,
-				name: args.name,
-			})
-			return existing._id
-		}
-
-		const image = sharp(data).toFormat("webp", { lossless: true })
-		log("Loaded image")
-		const metadata = await image.metadata()
-		log("Got image metadata", metadata)
-
-		if (!metadata.width || !metadata.height) {
-			const errorData = {
-				url: args.url,
-				name: args.name,
-				metadata,
-			}
-			throw new Error(`Invalid image dimensions. ${JSON.stringify(errorData, null, 2)}`)
-		}
-
-		const sizes = []
-
-		for (const size of [16, 64, 500, 1000]) {
-			if (metadata.width <= size && metadata.height <= size) {
-				log(`Skipping ${size}x${size} because it's already smaller than the image`)
-				continue
-			}
-
-			const resized = await image
-				.clone()
-				.resize(size, size, { fit: "inside" })
-				.toFormat("webp", { lossless: true })
-				.toBuffer()
-			log(`Resized to ${size}x${size}`)
-
-			const storageId = await ctx.storage.store(new Blob([resized], { type: "image/webp" }))
-			log(`Stored resized image`, storageId)
-
-			sizes.push({ width: size, height: size, storageId })
-		}
-
-		return await ctx.runMutation(internal.images.create, {
-			name: args.name,
-			hash,
-			sizes: [
-				...sizes,
-				{
-					width: metadata.width,
-					height: metadata.height,
-					storageId: await ctx.storage.store(new Blob([data], { type: "image/webp" })),
-				},
-			],
-		})
+		return await createImageFromBlob(ctx, args.name, await response.blob())
 	},
 })
 
@@ -99,3 +50,87 @@ export const setUserImageFromDiscord = internalAction({
 		})
 	},
 })
+
+export const setCharacterImageFromStorage = internalAction({
+	args: {
+		storageId: v.id("_storage"),
+		characterId: v.id("characters"),
+	},
+	async handler(ctx, args) {
+		const blob = await ctx.storage.get(args.storageId)
+		if (!blob) {
+			throw new Error(`Image not found in storage: ${args.storageId}`)
+		}
+		const id = await createImageFromBlob(ctx, `character_${args.characterId}`, blob)
+		await ctx.runMutation(internal.characters.functions.updateInternal, {
+			id: args.characterId,
+			image: id,
+		})
+	},
+})
+
+async function createImageFromBlob(ctx: ActionCtx, name: string, blob: Blob) {
+	const log = (...values: unknown[]) => console.info(`[image ${name}]\n->`, ...values)
+
+	const buffer = await blob.arrayBuffer()
+	const hash = createHash("sha256").update(new Uint8Array(buffer)).digest("hex")
+	const existing = await ctx.runQuery(internal.images.getByHash, { hash })
+
+	if (existing) {
+		log("Found existing image", existing._id)
+		await ctx.runMutation(internal.images.update, {
+			id: existing._id,
+			name,
+		})
+		return existing._id
+	}
+
+	const image = sharp(buffer).toFormat("webp", { lossless: true })
+	const metadata = await image.metadata()
+
+	const { width, height } = metadata
+	if (!width || !height) {
+		const errorData = {
+			name,
+			metadata,
+		}
+		throw new Error(`Invalid image dimensions. ${JSON.stringify(errorData, null, 2)}`)
+	}
+
+	const sizes = await Promise.all(
+		[64, 256, 500, 1000]
+			.filter((size) => size <= width && size <= height)
+			.map(async (size) => {
+				log(`Resizing to ${size}x${size}`)
+				const buffer = await image
+					.clone()
+					.resize(size, size, { fit: "inside" })
+					.toFormat("webp", { lossless: true })
+					.toBuffer()
+
+				const scale = size / Math.max(width, height)
+				const newWidth = Math.round(width * scale)
+				const newHeight = Math.round(height * scale)
+
+				log(`Storing resized image`)
+				const storageId = await ctx.storage.store(new Blob([buffer], { type: "image/webp" }))
+
+				return { width: newWidth, height: newHeight, storageId }
+			}),
+	)
+
+	log(`Finished`)
+
+	return await ctx.runMutation(internal.images.create, {
+		name,
+		hash,
+		sizes: [
+			...sizes,
+			{
+				width,
+				height,
+				storageId: await ctx.storage.store(blob),
+			},
+		],
+	})
+}

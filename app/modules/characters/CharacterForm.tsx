@@ -1,7 +1,8 @@
-import { useMutation } from "convex/react"
+import { useAction, useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useId } from "react"
+import { Suspense, useId } from "react"
 import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
+import { Loading } from "~/ui/Loading.tsx"
 import { Panel } from "~/ui/Panel.tsx"
 import { api } from "../../../convex/_generated/api.js"
 import { useAsyncState } from "../../helpers/react/hooks.ts"
@@ -278,11 +279,12 @@ function CharacterAttributeField({
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 
-	if (character[field] === undefined) {
+	const fieldValue = character[field]
+	if (fieldValue === undefined) {
 		return null
 	}
 
-	const value = state.args?.[field] ?? character[field]
+	const value = state.args?.[field] ?? fieldValue
 	const DiceComponent = statDiceKinds[value - 1]?.Component
 	return (
 		<CharacterReadOnlyGuard character={character} label={label} value={value}>
@@ -342,13 +344,22 @@ function DotCounterInput({
 function CharacterImageField({ character }: { character: ApiCharacter }) {
 	const hasUpdatePermission = useCharacterUpdatePermission(character)
 	const update = useMutation(api.characters.functions.update)
+	const createImage = useAction(api.images_node.createImage)
+	const imageUrl = useQuery(
+		api.images.getBestUrl,
+		character.image ? { id: character.image } : "skip",
+	)
 	const fallbackUrl = getCharacterFallbackImageUrl(character)
 	return hasUpdatePermission ?
-			<ImageUploader
-				imageId={character.imageId}
-				fallbackUrl={fallbackUrl}
-				onUpload={(imageId) => update({ id: character._id, imageId })}
-				onRemove={() => update({ id: character._id, imageId: null })}
-			/>
+			<Suspense fallback={<Loading />}>
+				<ImageUploader
+					fallbackUrl={imageUrl ?? fallbackUrl}
+					onUpload={async (imageId) => {
+						const id = await createImage({ name: `character_${character._id}`, storageId: imageId })
+						return await update({ id: character._id, image: id })
+					}}
+					onRemove={() => update({ id: character._id, image: null })}
+				/>
+			</Suspense>
 		:	<CharacterImage character={character} className="aspect-square" />
 }

@@ -14,7 +14,7 @@ import { useSafeAction } from "../convex/hooks.js"
 import { getApiImageUrl } from "./helpers.js"
 
 export interface ImageUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
-	imageId: Nullish<Id<"_storage">>
+	imageId?: Nullish<Id<"_storage">>
 	fallbackUrl?: string
 	onUpload: (imageId: Id<"_storage">, file: File) => Promise<unknown>
 	onRemove: () => Promise<unknown>

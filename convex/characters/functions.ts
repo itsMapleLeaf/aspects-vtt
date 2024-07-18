@@ -29,6 +29,7 @@ import {
 	effectQuery,
 	getDoc,
 	insertDoc,
+	internalEffectMutation,
 	patchDoc,
 	withMutationCtx,
 	withQueryCtx,
@@ -110,6 +111,14 @@ export const update = effectMutation({
 			yield* ensureViewerCharacterPermissions(id)
 			yield* withMutationCtx((ctx) => ctx.db.patch(id, args))
 		}),
+})
+
+export const updateInternal = internalEffectMutation({
+	args: {
+		...partial(schema.tables.characters.validator.fields),
+		id: v.id("characters"),
+	},
+	handler: ({ id, ...args }) => Convex.db.patch(id, args),
 })
 
 export const randomize = effectMutation({
@@ -491,7 +500,7 @@ function generateRandomCharacterProperties() {
 
 		const learnedAspectSkills = Iterator.from(skillsByAspect.get(aspect.id) ?? [])
 			.map(getAspectSkill)
-			.filter((skill) => skill != null)
+			.filter((skill): skill is Skill => skill != null)
 			.toArray()
 
 		const currentHighestTier =
