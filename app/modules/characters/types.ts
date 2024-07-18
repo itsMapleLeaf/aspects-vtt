@@ -1,5 +1,7 @@
 import type { FunctionArgs, FunctionReturnType } from "convex/server"
+import { z } from "zod"
 import type { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel.js"
 import type { PickByValue } from "../../helpers/types.js"
 import type { Attribute } from "../attributes/data.js"
 
@@ -15,3 +17,9 @@ export type UpdateableCharacterField<ValueType> = Extract<
 >
 
 export type CharacterAttributeValues = Partial<Record<Attribute["id"], number>>
+
+export const characterResourceData = z.object({
+	characterId: z.custom<Id<"characters">>((input) => typeof input === "string"),
+	visible: z.optional(z.boolean()),
+})
+export type CharacterResourceData = z.infer<typeof characterResourceData>
