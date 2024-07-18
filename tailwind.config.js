@@ -72,13 +72,12 @@ export default {
 				},
 			})
 			api.matchUtilities(
-				Object.fromEntries(
-					Object.entries(api.theme("gap")).map(([key, value]) => [
-						`.gap-${key}`,
-						{ "gap": value, "--gap": value },
-					]),
-				),
-				(value) => ({ "gap": value, "--gap": value }),
+				{
+					gap: (value) => ({ "gap": value, "--gap": value }),
+				},
+				{
+					values: api.theme("gap"),
+				},
 			)
 		}),
 
