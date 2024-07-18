@@ -5,6 +5,7 @@ export interface ScrollAreaProps {
 	children: React.ReactNode
 	className?: string
 	scrollbarPosition?: "outside" | "inside"
+	scrollbarGap?: number
 	wheelDirection?: "vertical" | "horizontal"
 	viewportRef?: React.Ref<HTMLDivElement>
 	onViewportScroll?: (event: React.UIEvent<HTMLDivElement>) => void
@@ -29,6 +30,7 @@ export function ScrollArea(props: ScrollAreaProps) {
 
 			<RadixScrollArea.Scrollbar
 				orientation="vertical"
+				style={{ transform: `translateX(${props.scrollbarGap ?? 0}px)` }}
 				className={twMerge(
 					"relative ml-0.5 flex w-2.5 px-0.5",
 					props.scrollbarPosition === "outside" ? "left-full" : "",
@@ -39,6 +41,7 @@ export function ScrollArea(props: ScrollAreaProps) {
 
 			<RadixScrollArea.Scrollbar
 				orientation="horizontal"
+				style={{ transform: `translateY(${props.scrollbarGap ?? 0}px)` }}
 				className={twMerge(
 					"relative mt-0.5 flex h-2.5 flex-col py-0.5",
 					props.scrollbarPosition === "outside" ? "top-full" : "",
