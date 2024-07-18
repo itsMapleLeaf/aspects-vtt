@@ -131,7 +131,7 @@ function TokenElement({
 							character={token.character}
 							style={Vector.from(cellSize).times(viewport.scale).toSize()}
 							className={{
-								container: "overflow-clip rounded bg-primary-300 shadow-md",
+								wrapper: "overflow-clip rounded bg-primary-300 shadow-md",
 								image: "object-cover object-top",
 							}}
 						/>
