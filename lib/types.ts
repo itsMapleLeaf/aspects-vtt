@@ -28,7 +28,9 @@ export type StrictOmit<T, K extends AllKeys<T>> = T extends unknown
  * 	type Bad = keyof A // never
  * 	type Good = AllKeys<A> // "a" | "b"
  */
-export type AllKeys<T> = T extends unknown ? keyof T : never
+export type AllKeys<T> = T extends object ? keyof T : never
 
 /** Makes a type more readable. */
 export type Simplify<T> = { [K in keyof T]: T[K] } & {}
+
+export type Nullish<T> = T | null | undefined

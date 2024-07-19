@@ -1,4 +1,4 @@
-import React from "react"
+import React, { startTransition } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import { mergeClassProp } from "./helpers.ts"
@@ -11,6 +11,7 @@ export interface ButtonProps extends SlotProps {
 	pending?: boolean
 	disabled?: boolean
 	type?: "button" | "submit"
+	align?: "start" | "center" | "end"
 }
 
 export function Button({
@@ -21,6 +22,7 @@ export function Button({
 	type = "button",
 	disabled,
 	children,
+	align = "center",
 	...props
 }: ButtonProps) {
 	const status = useFormStatus()
@@ -29,14 +31,17 @@ export function Button({
 	const icon = pending ? <Loading /> : iconProp
 
 	const buttonClass = twMerge(
-		"flex items-center justify-center gap-3",
+		"flex items-center gap-2.5",
 		"border border-transparent",
 		"rounded",
-		"text-base/none font-medium",
+		"text-base font-medium",
 		"transition active:duration-0",
 		"will-change-transform active:[&:not(:disabled)]:scale-95",
 		"disabled:cursor-not-allowed disabled:opacity-75",
-		icon && !children ? "size-10" : "h-10 px-3",
+		align === "start" && "justify-start",
+		align === "center" && "justify-center",
+		align === "end" && "justify-end",
+		icon && !children ? "size-10" : "h-10 px-2.5",
 		styles.appearance[appearance],
 	)
 
@@ -44,6 +49,11 @@ export function Button({
 		<Slot
 			{...mergeClassProp(props, buttonClass)}
 			element={element ?? <button type={type} disabled={pending ?? disabled} />}
+			onClick={(event) => {
+				startTransition(() => {
+					props.onClick?.(event)
+				})
+			}}
 		>
 			{icon && <Slot element={icon} className="size-5 flex-shrink-0" />}
 			{children}

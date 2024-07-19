@@ -1,5 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
+import { useHref, useLocation } from "@remix-run/react"
 import { LucideDoorOpen, LucideUserPlus } from "lucide-react"
 import { useActionState, useState } from "react"
 import { Button } from "../ui/button.tsx"
@@ -12,14 +13,18 @@ import { Panel } from "../ui/panel.tsx"
 export function AuthForm() {
 	const [action, setAction] = useState<"login" | "register">("login")
 	const auth = useAuthActions()
+	const currentUrl = useHref(useLocation())
 
 	const [error, handleSubmit] = useActionState(async function handleSubmit(
 		_state: string | undefined,
 		form: FormData,
 	) {
 		try {
-			form.set("action", action)
-			await auth.signIn("credentials", form)
+			await auth.signIn("credentials", {
+				...Object.fromEntries(form),
+				action,
+				redirectTo: currentUrl,
+			})
 		} catch (error) {
 			return error instanceof Error ? error.message : String(error)
 		}
