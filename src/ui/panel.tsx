@@ -1,9 +1,9 @@
-import { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
+import { Slot, SlotProps } from "./slot.tsx"
 
-export function Panel(props: ComponentProps<"div">) {
+export function Panel(props: SlotProps) {
 	return (
-		<div
+		<Slot
 			{...props}
 			className={twMerge(
 				"rounded border border-base-700 bg-base-900 shadow",

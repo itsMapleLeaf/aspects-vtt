@@ -5,6 +5,8 @@ import { FocusOn } from "react-focus-on"
 import { useMergedRefs } from "../../lib/react.ts"
 import { Button, ButtonProps } from "./button.tsx"
 import { mergeClassProp } from "./helpers.ts"
+import { Panel } from "./panel.tsx"
+import { fadeZoomTransition } from "./transitions.ts"
 
 interface MenuOptions {
 	placement?: Placement
@@ -81,15 +83,14 @@ function MenuPanel(
 	return ReactDOM.createPortal(
 		<div ref={context.panelRef} style={context.panelStyle}>
 			<FocusOn
+				as={Panel}
 				enabled={context.open ? enabled : false}
 				onEscapeKey={() => context.setOpen(false)}
 				onClickOutside={() => context.setOpen(false)}
 				{...mergeClassProp(
 					props,
-					"grid gap-1 rounded border border-base-700 bg-base-900 p-1 transition-all",
-					context.open
-						? "visible scale-100 opacity-100"
-						: "invisible scale-95 opacity-0",
+					"grid gap-1 p-1",
+					fadeZoomTransition(context.open),
 				)}
 				ref={ref}
 			/>
