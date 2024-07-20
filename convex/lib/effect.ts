@@ -1,5 +1,5 @@
 import { ArgsArrayForOptionalValidator } from "convex/server"
-import { PropertyValidators } from "convex/values"
+import { PropertyValidators, Value } from "convex/values"
 import { Context, Effect, pipe } from "effect"
 import { MaybeFunction } from "../../lib/types.ts"
 
@@ -14,7 +14,7 @@ export function FunctionContextService<Ctx>() {
 
 export function endpoint<
 	Ctx,
-	Result,
+	Result extends Value | void,
 	Func,
 	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
 	Args extends PropertyValidators | void = {},
