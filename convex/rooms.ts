@@ -1,14 +1,10 @@
 import { ConvexError, v } from "convex/values"
-import { Effect, pipe } from "effect"
+import { Data, Effect, pipe } from "effect"
 import { getAuthUserId } from "./lib/auth.ts"
-import {
-	collectDocs,
-	getDoc,
-	getFirstDoc,
-	insertDoc,
-	queryIndex,
-} from "./lib/db.ts"
+import { collectDocs, getDoc, insertDoc, queryIndex } from "./lib/db.ts"
 import { effectMutation, effectQuery } from "./lib/functions.ts"
+import { getRoomBySlug, normalizeRoom } from "./lib/rooms.ts"
+import { normalizeScene } from "./scenes.ts"
 
 export const list = effectQuery({
 	handler: () =>
@@ -40,8 +36,26 @@ export const getBySlug = effectQuery({
 	handler: ({ slug }) =>
 		pipe(
 			getRoomBySlug(slug),
+			Effect.flatMap(normalizeRoom),
 			Effect.catchTag("DocNotFoundError", () => Effect.succeed(null)),
+			Effect.catchTag("UnauthenticatedError", () => Effect.succeed(null)),
 		),
+})
+
+export const getActiveScene = effectQuery({
+	args: {
+		id: v.id("rooms"),
+	},
+	handler(args) {
+		return Effect.gen(function* () {
+			const room = yield* getDoc(args.id)
+			if (room.activeScene == null) {
+				return null
+			}
+			const scene = yield* getDoc(room.activeScene)
+			return yield* normalizeScene(scene)
+		}).pipe(Effect.orElseSucceed(() => null))
+	},
 })
 
 export const create = effectMutation({
@@ -66,9 +80,4 @@ export const create = effectMutation({
 		),
 })
 
-function getRoomBySlug(slug: string) {
-	return pipe(
-		queryIndex("rooms", "slug", ["slug", slug]),
-		Effect.flatMap(getFirstDoc),
-	)
-}
+class NoActiveSceneError extends Data.TaggedError("NoActiveSceneError") {}

@@ -1,4 +1,5 @@
 import { authTables } from "@convex-dev/auth/server"
+import { nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 
@@ -18,7 +19,14 @@ export default defineSchema({
 		name: v.string(),
 		slug: v.string(),
 		owner: v.id("users"),
+		activeScene: v.optional(nullable(v.id("scenes"))),
 	})
 		.index("slug", ["slug"])
 		.index("owner", ["owner"]),
+
+	scenes: defineTable({
+		name: v.string(),
+		room: v.id("rooms"),
+		background: v.id("_storage"),
+	}).index("room", ["room"]),
 })
