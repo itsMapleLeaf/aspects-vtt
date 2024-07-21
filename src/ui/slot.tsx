@@ -8,7 +8,11 @@ export interface SlotProps extends React.HTMLAttributes<Element> {
 export function Slot({ element = <div />, children, ...props }: SlotProps) {
 	return React.cloneElement(
 		React.isValidElement(element) ? element : <div />,
-		props,
+		{
+			...props,
+			...(React.isValidElement<React.HTMLAttributes<Element>>(element) &&
+				element.props),
+		},
 		children,
 	)
 }

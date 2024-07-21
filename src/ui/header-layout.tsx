@@ -7,7 +7,7 @@ import { Column, Row } from "./layout.tsx"
 
 export function HeaderLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<Column className="items-stretch p-4">
+		<Column className="items-stretch p-3">
 			<Row className="items-center justify-between">
 				<Button
 					element={<Link to="/" />}
