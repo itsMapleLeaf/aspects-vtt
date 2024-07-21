@@ -4,7 +4,7 @@ import { mergeClassProp } from "./helpers.ts"
 export function Heading(props: ComponentProps<"h1">) {
 	const level = useContext(HeadingLevelContext)
 	const Tag = `h${level}`
-	return <Tag {...mergeClassProp(props, "text-3xl font-light")} />
+	return <Tag {...mergeClassProp(props, "text-pretty text-3xl font-light")} />
 }
 
 const HeadingLevelContext = createContext(1)

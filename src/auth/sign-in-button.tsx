@@ -1,16 +1,16 @@
 import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
 import { useHref, useLocation } from "@remix-run/react"
-import { LucideDoorOpen, LucideUserPlus } from "lucide-react"
+import { LucideDoorOpen, LucideLogIn, LucideUserPlus } from "lucide-react"
 import { useActionState, useState } from "react"
-import { Button } from "../../ui/button.tsx"
-import { FormError } from "../../ui/form.tsx"
-import { Heading, HeadingLevel } from "../../ui/heading.tsx"
-import { InputField } from "../../ui/input.tsx"
-import { Column, Row } from "../../ui/layout.tsx"
-import { Panel } from "../../ui/panel.tsx"
+import { Button } from "../ui/button.tsx"
+import { Form, FormError } from "../ui/form.tsx"
+import { Heading } from "../ui/heading.tsx"
+import { InputField } from "../ui/input.tsx"
+import { Column, Row } from "../ui/layout.tsx"
+import { Modal } from "../ui/modal.tsx"
 
-export function AuthForm() {
+export function SignInButton() {
 	const [action, setAction] = useState<"login" | "register">("login")
 	const auth = useAuthActions()
 	const currentUrl = useHref(useLocation())
@@ -31,37 +31,39 @@ export function AuthForm() {
 	})
 
 	return (
-		<main className="flex h-screen min-h-fit flex-col gap-6 px-4 py-24 *:mx-auto *:shrink-0 first:*:mt-auto last:*:mb-auto">
-			<HeadingLevel>
-				<Heading className="max-w-80 text-balance text-center text-4xl">
-					{action === "login" ? "Sign in" : "Create an account"} to continue.
-				</Heading>
+		<Modal>
+			<Button icon={<LucideLogIn />} element={<Modal.Button />}>
+				Sign in / sign up
+			</Button>
 
-				<Panel className="w-[320px] p-4">
-					<Column className="items-center">
-						<form action={() => auth.signIn("discord")}>
-							<Button type="submit" icon={<SiDiscord />}>
-								Continue with Discord
-							</Button>
-						</form>
+			<Modal.Panel
+				title={`${action === "login" ? "Sign in" : "Sign up"} to continue.`}
+				className="flex w-80 flex-col gap-6 p-4 text-center"
+			>
+				<Column items="stretch">
+					<form action={() => auth.signIn("discord")}>
+						<Button type="submit" icon={<SiDiscord />} className="w-full">
+							Continue with Discord
+						</Button>
+					</form>
 
-						<OrDivider />
+					<OrDivider />
 
-						<Heading className="text-xl">
-							{action === "register" ? "Register" : "Sign in"} with a password
-						</Heading>
+					<Heading className="text-balance text-xl">
+						{action === "register" ? "Sign up" : "Sign in"} with username &
+						password
+					</Heading>
 
-						<form action={handleSubmit} className="flex w-full flex-col gap-4">
-							{action === "login" ? <LoginFields /> : <RegisterFields />}
-							{error && <FormError>{error}</FormError>}
-						</form>
-					</Column>
-				</Panel>
+					<Form action={handleSubmit}>
+						{action === "login" ? <LoginFields /> : <RegisterFields />}
+						{error && <FormError>{error}</FormError>}
+					</Form>
+				</Column>
 
 				{action === "login" ? (
 					<ActionSwitchMessage
 						message="don't have an account?"
-						buttonText="register"
+						buttonText="sign up"
 						onSwitch={() => setAction("register")}
 					/>
 				) : (
@@ -71,8 +73,8 @@ export function AuthForm() {
 						onSwitch={() => setAction("login")}
 					/>
 				)}
-			</HeadingLevel>
-		</main>
+			</Modal.Panel>
+		</Modal>
 	)
 }
 

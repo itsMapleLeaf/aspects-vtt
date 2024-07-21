@@ -7,7 +7,7 @@ export function Input(props: ComponentProps<"input">) {
 		<input
 			{...mergeClassProp(
 				props,
-				"rounded border border-base-700 bg-base-800 p-2 text-base-300",
+				"block w-full min-w-0 rounded border border-base-700 bg-base-800 p-2 text-base-300",
 			)}
 		/>
 	)

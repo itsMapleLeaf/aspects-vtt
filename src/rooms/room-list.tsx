@@ -9,27 +9,20 @@ import {
 import { api } from "../../convex/_generated/api.js"
 import { Doc } from "../../convex/_generated/dataModel.js"
 import { Button } from "../ui/button.js"
+import { Container } from "../ui/container.tsx"
 import { EmptyState } from "../ui/empty-state.js"
 import { Form, FormActions, FormError, useForm } from "../ui/form.js"
-import { HeaderLayout } from "../ui/header-layout.tsx"
+import { GridList } from "../ui/grid-list.tsx"
 import { Heading } from "../ui/heading.js"
 import { InputField, useInput } from "../ui/input.js"
 import { Modal } from "../ui/modal.js"
 import { Panel } from "../ui/panel.js"
 import { SkeletonGrid } from "../ui/skeleton.js"
 
-export default function PlayRoute() {
-	return (
-		<HeaderLayout>
-			<RoomList />
-		</HeaderLayout>
-	)
-}
-
-function RoomList() {
+export function RoomList() {
 	const rooms = useQuery(api.rooms.list)
 	return (
-		<div className="mx-auto grid w-full max-w-screen-sm grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
+		<Container>
 			{rooms === undefined ? (
 				<SkeletonGrid count={6} />
 			) : rooms.length === 0 ? (
@@ -37,9 +30,13 @@ function RoomList() {
 					<CreateRoomButton />
 				</EmptyState>
 			) : (
-				rooms.map((room) => <RoomCard key={room._id} room={room} />)
+				<GridList>
+					{rooms.map((room) => (
+						<RoomCard key={room._id} room={room} />
+					))}
+				</GridList>
 			)}
-		</div>
+		</Container>
 	)
 }
 
@@ -54,7 +51,6 @@ function RoomCard({ room }: { room: Doc<"rooms"> }) {
 		</Panel>
 	)
 }
-
 function CreateRoomButton() {
 	return (
 		<Modal>
@@ -70,7 +66,6 @@ function CreateRoomButton() {
 		</Modal>
 	)
 }
-
 function CreateRoomForm() {
 	const createRoom = useMutation(api.rooms.create)
 	const navigate = useNavigate()

@@ -5,7 +5,9 @@ import { mergeClassProp } from "./helpers.ts"
 import { Slot, SlotProps } from "./slot.tsx"
 
 export function Form({ element = <form />, ...props }: SlotProps) {
-	return <Slot element={element} {...mergeClassProp(props, "grid gap-3")} />
+	return (
+		<Slot element={element} {...mergeClassProp(props, "grid w-full gap-3")} />
+	)
 }
 
 export function FormField({
@@ -22,7 +24,7 @@ export function FormField({
 	descriptionId?: string
 }) {
 	return (
-		<div {...mergeClassProp(props, "flex flex-col gap-1")}>
+		<div {...mergeClassProp(props, "flex w-full flex-col gap-1 text-left")}>
 			<label htmlFor={inputId} className="text-sm font-bold leading-4">
 				{label}
 			</label>
