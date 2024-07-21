@@ -26,7 +26,9 @@ export const list = effectQuery({
 				queryIndex("scenes", "room", ["room", room._id]),
 			),
 			Effect.flatMap(collectDocs),
-			Effect.flatMap(Effect.forEach(normalizeScene)),
+			Effect.flatMap(
+				Effect.forEach(normalizeScene, { concurrency: "unbounded" }),
+			),
 			Effect.orElseSucceed(() => []),
 		)
 	},
