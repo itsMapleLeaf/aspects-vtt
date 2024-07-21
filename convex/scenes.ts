@@ -11,8 +11,8 @@ import {
 	queryIndex,
 } from "./lib/db.ts"
 import { effectMutation, effectQuery } from "./lib/functions.ts"
-import { ensureRoomOwner } from "./lib/rooms.ts"
 import { getStorageUrl } from "./lib/storage.ts"
+import { ensureRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
 
 export const list = effectQuery({

@@ -1,9 +1,15 @@
 import { ConvexError, v } from "convex/values"
 import { Data, Effect, pipe } from "effect"
+import { Doc, Id } from "./_generated/dataModel"
 import { getAuthUserId } from "./lib/auth.ts"
-import { collectDocs, getDoc, insertDoc, queryIndex } from "./lib/db.ts"
+import {
+	collectDocs,
+	getDoc,
+	getFirstDoc,
+	insertDoc,
+	queryIndex,
+} from "./lib/db.ts"
 import { effectMutation, effectQuery } from "./lib/functions.ts"
-import { getRoomBySlug, normalizeRoom } from "./lib/rooms.ts"
 import { normalizeScene } from "./scenes.ts"
 
 export const list = effectQuery({
@@ -80,4 +86,32 @@ export const create = effectMutation({
 		),
 })
 
-class NoActiveSceneError extends Data.TaggedError("NoActiveSceneError") {}
+export class RoomNotOwnedError extends Data.TaggedError("RoomNotOwnedError") {}
+
+export function getRoomBySlug(slug: string) {
+	return pipe(
+		queryIndex("rooms", "slug", ["slug", slug]),
+		Effect.flatMap(getFirstDoc),
+	)
+}
+
+export function normalizeRoom(room: Doc<"rooms">) {
+	return pipe(
+		getAuthUserId(),
+		Effect.map((userId) => ({
+			...room,
+			isOwner: room.owner === userId,
+		})),
+	)
+}
+
+export function ensureRoomOwner(id: Id<"rooms">) {
+	return pipe(
+		getDoc(id),
+		Effect.flatMap(normalizeRoom),
+		Effect.filterOrFail(
+			(room) => room.isOwner,
+			() => new RoomNotOwnedError(),
+		),
+	)
+}

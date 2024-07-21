@@ -21,7 +21,6 @@ import type * as lib_context from "../lib/context.js";
 import type * as lib_db from "../lib/db.js";
 import type * as lib_effect from "../lib/effect.js";
 import type * as lib_functions from "../lib/functions.js";
-import type * as lib_rooms from "../lib/rooms.js";
 import type * as lib_storage from "../lib/storage.js";
 import type * as rooms from "../rooms.js";
 import type * as scenes from "../scenes.js";
@@ -44,7 +43,6 @@ declare const fullApi: ApiFromModules<{
   "lib/db": typeof lib_db;
   "lib/effect": typeof lib_effect;
   "lib/functions": typeof lib_functions;
-  "lib/rooms": typeof lib_rooms;
   "lib/storage": typeof lib_storage;
   rooms: typeof rooms;
   scenes: typeof scenes;
