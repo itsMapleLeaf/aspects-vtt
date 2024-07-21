@@ -8,6 +8,7 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useNavigate,
 } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import React from "react"
@@ -36,8 +37,13 @@ export default function Root() {
 	const [convex] = React.useState(
 		() => new ConvexReactClient(import.meta.env.VITE_CONVEX_URL),
 	)
+	const navigate = useNavigate()
+
 	return (
-		<ConvexAuthProvider client={convex}>
+		<ConvexAuthProvider
+			client={convex}
+			replaceURL={(url) => navigate(url, { replace: true })}
+		>
 			<Outlet />
 		</ConvexAuthProvider>
 	)

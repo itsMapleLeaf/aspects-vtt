@@ -1,6 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
-import { useHref, useLocation } from "@remix-run/react"
 import { LucideDoorOpen, LucideLogIn, LucideUserPlus } from "lucide-react"
 import { useActionState, useState } from "react"
 import { Button } from "../ui/button.tsx"
@@ -13,7 +12,6 @@ import { Modal } from "../ui/modal.tsx"
 export function SignInButton() {
 	const [action, setAction] = useState<"login" | "register">("login")
 	const auth = useAuthActions()
-	const currentUrl = useHref(useLocation())
 
 	const [error, handleSubmit] = useActionState(async function handleSubmit(
 		_state: string | undefined,
@@ -23,7 +21,6 @@ export function SignInButton() {
 			await auth.signIn("credentials", {
 				...Object.fromEntries(form),
 				action,
-				redirectTo: currentUrl,
 			})
 		} catch (error) {
 			return error instanceof Error ? error.message : String(error)
@@ -41,7 +38,13 @@ export function SignInButton() {
 				className="flex w-80 flex-col gap-6 p-4 text-center"
 			>
 				<Column items="stretch">
-					<form action={() => auth.signIn("discord")}>
+					<form
+						action={async () => {
+							await auth.signIn("discord", {
+								redirectTo: window.location.pathname,
+							})
+						}}
+					>
 						<Button type="submit" icon={<SiDiscord />} className="w-full">
 							Continue with Discord
 						</Button>
