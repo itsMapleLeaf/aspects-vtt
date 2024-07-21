@@ -6,6 +6,7 @@ import {
 	OrderedQuery,
 	PaginationOptions,
 	Query,
+	WithoutSystemFields,
 } from "convex/server"
 import { Data, Effect, pipe } from "effect"
 import { DataModel, Doc, Id, TableNames } from "../_generated/dataModel"
@@ -82,6 +83,16 @@ export const paginateDocs =
 	(opts: PaginationOptions) =>
 	<T extends GenericTableInfo>(query: OrderedQuery<T>) =>
 		Effect.promise(() => query.paginate(opts))
+
+export function insertDoc<T extends TableNames>(
+	table: T,
+	data: WithoutSystemFields<Doc<T>>,
+) {
+	return pipe(
+		MutationContextService,
+		Effect.flatMap((ctx) => Effect.promise(() => ctx.db.insert(table, data))),
+	)
+}
 
 export function patchDoc<T extends TableNames>(
 	id: Id<T>,

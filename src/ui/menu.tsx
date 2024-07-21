@@ -1,6 +1,6 @@
 import { offset, Placement, shift, useFloating } from "@floating-ui/react-dom"
 import React, { useEffect } from "react"
-import ReactDOM from "react-dom"
+import { createPortal } from "react-dom"
 import { FocusOn } from "react-focus-on"
 import { useMergedRefs } from "../../lib/react.ts"
 import { Button, ButtonProps } from "./button.tsx"
@@ -80,23 +80,32 @@ function MenuPanel(
 		setEnabled(context.open)
 	}, [context.open])
 
-	return ReactDOM.createPortal(
-		<div ref={context.panelRef} style={context.panelStyle}>
-			<FocusOn
-				as={Panel}
-				enabled={context.open ? enabled : false}
-				onEscapeKey={() => context.setOpen(false)}
-				onClickOutside={() => context.setOpen(false)}
-				{...mergeClassProp(
-					props,
-					"grid gap-1 p-1",
-					fadeZoomTransition(context.open),
-				)}
-				ref={ref}
-			/>
-		</div>,
-		document.body,
+	return (
+		<Portal>
+			<div ref={context.panelRef} style={context.panelStyle}>
+				<FocusOn
+					as={Panel}
+					enabled={context.open ? enabled : false}
+					onEscapeKey={() => context.setOpen(false)}
+					onClickOutside={() => context.setOpen(false)}
+					{...mergeClassProp(
+						props,
+						"grid gap-1 p-1",
+						fadeZoomTransition(context.open),
+					)}
+					ref={ref}
+				/>
+			</div>
+		</Portal>
 	)
+}
+
+function Portal({ children }: { children: React.ReactNode }) {
+	const [container, setContainer] = React.useState<HTMLElement | null>(null)
+	React.useEffect(() => {
+		setContainer(document.body)
+	}, [])
+	return container ? createPortal(children, container) : null
 }
 
 Menu.Item = MenuItem

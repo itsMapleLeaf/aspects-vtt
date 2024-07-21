@@ -19,6 +19,7 @@ export function effectQuery<
 	Args extends PropertyValidators | undefined | void,
 	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
 	Output,
+	Error,
 >(options: {
 	args?: Args
 	handler: (
@@ -69,7 +70,7 @@ export function effectMutation<
 		...args: ArgsArray
 	) => Effect.Effect<
 		Output,
-		never,
+		unknown,
 		MutationContextService | QueryContextService
 	>
 }) {
@@ -80,6 +81,7 @@ export function effectMutation<
 				options.handler(...args),
 				Effect.provideService(QueryContextService, ctx),
 				Effect.provideService(MutationContextService, ctx),
+				Effect.orDie,
 				Effect.runPromise,
 			)
 		},
@@ -96,7 +98,7 @@ export function internalEffectMutation<
 		...args: ArgsArray
 	) => Effect.Effect<
 		Output,
-		never,
+		unknown,
 		MutationContextService | QueryContextService
 	>
 }) {
@@ -107,6 +109,7 @@ export function internalEffectMutation<
 				options.handler(...args),
 				Effect.provideService(QueryContextService, ctx),
 				Effect.provideService(MutationContextService, ctx),
+				Effect.orDie,
 				Effect.runPromise,
 			)
 		},
@@ -121,7 +124,7 @@ export function effectAction<
 	args?: Args
 	handler: (
 		...args: ArgsArray
-	) => Effect.Effect<Output, never, ActionContextService>
+	) => Effect.Effect<Output, unknown, ActionContextService>
 }) {
 	return action({
 		args: options.args,
@@ -129,6 +132,7 @@ export function effectAction<
 			return pipe(
 				options.handler(...args),
 				Effect.provideService(ActionContextService, ctx),
+				Effect.orDie,
 				Effect.runPromise,
 			)
 		},
@@ -143,7 +147,7 @@ export function internalEffectAction<
 	args?: Args
 	handler: (
 		...args: ArgsArray
-	) => Effect.Effect<Output, never, ActionContextService>
+	) => Effect.Effect<Output, unknown, ActionContextService>
 }) {
 	return internalAction({
 		args: options.args,
@@ -151,6 +155,7 @@ export function internalEffectAction<
 			return pipe(
 				options.handler(...args),
 				Effect.provideService(ActionContextService, ctx),
+				Effect.orDie,
 				Effect.runPromise,
 			)
 		},

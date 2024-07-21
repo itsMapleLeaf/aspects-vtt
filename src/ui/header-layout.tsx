@@ -1,11 +1,11 @@
 import { Link } from "@remix-run/react"
-import { AppLogo } from "../../ui/app-logo.tsx"
-import { Button } from "../../ui/button.tsx"
-import { Heading } from "../../ui/heading.tsx"
-import { Column, Row } from "../../ui/layout.tsx"
-import { UserButton } from "./user-button.tsx"
+import { UserButton } from "../auth/user-button.tsx"
+import { AppLogo } from "./app-logo.tsx"
+import { Button } from "./button.tsx"
+import { Heading } from "./heading.tsx"
+import { Column, Row } from "./layout.tsx"
 
-export default function PlayRoute() {
+export function HeaderLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<Column className="items-stretch p-4">
 			<Row className="items-center justify-between">
@@ -21,6 +21,7 @@ export default function PlayRoute() {
 				</Button>
 				<UserButton />
 			</Row>
+			{children}
 		</Column>
 	)
 }

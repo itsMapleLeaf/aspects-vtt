@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from "convex/react"
 import { LucideSave } from "lucide-react"
-import { api } from "../../../convex/_generated/api.js"
-import { Button } from "../../ui/button.tsx"
-import { InputField } from "../../ui/input.tsx"
+import { api } from "../../convex/_generated/api.js"
+import { Button } from "../ui/button.tsx"
+import { InputField } from "../ui/input.tsx"
 
 export function AccountSettingsForm() {
 	const user = useQuery(api.users.me)
