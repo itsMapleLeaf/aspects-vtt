@@ -1,31 +1,34 @@
 import { Data, Effect, pipe } from "effect"
-import { QueryCtx } from "../_generated/server.js"
+import { Id } from "../_generated/dataModel"
 import { auth } from "../auth.ts"
-import { FunctionContextService } from "./effect.ts"
+import { QueryContextService } from "./context.ts"
+import { getDoc } from "./db.ts"
 
 export class UnauthenticatedError extends Data.TaggedError(
 	"UnauthenticatedError",
 ) {}
 
+export class UserNotFoundError extends Data.TaggedError("UserNotFoundError") {
+	constructor(readonly userId: Id<"users">) {
+		super()
+	}
+}
+
 export function getAuthUserId() {
 	return pipe(
-		FunctionContextService<QueryCtx>(),
+		QueryContextService,
 		Effect.flatMap((ctx) => Effect.promise(() => auth.getUserId(ctx))),
 		Effect.filterOrFail(
-			(userId) => userId !== null,
+			(value): value is Id<"users"> => value != null,
 			() => new UnauthenticatedError(),
 		),
 	)
 }
 
 export function getAuthUser() {
-	return Effect.gen(function* () {
-		const userId = yield* getAuthUserId()
-		const ctx = yield* FunctionContextService<QueryCtx>()
-		return yield* Effect.filterOrDie(
-			Effect.promise(() => ctx.db.get(userId)),
-			(user) => user !== null,
-			() => new Error(`Couldn't find user with ID "${userId}"`),
-		)
-	})
+	return Effect.flatMap(getAuthUserId(), (userId) =>
+		Effect.catchTag(getDoc(userId), "DocNotFoundError", () =>
+			Effect.die(new UserNotFoundError(userId)),
+		),
+	)
 }

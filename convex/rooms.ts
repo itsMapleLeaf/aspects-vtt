@@ -1,24 +1,23 @@
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { query, QueryCtx } from "./_generated/server.js"
 import { getAuthUserId } from "./lib/auth.ts"
-import { endpoint, FunctionContextService } from "./lib/effect.ts"
+import { collectDocs, queryIndex } from "./lib/db.ts"
+import { effectQuery } from "./lib/functions.ts"
 import { getRoom } from "./lib/rooms.ts"
 
-export const list = endpoint(query, {
-	handler: Effect.gen(function* () {
-		const userId = yield* getAuthUserId()
-		const ctx = yield* FunctionContextService<QueryCtx>()
-		return yield* Effect.promise(() =>
-			ctx.db
-				.query("rooms")
-				.withIndex("owner", (q) => q.eq("owner", userId))
-				.collect(),
-		)
-	}).pipe(Effect.catchTag("UnauthenticatedError", () => Effect.succeed([]))),
+export const list = effectQuery({
+	handler: () =>
+		pipe(
+			getAuthUserId(),
+			Effect.flatMap((userId) =>
+				queryIndex("rooms", "owner", ["owner", userId]),
+			),
+			Effect.flatMap(collectDocs),
+			Effect.catchTag("UnauthenticatedError", () => Effect.succeed([])),
+		),
 })
 
-export const get = endpoint(query, {
+export const get = effectQuery({
 	args: {
 		input: v.union(
 			v.object({ id: v.id("rooms") }),
@@ -28,6 +27,6 @@ export const get = endpoint(query, {
 	handler: (args) =>
 		pipe(
 			getRoom(args.input),
-			Effect.catchTag("RoomNotFoundError", () => Effect.succeed(null)),
+			Effect.catchTag("DocNotFoundError", () => Effect.succeed(null)),
 		),
 })

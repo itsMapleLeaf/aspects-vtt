@@ -10,14 +10,14 @@
  */
 
 import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
+	ApiFromModules,
+	FilterApi,
+	FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
-import type * as lib_effect from "../lib/effect.js";
+import type * as lib_effect from "../lib/db.js";
 import type * as lib_rooms from "../lib/rooms.js";
 import type * as rooms from "../rooms.js";
 import type * as secrets from "../secrets.js";

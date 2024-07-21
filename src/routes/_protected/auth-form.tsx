@@ -3,12 +3,12 @@ import { SiDiscord } from "@icons-pack/react-simple-icons"
 import { useHref, useLocation } from "@remix-run/react"
 import { LucideDoorOpen, LucideUserPlus } from "lucide-react"
 import { useActionState, useState } from "react"
-import { Button } from "../ui/button.tsx"
-import { FormError } from "../ui/form.tsx"
-import { Heading, HeadingLevel } from "../ui/heading.tsx"
-import { InputField } from "../ui/input.tsx"
-import { Column, Row } from "../ui/layout.tsx"
-import { Panel } from "../ui/panel.tsx"
+import { Button } from "../../ui/button.tsx"
+import { FormError } from "../../ui/form.tsx"
+import { Heading, HeadingLevel } from "../../ui/heading.tsx"
+import { InputField } from "../../ui/input.tsx"
+import { Column, Row } from "../../ui/layout.tsx"
+import { Panel } from "../../ui/panel.tsx"
 
 export function AuthForm() {
 	const [action, setAction] = useState<"login" | "register">("login")
