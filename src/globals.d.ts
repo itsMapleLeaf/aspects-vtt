@@ -1,8 +1,10 @@
 import "@remix-run/node"
 import "vite/client"
 
-interface ImportMetaEnv {
-	readonly VITE_CONVEX_URL: string
+declare global {
+	interface ImportMetaEnv {
+		readonly VITE_CONVEX_URL: string
+	}
 }
 
 import "react"
