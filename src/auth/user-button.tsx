@@ -31,7 +31,10 @@ export function UserButton() {
 					<Menu.Item icon={<LucideSettings />} element={<Modal.Button />}>
 						Account settings
 					</Menu.Item>
-					<Modal.Panel title="Account settings" className="grid gap-3 p-3">
+					<Modal.Panel
+						title="Account settings"
+						className="grid max-w-sm gap-3 p-3"
+					>
 						<AccountSettingsForm />
 					</Modal.Panel>
 				</Modal>

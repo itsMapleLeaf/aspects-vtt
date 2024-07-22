@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { ComponentProps, ReactNode, useEffect, useRef } from "react"
 import ReactDOM from "react-dom"
 import { FocusOn } from "react-focus-on"
 import { twMerge } from "tailwind-merge"
@@ -83,15 +83,37 @@ function ModalPanel({
 				enabled={context.open ? enabled : false}
 				onEscapeKey={() => context.setOpen(false)}
 				onClickOutside={() => context.setOpen(false)}
-				{...mergeClassProp(props, fadeZoomTransition(context.open))}
+				{...mergeClassProp(
+					props,
+					fadeZoomTransition(context.open),
+					"grid w-full max-w-screen-sm gap-3 p-3",
+				)}
 				shards={[shadeRef]}
 			>
-				<HeadingLevel>
-					{title && <Heading>{title}</Heading>}
-					{children}
-				</HeadingLevel>
+				{title ? (
+					<HeadingLevel>
+						{title && <Heading>{title}</Heading>}
+						{children}
+					</HeadingLevel>
+				) : (
+					children
+				)}
 			</FocusOn>
 		</div>,
 		document.body,
+	)
+}
+
+Modal.Heading = ModalHeading
+function ModalHeading({
+	children,
+	text,
+	...props
+}: ComponentProps<typeof Heading> & { text: ReactNode }) {
+	return (
+		<HeadingLevel>
+			<Heading {...props}>{text}</Heading>
+			{children}
+		</HeadingLevel>
 	)
 }

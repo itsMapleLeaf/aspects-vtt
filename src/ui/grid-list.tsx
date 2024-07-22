@@ -6,7 +6,7 @@ export function GridList(props: SlotProps) {
 		<Slot
 			{...mergeClassProp(
 				props,
-				"grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3",
+				"grid grid-cols-[repeat(auto-fill,minmax(theme(spacing.48),1fr))] gap-3",
 			)}
 		/>
 	)
