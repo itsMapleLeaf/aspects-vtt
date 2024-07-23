@@ -10,8 +10,8 @@ import { boostDiceKind, getDiceKindApiInput, snagDiceKind } from "~/modules/dice
 import { getRace } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import { UnauthorizedError, getUserFromIdentityEffect } from "../auth.ts"
-import { getDoc } from "../helpers/effect.ts"
-import { getCurrentUserId } from "../users.ts"
+import { Convex, getDoc } from "../helpers/effect.ts"
+import { getCurrentUser, getCurrentUserId } from "../users.ts"
 
 export function normalizeCharacter(character: Doc<"characters">) {
 	return Effect.gen(function* () {
@@ -89,22 +89,30 @@ export function protectCharacter<T extends Doc<"characters">>(character: T) {
 			return character
 		}
 
-		const publicProperties = [
-			"_id",
-			"_creationTime",
-			"imageId",
-			"conditions",
-			"race",
-			"visible",
-			"nameVisible",
-		] as const
-
 		if (character.visible && character.nameVisible) {
-			return pick(character, [...publicProperties, "name", "pronouns"]) as ProtectedCharacter<T>
+			return pick(character, [
+				"_id",
+				"_creationTime",
+				"image",
+				"conditions",
+				"race",
+				"visible",
+				"nameVisible",
+				"name",
+				"pronouns",
+			]) as ProtectedCharacter<T>
 		}
 
 		if (character.visible) {
-			return pick(character, publicProperties) as ProtectedCharacter<T>
+			return pick(character, [
+				"_id",
+				"_creationTime",
+				"image",
+				"conditions",
+				"race",
+				"visible",
+				"nameVisible",
+			]) as ProtectedCharacter<T>
 		}
 
 		return yield* Effect.fail(new CharacterAccessError(character._id))
@@ -113,19 +121,20 @@ export function protectCharacter<T extends Doc<"characters">>(character: T) {
 
 export function ensureViewerCharacterPermissions(characterId: Id<"characters">) {
 	return Effect.gen(function* () {
-		const { user, character } = yield* Effect.all({
-			user: getUserFromIdentityEffect(),
-			character: getDoc(characterId),
-		})
+		const user = yield* getCurrentUser()
+		const character = yield* Convex.db.get(characterId)
 		const room = yield* getDoc(character.roomId)
-		if (room.owner === user._id || character.player === user._id) {
-			return {
-				user,
-				room,
-				character: yield* normalizeCharacter(character),
-			}
+		const hasPermissions = room.owner === user._id || character.player === user._id
+
+		if (!hasPermissions) {
+			return yield* Effect.fail(new UnauthorizedError())
 		}
-		return yield* Effect.fail(new UnauthorizedError())
+
+		return {
+			user,
+			room,
+			character: yield* normalizeCharacter(character),
+		}
 	})
 }
 
