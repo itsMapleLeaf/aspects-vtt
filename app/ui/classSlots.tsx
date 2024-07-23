@@ -31,5 +31,5 @@ export function resolveClasses<T extends Record<string, string>>(
 	classes: Partial<T> | string | null | undefined,
 	primary: keyof T,
 ) {
-	return typeof classes === "string" ? { [primary]: classes } : classes ?? {}
+	return typeof classes === "string" ? { [primary]: classes } : (classes ?? {})
 }
