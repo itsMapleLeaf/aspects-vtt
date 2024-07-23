@@ -57,6 +57,7 @@ export default ts.config(
 			},
 		},
 	},
+	// @ts-expect-error
 	...fixupConfigRules(reactRecommended),
 	...fixupConfigRules(jsxRuntime),
 	...fixupConfigRules({
