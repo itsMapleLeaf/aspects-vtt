@@ -8,7 +8,7 @@ const FieldContext = createContext({
 	inputId: "",
 })
 
-export const FormLayout = twc.div`flex flex-col gap-3 p-3`
+export const FormLayout = twc.div`flex flex-col p-3 gap-3`
 
 export const FormRow = twc.div`flex flex-wrap gap-3`
 

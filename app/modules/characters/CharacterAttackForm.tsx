@@ -79,7 +79,7 @@ export function CharacterAttackForm({ characters }: { characters: ApiCharacter[]
 						<PopoverTrigger render={<Button align="start" icon={attackerIcon} />}>
 							{attacker ? attacker.name : "Select attacker"}
 						</PopoverTrigger>
-						<PopoverPanel className="flex w-64 flex-col gap-2 p-2">
+						<PopoverPanel className="flex w-64 flex-col p-2 gap-2">
 							<CharacterSearchList
 								characters={attackers}
 								onSelect={(character) => {

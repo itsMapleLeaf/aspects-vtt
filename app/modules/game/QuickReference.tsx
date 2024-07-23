@@ -73,7 +73,7 @@ export function QuickReference() {
 			content: (
 				<>
 					<p>Any action can be made into an attack. To make an attack:</p>
-					<ol className="my-2 grid list-inside list-decimal gap-2 pl-2">
+					<ol className="my-2 grid list-inside list-decimal pl-2 gap-2">
 						<li>If you haven't, describe narratively how you're attacking.</li>
 						<li>Make the appropriate attribute roll.</li>
 						<li>
@@ -95,7 +95,7 @@ export function QuickReference() {
 	return (
 		<div className="grid h-full grid-cols-[12rem,1fr]">
 			<TabProvider activeId={activeId} setActiveId={(id) => setActiveId(id ?? null)}>
-				<TabList className="flex flex-col gap-1 p-2">
+				<TabList className="flex flex-col p-2 gap-1">
 					{pages.map((page) => (
 						<Tab
 							key={page.title}

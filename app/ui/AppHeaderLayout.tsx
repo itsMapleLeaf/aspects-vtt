@@ -9,7 +9,7 @@ export function AppHeaderLayout({
 	children: React.ReactNode
 }) {
 	return (
-		<div className={twMerge("grid content-start gap-4 p-4", className)}>
+		<div className={twMerge("grid content-start p-4 gap-4", className)}>
 			<AppHeader />
 			{children}
 		</div>

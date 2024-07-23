@@ -119,7 +119,7 @@ export function ResourceGroup<ItemData>(props: {
 				</form>
 			</div>
 			{items.length > 0 && (
-				<DisclosureContent store={disclosure} className="flex flex-col gap-1 pl-2">
+				<DisclosureContent store={disclosure} className="flex flex-col pl-2 gap-1">
 					{items.map((item) => (
 						<Fragment key={item.key}>{props.renderItem(item.data)}</Fragment>
 					))}

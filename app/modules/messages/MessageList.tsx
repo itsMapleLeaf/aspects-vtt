@@ -39,7 +39,7 @@ export function MessageList({ onMessageAdded }: { onMessageAdded: () => void }) 
 
 function MessagePanel({ message }: { message: ApiMessage }) {
 	return (
-		<TranslucentPanel className="flex flex-col gap-1.5 p-3">
+		<TranslucentPanel className="flex flex-col p-3 gap-1.5">
 			{message.content && (
 				<p className="text-lg empty:hidden">
 					<MessageContent content={message.content} />
@@ -50,7 +50,7 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 					<DiceRollSummary roll={message.diceRoll} />
 				</div>
 			)}
-			<p className="flex gap-1 text-sm font-medium leading-tight tracking-wide text-primary-600">
+			<p className="flex text-sm font-medium leading-tight tracking-wide text-primary-600 gap-1">
 				<span>{message.user?.name}</span>
 				<span className="first:hidden">•</span>
 				{formatDistanceToNow(new Date(message._creationTime), {

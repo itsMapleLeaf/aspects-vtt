@@ -12,7 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function UiTests() {
 	const { caseSlugs } = useLoaderData<typeof loader>()
 	return (
-		<div className="h-full gap-4 p-4">
+		<div className="h-full p-4 gap-4">
 			<AppHeader />
 			<div className="flex gap-4">
 				<nav className="flex w-[12rem] flex-col gap-2">

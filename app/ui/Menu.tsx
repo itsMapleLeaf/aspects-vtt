@@ -49,7 +49,7 @@ export function MenuItem({ icon, pending, type = "button", ...props }: MenuItemP
 }
 MenuItem.style = function menuItemStyle(...classes: ClassNameValue[]) {
 	return twMerge(
-		"flex cursor-default gap-2 rounded-sm px-2 py-2 transition duration-75 data-[active-item]:bg-primary-100 data-[active-item]:text-primary-700",
+		"flex cursor-default rounded-sm px-2 py-2 transition duration-75 gap-2 data-[active-item]:bg-primary-100 data-[active-item]:text-primary-700",
 		classes,
 	)
 }

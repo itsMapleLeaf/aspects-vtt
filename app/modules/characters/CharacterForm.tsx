@@ -32,7 +32,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const hasUpdatePermissions = useCharacterUpdatePermission(character)
 	const randomize = useMutation(api.characters.functions.randomize)
 	return (
-		<div className="flex h-full min-h-0 flex-1 flex-col gap-2 overflow-y-auto *:shrink-0">
+		<div className="flex h-full min-h-0 flex-1 flex-col overflow-y-auto gap-2 *:shrink-0">
 			<RoomOwnerOnly>
 				<div className="flex items-end gap-current *:flex-1">
 					<CharacterSelectField
@@ -87,7 +87,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 				</div>
 				{hasUpdatePermissions && (
 					<div className="flex flex-col gap-current">
-						<Panel className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-3">
+						<Panel className="flex flex-1 flex-col items-center justify-center px-6 py-3 gap-4">
 							<AttributePoints character={character} />
 							<CharacterAttributeField character={character} field="strength" />
 							<CharacterAttributeField character={character} field="mobility" />

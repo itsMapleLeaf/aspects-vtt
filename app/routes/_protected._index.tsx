@@ -22,7 +22,7 @@ export default function RoomListRoute() {
 	})
 
 	return (
-		<div className="flex h-dvh flex-col gap-4 p-4">
+		<div className="flex h-dvh flex-col p-4 gap-4">
 			<AppHeader />
 			{rooms === undefined ?
 				loading && <Loading fill="parent" />
@@ -33,7 +33,7 @@ export default function RoomListRoute() {
 								<Link
 									to={$path("/rooms/:slug", { slug: room.slug })}
 									className={panel(
-										"flex h-full items-center gap-3 bg-primary-200/50 p-4 transition hover:bg-primary-200",
+										"flex h-full items-center bg-primary-200/50 p-4 transition gap-3 hover:bg-primary-200",
 									)}
 									prefetch="intent"
 								>

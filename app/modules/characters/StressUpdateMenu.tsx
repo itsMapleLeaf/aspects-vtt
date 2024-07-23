@@ -147,7 +147,7 @@ function ButtonOption({
 	return (
 		<label
 			className={twMerge(
-				"flex-center-row h-10 gap-1 px-2 opacity-50 transition hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200",
+				"flex-center-row h-10 px-2 opacity-50 transition gap-1 hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200",
 				className,
 			)}
 		>

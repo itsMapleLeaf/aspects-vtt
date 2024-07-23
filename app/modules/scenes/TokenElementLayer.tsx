@@ -180,7 +180,7 @@ function CharacterTokenDecoration({
 			style={{ translate }}
 		>
 			<div className="relative" style={Vector.from(cellSize).times(viewport.scale).toSize()}>
-				<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
+				<div className="flex-center absolute inset-x-0 bottom-full pb-2 gap-1.5">
 					{character.conditions.map((condition) => (
 						<CharacterTokenConditionBadge key={condition.name} condition={condition} />
 					))}

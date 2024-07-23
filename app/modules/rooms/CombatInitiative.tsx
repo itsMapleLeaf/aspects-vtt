@@ -139,7 +139,7 @@ export function CombatInitiative() {
 								appearance="clear"
 								element={<PopoverTrigger />}
 							/>
-							<PopoverPanel className="flex min-h-0 w-64 flex-col gap-2 p-2">
+							<PopoverPanel className="flex min-h-0 w-64 flex-col p-2 gap-2">
 								<AddCombatMemberListbox />
 							</PopoverPanel>
 						</Popover>

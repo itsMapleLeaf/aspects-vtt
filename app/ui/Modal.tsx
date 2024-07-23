@@ -115,7 +115,7 @@ export function ModalPanel({
 			unmountOnHide
 			preventBodyScroll={false}
 		>
-			<div className="flex items-center gap-3 border-b border-primary-300 bg-black/25 bg-primary-200 p-3">
+			<div className="flex items-center border-b border-primary-300 bg-black/25 bg-primary-200 p-3 gap-3">
 				<div className="min-w-0 flex-1">
 					<Ariakit.DialogHeading className="truncate text-2xl/tight font-light">
 						{title}

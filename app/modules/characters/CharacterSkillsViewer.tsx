@@ -109,7 +109,7 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 	return (
 		<Tabs>
 			<div className="flex h-full flex-col gap-2">
-				<aside className="flex-center h-16 gap-1 px-2">
+				<aside className="flex-center h-16 px-2 gap-1">
 					<SomeKindaLabel>
 						<span className="opacity-75">Experience:</span> {room.experience - usedExperience}{" "}
 						<span className="opacity-75">remaining</span> / {room.experience}{" "}
@@ -148,7 +148,7 @@ export function CharacterSkillsViewer({ character }: { character: ApiCharacter }
 				<div className="min-h-0 flex-1">
 					<ScrollArea>
 						{viewGroups.flat().map((view) => (
-							<Tabs.Panel key={view.title} id={view.title} className="grid gap-4 px-2">
+							<Tabs.Panel key={view.title} id={view.title} className="grid px-2 gap-4">
 								{view.content}
 							</Tabs.Panel>
 						))}

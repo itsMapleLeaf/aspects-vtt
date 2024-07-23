@@ -53,7 +53,7 @@ export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 			{character && (
 				<>
 					<ToolbarPopover icon={<Lucide.HeartPulse />} tooltip="Status">
-						<div className="grid w-48 gap-2 p-2">
+						<div className="grid w-48 p-2 gap-2">
 							<CharacterStatusFields character={character} />
 						</div>
 					</ToolbarPopover>
@@ -215,10 +215,10 @@ function AspectArtStats() {
 			))}
 
 			<div className="flex">
-				<div className="flex flex-1 items-center gap-1.5 border-r border-r-primary-300/50 px-3 py-2">
+				<div className="flex flex-1 items-center border-r border-r-primary-300/50 px-3 py-2 gap-1.5">
 					<h2 className="translate-y-px text-2xl font-light">Total</h2>
 				</div>
-				<div className="flex-center w-16 gap-2 py-2">
+				<div className="flex-center w-16 py-2 gap-2">
 					<p className="text-2xl font-light">{totalAdded}</p>
 				</div>
 			</div>
@@ -253,7 +253,7 @@ function ModifierRow({
 }) {
 	return (
 		<div className="flex">
-			<div className="flex flex-1 items-center gap-1.5 border-r border-r-primary-300/50 px-3 py-2">
+			<div className="flex flex-1 items-center border-r border-r-primary-300/50 px-3 py-2 gap-1.5">
 				<div className="flex-1">
 					<div className="flex items-center gap-1.5">
 						<div className="*:size-6">{icon}</div>
@@ -266,7 +266,7 @@ function ModifierRow({
 				</div>
 			</div>
 
-			<div className="flex-center w-16 gap-2 py-2">
+			<div className="flex-center w-16 py-2 gap-2">
 				<Button
 					icon={<Lucide.ChevronUp />}
 					appearance="clear"

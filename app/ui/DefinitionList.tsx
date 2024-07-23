@@ -8,7 +8,7 @@ export function DefinitionList({ items }: DefinitionListProps) {
 	const definitions = [...items]
 	if (definitions.length === 0) return null
 	return (
-		<dl className="grid gap-3 text-pretty empty:hidden">
+		<dl className="grid text-pretty gap-3 empty:hidden">
 			{definitions.map((item, index) => (
 				<Fragment key={index}>
 					<div key={index}>

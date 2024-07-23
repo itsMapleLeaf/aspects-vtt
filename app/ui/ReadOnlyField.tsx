@@ -9,7 +9,7 @@ export function ReadOnlyField({ label, value }: { label: ReactNode; value: React
 		<FormField label={label}>
 			<div
 				className={panel(
-					"flex items-center justify-between gap-1.5 bg-primary-300/30 py-2 pl-3 pr-2",
+					"flex items-center justify-between bg-primary-300/30 py-2 pl-3 pr-2 gap-1.5",
 				)}
 			>
 				<p className="min-w-0 flex-1 whitespace-pre-wrap break-words">{value}</p>

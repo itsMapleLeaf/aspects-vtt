@@ -95,7 +95,7 @@ export function Toaster({ children }: { children: React.ReactNode }) {
 			{children}
 			<Portal>
 				<div
-					className="pointer-events-children fixed inset-y-0 left-0 z-10 flex flex-col justify-end gap-3 p-3"
+					className="pointer-events-children fixed inset-y-0 left-0 z-10 flex flex-col justify-end p-3 gap-3"
 					ref={animateRef}
 				>
 					{toasts.map((toast) => (
@@ -129,7 +129,7 @@ function ToastElement({ type = "info", title, body, onDismiss }: ToastElementPro
 		<button
 			type="button"
 			className={translucentPanel(
-				"flex min-w-[280px] items-center gap-3 px-3 py-2 text-left transition",
+				"flex min-w-[280px] items-center px-3 py-2 text-left transition gap-3",
 				type === "info" &&
 					"border-blue-700 bg-blue-900 bg-opacity-90 hover:border-blue-500 hover:bg-opacity-100",
 				type === "success" &&
