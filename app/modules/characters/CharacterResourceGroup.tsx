@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useDeferredValue } from "react"
+import { useDeferredValue, type ComponentProps } from "react"
 import { z } from "zod"
 import { typed } from "~/helpers/types.ts"
 import { api } from "../../../convex/_generated/api.js"
@@ -93,7 +93,10 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 	)
 }
 
-function CharacterResourceTreeItem({ character }: { character: ApiCharacter }) {
+function CharacterResourceTreeItem({
+	character,
+	...props
+}: { character: ApiCharacter } & Partial<ComponentProps<typeof ResourceTreeItem>>) {
 	const deleteCharacter = useMutation(api.characters.functions.remove)
 	return (
 		<ResourceTreeItem
@@ -108,6 +111,7 @@ function CharacterResourceTreeItem({ character }: { character: ApiCharacter }) {
 			delete={async () => {
 				await deleteCharacter({ id: character._id })
 			}}
+			{...props}
 		>
 			{character.name ?? "???"}
 		</ResourceTreeItem>
