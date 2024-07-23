@@ -27,6 +27,9 @@ export default {
 			},
 		},
 	},
+	corePlugins: {
+		gap: false,
+	},
 	plugins: [
 		containerQueries,
 		animate,
