@@ -11,6 +11,7 @@ import { useRoomToolbarStore } from "~/modules/rooms/RoomToolbarStore.ts"
 import { useRoom } from "~/modules/rooms/roomContext.tsx"
 import { SceneProvider } from "~/modules/scenes/SceneContext.tsx"
 import { SceneMap } from "~/modules/scenes/SceneMap.tsx"
+import { useCurrentRoomScene } from "~/modules/scenes/hooks.ts"
 import { AppHeader } from "~/ui/AppHeader.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { TranslucentPanel } from "~/ui/Panel.tsx"
@@ -20,6 +21,7 @@ import { AutoAnimate } from "../ui/AutoAnimate.tsx"
 
 export default function RoomRoute() {
 	const store = useRoomToolbarStore()
+	const scene = useCurrentRoomScene()
 	return (
 		<>
 			<Suspense>
@@ -51,7 +53,7 @@ export default function RoomRoute() {
 				<AutoAnimate className="flex h-[calc(100%-4rem)] min-h-0 flex-1 flex-col gap-2">
 					<TranslucentPanel className="pointer-events-auto flex min-h-0 w-[18rem] flex-1 flex-col gap-2 p-2">
 						<Suspense fallback={<Loading fill="parent" />}>
-							<ResourceTree />
+							<ResourceTree sceneId={scene?._id} />
 						</Suspense>
 					</TranslucentPanel>
 

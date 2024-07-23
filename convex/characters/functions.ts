@@ -1,5 +1,5 @@
 import { getManyFrom } from "convex-helpers/server/relationships"
-import { literals } from "convex-helpers/validators"
+import { literals, nullable } from "convex-helpers/validators"
 import { ConvexError, v, type GenericId } from "convex/values"
 import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
@@ -74,12 +74,17 @@ export const list = effectQuery({
 export const create = effectMutation({
 	args: {
 		roomId: v.id("rooms"),
+		sceneId: nullable(v.id("scenes")),
 	},
 	handler(args) {
 		return Effect.gen(function* () {
 			const room = yield* ensureViewerOwnsRoom(args.roomId)
 			const properties = generateRandomCharacterProperties()
-			return yield* insertDoc("characters", { ...properties, roomId: room._id })
+			return yield* insertDoc("characters", {
+				...properties,
+				roomId: room._id,
+				sceneId: args.sceneId,
+			})
 		})
 	},
 })

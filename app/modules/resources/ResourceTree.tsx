@@ -2,15 +2,17 @@ import { Disclosure, DisclosureContent, useDisclosureStore } from "@ariakit/reac
 import * as Lucide from "lucide-react"
 import { Fragment, createContext, useCallback, useContext, useState } from "react"
 import { z } from "zod"
-import { useLocalStorageState } from "~/helpers/dom/useLocalStorage.ts"
+import { useLocalStorageState, useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
 import type { JsonValue } from "~/helpers/json.ts"
 import { mod } from "~/helpers/math.ts"
+import type { Nullish } from "~/helpers/types.ts"
 import { Button, type ButtonPropsAsButton } from "~/ui/Button.tsx"
 import { ContextMenu } from "~/ui/ContextMenu.tsx"
 import { DeleteForm } from "~/ui/DeleteForm.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
+import type { Id } from "../../../convex/_generated/dataModel"
 import { CharacterResourceGroup } from "../characters/CharacterResourceGroup.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { SceneResourceGroup } from "../scenes/SceneResourceGroup.tsx"
@@ -23,10 +25,9 @@ const ResourceTreeContext = createContext<{
 	processItems: (items) => items,
 })
 
-export function ResourceTree() {
+export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 	const [search, setSearch] = useState("")
 	const { sortMode, cycleSortMode } = useSorting()
-
 	const processItems = useCallback(
 		<Data,>(items: ReadonlyArray<ResourceGroupItem<Data>>) => {
 			return items
@@ -57,7 +58,14 @@ export function ResourceTree() {
 				<ScrollArea scrollbarPosition="outside" scrollbarGap={8}>
 					<div className="flex flex-col gap-current">
 						<ResourceTreeContext.Provider value={{ processItems }}>
-							<CharacterResourceGroup />
+							<CharacterResourceGroup id="characters" title="All Characters" sceneId={null} />
+							{sceneId && (
+								<CharacterResourceGroup
+									id="sceneCharacters"
+									title="Scene Characters"
+									sceneId={sceneId}
+								/>
+							)}
 							<SceneResourceGroup />
 						</ResourceTreeContext.Provider>
 					</div>
@@ -85,10 +93,11 @@ export function ResourceGroup<ItemData>(props: {
 	items: ReadonlyArray<ResourceGroupItem<ItemData>>
 	renderItem: (data: ItemData) => React.ReactNode
 }) {
-	const [open, setOpen] = useState(false)
+	const [open, setOpen] = useLocalStorageSwitch(`resource-tree-group:${props.id}`, false)
 	const disclosure = useDisclosureStore({ open, setOpen })
 	const { processItems } = useContext(ResourceTreeContext)
 	const folderIcon = open ? <Lucide.FolderOpen /> : <Lucide.Folder />
+	const items = processItems(props.items)
 
 	return (
 		<>
@@ -109,11 +118,13 @@ export function ResourceGroup<ItemData>(props: {
 					/>
 				</form>
 			</div>
-			<DisclosureContent store={disclosure} className="flex flex-col gap-1 pl-2">
-				{processItems(props.items).map((item) => (
-					<Fragment key={item.key}>{props.renderItem(item.data)}</Fragment>
-				))}
-			</DisclosureContent>
+			{items.length > 0 && (
+				<DisclosureContent store={disclosure} className="flex flex-col gap-1 pl-2">
+					{items.map((item) => (
+						<Fragment key={item.key}>{props.renderItem(item.data)}</Fragment>
+					))}
+				</DisclosureContent>
+			)}
 		</>
 	)
 }
@@ -187,7 +198,7 @@ function useSorting() {
 			id: "alphabetical",
 			name: "Alphabetical",
 			icon: <Lucide.ArrowDownAZ />,
-			compare: (a, b) => a.name.localeCompare(b.name),
+			compare: (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
 		},
 	]
 

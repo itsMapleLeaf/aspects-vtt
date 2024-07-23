@@ -82,6 +82,7 @@ export default defineSchema({
 
 	characters: defineTable({
 		roomId: v.id("rooms"),
+		sceneId: v.optional(nullable(v.id("scenes"))),
 
 		// profile
 		name: v.optional(v.string()),
@@ -144,6 +145,7 @@ export default defineSchema({
 		fatigueThresholdDelta: deprecated,
 	})
 		.index("roomId", ["roomId"])
+		.index("sceneId", ["sceneId"])
 		.index("player", ["player"]),
 
 	scenes: defineTable(sceneProperties).index("roomId", ["roomId"]),
