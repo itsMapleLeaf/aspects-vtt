@@ -25,6 +25,7 @@
 	button,
 	[role="button"] {
 		cursor: unset;
+		user-select: none;
 	}
 
 	hr {
