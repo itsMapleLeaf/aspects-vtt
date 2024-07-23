@@ -8,14 +8,19 @@ export interface ScrollAreaProps {
 	scrollbarGap?: number
 	wheelDirection?: "vertical" | "horizontal"
 	viewportRef?: React.Ref<HTMLDivElement>
+	direction?: "vertical" | "horizontal" | "both"
 	onViewportScroll?: (event: React.UIEvent<HTMLDivElement>) => void
 }
 
-export function ScrollArea(props: ScrollAreaProps) {
+export function ScrollArea({ direction = "vertical", ...props }: ScrollAreaProps) {
 	return (
 		<RadixScrollArea.Root className={twMerge("flex h-full flex-col", props.className)}>
 			<RadixScrollArea.Viewport
-				className="min-h-0 flex-1 [&>div]:!block"
+				className={twMerge(
+					"min-h-0 flex-1 [&>div]:!block",
+					direction === "vertical" && "overflow-x-clip",
+					direction === "horizontal" && "overflow-y-clip",
+				)}
 				ref={props.viewportRef}
 				onScroll={props.onViewportScroll}
 				onWheel={(event) => {
