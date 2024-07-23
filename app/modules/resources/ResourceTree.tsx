@@ -1,6 +1,6 @@
 import { Disclosure, DisclosureContent, useDisclosureStore } from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import { Fragment, createContext, useCallback, useContext, useState } from "react"
+import { Fragment, createContext, startTransition, useContext, useState } from "react"
 import { z } from "zod"
 import { useLocalStorageState, useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
 import type { JsonValue } from "~/helpers/json.ts"
@@ -10,32 +10,52 @@ import { Button, type ButtonPropsAsButton } from "~/ui/Button.tsx"
 import { ContextMenu } from "~/ui/ContextMenu.tsx"
 import { DeleteForm } from "~/ui/DeleteForm.tsx"
 import { Input } from "~/ui/Input.tsx"
+import { Portal } from "~/ui/Portal.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { CharacterResourceGroup } from "../characters/CharacterResourceGroup.tsx"
-import { useRoom } from "../rooms/roomContext.tsx"
+import { RoomOwnerOnly } from "../rooms/roomContext.tsx"
 import { SceneResourceGroup } from "../scenes/SceneResourceGroup.tsx"
 
 const ResourceTreeContext = createContext<{
 	processItems: <Data>(
 		items: ReadonlyArray<ResourceGroupItem<Data>>,
 	) => ReadonlyArray<ResourceGroupItem<Data>>
+	pinned: ReadonlySet<string>
+	setPinned: (resourceId: string, pinned: boolean) => void
+	pinnedItemsContainer: Nullish<HTMLElement>
 }>({
 	processItems: (items) => items,
+	pinned: new Set(),
+	setPinned(resourceId, pinned) {
+		console.warn("called setPinned outside context")
+	},
+	pinnedItemsContainer: undefined,
 })
 
 export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 	const [search, setSearch] = useState("")
 	const { sortMode, cycleSortMode } = useSorting()
-	const processItems = useCallback(
-		<Data,>(items: ReadonlyArray<ResourceGroupItem<Data>>) => {
-			return items
-				.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
-				.sort((a, b) => sortMode.compare(a, b))
-		},
-		[search, sortMode],
-	)
+	const [pinnedResourceIds, setPinnedResourceIds] = useState<ReadonlySet<string>>(new Set())
+	const [pinnedItemsContainer, setPinnedItemsContainer] = useState<HTMLElement | null>()
+
+	const processItems = <Data,>(items: ReadonlyArray<ResourceGroupItem<Data>>) =>
+		items
+			.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+			.sort((a, b) => sortMode.compare(a, b))
+
+	const setResourcePinned = (resourceId: string, pinned: boolean) => {
+		if (pinned) {
+			setPinnedResourceIds((set) => new Set(set).add(resourceId))
+		} else {
+			setPinnedResourceIds((set) => {
+				const newSet = new Set(set)
+				newSet.delete(resourceId)
+				return newSet
+			})
+		}
+	}
 
 	return (
 		<div className="flex h-full flex-col gap-2">
@@ -57,7 +77,15 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 			<div className="flex min-h-0 flex-1 flex-col gap-1">
 				<ScrollArea scrollbarPosition="outside" scrollbarGap={8}>
 					<div className="flex flex-col gap-current">
-						<ResourceTreeContext.Provider value={{ processItems }}>
+						<div className="contents" ref={setPinnedItemsContainer}></div>
+						<ResourceTreeContext.Provider
+							value={{
+								processItems,
+								pinned: pinnedResourceIds,
+								setPinned: setResourcePinned,
+								pinnedItemsContainer,
+							}}
+						>
 							<CharacterResourceGroup id="characters" title="All Characters" sceneId={null} />
 							{sceneId && (
 								<CharacterResourceGroup
@@ -76,7 +104,7 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 }
 
 interface ResourceGroupItem<Data> {
-	key: React.Key
+	id: string
 	name: string
 	timestamp: number
 	data: Data
@@ -94,10 +122,18 @@ export function ResourceGroup<ItemData>(props: {
 	renderItem: (data: ItemData) => React.ReactNode
 }) {
 	const [open, setOpen] = useLocalStorageSwitch(`resource-tree-group:${props.id}`, false)
-	const disclosure = useDisclosureStore({ open, setOpen })
+	const disclosure = useDisclosureStore({
+		open,
+		setOpen: (open) => {
+			startTransition(() => setOpen(open))
+		},
+	})
 	const { processItems } = useContext(ResourceTreeContext)
+	const context = useContext(ResourceTreeContext)
 	const folderIcon = open ? <Lucide.FolderOpen /> : <Lucide.Folder />
-	const items = processItems(props.items)
+
+	const items = processItems(props.items ?? [])
+	const pinnedItems = processItems(props.items.filter((it) => context.pinned.has(it.id)))
 
 	return (
 		<>
@@ -119,17 +155,23 @@ export function ResourceGroup<ItemData>(props: {
 				</form>
 			</div>
 			{items.length > 0 && (
-				<DisclosureContent store={disclosure} className="flex flex-col gap-1 pl-2">
+				<DisclosureContent store={disclosure} unmountOnHide className="flex flex-col pl-2 gap-1">
 					{items.map((item) => (
-						<Fragment key={item.key}>{props.renderItem(item.data)}</Fragment>
+						<Fragment key={item.id}>{props.renderItem(item.data)}</Fragment>
 					))}
 				</DisclosureContent>
 			)}
+			<Portal enabled={pinnedItems.length > 0} container={context.pinnedItemsContainer}>
+				{pinnedItems.map((item) => (
+					<Fragment key={item.id}>{props.renderItem(item.data)}</Fragment>
+				))}
+			</Portal>
 		</>
 	)
 }
 
 interface ResourceTreeItemProps extends ButtonPropsAsButton {
+	resourceId: string
 	resourceName: string
 	resourceType: string
 	dragData?: JsonValue
@@ -137,13 +179,14 @@ interface ResourceTreeItemProps extends ButtonPropsAsButton {
 }
 
 export function ResourceTreeItem({
+	resourceId,
 	resourceName,
 	resourceType,
 	dragData,
 	delete: deleteResource,
 	...props
 }: ResourceTreeItemProps) {
-	const room = useRoom()
+	const context = useContext(ResourceTreeContext)
 
 	const dragProps =
 		dragData ?
@@ -165,18 +208,39 @@ export function ResourceTreeItem({
 		/>
 	)
 
-	return room.isOwner ?
-			<ContextMenu>
-				<ContextMenu.Trigger className="w-full">{button}</ContextMenu.Trigger>
-				<ContextMenu.Panel unmountOnHide={false}>
+	return (
+		<ContextMenu>
+			<ContextMenu.Trigger className="w-full">{button}</ContextMenu.Trigger>
+			<ContextMenu.Panel unmountOnHide={false}>
+				{context.pinned.has(resourceId) ?
+					<ContextMenu.Item
+						icon={<Lucide.PinOff />}
+						onClick={() => {
+							context.setPinned(resourceId, false)
+						}}
+					>
+						Unpin
+					</ContextMenu.Item>
+				:	<ContextMenu.Item
+						icon={<Lucide.Pin />}
+						onClick={() => {
+							context.setPinned(resourceId, true)
+						}}
+					>
+						Pin
+					</ContextMenu.Item>
+				}
+
+				<RoomOwnerOnly>
 					<DeleteForm kind={resourceType} name={resourceName} onConfirmDelete={deleteResource}>
 						<ContextMenu.Item type="submit" icon={<Lucide.Trash />}>
 							Delete
 						</ContextMenu.Item>
 					</DeleteForm>
-				</ContextMenu.Panel>
-			</ContextMenu>
-		:	button
+				</RoomOwnerOnly>
+			</ContextMenu.Panel>
+		</ContextMenu>
+	)
 }
 
 interface SortMode {

@@ -23,7 +23,7 @@ export function SceneResourceGroup() {
 				},
 			}}
 			items={(scenes ?? []).map((scene) => ({
-				key: scene._id,
+				id: scene._id,
 				name: scene.name,
 				timestamp: scene._creationTime,
 				data: scene,
@@ -34,6 +34,7 @@ export function SceneResourceGroup() {
 						render={
 							<ResourceTreeItem
 								key={scene._id}
+								resourceId={scene._id}
 								resourceName={scene.name}
 								resourceType="scene"
 								icon={<Lucide.Image />}

@@ -72,7 +72,7 @@ export function Button({
 	const className = twMerge(
 		panel(),
 
-		"flex items-center gap-2 text-left",
+		"flex items-center text-left gap-2",
 
 		size === "sm" && (square ? "size-8" : "h-8 px-2"),
 		size === "md" && (square ? "size-10" : "h-10 px-3"),
@@ -144,7 +144,7 @@ export function Button({
 	}
 
 	const element =
-		"element" in props ?
+		"element" in props && props.element !== undefined ?
 			cloneElement(props.element, {
 				className: twMerge(className, props.className),
 				children: buttonChildren,

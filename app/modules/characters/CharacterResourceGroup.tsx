@@ -78,7 +78,7 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 					},
 				}}
 				items={deferredCharacters.map((character) => ({
-					key: character._id,
+					id: character._id,
 					name: character.name ?? "???",
 					timestamp: character._creationTime,
 					data: character,
@@ -101,6 +101,7 @@ function CharacterResourceTreeItem({
 	return (
 		<ResourceTreeItem
 			key={character._id}
+			resourceId={character._id}
 			resourceName={character.name ?? "???"}
 			resourceType="character"
 			dragData={typed<CharacterDragData>({

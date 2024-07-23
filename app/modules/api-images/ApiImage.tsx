@@ -1,7 +1,8 @@
 import { useQuery } from "convex/react"
 import { LucideImageOff } from "lucide-react"
-import type { ComponentProps, ReactElement } from "react"
+import { useRef, type ComponentProps, type ReactElement } from "react"
 import { twMerge } from "tailwind-merge"
+import { useSize } from "~/helpers/dom/useResizeObserver.ts"
 import type { Nullish } from "~/helpers/types.ts"
 import { Loading } from "~/ui/Loading.tsx"
 import { resolveClasses, type ClassSlotProps } from "~/ui/classSlots.tsx"
@@ -19,10 +20,15 @@ export function ApiImage({
 	className,
 	...props
 }: ApiImageProps) {
-	const url = useQuery(api.images.getBestUrl, imageId ? { id: imageId } : "skip")
+	const ref = useRef<HTMLDivElement>(null)
+	const size = useSize(ref)
+	const url = useQuery(
+		api.images.getBestUrl,
+		imageId ? { id: imageId, width: size.x, height: size.y } : "skip",
+	)
 	const classes = resolveClasses(className, "wrapper")
 	return (
-		<div {...props} className={twMerge("*:size-full", classes.wrapper)}>
+		<div {...props} className={twMerge("*:size-full", classes.wrapper)} ref={ref}>
 			{imageId != null && url === undefined ?
 				<Loading />
 			: url == null ?
