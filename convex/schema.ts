@@ -4,14 +4,12 @@ import { brandedString, deprecated, literals, nullable } from "convex-helpers/va
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { listRaceIds } from "~/modules/races/data.ts"
-import { characterAspectSkillProperties } from "./characterAspectSkills/types.ts"
 import { characterAttributeValidator, characterConditionValidator } from "./characters/types.ts"
-import { diceMacroProperties } from "./diceMacros/types.ts"
 import { nullish } from "./helpers/convex.ts"
 import { diceInputValidator, diceRollValidator } from "./messages/types.ts"
 import { roomCombatValidator } from "./rooms/combat/types.ts"
-import { roomProperties } from "./rooms/types.ts"
-import { sceneProperties } from "./scenes/types.ts"
+import { sceneTokenProperties } from "./scenes/tokens/types.ts"
+import { vectorValidator } from "./types.ts"
 
 export default defineSchema({
 	...authTables,
@@ -39,10 +37,25 @@ export default defineSchema({
 	}).index("hash", ["hash"]),
 
 	rooms: defineTable({
-		...roomProperties,
+		name: v.optional(v.string()),
+		experience: v.optional(v.number()),
+		currentScene: v.optional(v.id("scenes")),
+		gameTime: v.optional(v.number()), // measured in days since the start of year 0
+		ping: v.optional(
+			v.object({
+				key: v.optional(v.string()),
+				name: v.string(),
+				position: vectorValidator(),
+				colorHue: v.number(),
+			}),
+		),
 		slug: v.string(),
 		owner: v.optional(v.id("users")),
 		combat: nullish(roomCombatValidator),
+
+		mapImageId: deprecated,
+		mapDimensions: deprecated,
+		mapCellSize: deprecated,
 		ownerId: deprecated,
 	})
 		.index("slug", ["slug"])
@@ -67,7 +80,9 @@ export default defineSchema({
 		.index("roomId_user", ["roomId", "user"]),
 
 	diceMacros: defineTable({
-		...diceMacroProperties,
+		name: v.string(),
+		dice: v.array(diceInputValidator),
+		roomId: v.id("rooms"),
 		user: v.optional(v.id("users")),
 		userId: deprecated,
 	}).index("roomId_user", ["roomId", "user"]),
@@ -148,9 +163,18 @@ export default defineSchema({
 		.index("sceneId", ["sceneId"])
 		.index("player", ["player"]),
 
-	scenes: defineTable(sceneProperties).index("roomId", ["roomId"]),
+	scenes: defineTable({
+		name: v.string(),
+		background: nullable(v.id("_storage")),
+		backgroundDimensions: v.optional(v.object({ x: v.number(), y: v.number() })),
+		cellSize: v.number(),
+		roomId: v.id("rooms"),
+		tokens: v.optional(v.array(v.object(sceneTokenProperties))),
+		characterTokens: deprecated,
+	}).index("roomId", ["roomId"]),
 
 	characterAspectSkills: defineTable({
-		...characterAspectSkillProperties,
+		characterId: v.id("characters"),
+		aspectSkillId: brandedString("aspectSkill"),
 	}).index("characterId", ["characterId"]),
 })

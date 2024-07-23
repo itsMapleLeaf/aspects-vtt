@@ -1,6 +1,7 @@
 import { v } from "convex/values"
 import { Effect } from "effect"
 import { parallel } from "~/helpers/async.ts"
+import { pick } from "~/helpers/object.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { mutation, query, type QueryCtx } from "../_generated/server.js"
 import { requireDoc } from "../helpers/convex.ts"
@@ -9,9 +10,9 @@ import { partial } from "../helpers/partial.ts"
 import { requireRoomOwner } from "../rooms/functions.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
 import { RoomModel } from "../rooms/RoomModel.ts"
+import schema from "../schema.ts"
 import { vectorValidator } from "../types.ts"
 import { createToken } from "./tokens/functions.ts"
-import { sceneUpdateProperties } from "./types.ts"
 
 export const list = query({
 	args: {
@@ -103,7 +104,14 @@ export const duplicate = mutation({
 
 export const update = mutation({
 	args: {
-		...partial(sceneUpdateProperties),
+		...partial(
+			pick(schema.tables.scenes.validator.fields, [
+				"name",
+				"background",
+				"backgroundDimensions",
+				"cellSize",
+			]),
+		),
 		id: v.id("scenes"),
 		backgroundDimensions: v.optional(vectorValidator()),
 	},

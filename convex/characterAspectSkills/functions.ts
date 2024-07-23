@@ -9,7 +9,7 @@ import {
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.ts"
-import { characterAspectSkillProperties } from "./types.ts"
+import schema from "../schema.ts"
 
 export const list = effectQuery({
 	args: {
@@ -31,7 +31,7 @@ export const list = effectQuery({
 
 export const create = effectMutation({
 	args: {
-		...characterAspectSkillProperties,
+		...schema.tables.characterAspectSkills.validator.fields,
 	},
 	handler: (args) => {
 		return pipe(

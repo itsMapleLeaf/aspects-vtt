@@ -15,11 +15,11 @@ import {
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.js"
+import schema from "../schema.ts"
 import { getCurrentUser, getCurrentUserId } from "../users.ts"
 import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
 import { ensureViewerOwnsRoom } from "./helpers.ts"
-import { roomProperties } from "./types.ts"
 
 export const get = effectQuery({
 	args: { slug: v.string() },
@@ -106,7 +106,7 @@ const generateUniqueSlug = Effect.gen(function* () {
 
 export const update = mutation({
 	args: {
-		...omit(roomProperties, ["ping"]),
+		...omit(schema.tables.rooms.validator.fields, ["ping"]),
 		id: v.id("rooms"),
 		combat: v.optional(
 			v.object({
