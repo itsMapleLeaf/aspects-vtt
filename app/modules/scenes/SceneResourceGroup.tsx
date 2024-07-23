@@ -3,6 +3,7 @@ import * as Lucide from "lucide-react"
 import { api } from "../../../convex/_generated/api.js"
 import { ResourceGroup, ResourceTreeItem } from "../resources/ResourceTree.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { SceneEditorModal } from "./SceneEditor.tsx"
 
 export function SceneResourceGroup() {
 	const room = useRoom()
@@ -28,17 +29,23 @@ export function SceneResourceGroup() {
 				data: scene,
 			}))}
 			renderItem={(scene) => (
-				<ResourceTreeItem
-					key={scene._id}
-					resourceName={scene.name}
-					resourceType="scene"
-					icon={<Lucide.Image />}
-					delete={async () => {
-						await deleteScene({ id: scene._id })
-					}}
-				>
-					{scene.name}
-				</ResourceTreeItem>
+				<SceneEditorModal scene={scene}>
+					<SceneEditorModal.Button
+						render={
+							<ResourceTreeItem
+								key={scene._id}
+								resourceName={scene.name}
+								resourceType="scene"
+								icon={<Lucide.Image />}
+								delete={async () => {
+									await deleteScene({ id: scene._id })
+								}}
+							>
+								{scene.name}
+							</ResourceTreeItem>
+						}
+					/>
+				</SceneEditorModal>
 			)}
 		/>
 	)
