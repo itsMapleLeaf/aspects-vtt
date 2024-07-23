@@ -37,7 +37,11 @@ const ResourceTreeContext = createContext<{
 export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 	const [search, setSearch] = useState("")
 	const { sortMode, cycleSortMode } = useSorting()
-	const [pinnedResourceIds, setPinnedResourceIds] = useState<ReadonlySet<string>>(new Set())
+	const [pinnedResourceIds, setPinnedResourceIds] = useLocalStorageState<readonly string[]>(
+		"pinnedResources",
+		[],
+		z.array(z.string()),
+	)
 	const [pinnedItemsContainer, setPinnedItemsContainer] = useState<HTMLElement | null>()
 
 	const processItems = <Data,>(items: ReadonlyArray<ResourceGroupItem<Data>>) =>
@@ -47,13 +51,9 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 
 	const setResourcePinned = (resourceId: string, pinned: boolean) => {
 		if (pinned) {
-			setPinnedResourceIds((set) => new Set(set).add(resourceId))
+			setPinnedResourceIds((current) => [...current, resourceId])
 		} else {
-			setPinnedResourceIds((set) => {
-				const newSet = new Set(set)
-				newSet.delete(resourceId)
-				return newSet
-			})
+			setPinnedResourceIds((current) => current.filter((it) => it !== resourceId))
 		}
 	}
 
@@ -81,7 +81,7 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 						<ResourceTreeContext.Provider
 							value={{
 								processItems,
-								pinned: pinnedResourceIds,
+								pinned: new Set(pinnedResourceIds),
 								setPinned: setResourcePinned,
 								pinnedItemsContainer,
 							}}

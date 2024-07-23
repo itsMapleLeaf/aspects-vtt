@@ -6,7 +6,7 @@ type JsonValue =
 	| number
 	| boolean
 	| null
-	| JsonValue[]
+	| readonly JsonValue[]
 	| { [key: string]: JsonValue | undefined }
 
 export function useLocalStorageState<T extends JsonValue>(
