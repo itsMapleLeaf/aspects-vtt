@@ -17,7 +17,7 @@ import { useSceneContext } from "./SceneContext.tsx"
 import { SceneGrid } from "./SceneGrid.tsx"
 import { TokenElementLayer } from "./TokenElementLayer.tsx"
 import { TokenMenu } from "./TokenMenu.tsx"
-import { useCurrentScene, useCurrentSceneTokens } from "./hooks.ts"
+import { useCurrentRoomScene, useCurrentSceneTokens } from "./hooks.ts"
 import { useAddTokenMutation } from "./useAddTokenMutation.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
@@ -109,7 +109,7 @@ function DragHandler({ children }: { children: React.ReactNode }) {
 }
 
 function SceneBackground() {
-	const scene = useCurrentScene()
+	const scene = useCurrentRoomScene()
 	const { viewport } = useSceneContext()
 	const tileSize = 1024
 	const windowSize = useWindowSize()

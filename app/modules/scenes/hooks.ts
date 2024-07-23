@@ -3,7 +3,7 @@ import { api } from "../../../convex/_generated/api.js"
 import { useQuerySuspense } from "../convex/suspense.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
-export function useCurrentScene() {
+export function useCurrentRoomScene() {
 	const room = useRoom()
 	return useQuerySuspense(api.scenes.functions.getCurrent, { roomId: room._id })
 }

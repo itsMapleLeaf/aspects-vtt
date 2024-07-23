@@ -1,9 +1,9 @@
 import { Vector } from "../../helpers/Vector.ts"
-import { useCurrentScene } from "./hooks.ts"
+import { useCurrentRoomScene } from "./hooks.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 
 export function DistanceLayer() {
-	const scene = useCurrentScene()
+	const scene = useCurrentRoomScene()
 	const context = useSceneContext()
 
 	if (!scene) return
@@ -67,7 +67,7 @@ export function DistanceLayer() {
 }
 
 export function DistanceLabelLayer() {
-	const scene = useCurrentScene()
+	const scene = useCurrentRoomScene()
 	const context = useSceneContext()
 
 	if (!scene) return
