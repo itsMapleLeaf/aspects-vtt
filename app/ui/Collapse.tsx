@@ -5,7 +5,7 @@ import type { ReactNode } from "react"
 export function Collapse({ title, children }: { title: ReactNode; children: ReactNode }) {
 	return (
 		<DisclosureProvider>
-			<Disclosure className="flex items-center gap-0.5 transition-colors hover:text-primary-700">
+			<Disclosure className="flex items-center transition-colors gap-0.5 hover:text-primary-700">
 				<Lucide.ChevronDown className="transition-transform [[aria-expanded=true]>&]:rotate-180" />
 				<span className="select-none font-bold leading-6">{title}</span>
 			</Disclosure>

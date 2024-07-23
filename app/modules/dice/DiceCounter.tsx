@@ -26,7 +26,7 @@ export function DiceCounter({
 						key={kind.name}
 						data-selected={count > 0}
 						className={panel(
-							"flex items-center justify-center gap-2 px-3 py-1 transition *:data-[selected=false]:opacity-50",
+							"flex items-center justify-center px-3 py-1 transition gap-2 *:data-[selected=false]:opacity-50",
 						)}
 					>
 						<div className="flex flex-col">

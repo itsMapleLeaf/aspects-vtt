@@ -49,9 +49,9 @@ export default function RoomRoute() {
 				</Suspense>
 			</div>
 
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end gap-2 overflow-clip p-2">
+			<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end overflow-clip p-2 gap-2">
 				<AutoAnimate className="flex h-[calc(100%-4rem)] min-h-0 flex-1 flex-col gap-2">
-					<TranslucentPanel className="pointer-events-auto flex min-h-0 w-[18rem] flex-1 flex-col gap-2 p-2">
+					<TranslucentPanel className="pointer-events-auto flex min-h-0 w-[18rem] flex-1 flex-col p-2 gap-2">
 						<Suspense fallback={<Loading fill="parent" />}>
 							<ResourceTree sceneId={scene?._id} />
 						</Suspense>
@@ -60,7 +60,7 @@ export default function RoomRoute() {
 					<CombatInitiativePanel className="pointer-events-auto w-[18rem]" />
 				</AutoAnimate>
 
-				<TranslucentPanel className="pointer-events-auto flex flex-col items-center gap-2 p-2">
+				<TranslucentPanel className="pointer-events-auto flex flex-col items-center p-2 gap-2">
 					<Suspense>
 						<RoomToolbar store={store} />
 					</Suspense>
@@ -73,7 +73,7 @@ export default function RoomRoute() {
 								<MessageListScroller />
 							</div>
 							<div className="flex flex-col gap-2">
-								<TranslucentPanel element={<aside />} className="pointer-events-auto gap-2 p-2">
+								<TranslucentPanel element={<aside />} className="pointer-events-auto p-2 gap-2">
 									<MessageInput />
 								</TranslucentPanel>
 							</div>

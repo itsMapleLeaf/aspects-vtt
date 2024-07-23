@@ -125,7 +125,7 @@ function TokenMenuContent() {
 
 	return (
 		<div className="flex-center gap-3">
-			<div className={translucentPanel("flex justify-center gap-2 p-2")}>
+			<div className={translucentPanel("flex justify-center p-2 gap-2")}>
 				{selectionHasCharacters && (
 					<Menu placement="top">
 						<MenuButton render={<Button tooltip="Status" icon={<Lucide.HeartPulse />} />} />
@@ -135,7 +135,7 @@ function TokenMenuContent() {
 									<CharacterStatusFields character={singleSelectedCharacter} />
 								</div>
 							)}
-							<div className="gap-[inherit] flex *:flex-1 empty:hidden">
+							<div className="flex gap-[inherit] *:flex-1 empty:hidden">
 								<StressUpdateMenu characters={selectedCharacters}>
 									<Button text="Advanced vitality update" icon={<Lucide.WandSparkles />} />
 								</StressUpdateMenu>

@@ -99,7 +99,7 @@ export function MessageInput() {
 						}
 					}}
 				/>
-				<div className="flex w-fit cursor-default flex-wrap gap-1 px-3 pb-3 empty:hidden">
+				<div className="flex w-fit cursor-default flex-wrap px-3 pb-3 gap-1 empty:hidden">
 					{diceKinds.map((kind) => {
 						const count = diceCounts[kind.name] ?? 0
 						return Iterator.range(count)
@@ -178,7 +178,7 @@ function MacroList({
 }) {
 	return (
 		<ScrollArea scrollbarPosition="inside" className="min-h-0 flex-1">
-			<div className="grid min-h-0 gap-2 p-2">
+			<div className="grid min-h-0 p-2 gap-2">
 				{macros.map((macro) => (
 					<section key={macro._id} className={panel("overflow-clip")}>
 						<header className="flex justify-between p-2">
@@ -187,7 +187,7 @@ function MacroList({
 								<Button icon={<Lucide.Dices />} onClick={() => onSubmit(macro)} />
 							</Tooltip>
 						</header>
-						<ul className="flex flex-wrap gap-2 border-t border-primary-300 bg-black/25 p-2">
+						<ul className="flex flex-wrap border-t border-primary-300 bg-black/25 p-2 gap-2">
 							{macro.dice.map((die) =>
 								Iterator.range(die.count)
 									.map((n) => {

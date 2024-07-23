@@ -46,7 +46,7 @@ export function ConfirmModal({
 		<ModalProvider {...props} open={props.open ?? open} setOpen={setOpen}>
 			{children}
 			<ModalPanel title={title}>
-				<ModalPanelContent className="grid place-items-center gap-2 text-pretty p-2 text-center">
+				<ModalPanelContent className="grid place-items-center text-pretty p-2 text-center gap-2">
 					<p>{message}</p>
 					<ModalActions>
 						<Button icon={cancelIcon} element={<ModalDismiss />}>

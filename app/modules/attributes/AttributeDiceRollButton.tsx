@@ -42,7 +42,7 @@ export function AttributeDiceRollButton({
 					/>
 				}
 			/>
-			<PopoverPanel portal gutter={8} unmountOnHide className="flex flex-col gap-2 p-2">
+			<PopoverPanel portal gutter={8} unmountOnHide className="flex flex-col p-2 gap-2">
 				<div className="flex gap-current *:flex-1">
 					<FormField label="Boost Dice">
 						<CounterInput value={boostCount} onChange={setBoostCount} />

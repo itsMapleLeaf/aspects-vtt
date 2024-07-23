@@ -97,7 +97,7 @@ function ImageUploaderView({
 					<div
 						data-state={state.type}
 						data-empty={!imageUrl || undefined}
-						className="flex-center absolute inset-0 gap-3 text-pretty bg-primary-100/75 text-center opacity-0 transition-opacity data-[empty]:opacity-100 data-[state=error]:opacity-100 [[data-image-uploader-preview]:hover>&]:opacity-100"
+						className="flex-center absolute inset-0 text-pretty bg-primary-100/75 text-center opacity-0 transition-opacity gap-3 data-[empty]:opacity-100 data-[state=error]:opacity-100 [[data-image-uploader-preview]:hover>&]:opacity-100"
 					>
 						<div className="aspect-square w-full max-w-16 opacity-50 *:size-full">
 							{state.type === "error" ?

@@ -25,7 +25,7 @@ export default function GuideLayout() {
 				<div className="absolute inset-x-0 bottom-0 h-24 translate-y-px -scale-y-100 bg-natural-gradient-100"></div>
 			</div>
 
-			<div className="mx-auto flex max-w-screen-lg gap-2 p-4">
+			<div className="mx-auto flex max-w-screen-lg p-4 gap-2">
 				<div className="sticky top-16 h-fit w-56">
 					<ScrollArea>
 						<GuideNav />

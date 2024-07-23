@@ -19,7 +19,7 @@ export type ColumnProps = ColumnPropsAsDiv | ColumnPropsAsElement
 export function Column({ gap = 4, element = <div />, ...props }: ColumnProps) {
 	return renderElementProp(element, {
 		...props,
-		className: twMerge("gap-[--gap] flex flex-col", props.className),
+		className: twMerge("flex flex-col gap-[--gap]", props.className),
 		style: {
 			"--gap": `${gap * 0.25}rem`,
 			...props.style,
