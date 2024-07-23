@@ -1,8 +1,8 @@
 import { LucideBan } from "lucide-react"
 import type { ReactNode } from "react"
 import { FormField } from "./Form.tsx"
-import { panel } from "./styles.ts"
 import { Tooltip } from "./Tooltip.tsx"
+import { panel } from "./styles.ts"
 
 export function ReadOnlyField({ label, value }: { label: ReactNode; value: ReactNode }) {
 	return (

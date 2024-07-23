@@ -9,9 +9,9 @@ import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { useOwnedCharacter } from "../characters/hooks.ts"
 import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
 import { QuickReference } from "../game/QuickReference.tsx"
-import { RoomOwnerOnly } from "./roomContext.tsx"
 import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
 import type { RoomToolbarStore } from "./RoomToolbarStore.ts"
+import { RoomOwnerOnly } from "./roomContext.tsx"
 
 export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 	const character = useOwnedCharacter()

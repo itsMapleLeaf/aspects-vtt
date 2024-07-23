@@ -6,7 +6,7 @@ import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
 import { LoadingDecoration } from "./LoadingDecoration.tsx"
 import { MenuItem, MenuPanel } from "./Menu.tsx"
-import { type EditableProps, useEditable } from "./useEditable.tsx"
+import { useEditable, type EditableProps } from "./useEditable.tsx"
 
 export interface SelectOptionWithoutId<T> {
 	id?: string | undefined
