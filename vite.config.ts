@@ -43,7 +43,4 @@ export default defineConfig({
 		inspect(),
 		visualizer({ emitFile: true, filename: "build/stats.html" }),
 	],
-	optimizeDeps: {
-		force: true,
-	},
 })
