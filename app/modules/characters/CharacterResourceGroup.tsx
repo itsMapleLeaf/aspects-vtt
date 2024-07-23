@@ -107,7 +107,7 @@ function CharacterResourceTreeItem({
 				characterId: character._id,
 				visible: character.visible,
 			})}
-			icon={<CharacterImage character={character} className="rounded-full" />}
+			icon={<CharacterImage character={character} className="overflow-clip rounded-full" />}
 			delete={async () => {
 				await deleteCharacter({ id: character._id })
 			}}

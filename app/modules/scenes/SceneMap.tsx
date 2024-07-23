@@ -3,13 +3,13 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as React from "react"
 import { useState } from "react"
 import { Vector } from "~/helpers/Vector.ts"
+import { jsonTextParser } from "~/helpers/json.ts"
 import { Rect } from "../../helpers/Rect.ts"
 import { randomItem } from "../../helpers/random.ts"
 import { DragSelectArea } from "../../ui/DragSelect.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { getApiImageUrl } from "../api-images/helpers.ts"
-import { CharacterResource } from "../characters/CharacterResource.tsx"
-import { parseResourceDragData } from "../resources/Resource.tsx"
+import { characterDragData } from "../characters/types.ts"
 import type { RoomToolbarStore } from "../rooms/RoomToolbarStore.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { PingHandler } from "./PingHandler.tsx"
@@ -197,7 +197,11 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 			onDrop={(event) => {
 				event.preventDefault()
 
-				const data = parseResourceDragData(CharacterResource, event.dataTransfer.getData("text"))
+				const data = jsonTextParser
+					.pipe(characterDragData)
+					.optional()
+					.catch(() => undefined)
+					.parse(event.dataTransfer.getData("text"))
 				if (!data) return
 
 				const position = context

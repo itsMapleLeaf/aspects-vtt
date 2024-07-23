@@ -114,7 +114,7 @@ function TokenElement({
 			<div
 				{...bind()}
 				data-hidden={!token.visible || undefined}
-				className="absolute left-0 top-0 origin-top-left touch-none data-[hidden]:opacity-75"
+				className="absolute left-0 top-0 origin-top-left touch-none"
 				style={{ translate }}
 				onDoubleClick={() => {
 					if (!token.character) return
@@ -143,8 +143,8 @@ function TokenElement({
 						/>
 					)}
 					{token.visible ? null : (
-						<div className="flex-center absolute inset-0">
-							<Lucide.EyeOff className="size-2/3 opacity-50" />
+						<div className="flex-center absolute inset-0 bg-black/70">
+							<Lucide.EyeOff className="size-2/3 opacity-75" />
 						</div>
 					)}
 					<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
@@ -180,7 +180,7 @@ function CharacterTokenDecoration({
 			style={{ translate }}
 		>
 			<div className="relative" style={Vector.from(cellSize).times(viewport.scale).toSize()}>
-				<div className="flex-center absolute inset-x-0 bottom-full gap-1.5 pb-2">
+				<div className="flex-center absolute inset-x-0 bottom-full pb-2 gap-1.5">
 					{character.conditions.map((condition) => (
 						<CharacterTokenConditionBadge key={condition.name} condition={condition} />
 					))}
