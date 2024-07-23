@@ -13,7 +13,7 @@ export function Portal({
 }) {
 	const container = useSyncExternalStore(
 		() => () => {},
-		() => (enabled ? customContainer ?? document.body : null),
+		() => (enabled ? (customContainer ?? document.body) : null),
 		() => null,
 	)
 	return container ? ReactDOM.createPortal(children, container) : children
