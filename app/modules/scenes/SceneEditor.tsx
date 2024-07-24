@@ -1,5 +1,6 @@
+import { Link } from "@remix-run/react"
 import { useMutation } from "convex/react"
-import { LucideDoorOpen } from "lucide-react"
+import { LucideDoorOpen, LucideEye } from "lucide-react"
 import React, { useEffect } from "react"
 import { loadImage } from "~/helpers/dom/images.ts"
 import type { Overwrite } from "~/helpers/types.ts"
@@ -67,16 +68,24 @@ export function SceneEditor({ scene }: { scene: ApiScene }) {
 				}}
 			/>
 
-			{isCurrent ? null : (
+			<FormRow className="*:flex-1">
 				<Button
-					text="Visit scene"
-					icon={<LucideDoorOpen />}
-					onClick={() => {
-						updateRoom({ id: scene.roomId, currentScene: scene._id })
-					}}
-					className="w-full"
-				/>
-			)}
+					icon={<LucideEye />}
+					element={<Link to={`?scene=${scene._id}`} onClick={() => modal?.hide()} />}
+				>
+					View scene
+				</Button>
+				{isCurrent ? null : (
+					<Button
+						icon={<LucideDoorOpen />}
+						onClick={() => {
+							updateRoom({ id: scene.roomId, currentScene: scene._id })
+						}}
+					>
+						Set as current scene
+					</Button>
+				)}
+			</FormRow>
 		</FormLayout>
 	)
 }

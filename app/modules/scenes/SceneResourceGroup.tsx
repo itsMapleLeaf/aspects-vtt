@@ -4,12 +4,14 @@ import { api } from "../../../convex/_generated/api.js"
 import { ResourceGroup, ResourceTreeItem } from "../resources/ResourceTree.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { SceneEditorModal } from "./SceneEditor.tsx"
+import { useSceneParam } from "./hooks.ts"
 
 export function SceneResourceGroup() {
 	const room = useRoom()
 	const scenes = useQuery(api.scenes.functions.list, { roomId: room._id })
 	const createScene = useMutation(api.scenes.functions.create)
 	const deleteScene = useMutation(api.scenes.functions.remove)
+	const sceneParam = useSceneParam()
 
 	return (
 		<ResourceGroup
@@ -37,7 +39,13 @@ export function SceneResourceGroup() {
 								resourceId={scene._id}
 								resourceName={scene.name}
 								resourceType="scene"
-								icon={<Lucide.Image />}
+								icon={
+									room.currentScene === scene._id ? <Lucide.ImagePlay />
+									: scene._id === sceneParam ?
+										<Lucide.LucidePencilRuler />
+									:	<Lucide.Image />
+								}
+								active={room.currentScene === scene._id}
 								delete={async () => {
 									await deleteScene({ id: scene._id })
 								}}

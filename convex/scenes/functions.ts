@@ -1,17 +1,18 @@
 import { v } from "convex/values"
-import { Effect } from "effect"
+import { Effect, pipe } from "effect"
 import { parallel } from "~/helpers/async.ts"
 import { pick } from "~/helpers/object.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { mutation, query, type QueryCtx } from "../_generated/server.js"
 import { requireDoc } from "../helpers/convex.ts"
-import { effectQuery, getDoc } from "../helpers/effect.ts"
+import { Convex, effectQuery, getDoc } from "../helpers/effect.ts"
 import { partial } from "../helpers/partial.ts"
+import { RoomModel } from "../rooms/RoomModel.ts"
 import { requireRoomOwner } from "../rooms/functions.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
-import { RoomModel } from "../rooms/RoomModel.ts"
 import schema from "../schema.ts"
 import { vectorValidator } from "../types.ts"
+import { getCurrentUser } from "../users.ts"
 import { createToken } from "./tokens/functions.ts"
 
 export const list = query({
@@ -27,12 +28,17 @@ export const list = query({
 
 export const get = effectQuery({
 	args: {
-		id: v.id("scenes"),
+		id: v.string(),
 	},
 	handler(args) {
-		return requireSceneRoomOwner(args.id).pipe(
-			Effect.map(({ scene }) => scene),
-			Effect.catchTag("RoomNotOwnedError", () => Effect.succeed(null)),
+		return pipe(
+			Effect.gen(function* () {
+				const sceneId = yield* Convex.db.normalizeId("scenes", args.id)
+				const user = yield* getCurrentUser()
+				const scene = yield* Convex.db.get(sceneId)
+				const room = yield* Convex.db.get(scene.roomId)
+				return room.owner === user._id || room.currentScene === scene._id ? scene : null
+			}),
 			Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
 			Effect.catchTag("NotLoggedInError", () => Effect.succeed(null)),
 			Effect.orDie,

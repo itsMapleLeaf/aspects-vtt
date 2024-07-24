@@ -54,6 +54,11 @@ export class NotLoggedInError extends Data.TaggedError("NotLoggedInError")<{}> {
 
 export class FileNotFoundError extends Data.TaggedError("FileNotFoundError")<{}> {}
 
+export class InvalidIdError<T extends string> extends Data.TaggedError("InvalidIdError")<{
+	table: T
+	id: string
+}> {}
+
 interface EffectBuilderOptions<
 	Args extends PropertyValidators | void,
 	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
@@ -191,6 +196,20 @@ class ConvexEffectDb {
 	query<T extends TableNames>(table: T) {
 		return new EffectQueryInitializer(
 			QueryCtxService.pipe(Effect.map((ctx) => ctx.db.query(table))),
+		)
+	}
+
+	normalizeId<T extends TableNames>(table: T, id: string) {
+		return QueryCtxService.pipe(
+			Effect.map((ctx) => ctx.db.normalizeId(table, id)),
+			Effect.filterOrFail(isNonNil, () => new InvalidIdError({ table, id })),
+		)
+	}
+
+	normalizeSystemId<T extends SystemTableNames>(table: T, id: string) {
+		return QueryCtxService.pipe(
+			Effect.map((ctx) => ctx.db.system.normalizeId(table, id)),
+			Effect.filterOrFail(isNonNil, () => new InvalidIdError({ table, id })),
 		)
 	}
 

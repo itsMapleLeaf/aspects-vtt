@@ -1,11 +1,21 @@
+import { useSearchParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { api } from "../../../convex/_generated/api.js"
-import { useQuerySuspense } from "../convex/suspense.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 
 export function useCurrentRoomScene() {
+	const sceneId = useSceneParam()
+	return useQuery(api.scenes.functions.get, sceneId ? { id: sceneId } : "skip")
+}
+
+export function useSceneParam() {
 	const room = useRoom()
-	return useQuerySuspense(api.scenes.functions.getCurrent, { roomId: room._id })
+	const [searchParams] = useSearchParams()
+
+	// the param is for a viewed scene by the owner,
+	// and players shouldn't be able to use that
+	const sceneParam = room.isOwner ? searchParams.get("scene") : null
+	return sceneParam ?? room.currentScene
 }
 
 export function useCurrentSceneTokens() {
