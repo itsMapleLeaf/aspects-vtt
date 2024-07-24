@@ -15,7 +15,7 @@ import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { CharacterResourceGroup } from "../characters/CharacterResourceGroup.tsx"
-import { RoomOwnerOnly } from "../rooms/roomContext.tsx"
+import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { SceneResourceGroup } from "../scenes/SceneResourceGroup.tsx"
 
 const ResourceTreeContext = createContext<{
@@ -121,6 +121,7 @@ export function ResourceGroup<ItemData>(props: {
 	items: ReadonlyArray<ResourceGroupItem<ItemData>>
 	renderItem: (data: ItemData) => React.ReactNode
 }) {
+	const room = useRoom()
 	const [open, setOpen] = useLocalStorageSwitch(`resource-tree-group:${props.id}`, false)
 	const disclosure = useDisclosureStore({
 		open,
@@ -128,12 +129,16 @@ export function ResourceGroup<ItemData>(props: {
 			startTransition(() => setOpen(open))
 		},
 	})
-	const { processItems } = useContext(ResourceTreeContext)
 	const context = useContext(ResourceTreeContext)
-	const folderIcon = open ? <Lucide.FolderOpen /> : <Lucide.Folder />
 
-	const items = processItems(props.items ?? [])
-	const pinnedItems = processItems(props.items.filter((it) => context.pinned.has(it.id)))
+	if (props.items.length === 0 && !room.isOwner) {
+		return null
+	}
+
+	const items = context.processItems(props.items ?? [])
+	const pinnedItems = context.processItems(props.items.filter((it) => context.pinned.has(it.id)))
+
+	const folderIcon = open ? <Lucide.FolderOpen /> : <Lucide.Folder />
 
 	return (
 		<>
@@ -144,15 +149,17 @@ export function ResourceGroup<ItemData>(props: {
 				>
 					{props.name}
 				</Disclosure>
-				<form action={props.add.action}>
-					<Button
-						type="submit"
-						icon={props.add.icon}
-						tooltip={props.add.label}
-						appearance="clear"
-						square
-					/>
-				</form>
+				<RoomOwnerOnly>
+					<form action={props.add.action}>
+						<Button
+							type="submit"
+							icon={props.add.icon}
+							tooltip={props.add.label}
+							appearance="clear"
+							square
+						/>
+					</form>
+				</RoomOwnerOnly>
 			</div>
 			{items.length > 0 && (
 				<DisclosureContent store={disclosure} unmountOnHide className="flex flex-col pl-2 gap-1">
