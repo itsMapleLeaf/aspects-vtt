@@ -98,11 +98,10 @@ export const create = effectMutation({
 
 const generateUniqueSlug = Effect.gen(function* () {
 	const slug = generateSlug()
-	const existing = yield* getRoomBySlug(slug)
-	if (!existing) {
-		return slug
-	}
-	return yield* Effect.fail(new ConvexError("A room with that slug already exists"))
+	return yield* Effect.matchEffect(getRoomBySlug(slug), {
+		onFailure: () => Effect.succeed(slug),
+		onSuccess: () => Effect.fail(new ConvexError("A room with that slug already exists")),
+	})
 })
 
 export const update = mutation({
