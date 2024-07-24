@@ -1,0 +1,27 @@
+diff --git a/node_modules/effect/.bun-tag-776bc7c0e9e55666 b/.bun-tag-776bc7c0e9e55666
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/dts/Effect.d.ts b/dist/dts/Effect.d.ts
+index bc30d2e03df32469699193c036ecda23234e9339..6e3c2b3860f9cc18dec9333d9090e45a0d5797ae 100644
+--- a/dist/dts/Effect.d.ts
++++ b/dist/dts/Effect.d.ts
+@@ -525,10 +525,15 @@ export declare namespace All {
+  * @since 2.0.0
+  * @category collecting & elements
+  */
+-export declare const allSuccesses: <X extends Effect<any, any, any>>(elements: Iterable<X>, options?: {
+-    readonly concurrency?: Concurrency | undefined;
+-    readonly batching?: boolean | "inherit" | undefined;
+-} | undefined) => Effect<Array<Effect.Success<X>>, never, Effect.Context<X>>;
++export declare const allSuccesses: <V, S>(
++    elements: Iterable<Effect<V,unknown,S>>,
++    options?:
++      | {
++        readonly concurrency?: Concurrency | undefined
++        readonly batching?: boolean | "inherit" | undefined
++      }
++      | undefined
++  ) => Effect<Array<V>, never, S>;;
+ /**
+  * Drops all elements until the effectful predicate returns true.
+  *

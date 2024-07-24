@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.7",
+    "@auth/core": "^0.34.1",
+    "@convex-dev/auth": "^0.0.39",
     "@floating-ui/react-dom": "^2.1.1",
     "@fontsource-variable/nunito": "^5.0.19",
     "@formkit/auto-animate": "^0.8.2",
@@ -35,7 +37,7 @@
     "convex": "^1.13.2",
     "convex-helpers": "^0.1.48",
     "date-fns": "^3.6.0",
-    "effect": "^3.5.7",
+    "effect": "3.5.7",
     "isbot": "^5.1.13",
     "iterator-helpers-polyfill": "^3.0.1",
     "lodash-es": "^4.17.21",
@@ -51,9 +53,7 @@
     "sharp": "^0.33.4",
     "svix": "^1.25.0",
     "tailwind-merge": "^2.4.0",
-    "zod": "^3.23.8",
-    "@auth/core": "^0.34.1",
-    "@convex-dev/auth": "^0.0.39"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
@@ -110,5 +110,6 @@
     "@types/react": "npm:types-react@^19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@^19.0.0-rc.1",
     "commander": "^11"
-  }
+  },
+  "patchedDependencies": { "effect@3.5.7": "patches/effect@3.5.7.patch" }
 }
