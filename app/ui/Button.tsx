@@ -134,25 +134,24 @@ export function Button({
 		</>
 	)
 
-	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		startTransition(() => {
-			// if ((props.type ?? "button") === "submit" && event.currentTarget.form) {
-			// 	event.currentTarget.form.requestSubmit()
-			// }
-			props.onClick?.(event)
-		})
-	}
-
 	const element =
 		"element" in props && props.element !== undefined ?
 			cloneElement(props.element, {
 				className: twMerge(className, props.className),
 				children: buttonChildren,
-				onClick: handleClick,
+				onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+					startTransition(() => {
+						props.element.props.onClick?.(event)
+					})
+				},
 			})
 		:	<button
 				{...withMergedClassName(props, "cursor-default", className)}
-				onClick={handleClick}
+				onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+					startTransition(() => {
+						props.onClick?.(event)
+					})
+				}}
 				// disabling buttons is bad a11y
 				disabled={false}
 				aria-disabled={props.disabled ?? pending}
