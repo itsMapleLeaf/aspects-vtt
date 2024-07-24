@@ -1,4 +1,4 @@
-import { useAction, useMutation, useQuery } from "convex/react"
+import { useAction, useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Suspense, useId } from "react"
 import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
@@ -18,14 +18,14 @@ import { ImageUploader } from "../api-images/ImageUploader.tsx"
 import type { Attribute } from "../attributes/data.ts"
 import { statDiceKinds } from "../dice/data.tsx"
 import { listRaces } from "../races/data.ts"
-import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
+import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterAbilityList } from "./CharacterAbilityList.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
-import { getCharacterFallbackImageUrl } from "./helpers.ts"
+import { getCharacterFallbackImageUrl, hasFullCharacterPermissions } from "./helpers.ts"
 import { useCharacterUpdatePermission } from "./hooks.ts"
-import type { ApiCharacter, UpdateableCharacterField } from "./types.ts"
+import type { ApiCharacter, OwnedApiCharacter, UpdateableCharacterField } from "./types.ts"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
@@ -33,48 +33,55 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const randomize = useMutation(api.characters.functions.randomize)
 	return (
 		<div className="flex h-full min-h-0 flex-1 flex-col overflow-y-auto gap-2 *:shrink-0">
-			<RoomOwnerOnly>
-				<div className="flex items-end gap-current *:flex-1">
-					<CharacterSelectField
-						character={character}
-						field="player"
-						label="Player"
-						options={[
-							...room.players
-								.map((p) => ({ label: p.name, value: p._id }))
-								.toSorted((a, b) => a.label.localeCompare(b.label)),
-							{ id: "none", label: "None", value: null },
-						]}
-					/>
-					<ConfirmModalButton
-						title="Randomize character"
-						message="This will randomize all attributes and dice rolls. Are you sure?"
-						confirmText="Yes, randomize"
-						confirmIcon={<Lucide.Shuffle />}
-						cancelText="No, keep current values"
-						cancelIcon={<Lucide.X />}
-						onConfirm={() => randomize({ id: character._id })}
-						render={<Button icon={<Lucide.Shuffle />} text="Randomize" />}
-					/>
-				</div>
-				<div className="flex flex-wrap gap-current">
-					<CharacterCheckboxField character={character} field="visible" />
-					<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
-				</div>
-				<hr />
-			</RoomOwnerOnly>
+			{hasFullCharacterPermissions(character) && (
+				<>
+					<div className="flex items-end gap-current *:flex-1">
+						<CharacterSelectField
+							character={character}
+							field="player"
+							label="Player"
+							options={[
+								...room.players
+									.map((p) => ({ label: p.name, value: p._id }))
+									.toSorted((a, b) => a.label.localeCompare(b.label)),
+								{ id: "none", label: "None", value: null },
+							]}
+						/>
+						<ConfirmModalButton
+							title="Randomize character"
+							message="This will randomize all attributes and dice rolls. Are you sure?"
+							confirmText="Yes, randomize"
+							confirmIcon={<Lucide.Shuffle />}
+							cancelText="No, keep current values"
+							cancelIcon={<Lucide.X />}
+							onConfirm={() => randomize({ id: character._id })}
+							render={<Button icon={<Lucide.Shuffle />} text="Randomize" />}
+						/>
+					</div>
+					<div className="flex flex-wrap gap-current">
+						<CharacterCheckboxField character={character} field="visible" />
+						<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
+					</div>
+					<hr />
+				</>
+			)}
 
 			<div className="flex gap-current">
 				<div className="flex flex-1 flex-col gap-current">
 					<CharacterImageField character={character} />
-					{hasUpdatePermissions ?
+					{hasFullCharacterPermissions(character) ?
 						<>
 							<CharacterInputField character={character} field="name" />
 							<CharacterInputField character={character} field="pronouns" />
 						</>
 					:	<>
-							<ReadOnlyField label="Name" value={character.name ?? "???"} />
-							{character.pronouns && <ReadOnlyField label="Pronouns" value={character.pronouns} />}
+							<ReadOnlyField
+								label="Name"
+								value={character.permission === "limitedWithName" ? character.name : "???"}
+							/>
+							{character.permission === "limitedWithName" && (
+								<ReadOnlyField label="Pronouns" value={character.pronouns} />
+							)}
 						</>
 					}
 					<CharacterSelectField
@@ -85,7 +92,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 						)}
 					/>
 				</div>
-				{hasUpdatePermissions && (
+				{hasFullCharacterPermissions(character) && (
 					<div className="flex flex-col gap-current">
 						<Panel className="flex flex-1 flex-col items-center justify-center px-6 py-3 gap-4">
 							<AttributePoints character={character} />
@@ -116,7 +123,7 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 	)
 }
 
-function AttributePoints({ character }: { character: Required<ApiCharacter> }) {
+function AttributePoints({ character }: { character: OwnedApiCharacter }) {
 	const total =
 		character.strength + character.mobility + character.sense + character.intellect + character.wit
 	const max = 15
@@ -165,7 +172,7 @@ function CharacterInputField({
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 	const inputId = useId()
 
-	if (character[field] === undefined) {
+	if (!hasFullCharacterPermissions(character)) {
 		return null
 	}
 
@@ -194,7 +201,7 @@ function CharacterTextAreaField({
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 
-	if (character[field] === undefined) {
+	if (!hasFullCharacterPermissions(character)) {
 		return null
 	}
 
@@ -247,11 +254,11 @@ function CharacterSelectField<Field extends UpdateableCharacterField<string | nu
 	character: ApiCharacter
 	field: Field
 	label?: string
-	options: Array<SelectOption<NonNullable<ApiCharacter[Field]> | null>>
+	options: Array<SelectOption<NonNullable<OwnedApiCharacter[Field]> | null>>
 }) {
 	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
 
-	if (character[field] === undefined) {
+	if (!hasFullCharacterPermissions(character)) {
 		return null
 	}
 
@@ -273,7 +280,7 @@ function CharacterAttributeField({
 	field,
 	label = startCase(field),
 }: {
-	character: ApiCharacter
+	character: OwnedApiCharacter
 	field: Attribute["id"]
 	label?: string
 }) {
@@ -342,18 +349,13 @@ function DotCounterInput({
 }
 
 function CharacterImageField({ character }: { character: ApiCharacter }) {
-	const hasUpdatePermission = useCharacterUpdatePermission(character)
 	const update = useMutation(api.characters.functions.update)
 	const createImage = useAction(api.images_node.createImage)
-	const imageUrl = useQuery(
-		api.images.getBestUrl,
-		character.image ? { id: character.image } : "skip",
-	)
-	const fallbackUrl = getCharacterFallbackImageUrl(character)
-	return hasUpdatePermission ?
+
+	return hasFullCharacterPermissions(character) ?
 			<Suspense fallback={<Loading />}>
 				<ImageUploader
-					fallbackUrl={imageUrl ?? fallbackUrl}
+					fallbackUrl={character.imageUrl ?? getCharacterFallbackImageUrl(character)}
 					onUpload={async (imageId) => {
 						const id = await createImage({ name: `character_${character._id}`, storageId: imageId })
 						return await update({ id: character._id, image: id })

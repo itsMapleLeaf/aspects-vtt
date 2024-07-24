@@ -9,6 +9,7 @@ import { Select } from "../../ui/Select.tsx"
 import { getAttribute, listAttributes, type Attribute } from "../attributes/data.ts"
 import { useMutationAction } from "../convex/hooks.ts"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
+import { getCharacterDisplayName } from "./helpers.ts"
 import { useOwnedCharacter } from "./hooks.ts"
 import type { ApiCharacter } from "./types.ts"
 
@@ -52,7 +53,7 @@ export function ContestedRollForm({
 			<Select
 				label="Character"
 				options={characters.map((c) => ({
-					label: c.name ?? "???",
+					label: getCharacterDisplayName(c),
 					value: c._id,
 				}))}
 				value={values.selfCharacter?._id}

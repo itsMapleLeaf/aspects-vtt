@@ -1,10 +1,10 @@
 import { brandedString } from "convex-helpers/validators"
 import { v, type Infer } from "convex/values"
-import { Console, Effect } from "effect"
+import { Console, Effect, pipe } from "effect"
 import { omit } from "../../../app/helpers/object.ts"
-import { typed, type UndefinedToOptional } from "../../../app/helpers/types.ts"
+import type { UndefinedToOptional } from "../../../app/helpers/types.ts"
 import { mutation } from "../../_generated/server.js"
-import { normalizeCharacter, protectCharacter } from "../../characters/helpers.ts"
+import { normalizeCharacter } from "../../characters/helpers.ts"
 import { requireDoc, type Branded } from "../../helpers/convex.ts"
 import { effectQuery, getDoc } from "../../helpers/effect.ts"
 import { partial } from "../../helpers/partial.ts"
@@ -26,11 +26,13 @@ export const list = effectQuery({
 			const visibleTokens = isOwner ? scene.tokens : scene.tokens?.filter((token) => token.visible)
 
 			const tokens = yield* Effect.forEach(visibleTokens ?? [], (token) =>
-				Effect.fromNullable(token.characterId).pipe(
+				pipe(
+					Effect.fromNullable(token.characterId),
 					Effect.flatMap(getDoc),
+					// characters on visible tokens should be visible here,
+					// otherwise normalizeCharacter will hide them
+					Effect.map((it) => ({ ...it, visible: true })),
 					Effect.flatMap(normalizeCharacter),
-					// for our purposes here, every token is visible
-					Effect.flatMap((it) => protectCharacter({ ...it, visible: typed<boolean>(true) })),
 					Effect.orElseSucceed(() => null),
 					Effect.map((character) => ({ ...token, character })),
 				),

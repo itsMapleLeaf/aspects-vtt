@@ -3,21 +3,16 @@ import { $path } from "remix-routes"
 import type { Nullish } from "~/helpers/types.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { SkillId, getAspectSkill, type Skill } from "../aspect-skills/data.ts"
-import type { Attribute } from "../attributes/data.ts"
-import { normalizeAttributeValue } from "../attributes/helpers.ts"
+import type { NormalizedAttributeValue } from "../attributes/helpers.ts"
 import { statDiceKinds, statDiceKindsByName, type DiceKind } from "../dice/data.tsx"
 import { getRace } from "../races/data.ts"
-import type { ApiCharacter, CharacterAttributeValues } from "./types.ts"
+import type { ApiCharacter, OwnedApiCharacter } from "./types.ts"
 
 export function formatCharacterMention(character: { _id: Id<"characters"> }) {
 	return `<@${character._id}>`
 }
 
-export function getCharacterAttributeDiceKind(
-	character: CharacterAttributeValues,
-	attributeId: Attribute["id"],
-): DiceKind {
-	const value = normalizeAttributeValue(character[attributeId])
+export function getCharacterAttributeDiceKind(value: NormalizedAttributeValue): DiceKind {
 	return statDiceKinds[value - 1] ?? statDiceKindsByName.d4
 }
 
@@ -26,7 +21,7 @@ export function listCharacterRaceAbilities(character: ApiCharacter) {
 	return Object.values(race?.abilities ?? {})
 }
 
-export function listCharacterAspectSkills(character: ApiCharacter) {
+export function listCharacterAspectSkills(character: OwnedApiCharacter) {
 	return Iterator.from(character.learnedAspectSkills ?? [])
 		?.flatMap((group) => group.aspectSkillIds)
 		.map((id) => getAspectSkill(SkillId(id)))
@@ -48,4 +43,14 @@ export function getCharacterFallbackImageUrl(character: {
 				},
 			)
 		:	undefined
+}
+
+export function getCharacterDisplayName(character: ApiCharacter): string {
+	return hasFullCharacterPermissions(character) ? character.name : "???"
+}
+
+export function hasFullCharacterPermissions(
+	character: ApiCharacter,
+): character is OwnedApiCharacter {
+	return character.permission === "full"
 }

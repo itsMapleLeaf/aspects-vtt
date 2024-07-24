@@ -1,21 +1,132 @@
-import { Effect, pipe } from "effect"
+import { Console, Data, Effect, pipe } from "effect"
 import { sum } from "lodash-es"
 import { clamp } from "~/helpers/math.ts"
 import { pick } from "~/helpers/object.ts"
-import type { RequiredKeys } from "~/helpers/types.ts"
 import type { Attribute } from "~/modules/attributes/data.ts"
 import { getAttributePower, normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
 import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
 import { boostDiceKind, getDiceKindApiInput, snagDiceKind } from "~/modules/dice/data.tsx"
 import { getRace } from "~/modules/races/data.ts"
 import type { Doc, Id } from "../_generated/dataModel"
-import { UnauthorizedError, getUserFromIdentityEffect } from "../auth.ts"
-import { Convex, getDoc } from "../helpers/effect.ts"
+import { Convex, getDoc, withQueryCtx } from "../helpers/effect.ts"
 import { getCurrentUser, getCurrentUserId } from "../users.ts"
+
+export class MissingCharacterPermissionError extends Data.TaggedError(
+	"MissingCharacterPermissionError",
+) {
+	constructor(readonly characterId: Id<"characters">) {
+		super()
+	}
+}
+
+export class CharactersNotInRoomError extends Data.TaggedError("CharactersNotInRoomError") {
+	constructor(readonly charactersNotInRoom: Array<Doc<"characters">>) {
+		super()
+	}
+}
+
+export class MissingCharacterImageError extends Data.TaggedError("MissingCharacterImageError") {
+	constructor(readonly characterId: Id<"characters">) {
+		super()
+	}
+}
+
+export class MissingImageSizesError extends Data.TaggedError("MissingImageSizeError") {
+	constructor(readonly imageId: Id<"images">) {
+		super()
+	}
+}
+
+export type NormalizedCharacter = Effect.Effect.Success<ReturnType<typeof normalizeCharacter>>
 
 export function normalizeCharacter(character: Doc<"characters">) {
 	return Effect.gen(function* () {
-		const user = yield* getCurrentUserId()
+		const normalized = yield* normalizeCharacterUnsafe(character)
+		const userId = yield* getCurrentUserId()
+		const room = yield* Convex.db.get(character.roomId)
+
+		const isRoomOwner = room.owner === userId
+		const isPlayer = character.player === userId
+
+		if (isRoomOwner || isPlayer) {
+			return { ...normalized, permission: "full" as const }
+		}
+
+		if (character.visible && character.nameVisible) {
+			return {
+				...pick(normalized, [
+					"_id",
+					"_creationTime",
+					"roomId",
+					"sceneId",
+					"imageUrl",
+					"conditions",
+					"race",
+					"visible",
+					"nameVisible",
+					"name",
+					"pronouns",
+				]),
+				permission: "limitedWithName" as const,
+			}
+		}
+
+		if (character.visible) {
+			return {
+				...pick(normalized, [
+					"_id",
+					"_creationTime",
+					"roomId",
+					"sceneId",
+					"imageUrl",
+					"conditions",
+					"race",
+					"visible",
+					"nameVisible",
+				]),
+				permission: "limited" as const,
+			}
+		}
+
+		return yield* new MissingCharacterPermissionError(character._id)
+	}).pipe(Effect.tapError(Console.log))
+}
+
+export type UnsafeNormalizedCharacter = Effect.Effect.Success<
+	ReturnType<typeof normalizeCharacterUnsafe>
+>
+export function normalizeCharacterUnsafe(character: Doc<"characters">) {
+	return Effect.gen(function* () {
+		const userId = yield* getCurrentUserId()
+
+		const imageUrl: string | null = yield* pipe(
+			Effect.fromNullable(character.image),
+			Effect.catchTag(
+				"NoSuchElementException",
+				() => new MissingCharacterImageError(character._id),
+			),
+			Effect.flatMap((id) =>
+				withQueryCtx((ctx) => ({
+					storageId: ctx.db.system.normalizeId("_storage", id),
+					imageId: ctx.db.normalizeId("images", id),
+				})),
+			),
+			Effect.flatMap(({ storageId, imageId }) => {
+				if (storageId) {
+					return Convex.storage.getUrl(storageId)
+				}
+				if (imageId) {
+					return pipe(
+						Convex.db.get(imageId),
+						Effect.flatMap((image) => Effect.fromNullable(image.sizes.at(-1))),
+						Effect.catchTag("NoSuchElementException", () => new MissingImageSizesError(imageId)),
+						Effect.flatMap((size) => Convex.storage.getUrl(size.storageId)),
+					)
+				}
+				return Effect.succeed(null)
+			}),
+			Effect.orElseSucceed(() => null),
+		)
 
 		const race = character.race && getRace(character.race)
 
@@ -40,7 +151,6 @@ export function normalizeCharacter(character: Doc<"characters">) {
 		return {
 			name: "",
 			pronouns: "",
-			imageId: null,
 			race: null,
 
 			modifiers: [],
@@ -59,88 +169,39 @@ export function normalizeCharacter(character: Doc<"characters">) {
 			...character,
 			...stats,
 
+			imageUrl,
+
 			health,
 			healthMax,
 
 			resolve,
 			resolveMax,
 
-			isOwner: character.player != null && user === character.player,
+			isOwner: character.player != null && userId === character.player,
 		}
 	})
 }
 
-export class CharacterAccessError {
-	readonly _tag = "CharacterAccessError"
-	constructor(readonly characterId: Id<"characters">) {}
-}
-
-type ProtectedCharacter<T extends Doc<"characters">> = RequiredKeys<
-	Partial<T>,
-	"_id" | "_creationTime" | "imageId" | "conditions" | "race"
->
-
-export function protectCharacter<T extends Doc<"characters">>(character: T) {
-	return Effect.gen(function* () {
-		const user = yield* getUserFromIdentityEffect()
-		const room = yield* getDoc(character.roomId)
-
-		if (room.owner === user._id || character.player === user._id) {
-			return character
-		}
-
-		if (character.visible && character.nameVisible) {
-			return pick(character, [
-				"_id",
-				"_creationTime",
-				"image",
-				"conditions",
-				"race",
-				"visible",
-				"nameVisible",
-				"name",
-				"pronouns",
-			]) as ProtectedCharacter<T>
-		}
-
-		if (character.visible) {
-			return pick(character, [
-				"_id",
-				"_creationTime",
-				"image",
-				"conditions",
-				"race",
-				"visible",
-				"nameVisible",
-			]) as ProtectedCharacter<T>
-		}
-
-		return yield* Effect.fail(new CharacterAccessError(character._id))
-	})
-}
-
-export function ensureViewerCharacterPermissions(characterId: Id<"characters">) {
+export function ensureFullCharacterPermissions(characterId: Id<"characters">) {
 	return Effect.gen(function* () {
 		const user = yield* getCurrentUser()
-		const character = yield* Convex.db.get(characterId)
+		const character = yield* getCharacter(characterId)
 		const room = yield* getDoc(character.roomId)
-		const hasPermissions = room.owner === user._id || character.player === user._id
 
-		if (!hasPermissions) {
-			return yield* Effect.fail(new UnauthorizedError())
+		if (character.permission !== "full") {
+			return yield* new MissingCharacterPermissionError(character._id)
 		}
 
 		return {
 			user,
 			room,
-			character: yield* normalizeCharacter(character),
+			character,
 		}
 	})
 }
 
-export class CharactersNotInRoomError {
-	readonly _tag = "CharactersNotInRoomError"
-	constructor(readonly charactersNotInRoom: Array<Doc<"characters">>) {}
+export function getCharacter(characterId: Id<"characters">) {
+	return Convex.db.get(characterId).pipe(Effect.flatMap(normalizeCharacter))
 }
 
 export function ensureRoomHasCharacters(
@@ -155,16 +216,19 @@ export function ensureRoomHasCharacters(
 					Effect.succeed(characters)
 				:	Effect.fail(new CharactersNotInRoomError(charactersNotInRoom))
 		}),
+		Effect.flatMap((characters) => Effect.allSuccesses(characters.map(normalizeCharacterUnsafe))),
 	)
 }
 
 export function getCharacterAttributeDiceInputs(args: {
-	character: Doc<"characters">
+	character: UnsafeNormalizedCharacter
 	attribute: Attribute["id"]
 	boostCount?: number
 	snagCount?: number
 }) {
-	const attributeDiceKind = getCharacterAttributeDiceKind(args.character, args.attribute)
+	const attributeDiceKind = getCharacterAttributeDiceKind(
+		normalizeAttributeValue(args.character[args.attribute]),
+	)
 
 	let boostCount = args.boostCount ?? 0
 	if (args.character.race) {

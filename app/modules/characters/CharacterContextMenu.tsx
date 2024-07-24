@@ -29,7 +29,7 @@ export function CharacterContextMenu(props: {
 						title={
 							<>
 								<span className="opacity-50">Contested Roll vs.</span>{" "}
-								{props.character.name ?? "???"}
+								{props.character.permission === "full" ? props.character.name : "???"}
 							</>
 						}
 					>

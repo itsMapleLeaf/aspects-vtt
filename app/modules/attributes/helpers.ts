@@ -1,3 +1,4 @@
+import { Brand } from "effect"
 import { clamp } from "~/helpers/math.ts"
 import { randomInt } from "~/helpers/random.ts"
 import type { Nullish } from "~/helpers/types.ts"
@@ -12,8 +13,11 @@ export function getAttributePower(value: number) {
 	return getAttributeDie(value).faces.length
 }
 
+export type NormalizedAttributeValue = Brand.Branded<number, "NormalizedAttributeValue">
+const NormalizedAttributeValue = Brand.nominal<NormalizedAttributeValue>()
+
 export function normalizeAttributeValue(value: Nullish<number>) {
-	return clamp(value ?? 1, AttributeMin, AttributeMax)
+	return NormalizedAttributeValue(clamp(value ?? 1, AttributeMin, AttributeMax))
 }
 
 export function getRandomAttributeValue() {

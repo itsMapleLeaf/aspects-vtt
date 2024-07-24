@@ -19,6 +19,7 @@ import { Select } from "../../ui/Select.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { getAttribute, listAttributes, type Attribute } from "../attributes/data.ts"
 import { CharacterSearchList } from "../characters/CharacterSearchList.tsx"
+import { hasFullCharacterPermissions } from "../characters/helpers.ts"
 import { queryMutators } from "../convex/helpers.ts"
 import { useCurrentSceneTokens } from "../scenes/hooks.ts"
 import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
@@ -230,13 +231,13 @@ function CombatMemberItem(props: {
 		<>
 			<div className="grid">
 				<h4 className="text-xl font-light">
-					{character?.name ?? "???"}{" "}
+					{character && hasFullCharacterPermissions(character) ? character.name : "???"}{" "}
 					{room.isOwner && character?.visible !== true && (
 						<span className="opacity-50">(hidden)</span>
 					)}
 				</h4>
 				<p className="flex items-center gap-2 empty:hidden">
-					{character?.health != null && character?.healthMax != null && (
+					{character && hasFullCharacterPermissions(character) && character.healthMax != null && (
 						<Tooltip text="Health" className="flex gap-1">
 							<Lucide.Heart className="size-5 text-red-400" />
 							<span className="leading-5 text-red-400">
@@ -244,7 +245,7 @@ function CombatMemberItem(props: {
 							</span>
 						</Tooltip>
 					)}
-					{character?.resolve != null && character?.resolveMax != null && (
+					{character && hasFullCharacterPermissions(character) && character.resolveMax != null && (
 						<Tooltip text="Resolve" className="flex gap-1">
 							<Lucide.Brain className="size-5 text-purple-400" />
 							<span className="leading-5 text-purple-400">

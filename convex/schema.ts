@@ -19,9 +19,9 @@ export default defineSchema({
 	users: defineTable({
 		...authTables.users.validator.fields,
 		name: v.string(),
-		avatarUrl: v.optional(v.string()),
 		image: v.optional(v.id("images")),
 		clerkId: deprecated,
+		avatarUrl: deprecated,
 	}).index("email", ["email"]),
 
 	images: defineTable({
@@ -102,8 +102,8 @@ export default defineSchema({
 		// profile
 		name: v.optional(v.string()),
 		pronouns: v.optional(v.string()),
-		image: nullish(v.id("images")),
 		race: nullish(literals(...listRaceIds())),
+		image: nullish(v.union(v.id("images"), v.id("_storage"))),
 
 		// stats
 		strength: v.optional(v.number()),

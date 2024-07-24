@@ -7,6 +7,7 @@ import { sortBy } from "../../helpers/iterable.ts"
 import { Vector } from "../../helpers/Vector.ts"
 import { CharacterImage } from "../characters/CharacterImage.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
+import { hasFullCharacterPermissions } from "../characters/helpers.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { getColorStyle, type UserColorName } from "../user-colors/data.ts"
@@ -130,10 +131,7 @@ function TokenElement({
 						<CharacterImage
 							character={token.character}
 							style={Vector.from(cellSize).times(viewport.scale).toSize()}
-							className={{
-								wrapper: "overflow-clip rounded bg-primary-300 shadow-md",
-								image: "object-cover object-top",
-							}}
+							className="overflow-clip rounded bg-primary-300 shadow-md"
 						/>
 					)}
 					{token.area && (
@@ -184,38 +182,36 @@ function CharacterTokenDecoration({
 					{character.conditions.map((condition) => (
 						<CharacterTokenConditionBadge key={condition.name} condition={condition} />
 					))}
-					{character.health !== undefined && character.health <= 0 && (
+					{hasFullCharacterPermissions(character) && character.health <= 0 && (
 						<CharacterTokenConditionBadge condition={{ name: "Incapacitated", color: "red" }} />
 					)}
-					{character.resolve !== undefined && character.resolve <= 0 && (
+					{hasFullCharacterPermissions(character) && character.resolve <= 0 && (
 						<CharacterTokenConditionBadge condition={{ name: "Exhausted", color: "purple" }} />
 					)}
-					{character.health != null &&
-						character.healthMax != null &&
-						character.health < character.healthMax && (
-							<TokenMeter
-								value={character.health / character.healthMax}
-								className={{
-									base: "text-green-400",
-									warning: "text-green-400",
-									danger: "text-red-400",
-								}}
-							/>
-						)}
-					{character.resolve != null &&
-						character.resolveMax != null &&
-						character.resolve < character.resolveMax && (
-							<TokenMeter
-								value={character.resolve / character.resolveMax}
-								className={{
-									base: "text-blue-400",
-									warning: "text-blue-400",
-									danger: "text-purple-400",
-								}}
-							/>
-						)}
+					{hasFullCharacterPermissions(character) && character.health < character.healthMax && (
+						<TokenMeter
+							value={character.health / character.healthMax}
+							className={{
+								base: "text-green-400",
+								warning: "text-green-400",
+								danger: "text-red-400",
+							}}
+						/>
+					)}
+					{hasFullCharacterPermissions(character) && character.resolve < character.resolveMax && (
+						<TokenMeter
+							value={character.resolve / character.resolveMax}
+							className={{
+								base: "text-blue-400",
+								warning: "text-blue-400",
+								danger: "text-purple-400",
+							}}
+						/>
+					)}
 				</div>
-				<TokenLabel text={character.name ?? "???"} subText={character.pronouns} />
+				{hasFullCharacterPermissions(character) ?
+					<TokenLabel text={character.name} subText={character.pronouns} />
+				:	<TokenLabel text="???" />}
 			</div>
 		</div>
 	)

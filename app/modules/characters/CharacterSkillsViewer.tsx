@@ -18,9 +18,9 @@ import { twc } from "../../ui/twc.ts"
 import { listAspectSkillTiers, listAspectSkillsByTier, type Skill } from "../aspect-skills/data.ts"
 import { getAspect, listAspects, type Aspect } from "../aspects/data.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import type { ApiCharacter } from "./types.ts"
+import type { ApiCharacter, OwnedApiCharacter } from "./types.ts"
 
-export function CharacterSkillsViewer({ character }: { character: ApiCharacter }) {
+export function CharacterSkillsViewer({ character }: { character: OwnedApiCharacter }) {
 	const room = useRoom()
 
 	const characterSkillIds = new Set(

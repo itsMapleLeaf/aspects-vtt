@@ -9,6 +9,7 @@ import { chunk } from "../../helpers/array.ts"
 import { TranslucentPanel } from "../../ui/Panel.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
+import { hasFullCharacterPermissions } from "../characters/helpers.ts"
 import { diceKinds, diceKindsByName, diceStats, type DiceStat } from "../dice/data.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
@@ -205,7 +206,7 @@ function Mention({ characterId }: { characterId: string }) {
 				// todo: select the token on the map
 			}}
 		>
-			{character?.name ?? "unknown character"}
+			{character && hasFullCharacterPermissions(character) ? character.name : "???"}
 		</button>
 	)
 }

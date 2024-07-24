@@ -1,27 +1,17 @@
 import type { Nullish } from "~/helpers/types.ts"
-import { useUser } from "../auth/hooks.ts"
-import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
-import type { ApiCharacter } from "./types.ts"
+import { useCharacters } from "../rooms/roomContext.tsx"
+import { hasFullCharacterPermissions } from "./helpers.ts"
+import type { ApiCharacter, OwnedApiCharacter } from "./types.ts"
 
 export function useCharacterUpdatePermission(
 	character: Nullish<ApiCharacter>,
-): character is Required<ApiCharacter> {
-	const room = useRoom()
-	const user = useUser()
-	if (room.isOwner) return true
-	if (!character) return false
-	if (!user) return false
-	return character.player === user._id
+): character is OwnedApiCharacter {
+	return character != null && hasFullCharacterPermissions(character)
 }
 
 export function useOwnedCharacters() {
-	const user = useUser()
 	const characters = useCharacters()
-	return user ?
-			(characters.filter((character) => character.player === user?._id) as Array<
-				Required<ApiCharacter>
-			>)
-		:	[]
+	return characters.filter(hasFullCharacterPermissions) as OwnedApiCharacter[]
 }
 
 /** @deprecated Use {@link useOwnedCharacters} */

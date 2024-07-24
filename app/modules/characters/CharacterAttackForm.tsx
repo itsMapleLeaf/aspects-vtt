@@ -7,7 +7,6 @@ import { CharacterImage } from "~/modules/characters/CharacterImage.tsx"
 import { CharacterSearchList } from "~/modules/characters/CharacterSearchList.tsx"
 import type { ApiCharacter } from "~/modules/characters/types.ts"
 import { useSafeAction } from "~/modules/convex/hooks.ts"
-import { useRoom } from "~/modules/rooms/roomContext.tsx"
 import { useSceneContext } from "~/modules/scenes/SceneContext.tsx"
 import { Button } from "~/ui/Button.tsx"
 import { CheckboxField } from "~/ui/CheckboxField.tsx"
@@ -17,17 +16,17 @@ import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { Select } from "~/ui/Select.tsx"
 import { useNumberInput } from "~/ui/useNumberInput.tsx"
 import { api } from "../../../convex/_generated/api"
+import { hasFullCharacterPermissions } from "./helpers.ts"
 
 export function CharacterAttackForm({ characters }: { characters: ApiCharacter[] }) {
-	const room = useRoom()
 	const { tokens } = useSceneContext()
 
-	let attackers = tokens.map((it) => it.character).filter(Boolean)
-	if (!room.isOwner) {
-		attackers = attackers.filter((it) => it.isOwner)
-	}
+	const attackers = tokens
+		.map((it) => it.character)
+		.filter(Boolean)
+		.filter(hasFullCharacterPermissions)
 
-	const defaultAttacker = attackers.find((it) => it.isOwner) ?? attackers[0]
+	const defaultAttacker = attackers[0]
 	const [attacker, setAttacker] = useState(defaultAttacker)
 
 	const [attributeId, setAttributeId] = useState<Attribute["id"]>(() => {

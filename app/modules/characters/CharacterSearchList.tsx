@@ -1,18 +1,19 @@
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { CharacterImage } from "~/modules/characters/CharacterImage.tsx"
+import { getCharacterDisplayName } from "~/modules/characters/helpers.ts"
 import type { ApiCharacter } from "~/modules/characters/types.ts"
 import { Button } from "~/ui/Button.tsx"
 import { Input } from "~/ui/Input.tsx"
 import { Panel } from "~/ui/Panel.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 
-export function CharacterSearchList({
+export function CharacterSearchList<T extends ApiCharacter>({
 	characters,
 	onSelect,
 }: {
-	characters: ApiCharacter[]
-	onSelect: (character: ApiCharacter) => unknown
+	characters: T[]
+	onSelect: (character: T) => unknown
 }) {
 	const [search, setSearch] = useState("")
 	return (
@@ -27,7 +28,9 @@ export function CharacterSearchList({
 				<ScrollArea className="max-h-[420px]">
 					<div className="flex flex-col">
 						{characters
-							.filter((character) => character.name?.toLowerCase().includes(search.toLowerCase()))
+							.filter((character) =>
+								getCharacterDisplayName(character)?.toLowerCase().includes(search.toLowerCase()),
+							)
 							.map((character) => (
 								<Button
 									key={character._id}
@@ -36,7 +39,7 @@ export function CharacterSearchList({
 									align="start"
 									onClick={() => onSelect(character)}
 								>
-									{character.name}
+									{getCharacterDisplayName(character)}
 								</Button>
 							))}
 					</div>

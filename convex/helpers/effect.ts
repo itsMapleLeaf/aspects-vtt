@@ -20,6 +20,7 @@ import type {
 } from "convex/server"
 import type { PropertyValidators } from "convex/values"
 import { Context, Data, Effect, pipe } from "effect"
+import { isNonNil } from "~/helpers/validation.js"
 import type { Awaitable, Nullish } from "../../app/helpers/types.js"
 import type { DataModel, Id, TableNames } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
@@ -296,10 +297,7 @@ export const Convex = {
 		getUrl(storageId: Id<"_storage">) {
 			return QueryCtxService.pipe(
 				Effect.flatMap((ctx) => Effect.promise(() => ctx.storage.getUrl(storageId))),
-				Effect.filterOrFail(
-					(url) => url !== null,
-					() => new FileNotFoundError(),
-				),
+				Effect.filterOrFail(isNonNil, () => new FileNotFoundError()),
 			)
 		},
 		getMetadata(storageId: Id<"_storage">) {

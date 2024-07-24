@@ -15,6 +15,7 @@ import {
 	withMutationCtx,
 	withQueryCtx,
 } from "../helpers/effect.js"
+import { partial } from "../helpers/partial.ts"
 import schema from "../schema.ts"
 import { getCurrentUser, getCurrentUserId } from "../users.ts"
 import { RoomModel } from "./RoomModel.js"
@@ -106,7 +107,7 @@ const generateUniqueSlug = Effect.gen(function* () {
 
 export const update = mutation({
 	args: {
-		...omit(schema.tables.rooms.validator.fields, ["ping"]),
+		...partial(omit(schema.tables.rooms.validator.fields, ["ping"])),
 		id: v.id("rooms"),
 		combat: v.optional(
 			v.object({

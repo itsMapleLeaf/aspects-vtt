@@ -2,6 +2,7 @@ import type { FunctionReturnType } from "convex/server"
 import type { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import { Select } from "../../ui/Select.old.tsx"
+import { getCharacterDisplayName } from "./helpers.ts"
 
 export function CharacterSelect({
 	characters,
@@ -16,7 +17,7 @@ export function CharacterSelect({
 		<Select
 			options={characters.map((character) => ({
 				value: character._id,
-				label: character.name ?? "???",
+				label: getCharacterDisplayName(character),
 			}))}
 			value={selected}
 			onChange={(id) => onChange(id)}

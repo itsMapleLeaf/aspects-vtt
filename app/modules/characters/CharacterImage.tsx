@@ -1,27 +1,22 @@
 import type { ComponentProps } from "react"
-import type { Nullish, StrictOmit } from "~/helpers/types.ts"
 import { getCharacterFallbackImageUrl } from "~/modules/characters/helpers.ts"
-import type { Id } from "../../../convex/_generated/dataModel"
-import { ApiImage } from "../api-images/ApiImage.tsx"
+import { withMergedClassName } from "~/ui/withMergedClassName.ts"
+import type { ApiCharacter } from "./types.ts"
 
 export function CharacterImage({
 	character,
 	...props
 }: {
-	character: {
-		_id: Id<"characters">
-		image?: Nullish<Id<"images">>
-		race?: Nullish<string>
-	}
-} & StrictOmit<ComponentProps<typeof ApiImage>, "imageId">) {
+	character: ApiCharacter
+} & ComponentProps<"div">) {
 	const fallbackUrl = getCharacterFallbackImageUrl(character)
 	return (
-		<ApiImage
-			imageId={character.image}
-			fallback={
-				<img src={fallbackUrl} alt="" className="object-cover object-top will-change-transform" />
-			}
-			{...props}
+		<div
+			{...withMergedClassName(props, "bg-cover bg-top will-change-transform w-full")}
+			style={{
+				backgroundImage: `url(${character.imageUrl ?? fallbackUrl})`,
+				...props.style,
+			}}
 		/>
 	)
 }

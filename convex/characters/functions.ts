@@ -42,11 +42,11 @@ import schema from "../schema.ts"
 import { userColorValidator } from "../types.ts"
 import { getCurrentUser } from "../users.ts"
 import {
+	ensureFullCharacterPermissions,
 	ensureRoomHasCharacters,
-	ensureViewerCharacterPermissions,
 	getCharacterAttributeDiceInputs,
 	normalizeCharacter,
-	protectCharacter,
+	normalizeCharacterUnsafe,
 } from "./helpers.ts"
 import { characterAttributeValidator } from "./types.ts"
 
@@ -59,11 +59,7 @@ export const list = effectQuery({
 			const characters = yield* withQueryCtx((ctx) =>
 				getManyFrom(ctx.db, "characters", "roomId", args.roomId),
 			)
-			return yield* Effect.allSuccesses(
-				Iterator.from(characters).map((it) =>
-					normalizeCharacter(it).pipe(Effect.flatMap(protectCharacter)),
-				),
-			)
+			return yield* Effect.allSuccesses(characters.map(normalizeCharacter))
 		}).pipe(
 			Effect.tapError(Console.warn),
 			Effect.orElseSucceed(() => []),
@@ -96,7 +92,7 @@ export const duplicate = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureViewerCharacterPermissions(args.id)
+			const { character } = yield* ensureFullCharacterPermissions(args.id)
 			const properties = omit(character, ["_id", "_creationTime"])
 			if (args.randomize) {
 				Object.assign(properties, generateRandomCharacterProperties())
@@ -113,7 +109,7 @@ export const update = effectMutation({
 	},
 	handler: ({ id, ...args }) =>
 		Effect.gen(function* () {
-			yield* ensureViewerCharacterPermissions(id)
+			yield* ensureFullCharacterPermissions(id)
 			yield* withMutationCtx((ctx) => ctx.db.patch(id, args))
 		}),
 })
@@ -132,7 +128,7 @@ export const randomize = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			yield* ensureViewerCharacterPermissions(args.id)
+			yield* ensureFullCharacterPermissions(args.id)
 			yield* patchDoc(args.id, generateRandomCharacterProperties())
 		})
 	},
@@ -144,7 +140,7 @@ export const remove = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureViewerCharacterPermissions(args.id)
+			const { character } = yield* ensureFullCharacterPermissions(args.id)
 			yield* withMutationCtx((ctx) => ctx.db.delete(character._id))
 		})
 	},
@@ -240,7 +236,7 @@ export const setSkillActive = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
+			const { character } = yield* ensureFullCharacterPermissions(args.characterId)
 
 			const skill = yield* Effect.fromNullable(getAspectSkill(args.aspectSkillId))
 
@@ -295,7 +291,7 @@ export const updateConditions = effectMutation({
 	},
 	handler({ characterId, action }) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureViewerCharacterPermissions(characterId)
+			const { character } = yield* ensureFullCharacterPermissions(characterId)
 
 			let conditions = character.conditions ?? []
 			if (action.type === "add") {
@@ -346,7 +342,7 @@ export const updateModifier = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureViewerCharacterPermissions(args.characterId)
+			const { character } = yield* ensureFullCharacterPermissions(args.characterId)
 
 			const modifiers = new Map(
 				character.modifiers?.map((modifier) => [modifier.attribute, modifier]),
@@ -382,7 +378,7 @@ export const rest = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const character = yield* normalizeCharacter(yield* Convex.db.get(args.id))
+			const character = yield* normalizeCharacterUnsafe(yield* Convex.db.get(args.id))
 			const user = yield* getCurrentUser()
 			const rolls = Array.from(
 				createDiceRolls([getDiceKindApiInput(statDiceKindsByName.d4, args.hours)]),
@@ -419,10 +415,10 @@ export const attack = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			const user = yield* getCurrentUser()
-			const attacker = yield* normalizeCharacter(yield* Convex.db.get(args.attackerId))
+			const attacker = yield* normalizeCharacterUnsafe(yield* Convex.db.get(args.attackerId))
 
 			for (const defenderId of args.defenderIds) {
-				const defender = yield* normalizeCharacter(yield* Convex.db.get(defenderId))
+				const defender = yield* normalizeCharacterUnsafe(yield* Convex.db.get(defenderId))
 
 				const attackerRoll = Array.from(
 					createDiceRolls(

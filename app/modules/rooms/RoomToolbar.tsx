@@ -6,7 +6,7 @@ import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "~/ui/
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { CharacterRestForm } from "../characters/CharacterRestForm.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
-import { useOwnedCharacter } from "../characters/hooks.ts"
+import { useOwnedCharacters } from "../characters/hooks.ts"
 import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
 import { QuickReference } from "../game/QuickReference.tsx"
 import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
@@ -14,7 +14,7 @@ import type { RoomToolbarStore } from "./RoomToolbarStore.ts"
 import { RoomOwnerOnly } from "./roomContext.tsx"
 
 export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
-	const character = useOwnedCharacter()
+	const character = useOwnedCharacters()[0]
 
 	const aspect =
 		character?.learnedAspectSkills?.length ?

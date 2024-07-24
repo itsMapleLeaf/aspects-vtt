@@ -3,6 +3,7 @@ import * as Lucide from "lucide-react"
 import { useDeferredValue, type ComponentProps } from "react"
 import { z } from "zod"
 import { typed } from "~/helpers/types.ts"
+import { getCharacterDisplayName } from "~/modules/characters/helpers.ts"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { ResourceGroup, ResourceTreeItem } from "../resources/ResourceTree.tsx"
@@ -37,6 +38,7 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 				store.setQuery(
 					api.characters.functions.list,
 					{ roomId: room._id },
+					// @ts-expect-error
 					data.map((it) => (it._id === id ? { ...it, ...args } : it)),
 				)
 			}
@@ -79,7 +81,7 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 				}}
 				items={deferredCharacters.map((character) => ({
 					id: character._id,
-					name: character.name ?? "???",
+					name: getCharacterDisplayName(character),
 					timestamp: character._creationTime,
 					data: character,
 				}))}
@@ -102,7 +104,7 @@ function CharacterResourceTreeItem({
 		<ResourceTreeItem
 			key={character._id}
 			resourceId={character._id}
-			resourceName={character.name ?? "???"}
+			resourceName={getCharacterDisplayName(character)}
 			resourceType="character"
 			dragData={typed<CharacterDragData>({
 				characterId: character._id,
@@ -114,7 +116,7 @@ function CharacterResourceTreeItem({
 			}}
 			{...props}
 		>
-			{character.name ?? "???"}
+			{getCharacterDisplayName(character)}
 		</ResourceTreeItem>
 	)
 }

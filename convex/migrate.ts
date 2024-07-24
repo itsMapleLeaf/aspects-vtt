@@ -13,9 +13,9 @@ export default internalMutation(async (ctx) => {
 export const characterImages = migration({
 	table: "characters",
 	async migrateOne(ctx, character) {
-		if (character.imageId) {
-			const createdImage = character.image && (await ctx.db.get(character.image))
-			if (createdImage) return
+		const imageId = character.imageId && ctx.db.normalizeId("images", character.imageId)
+		const createdImage = imageId && (await ctx.db.get(imageId))
+		if (character.imageId && !createdImage) {
 			await ctx.scheduler.runAfter(0, internal.images_node.setCharacterImageFromStorage, {
 				storageId: character.imageId,
 				characterId: character._id,

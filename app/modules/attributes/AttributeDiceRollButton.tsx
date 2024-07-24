@@ -71,7 +71,7 @@ export function AttributeDiceRollButton({
 
 								if (pushYourself) {
 									for (const character of characters) {
-										if (!character.resolve) continue
+										if (character.permission !== "full") continue
 										updateCharacter({
 											id: character._id,
 											resolve: character.resolve - 2,
