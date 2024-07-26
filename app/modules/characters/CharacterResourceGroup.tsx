@@ -11,6 +11,7 @@ import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterModal } from "./CharacterModal.tsx"
 import { characterDragData, type ApiCharacter, type CharacterDragData } from "./types.ts"
+import { useUpdateCharacterMutation } from "./useUpdateCharacterMutation.tsx"
 
 interface CharacterResourceGroupProps {
 	id: string
@@ -29,21 +30,8 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 	}
 
 	const createCharacter = useMutation(api.characters.functions.create)
+	const updateCharacter = useUpdateCharacterMutation(room._id)
 	const deferredCharacters = useDeferredValue(characters)
-
-	const updateCharacter = useMutation(api.characters.functions.update).withOptimisticUpdate(
-		(store, { id, ...args }) => {
-			const data = store.getQuery(api.characters.functions.list, { roomId: room._id })
-			if (data) {
-				store.setQuery(
-					api.characters.functions.list,
-					{ roomId: room._id },
-					// @ts-expect-error
-					data.map((it) => (it._id === id ? { ...it, ...args } : it)),
-				)
-			}
-		},
-	)
 
 	return (
 		<div

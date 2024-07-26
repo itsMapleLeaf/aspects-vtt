@@ -4,6 +4,7 @@ import { unwrap } from "~/helpers/errors.ts"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { Tabs } from "~/ui/Tabs.tsx"
 import { CharacterForm } from "./CharacterForm.tsx"
+import { CharacterInventory } from "./CharacterInventory.tsx"
 import { CharacterSkillsViewer } from "./CharacterSkillsViewer.tsx"
 import { useCharacterUpdatePermission } from "./hooks.ts"
 import type { ApiCharacter } from "./types.ts"
@@ -23,6 +24,10 @@ export function CharacterEditor({ character }: { character: ApiCharacter }) {
 		hasPermission && {
 			title: "Skills",
 			content: <CharacterSkillsViewer character={character} />,
+		},
+		hasPermission && {
+			title: "Inventory",
+			content: <CharacterInventory character={character} />,
 		},
 	].filter(Boolean)
 

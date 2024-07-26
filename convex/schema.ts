@@ -136,6 +136,15 @@ export default defineSchema({
 		resolve: v.optional(v.number()),
 		currency: v.optional(v.number()),
 		conditions: v.optional(v.array(characterConditionValidator())),
+		inventory: v.optional(
+			v.array(
+				v.object({
+					id: v.string(),
+					name: v.string(),
+					description: v.string(),
+				}),
+			),
+		),
 
 		// notes
 		ownerNotes: v.optional(v.string()),
