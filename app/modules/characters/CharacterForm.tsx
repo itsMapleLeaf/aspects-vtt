@@ -1,9 +1,10 @@
 import { useAction, useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { Suspense, useId } from "react"
+import { Suspense } from "react"
 import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { Panel } from "~/ui/Panel.tsx"
+import { useDelayedSyncInput } from "~/ui/useDelayedSyncInput.ts"
 import { api } from "../../../convex/_generated/api.js"
 import { useAsyncState } from "../../helpers/react/hooks.ts"
 import { startCase } from "../../helpers/string.ts"
@@ -26,6 +27,7 @@ import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
 import { getCharacterFallbackImageUrl, hasFullCharacterPermissions } from "./helpers.ts"
 import { useCharacterUpdatePermission } from "./hooks.ts"
 import type { ApiCharacter, OwnedApiCharacter, UpdateableCharacterField } from "./types.ts"
+import { useUpdateCharacterMutation } from "./useUpdateCharacterMutation.tsx"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
 	const room = useRoom()
@@ -169,22 +171,24 @@ function CharacterInputField({
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
-	const inputId = useId()
+	const room = useRoom()
+	const update = useUpdateCharacterMutation(room._id)
+
+	const input = useDelayedSyncInput({
+		value: (character.permission === "full" && character[field]) || "",
+		onSubmit: (value) => {
+			update({ id: character._id, [field]: value })
+		},
+	})
 
 	if (!hasFullCharacterPermissions(character)) {
 		return null
 	}
 
-	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
-		<CharacterReadOnlyGuard character={character} label={label} value={value}>
-			<FormField label={label} htmlFor={inputId}>
-				<Input
-					id={inputId}
-					value={value}
-					onChange={(event) => update({ id: character._id, [field]: event.target.value })}
-				/>
+		<CharacterReadOnlyGuard character={character} label={label} value={input.value}>
+			<FormField label={label}>
+				<Input {...input} />
 			</FormField>
 		</CharacterReadOnlyGuard>
 	)
@@ -199,20 +203,24 @@ function CharacterTextAreaField({
 	field: UpdateableCharacterField<string>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const room = useRoom()
+	const update = useUpdateCharacterMutation(room._id)
+
+	const input = useDelayedSyncInput({
+		value: (character.permission === "full" && character[field]) || "",
+		onSubmit: (value) => {
+			update({ id: character._id, [field]: value })
+		},
+	})
 
 	if (!hasFullCharacterPermissions(character)) {
 		return null
 	}
 
-	const value = state.args?.[field] ?? character[field] ?? ""
 	return (
-		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+		<CharacterReadOnlyGuard character={character} label={label} value={input.value}>
 			<FormField label={label}>
-				<TextArea
-					value={value}
-					onChange={(event) => update({ id: character._id, [field]: event.target.value })}
-				/>
+				<TextArea {...input} />
 			</FormField>
 		</CharacterReadOnlyGuard>
 	)

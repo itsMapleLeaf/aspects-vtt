@@ -19,6 +19,7 @@ export function CharacterStatusFields({
 						<CharacterNumberField
 							character={character}
 							field="health"
+							max={character.healthMax}
 							icon={<LucideHeart className="translate-x-[1px]" />}
 							label={null}
 						/>
@@ -32,6 +33,7 @@ export function CharacterStatusFields({
 						<CharacterNumberField
 							character={character}
 							field="resolve"
+							max={character.resolveMax}
 							icon={<LucideSun className="translate-x-[2px]" />}
 							label={null}
 						/>

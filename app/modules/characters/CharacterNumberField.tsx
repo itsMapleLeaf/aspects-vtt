@@ -1,11 +1,12 @@
 import { useMutation } from "convex/react"
 import type { ReactNode } from "react"
+import { Input } from "~/ui/Input.tsx"
+import { useDelayedSyncInput } from "~/ui/useDelayedSyncInput.ts"
+import { useControlledNumberInput } from "~/ui/useNumberInput.tsx"
 import { api } from "../../../convex/_generated/api"
 import { toNearestPositiveInt } from "../../helpers/math.ts"
-import { useAsyncState } from "../../helpers/react/hooks.ts"
 import { startCase } from "../../helpers/string.ts"
 import { FormField } from "../../ui/Form.tsx"
-import { NumberInput } from "../../ui/NumberInput.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { hasFullCharacterPermissions } from "./helpers.ts"
 import type { ApiCharacter, UpdateableCharacterField } from "./types.ts"
@@ -16,6 +17,7 @@ export function CharacterNumberField({
 	label = startCase(field),
 	icon,
 	min = 0,
+	max = Number.POSITIVE_INFINITY,
 	tooltip,
 }: {
 	character: ApiCharacter
@@ -23,25 +25,40 @@ export function CharacterNumberField({
 	label?: ReactNode
 	icon?: ReactNode
 	min?: number
+	max?: number
 	tooltip?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
-	const value =
-		state.args?.[field] ?? (hasFullCharacterPermissions(character) ? character[field] : 0)
+	const update = useMutation(api.characters.functions.update)
 
-	function setValue(newValue: number) {
-		update({ id: character._id, [field]: toNearestPositiveInt(newValue) })
-	}
+	const input = useDelayedSyncInput({
+		value: String(hasFullCharacterPermissions(character) ? character[field] : 0),
+		onSubmit: (value) => {
+			const int = toNearestPositiveInt(value)
+			if (int) {
+				update({
+					id: character._id,
+					[field]: Math.max(int, min),
+				})
+			}
+		},
+	})
+
+	const numberInput = useControlledNumberInput({
+		min,
+		max,
+		value: input.value,
+		onChangeValue: input.onChange,
+	})
 
 	return (
-		<CharacterReadOnlyGuard character={character} label={label} value={value}>
+		<CharacterReadOnlyGuard character={character} label={label} value={input.value}>
 			<FormField label={label}>
-				<NumberInput
-					value={value}
+				<Input
+					{...numberInput.props}
+					onBlur={input.onBlur}
 					min={min}
 					icon={icon}
 					tooltip={tooltip}
-					onChange={setValue}
 					className="flex-1"
 				/>
 			</FormField>
