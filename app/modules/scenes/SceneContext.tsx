@@ -1,30 +1,10 @@
-import { createContext, use, useState, type ReactNode } from "react"
+import { use, useState, type ReactNode } from "react"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { Vector, type VectorInput, type VectorInputArgs } from "../../helpers/Vector.ts"
 import { clamp } from "../../helpers/math.ts"
 import { useDragSelectStore } from "../../ui/DragSelect.tsx"
+import { SceneContext } from "./SceneContext.context.tsx"
 import { useCurrentRoomScene, useCurrentSceneTokens } from "./hooks.ts"
-
-interface SceneContext {
-	scene: {
-		cellSize: number
-	}
-	viewport: {
-		offset: Vector
-		scale: number
-		move: (delta: VectorInput) => void
-		zoom: (delta: number, pivotInput: VectorInput) => void
-	}
-	tokenSelectStore: ReturnType<typeof useDragSelectStore<ApiToken["key"]>>
-	tokenDragOffset: Vector
-	setTokenDragOffset: (value: Vector) => void
-	tokens: ApiToken[]
-	selectedTokens: ApiToken[]
-	isDraggingTokens: boolean
-	mapPositionFromViewportPosition: (...position: VectorInputArgs) => Vector
-}
-
-const SceneContext = createContext<SceneContext | undefined>(undefined)
 
 export function SceneProvider({ children }: { children: ReactNode }) {
 	const [viewport, setViewport] = useState({ offset: Vector.zero, scaleTick: 0 })
@@ -94,7 +74,7 @@ export function SceneProvider({ children }: { children: ReactNode }) {
 		viewport: viewportProperties,
 	}
 
-	return <SceneContext.Provider value={sceneState}>{children}</SceneContext.Provider>
+	return <SceneContext value={sceneState}>{children}</SceneContext>
 }
 
 export function useSceneContext() {

@@ -1,6 +1,6 @@
 import { Disclosure, DisclosureContent, useDisclosureStore } from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import { Fragment, createContext, startTransition, useContext, useState } from "react"
+import { Fragment, createContext, startTransition, use, useContext, useState } from "react"
 import { z } from "zod"
 import { useLocalStorageState, useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
 import type { JsonValue } from "~/helpers/json.ts"
@@ -18,21 +18,65 @@ import { CharacterResourceGroup } from "../characters/CharacterResourceGroup.tsx
 import { RoomOwnerOnly, useRoom } from "../rooms/roomContext.tsx"
 import { SceneResourceGroup } from "../scenes/SceneResourceGroup.tsx"
 
+interface SortMode {
+	readonly id: string
+	readonly name: string
+	readonly icon: React.ReactNode
+	readonly compare: (a: ResourceGroupItem<unknown>, b: ResourceGroupItem<unknown>) => number
+}
+
+const sortModes: [SortMode, ...SortMode[]] = [
+	{
+		id: "recently-created",
+		name: "Recently created",
+		icon: <Lucide.FileClock />,
+		compare: (a, b) => b.timestamp - a.timestamp,
+	},
+	{
+		id: "alphabetical",
+		name: "Alphabetical",
+		icon: <Lucide.ArrowDownAZ />,
+		compare: (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+	},
+]
+
 const ResourceTreeContext = createContext<{
-	processItems: <Data>(
-		items: ReadonlyArray<ResourceGroupItem<Data>>,
-	) => ReadonlyArray<ResourceGroupItem<Data>>
+	search: string
+	sortMode: SortMode
 	pinned: ReadonlySet<string>
 	setPinned: (resourceId: string, pinned: boolean) => void
 	pinnedItemsContainer: Nullish<HTMLElement>
 }>({
-	processItems: (items) => items,
+	search: "",
+	sortMode: sortModes[0],
 	pinned: new Set(),
 	setPinned(resourceId, pinned) {
 		console.warn("called setPinned outside context")
 	},
 	pinnedItemsContainer: undefined,
 })
+
+function useResourceTreeContext<T>(items: ReadonlyArray<ResourceGroupItem<T>>) {
+	const { search, sortMode, pinned, setPinned, ...context } = use(ResourceTreeContext)
+
+	const processedItems = items
+		.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+		.sort((a, b) => sortMode.compare(a, b))
+
+	const isPinned = (id: string) => pinned.has(id)
+	const addPinned = (id: string) => setPinned(id, true)
+	const removePinned = (id: string) => setPinned(id, true)
+	const togglePinned = (id: string) => setPinned(id, !isPinned(id))
+
+	return {
+		...context,
+		items: processedItems,
+		isPinned,
+		addPinned,
+		removePinned,
+		togglePinned,
+	}
+}
 
 export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 	const [search, setSearch] = useState("")
@@ -43,11 +87,6 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 		z.array(z.string()),
 	)
 	const [pinnedItemsContainer, setPinnedItemsContainer] = useState<HTMLElement | null>()
-
-	const processItems = <Data,>(items: ReadonlyArray<ResourceGroupItem<Data>>) =>
-		items
-			.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
-			.sort((a, b) => sortMode.compare(a, b))
 
 	const setResourcePinned = (resourceId: string, pinned: boolean) => {
 		if (pinned) {
@@ -78,9 +117,10 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 				<ScrollArea scrollbarPosition="outside" scrollbarGap={8}>
 					<div className="flex flex-col gap-current">
 						<div className="contents" ref={setPinnedItemsContainer}></div>
-						<ResourceTreeContext.Provider
+						<ResourceTreeContext
 							value={{
-								processItems,
+								search,
+								sortMode,
 								pinned: new Set(pinnedResourceIds),
 								setPinned: setResourcePinned,
 								pinnedItemsContainer,
@@ -95,7 +135,7 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 								/>
 							)}
 							<SceneResourceGroup />
-						</ResourceTreeContext.Provider>
+						</ResourceTreeContext>
 					</div>
 				</ScrollArea>
 			</div>
@@ -129,14 +169,13 @@ export function ResourceGroup<ItemData>(props: {
 			startTransition(() => setOpen(open))
 		},
 	})
-	const context = useContext(ResourceTreeContext)
+	const context = useResourceTreeContext(props.items)
 
-	if (props.items.length === 0 && !room.isOwner) {
+	if (context.items.length === 0 && !room.isOwner) {
 		return null
 	}
 
-	const items = context.processItems(props.items ?? [])
-	const pinnedItems = context.processItems(props.items.filter((it) => context.pinned.has(it.id)))
+	const pinnedItems = context.items.filter((it) => context.isPinned(it.id))
 
 	const folderIcon = open ? <Lucide.FolderOpen /> : <Lucide.Folder />
 
@@ -161,9 +200,9 @@ export function ResourceGroup<ItemData>(props: {
 					</form>
 				</RoomOwnerOnly>
 			</div>
-			{items.length > 0 && (
+			{context.items.length > 0 && (
 				<DisclosureContent store={disclosure} unmountOnHide className="flex flex-col pl-2 gap-1">
-					{items.map((item) => (
+					{context.items.map((item) => (
 						<Fragment key={item.id}>{props.renderItem(item.data)}</Fragment>
 					))}
 				</DisclosureContent>
@@ -250,29 +289,7 @@ export function ResourceTreeItem({
 	)
 }
 
-interface SortMode {
-	readonly id: string
-	readonly name: string
-	readonly icon: React.ReactNode
-	readonly compare: (a: ResourceGroupItem<unknown>, b: ResourceGroupItem<unknown>) => number
-}
-
 function useSorting() {
-	const sortModes: [SortMode, ...SortMode[]] = [
-		{
-			id: "recently-created",
-			name: "Recently created",
-			icon: <Lucide.FileClock />,
-			compare: (a, b) => b.timestamp - a.timestamp,
-		},
-		{
-			id: "alphabetical",
-			name: "Alphabetical",
-			icon: <Lucide.ArrowDownAZ />,
-			compare: (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
-		},
-	]
-
 	const [sortModeId, setSortModeId] = useLocalStorageState(
 		"room-resource-tree-sort-mode",
 		sortModes[0].id,
