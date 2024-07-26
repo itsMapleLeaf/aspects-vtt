@@ -81,6 +81,13 @@ export const list = query({
 
 export const create = effectMutation({
 	handler: () => {
+		const generateUniqueSlug = Effect.gen(function* () {
+			const slug = generateSlug()
+			return yield* Effect.matchEffect(getRoomBySlug(slug), {
+				onFailure: () => Effect.succeed(slug),
+				onSuccess: () => Effect.fail(new ConvexError("A room with that slug already exists")),
+			})
+		})
 		return Effect.gen(function* () {
 			const user = yield* getCurrentUser()
 			const slug = yield* pipe(generateUniqueSlug, Effect.retry({ times: 10 }))
@@ -94,14 +101,6 @@ export const create = effectMutation({
 			return { slug }
 		})
 	},
-})
-
-const generateUniqueSlug = Effect.gen(function* () {
-	const slug = generateSlug()
-	return yield* Effect.matchEffect(getRoomBySlug(slug), {
-		onFailure: () => Effect.succeed(slug),
-		onSuccess: () => Effect.fail(new ConvexError("A room with that slug already exists")),
-	})
 })
 
 export const update = mutation({
