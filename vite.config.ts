@@ -43,4 +43,14 @@ export default defineConfig({
 		inspect(),
 		visualizer({ emitFile: true, filename: "build/stats.html" }),
 	],
+	// resolve: {
+	// 	alias: [
+	// 		// { find: /^react-dom$/, replacement: "react-dom/profiling" },
+	// 		{ find: /^react-dom\/client$/, replacement: "react-dom/profiling" },
+	// 		{ find: "scheduler/tracing", replacement: "scheduler/tracing-profiling" },
+	// 	],
+	// },
+	// build: {
+	// 	minify: false,
+	// },
 })
