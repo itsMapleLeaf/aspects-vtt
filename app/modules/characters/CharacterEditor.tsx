@@ -1,3 +1,5 @@
+import { z } from "zod"
+import { useLocalStorageState } from "~/helpers/dom/useLocalStorage.ts"
 import { unwrap } from "~/helpers/errors.ts"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { Tabs } from "~/ui/Tabs.tsx"
@@ -24,11 +26,17 @@ export function CharacterEditor({ character }: { character: ApiCharacter }) {
 		},
 	].filter(Boolean)
 
+	const [activeId, setActiveId] = useLocalStorageState(
+		"characterEditorTabId",
+		unwrap(views[0]).title,
+		z.string(),
+	)
+
 	return (
 		<div className="flex h-full min-h-0 flex-col">
 			{views.length === 1 ?
 				<div className="min-h-0 flex-1 p-2">{unwrap(views[0]).content}</div>
-			:	<Tabs>
+			:	<Tabs activeId={activeId} setActiveId={(id) => id && setActiveId(id)}>
 					<Tabs.List className="p-2">
 						{views.map((view) => (
 							<Tabs.Tab key={view.title} id={view.title}>
