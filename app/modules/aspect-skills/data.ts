@@ -66,7 +66,7 @@ const aspectSkillTree: AspectSkillTree = {
 						description: `Create a sphere of fire in your palm, enough to power or short-circuit small to medium size devices.`,
 					},
 					makeFlame: {
-						description: `Create a fire in your palm around the size of a baseball.`,
+						description: `Create a baseball-sized fire in your palm.`,
 					},
 					becomeFlame: {
 						description: `Engulf yourself or another character in a bright crackling ember. While in this state, double all damage dealt and all damage received.`,
@@ -194,7 +194,7 @@ const aspectSkillTree: AspectSkillTree = {
 				name: "Detect",
 				skills: {
 					ensnareWater: {
-						description: `When learning this skill, choose any liquid. You can control it as if it were water. You may learn this skill multiple times with different choices.`,
+						description: `You can control non-water liquids as if they were water.`,
 					},
 				},
 			},
@@ -389,7 +389,7 @@ const aspectSkillTree: AspectSkillTree = {
 				},
 			},
 			{
-				name: "Dematerialize",
+				name: "Disintegrate",
 				skills: {
 					phase: {
 						description: `Float and phase through solid objects.`,
