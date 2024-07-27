@@ -124,164 +124,191 @@ function TokenMenuContent() {
 	const hasPermissions = useCharacterUpdatePermission(singleSelectedCharacter)
 
 	return (
-		<div className="flex-center gap-3">
-			<div className={translucentPanel("flex justify-center p-2 gap-2")}>
-				{selectionHasCharacters && (
-					<Menu placement="top">
-						<MenuButton render={<Button tooltip="Status" icon={<Lucide.HeartPulse />} />} />
-						<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
-							{singleSelectedCharacter && hasPermissions && (
-								<div className="flex gap-2 *:flex-1 empty:hidden">
-									<CharacterStatusFields character={singleSelectedCharacter} />
-								</div>
-							)}
-							<div className="flex gap-[inherit] *:flex-1 empty:hidden">
-								<StressUpdateMenu characters={selectedCharacters}>
-									<Button text="Advanced vitality update" icon={<Lucide.WandSparkles />} />
-								</StressUpdateMenu>
-							</div>
-							{singleSelectedCharacter && (
-								<FormField label="Conditions">
-									<CharacterConditionsListInput character={singleSelectedCharacter} />
-								</FormField>
-							)}
-						</MenuPanel>
-					</Menu>
-				)}
-
-				{selectionHasCharacters && (
-					<Menu placement="top">
-						<MenuButton render={<Button tooltip="Abilities" icon={<Lucide.BarChartBig />} />} />
-						<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
-							{singleSelectedCharacter && (
-								<div className={panel()}>
-									<ScrollArea className="max-h-[360px]">
-										<div className="p-3">
-											<CharacterAbilityList character={singleSelectedCharacter} />
-										</div>
-									</ScrollArea>
-								</div>
-							)}
-							<AttributeDiceRollButtonGrid
-								className="gap-[inherit]"
-								characters={selectedCharacters}
+		<div className={translucentPanel("flex flex-col items-center p-2 gap-2")}>
+			<div className="flex-center gap-3">
+				<div className={"flex justify-center gap-2"}>
+					{selectionHasCharacters && (
+						<Menu placement="top">
+							<MenuButton
+								render={<Button appearance="clear" tooltip="Status" icon={<Lucide.HeartPulse />} />}
 							/>
-						</MenuPanel>
-					</Menu>
-				)}
+							<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
+								{singleSelectedCharacter && hasPermissions && (
+									<div className="flex gap-2 *:flex-1 empty:hidden">
+										<CharacterStatusFields character={singleSelectedCharacter} />
+									</div>
+								)}
+								<div className="flex gap-[inherit] *:flex-1 empty:hidden">
+									<StressUpdateMenu characters={selectedCharacters}>
+										<Button
+											appearance="clear"
+											text="Advanced vitality update"
+											icon={<Lucide.WandSparkles />}
+										/>
+									</StressUpdateMenu>
+								</div>
+								{singleSelectedCharacter && (
+									<FormField label="Conditions">
+										<CharacterConditionsListInput character={singleSelectedCharacter} />
+									</FormField>
+								)}
+							</MenuPanel>
+						</Menu>
+					)}
 
-				{selectionHasCharacters && (ownedCharacters.length > 0 || room.isOwner) && (
-					<Menu placement="top">
-						<MenuButton render={<Button tooltip="Attack" icon={<Lucide.Swords />} />} />
-						<MenuPanel className={translucentPanel("max-w-[360px]")} gutter={16}>
-							<CharacterAttackForm characters={selectedCharacters} />
-						</MenuPanel>
-					</Menu>
-				)}
+					{selectionHasCharacters && (
+						<Menu placement="top">
+							<MenuButton
+								render={<Button appearance="clear" tooltip="Skills" icon={<Lucide.Target />} />}
+							/>
+							<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
+								{singleSelectedCharacter && (
+									<div className={panel()}>
+										<ScrollArea className="max-h-[360px]">
+											<div className="p-3">
+												<CharacterAbilityList character={singleSelectedCharacter} />
+											</div>
+										</ScrollArea>
+									</div>
+								)}
+							</MenuPanel>
+						</Menu>
+					)}
 
-				{singleSelectedCharacter && (
-					<CharacterModal character={singleSelectedCharacter}>
-						<Button tooltip="Profile" icon={<Lucide.BookUser />} element={<ModalButton />} />
-					</CharacterModal>
-				)}
+					{selectionHasCharacters && (ownedCharacters.length > 0 || room.isOwner) && (
+						<Menu placement="top">
+							<MenuButton
+								render={<Button appearance="clear" tooltip="Attack" icon={<Lucide.Swords />} />}
+							/>
+							<MenuPanel className={translucentPanel("max-w-[360px]")} gutter={16}>
+								<CharacterAttackForm characters={selectedCharacters} />
+							</MenuPanel>
+						</Menu>
+					)}
 
-				{singleSelectedCharacter && hasPermissions && (
-					<Menu placement="top">
-						<MenuButton render={<Button tooltip="Notes" icon={<Lucide.NotebookPen />} />} />
-						<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
-							<CharacterNotesFields character={singleSelectedCharacter} />
-						</MenuPanel>
-					</Menu>
-				)}
+					{singleSelectedCharacter && (
+						<CharacterModal character={singleSelectedCharacter}>
+							<Button
+								appearance="clear"
+								tooltip="Profile"
+								icon={<Lucide.BookUser />}
+								element={<ModalButton />}
+							/>
+						</CharacterModal>
+					)}
 
-				{selectedTokens.length >= 2 && (
-					<Button
-						tooltip="Choose random"
-						icon={<Lucide.Shuffle />}
-						onClick={() => {
-							const token = randomItem(selectedTokens)
-							if (token) {
-								tokenSelectStore.clear()
-								tokenSelectStore.setItemSelected(token.key, true)
-							}
-						}}
-					/>
-				)}
+					{singleSelectedCharacter && hasPermissions && (
+						<Menu placement="top">
+							<MenuButton
+								render={<Button appearance="clear" tooltip="Notes" icon={<Lucide.NotebookPen />} />}
+							/>
+							<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
+								<CharacterNotesFields character={singleSelectedCharacter} />
+							</MenuPanel>
+						</Menu>
+					)}
 
-				{room.isOwner && room.currentScene && selectedTokens.some((it) => !it.visible) && (
-					<Button
-						tooltip="Show token"
-						icon={<Lucide.Image />}
-						onClick={() => {
-							for (const token of selectedTokens) {
-								updateToken({
-									sceneId: unwrap(room.currentScene),
-									key: token.key,
-									visible: true,
-								})
-							}
-						}}
-					/>
-				)}
+					{selectedTokens.length >= 2 && (
+						<Button
+							appearance="clear"
+							tooltip="Choose random"
+							icon={<Lucide.Shuffle />}
+							onClick={() => {
+								const token = randomItem(selectedTokens)
+								if (token) {
+									tokenSelectStore.clear()
+									tokenSelectStore.setItemSelected(token.key, true)
+								}
+							}}
+						/>
+					)}
 
-				{room.isOwner && room.currentScene && selectedTokens.some((it) => it.visible) && (
-					<Button
-						tooltip="Hide token"
-						icon={<Lucide.ImageOff />}
-						onClick={() => {
-							for (const token of selectedTokens) {
-								updateToken({
-									sceneId: unwrap(room.currentScene),
-									key: token.key,
-									visible: false,
-								})
-							}
-						}}
-					/>
-				)}
+					{room.isOwner && room.currentScene && selectedTokens.some((it) => !it.visible) && (
+						<Button
+							appearance="clear"
+							tooltip="Show token"
+							icon={<Lucide.Image />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									updateToken({
+										sceneId: unwrap(room.currentScene),
+										key: token.key,
+										visible: true,
+									})
+								}
+							}}
+						/>
+					)}
 
-				{room.isOwner && selectedCharacters.some((it) => !it.nameVisible) && (
-					<Button
-						tooltip="Show name"
-						icon={<Lucide.Eye />}
-						onClick={() => {
-							for (const character of selectedCharacters) {
-								updateCharacter({
-									id: character._id,
-									nameVisible: true,
-								})
-							}
-						}}
-					/>
-				)}
+					{room.isOwner && room.currentScene && selectedTokens.some((it) => it.visible) && (
+						<Button
+							appearance="clear"
+							tooltip="Hide token"
+							icon={<Lucide.ImageOff />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									updateToken({
+										sceneId: unwrap(room.currentScene),
+										key: token.key,
+										visible: false,
+									})
+								}
+							}}
+						/>
+					)}
 
-				{room.isOwner && selectedCharacters.some((it) => it.nameVisible) && (
-					<Button
-						tooltip="Hide name"
-						icon={<Lucide.EyeOff />}
-						onClick={() => {
-							for (const character of selectedCharacters) {
-								updateCharacter({
-									id: character._id,
-									nameVisible: false,
-								})
-							}
-						}}
-					/>
-				)}
+					{room.isOwner && selectedCharacters.some((it) => !it.nameVisible) && (
+						<Button
+							appearance="clear"
+							tooltip="Show name"
+							icon={<Lucide.Eye />}
+							onClick={() => {
+								for (const character of selectedCharacters) {
+									updateCharacter({
+										id: character._id,
+										nameVisible: true,
+									})
+								}
+							}}
+						/>
+					)}
 
-				{room.currentScene && selectedTokens.length > 0 && (
-					<Button
-						tooltip="Remove"
-						icon={<Lucide.Trash />}
-						onClick={() => {
-							for (const token of selectedTokens) {
-								removeToken({ sceneId: unwrap(room.currentScene), tokenKey: token.key })
-							}
-						}}
-					/>
-				)}
+					{room.isOwner && selectedCharacters.some((it) => it.nameVisible) && (
+						<Button
+							appearance="clear"
+							tooltip="Hide name"
+							icon={<Lucide.EyeOff />}
+							onClick={() => {
+								for (const character of selectedCharacters) {
+									updateCharacter({
+										id: character._id,
+										nameVisible: false,
+									})
+								}
+							}}
+						/>
+					)}
+
+					{room.currentScene && selectedTokens.length > 0 && (
+						<Button
+							appearance="clear"
+							tooltip="Remove"
+							icon={<Lucide.Trash />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									removeToken({ sceneId: unwrap(room.currentScene), tokenKey: token.key })
+								}
+							}}
+						/>
+					)}
+				</div>
 			</div>
+			{selectedCharacters.some((it) => it.permission === "full") && (
+				<>
+					<hr className="w-full border-primary-400" />
+					<AttributeDiceRollButtonGrid className="gap-[inherit]" characters={selectedCharacters} />
+				</>
+			)}
 		</div>
 	)
 }
