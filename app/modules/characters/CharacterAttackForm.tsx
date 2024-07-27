@@ -2,6 +2,7 @@ import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { AttributeIcon } from "~/modules/attributes/AttributeIcon.tsx"
 import { listAttributeIds, listAttributes, type Attribute } from "~/modules/attributes/data.ts"
 import { CharacterImage } from "~/modules/characters/CharacterImage.tsx"
 import { CharacterSearchList } from "~/modules/characters/CharacterSearchList.tsx"
@@ -95,6 +96,7 @@ export function CharacterAttackForm({ characters }: { characters: ApiCharacter[]
 					options={listAttributes().map((it) => ({
 						label: it.name,
 						value: it.id,
+						icon: <AttributeIcon id={it.id} />,
 					}))}
 					value={attributeId}
 					onChange={setAttributeId}

@@ -1,12 +1,7 @@
-import {
-	LucideBicepsFlexed,
-	LucideEye,
-	LucideLightbulb,
-	LucideSparkles,
-	LucideWind,
-} from "lucide-react"
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
+import { AttributeIcon } from "~/modules/attributes/AttributeIcon.tsx"
+import { listAttributeIds } from "~/modules/attributes/data.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { AttributeDiceRollButton } from "./AttributeDiceRollButton.tsx"
 
@@ -14,7 +9,10 @@ export function AttributeDiceRollButtonGrid({
 	characters,
 	variant = "horizontal",
 	...props
-}: { characters: ApiCharacter[]; variant?: "stacked" | "horizontal" } & ComponentProps<"div">) {
+}: {
+	characters: ApiCharacter[]
+	variant?: "stacked" | "horizontal"
+} & ComponentProps<"div">) {
 	return (
 		<div
 			{...props}
@@ -24,36 +22,14 @@ export function AttributeDiceRollButtonGrid({
 				props.className,
 			)}
 		>
-			<AttributeDiceRollButton
-				characters={characters}
-				icon={<LucideBicepsFlexed />}
-				tooltip="Strength"
-				attribute="strength"
-			/>
-			<AttributeDiceRollButton
-				characters={characters}
-				icon={<LucideWind />}
-				tooltip="Mobility"
-				attribute="mobility"
-			/>
-			<AttributeDiceRollButton
-				characters={characters}
-				icon={<LucideEye />}
-				tooltip="Sense"
-				attribute="sense"
-			/>
-			<AttributeDiceRollButton
-				characters={characters}
-				icon={<LucideLightbulb />}
-				tooltip="Intellect"
-				attribute="intellect"
-			/>
-			<AttributeDiceRollButton
-				characters={characters}
-				icon={<LucideSparkles />}
-				tooltip="Wit"
-				attribute="wit"
-			/>
+			{listAttributeIds().map((id) => (
+				<AttributeDiceRollButton
+					key={id}
+					characters={characters}
+					icon={<AttributeIcon id={id} />}
+					attribute={id}
+				/>
+			))}
 		</div>
 	)
 }

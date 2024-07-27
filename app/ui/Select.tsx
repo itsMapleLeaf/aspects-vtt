@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import type { ComponentProps, ReactNode } from "react"
+import React, { type ComponentProps, type ReactNode } from "react"
 import { mod } from "../helpers/math.ts"
 import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
@@ -34,8 +34,23 @@ export function Select<T>(props: {
 }) {
 	const currentOption = props.options.find((it) => it.value === props.value)
 
-	function getOptionId(option: SelectOption<T>) {
-		return "id" in option ? option.id : option.value
+	const getOptionId = (option: SelectOption<T>) => ("id" in option ? option.id : option.value)
+
+	const cycleOption = (delta: number) => {
+		const currentOptionIndex = props.options.findIndex((it) => it.value === props.value)
+		const nextOption = props.options[mod(currentOptionIndex + delta, props.options.length)]
+		if (nextOption) props.onChange(nextOption.value)
+	}
+
+	const handleKeyDown = (event: React.KeyboardEvent) => {
+		if (event.key === "ArrowUp") {
+			event.preventDefault()
+			cycleOption(-1)
+		}
+		if (event.key === "ArrowDown") {
+			event.preventDefault()
+			cycleOption(1)
+		}
 	}
 
 	return (
@@ -51,39 +66,18 @@ export function Select<T>(props: {
 				className={props.className}
 			>
 				<Button
-					icon={<Lucide.ChevronDown />}
-					text={
-						currentOption?.label ?? (
+					icon={currentOption?.icon}
+					className="w-full"
+					align="start"
+					element={<Ariakit.Select onKeyDown={handleKeyDown} />}
+				>
+					<div className="flex flex-1 flex-row">
+						{currentOption?.label ?? (
 							<span className="opacity-50">{props.placeholder ?? "Choose one"}</span>
-						)
-					}
-					className="w-full flex-row-reverse justify-between"
-					element={
-						<Ariakit.Select
-							onKeyDown={(event) => {
-								if (event.key === "ArrowDown") {
-									event.preventDefault()
-									const currentOptionIndex = props.options.findIndex(
-										(it) => it.value === props.value,
-									)
-									const nextOption =
-										props.options[mod(currentOptionIndex + 1, props.options.length)]
-									if (nextOption) props.onChange(nextOption.value)
-								}
-
-								if (event.key === "ArrowUp") {
-									event.preventDefault()
-									const currentOptionIndex = props.options.findIndex(
-										(it) => it.value === props.value,
-									)
-									const nextOption =
-										props.options[mod(currentOptionIndex - 1, props.options.length)]
-									if (nextOption) props.onChange(nextOption.value)
-								}
-							}}
-						/>
-					}
-				/>
+						)}
+						<Lucide.ChevronDown className="ml-auto" />
+					</div>
+				</Button>
 			</FormField>
 			<Ariakit.SelectPopover
 				portal
