@@ -79,3 +79,7 @@ export function nonEmpty<T>(items: Iterable<T>): NonEmptyArray<T> {
 	}
 	return [first, ...rest]
 }
+
+export function hasOneItem<T>(items: readonly T[]): items is readonly [T] {
+	return items.length === 1
+}

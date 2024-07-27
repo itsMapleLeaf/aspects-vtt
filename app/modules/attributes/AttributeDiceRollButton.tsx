@@ -1,6 +1,11 @@
 import * as Lucide from "lucide-react"
 import { useState } from "react"
+import { hasOneItem } from "~/helpers/array.ts"
+import { titleCase } from "~/helpers/string.ts"
+import { normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
+import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
 import { CheckboxField } from "~/ui/CheckboxField.tsx"
+import { withMergedClassName } from "~/ui/withMergedClassName.ts"
 import { api } from "../../../convex/_generated/api"
 import { clamp } from "../../helpers/math.ts"
 import type { PartialKeys } from "../../helpers/types.ts"
@@ -16,8 +21,10 @@ import type { Attribute } from "./data.ts"
 export function AttributeDiceRollButton({
 	characters,
 	attribute,
-	icon,
-	text,
+	icon = <Lucide.Dices />,
+	tooltip = titleCase(attribute),
+	children,
+	["aria-label"]: ariaLabel = typeof children === "string" ? children : undefined,
 	...buttonProps
 }: {
 	characters: ApiCharacter[]
@@ -30,18 +37,27 @@ export function AttributeDiceRollButton({
 	const [, updateCharacter] = useMutationAction(api.characters.functions.update)
 	const { _id: roomId } = useRoom()
 
+	const attributeDie =
+		hasOneItem(characters) && characters[0].permission === "full" ?
+			getCharacterAttributeDiceKind(normalizeAttributeValue(characters[0][attribute]))
+		:	undefined
+
 	return (
 		<Popover placement="top">
-			<PopoverTrigger
-				render={
-					<Button
-						icon={icon ?? <Lucide.Dices />}
-						aria-label={typeof text === "string" ? text : undefined}
-						tooltipPlacement="bottom"
-						{...buttonProps}
-					/>
-				}
-			/>
+			<div className="flex flex-col items-center gap-1">
+				<PopoverTrigger
+					render={
+						<Button
+							icon={icon}
+							tooltip={tooltip}
+							aria-label={ariaLabel}
+							tooltipPlacement="bottom"
+							{...withMergedClassName(buttonProps, "w-full")}
+						/>
+					}
+				/>
+				<div className="text-sm">{attributeDie?.name}</div>
+			</div>
 			<PopoverPanel portal gutter={8} unmountOnHide className="flex flex-col p-2 gap-2">
 				<div className="flex gap-current *:flex-1">
 					<FormField label="Boost Dice">
