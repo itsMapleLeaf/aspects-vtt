@@ -37,7 +37,7 @@ export type OptionalKeys<T, K extends keyof T> = Simplify<Omit<T, K> & Partial<P
 
 export type RequiredKeys<T, K extends keyof T> = Simplify<Omit<T, K> & Required<Pick<T, K>>>
 
-/** @deprecated */
+/** @deprecated Use OptionalKeys */
 export type PartialKeys<T, K extends keyof T> = OptionalKeys<T, K>
 
 export type UndefinedToOptional<T> = Simplify<
