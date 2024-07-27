@@ -10,3 +10,4 @@ node_modules
 /test-results
 /bin
 /data
+/.idea
