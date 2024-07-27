@@ -1,11 +1,11 @@
 import { useQuery } from "convex/react"
 import { LucideImageOff } from "lucide-react"
-import { useRef, type ComponentProps, type ReactElement } from "react"
+import { type ComponentProps, type ReactElement, useRef } from "react"
 import { twMerge } from "tailwind-merge"
 import { useSize } from "~/helpers/dom/useResizeObserver.ts"
 import type { Nullish } from "~/helpers/types.ts"
 import { Loading } from "~/ui/Loading.tsx"
-import { resolveClasses, type ClassSlotProps } from "~/ui/classSlots.tsx"
+import { type ClassSlotProps, resolveClasses } from "~/ui/classSlots.tsx"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel"
 

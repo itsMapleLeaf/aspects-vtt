@@ -1,4 +1,4 @@
-import { expect, test as it, type Page } from "@playwright/test"
+import { type Page, expect, test as it } from "@playwright/test"
 import { ConvexHttpClient } from "convex/browser"
 import { api } from "../convex/_generated/api.js"
 import type { Branded } from "../convex/helpers/convex.js"

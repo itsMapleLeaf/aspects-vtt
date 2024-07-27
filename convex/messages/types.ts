@@ -1,4 +1,4 @@
-import { v, type Infer } from "convex/values"
+import { type Infer, v } from "convex/values"
 
 export type DiceRoll = Infer<typeof diceRollValidator>
 export const diceRollValidator = v.object({

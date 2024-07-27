@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
-import { useDeferredValue, type ComponentProps } from "react"
+import { type ComponentProps, useDeferredValue } from "react"
 import { z } from "zod"
 import { typed } from "~/helpers/types.ts"
 import { getCharacterDisplayName } from "~/modules/characters/helpers.ts"
@@ -10,7 +10,7 @@ import { ResourceGroup, ResourceTreeItem } from "../resources/ResourceTree.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterModal } from "./CharacterModal.tsx"
-import { characterDragData, type ApiCharacter, type CharacterDragData } from "./types.ts"
+import { type ApiCharacter, type CharacterDragData, characterDragData } from "./types.ts"
 import { useUpdateCharacterMutation } from "./useUpdateCharacterMutation.tsx"
 
 interface CharacterResourceGroupProps {

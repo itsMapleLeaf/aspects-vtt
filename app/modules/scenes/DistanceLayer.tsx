@@ -1,6 +1,6 @@
 import { Vector } from "../../helpers/Vector.ts"
-import { useCurrentRoomScene } from "./hooks.ts"
 import { useSceneContext } from "./SceneContext.tsx"
+import { useCurrentRoomScene } from "./hooks.ts"
 
 export function DistanceLayer() {
 	const scene = useCurrentRoomScene()

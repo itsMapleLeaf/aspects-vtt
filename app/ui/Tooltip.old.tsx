@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
+import type * as React from "react"
 import type { ComponentPropsWithoutRef } from "react"
-import * as React from "react"
 
 /** @deprecated */
 export interface TooltipProps extends ComponentPropsWithoutRef<"button"> {

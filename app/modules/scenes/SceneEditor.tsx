@@ -1,7 +1,8 @@
 import { Link } from "@remix-run/react"
 import { useMutation } from "convex/react"
 import { LucideDoorOpen, LucideEye } from "lucide-react"
-import React, { useEffect } from "react"
+import type React from "react"
+import { useEffect } from "react"
 import { loadImage } from "~/helpers/dom/images.ts"
 import type { Overwrite } from "~/helpers/types.ts"
 import { Button } from "~/ui/Button.tsx"
@@ -13,8 +14,8 @@ import {
 	ModalPanel,
 	ModalPanelContent,
 	ModalProvider,
-	useModalContext,
 	type ModalProviderProps,
+	useModalContext,
 } from "~/ui/Modal.tsx"
 import { api } from "../../../convex/_generated/api"
 import { ImageUploader } from "../api-images/ImageUploader.tsx"

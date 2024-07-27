@@ -1,4 +1,4 @@
-import { useImperativeHandle, useState, type Ref } from "react"
+import { type Ref, useImperativeHandle, useState } from "react"
 import { Input, type InputProps } from "./Input.tsx"
 
 export interface ValidatedInputController {

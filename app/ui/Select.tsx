@@ -1,12 +1,13 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import React, { type ComponentProps, type ReactNode } from "react"
+import type React from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { mod } from "../helpers/math.ts"
 import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
 import { LoadingDecoration } from "./LoadingDecoration.tsx"
 import { MenuItem, MenuPanel } from "./Menu.tsx"
-import { useEditable, type EditableProps } from "./useEditable.tsx"
+import { type EditableProps, useEditable } from "./useEditable.tsx"
 
 export interface SelectOptionWithoutId<T> {
 	id?: string | undefined

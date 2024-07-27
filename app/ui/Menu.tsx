@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react"
-import { twMerge, type ClassNameValue } from "tailwind-merge"
+import { type ClassNameValue, twMerge } from "tailwind-merge"
 import type { Overwrite } from "~/helpers/types.ts"
 import { Button, type ButtonProps } from "./Button.tsx"
 import { panel } from "./styles.ts"

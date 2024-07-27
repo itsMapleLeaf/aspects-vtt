@@ -39,5 +39,5 @@ export function titleCase(text: string) {
 		.join(" ")
 }
 export function pluralize(word: string, count: number, pluralWord?: string) {
-	return count === 1 ? word : (pluralWord ?? word + "s")
+	return count === 1 ? word : (pluralWord ?? `${word}s`)
 }

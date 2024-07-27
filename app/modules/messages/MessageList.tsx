@@ -10,7 +10,7 @@ import { TranslucentPanel } from "../../ui/Panel.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import { hasFullCharacterPermissions } from "../characters/helpers.ts"
-import { diceKinds, diceKindsByName, diceStats, type DiceStat } from "../dice/data.tsx"
+import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/data.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
 type ApiMessage = FunctionReturnType<typeof api.messages.functions.list>[number]

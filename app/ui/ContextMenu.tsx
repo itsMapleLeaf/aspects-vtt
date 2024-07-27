@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react"
-import { createContext, use, useEffect, useRef, useState, type ComponentProps } from "react"
+import { type ComponentProps, createContext, use, useEffect, useRef, useState } from "react"
 import { Vector } from "../helpers/Vector.ts"
 import { createStrictContext, useStrictContext } from "../helpers/react/strictContext.tsx"
 import { Menu, MenuItem, MenuPanel } from "./Menu.tsx"

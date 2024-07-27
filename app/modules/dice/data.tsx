@@ -130,7 +130,7 @@ function defineNumeric({
 						tooltip={name}
 					/>
 				),
-				[],
+				[faceCount, renderIcon, textClassName],
 			)
 		},
 		faces: Iterator.range(1, faceCount + 1)
@@ -147,7 +147,7 @@ function defineNumeric({
 								className={n === faceCount ? "text-primary-700" : ""}
 							/>
 						),
-						[],
+						[faceCount, renderIcon, n, textClassName],
 					)
 				},
 				modifyStats: new Map([
@@ -185,7 +185,7 @@ function defineModifier({
 						className={className}
 					/>
 				),
-				[],
+				[name, className, renderIcon],
 			)
 		},
 		faces: Iterator.range(1, faceCount + 1)
@@ -204,7 +204,7 @@ function defineModifier({
 								className={className}
 							/>
 						),
-						[],
+						[className, face, name],
 					)
 				},
 			}))

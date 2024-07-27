@@ -110,11 +110,14 @@ function DragHandler({ children }: { children: React.ReactNode }) {
 
 function SceneBackground() {
 	const scene = useCurrentRoomScene()
-	const { viewport } = useSceneContext()
-	const tileSize = 1024
-	const windowSize = useWindowSize()
+	const background = scene?.background
 
-	if (!scene?.background) return null
+	const { viewport } = useSceneContext()
+
+	const windowSize = useWindowSize()
+	const tileSize = 1024
+
+	if (!background) return null
 
 	const tileStart = viewport.offset.dividedBy(-tileSize * viewport.scale).floor
 	const tileEnd = tileStart
@@ -141,9 +144,9 @@ function SceneBackground() {
 			{tilePositions
 				.map((position) => (
 					<div
-						key={position.x + "-" + position.y}
+						key={`${position.x}-${position.y}`}
 						style={{
-							backgroundImage: `url(${getApiImageUrl(scene.background!)}?area=${position.x * tileSize},${position.y * tileSize},${tileSize},${tileSize})`,
+							backgroundImage: `url(${getApiImageUrl(background)}?area=${position.x * tileSize},${position.y * tileSize},${tileSize},${tileSize})`,
 							backgroundRepeat: "no-repeat",
 							width: tileSize,
 							height: tileSize,

@@ -1,4 +1,4 @@
-import { isValidElement, type ReactNode } from "react"
+import { type ReactNode, isValidElement } from "react"
 import type { Nullish } from "../types.ts"
 
 export function isReactNode(value: unknown): value is ReactNode {

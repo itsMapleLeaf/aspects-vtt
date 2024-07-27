@@ -1,4 +1,4 @@
-import { createContext, use, useEffect, useMemo, useState, type ReactNode } from "react"
+import { type ReactNode, createContext, use, useEffect, useMemo, useState } from "react"
 import { useEffectEvent } from "../helpers/react/hooks.ts"
 
 type Register = () => () => void
@@ -26,5 +26,5 @@ export function useConsumerProvider() {
 
 export function useConsumer() {
 	const register = use(RegisterContext)
-	useEffect(register, [register])
+	useEffect(register, [])
 }

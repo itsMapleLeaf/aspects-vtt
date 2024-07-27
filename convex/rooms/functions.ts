@@ -5,7 +5,7 @@ import { generateSlug } from "random-word-slugs"
 import { Result } from "../../app/helpers/Result.ts"
 import { omit } from "../../app/helpers/object.ts"
 import type { Id } from "../_generated/dataModel.js"
-import { mutation, query, type QueryCtx } from "../_generated/server.js"
+import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { UnauthorizedError, getUserFromIdentity, getUserFromIdentityEffect } from "../auth.ts"
 import {
 	Convex,

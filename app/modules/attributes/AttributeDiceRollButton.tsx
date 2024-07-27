@@ -24,7 +24,7 @@ export function AttributeDiceRollButton({
 	icon = <Lucide.Dices />,
 	tooltip = titleCase(attribute),
 	children,
-	["aria-label"]: ariaLabel = typeof children === "string" ? children : undefined,
+	"aria-label": ariaLabel = typeof children === "string" ? children : undefined,
 	...buttonProps
 }: {
 	characters: ApiCharacter[]

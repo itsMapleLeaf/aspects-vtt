@@ -1,7 +1,7 @@
 import { HashMap } from "effect"
 import * as React from "react"
 import { Vector } from "../../helpers/Vector.ts"
-import { useRoom, type ApiRoom } from "../rooms/roomContext.tsx"
+import { type ApiRoom, useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 
 const pingAnimationDuration = 2500

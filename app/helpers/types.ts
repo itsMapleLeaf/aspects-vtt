@@ -48,9 +48,10 @@ export type UndefinedToOptional<T> = Simplify<
 	}
 >
 
+// biome-ignore lint/complexity/noBannedTypes: this is intentional
 export type DietUnknown = {} | undefined | null
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: this is for non-explicit any placeholders
 export type TODO = any
 
 export type ValueOf<T> = T[keyof T]

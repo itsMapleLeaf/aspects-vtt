@@ -1,0 +1,44 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"noUnusedTemplateLiteral": "off",
+				"useSelfClosingElements": "off",
+				"noNonNullAssertion": "off"
+			},
+			"suspicious": {
+				"noConsoleLog": "error",
+				"noImplicitAnyLet": "off",
+				"noArrayIndexKey": "off",
+				"noExplicitAny": "warn",
+				"noAssignInExpressions": "off"
+			},
+			"complexity": {
+				"noForEach": "off"
+			}
+		}
+	},
+	"formatter": {
+		"enabled": false
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"json": {
+		"parser": {
+			"allowTrailingCommas": true,
+			"allowComments": true
+		}
+	},
+	"files": {
+		"ignore": ["convex/_generated"]
+	}
+}

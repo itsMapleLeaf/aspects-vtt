@@ -1,5 +1,5 @@
 import { useMutation } from "convex/react"
-import React from "react"
+import type React from "react"
 import { useSafeAction } from "~/modules/convex/hooks.ts"
 import { useRoom } from "~/modules/rooms/roomContext.tsx"
 import { api } from "../../../convex/_generated/api.js"

@@ -17,7 +17,7 @@ export function ReadOnlyField({ label, value }: { label: ReactNode; value: React
 					content="Read-only"
 					className="-m-2 rounded p-2 opacity-25 transition-opacity hover:opacity-50 focus-visible:opacity-50"
 				>
-					<button>
+					<button type="button">
 						<LucideBan className="size-4" aria-hidden />
 						<span className="sr-only">Read-only</span>
 					</button>

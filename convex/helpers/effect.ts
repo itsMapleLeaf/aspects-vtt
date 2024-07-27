@@ -50,9 +50,9 @@ export class ConvexDocNotFoundError extends Data.TaggedError("ConvexDocNotFoundE
 	table?: string
 }> {}
 
-export class NotLoggedInError extends Data.TaggedError("NotLoggedInError")<{}> {}
+export class NotLoggedInError extends Data.TaggedError("NotLoggedInError") {}
 
-export class FileNotFoundError extends Data.TaggedError("FileNotFoundError")<{}> {}
+export class FileNotFoundError extends Data.TaggedError("FileNotFoundError") {}
 
 export class InvalidIdError<T extends string> extends Data.TaggedError("InvalidIdError")<{
 	table: T
@@ -60,7 +60,7 @@ export class InvalidIdError<T extends string> extends Data.TaggedError("InvalidI
 }> {}
 
 interface EffectBuilderOptions<
-	Args extends PropertyValidators | void,
+	Args extends PropertyValidators | undefined,
 	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
 	Output,
 	Service,
@@ -70,7 +70,7 @@ interface EffectBuilderOptions<
 }
 
 export function effectQuery<
-	Args extends PropertyValidators | void,
+	Args extends PropertyValidators | undefined,
 	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
 	Output,
 >(options: EffectBuilderOptions<Args, ArgsArray, Output, QueryCtxService>) {

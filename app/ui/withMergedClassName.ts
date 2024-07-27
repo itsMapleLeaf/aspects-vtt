@@ -1,4 +1,4 @@
-import { twMerge, type ClassNameValue } from "tailwind-merge"
+import { type ClassNameValue, twMerge } from "tailwind-merge"
 
 export function withMergedClassName<T extends { className?: ClassNameValue }>(
 	props: T,

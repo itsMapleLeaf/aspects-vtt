@@ -1,10 +1,11 @@
-import React, {
-	cloneElement,
-	useTransition,
+import type React from "react"
+import {
 	type ComponentProps,
 	type Key,
 	type ReactElement,
 	type ReactNode,
+	cloneElement,
+	useTransition,
 } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"

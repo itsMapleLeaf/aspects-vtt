@@ -4,7 +4,7 @@ import { camelCase } from "lodash-es"
 import { unwrap } from "~/helpers/errors.ts"
 import { entries, fromEntries, keys, mapValues, values } from "~/helpers/object.ts"
 import { titleCase } from "~/helpers/string.ts"
-import { getAspect, type Aspect } from "../aspects/data.ts"
+import { type Aspect, getAspect } from "../aspects/data.ts"
 import type { Attribute } from "../attributes/data.ts"
 
 export type TierId = string & Brand.Brand<"TierId">

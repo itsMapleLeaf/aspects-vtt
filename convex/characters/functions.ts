@@ -1,6 +1,6 @@
 import { getManyFrom } from "convex-helpers/server/relationships"
 import { literals, nullable } from "convex-helpers/validators"
-import { ConvexError, v, type GenericId } from "convex/values"
+import { ConvexError, type GenericId, v } from "convex/values"
 import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
@@ -13,12 +13,12 @@ import { fromEntries, keys, omit, pick } from "../../app/helpers/object.ts"
 import { randomInt, randomItem } from "../../app/helpers/random.ts"
 import { pluralize, titleCase } from "../../app/helpers/string.ts"
 import {
+	type Skill,
 	getAspectSkill,
 	listAspectSkillIds,
 	listAspectSkillsByAspect,
-	type Skill,
 } from "../../app/modules/aspect-skills/data.ts"
-import { getAspect, listAspects, type Aspect } from "../../app/modules/aspects/data.ts"
+import { type Aspect, getAspect, listAspects } from "../../app/modules/aspects/data.ts"
 import { listRaceIds } from "../../app/modules/races/data.ts"
 import type { Doc } from "../_generated/dataModel.js"
 import { getUserFromIdentityEffect } from "../auth.ts"
@@ -36,7 +36,7 @@ import {
 } from "../helpers/effect.ts"
 import { partial } from "../helpers/partial.ts"
 import { createMessages } from "../messages/helpers.ts"
-import { diceInputValidator, type DiceRoll } from "../messages/types.ts"
+import { type DiceRoll, diceInputValidator } from "../messages/types.ts"
 import { ensureViewerOwnsRoom } from "../rooms/helpers.ts"
 import schema from "../schema.ts"
 import { userColorValidator } from "../types.ts"

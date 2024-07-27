@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react"
-import { twMerge, type ClassNameValue } from "tailwind-merge"
+import { type ClassNameValue, twMerge } from "tailwind-merge"
 import { TranslucentPanel } from "./Panel.tsx"
 
 export const usePopoverStore = Ariakit.usePopoverStore

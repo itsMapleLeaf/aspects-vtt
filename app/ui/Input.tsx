@@ -1,4 +1,4 @@
-import { twMerge, type ClassNameValue } from "tailwind-merge"
+import { type ClassNameValue, twMerge } from "tailwind-merge"
 import { useField } from "./Form.tsx"
 import { Tooltip } from "./Tooltip.tsx"
 import { panel } from "./styles.ts"
