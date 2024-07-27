@@ -7,7 +7,7 @@ import { getWordsByCategory } from "random-word-slugs/words.ts"
 import { AttributeTotal } from "~/modules/attributes/constants.ts"
 import { getAttributePower } from "~/modules/attributes/helpers.ts"
 import { getDiceKindApiInput, statDiceKindsByName } from "~/modules/dice/data.tsx"
-import { isTuple } from "../../app/helpers/array.ts"
+import { hasLength } from "../../app/helpers/array.ts"
 import { unwrap } from "../../app/helpers/errors.ts"
 import { fromEntries, keys, omit, pick } from "../../app/helpers/object.ts"
 import { randomInt, randomItem } from "../../app/helpers/random.ts"
@@ -172,7 +172,7 @@ export const applyStress = effectMutation({
 			})
 
 			const characterRoomIds = [...new Set(characters.map((character) => character.roomId))]
-			if (!isTuple(characterRoomIds, 1)) {
+			if (!hasLength(characterRoomIds, 1)) {
 				return yield* Effect.fail(new ConvexError("Characters must all be in the same room"))
 			}
 			const roomId = characterRoomIds[0]

@@ -1,3 +1,4 @@
+import type { NonEmptyTuple, ReadonlyTuple } from "type-fest"
 import { mod } from "./math.ts"
 
 export function withMovedItem<T>(array: readonly T[], fromIndex: number, toIndex: number): T[] {
@@ -40,13 +41,6 @@ export function chunk<T>(array: readonly T[], chunkSize: number): T[][] {
 	return result
 }
 
-export function isTuple<T, Length extends number>(
-	input: readonly T[],
-	length: Length,
-): input is Tuple<T, Length> {
-	return input.length === length
-}
-
 export function upsertArray<T>(
 	array: readonly T[],
 	condition: (item: T) => boolean,
@@ -61,18 +55,7 @@ export function upsertArray<T>(
 	return [...array, create()]
 }
 
-type Tuple<T, N extends number> =
-	N extends N ?
-		number extends N ?
-			readonly T[]
-		:	_TupleOf<T, N, readonly []>
-	:	never
-
-type _TupleOf<T, N extends number, R extends readonly unknown[]> =
-	R["length"] extends N ? R : _TupleOf<T, N, readonly [T, ...R]>
-
-export type NonEmptyArray<T> = [T, ...T[]]
-export function nonEmpty<T>(items: Iterable<T>): NonEmptyArray<T> {
+export function nonEmpty<T>(items: Iterable<T>): NonEmptyTuple<T> {
 	const [first, ...rest] = items
 	if (first === undefined) {
 		throw new Error("Expected non-empty iterable")
@@ -80,6 +63,9 @@ export function nonEmpty<T>(items: Iterable<T>): NonEmptyArray<T> {
 	return [first, ...rest]
 }
 
-export function hasOneItem<T>(items: readonly T[]): items is readonly [T] {
-	return items.length === 1
+export function hasLength<Value, Length extends number>(
+	items: readonly Value[],
+	length: Length,
+): items is ReadonlyTuple<Value, Length> {
+	return items.length === length
 }

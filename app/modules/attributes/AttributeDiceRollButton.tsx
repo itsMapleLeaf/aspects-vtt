@@ -1,6 +1,6 @@
 import * as Lucide from "lucide-react"
 import { useState } from "react"
-import { hasOneItem } from "~/helpers/array.ts"
+import { hasLength } from "~/helpers/array.ts"
 import { titleCase } from "~/helpers/string.ts"
 import { normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
 import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
@@ -38,7 +38,7 @@ export function AttributeDiceRollButton({
 	const { _id: roomId } = useRoom()
 
 	const attributeDie =
-		hasOneItem(characters) && characters[0].permission === "full" ?
+		hasLength(characters, 1) && characters[0].permission === "full" ?
 			getCharacterAttributeDiceKind(normalizeAttributeValue(characters[0][attribute]))
 		:	undefined
 
