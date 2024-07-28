@@ -19,6 +19,7 @@ export default defineSchema({
 	users: defineTable({
 		...authTables.users.validator.fields,
 		name: v.string(),
+		email: v.optional(nullable(v.string())),
 		image: v.optional(v.id("images")),
 		clerkId: deprecated,
 		avatarUrl: deprecated,

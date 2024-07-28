@@ -8,7 +8,10 @@ import { Suspense } from "react"
 import { AppHeaderLayout } from "~/ui/AppHeaderLayout.tsx"
 import { Button } from "~/ui/Button.tsx"
 import { EmptyStatePanel } from "~/ui/EmptyState.tsx"
+import { FormActions, FormField, FormLayout } from "~/ui/Form.tsx"
+import { Input } from "~/ui/Input.tsx"
 import { Loading } from "~/ui/Loading.tsx"
+import { ModalButton, ModalPanel, ModalProvider } from "~/ui/Modal.tsx"
 import { api } from "../../convex/_generated/api.js"
 
 export default function ProtectedRoute() {
@@ -43,9 +46,36 @@ function UnauthenticatedMessage() {
 					icon={<Lucide.Lock />}
 					message="You must be signed in to continue."
 					actions={
-						<form action={() => auth.signIn("discord", { redirectTo: currentUrl })}>
-							<Button icon={<SiDiscord />}>Sign in with Discord</Button>
-						</form>
+						<>
+							<form action={() => auth.signIn("discord", { redirectTo: currentUrl })}>
+								<Button icon={<SiDiscord />}>Sign in with Discord</Button>
+							</form>
+							{(import.meta.env.DEV || import.meta.env.MODE === "test") && (
+								<ModalProvider>
+									<ModalButton render={<Button icon={<Lucide.TestTube2 />} />}>
+										Test sign in
+									</ModalButton>
+									<ModalPanel title="Test sign in">
+										<form
+											action={(form) =>
+												auth.signIn("test", { id: String(form.get("id")), redirectTo: currentUrl })
+											}
+										>
+											<FormLayout>
+												<FormField label="User ID">
+													<Input name="id" defaultValue="testuser" />
+												</FormField>
+												<FormActions>
+													<Button type="submit" icon={<Lucide.LogIn />}>
+														Sign in
+													</Button>
+												</FormActions>
+											</FormLayout>
+										</form>
+									</ModalPanel>
+								</ModalProvider>
+							)}
+						</>
 					}
 				/>
 			</main>

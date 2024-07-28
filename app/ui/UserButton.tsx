@@ -17,6 +17,7 @@ export function UserButton() {
 						imageId={user?.image}
 						className="overflow-clip rounded-full transition-transform hover:scale-110 active:scale-100 active:duration-0"
 					/>
+					<span className="sr-only">Account actions</span>
 				</MenuButton>
 				<MenuPanel>
 					<form action={actions.signOut}>

@@ -52,6 +52,7 @@ export const get = effectQuery({
 			return {
 				...room,
 				players: playerUsers.filter(Boolean), // TODO: move to a separate query
+				isJoined: players.some((it) => it.user === currentUserId),
 				isOwner: currentUserId === room.owner,
 				experience: room.experience ?? 0,
 			}
@@ -93,10 +94,14 @@ export const create = effectMutation({
 			const user = yield* getCurrentUser()
 			const slug = yield* pipe(generateUniqueSlug, Effect.retry({ times: 10 }))
 
-			yield* Convex.db.insert("rooms", {
+			const roomId = yield* Convex.db.insert("rooms", {
 				name: slug,
 				slug,
 				owner: user._id,
+			})
+			yield* Convex.db.insert("players", {
+				roomId,
+				user: user._id,
 			})
 
 			return { slug }

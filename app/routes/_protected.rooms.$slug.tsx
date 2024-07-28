@@ -88,10 +88,12 @@ export default function RoomRoute() {
 function JoinRoomEffect() {
 	const room = useRoom()
 	const join = useMutation(api.rooms.functions.join)
+
 	useEffect(() => {
-		join({ id: room._id })
-	}, [join, room._id])
-	return null
+		if (!room.isJoined) join({ id: room._id })
+	}, [join, room._id, room.isJoined])
+
+	return room.isJoined && <div data-room-joined hidden />
 }
 
 function RoomTimedThemeEffect() {
