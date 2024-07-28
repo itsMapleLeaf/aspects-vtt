@@ -2,6 +2,7 @@ import { getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
+import { uniqueByProperty } from "~/helpers/iterable.ts"
 import { Result } from "../../app/helpers/Result.ts"
 import { omit } from "../../app/helpers/object.ts"
 import type { Id } from "../_generated/dataModel.js"
@@ -75,7 +76,7 @@ export const list = query({
 			.collect()
 
 		const rooms = await Promise.all(memberships.map((player) => ctx.db.get(player.roomId)))
-		return rooms.filter(Boolean)
+		return Array.from(uniqueByProperty(rooms.filter(Boolean), "_id"))
 	},
 })
 
