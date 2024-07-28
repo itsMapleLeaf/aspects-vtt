@@ -50,35 +50,38 @@ function UnauthenticatedMessage() {
 							<form action={() => auth.signIn("discord", { redirectTo: currentUrl })}>
 								<Button icon={<SiDiscord />}>Sign in with Discord</Button>
 							</form>
-							{(import.meta.env.DEV || import.meta.env.MODE === "test") && (
-								<ModalProvider>
-									<ModalButton render={<Button icon={<Lucide.TestTube2 />} />}>
-										Test sign in
-									</ModalButton>
-									<ModalPanel title="Test sign in">
-										<form
-											action={(form) =>
-												auth.signIn("test", { id: String(form.get("id")), redirectTo: currentUrl })
-											}
-										>
-											<FormLayout>
-												<FormField label="User ID">
-													<Input name="id" defaultValue="testuser" />
-												</FormField>
-												<FormActions>
-													<Button type="submit" icon={<Lucide.LogIn />}>
-														Sign in
-													</Button>
-												</FormActions>
-											</FormLayout>
-										</form>
-									</ModalPanel>
-								</ModalProvider>
-							)}
+							{(import.meta.env.DEV || import.meta.env.MODE === "test") && <TestSignInButton />}
 						</>
 					}
 				/>
 			</main>
 		</AppHeaderLayout>
+	)
+}
+function TestSignInButton() {
+	const auth = useAuthActions()
+	const currentUrl = useHref(useLocation())
+	return (
+		<ModalProvider>
+			<ModalButton render={<Button icon={<Lucide.TestTube2 />} />}>Test sign in</ModalButton>
+			<ModalPanel title="Test sign in">
+				<form
+					action={(form) =>
+						auth.signIn("test", { id: String(form.get("id")), redirectTo: currentUrl })
+					}
+				>
+					<FormLayout>
+						<FormField label="User ID" htmlFor="id">
+							<Input id="id" name="id" defaultValue="testuser" />
+						</FormField>
+						<FormActions>
+							<Button type="submit" icon={<Lucide.LogIn />}>
+								Sign in
+							</Button>
+						</FormActions>
+					</FormLayout>
+				</form>
+			</ModalPanel>
+		</ModalProvider>
 	)
 }

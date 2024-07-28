@@ -30,10 +30,14 @@ export default defineConfig({
 	],
 	webServer: [
 		{
-			command: "bun run dev",
+			command: "bun run build && bun run preview",
 			url: "http://localhost:5173",
 			reuseExistingServer: !process.env.CI,
 			stdout: "pipe",
+			env: {
+				PORT: "5173",
+				NODE_ENV: "test",
+			},
 		},
 	],
 })
