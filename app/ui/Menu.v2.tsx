@@ -1,10 +1,10 @@
 import { offset, shift, useFloating } from "@floating-ui/react-dom"
+import { Portal, Transition, TransitionChild } from "@headlessui/react"
 import * as React from "react"
 import { FocusOn } from "react-focus-on"
 import { type Nullish, typed } from "~/helpers/types.ts"
 import { Button, type ButtonProps } from "./Button.tsx"
 import { TranslucentPanel } from "./Panel.tsx"
-import { Portal } from "./Portal.tsx"
 import { Slottable, type SlottableProps } from "./Slottable.tsx"
 import { withMergedClassName } from "./withMergedClassName.ts"
 
@@ -69,22 +69,33 @@ export function MenuToggle(props: SlottableProps) {
 
 export function MenuPanel(props: React.ComponentProps<"div">) {
 	const context = React.use(Context)
-	return context.open ?
+	return (
+		<Transition show={context.open}>
 			<Portal>
 				{/* wrap in a fullscreen div to prevent interaction on everything else */}
-				<div className="fixed inset-0 bg-black/25">
-					<div ref={context.panelRef} style={context.panelStyle}>
-						<FocusOn
-							enabled
-							onClickOutside={() => context.setOpen(false)}
-							onEscapeKey={() => context.setOpen(false)}
-						>
-							<TranslucentPanel {...withMergedClassName(props, "grid gap-1 p-1 min-w-48")} />
-						</FocusOn>
+				<TransitionChild>
+					<div className="fixed inset-0 bg-black/25 transition data-[closed]:opacity-0 data-[closed]:ease-in data-[open]:ease-out">
+						<div ref={context.panelRef} style={context.panelStyle}>
+							<FocusOn
+								enabled
+								onClickOutside={() => context.setOpen(false)}
+								onEscapeKey={() => context.setOpen(false)}
+							>
+								<TransitionChild>
+									<TranslucentPanel
+										{...withMergedClassName(
+											props,
+											"grid gap-1 p-1 min-w-48 transition data-[open]:ease-out data-[closed]:ease-in data-[closed]:scale-90",
+										)}
+									/>
+								</TransitionChild>
+							</FocusOn>
+						</div>
 					</div>
-				</div>
+				</TransitionChild>
 			</Portal>
-		:	null
+		</Transition>
+	)
 }
 
 export function MenuItem(props: ButtonProps) {

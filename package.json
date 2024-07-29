@@ -24,6 +24,7 @@
     "@floating-ui/react-dom": "^2.1.1",
     "@fontsource-variable/nunito": "^5.0.19",
     "@formkit/auto-animate": "^0.8.2",
+    "@headlessui/react": "^2.1.2",
     "@icons-pack/react-simple-icons": "^9.6.0",
     "@radix-ui/react-scroll-area": "^1.1.0",
     "@remix-run/node": "^2.10.3",

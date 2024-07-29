@@ -291,8 +291,20 @@ export function ResourceTreeItem({
 				}
 
 				<RoomOwnerOnly>
-					<DeleteForm kind={resourceType} name={resourceName} onConfirmDelete={deleteResource}>
-						<MenuItem type="submit" icon={<Lucide.Trash />}>
+					<DeleteForm
+						kind={resourceType}
+						name={resourceName}
+						onConfirmDelete={deleteResource}
+						className="contents"
+					>
+						<MenuItem
+							type="submit"
+							icon={<Lucide.Trash />}
+							onClick={(event) => {
+								event.preventDefault()
+								event.currentTarget.form?.requestSubmit()
+							}}
+						>
 							Delete
 						</MenuItem>
 					</DeleteForm>

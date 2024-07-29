@@ -1,7 +1,7 @@
+import { Portal, Transition, TransitionChild } from "@headlessui/react"
 import * as React from "react"
 import { FocusOn } from "react-focus-on"
 import { TranslucentPanel } from "./Panel.tsx"
-import { Portal } from "./Portal.tsx"
 import { Slottable, type SlottableProps } from "./Slottable.tsx"
 import { withMergedClassName } from "./withMergedClassName.ts"
 
@@ -48,22 +48,33 @@ export function ModalToggle(props: SlottableProps) {
 
 export function ModalContent(props: React.ComponentProps<"div">) {
 	const context = React.use(Context)
-	return context.open ?
+	return (
+		<Transition show={context.open} appear>
 			<Portal>
-				<FocusOn onEscapeKey={() => context.setOpen(false)}>
-					<div
-						id={context.panelId}
-						aria-expanded={context.open}
-						onPointerDown={(event) => {
-							if (event.target === event.currentTarget) {
-								context.setOpen(false)
-							}
-						}}
-						className="fixed inset-0 flex flex-col overflow-y-auto bg-black/75 px-4 py-8 backdrop-blur"
-					>
-						<TranslucentPanel {...withMergedClassName(props, "m-auto w-full max-w-screen-sm")} />
-					</div>
+				<FocusOn enabled={context.open} onEscapeKey={() => context.setOpen(false)}>
+					<TransitionChild>
+						<div
+							id={context.panelId}
+							aria-expanded={context.open}
+							onPointerDown={(event) => {
+								if (event.target === event.currentTarget) {
+									context.setOpen(false)
+								}
+							}}
+							className="fixed inset-0 flex flex-col overflow-y-auto bg-black/75 px-4 py-8 backdrop-blur transition will-change-transform data-[closed]:opacity-0 data-[closed]:ease-in data-[open]:ease-out"
+						>
+							<TransitionChild>
+								<TranslucentPanel
+									{...withMergedClassName(
+										props,
+										"m-auto w-full max-w-screen-sm transition data-[open]:ease-out data-[closed]:ease-in data-[closed]:scale-95 will-change-transform",
+									)}
+								/>
+							</TransitionChild>
+						</div>
+					</TransitionChild>
 				</FocusOn>
 			</Portal>
-		:	null
+		</Transition>
+	)
 }
