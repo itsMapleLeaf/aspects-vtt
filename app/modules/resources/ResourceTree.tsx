@@ -7,9 +7,9 @@ import type { JsonValue } from "~/helpers/json.ts"
 import { mod } from "~/helpers/math.ts"
 import type { Nullish } from "~/helpers/types.ts"
 import { Button, type ButtonPropsAsButton } from "~/ui/Button.tsx"
-import { ContextMenu } from "~/ui/ContextMenu.tsx"
 import { DeleteForm } from "~/ui/DeleteForm.tsx"
 import { Input } from "~/ui/Input.tsx"
+import { Menu, MenuItem, MenuPanel, MenuToggle } from "~/ui/Menu.v2.tsx"
 import { Portal } from "~/ui/Portal.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
@@ -233,6 +233,7 @@ export function ResourceTreeItem({
 	...props
 }: ResourceTreeItemProps) {
 	const context = useContext(ResourceTreeContext)
+	const [open, setOpen] = useState(false)
 
 	const dragProps =
 		dragData ?
@@ -246,46 +247,58 @@ export function ResourceTreeItem({
 		:	{}
 
 	const button = (
-		<Button
-			appearance="clear"
-			align="start"
-			{...dragProps}
-			{...withMergedClassName(props, "w-full")}
+		<MenuToggle
+			element={
+				<Button
+					appearance="clear"
+					align="start"
+					{...dragProps}
+					{...withMergedClassName(props, "w-full")}
+					onClick={(event) => {
+						props.onClick?.(event)
+						event.preventDefault()
+					}}
+					onContextMenu={(event) => {
+						event.preventDefault()
+						setOpen(true)
+					}}
+				/>
+			}
 		/>
 	)
 
 	return (
-		<ContextMenu>
-			<ContextMenu.Trigger className="w-full">{button}</ContextMenu.Trigger>
-			<ContextMenu.Panel unmountOnHide={false}>
+		<Menu open={open} setOpen={setOpen}>
+			{button}
+			<MenuPanel>
 				{context.pinned.has(resourceId) ?
-					<ContextMenu.Item
+					<MenuItem
 						icon={<Lucide.PinOff />}
 						onClick={() => {
 							context.setPinned(resourceId, false)
 						}}
 					>
 						Unpin
-					</ContextMenu.Item>
-				:	<ContextMenu.Item
+					</MenuItem>
+				:	<MenuItem
 						icon={<Lucide.Pin />}
 						onClick={() => {
 							context.setPinned(resourceId, true)
 						}}
 					>
 						Pin
-					</ContextMenu.Item>
+					</MenuItem>
 				}
 
 				<RoomOwnerOnly>
 					<DeleteForm kind={resourceType} name={resourceName} onConfirmDelete={deleteResource}>
-						<ContextMenu.Item type="submit" icon={<Lucide.Trash />}>
+						<MenuItem type="submit" icon={<Lucide.Trash />}>
 							Delete
-						</ContextMenu.Item>
+						</MenuItem>
 					</DeleteForm>
 				</RoomOwnerOnly>
-			</ContextMenu.Panel>
-		</ContextMenu>
+			</MenuPanel>
+		</Menu>
 	)
 }
 

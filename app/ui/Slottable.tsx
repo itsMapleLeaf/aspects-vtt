@@ -1,8 +1,12 @@
 import * as React from "react"
 import { twMerge } from "tailwind-merge"
 
-export type SlottableProps<ElementProps = React.HTMLAttributes<HTMLElement>> = ElementProps & {
-	element?: React.ReactElement<Record<string, unknown>>
+export type SlottableProps<
+	ElementProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>,
+> = ElementProps & {
+	element?: React.ReactElement<
+		React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+	>
 }
 
 export function Slottable<ElementProps extends { className?: string }>({
@@ -11,7 +15,9 @@ export function Slottable<ElementProps extends { className?: string }>({
 	baseClassName,
 	...props
 }: SlottableProps<ElementProps> & {
-	fallback: React.ReactElement<Record<string, unknown>>
+	fallback: React.ReactElement<
+		React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+	>
 	baseClassName?: string
 }) {
 	const element = slot ?? fallback

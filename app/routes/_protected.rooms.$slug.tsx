@@ -49,7 +49,7 @@ export default function RoomRoute() {
 				</Suspense>
 			</div>
 
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-screen items-end overflow-clip p-2 gap-2">
+			<div className="pointer-events-none absolute inset-0 flex h-screen items-end overflow-clip p-2 gap-2">
 				<AutoAnimate className="flex h-[calc(100%-4rem)] min-h-0 flex-1 flex-col gap-2">
 					<TranslucentPanel className="pointer-events-auto flex min-h-0 w-[18rem] flex-1 flex-col p-2 gap-2">
 						<Suspense fallback={<Loading fill="parent" />}>

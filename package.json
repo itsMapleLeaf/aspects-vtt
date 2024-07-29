@@ -46,6 +46,7 @@
     "random-word-slugs": "^0.1.7",
     "react": "^19.0.0-rc-f6cce072-20240723",
     "react-dom": "^19.0.0-rc-f6cce072-20240723",
+    "react-focus-on": "^3.9.3",
     "react-textarea-autosize": "^8.5.3",
     "react-twc": "^1.4.1",
     "remix-routes": "^1.7.6",

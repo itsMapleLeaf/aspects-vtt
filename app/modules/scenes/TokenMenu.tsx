@@ -4,7 +4,6 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { createPortal } from "react-dom"
 import { unwrap } from "~/helpers/errors.ts"
-import { ModalButton } from "~/ui/Modal.tsx"
 import { api } from "../../../convex/_generated/api"
 import { Rect } from "../../helpers/Rect.ts"
 import { Vector } from "../../helpers/Vector.ts"
@@ -192,7 +191,7 @@ function TokenMenuContent() {
 								appearance="clear"
 								tooltip="Profile"
 								icon={<Lucide.BookUser />}
-								element={<ModalButton />}
+								element={<CharacterModal.Button />}
 							/>
 						</CharacterModal>
 					)}

@@ -75,7 +75,7 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 				}))}
 				renderItem={(character) => (
 					<CharacterModal character={character}>
-						<CharacterModal.Button render={<CharacterResourceTreeItem character={character} />} />
+						<CharacterModal.Button element={<CharacterResourceTreeItem character={character} />} />
 					</CharacterModal>
 				)}
 			/>
