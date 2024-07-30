@@ -1,4 +1,4 @@
-import { expect, test as it, type Page } from "@playwright/test"
+import { type Page, expect, test as it } from "@playwright/test"
 
 it("requires auth", async ({ page }) => {
 	await page.goto("/")

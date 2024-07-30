@@ -1,6 +1,6 @@
 import { test } from "bun:test"
-import { v } from "convex/values"
 import assert from "node:assert/strict"
+import { v } from "convex/values"
 import { partial } from "./partial.ts"
 
 test("partial", () => {

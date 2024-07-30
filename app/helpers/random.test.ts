@@ -1,6 +1,6 @@
 import { describe, it } from "bun:test"
-import { Iterator } from "iterator-helpers-polyfill"
 import assert from "node:assert/strict"
+import { Iterator } from "iterator-helpers-polyfill"
 import { randomItem } from "./random.ts"
 
 describe("randomItem", () => {
