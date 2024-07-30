@@ -7,7 +7,10 @@ import { SceneContext } from "./SceneContext.context.tsx"
 import { useCurrentRoomScene, useCurrentSceneTokens } from "./hooks.ts"
 
 export function SceneProvider({ children }: { children: ReactNode }) {
-	const [viewport, setViewport] = useState({ offset: Vector.zero, scaleTick: 0 })
+	const [viewport, setViewport] = useState({
+		offset: Vector.zero,
+		scaleTick: 0,
+	})
 	const [tokenDragOffset, setTokenDragOffset] = useState(Vector.zero)
 	const tokenSelectStore = useDragSelectStore<ApiToken["key"]>()
 

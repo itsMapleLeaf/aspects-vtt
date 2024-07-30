@@ -31,10 +31,16 @@ export function MessageInput() {
 	const totalDice = Object.values(diceCounts).reduce((sum, count) => sum + count, 0)
 
 	const addDie = (kind: DiceKind) =>
-		setDiceCounts((counts) => ({ ...counts, [kind.name]: (counts[kind.name] ?? 0) + 1 }))
+		setDiceCounts((counts) => ({
+			...counts,
+			[kind.name]: (counts[kind.name] ?? 0) + 1,
+		}))
 
 	const removeDie = (name: DiceKind["name"]) =>
-		setDiceCounts((counts) => ({ ...counts, [name]: Math.max((counts[name] ?? 0) - 1, 0) }))
+		setDiceCounts((counts) => ({
+			...counts,
+			[name]: Math.max((counts[name] ?? 0) - 1, 0),
+		}))
 
 	const [, submit] = useSafeAction(async function submit() {
 		await createMessage({

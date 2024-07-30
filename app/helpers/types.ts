@@ -64,7 +64,10 @@ export type Equal<X, Y> =
 /** Adds optional properties of every union member */
 export type Exhaustive<T> = Simplify<ExhaustiveWithKeys<T, AllKeys<T>>>
 type ExhaustiveWithKeys<T, K extends PropertyKey> =
-	T extends object ? { [P in Extract<K, keyof T>]: T[P] } & { [P in Exclude<K, keyof T>]?: never }
+	T extends object ?
+		{ [P in Extract<K, keyof T>]: T[P] } & {
+			[P in Exclude<K, keyof T>]?: never
+		}
 	:	never
 
 /**

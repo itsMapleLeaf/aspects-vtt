@@ -67,7 +67,10 @@ function TestSignInButton() {
 			<ModalPanel title="Test sign in">
 				<form
 					action={(form) =>
-						auth.signIn("test", { id: String(form.get("id")), redirectTo: currentUrl })
+						auth.signIn("test", {
+							id: String(form.get("id")),
+							redirectTo: currentUrl,
+						})
 					}
 				>
 					<FormLayout>

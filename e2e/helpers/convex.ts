@@ -11,13 +11,18 @@ export class ConvexTestDb {
 		table: T,
 		data: WithoutSystemFields<DocumentByName<DataModel, T>>,
 	) {
-		const doc = await this.convex.mutation(api.testing.create, { model: table, data })
+		const doc = await this.convex.mutation(api.testing.create, {
+			model: table,
+			data,
+		})
 		this.docs.set(doc._id, doc)
 		return doc as unknown as DocumentByName<DataModel, T>
 	}
 
 	async dispose() {
-		await this.convex.mutation(api.testing.remove, { ids: [...this.docs.keys()] })
+		await this.convex.mutation(api.testing.remove, {
+			ids: [...this.docs.keys()],
+		})
 	}
 
 	async [Symbol.asyncDispose]() {

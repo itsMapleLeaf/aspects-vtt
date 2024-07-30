@@ -37,7 +37,13 @@ export function useControlledNumberInput({
 }: StrictOmit<NumberInputOptions, "defaultValue">) {
 	const value = Number(input)
 
-	const validationError = getValidationError({ input, value, requireInteger, min, max })
+	const validationError = getValidationError({
+		input,
+		value,
+		requireInteger,
+		min,
+		max,
+	})
 	const valid = validationError == null
 
 	const setValue = (value: number) => onChangeValue(String(value))

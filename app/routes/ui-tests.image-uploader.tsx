@@ -61,7 +61,11 @@ export default function ImageUploaderTest() {
 					fallbackUrl={undefined}
 					onFileAdded={async () => {}}
 					onRemove={async () => {}}
-					state={{ type: "error", value: undefined, error: new Error("Upload failed") }}
+					state={{
+						type: "error",
+						value: undefined,
+						error: new Error("Upload failed"),
+					}}
 					pending={false}
 				/>
 			</PageSection>
@@ -71,7 +75,11 @@ export default function ImageUploaderTest() {
 					fallbackUrl={undefined}
 					onFileAdded={async () => {}}
 					onRemove={async () => {}}
-					state={{ type: "error", value: undefined, error: new Error("Upload failed") }}
+					state={{
+						type: "error",
+						value: undefined,
+						error: new Error("Upload failed"),
+					}}
 					pending={false}
 				/>
 			</PageSection>

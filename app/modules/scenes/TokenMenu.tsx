@@ -89,7 +89,10 @@ export function TokenMenu() {
 			{createPortal(
 				<div
 					ref={floating.refs.setFloating}
-					style={{ ...floating.floatingStyles, display: open ? undefined : "none" }}
+					style={{
+						...floating.floatingStyles,
+						display: open ? undefined : "none",
+					}}
 				>
 					<TokenMenuContent />
 				</div>,
@@ -295,7 +298,10 @@ function TokenMenuContent() {
 							icon={<Lucide.Trash />}
 							onClick={() => {
 								for (const token of selectedTokens) {
-									removeToken({ sceneId: unwrap(room.currentScene), tokenKey: token.key })
+									removeToken({
+										sceneId: unwrap(room.currentScene),
+										tokenKey: token.key,
+									})
 								}
 							}}
 						/>

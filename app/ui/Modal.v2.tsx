@@ -22,7 +22,13 @@ export function Modal({
 	const [open, setOpen] = React.useState(false)
 	const panelId = React.useId()
 	return (
-		<Context value={{ panelId, open: props.open ?? open, setOpen: props.setOpen ?? setOpen }}>
+		<Context
+			value={{
+				panelId,
+				open: props.open ?? open,
+				setOpen: props.setOpen ?? setOpen,
+			}}
+		>
 			{children}
 		</Context>
 	)

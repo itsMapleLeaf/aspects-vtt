@@ -79,7 +79,10 @@ export function CharacterSkillsViewer({ character }: { character: OwnedApiCharac
 				icon: <LucideGraduationCap className="size-5" />,
 				content: computedSkillTree.map((aspect) =>
 					aspect.tiers
-						.map((tier) => ({ ...tier, skills: tier.skills.filter((skill) => skill.learned) }))
+						.map((tier) => ({
+							...tier,
+							skills: tier.skills.filter((skill) => skill.learned),
+						}))
 						.filter((tier) => tier.skills.length > 0)
 						.map((tier) => (
 							<TierSection

@@ -36,7 +36,11 @@ export function useSafeAction<Result, Payload = void>(fn: (payload: Payload) => 
 					title: "Something went wrong :(",
 					body: error instanceof ConvexError ? error.message : undefined,
 				})
-				return { type: "error", value: current.value, error: error != null ? error : new Error() }
+				return {
+					type: "error",
+					value: current.value,
+					error: error != null ? error : new Error(),
+				}
 			}
 		},
 		{ type: "idle" },

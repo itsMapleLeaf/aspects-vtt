@@ -10,7 +10,11 @@ export class EmptyMessageError {
 }
 
 export function createMessages(
-	inputs: ReadonlyArray<{ roomId: Id<"rooms">; content?: string; dice?: DiceInput[] }>,
+	inputs: ReadonlyArray<{
+		roomId: Id<"rooms">
+		content?: string
+		dice?: DiceInput[]
+	}>,
 ) {
 	return Effect.forEach(
 		inputs,

@@ -365,7 +365,10 @@ function CharacterImageField({ character }: { character: ApiCharacter }) {
 				<ImageUploader
 					fallbackUrl={character.imageUrl ?? getCharacterFallbackImageUrl(character)}
 					onUpload={async (imageId) => {
-						const id = await createImage({ name: `character_${character._id}`, storageId: imageId })
+						const id = await createImage({
+							name: `character_${character._id}`,
+							storageId: imageId,
+						})
 						return await update({ id: character._id, image: id })
 					}}
 					onRemove={() => update({ id: character._id, image: null })}
