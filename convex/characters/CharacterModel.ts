@@ -53,8 +53,4 @@ export class CharacterModel {
 			return new CharacterModel(ctx, doc)
 		})
 	}
-
-	async getRoom() {
-		return await RoomModel.fromId(this.ctx, this.data.roomId).getValueOrThrow()
-	}
 }

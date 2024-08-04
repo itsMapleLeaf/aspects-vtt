@@ -1,15 +1,15 @@
 import { getManyFrom } from "convex-helpers/server/relationships"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { ensureFullCharacterPermissions } from "../characters/helpers.ts"
+import { ensureFullCharacterPermissions } from "./characters/functions.ts"
 import {
 	effectMutation,
 	effectQuery,
 	queryDoc,
 	withMutationCtx,
 	withQueryCtx,
-} from "../helpers/effect.ts"
-import schema from "../schema.ts"
+} from "./helpers/effect.ts"
+import schema from "./schema.ts"
 
 export const list = effectQuery({
 	args: {

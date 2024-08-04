@@ -19,17 +19,6 @@ export class RoomModel {
 		}
 	}
 
-	static fromSlug(ctx: QueryCtx, slug: string) {
-		return Result.fn(async () => {
-			// const data = await ctx.table("rooms").get("slug", slug)
-			const data = await getOneFrom(ctx.db, "rooms", "slug", slug)
-			if (!data) {
-				throw new ConvexError(`Couldn't find room with slug ${slug}`)
-			}
-			return new RoomModel(ctx, data)
-		})
-	}
-
 	static fromId(ctx: QueryCtx, id: Id<"rooms">) {
 		return Result.fn(async () => {
 			const data = await ctx.db.get(id)
@@ -62,12 +51,5 @@ export class RoomModel {
 		await ctx.db.patch(this.data._id, args)
 		// @ts-expect-error
 		return new RoomModel(this.ctx, { ...this.data, ...args })
-	}
-
-	async delete(ctx: MutationCtx) {
-		if (!(await this.isOwner())) {
-			throw new ConvexError("You don't have permission to delete this room.")
-		}
-		await ctx.db.delete(this.data._id)
 	}
 }

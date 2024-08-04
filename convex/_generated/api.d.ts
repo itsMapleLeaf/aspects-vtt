@@ -15,11 +15,10 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
-import type * as characterAspectSkills_functions from "../characterAspectSkills/functions.js";
-import type * as characters_CharacterModel from "../characters/CharacterModel.js";
+import type * as characterAspectSkills from "../characterAspectSkills.js";
 import type * as characters_functions from "../characters/functions.js";
-import type * as characters_helpers from "../characters/helpers.js";
 import type * as characters_types from "../characters/types.js";
+import type * as characters__CharacterModel from "../characters/CharacterModel.js";
 import type * as dice_helpers from "../dice/helpers.js";
 import type * as diceMacros_functions from "../diceMacros/functions.js";
 import type * as env from "../env.js";
@@ -37,7 +36,6 @@ import type * as rooms_combat_functions from "../rooms/combat/functions.js";
 import type * as rooms_combat_helpers from "../rooms/combat/helpers.js";
 import type * as rooms_combat_types from "../rooms/combat/types.js";
 import type * as rooms_functions from "../rooms/functions.js";
-import type * as rooms_helpers from "../rooms/helpers.js";
 import type * as rooms_RoomModel from "../rooms/RoomModel.js";
 import type * as scenes_functions from "../scenes/functions.js";
 import type * as scenes_tokens_functions from "../scenes/tokens/functions.js";
@@ -58,11 +56,10 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
-  "characterAspectSkills/functions": typeof characterAspectSkills_functions;
-  "characters/CharacterModel": typeof characters_CharacterModel;
+  characterAspectSkills: typeof characterAspectSkills;
   "characters/functions": typeof characters_functions;
-  "characters/helpers": typeof characters_helpers;
   "characters/types": typeof characters_types;
+  "characters/_CharacterModel": typeof characters__CharacterModel;
   "dice/helpers": typeof dice_helpers;
   "diceMacros/functions": typeof diceMacros_functions;
   env: typeof env;
@@ -80,7 +77,6 @@ declare const fullApi: ApiFromModules<{
   "rooms/combat/helpers": typeof rooms_combat_helpers;
   "rooms/combat/types": typeof rooms_combat_types;
   "rooms/functions": typeof rooms_functions;
-  "rooms/helpers": typeof rooms_helpers;
   "rooms/RoomModel": typeof rooms_RoomModel;
   "scenes/functions": typeof scenes_functions;
   "scenes/tokens/functions": typeof scenes_tokens_functions;

@@ -21,7 +21,6 @@ import schema from "../schema.ts"
 import { getCurrentUser, getCurrentUserId } from "../users.ts"
 import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
-import { ensureViewerOwnsRoom } from "./helpers.ts"
 
 export const get = effectQuery({
 	args: { slug: v.string() },
@@ -217,4 +216,20 @@ export function getRoomBySlug(slug: string) {
 		.query("rooms")
 		.withIndex("slug", (q) => q.eq("slug", slug))
 		.first()
+}
+export class RoomNotOwnedError {
+	readonly _tag = "RoomNotOwnedError"
+}
+
+export function ensureViewerOwnsRoom(roomId: Id<"rooms">) {
+	return Effect.gen(function* () {
+		const { viewer, room } = yield* Effect.all({
+			viewer: getCurrentUser(),
+			room: Convex.db.get(roomId),
+		})
+		if (room.owner === viewer._id) {
+			return room
+		}
+		return yield* Effect.fail(new RoomNotOwnedError())
+	})
 }
