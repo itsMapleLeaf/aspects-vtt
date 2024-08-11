@@ -23,7 +23,7 @@ export const list = effectQuery({
 		return pipe(
 			ensureRoomOwner(args.room),
 			Effect.flatMap((room) =>
-				queryIndex("scenes", "room", ["room", room._id]),
+				queryIndex("scenes", "roomId", ["roomId", room._id]),
 			),
 			Effect.flatMap(collectDocs),
 			Effect.flatMap(
@@ -41,7 +41,7 @@ export const get = effectQuery({
 	handler(args) {
 		return pipe(
 			getDoc(args.id),
-			Effect.tap((scene) => ensureRoomOwner(scene.room)),
+			Effect.tap((scene) => ensureRoomOwner(scene.roomId)),
 			Effect.flatMap(normalizeScene),
 			Effect.orElseSucceed(() => null),
 		)
@@ -52,7 +52,7 @@ export const create = effectMutation({
 	args: schema.tables.scenes.validator.fields,
 	handler(args) {
 		return pipe(
-			ensureRoomOwner(args.room),
+			ensureRoomOwner(args.roomId),
 			Effect.andThen(() => insertDoc("scenes", args)),
 		)
 	},
@@ -85,11 +85,15 @@ export const remove = effectMutation({
 
 export function normalizeScene(scene: Doc<"scenes">) {
 	return pipe(
-		getStorageUrl(scene.background),
-		Effect.catchTag("FileNotFoundError", () => Effect.succeed(null)),
-		Effect.map((background) => ({
+		Effect.fromNullable(scene.backgroundId),
+		Effect.flatMap(getStorageUrl),
+		Effect.catchTags({
+			FileNotFoundError: () => Effect.succeed(null),
+			NoSuchElementException: () => Effect.succeed(null),
+		}),
+		Effect.map((backgroundUrl) => ({
 			...scene,
-			background,
+			backgroundUrl,
 		})),
 	)
 }
@@ -97,7 +101,7 @@ export function normalizeScene(scene: Doc<"scenes">) {
 export function ensureSceneRoomOwner(id: Id<"scenes">) {
 	return Effect.gen(function* () {
 		const scene = yield* getDoc(id)
-		const room = yield* ensureRoomOwner(scene.room)
+		const room = yield* ensureRoomOwner(scene.roomId)
 		return { scene, room }
 	})
 }

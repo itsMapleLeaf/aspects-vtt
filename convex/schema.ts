@@ -2,6 +2,7 @@ import { authTables } from "@convex-dev/auth/server"
 import { nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
+import { nullish } from "./lib/validators.ts"
 
 export default defineSchema({
 	...authTables,
@@ -18,15 +19,15 @@ export default defineSchema({
 	rooms: defineTable({
 		name: v.string(),
 		slug: v.string(),
-		owner: v.id("users"),
-		activeScene: v.optional(nullable(v.id("scenes"))),
+		ownerId: v.id("users"),
+		activeSceneId: nullish(v.id("scenes")),
 	})
 		.index("slug", ["slug"])
-		.index("owner", ["owner"]),
+		.index("ownerId", ["ownerId"]),
 
 	scenes: defineTable({
 		name: v.string(),
-		room: v.id("rooms"),
-		background: v.id("_storage"),
-	}).index("room", ["room"]),
+		roomId: v.id("rooms"),
+		backgroundId: nullable(v.id("_storage")),
+	}).index("roomId", ["roomId"]),
 })

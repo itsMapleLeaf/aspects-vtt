@@ -6,18 +6,18 @@ import {
 	LucidePlus,
 	LucideWand2,
 } from "lucide-react"
-import { api } from "../../convex/_generated/api.js"
-import { Doc } from "../../convex/_generated/dataModel.js"
-import { Button } from "../ui/button.js"
-import { Container } from "../ui/container.tsx"
-import { EmptyState } from "../ui/empty-state.js"
-import { Form, FormActions, FormError, useForm } from "../ui/form.js"
-import { GridList } from "../ui/grid-list.tsx"
-import { Heading } from "../ui/heading.js"
-import { InputField, useInput } from "../ui/input.js"
-import { Modal } from "../ui/modal.js"
-import { Panel } from "../ui/panel.js"
-import { SkeletonGrid } from "../ui/skeleton.js"
+import { api } from "../../../convex/_generated/api.js"
+import { Doc } from "../../../convex/_generated/dataModel.js"
+import { Button } from "../../ui/button.js"
+import { Container } from "../../ui/container.tsx"
+import { EmptyState } from "../../ui/empty-state.js"
+import { Form, FormActions, FormError, useForm } from "../../ui/form.js"
+import { GridList } from "../../ui/grid-list.tsx"
+import { Heading } from "../../ui/heading.js"
+import { InputField, useInput } from "../../ui/input.js"
+import { Modal } from "../../ui/modal.js"
+import { Panel } from "../../ui/panel.js"
+import { SkeletonGrid } from "../../ui/skeleton.js"
 
 export function RoomList() {
 	const rooms = useQuery(api.rooms.list)

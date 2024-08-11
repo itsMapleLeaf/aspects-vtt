@@ -17,7 +17,7 @@ export const list = effectQuery({
 		pipe(
 			getAuthUserId(),
 			Effect.flatMap((userId) =>
-				queryIndex("rooms", "owner", ["owner", userId]),
+				queryIndex("rooms", "ownerId", ["ownerId", userId]),
 			),
 			Effect.flatMap(collectDocs),
 			Effect.catchTag("UnauthenticatedError", () => Effect.succeed([])),
@@ -55,10 +55,10 @@ export const getActiveScene = effectQuery({
 	handler(args) {
 		return Effect.gen(function* () {
 			const room = yield* getDoc(args.id)
-			if (room.activeScene == null) {
+			if (room.activeSceneId == null) {
 				return null
 			}
-			const scene = yield* getDoc(room.activeScene)
+			const scene = yield* getDoc(room.activeSceneId)
 			return yield* normalizeScene(scene)
 		}).pipe(Effect.orElseSucceed(() => null))
 	},
@@ -81,7 +81,7 @@ export const create = effectMutation({
 			}),
 			Effect.andThen(getAuthUserId),
 			Effect.flatMap((userId) =>
-				insertDoc("rooms", { ...args, owner: userId }),
+				insertDoc("rooms", { ...args, ownerId: userId }),
 			),
 		),
 })
@@ -100,7 +100,7 @@ export function normalizeRoom(room: Doc<"rooms">) {
 		getAuthUserId(),
 		Effect.map((userId) => ({
 			...room,
-			isOwner: room.owner === userId,
+			isOwner: room.ownerId === userId,
 		})),
 	)
 }

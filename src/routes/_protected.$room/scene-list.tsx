@@ -1,5 +1,5 @@
-import { GridList } from "../ui/grid-list.tsx"
-import { ImageCard } from "../ui/image-card.tsx"
+import { GridList } from "../../ui/grid-list.tsx"
+import { ImageCard } from "../../ui/image-card.tsx"
 
 const mockScenes = [
 	{

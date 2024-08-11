@@ -7,17 +7,17 @@ import {
 	LucideSettings,
 	LucideUsers2,
 } from "lucide-react"
-import { api } from "../../convex/_generated/api.js"
-import { UserButton } from "../auth/user-button.tsx"
-import { SceneList } from "../scenes/scene-list.tsx"
-import { AppLogo } from "../ui/app-logo.tsx"
-import { Button } from "../ui/button.tsx"
-import { Heading } from "../ui/heading.tsx"
-import { mergeClassProp } from "../ui/helpers.ts"
-import { Column, Row } from "../ui/layout.tsx"
-import { Modal } from "../ui/modal.tsx"
-import { Panel } from "../ui/panel.js"
-import { Slot, SlotProps } from "../ui/slot.tsx"
+import { api } from "../../../convex/_generated/api.js"
+import { UserButton } from "../../auth/user-button.tsx"
+import { AppLogo } from "../../ui/app-logo.tsx"
+import { Button } from "../../ui/button.tsx"
+import { Heading } from "../../ui/heading.tsx"
+import { mergeClassProp } from "../../ui/helpers.ts"
+import { Column, Row } from "../../ui/layout.tsx"
+import { Modal } from "../../ui/modal.tsx"
+import { Panel } from "../../ui/panel.js"
+import { Slot, SlotProps } from "../../ui/slot.tsx"
+import { SceneList } from "./scene-list.tsx"
 
 export default function RoomRoute() {
 	const params = useParams() as { room: string }

@@ -22,6 +22,7 @@ import type * as lib_db from "../lib/db.js";
 import type * as lib_effect from "../lib/effect.js";
 import type * as lib_functions from "../lib/functions.js";
 import type * as lib_storage from "../lib/storage.js";
+import type * as lib_validators from "../lib/validators.js";
 import type * as rooms from "../rooms.js";
 import type * as scenes from "../scenes.js";
 import type * as secrets from "../secrets.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   "lib/effect": typeof lib_effect;
   "lib/functions": typeof lib_functions;
   "lib/storage": typeof lib_storage;
+  "lib/validators": typeof lib_validators;
   rooms: typeof rooms;
   scenes: typeof scenes;
   secrets: typeof secrets;
