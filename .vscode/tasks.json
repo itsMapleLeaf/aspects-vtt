@@ -23,11 +23,11 @@
 		},
 		{
 			"label": "tsc:watch",
-			"type": "typescript",
-			"option": "watch",
-			"tsconfig": "./tsconfig.json",
+			"type": "shell",
+			"command": ["bunx", "tsc", "--noEmit", "--watch"],
 			"group": "build",
-			"isBackground": true
+			"isBackground": true,
+			"problemMatcher": "$tsc-watch"
 		}
 	]
 }
