@@ -1,24 +1,26 @@
 {
+	// copied from "@total-typescript/tsconfig/bundler/dom"
 	"compilerOptions": {
-		// resolution
-		"module": "ESNext",
-		"moduleResolution": "bundler",
+		/* Resolution */
+		"module": "ESNext", // set this to Preserve after updating to TS 5.5+
+		"moduleResolution": "Bundler",
 		"moduleDetection": "force",
+		"resolveJsonModule": true,
 		"allowJs": true,
 		"allowImportingTsExtensions": true,
-		"resolveJsonModule": true,
-		"isolatedModules": true,
 
-		// type checking
-		"lib": ["ES2022", "DOM", "DOM.Iterable"],
-		"target": "ES2022",
-		"jsx": "react-jsx",
+		/* Type Checking */
+		"target": "es2022",
+		"lib": ["es2022", "dom", "dom.iterable"],
 		"strict": true,
-		"noFallthroughCasesInSwitch": true,
 		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		// "verbatimModuleSyntax": true,
+		"isolatedModules": true,
 		"skipLibCheck": true,
+		"jsx": "react-jsx",
 
-		// output
+		/* Emit */
 		"noEmit": true
 	},
 	"exclude": ["node_modules", "dist"]
