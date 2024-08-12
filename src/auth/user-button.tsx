@@ -3,10 +3,9 @@ import { Link } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { LucideLogOut, LucideSettings, LucideUser } from "lucide-react"
 import { api } from "../../convex/_generated/api.js"
-import { Button } from "../ui/button.tsx"
 import { Loading } from "../ui/loading.tsx"
-import { Menu } from "../ui/menu.tsx"
-import { Modal } from "../ui/modal.tsx"
+import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
+import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
 import { AccountSettingsForm } from "./account-settings-form.tsx"
 
 export function UserButton() {
@@ -15,35 +14,32 @@ export function UserButton() {
 	return user === undefined ? (
 		<Loading />
 	) : user === null ? (
-		<Button element={<Link to="/play" />} icon={<LucideUser />}>
+		<Link to="/" className="btn">
 			Sign in / register
-		</Button>
+		</Link>
 	) : (
 		<Menu placement="bottom-end">
-			<Button
-				icon={<LucideUser />}
-				appearance="clear"
-				className="rounded-full"
-				element={<Menu.Button />}
-			/>
-			<Menu.Panel>
+			<MenuButton className="btn btn-circle">
+				<LucideUser />
+			</MenuButton>
+			<MenuPanel unmountOnHide={false}>
 				<Modal>
-					<Menu.Item icon={<LucideSettings />} element={<Modal.Button />}>
-						Account settings
-					</Menu.Item>
-					<Modal.Panel
+					<MenuItem render={<ModalButton />}>
+						<LucideSettings /> Account settings
+					</MenuItem>
+					<ModalPanel
 						title="Account settings"
 						className="grid max-w-sm gap-3 p-3"
 					>
 						<AccountSettingsForm />
-					</Modal.Panel>
+					</ModalPanel>
 				</Modal>
 				<form action={actions.signOut} className="contents">
-					<Menu.Item type="submit" icon={<LucideLogOut />}>
-						Sign out
-					</Menu.Item>
+					<MenuItem render={<button type="submit" />}>
+						<LucideLogOut /> Sign out
+					</MenuItem>
 				</form>
-			</Menu.Panel>
+			</MenuPanel>
 		</Menu>
 	)
 }

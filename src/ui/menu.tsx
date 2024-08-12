@@ -1,33 +1,37 @@
+import * as Ariakit from "@ariakit/react"
 import { ComponentProps } from "react"
-import { Button, ButtonProps } from "./button.tsx"
+import { twMerge } from "tailwind-merge"
 import { mergeClassProp } from "./helpers.ts"
-import { Popover, usePopoverContext } from "./popover.tsx"
-
-export { usePopoverContext as useMenuContext }
+import { Popover } from "./popover.tsx"
 
 export function Menu(props: ComponentProps<typeof Popover>) {
-	return <Popover {...props} />
-}
-Menu.Button = Popover.Button
-
-Menu.Panel = MenuPanel
-function MenuPanel(props: ComponentProps<typeof Popover.Panel>) {
-	return <Popover.Panel {...mergeClassProp(props, "grid gap-1 p-1")} />
+	return <Ariakit.MenuProvider {...props} />
 }
 
-Menu.Item = MenuItem
-function MenuItem(props: ButtonProps) {
-	const context = usePopoverContext()
+export const MenuButton = Ariakit.MenuButton
+
+export function MenuPanel(props: Ariakit.MenuProps) {
 	return (
-		<Button
-			align="start"
-			appearance="clear"
+		<Ariakit.Menu
+			modal
+			gutter={8}
+			unmountOnHide
+			{...mergeClassProp(
+				props,
+				"rounded-box grid translate-y-2 gap-1 bg-base-100 p-1 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
+			)}
+		/>
+	)
+}
+
+export function MenuItem(props: Ariakit.MenuItemProps) {
+	return (
+		<Ariakit.MenuItem
 			{...props}
-			onClick={(event) => {
-				props.onClick?.(event)
-				if (event.defaultPrevented) return
-				context.setOpen(false)
-			}}
+			className={twMerge(
+				"btn btn-ghost btn-md justify-start text-left text-base",
+				props.className,
+			)}
 		/>
 	)
 }

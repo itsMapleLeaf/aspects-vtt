@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "convex/react"
 import { LucideSave } from "lucide-react"
 import { api } from "../../convex/_generated/api.js"
-import { Button } from "../ui/button.tsx"
 import { InputField } from "../ui/input.tsx"
 
 export function AccountSettingsForm() {
@@ -33,13 +32,9 @@ export function AccountSettingsForm() {
 				required
 				defaultValue={user.name}
 			/>
-			<Button
-				type="submit"
-				className="justify-self-start"
-				icon={<LucideSave />}
-			>
-				Save
-			</Button>
+			<button type="submit" className="btn btn-primary justify-self-start">
+				<LucideSave /> Save
+			</button>
 		</form>
 	)
 }

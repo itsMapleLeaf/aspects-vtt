@@ -1,111 +1,38 @@
-import React, { ComponentProps, ReactNode, useEffect, useRef } from "react"
-import ReactDOM from "react-dom"
-import { FocusOn } from "react-focus-on"
-import { twMerge } from "tailwind-merge"
+import * as Ariakit from "@ariakit/react"
+import React, { ComponentProps, ReactNode } from "react"
 import { Heading, HeadingLevel } from "./heading.tsx"
 import { mergeClassProp } from "./helpers.ts"
-import { Panel } from "./panel.tsx"
-import { fadeTransition, fadeZoomTransition } from "./transitions.ts"
 
-function useModalState() {
-	const [open, setOpen] = React.useState(false)
-	return { open, setOpen }
+export function Modal(props: Ariakit.DialogProviderProps) {
+	return <Ariakit.DialogProvider {...props} />
 }
 
-const ModalContext = React.createContext<ReturnType<
-	typeof useModalState
-> | null>(null)
+export const ModalButton = Ariakit.DialogDisclosure
 
-export function Modal({ children }: { children: React.ReactNode }) {
-	const context = useModalState()
-	return (
-		<ModalContext.Provider value={context}>{children}</ModalContext.Provider>
-	)
-}
-
-function useModalContext() {
-	const context = React.useContext(ModalContext)
-	if (context === null) {
-		throw new Error("useModalContext must be used within a Modal provider")
-	}
-	return context
-}
-
-Modal.Button = ModalButton
-function ModalButton(props: React.ComponentProps<"button">) {
-	const context = useModalContext()
-	return (
-		<button
-			type="button"
-			{...props}
-			onClick={(event) => {
-				props.onClick?.(event)
-				context.setOpen((open) => !open)
-			}}
-		/>
-	)
-}
-
-Modal.Panel = ModalPanel
-function ModalPanel({
+export function ModalPanel({
 	children,
 	title,
 	...props
-}: React.ComponentProps<"div"> & {
-	children: React.ReactNode
+}: Ariakit.DialogProps & {
 	title?: React.ReactNode
 }) {
-	const context = useModalContext()
-	const shadeRef = useRef<HTMLDivElement>(null)
-
-	// FocusOn can't steal focus state when turning on right away,
-	// so we have to delay it on open
-	const [enabled, setEnabled] = React.useState(false)
-	useEffect(() => {
-		setEnabled(context.open)
-	}, [context.open])
-
-	return ReactDOM.createPortal(
-		<div
-			className={twMerge(
-				"fixed inset-0 z-10 flex overflow-y-auto bg-black/25 p-4 backdrop-blur transition-all *:m-auto",
-				fadeTransition(context.open),
+	return (
+		<Ariakit.Dialog
+			unmountOnHide
+			backdrop={
+				<div className="absolute inset-0 bg-black/50 opacity-0 backdrop-blur-sm transition data-[enter]:opacity-100"></div>
+			}
+			{...mergeClassProp(
+				props,
+				"rounded-box fixed inset-auto left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-95 bg-base-300 p-3 opacity-0 transition data-[enter]:scale-100 data-[enter]:opacity-100",
 			)}
-			ref={shadeRef}
-			onPointerDown={(event) => {
-				if (event.target === shadeRef.current) {
-					context.setOpen(false)
-				}
-			}}
 		>
-			<FocusOn
-				as={Panel}
-				enabled={context.open ? enabled : false}
-				onEscapeKey={() => context.setOpen(false)}
-				onClickOutside={() => context.setOpen(false)}
-				{...mergeClassProp(
-					props,
-					fadeZoomTransition(context.open),
-					"grid w-full max-w-screen-sm gap-3 p-3",
-				)}
-				shards={[shadeRef]}
-			>
-				{title ? (
-					<HeadingLevel>
-						{title && <Heading>{title}</Heading>}
-						{children}
-					</HeadingLevel>
-				) : (
-					children
-				)}
-			</FocusOn>
-		</div>,
-		document.body,
+			{children}
+		</Ariakit.Dialog>
 	)
 }
 
-Modal.Heading = ModalHeading
-function ModalHeading({
+export function ModalHeading({
 	children,
 	text,
 	...props

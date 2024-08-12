@@ -1,4 +1,4 @@
-import { Link, useParams } from "@remix-run/react"
+import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import {
 	LucideBoxes,
@@ -8,14 +8,9 @@ import {
 	LucideUsers2,
 } from "lucide-react"
 import { api } from "../../../convex/_generated/api.js"
-import { UserButton } from "../../auth/user-button.tsx"
-import { AppLogo } from "../../ui/app-logo.tsx"
-import { Button } from "../../ui/button.tsx"
-import { Heading } from "../../ui/heading.tsx"
+import { AppHeader } from "../../ui/app-header.tsx"
 import { mergeClassProp } from "../../ui/helpers.ts"
-import { Column, Row } from "../../ui/layout.tsx"
-import { Modal } from "../../ui/modal.tsx"
-import { Panel } from "../../ui/panel.js"
+import { Modal, ModalButton, ModalPanel } from "../../ui/modal.tsx"
 import { Slot, SlotProps } from "../../ui/slot.tsx"
 import { SceneList } from "./scene-list.tsx"
 
@@ -23,56 +18,38 @@ export default function RoomRoute() {
 	const params = useParams() as { room: string }
 	const room = useQuery(api.rooms.getBySlug, { slug: params.room })
 	return (
-		<div className="fixed inset-0">
-			<Column className="pointer-events-none fixed inset-0 items-stretch p-3">
-				<Row className="items-center justify-between">
-					<Button
-						element={<Link to="/" />}
-						icon={null}
-						appearance="clear"
-						className="pointer-events-auto h-12"
-					>
-						<Heading className="text-2xl">
-							<AppLogo />
-						</Heading>
-					</Button>
-					<div className="contents *:pointer-events-auto">
-						<UserButton />
-					</div>
-				</Row>
-				<Panel className="pointer-events-auto mx-auto mt-auto flex w-full max-w-fit gap-2 p-1">
-					<Modal>
-						<PanelButton element={<Modal.Button />}>
-							<LucideImages />
-						</PanelButton>
-						<Modal.Panel
-							title="Scenes"
-							className="flex max-h-full flex-col p-3"
-						>
-							<div className="-m-3 overflow-y-auto overflow-x-clip p-3">
-								<SceneList />
-							</div>
-						</Modal.Panel>
-					</Modal>
+		<>
+			<AppHeader />
 
-					<PanelButton>
-						<LucideUsers2 />
-					</PanelButton>
+			<div className="fixed inset-x-auto bottom-0">
+				<Modal>
+					<ModalButton className="btn btn-ghost btn-square btn-md">
+						<LucideImages className="size-8" />
+					</ModalButton>
+					<ModalPanel title="Scenes" className="flex max-h-full flex-col p-3">
+						<div className="-m-3 overflow-y-auto overflow-x-clip p-3">
+							<SceneList />
+						</div>
+					</ModalPanel>
+				</Modal>
 
-					<PanelButton>
-						<LucideBoxes />
-					</PanelButton>
+				<button type="button">
+					<LucideUsers2 />
+				</button>
 
-					<PanelButton>
-						<LucideCalendarClock />
-					</PanelButton>
+				<button type="button">
+					<LucideBoxes />
+				</button>
 
-					<PanelButton>
-						<LucideSettings />
-					</PanelButton>
-				</Panel>
-			</Column>
-		</div>
+				<button type="button">
+					<LucideCalendarClock />
+				</button>
+
+				<button type="button">
+					<LucideSettings />
+				</button>
+			</div>
+		</>
 	)
 }
 

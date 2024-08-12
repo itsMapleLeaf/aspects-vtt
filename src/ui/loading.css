@@ -28,11 +28,11 @@
 	}
 }
 
-.loading.wipe-down {
+.wipe-down {
 	animation: wipe-down 1s theme(transitionTimingFunction.out) infinite;
 }
 
-.loading.peek {
+.peek {
 	animation-name: peek;
 	animation-duration: 5s;
 	animation-timing-function: linear;

@@ -15,7 +15,7 @@ import React from "react"
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="bg-base-950 text-base-50">
+		<html lang="en" className="text-base-content bg-base-300">
 			<head>
 				<meta charSet="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />

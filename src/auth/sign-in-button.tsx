@@ -2,12 +2,11 @@ import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
 import { LucideDoorOpen, LucideLogIn, LucideUserPlus } from "lucide-react"
 import { useActionState, useState } from "react"
-import { Button } from "../ui/button.tsx"
 import { Form, FormError } from "../ui/form.tsx"
 import { Heading } from "../ui/heading.tsx"
 import { InputField } from "../ui/input.tsx"
 import { Column, Row } from "../ui/layout.tsx"
-import { Modal } from "../ui/modal.tsx"
+import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
 
 export function SignInButton() {
 	const [action, setAction] = useState<"login" | "register">("login")
@@ -29,11 +28,11 @@ export function SignInButton() {
 
 	return (
 		<Modal>
-			<Button icon={<LucideLogIn />} element={<Modal.Button />}>
-				Sign in / sign up
-			</Button>
+			<ModalButton className="btn">
+				<LucideLogIn /> Sign in / sign up
+			</ModalButton>
 
-			<Modal.Panel
+			<ModalPanel
 				title={`${action === "login" ? "Sign in" : "Sign up"} to continue.`}
 				className="flex w-80 flex-col gap-6 p-4 text-center"
 			>
@@ -45,9 +44,9 @@ export function SignInButton() {
 							})
 						}}
 					>
-						<Button type="submit" icon={<SiDiscord />} className="w-full">
-							Continue with Discord
-						</Button>
+						<button type="submit" className="btn">
+							<SiDiscord /> Continue with Discord
+						</button>
 					</form>
 
 					<OrDivider />
@@ -76,7 +75,7 @@ export function SignInButton() {
 						onSwitch={() => setAction("login")}
 					/>
 				)}
-			</Modal.Panel>
+			</ModalPanel>
 		</Modal>
 	)
 }
@@ -84,9 +83,9 @@ export function SignInButton() {
 function OrDivider() {
 	return (
 		<Row className="w-full items-center gap-2">
-			<div className="h-px flex-1 bg-base-700"></div>
+			<div className="bg-base-content/25 h-px flex-1"></div>
 			<p className="text-base-400">or</p>
-			<div className="h-px flex-1 bg-base-700"></div>
+			<div className="bg-base-content/25 h-px flex-1"></div>
 		</Row>
 	)
 }
@@ -96,9 +95,9 @@ function LoginFields() {
 		<>
 			<InputField type="text" name="handle" label="Account handle" required />
 			<InputField type="password" name="password" label="Password" required />
-			<Button type="submit" className="self-center" icon={<LucideDoorOpen />}>
-				Sign in
-			</Button>
+			<button type="submit" className="btn">
+				<LucideDoorOpen /> Sign in
+			</button>
 		</>
 	)
 }
@@ -127,9 +126,9 @@ function RegisterFields() {
 				description="Make it strong!"
 				required
 			/>
-			<Button type="submit" className="self-center" icon={<LucideUserPlus />}>
-				Create account
-			</Button>
+			<button type="submit" className="btn">
+				<LucideUserPlus /> Create account
+			</button>
 		</>
 	)
 }
@@ -144,12 +143,12 @@ function ActionSwitchMessage({
 	onSwitch: () => void
 }) {
 	return (
-		<p className="text-center text-base-400">
+		<p className="text-center">
 			{message}{" "}
 			<button
 				type="button"
 				onClick={onSwitch}
-				className="cursor-pointer text-base-200 underline hover:no-underline"
+				className="cursor-pointer underline hover:no-underline"
 			>
 				{buttonText}
 			</button>

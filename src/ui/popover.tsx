@@ -3,7 +3,6 @@ import React, { useEffect } from "react"
 import { FocusOn } from "react-focus-on"
 import { useMergedRefs } from "../../lib/react.ts"
 import { mergeClassProp } from "./helpers.ts"
-import { Panel } from "./panel.tsx"
 import { Portal } from "./portal.tsx"
 import { fadeZoomTransition } from "./transitions.ts"
 
@@ -52,8 +51,7 @@ export function usePopoverContext() {
 	return context
 }
 
-Popover.Button = PopoverButton
-function PopoverButton(props: React.ComponentProps<"button">) {
+export function PopoverButton(props: React.ComponentProps<"button">) {
 	const context = usePopoverContext()
 	const ref = useMergedRefs(context.buttonRef, props.ref)
 	return (
@@ -70,7 +68,7 @@ function PopoverButton(props: React.ComponentProps<"button">) {
 }
 
 Popover.Panel = PopoverPanel
-function PopoverPanel(
+export function PopoverPanel(
 	props: React.ComponentProps<"div"> & { children: React.ReactNode },
 ) {
 	const context = usePopoverContext()
@@ -87,7 +85,6 @@ function PopoverPanel(
 		<Portal>
 			<div ref={context.panelRef} style={context.panelStyle}>
 				<FocusOn
-					as={Panel}
 					enabled={context.open ? enabled : false}
 					onEscapeKey={() => context.setOpen(false)}
 					onClickOutside={() => context.setOpen(false)}

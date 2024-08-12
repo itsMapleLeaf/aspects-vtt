@@ -3,14 +3,7 @@ import { FormField, FormInputState } from "./form.tsx"
 import { mergeClassProp } from "./helpers.ts"
 
 export function Input(props: ComponentProps<"input">) {
-	return (
-		<input
-			{...mergeClassProp(
-				props,
-				"block w-full min-w-0 rounded border border-base-700 bg-base-800 p-2 text-base-300",
-			)}
-		/>
-	)
+	return <input {...mergeClassProp(props, "input")} />
 }
 
 export function InputField({

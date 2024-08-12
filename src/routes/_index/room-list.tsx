@@ -1,28 +1,24 @@
 import { Link, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import {
-	LucideDoorOpen,
 	LucideGamepad2,
+	LucideImageOff,
 	LucidePlus,
 	LucideWand2,
 } from "lucide-react"
 import { api } from "../../../convex/_generated/api.js"
 import { Doc } from "../../../convex/_generated/dataModel.js"
 import { Button } from "../../ui/button.js"
-import { Container } from "../../ui/container.tsx"
 import { EmptyState } from "../../ui/empty-state.js"
 import { Form, FormActions, FormError, useForm } from "../../ui/form.js"
-import { GridList } from "../../ui/grid-list.tsx"
-import { Heading } from "../../ui/heading.js"
 import { InputField, useInput } from "../../ui/input.js"
-import { Modal } from "../../ui/modal.js"
-import { Panel } from "../../ui/panel.js"
+import { Modal, ModalButton, ModalPanel } from "../../ui/modal.js"
 import { SkeletonGrid } from "../../ui/skeleton.js"
 
 export function RoomList() {
 	const rooms = useQuery(api.rooms.list)
 	return (
-		<Container>
+		<div className="container mx-auto flex flex-col items-start gap-4">
 			{rooms === undefined ? (
 				<SkeletonGrid count={6} />
 			) : rooms.length === 0 ? (
@@ -30,39 +26,46 @@ export function RoomList() {
 					<CreateRoomButton />
 				</EmptyState>
 			) : (
-				<GridList>
-					{rooms.map((room) => (
-						<RoomCard key={room._id} room={room} />
-					))}
-				</GridList>
+				<>
+					<div className="grid grid-cols-[repeat(auto-fill,16rem)] gap-4">
+						{rooms.map((room) => (
+							<RoomCard key={room._id} room={room} />
+						))}
+					</div>
+					<CreateRoomButton />
+				</>
 			)}
-		</Container>
+		</div>
 	)
 }
 
 function RoomCard({ room }: { room: Doc<"rooms"> }) {
 	return (
-		<Panel
-			element={<Link to={`/${room.slug}`} />}
-			className="flex aspect-video items-center justify-center gap-2 p-3 transition hover:scale-105"
+		<Link
+			to={`/${room.slug}`}
+			className="card card-bordered image-full bg-base-100 shadow-lg transition-transform hover:scale-105"
 		>
-			<LucideDoorOpen />
-			<Heading>{room.name}</Heading>
-		</Panel>
+			<figure className="aspect-video">
+				<LucideImageOff className="size-16 opacity-50" />
+			</figure>
+			<div className="card-body place-self-center">
+				<h2 className="card-title text-balance text-center">{room.name}</h2>
+			</div>
+		</Link>
 	)
 }
 function CreateRoomButton() {
 	return (
 		<Modal>
-			<Button icon={<LucidePlus />} element={<Modal.Button />}>
-				Create room
-			</Button>
-			<Modal.Panel
+			<ModalButton className="btn">
+				<LucidePlus /> Create room
+			</ModalButton>
+			<ModalPanel
 				title="Create room"
 				className="grid w-full max-w-sm gap-3 p-3"
 			>
 				<CreateRoomForm />
-			</Modal.Panel>
+			</ModalPanel>
 		</Modal>
 	)
 }
