@@ -1,94 +1,99 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { Effect, pipe } from "effect"
+import { Console, Effect, pipe } from "effect"
 import { Doc, Id } from "./_generated/dataModel"
-import {
-	collectDocs,
-	deleteDoc,
-	getDoc,
-	insertDoc,
-	patchDoc,
-	queryIndex,
-} from "./lib/db.ts"
-import { effectMutation, effectQuery } from "./lib/functions.ts"
-import { getStorageUrl } from "./lib/storage.ts"
+import { LocalQueryContext, mutation, query } from "./lib/api.ts"
 import { ensureRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
 
-export const list = effectQuery({
+export const list = query({
 	args: {
 		room: v.id("rooms"),
 	},
-	handler(args) {
+	handler(ctx, args) {
 		return pipe(
-			ensureRoomOwner(args.room),
+			ensureRoomOwner(ctx, args.room),
 			Effect.flatMap((room) =>
-				queryIndex("scenes", "roomId", ["roomId", room._id]),
+				ctx.db
+					.query("scenes")
+					.withIndex("roomId", (q) => q.eq("roomId", room._id))
+					.collect(),
 			),
-			Effect.flatMap(collectDocs),
 			Effect.flatMap(
-				Effect.forEach(normalizeScene, { concurrency: "unbounded" }),
+				Effect.forEach((scene) => normalizeScene(ctx, scene), {
+					concurrency: "unbounded",
+				}),
 			),
 			Effect.orElseSucceed(() => []),
 		)
 	},
 })
 
-export const get = effectQuery({
+export const get = query({
 	args: {
 		id: v.id("scenes"),
 	},
-	handler(args) {
+	handler(ctx, args) {
 		return pipe(
-			getDoc(args.id),
-			Effect.tap((scene) => ensureRoomOwner(scene.roomId)),
-			Effect.flatMap(normalizeScene),
-			Effect.orElseSucceed(() => null),
+			ensureSceneRoomOwner(ctx, args.id),
+			Effect.flatMap(({ scene }) => normalizeScene(ctx, scene)),
+			Effect.catchTags({
+				UnauthenticatedError: () => Effect.succeed(null),
+				DocNotFound: () => Effect.succeed(null),
+				RoomNotOwnedError: () => Effect.succeed(null),
+			}),
 		)
 	},
 })
 
-export const create = effectMutation({
+export const create = mutation({
 	args: schema.tables.scenes.validator.fields,
-	handler(args) {
+	handler(ctx, args) {
 		return pipe(
-			ensureRoomOwner(args.roomId),
-			Effect.andThen(() => insertDoc("scenes", args)),
+			ensureRoomOwner(ctx, args.roomId),
+			Effect.andThen(() => ctx.db.insert("scenes", args)),
+			Effect.orDie,
 		)
 	},
 })
 
-export const update = effectMutation({
+export const update = mutation({
 	args: {
 		...partial(schema.tables.scenes.validator.fields),
 		id: v.id("scenes"),
 	},
-	handler({ id, ...args }) {
+	handler(ctx, { id, ...args }) {
 		return pipe(
-			ensureSceneRoomOwner(id),
-			Effect.flatMap(({ scene }) => patchDoc(scene._id, args)),
+			ensureSceneRoomOwner(ctx, id),
+			Effect.flatMap(({ scene }) => ctx.db.patch(scene._id, args)),
+			Effect.orDie,
 		)
 	},
 })
 
-export const remove = effectMutation({
+export const remove = mutation({
 	args: {
 		id: v.id("scenes"),
 	},
-	handler(args) {
+	handler(ctx, args) {
 		return pipe(
-			ensureSceneRoomOwner(args.id),
-			Effect.flatMap(({ scene }) => deleteDoc(scene._id)),
+			ensureSceneRoomOwner(ctx, args.id),
+			Effect.flatMap(({ scene }) => ctx.db.delete(scene._id)),
+			Effect.orDie,
 		)
 	},
 })
 
-export function normalizeScene(scene: Doc<"scenes">) {
+export function normalizeScene(ctx: LocalQueryContext, scene: Doc<"scenes">) {
 	return pipe(
 		Effect.fromNullable(scene.backgroundId),
-		Effect.flatMap(getStorageUrl),
+		Effect.flatMap((id) => ctx.storage.getUrl(id)),
 		Effect.catchTags({
-			FileNotFoundError: () => Effect.succeed(null),
+			FileNotFound: (error) =>
+				pipe(
+					Console.warn(`File missing: ${error.info.storageId}`),
+					Effect.andThen(() => Effect.succeed(null)),
+				),
 			NoSuchElementException: () => Effect.succeed(null),
 		}),
 		Effect.map((backgroundUrl) => ({
@@ -98,10 +103,10 @@ export function normalizeScene(scene: Doc<"scenes">) {
 	)
 }
 
-export function ensureSceneRoomOwner(id: Id<"scenes">) {
+export function ensureSceneRoomOwner(ctx: LocalQueryContext, id: Id<"scenes">) {
 	return Effect.gen(function* () {
-		const scene = yield* getDoc(id)
-		const room = yield* ensureRoomOwner(scene.roomId)
+		const scene = yield* ctx.db.get(id)
+		const room = yield* ensureRoomOwner(ctx, scene.roomId)
 		return { scene, room }
 	})
 }

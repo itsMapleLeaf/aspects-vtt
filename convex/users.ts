@@ -1,30 +1,25 @@
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
+import { mutation, query } from "./lib/api.ts"
 import { getAuthUser } from "./lib/auth.ts"
-import { MutationContextService } from "./lib/context.ts"
-import { effectMutation, effectQuery } from "./lib/functions.ts"
 
-export const me = effectQuery({
-	handler: () =>
+export const me = query({
+	handler: (ctx) =>
 		pipe(
-			getAuthUser(),
+			getAuthUser(ctx),
 			Effect.orElseSucceed(() => null),
 		),
 })
 
-export const update = effectMutation({
+export const update = mutation({
 	args: {
 		handle: v.optional(v.string()),
 		name: v.optional(v.string()),
 	},
-	handler: (args) =>
+	handler: (ctx, args) =>
 		pipe(
-			getAuthUser(),
-			Effect.flatMap((user) =>
-				Effect.flatMap(MutationContextService, (ctx) =>
-					Effect.promise(() => ctx.db.patch(user._id, args)),
-				),
-			),
+			getAuthUser(ctx),
+			Effect.flatMap((user) => ctx.db.patch(user._id, args)),
 			Effect.orDie,
 		),
 })

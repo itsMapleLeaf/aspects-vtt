@@ -1,77 +1,73 @@
 import { ConvexError, v } from "convex/values"
 import { Data, Effect, pipe } from "effect"
 import { Doc, Id } from "./_generated/dataModel"
+import { LocalQueryContext, mutation, query } from "./lib/api.ts"
 import { getAuthUserId } from "./lib/auth.ts"
-import {
-	collectDocs,
-	getDoc,
-	getFirstDoc,
-	insertDoc,
-	queryIndex,
-} from "./lib/db.ts"
-import { effectMutation, effectQuery } from "./lib/functions.ts"
 import { normalizeScene } from "./scenes.ts"
 
-export const list = effectQuery({
-	handler: () =>
-		pipe(
-			getAuthUserId(),
+export const list = query({
+	handler(ctx) {
+		return pipe(
+			getAuthUserId(ctx),
 			Effect.flatMap((userId) =>
-				queryIndex("rooms", "ownerId", ["ownerId", userId]),
+				ctx.db
+					.query("rooms")
+					.withIndex("ownerId", (q) => q.eq("ownerId", userId))
+					.collect(),
 			),
-			Effect.flatMap(collectDocs),
 			Effect.catchTag("UnauthenticatedError", () => Effect.succeed([])),
-		),
+		)
+	},
 })
 
-export const get = effectQuery({
+export const get = query({
 	args: {
 		id: v.id("rooms"),
 	},
-	handler: (args) =>
-		pipe(
-			getDoc(args.id),
-			Effect.catchTag("DocNotFoundError", () => Effect.succeed(null)),
-		),
+	handler: (ctx, args) => ctx.db.getOrNull(args.id),
 })
 
-export const getBySlug = effectQuery({
+export const getBySlug = query({
 	args: {
 		slug: v.string(),
 	},
-	handler: ({ slug }) =>
-		pipe(
-			getRoomBySlug(slug),
-			Effect.flatMap(normalizeRoom),
-			Effect.catchTag("DocNotFoundError", () => Effect.succeed(null)),
-			Effect.catchTag("UnauthenticatedError", () => Effect.succeed(null)),
-		),
+	handler(ctx, { slug }) {
+		return pipe(
+			getRoomBySlug(ctx, slug),
+			Effect.flatMap((room) => normalizeRoom(ctx, room)),
+			Effect.catchTags({
+				UnauthenticatedError: () => Effect.succeed(null),
+				DocNotFound: () => Effect.succeed(null),
+			}),
+		)
+	},
 })
 
-export const getActiveScene = effectQuery({
+export const getActiveScene = query({
 	args: {
 		id: v.id("rooms"),
 	},
-	handler(args) {
+	handler(ctx, args) {
 		return Effect.gen(function* () {
-			const room = yield* getDoc(args.id)
-			if (room.activeSceneId == null) {
+			const room = yield* ctx.db.get(args.id)
+			if (!room.activeSceneId) {
 				return null
 			}
-			const scene = yield* getDoc(room.activeSceneId)
-			return yield* normalizeScene(scene)
+			const scene = yield* ctx.db.get(room.activeSceneId)
+			return yield* normalizeScene(ctx, scene)
 		}).pipe(Effect.orElseSucceed(() => null))
 	},
 })
 
-export const create = effectMutation({
+export const create = mutation({
 	args: {
 		name: v.string(),
 		slug: v.string(),
 	},
-	handler: (args) =>
+	handler: (ctx, args) =>
 		pipe(
-			Effect.match(getRoomBySlug(args.slug), {
+			getRoomBySlug(ctx, args.slug),
+			Effect.match({
 				onSuccess: () => {
 					return Effect.fail(
 						new ConvexError(`The slug "${args.slug}" is already taken`),
@@ -79,25 +75,26 @@ export const create = effectMutation({
 				},
 				onFailure: () => Effect.void,
 			}),
-			Effect.andThen(getAuthUserId),
+			Effect.andThen(() => getAuthUserId(ctx)),
 			Effect.flatMap((userId) =>
-				insertDoc("rooms", { ...args, ownerId: userId }),
+				ctx.db.insert("rooms", { ...args, ownerId: userId }),
 			),
+			Effect.orDie,
 		),
 })
 
 export class RoomNotOwnedError extends Data.TaggedError("RoomNotOwnedError") {}
 
-export function getRoomBySlug(slug: string) {
-	return pipe(
-		queryIndex("rooms", "slug", ["slug", slug]),
-		Effect.flatMap(getFirstDoc),
-	)
+export function getRoomBySlug(ctx: LocalQueryContext, slug: string) {
+	return ctx.db
+		.query("rooms")
+		.withIndex("slug", (q) => q.eq("slug", slug))
+		.first()
 }
 
-export function normalizeRoom(room: Doc<"rooms">) {
+export function normalizeRoom(ctx: LocalQueryContext, room: Doc<"rooms">) {
 	return pipe(
-		getAuthUserId(),
+		getAuthUserId(ctx),
 		Effect.map((userId) => ({
 			...room,
 			isOwner: room.ownerId === userId,
@@ -105,10 +102,10 @@ export function normalizeRoom(room: Doc<"rooms">) {
 	)
 }
 
-export function ensureRoomOwner(id: Id<"rooms">) {
+export function ensureRoomOwner(ctx: LocalQueryContext, id: Id<"rooms">) {
 	return pipe(
-		getDoc(id),
-		Effect.flatMap(normalizeRoom),
+		ctx.db.get(id),
+		Effect.flatMap((room) => normalizeRoom(ctx, room)),
 		Effect.filterOrFail(
 			(room) => room.isOwner,
 			() => new RoomNotOwnedError(),
