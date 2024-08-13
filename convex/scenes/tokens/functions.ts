@@ -23,7 +23,8 @@ export const list = effectQuery({
 			const scene = yield* getDoc(args.sceneId)
 			const isOwner = yield* isRoomOwner(scene.roomId)
 
-			const visibleTokens = isOwner ? scene.tokens : scene.tokens?.filter((token) => token.visible)
+			const visibleTokens =
+				isOwner ? scene.tokens : scene.tokens?.filter((token) => token.visible)
 
 			const tokens = yield* Effect.forEach(visibleTokens ?? [], (token) =>
 				pipe(
@@ -56,7 +57,10 @@ export const add = mutation({
 		const scene = await requireDoc(ctx, sceneId, "scenes").getValueOrThrow()
 		await requireSceneRoomOwnerOld(ctx, sceneId).getValueOrThrow()
 
-		if (args.characterId && scene.tokens?.some((token) => token.characterId === args.characterId)) {
+		if (
+			args.characterId &&
+			scene.tokens?.some((token) => token.characterId === args.characterId)
+		) {
 			throw new Error("Character already in scene")
 		}
 
@@ -92,13 +96,17 @@ export const update = mutation({
 		await requireSceneRoomOwnerOld(ctx, sceneId).getValueOrThrow()
 
 		return await ctx.db.patch(sceneId, {
-			tokens: scene.tokens?.map((token) => (token.key === key ? { ...token, ...args } : token)),
+			tokens: scene.tokens?.map((token) =>
+				token.key === key ? { ...token, ...args } : token,
+			),
 		})
 	},
 })
 
 export type CreateTokenArgs = UndefinedToOptional<{
-	[K in Exclude<keyof typeof sceneTokenProperties, "key">]: Infer<(typeof sceneTokenProperties)[K]>
+	[K in Exclude<keyof typeof sceneTokenProperties, "key">]: Infer<
+		(typeof sceneTokenProperties)[K]
+	>
 }>
 
 export function createToken(args: CreateTokenArgs) {

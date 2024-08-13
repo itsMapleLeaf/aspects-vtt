@@ -24,9 +24,16 @@ import { CharacterAbilityList } from "./CharacterAbilityList.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { CharacterStatusFields } from "./CharacterStatusFields.tsx"
-import { getCharacterFallbackImageUrl, hasFullCharacterPermissions } from "./helpers.ts"
+import {
+	getCharacterFallbackImageUrl,
+	hasFullCharacterPermissions,
+} from "./helpers.ts"
 import { useCharacterUpdatePermission } from "./hooks.ts"
-import type { ApiCharacter, OwnedApiCharacter, UpdateableCharacterField } from "./types.ts"
+import type {
+	ApiCharacter,
+	OwnedApiCharacter,
+	UpdateableCharacterField,
+} from "./types.ts"
 import { useUpdateCharacterMutation } from "./useUpdateCharacterMutation.tsx"
 
 export function CharacterForm({ character }: { character: ApiCharacter }) {
@@ -62,7 +69,11 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					</div>
 					<div className="flex flex-wrap gap-current">
 						<CharacterCheckboxField character={character} field="visible" />
-						<CharacterCheckboxField character={character} field="nameVisible" label="Show Name" />
+						<CharacterCheckboxField
+							character={character}
+							field="nameVisible"
+							label="Show Name"
+						/>
 					</div>
 					<hr />
 				</>
@@ -79,7 +90,11 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					:	<>
 							<ReadOnlyField
 								label="Name"
-								value={character.permission === "limitedWithName" ? character.name : "???"}
+								value={
+									character.permission === "limitedWithName" ?
+										character.name
+									:	"???"
+								}
 							/>
 							{character.permission === "limitedWithName" && (
 								<ReadOnlyField label="Pronouns" value={character.pronouns} />
@@ -89,9 +104,9 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 					<CharacterSelectField
 						character={character}
 						field="race"
-						options={[...listRaces().map((r) => ({ value: r.id, label: r.name }))].toSorted(
-							(a, b) => a.label.localeCompare(b.label),
-						)}
+						options={[
+							...listRaces().map((r) => ({ value: r.id, label: r.name })),
+						].toSorted((a, b) => a.label.localeCompare(b.label))}
 					/>
 				</div>
 				{hasFullCharacterPermissions(character) && (
@@ -101,7 +116,10 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 							<CharacterAttributeField character={character} field="strength" />
 							<CharacterAttributeField character={character} field="mobility" />
 							<CharacterAttributeField character={character} field="sense" />
-							<CharacterAttributeField character={character} field="intellect" />
+							<CharacterAttributeField
+								character={character}
+								field="intellect"
+							/>
 							<CharacterAttributeField character={character} field="wit" />
 						</Panel>
 					</div>
@@ -127,7 +145,11 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 
 function AttributePoints({ character }: { character: OwnedApiCharacter }) {
 	const total =
-		character.strength + character.mobility + character.sense + character.intellect + character.wit
+		character.strength +
+		character.mobility +
+		character.sense +
+		character.intellect +
+		character.wit
 	const max = 15
 	return (
 		<p className="text-center text-lg/tight font-light">
@@ -146,7 +168,11 @@ function AttributePoints({ character }: { character: OwnedApiCharacter }) {
 	)
 }
 
-export function CharacterNotesFields({ character }: { character: ApiCharacter }) {
+export function CharacterNotesFields({
+	character,
+}: {
+	character: ApiCharacter
+}) {
 	const room = useRoom()
 	return (
 		<>
@@ -156,7 +182,11 @@ export function CharacterNotesFields({ character }: { character: ApiCharacter })
 				label={room.isOwner ? "Player Notes" : "Notes"}
 			/>
 			{room.isOwner && (
-				<CharacterTextAreaField character={character} field="ownerNotes" label="Owner Notes" />
+				<CharacterTextAreaField
+					character={character}
+					field="ownerNotes"
+					label="Owner Notes"
+				/>
 			)}
 		</>
 	)
@@ -186,7 +216,11 @@ function CharacterInputField({
 	}
 
 	return (
-		<CharacterReadOnlyGuard character={character} label={label} value={input.value}>
+		<CharacterReadOnlyGuard
+			character={character}
+			label={label}
+			value={input.value}
+		>
 			<FormField label={label}>
 				<Input {...input} />
 			</FormField>
@@ -218,7 +252,11 @@ function CharacterTextAreaField({
 	}
 
 	return (
-		<CharacterReadOnlyGuard character={character} label={label} value={input.value}>
+		<CharacterReadOnlyGuard
+			character={character}
+			label={label}
+			value={input.value}
+		>
 			<FormField label={label}>
 				<TextArea {...input} />
 			</FormField>
@@ -235,7 +273,9 @@ function CharacterCheckboxField({
 	field: UpdateableCharacterField<boolean>
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 
 	if (character[field] === undefined) {
 		return null
@@ -247,13 +287,17 @@ function CharacterCheckboxField({
 			<CheckboxField
 				label={label}
 				checked={value}
-				onChange={(event) => update({ id: character._id, [field]: event.target.checked })}
+				onChange={(event) =>
+					update({ id: character._id, [field]: event.target.checked })
+				}
 			/>
 		</CharacterReadOnlyGuard>
 	)
 }
 
-function CharacterSelectField<Field extends UpdateableCharacterField<string | null>>({
+function CharacterSelectField<
+	Field extends UpdateableCharacterField<string | null>,
+>({
 	character,
 	field,
 	label = startCase(field),
@@ -264,7 +308,9 @@ function CharacterSelectField<Field extends UpdateableCharacterField<string | nu
 	label?: string
 	options: Array<SelectOption<NonNullable<OwnedApiCharacter[Field]> | null>>
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 
 	if (!hasFullCharacterPermissions(character)) {
 		return null
@@ -292,7 +338,9 @@ function CharacterAttributeField({
 	field: Attribute["id"]
 	label?: string
 }) {
-	const [state, update] = useAsyncState(useMutation(api.characters.functions.update))
+	const [state, update] = useAsyncState(
+		useMutation(api.characters.functions.update),
+	)
 
 	const fieldValue = character[field]
 	if (fieldValue === undefined) {
@@ -363,7 +411,9 @@ function CharacterImageField({ character }: { character: ApiCharacter }) {
 	return hasFullCharacterPermissions(character) ?
 			<Suspense fallback={<Loading />}>
 				<ImageUploader
-					fallbackUrl={character.imageUrl ?? getCharacterFallbackImageUrl(character)}
+					fallbackUrl={
+						character.imageUrl ?? getCharacterFallbackImageUrl(character)
+					}
 					onUpload={async (imageId) => {
 						const id = await createImage({
 							name: `character_${character._id}`,

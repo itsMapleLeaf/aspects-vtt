@@ -1,7 +1,10 @@
 import { type ComponentProps, useRef } from "react"
 import { clamp } from "../../common/math.ts"
 import type { StrictOmit } from "../../common/types.ts"
-import { ValidatedInput, type ValidatedInputController } from "./ValidatedInput.tsx"
+import {
+	ValidatedInput,
+	type ValidatedInputController,
+} from "./ValidatedInput.tsx"
 
 type NumberInputProps = StrictOmit<
 	Partial<ComponentProps<typeof ValidatedInput>>,
@@ -56,7 +59,10 @@ export function NumberInput({
 				}
 			}}
 			onWheel={(event) => {
-				if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
+				if (
+					document.activeElement === event.currentTarget &&
+					event.deltaY !== 0
+				) {
 					tweak(event, -Math.sign(event.deltaY))
 				}
 			}}

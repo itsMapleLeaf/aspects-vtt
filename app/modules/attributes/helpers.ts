@@ -13,7 +13,10 @@ export function getAttributePower(value: number) {
 	return getAttributeDie(value).faces.length
 }
 
-export type NormalizedAttributeValue = Brand.Branded<number, "NormalizedAttributeValue">
+export type NormalizedAttributeValue = Brand.Branded<
+	number,
+	"NormalizedAttributeValue"
+>
 const NormalizedAttributeValue = Brand.nominal<NormalizedAttributeValue>()
 
 export function normalizeAttributeValue(value: Nullish<number>) {

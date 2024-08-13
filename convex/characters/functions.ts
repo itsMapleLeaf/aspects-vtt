@@ -7,7 +7,10 @@ import { sum } from "lodash-es"
 import { getWordsByCategory } from "random-word-slugs/words.ts"
 import { AttributeTotal } from "~/modules/attributes/constants.ts"
 import type { Attribute } from "~/modules/attributes/data.ts"
-import { getAttributePower, normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
+import {
+	getAttributePower,
+	normalizeAttributeValue,
+} from "~/modules/attributes/helpers.ts"
 import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
 import {
 	boostDiceKind,
@@ -22,7 +25,11 @@ import {
 	listAspectSkillIds,
 	listAspectSkillsByAspect,
 } from "../../app/modules/aspect-skills/data.ts"
-import { type Aspect, getAspect, listAspects } from "../../app/modules/aspects/data.ts"
+import {
+	type Aspect,
+	getAspect,
+	listAspects,
+} from "../../app/modules/aspects/data.ts"
 import { listRaceIds } from "../../app/modules/races/data.ts"
 import { hasLength } from "../../common/array.ts"
 import { unwrap } from "../../common/errors.ts"
@@ -161,11 +168,15 @@ export const applyStress = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			if (args.properties.length === 0) {
-				return yield* Effect.fail(new ConvexError("At least one property must be specified"))
+				return yield* Effect.fail(
+					new ConvexError("At least one property must be specified"),
+				)
 			}
 
 			if (args.characterIds.length === 0) {
-				return yield* Effect.fail(new ConvexError("At least one character must be specified"))
+				return yield* Effect.fail(
+					new ConvexError("At least one character must be specified"),
+				)
 			}
 
 			const { user, characters } = yield* Effect.all({
@@ -175,9 +186,13 @@ export const applyStress = effectMutation({
 				}),
 			})
 
-			const characterRoomIds = [...new Set(characters.map((character) => character.roomId))]
+			const characterRoomIds = [
+				...new Set(characters.map((character) => character.roomId)),
+			]
 			if (!hasLength(characterRoomIds, 1)) {
-				return yield* Effect.fail(new ConvexError("Characters must all be in the same room"))
+				return yield* Effect.fail(
+					new ConvexError("Characters must all be in the same room"),
+				)
 			}
 			const roomId = characterRoomIds[0]
 
@@ -186,7 +201,8 @@ export const applyStress = effectMutation({
 
 			if (args.dice.length > 0) {
 				diceRolls = [...createDiceRolls(args.dice)]
-				amount += diceRolls.reduce((total, die) => total + die.result, 0) * args.delta
+				amount +=
+					diceRolls.reduce((total, die) => total + die.result, 0) * args.delta
 			}
 
 			const listFormat = new Intl.ListFormat("en-US", {
@@ -240,9 +256,13 @@ export const setSkillActive = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureFullCharacterPermissions(args.characterId)
+			const { character } = yield* ensureFullCharacterPermissions(
+				args.characterId,
+			)
 
-			const skill = yield* Effect.fromNullable(getAspectSkill(args.aspectSkillId))
+			const skill = yield* Effect.fromNullable(
+				getAspectSkill(args.aspectSkillId),
+			)
 
 			const aspectSkillGroups = new Map(
 				character.learnedAspectSkills?.map((doc) => [
@@ -270,7 +290,9 @@ export const setSkillActive = effectMutation({
 				.map((doc) => ({ ...doc, aspectSkillIds: [...doc.aspectSkillIds] }))
 				.filter((doc) => doc.aspectSkillIds.length > 0)
 
-			yield* withMutationCtx((ctx) => ctx.db.patch(character._id, { learnedAspectSkills }))
+			yield* withMutationCtx((ctx) =>
+				ctx.db.patch(character._id, { learnedAspectSkills }),
+			)
 		})
 	},
 })
@@ -301,12 +323,16 @@ export const updateConditions = effectMutation({
 			if (action.type === "add") {
 				conditions = [...conditions, pick(action, ["name", "color"])]
 			} else if (action.type === "remove") {
-				conditions = conditions.filter((condition) => condition.name !== action.name)
+				conditions = conditions.filter(
+					(condition) => condition.name !== action.name,
+				)
 			} else if (action.type === "clear") {
 				conditions = []
 			}
 
-			yield* withMutationCtx((ctx) => ctx.db.patch(character._id, { conditions }))
+			yield* withMutationCtx((ctx) =>
+				ctx.db.patch(character._id, { conditions }),
+			)
 		})
 	},
 })
@@ -321,7 +347,10 @@ export const rollAttribute = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const characters = yield* ensureRoomHasCharacters(args.roomId, args.characterIds)
+			const characters = yield* ensureRoomHasCharacters(
+				args.roomId,
+				args.characterIds,
+			)
 			return yield* createMessages(
 				characters.map((character) => {
 					const dice = getCharacterAttributeDiceInputs({ ...args, character })
@@ -346,7 +375,9 @@ export const updateModifier = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const { character } = yield* ensureFullCharacterPermissions(args.characterId)
+			const { character } = yield* ensureFullCharacterPermissions(
+				args.characterId,
+			)
 
 			const modifiers = new Map(
 				character.modifiers?.map((modifier) => [modifier.attribute, modifier]),
@@ -382,10 +413,14 @@ export const rest = effectMutation({
 	},
 	handler(args) {
 		return Effect.gen(function* () {
-			const character = yield* normalizeCharacterUnsafe(yield* Convex.db.get(args.id))
+			const character = yield* normalizeCharacterUnsafe(
+				yield* Convex.db.get(args.id),
+			)
 			const user = yield* getCurrentUser()
 			const rolls = Array.from(
-				createDiceRolls([getDiceKindApiInput(statDiceKindsByName.d4, args.hours)]),
+				createDiceRolls([
+					getDiceKindApiInput(statDiceKindsByName.d4, args.hours),
+				]),
 			)
 			const restoredAmount = rolls.reduce((total, die) => total + die.result, 0)
 
@@ -402,7 +437,10 @@ export const rest = effectMutation({
 			})
 
 			yield* Convex.db.patch(character._id, {
-				resolve: Math.min(character.resolve + restoredAmount, character.resolveMax),
+				resolve: Math.min(
+					character.resolve + restoredAmount,
+					character.resolveMax,
+				),
 			})
 		})
 	},
@@ -419,10 +457,14 @@ export const attack = effectMutation({
 	handler(args) {
 		return Effect.gen(function* () {
 			const user = yield* getCurrentUser()
-			const attacker = yield* normalizeCharacterUnsafe(yield* Convex.db.get(args.attackerId))
+			const attacker = yield* normalizeCharacterUnsafe(
+				yield* Convex.db.get(args.attackerId),
+			)
 
 			for (const defenderId of args.defenderIds) {
-				const defender = yield* normalizeCharacterUnsafe(yield* Convex.db.get(defenderId))
+				const defender = yield* normalizeCharacterUnsafe(
+					yield* Convex.db.get(defenderId),
+				)
 
 				const attackerRoll = Array.from(
 					createDiceRolls(
@@ -435,7 +477,10 @@ export const attack = effectMutation({
 					),
 				)
 
-				const potentialDamage = attackerRoll.reduce((total, die) => total + die.result, 0)
+				const potentialDamage = attackerRoll.reduce(
+					(total, die) => total + die.result,
+					0,
+				)
 
 				const attackerMention = formatCharacterMention(attacker._id)
 				const defenderMention = formatCharacterMention(defender._id)
@@ -480,7 +525,9 @@ function generateRandomCharacterProperties() {
 		wit: 1,
 	}
 	for (let i = 5; i < AttributeTotal; i++) {
-		const validAttributes = keys(attributes).filter((key) => attributes[key] < 5)
+		const validAttributes = keys(attributes).filter(
+			(key) => attributes[key] < 5,
+		)
 		const randomKey = unwrap(randomItem(validAttributes))
 		attributes[randomKey] += 1
 	}
@@ -501,16 +548,20 @@ function generateRandomCharacterProperties() {
 
 	for (const _i of Iterator.range(randomInt(5, 30))) {
 		// small chance of going outside their preferred aspect
-		const aspect = Math.random() > 0.1 ? preferredAspect : unwrap(randomItem(listAspects()))
+		const aspect =
+			Math.random() > 0.1 ? preferredAspect : unwrap(randomItem(listAspects()))
 
-		const learnedAspectSkills = Iterator.from(skillsByAspect.get(aspect.id) ?? [])
+		const learnedAspectSkills = Iterator.from(
+			skillsByAspect.get(aspect.id) ?? [],
+		)
 			.map(getAspectSkill)
 			.filter((skill): skill is Skill => skill != null)
 			.toArray()
 
 		const currentHighestTier =
 			learnedAspectSkills.length > 0 ?
-				greatestBy(learnedAspectSkills, (skill) => skill.tier.number).tier.number
+				greatestBy(learnedAspectSkills, (skill) => skill.tier.number).tier
+					.number
 			:	undefined
 
 		const nextTier = currentHighestTier ? currentHighestTier + 1 : 1
@@ -524,16 +575,26 @@ function generateRandomCharacterProperties() {
 			continue // we ran out of skills for this tier lol
 		}
 
-		skillsByAspect.set(aspect.id, new Set(skillsByAspect.get(aspect.id)).add(newSkill.id))
+		skillsByAspect.set(
+			aspect.id,
+			new Set(skillsByAspect.get(aspect.id)).add(newSkill.id),
+		)
 	}
 
 	const race = unwrap(randomItem(listRaceIds()))
-	const adjective = randomItem(getWordsByCategory("adjective", ["personality"])) ?? "A Random"
+	const adjective =
+		randomItem(getWordsByCategory("adjective", ["personality"])) ?? "A Random"
 
 	return {
 		...attributes,
 		name: titleCase(`${adjective} ${race}`),
-		pronouns: randomItem(["he/him", "she/her", "they/them", "he/they", "she/they"]),
+		pronouns: randomItem([
+			"he/him",
+			"she/her",
+			"they/them",
+			"he/they",
+			"she/they",
+		]),
 		race,
 		currency: (Math.floor(Math.random() * 10) + 1) * 50,
 		learnedAspectSkills: Iterator.from(skillsByAspect)
@@ -561,25 +622,33 @@ export class MissingCharacterPermissionError extends Data.TaggedError(
 	}
 }
 
-export class CharactersNotInRoomError extends Data.TaggedError("CharactersNotInRoomError") {
+export class CharactersNotInRoomError extends Data.TaggedError(
+	"CharactersNotInRoomError",
+) {
 	constructor(readonly charactersNotInRoom: Array<Doc<"characters">>) {
 		super()
 	}
 }
 
-export class MissingCharacterImageError extends Data.TaggedError("MissingCharacterImageError") {
+export class MissingCharacterImageError extends Data.TaggedError(
+	"MissingCharacterImageError",
+) {
 	constructor(readonly characterId: Id<"characters">) {
 		super()
 	}
 }
 
-export class MissingImageSizesError extends Data.TaggedError("MissingImageSizeError") {
+export class MissingImageSizesError extends Data.TaggedError(
+	"MissingImageSizeError",
+) {
 	constructor(readonly imageId: Id<"images">) {
 		super()
 	}
 }
 
-export type NormalizedCharacter = Effect.Effect.Success<ReturnType<typeof normalizeCharacter>>
+export type NormalizedCharacter = Effect.Effect.Success<
+	ReturnType<typeof normalizeCharacter>
+>
 
 export function normalizeCharacter(character: Doc<"characters">) {
 	return Effect.gen(function* () {
@@ -661,7 +730,10 @@ export function normalizeCharacterUnsafe(character: Doc<"characters">) {
 					return pipe(
 						Convex.db.get(imageId),
 						Effect.flatMap((image) => Effect.fromNullable(image.sizes.at(-1))),
-						Effect.catchTag("NoSuchElementException", () => new MissingImageSizesError(imageId)),
+						Effect.catchTag(
+							"NoSuchElementException",
+							() => new MissingImageSizesError(imageId),
+						),
 						Effect.flatMap((size) => Convex.storage.getUrl(size.storageId)),
 					)
 				}
@@ -681,12 +753,16 @@ export function normalizeCharacterUnsafe(character: Doc<"characters">) {
 		}
 
 		const healthMax = sum(
-			[stats.strength, stats.mobility, race?.healthBonus ?? 0].map(getAttributePower),
+			[stats.strength, stats.mobility, race?.healthBonus ?? 0].map(
+				getAttributePower,
+			),
 		)
 		const health = clamp(character.health ?? healthMax, 0, healthMax)
 
 		const resolveMax = sum(
-			[stats.intellect, stats.wit, stats.sense, race?.resolveBonus ?? 0].map(getAttributePower),
+			[stats.intellect, stats.wit, stats.sense, race?.resolveBonus ?? 0].map(
+				getAttributePower,
+			),
 		)
 		const resolve = clamp(character.resolve ?? resolveMax, 0, resolveMax)
 
@@ -758,7 +834,9 @@ export function ensureRoomHasCharacters(
 					Effect.succeed(characters)
 				:	Effect.fail(new CharactersNotInRoomError(charactersNotInRoom))
 		}),
-		Effect.flatMap((characters) => Effect.allSuccesses(characters.map(normalizeCharacterUnsafe))),
+		Effect.flatMap((characters) =>
+			Effect.allSuccesses(characters.map(normalizeCharacterUnsafe)),
+		),
 	)
 }
 
@@ -774,7 +852,9 @@ export function getCharacterAttributeDiceInputs(args: {
 
 	let boostCount = args.boostCount ?? 0
 	if (args.character.race) {
-		const bonus = getRace(args.character.race)?.attributeRollBonuses?.[args.attribute]?.boost
+		const bonus = getRace(args.character.race)?.attributeRollBonuses?.[
+			args.attribute
+		]?.boost
 		if (bonus) {
 			boostCount += bonus
 		}

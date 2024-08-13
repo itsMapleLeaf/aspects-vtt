@@ -2,7 +2,13 @@ import { Brand } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
 import { camelCase } from "lodash-es"
 import { unwrap } from "../../../common/errors.ts"
-import { entries, fromEntries, keys, mapValues, values } from "../../../common/object.ts"
+import {
+	entries,
+	fromEntries,
+	keys,
+	mapValues,
+	values,
+} from "../../../common/object.ts"
 import { titleCase } from "../../../common/string.ts"
 import { type Aspect, getAspect } from "../aspects/data.ts"
 import type { Attribute } from "../attributes/data.ts"
@@ -403,17 +409,19 @@ const aspectSkillTree: AspectSkillTree = {
 	},
 }
 
-const tiersByAspect: Record<Aspect["id"], Tier[]> = mapValues(aspectSkillTree, (aspect) =>
-	aspect.tiers.map(({ name, skills }, index) => ({
-		id: TierId(camelCase(name)),
-		name,
-		number: index + 1,
-		get skills() {
-			return keys(skills)
-				.map((key) => unwrap(aspectSkillsById[SkillId(key)]))
-				.toArray()
-		},
-	})),
+const tiersByAspect: Record<Aspect["id"], Tier[]> = mapValues(
+	aspectSkillTree,
+	(aspect) =>
+		aspect.tiers.map(({ name, skills }, index) => ({
+			id: TierId(camelCase(name)),
+			name,
+			number: index + 1,
+			get skills() {
+				return keys(skills)
+					.map((key) => unwrap(aspectSkillsById[SkillId(key)]))
+					.toArray()
+			},
+		})),
 )
 
 const aspectSkillsById: Record<SkillId, Skill> = fromEntries(
@@ -450,7 +458,10 @@ export function listAspectSkillsByAspect(aspectId: Aspect["id"]) {
 	return tiersByAspect[aspectId].flatMap((tier) => tier.skills)
 }
 
-export function listAspectSkillsByTier(aspectId: Aspect["id"], tierNumber: number) {
+export function listAspectSkillsByTier(
+	aspectId: Aspect["id"],
+	tierNumber: number,
+) {
 	return tiersByAspect[aspectId][tierNumber - 1]?.skills ?? []
 }
 

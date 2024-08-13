@@ -37,7 +37,9 @@ export const get = effectQuery({
 				const user = yield* getCurrentUser()
 				const scene = yield* Convex.db.get(sceneId)
 				const room = yield* Convex.db.get(scene.roomId)
-				return room.owner === user._id || room.currentScene === scene._id ? scene : null
+				return room.owner === user._id || room.currentScene === scene._id ?
+						scene
+					:	null
 			}),
 			Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
 			Effect.catchTag("NotLoggedInError", () => Effect.succeed(null)),
@@ -100,10 +102,8 @@ export const duplicate = mutation({
 		id: v.id("scenes"),
 	},
 	async handler(ctx, args) {
-		const { _id, _creationTime, ...properties } = await requireSceneRoomOwnerOld(
-			ctx,
-			args.id,
-		).getValueOrThrow()
+		const { _id, _creationTime, ...properties } =
+			await requireSceneRoomOwnerOld(ctx, args.id).getValueOrThrow()
 		return await ctx.db.insert("scenes", properties)
 	},
 })

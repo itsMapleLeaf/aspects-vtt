@@ -6,7 +6,9 @@ import { useToaster } from "~/ui/Toaster.tsx"
 import { useAsyncState } from "../../../common/react/hooks"
 import type { Awaitable, Exhaustive } from "../../../common/types"
 
-export function useStableQueryValue<T>(value: T): readonly [value: T, pending: boolean] {
+export function useStableQueryValue<T>(
+	value: T,
+): readonly [value: T, pending: boolean] {
 	const ref = useRef(value)
 	if (ref.current !== value && value !== undefined) {
 		ref.current = value
@@ -14,7 +16,9 @@ export function useStableQueryValue<T>(value: T): readonly [value: T, pending: b
 	return [ref.current, value === undefined]
 }
 
-export function useMutationState<F extends FunctionReference<"mutation", "public">>(funcRef: F) {
+export function useMutationState<
+	F extends FunctionReference<"mutation", "public">,
+>(funcRef: F) {
 	return useAsyncState(useMutation(funcRef))
 }
 
@@ -24,7 +28,9 @@ export type ActionState<T> = Exhaustive<
 	| { type: "error"; value?: T; error: NonNullable<unknown> }
 >
 
-export function useSafeAction<Result, Payload = void>(fn: (payload: Payload) => Awaitable<Result>) {
+export function useSafeAction<Result, Payload = void>(
+	fn: (payload: Payload) => Awaitable<Result>,
+) {
 	const toaster = useToaster()
 	return useActionState<ActionState<Result>, Payload>(
 		async (current, args) => {
@@ -47,8 +53,8 @@ export function useSafeAction<Result, Payload = void>(fn: (payload: Payload) => 
 	)
 }
 
-export function useMutationAction<Func extends FunctionReference<"mutation", "public">>(
-	func: Func,
-) {
+export function useMutationAction<
+	Func extends FunctionReference<"mutation", "public">,
+>(func: Func) {
 	return useSafeAction(useMutation(func))
 }

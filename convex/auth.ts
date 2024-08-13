@@ -71,8 +71,12 @@ export const { auth, signIn, signOut, store } = convexAuth({
 			const argsType = z.union([
 				z.object({
 					// transforming to a top-level property so the profile union type can be discriminated
-					provider: z.object({ id: z.literal("discord") }).transform((it) => it.id),
-					existingUserId: z.custom<Id<"users">>((it) => typeof it === "string").nullish(),
+					provider: z
+						.object({ id: z.literal("discord") })
+						.transform((it) => it.id),
+					existingUserId: z
+						.custom<Id<"users">>((it) => typeof it === "string")
+						.nullish(),
 					profile: z.object({
 						name: z.string(),
 						email: z.string(),
@@ -81,8 +85,12 @@ export const { auth, signIn, signOut, store } = convexAuth({
 					}),
 				}),
 				z.object({
-					provider: z.object({ id: z.literal("test") }).transform((it) => it.id),
-					existingUserId: z.custom<Id<"users">>((it) => typeof it === "string").nullish(),
+					provider: z
+						.object({ id: z.literal("test") })
+						.transform((it) => it.id),
+					existingUserId: z
+						.custom<Id<"users">>((it) => typeof it === "string")
+						.nullish(),
 					profile: z.object({
 						name: z.string(),
 						isAnonymous: z.literal(true),
@@ -124,12 +132,16 @@ export const { auth, signIn, signOut, store } = convexAuth({
 					}
 
 					if (args.profile.discordAvatar) {
-						await ctx.scheduler.runAfter(0, internal.images_node.setUserImageFromDiscord, {
-							userId,
-							name: args.profile.name,
-							discordUserId: args.profile.discordId,
-							discordImageSnowflake: args.profile.discordAvatar,
-						})
+						await ctx.scheduler.runAfter(
+							0,
+							internal.images_node.setUserImageFromDiscord,
+							{
+								userId,
+								name: args.profile.name,
+								discordUserId: args.profile.discordId,
+								discordImageSnowflake: args.profile.discordAvatar,
+							},
+						)
 					}
 
 					return userId

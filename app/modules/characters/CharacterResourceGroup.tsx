@@ -10,7 +10,11 @@ import { ResourceGroup, ResourceTreeItem } from "../resources/ResourceTree.tsx"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterImage } from "./CharacterImage.tsx"
 import { CharacterModal } from "./CharacterModal.tsx"
-import { type ApiCharacter, type CharacterDragData, characterDragData } from "./types.ts"
+import {
+	type ApiCharacter,
+	type CharacterDragData,
+	characterDragData,
+} from "./types.ts"
 import { useUpdateCharacterMutation } from "./useUpdateCharacterMutation.tsx"
 
 interface CharacterResourceGroupProps {
@@ -19,10 +23,15 @@ interface CharacterResourceGroupProps {
 	sceneId: Id<"scenes"> | null
 }
 
-export function CharacterResourceGroup({ id, title, sceneId }: CharacterResourceGroupProps) {
+export function CharacterResourceGroup({
+	id,
+	title,
+	sceneId,
+}: CharacterResourceGroupProps) {
 	const room = useRoom()
 
-	let characters = useQuery(api.characters.functions.list, { roomId: room._id }) ?? []
+	let characters =
+		useQuery(api.characters.functions.list, { roomId: room._id }) ?? []
 	if (sceneId) {
 		characters = characters.filter((character) => character.sceneId === sceneId)
 	} else {
@@ -75,7 +84,9 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 				}))}
 				renderItem={(character) => (
 					<CharacterModal character={character}>
-						<CharacterModal.Button element={<CharacterResourceTreeItem character={character} />} />
+						<CharacterModal.Button
+							element={<CharacterResourceTreeItem character={character} />}
+						/>
 					</CharacterModal>
 				)}
 			/>
@@ -86,7 +97,9 @@ export function CharacterResourceGroup({ id, title, sceneId }: CharacterResource
 function CharacterResourceTreeItem({
 	character,
 	...props
-}: { character: ApiCharacter } & Partial<ComponentProps<typeof ResourceTreeItem>>) {
+}: { character: ApiCharacter } & Partial<
+	ComponentProps<typeof ResourceTreeItem>
+>) {
 	const deleteCharacter = useMutation(api.characters.functions.remove)
 	return (
 		<ResourceTreeItem
@@ -98,7 +111,12 @@ function CharacterResourceTreeItem({
 				characterId: character._id,
 				visible: character.visible,
 			})}
-			icon={<CharacterImage character={character} className="overflow-clip rounded-full" />}
+			icon={
+				<CharacterImage
+					character={character}
+					className="overflow-clip rounded-full"
+				/>
+			}
 			delete={async () => {
 				await deleteCharacter({ id: character._id })
 			}}

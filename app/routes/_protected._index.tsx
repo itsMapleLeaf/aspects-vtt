@@ -43,7 +43,11 @@ export default function RoomListRoute() {
 							</li>
 						))}
 					</ul>
-					<Button icon={<LucidePlus />} text="Create Room" onClick={() => submit()} />
+					<Button
+						icon={<LucidePlus />}
+						text="Create Room"
+						onClick={() => submit()}
+					/>
 				</main>
 			}
 		</div>

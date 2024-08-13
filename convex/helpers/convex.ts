@@ -6,7 +6,9 @@ import type { QueryCtx } from "../_generated/server.js"
 
 export type Branded<T> = string & { _: T }
 
-export function nullish<V extends Validator<unknown, "required", string>>(validator: V) {
+export function nullish<V extends Validator<unknown, "required", string>>(
+	validator: V,
+) {
 	return v.optional(v.union(v.null(), validator))
 }
 

@@ -10,7 +10,8 @@ const attributes = mapValues(
 			aspect: "fire" as const,
 		},
 		sense: {
-			description: "Perception, environmental awareness, focus, mental resilience.",
+			description:
+				"Perception, environmental awareness, focus, mental resilience.",
 			aspect: "water" as const,
 		},
 		mobility: {

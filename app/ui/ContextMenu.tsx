@@ -1,7 +1,17 @@
 import * as Ariakit from "@ariakit/react"
-import { type ComponentProps, createContext, use, useEffect, useRef, useState } from "react"
+import {
+	type ComponentProps,
+	createContext,
+	use,
+	useEffect,
+	useRef,
+	useState,
+} from "react"
 import { Vector } from "../../common/Vector.ts"
-import { createStrictContext, useStrictContext } from "../../common/react/strictContext.tsx"
+import {
+	createStrictContext,
+	useStrictContext,
+} from "../../common/react/strictContext.tsx"
 import { Menu, MenuItem, MenuPanel } from "./Menu.tsx"
 
 export interface ContextMenuProps extends ComponentProps<typeof Menu> {

@@ -37,11 +37,19 @@ self.addEventListener("message", (event: MessageEvent<GridWorkerMessage>) => {
 
 		context.beginPath()
 
-		for (let x = mod(viewportOffset.x, cellSize); x < canvas.width; x += cellSize) {
+		for (
+			let x = mod(viewportOffset.x, cellSize);
+			x < canvas.width;
+			x += cellSize
+		) {
 			context.moveTo(x + 0.5, 0)
 			context.lineTo(x + 0.5, canvas.height)
 		}
-		for (let y = mod(viewportOffset.y, cellSize); y < canvas.height; y += cellSize) {
+		for (
+			let y = mod(viewportOffset.y, cellSize);
+			y < canvas.height;
+			y += cellSize
+		) {
 			context.moveTo(0, y + 0.5)
 			context.lineTo(canvas.width, y + 0.5)
 		}

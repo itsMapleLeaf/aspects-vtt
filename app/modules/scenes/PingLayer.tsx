@@ -41,7 +41,9 @@ export function PingLayer() {
 		}, pingAnimationDuration)
 	}, [room.ping])
 
-	return HashMap.toEntries(pings).map(([id, ping]) => <PingElement key={id} ping={ping} />)
+	return HashMap.toEntries(pings).map(([id, ping]) => (
+		<PingElement key={id} ping={ping} />
+	))
 }
 
 interface Ping {
@@ -53,7 +55,9 @@ interface Ping {
 function PingElement({ ping }: { ping: Ping }) {
 	const context = useSceneContext()
 
-	const translate = Vector.from(ping.position).times(context.viewport.scale).css.translate()
+	const translate = Vector.from(ping.position)
+		.times(context.viewport.scale)
+		.css.translate()
 
 	const style = {
 		translate,
@@ -69,7 +73,10 @@ function PingElement({ ping }: { ping: Ping }) {
 				className="pointer-events-none absolute -left-6 -top-6 size-12 animate-ping rounded-full bg-primary-700"
 				style={style}
 			/>
-			<div className="pointer-events-none absolute left-0 top-0 animate-out fade-out" style={style}>
+			<div
+				className="pointer-events-none absolute left-0 top-0 animate-out fade-out"
+				style={style}
+			>
 				<p className="-translate-x-1/2 translate-y-12 text-center text-xl/tight font-medium text-primary-700">
 					{ping.name}
 				</p>

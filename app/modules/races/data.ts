@@ -159,7 +159,9 @@ export interface Race {
 	readonly abilities: Record<string, RaceAbility>
 	readonly healthBonus: number
 	readonly resolveBonus: number
-	readonly attributeRollBonuses: Partial<Record<Attribute["id"], { boost: number }>>
+	readonly attributeRollBonuses: Partial<
+		Record<Attribute["id"], { boost: number }>
+	>
 }
 
 export interface RaceAbility {

@@ -3,7 +3,9 @@ import type { FunctionReference, OptionalRestArgs } from "convex/server"
 import { DeleteForm } from "~/ui/DeleteForm.tsx"
 import type { StrictOmit } from "../../../common/types"
 
-export function ConvexDeleteForm<Fn extends FunctionReference<"mutation", "public">>({
+export function ConvexDeleteForm<
+	Fn extends FunctionReference<"mutation", "public">,
+>({
 	mutation,
 	args,
 	...props

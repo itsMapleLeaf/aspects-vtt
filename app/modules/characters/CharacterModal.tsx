@@ -9,7 +9,11 @@ export interface CharacterModalProps
 	character: ApiCharacter
 }
 
-export function CharacterModal({ character, children, ...props }: CharacterModalProps) {
+export function CharacterModal({
+	character,
+	children,
+	...props
+}: CharacterModalProps) {
 	return (
 		<Modal {...props}>
 			{children}

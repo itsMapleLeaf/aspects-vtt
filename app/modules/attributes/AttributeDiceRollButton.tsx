@@ -11,7 +11,12 @@ import type { PartialKeys } from "../../../common/types.ts"
 import { api } from "../../../convex/_generated/api"
 import { Button, type ButtonProps } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
-import { Popover, PopoverDismiss, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
+import {
+	Popover,
+	PopoverDismiss,
+	PopoverPanel,
+	PopoverTrigger,
+} from "../../ui/Popover.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useMutationAction } from "../convex/hooks.ts"
@@ -33,13 +38,17 @@ export function AttributeDiceRollButton({
 	const [boostCount, setBoostCount] = useState(0)
 	const [snagCount, setSnagCount] = useState(0)
 	const [pushYourself, setPushYourself] = useState(false)
-	const [, rollAttribute] = useMutationAction(api.characters.functions.rollAttribute)
+	const [, rollAttribute] = useMutationAction(
+		api.characters.functions.rollAttribute,
+	)
 	const [, updateCharacter] = useMutationAction(api.characters.functions.update)
 	const { _id: roomId } = useRoom()
 
 	const attributeDie =
 		hasLength(characters, 1) && characters[0].permission === "full" ?
-			getCharacterAttributeDiceKind(normalizeAttributeValue(characters[0][attribute]))
+			getCharacterAttributeDiceKind(
+				normalizeAttributeValue(characters[0][attribute]),
+			)
 		:	undefined
 
 	return (
@@ -58,7 +67,12 @@ export function AttributeDiceRollButton({
 				/>
 				<div className="text-sm">{attributeDie?.name}</div>
 			</div>
-			<PopoverPanel portal gutter={8} unmountOnHide className="flex flex-col p-2 gap-2">
+			<PopoverPanel
+				portal
+				gutter={8}
+				unmountOnHide
+				className="flex flex-col p-2 gap-2"
+			>
 				<div className="flex gap-current *:flex-1">
 					<FormField label="Boost Dice">
 						<CounterInput value={boostCount} onChange={setBoostCount} />

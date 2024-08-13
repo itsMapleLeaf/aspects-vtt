@@ -9,7 +9,8 @@ import type { Nullish } from "../../../common/types.js"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel"
 
-export interface ApiImageProps extends ClassSlotProps<"wrapper" | "image", ComponentProps<"div">> {
+export interface ApiImageProps
+	extends ClassSlotProps<"wrapper" | "image", ComponentProps<"div">> {
 	imageId: Nullish<Id<"images">>
 	fallback?: ReactElement
 }
@@ -28,7 +29,11 @@ export function ApiImage({
 	)
 	const classes = resolveClasses(className, "wrapper")
 	return (
-		<div {...props} className={twMerge("*:size-full", classes.wrapper)} ref={ref}>
+		<div
+			{...props}
+			className={twMerge("*:size-full", classes.wrapper)}
+			ref={ref}
+		>
 			{imageId != null && url === undefined ?
 				<Loading />
 			: url == null ?

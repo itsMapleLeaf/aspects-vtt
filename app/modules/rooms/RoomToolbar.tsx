@@ -1,7 +1,12 @@
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { Button } from "~/ui/Button.tsx"
-import { ModalButton, ModalPanel, ModalPanelContent, ModalProvider } from "~/ui/Modal.tsx"
+import {
+	ModalButton,
+	ModalPanel,
+	ModalPanelContent,
+	ModalProvider,
+} from "~/ui/Modal.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { pluralize } from "../../../common/string.ts"
 import { CharacterRestForm } from "../characters/CharacterRestForm.tsx"
@@ -79,7 +84,11 @@ export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 			</RoomOwnerOnly>
 
 			<ToolbarModal icon={<Lucide.HelpCircle />} tooltip="Help">
-				<ModalPanel title="Quick Reference" className="max-w-screen-md" fullHeight>
+				<ModalPanel
+					title="Quick Reference"
+					className="max-w-screen-md"
+					fullHeight
+				>
 					<ModalPanelContent>
 						<QuickReference />
 					</ModalPanelContent>
@@ -130,7 +139,9 @@ function ToolbarPopover({
 }) {
 	return (
 		<Popover>
-			<PopoverTrigger render={<ToolbarButton icon={icon} tooltip={tooltip} />} />
+			<PopoverTrigger
+				render={<ToolbarButton icon={icon} tooltip={tooltip} />}
+			/>
 			<PopoverPanel gutter={16}>{children}</PopoverPanel>
 		</Popover>
 	)
@@ -194,7 +205,11 @@ function AspectArtStats() {
 
 	type Modifier = (typeof modifiers)[number]
 
-	const [addedModifiers, addedModifiersActions] = useMap<Modifier["name"], number, number>({
+	const [addedModifiers, addedModifiersActions] = useMap<
+		Modifier["name"],
+		number,
+		number
+	>({
 		fallback: () => 0,
 	})
 
@@ -210,7 +225,9 @@ function AspectArtStats() {
 					key={mod.name}
 					{...mod}
 					added={addedModifiers.get(mod.name) ?? 0}
-					onAddedChange={(value) => addedModifiersActions.set(mod.name, Math.max(value, 0))}
+					onAddedChange={(value) =>
+						addedModifiersActions.set(mod.name, Math.max(value, 0))
+					}
 				/>
 			))}
 
@@ -261,7 +278,8 @@ function ModifierRow({
 					</div>
 					<p className="px-0.5 text-lg text-primary-900">{description}</p>
 					<p className="px-0.5 text-sm font-bold uppercase tracking-wider text-primary-800">
-						{cost} {pluralize("point", cost)} • <span className="inline-block">{metric}</span>
+						{cost} {pluralize("point", cost)} •{" "}
+						<span className="inline-block">{metric}</span>
 					</p>
 				</div>
 			</div>
@@ -302,12 +320,16 @@ function ModifierRow({
 	)
 }
 
-function useMap<Key, Value, Fallback = undefined>(options?: { fallback?: () => Fallback }) {
+function useMap<Key, Value, Fallback = undefined>(options?: {
+	fallback?: () => Fallback
+}) {
 	const [state, setState] = useState<ReadonlyMap<Key, Value>>(new Map())
 
 	const map = {
 		get(key: Key) {
-			return state.has(key) ? (state.get(key) as Value) : (options?.fallback?.() as Fallback)
+			return state.has(key) ?
+					(state.get(key) as Value)
+				:	(options?.fallback?.() as Fallback)
 		},
 		values() {
 			return state.values()
@@ -325,7 +347,9 @@ function useMap<Key, Value, Fallback = undefined>(options?: { fallback?: () => F
 			setState((state) => new Map(new Map(state).set(key, value)))
 		},
 		remove(key: Key) {
-			setState((state) => new Map(new Map([...state].filter(([k]) => k !== key))))
+			setState(
+				(state) => new Map(new Map([...state].filter(([k]) => k !== key))),
+			)
 		},
 		clear() {
 			setState(new Map())

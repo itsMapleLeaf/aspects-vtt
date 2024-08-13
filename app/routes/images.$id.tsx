@@ -31,7 +31,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 async function processApiImage(id: string, request: Request, url: URL) {
-	const apiImageUrl = new URL("/image", clientEnv.VITE_CONVEX_URL.replace(/\.cloud\/*$/, ".site"))
+	const apiImageUrl = new URL(
+		"/image",
+		clientEnv.VITE_CONVEX_URL.replace(/\.cloud\/*$/, ".site"),
+	)
 	apiImageUrl.searchParams.set("id", id)
 
 	const response = await fetch(apiImageUrl.href)
@@ -42,7 +45,14 @@ async function processApiImage(id: string, request: Request, url: URL) {
 		const areaParamSchema = z
 			.string()
 			.transform((value) => value.split(",").map(Number))
-			.pipe(z.tuple([z.number().int(), z.number().int(), z.number().int(), z.number().int()]))
+			.pipe(
+				z.tuple([
+					z.number().int(),
+					z.number().int(),
+					z.number().int(),
+					z.number().int(),
+				]),
+			)
 
 		const rect = areaParamSchema.parse(areaParam)
 		data = await cropImage(data, ...rect)
@@ -50,7 +60,13 @@ async function processApiImage(id: string, request: Request, url: URL) {
 	return data
 }
 
-async function cropImage(input: Uint8Array, x: number, y: number, width: number, height: number) {
+async function cropImage(
+	input: Uint8Array,
+	x: number,
+	y: number,
+	width: number,
+	height: number,
+) {
 	const image = sharp(input)
 	const meta = await image.metadata()
 

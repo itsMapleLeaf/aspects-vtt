@@ -44,7 +44,11 @@ export default function GuideLayout() {
 }
 
 function GuideNav() {
-	return <nav className="flex flex-col">{/* todo: generate this from headers */}</nav>
+	return (
+		<nav className="flex flex-col">
+			{/* todo: generate this from headers */}
+		</nav>
+	)
 }
 
 function ParallaxBanner() {
