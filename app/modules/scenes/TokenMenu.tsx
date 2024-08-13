@@ -3,12 +3,12 @@ import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { createPortal } from "react-dom"
-import { unwrap } from "~/helpers/errors.ts"
+import { Rect } from "../../../common/Rect.ts"
+import { Vector } from "../../../common/Vector.ts"
+import { unwrap } from "../../../common/errors.ts"
+import { randomItem } from "../../../common/random.ts"
+import { useFilter } from "../../../common/react/hooks.ts"
 import { api } from "../../../convex/_generated/api"
-import { Rect } from "../../helpers/Rect.ts"
-import { Vector } from "../../helpers/Vector.ts"
-import { randomItem } from "../../helpers/random.ts"
-import { useFilter } from "../../helpers/react/hooks.ts"
 import { Button } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
 import { Menu, MenuButton, MenuPanel } from "../../ui/Menu.tsx"
@@ -23,18 +23,14 @@ import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
-import {
-	useCharacterUpdatePermission,
-	useOwnedCharacters,
-} from "../characters/hooks.ts"
+import { useCharacterUpdatePermission, useOwnedCharacters } from "../characters/hooks.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function TokenMenu() {
-	const { scene, viewport, tokenSelectStore, tokenDragOffset, selectedTokens } =
-		useSceneContext()
+	const { scene, viewport, tokenSelectStore, tokenDragOffset, selectedTokens } = useSceneContext()
 
 	let anchor = Rect.from({
 		topLeft: selectedTokens
@@ -43,9 +39,7 @@ export function TokenMenu() {
 		bottomRight: selectedTokens
 			.map((it) => {
 				if (it.character)
-					return Vector.from(it.position)
-						.roundedTo(scene.cellSize)
-						.plus(scene.cellSize)
+					return Vector.from(it.position).roundedTo(scene.cellSize).plus(scene.cellSize)
 				if (it.area)
 					return Vector.from(it.position)
 						.roundedTo(scene.cellSize)
@@ -109,8 +103,7 @@ export function TokenMenu() {
 }
 
 function TokenMenuContent() {
-	const { tokenSelectStore, selectedTokens: selectedTokensInput } =
-		useSceneContext()
+	const { tokenSelectStore, selectedTokens: selectedTokensInput } = useSceneContext()
 	const room = useRoom()
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
@@ -139,23 +132,12 @@ function TokenMenuContent() {
 					{selectionHasCharacters && (
 						<Menu placement="top">
 							<MenuButton
-								render={
-									<Button
-										appearance="clear"
-										tooltip="Status"
-										icon={<Lucide.HeartPulse />}
-									/>
-								}
+								render={<Button appearance="clear" tooltip="Status" icon={<Lucide.HeartPulse />} />}
 							/>
-							<MenuPanel
-								className={translucentPanel("max-w-[360px] p-2")}
-								gutter={16}
-							>
+							<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
 								{singleSelectedCharacter && hasPermissions && (
 									<div className="flex gap-2 *:flex-1 empty:hidden">
-										<CharacterStatusFields
-											character={singleSelectedCharacter}
-										/>
+										<CharacterStatusFields character={singleSelectedCharacter} />
 									</div>
 								)}
 								<div className="flex gap-[inherit] *:flex-1 empty:hidden">
@@ -169,9 +151,7 @@ function TokenMenuContent() {
 								</div>
 								{singleSelectedCharacter && (
 									<FormField label="Conditions">
-										<CharacterConditionsListInput
-											character={singleSelectedCharacter}
-										/>
+										<CharacterConditionsListInput character={singleSelectedCharacter} />
 									</FormField>
 								)}
 							</MenuPanel>
@@ -181,25 +161,14 @@ function TokenMenuContent() {
 					{selectionHasCharacters && (
 						<Menu placement="top">
 							<MenuButton
-								render={
-									<Button
-										appearance="clear"
-										tooltip="Skills"
-										icon={<Lucide.Target />}
-									/>
-								}
+								render={<Button appearance="clear" tooltip="Skills" icon={<Lucide.Target />} />}
 							/>
-							<MenuPanel
-								className={translucentPanel("max-w-[360px] p-2")}
-								gutter={16}
-							>
+							<MenuPanel className={translucentPanel("max-w-[360px] p-2")} gutter={16}>
 								{singleSelectedCharacter && (
 									<div className={panel()}>
 										<ScrollArea className="max-h-[360px]">
 											<div className="p-3">
-												<CharacterAbilityList
-													character={singleSelectedCharacter}
-												/>
+												<CharacterAbilityList character={singleSelectedCharacter} />
 											</div>
 										</ScrollArea>
 									</div>
@@ -208,26 +177,16 @@ function TokenMenuContent() {
 						</Menu>
 					)}
 
-					{selectionHasCharacters &&
-						(ownedCharacters.length > 0 || room.isOwner) && (
-							<Menu placement="top">
-								<MenuButton
-									render={
-										<Button
-											appearance="clear"
-											tooltip="Attack"
-											icon={<Lucide.Swords />}
-										/>
-									}
-								/>
-								<MenuPanel
-									className={translucentPanel("max-w-[360px]")}
-									gutter={16}
-								>
-									<CharacterAttackForm characters={selectedCharacters} />
-								</MenuPanel>
-							</Menu>
-						)}
+					{selectionHasCharacters && (ownedCharacters.length > 0 || room.isOwner) && (
+						<Menu placement="top">
+							<MenuButton
+								render={<Button appearance="clear" tooltip="Attack" icon={<Lucide.Swords />} />}
+							/>
+							<MenuPanel className={translucentPanel("max-w-[360px]")} gutter={16}>
+								<CharacterAttackForm characters={selectedCharacters} />
+							</MenuPanel>
+						</Menu>
+					)}
 
 					{singleSelectedCharacter && (
 						<CharacterModal character={singleSelectedCharacter}>
@@ -243,18 +202,9 @@ function TokenMenuContent() {
 					{singleSelectedCharacter && hasPermissions && (
 						<Menu placement="top">
 							<MenuButton
-								render={
-									<Button
-										appearance="clear"
-										tooltip="Notes"
-										icon={<Lucide.NotebookPen />}
-									/>
-								}
+								render={<Button appearance="clear" tooltip="Notes" icon={<Lucide.NotebookPen />} />}
 							/>
-							<MenuPanel
-								className={translucentPanel("w-[360px] p-2")}
-								gutter={16}
-							>
+							<MenuPanel className={translucentPanel("w-[360px] p-2")} gutter={16}>
 								<CharacterNotesFields character={singleSelectedCharacter} />
 							</MenuPanel>
 						</Menu>
@@ -275,43 +225,39 @@ function TokenMenuContent() {
 						/>
 					)}
 
-					{room.isOwner &&
-						room.currentScene &&
-						selectedTokens.some((it) => !it.visible) && (
-							<Button
-								appearance="clear"
-								tooltip="Show token"
-								icon={<Lucide.Image />}
-								onClick={() => {
-									for (const token of selectedTokens) {
-										updateToken({
-											sceneId: unwrap(room.currentScene),
-											key: token.key,
-											visible: true,
-										})
-									}
-								}}
-							/>
-						)}
+					{room.isOwner && room.currentScene && selectedTokens.some((it) => !it.visible) && (
+						<Button
+							appearance="clear"
+							tooltip="Show token"
+							icon={<Lucide.Image />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									updateToken({
+										sceneId: unwrap(room.currentScene),
+										key: token.key,
+										visible: true,
+									})
+								}
+							}}
+						/>
+					)}
 
-					{room.isOwner &&
-						room.currentScene &&
-						selectedTokens.some((it) => it.visible) && (
-							<Button
-								appearance="clear"
-								tooltip="Hide token"
-								icon={<Lucide.ImageOff />}
-								onClick={() => {
-									for (const token of selectedTokens) {
-										updateToken({
-											sceneId: unwrap(room.currentScene),
-											key: token.key,
-											visible: false,
-										})
-									}
-								}}
-							/>
-						)}
+					{room.isOwner && room.currentScene && selectedTokens.some((it) => it.visible) && (
+						<Button
+							appearance="clear"
+							tooltip="Hide token"
+							icon={<Lucide.ImageOff />}
+							onClick={() => {
+								for (const token of selectedTokens) {
+									updateToken({
+										sceneId: unwrap(room.currentScene),
+										key: token.key,
+										visible: false,
+									})
+								}
+							}}
+						/>
+					)}
 
 					{room.isOwner && selectedCharacters.some((it) => !it.nameVisible) && (
 						<Button
@@ -365,10 +311,7 @@ function TokenMenuContent() {
 			{selectedCharacters.some((it) => it.permission === "full") && (
 				<>
 					<hr className="w-full border-primary-400" />
-					<AttributeDiceRollButtonGrid
-						className="gap-[inherit]"
-						characters={selectedCharacters}
-					/>
+					<AttributeDiceRollButtonGrid className="gap-[inherit]" characters={selectedCharacters} />
 				</>
 			)}
 		</div>

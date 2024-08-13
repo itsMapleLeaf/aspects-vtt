@@ -4,27 +4,18 @@ import type { FunctionReturnType } from "convex/server"
 import { formatDistanceToNow } from "date-fns"
 import { HelpCircle } from "lucide-react"
 import { Fragment, useEffect } from "react"
+import { chunk } from "../../../common/array.ts"
 import { api } from "../../../convex/_generated/api.js"
-import { chunk } from "../../helpers/array.ts"
 import { TranslucentPanel } from "../../ui/Panel.tsx"
 import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { panel } from "../../ui/styles.ts"
 import { hasFullCharacterPermissions } from "../characters/helpers.ts"
-import {
-	type DiceStat,
-	diceKinds,
-	diceKindsByName,
-	diceStats,
-} from "../dice/data.tsx"
+import { type DiceStat, diceKinds, diceKindsByName, diceStats } from "../dice/data.tsx"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 
 type ApiMessage = FunctionReturnType<typeof api.messages.functions.list>[number]
 
-export function MessageList({
-	onMessageAdded,
-}: {
-	onMessageAdded: () => void
-}) {
+export function MessageList({ onMessageAdded }: { onMessageAdded: () => void }) {
 	const room = useRoom()
 	const messages = useQuery(api.messages.functions.list, { roomId: room._id })
 	const [animateRef] = useAutoAnimate()
@@ -134,8 +125,7 @@ function DiceRollSummary({ roll }: { roll: ApiDiceRoll }) {
 	const statValues = new Map<DiceStat, number>()
 	for (const die of roll.dice) {
 		const kind = diceKindsByName.get(die.name)
-		for (const [stat, value] of kind?.faces[die.result - 1]?.modifyStats ??
-			[]) {
+		for (const [stat, value] of kind?.faces[die.result - 1]?.modifyStats ?? []) {
 			statValues.set(stat, (statValues.get(stat) ?? 0) + value)
 		}
 	}
@@ -182,17 +172,11 @@ function DiceRollIcon({ die }: { die: ApiDiceRoll["dice"][number] }) {
 	const face = kind?.faces[die.result - 1]
 	return (
 		kind == null ?
-			<Tooltip
-				text={`Unknown dice type "${die.name}"`}
-				className="flex-center-col"
-			>
+			<Tooltip text={`Unknown dice type "${die.name}"`} className="flex-center-col">
 				<HelpCircle />
 			</Tooltip>
 		: face == null ?
-			<Tooltip
-				text={`Unknown face "${die.result}" on ${die.name}`}
-				className="flex-center-col"
-			>
+			<Tooltip text={`Unknown face "${die.result}" on ${die.name}`} className="flex-center-col">
 				<HelpCircle />
 			</Tooltip>
 		:	<face.Component />
@@ -200,18 +184,15 @@ function DiceRollIcon({ die }: { die: ApiDiceRoll["dice"][number] }) {
 }
 
 function MessageContent({ content }: { content: string }) {
-	return chunk(content.split(/(<@[\da-z]+>)/gi), 2).map(
-		([text, mention], index) => {
-			const characterId =
-				mention ? mention.slice(2, mention.length - 1) : undefined
-			return (
-				<Fragment key={index}>
-					<span>{text}</span>
-					{characterId && <Mention characterId={characterId} />}
-				</Fragment>
-			)
-		},
-	)
+	return chunk(content.split(/(<@[\da-z]+>)/gi), 2).map(([text, mention], index) => {
+		const characterId = mention ? mention.slice(2, mention.length - 1) : undefined
+		return (
+			<Fragment key={index}>
+				<span>{text}</span>
+				{characterId && <Mention characterId={characterId} />}
+			</Fragment>
+		)
+	})
 }
 
 function Mention({ characterId }: { characterId: string }) {
@@ -225,9 +206,7 @@ function Mention({ characterId }: { characterId: string }) {
 				// todo: select the token on the map
 			}}
 		>
-			{character && hasFullCharacterPermissions(character) ?
-				character.name
-			:	"???"}
+			{character && hasFullCharacterPermissions(character) ? character.name : "???"}
 		</button>
 	)
 }

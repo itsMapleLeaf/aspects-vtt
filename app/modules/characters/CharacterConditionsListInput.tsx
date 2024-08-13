@@ -5,11 +5,11 @@ import * as Lucide from "lucide-react"
 import { matchSorter } from "match-sorter"
 import * as React from "react"
 import { flushSync } from "react-dom"
+import { unwrap } from "../../../common/errors.ts"
+import { randomItem } from "../../../common/random.ts"
+import { titleCase } from "../../../common/string.ts"
 import { api } from "../../../convex/_generated/api"
 import type { ApiCharacterCondition } from "../../../convex/characters/types.ts"
-import { unwrap } from "../../helpers/errors.ts"
-import { randomItem } from "../../helpers/random.ts"
-import { titleCase } from "../../helpers/string.ts"
 import { Button } from "../../ui/Button.tsx"
 import { Input } from "../../ui/Input.tsx"
 import { MenuItem, MenuPanel } from "../../ui/Menu.tsx"
@@ -52,14 +52,8 @@ const conditionPresets: ApiCharacterCondition[] = [
 	},
 ]
 
-export function CharacterConditionsListInput({
-	character,
-}: {
-	character: ApiCharacter
-}) {
-	const updateConditions = useMutation(
-		api.characters.functions.updateConditions,
-	)
+export function CharacterConditionsListInput({ character }: { character: ApiCharacter }) {
+	const updateConditions = useMutation(api.characters.functions.updateConditions)
 
 	return (
 		<div className="flex flex-col gap-1.5">
@@ -67,10 +61,7 @@ export function CharacterConditionsListInput({
 				<ul className="flex flex-wrap gap-1.5">
 					{character.conditions.map((condition) => (
 						<li key={condition.name}>
-							<ConditionBadgeButton
-								character={character}
-								condition={condition}
-							/>
+							<ConditionBadgeButton character={character} condition={condition} />
 						</li>
 					))}
 				</ul>
@@ -79,9 +70,7 @@ export function CharacterConditionsListInput({
 				className="flex gap-2"
 				action={async (formData) => {
 					const name = formData.get("name") as string
-					const presetColor = conditionPresets.find(
-						(it) => it.name === name,
-					)?.color
+					const presetColor = conditionPresets.find((it) => it.name === name)?.color
 
 					await updateConditions({
 						characterId: character._id,
@@ -109,9 +98,7 @@ function AddConditionInput({
 	const [open, setOpen] = React.useState(false)
 	const inputRef = React.useRef<HTMLInputElement>(null)
 
-	const currentConditionNames = new Set(
-		Iterator.from(currentConditions).map((it) => it.name),
-	)
+	const currentConditionNames = new Set(Iterator.from(currentConditions).map((it) => it.name))
 
 	const filteredPresets = matchSorter(
 		conditionPresets.filter((it) => !currentConditionNames.has(it.name)),
@@ -192,9 +179,7 @@ function ConditionBadgeButton({
 	character: ApiCharacter
 	condition: ApiCharacterCondition
 }) {
-	const updateConditions = useMutation(
-		api.characters.functions.updateConditions,
-	)
+	const updateConditions = useMutation(api.characters.functions.updateConditions)
 
 	const [, action, pending] = React.useActionState(async () => {
 		await updateConditions({

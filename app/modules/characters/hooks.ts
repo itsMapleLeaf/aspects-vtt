@@ -1,4 +1,4 @@
-import type { Nullish } from "~/helpers/types.ts"
+import type { Nullish } from "../../../common/types.ts"
 import { useCharacters } from "../rooms/roomContext.tsx"
 import { hasFullCharacterPermissions } from "./helpers.ts"
 import type { ApiCharacter, OwnedApiCharacter } from "./types.ts"

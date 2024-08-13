@@ -1,7 +1,7 @@
 import type { WithoutSystemFields } from "convex/server"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { unwrap } from "~/helpers/errors.ts"
+import { unwrap } from "../common/errors.ts"
 import type { Doc, Id, TableNames } from "./_generated/dataModel"
 import { mutation } from "./api.ts"
 import { Convex, effectMutation } from "./helpers/effect.ts"
@@ -88,29 +88,26 @@ export const createTestRoom = mutation({
 					},
 				]
 
-				const characterDocs = yield* Effect.forEach(
-					characterData,
-					(character) => {
-						return Effect.gen(function* () {
-							const existing = yield* ctx.db
-								.query("characters")
-								.filter((q) => q.eq("name", character.name))
-								.firstOrNull()
+				const characterDocs = yield* Effect.forEach(characterData, (character) => {
+					return Effect.gen(function* () {
+						const existing = yield* ctx.db
+							.query("characters")
+							.filter((q) => q.eq("name", character.name))
+							.firstOrNull()
 
-							let id
-							if (existing) {
-								yield* ctx.db.patch(existing._id, { ...character, roomId })
-								id = existing._id
-							} else {
-								id = yield* ctx.db.insert("characters", {
-									...character,
-									roomId,
-								})
-							}
-							return { ...character, _id: id }
-						})
-					},
-				)
+						let id
+						if (existing) {
+							yield* ctx.db.patch(existing._id, { ...character, roomId })
+							id = existing._id
+						} else {
+							id = yield* ctx.db.insert("characters", {
+								...character,
+								roomId,
+							})
+						}
+						return { ...character, _id: id }
+					})
+				})
 
 				yield* ctx.db.patch(roomId, {
 					combat: {
@@ -130,10 +127,6 @@ export const createTestRoom = mutation({
 	},
 })
 
-function ensureTestingEnv<V, E, S>(
-	effect: Effect.Effect<V, E, S>,
-): Effect.Effect<V, E, S> {
-	return process.env.IS_TEST === "true" ?
-			effect
-		:	Effect.dieMessage("Not in testing environment")
+function ensureTestingEnv<V, E, S>(effect: Effect.Effect<V, E, S>): Effect.Effect<V, E, S> {
+	return process.env.IS_TEST === "true" ? effect : Effect.dieMessage("Not in testing environment")
 }

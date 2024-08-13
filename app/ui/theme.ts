@@ -1,5 +1,5 @@
 import { ColorSpace, OKLCH, parse, sRGB, serialize, to } from "colorjs.io/fn"
-import { lerp } from "../helpers/math.ts"
+import { lerp } from "../../common/math.ts"
 
 ColorSpace.register(OKLCH)
 ColorSpace.register(sRGB)

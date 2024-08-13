@@ -1,15 +1,10 @@
 import { ConvexError, v } from "convex/values"
 import { Console, Effect } from "effect"
 import { Iterator } from "iterator-helpers-polyfill"
-import { pick } from "~/helpers/object.ts"
+import { pick } from "../../common/object.ts"
 import { mutation } from "../_generated/server.js"
 import { getUserFromIdentity } from "../auth.ts"
-import {
-	Convex,
-	effectMutation,
-	effectQuery,
-	withQueryCtx,
-} from "../helpers/effect.js"
+import { Convex, effectMutation, effectQuery, withQueryCtx } from "../helpers/effect.js"
 import { createMessages } from "./helpers.ts"
 import { diceInputValidator } from "./types.ts"
 
@@ -33,18 +28,12 @@ export const list = effectQuery({
 						const user = yield* Effect.fromNullable(message.user).pipe(
 							Effect.flatMap(Convex.db.get),
 							Effect.map((user) => pick(user, ["name", "avatarUrl"])),
-							Effect.catchTag("NoSuchElementException", () =>
-								Effect.succeed(null),
-							),
-							Effect.catchTag("ConvexDocNotFoundError", () =>
-								Effect.succeed(null),
-							),
+							Effect.catchTag("NoSuchElementException", () => Effect.succeed(null)),
+							Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
 						)
 						return { ...message, user }
 					}).pipe(
-						Effect.tapError((cause) =>
-							Console.warn("message failed", message, cause, message),
-						),
+						Effect.tapError((cause) => Console.warn("message failed", message, cause, message)),
 					),
 				),
 			)

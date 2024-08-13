@@ -1,20 +1,12 @@
 import { Focusable } from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import * as React from "react"
-import {
-	createStrictContext,
-	useStrictContext,
-} from "../helpers/react/strictContext.tsx"
-import type { StrictOmit } from "../helpers/types.ts"
+import { createStrictContext, useStrictContext } from "../../common/react/strictContext.tsx"
+import type { StrictOmit } from "../../common/types.ts"
 import { Button } from "./Button.tsx"
 import { FormField, FormLayout } from "./Form.tsx"
 import { Input } from "./Input.tsx"
-import {
-	ModalActions,
-	ModalPanel,
-	ModalPanelContent,
-	ModalProvider,
-} from "./Modal.tsx"
+import { ModalActions, ModalPanel, ModalPanelContent, ModalProvider } from "./Modal.tsx"
 
 interface PromptState {
 	title: string

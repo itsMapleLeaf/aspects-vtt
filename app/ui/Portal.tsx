@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react"
 import ReactDOM from "react-dom"
-import type { Nullish } from "~/helpers/types.ts"
+import type { Nullish } from "../../common/types"
 
 export function Portal({
 	children,

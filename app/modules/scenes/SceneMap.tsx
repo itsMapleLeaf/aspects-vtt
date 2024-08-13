@@ -2,10 +2,10 @@ import { useGesture, useWheel } from "@use-gesture/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import * as React from "react"
 import { useState } from "react"
-import { Vector } from "~/helpers/Vector.ts"
-import { jsonTextParser } from "~/helpers/json.ts"
-import { Rect } from "../../helpers/Rect.ts"
-import { randomItem } from "../../helpers/random.ts"
+import { Rect } from "../../../common/Rect.ts"
+import { Vector } from "../../../common/Vector.ts"
+import { jsonTextParser } from "../../../common/json.ts"
+import { randomItem } from "../../../common/random.ts"
 import { DragSelectArea } from "../../ui/DragSelect.tsx"
 import { RectDrawArea } from "../../ui/RectDrawArea.tsx"
 import { getApiImageUrl } from "../api-images/helpers.ts"
@@ -34,10 +34,7 @@ export function SceneMap({ store }: { store: RoomToolbarStore }) {
 							<RectTokenDrawArea onTokenAdded={store.activateSelectTool}>
 								<TokenElementLayer />
 							</RectTokenDrawArea>
-						:	<DragSelectArea
-								className="absolute inset-0"
-								{...tokenSelectStore.areaProps()}
-							>
+						:	<DragSelectArea className="absolute inset-0" {...tokenSelectStore.areaProps()}>
 								<TokenElementLayer />
 							</DragSelectArea>
 						}
@@ -62,10 +59,7 @@ function WheelHandler({ children }: { children: React.ReactNode }) {
 			return
 		}
 
-		context.viewport.zoom(-state.delta[1], [
-			state.event.clientX,
-			state.event.clientY,
-		])
+		context.viewport.zoom(-state.delta[1], [state.event.clientX, state.event.clientY])
 	}, {})
 
 	return <div {...bind()}>{children}</div>
@@ -133,18 +127,10 @@ function SceneBackground() {
 	const backgroundSize = Vector.from(scene?.backgroundDimensions ?? Vector.zero)
 
 	const clampedTileStart = Vector.bottomRightMost(tileStart, Vector.zero)
-	const clampedTileEnd = Vector.topLeftMost(
-		tileEnd,
-		backgroundSize.dividedBy(tileSize).ceiling,
-	)
+	const clampedTileEnd = Vector.topLeftMost(tileEnd, backgroundSize.dividedBy(tileSize).ceiling)
 
-	const tilePositions = Iterator.range(
-		clampedTileStart.x,
-		clampedTileEnd.x,
-	).flatMap((x) =>
-		Iterator.range(clampedTileStart.y, clampedTileEnd.y).map((y) =>
-			Vector.from(x, y),
-		),
+	const tilePositions = Iterator.range(clampedTileStart.x, clampedTileEnd.x).flatMap((x) =>
+		Iterator.range(clampedTileStart.y, clampedTileEnd.y).map((y) => Vector.from(x, y)),
 	)
 
 	return (
@@ -225,9 +211,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 					.mapPositionFromViewportPosition(event.clientX, event.clientY)
 					.floorTo(cellSize).xy
 
-				const existing = tokens.find(
-					(it) => it.character?._id === data.characterId,
-				)
+				const existing = tokens.find((it) => it.character?._id === data.characterId)
 				if (existing) {
 					updateToken({
 						key: existing.key,
@@ -274,9 +258,7 @@ function RectTokenDrawArea({
 				.plus(viewport.offset),
 		})
 
-	const gridSize = gridSnappedPreviewArea?.size.dividedBy(
-		scene.cellSize * viewport.scale,
-	).rounded
+	const gridSize = gridSnappedPreviewArea?.size.dividedBy(scene.cellSize * viewport.scale).rounded
 
 	if (!currentScene) return null
 
@@ -296,9 +278,7 @@ function RectTokenDrawArea({
 					.minus(viewport.offset)
 					.dividedBy(viewport.scale).xy
 
-				const size = gridSnappedPreviewArea.size
-					.dividedBy(viewport.scale)
-					.toSize()
+				const size = gridSnappedPreviewArea.size.dividedBy(viewport.scale).toSize()
 
 				addToken({
 					sceneId: currentScene,
@@ -306,14 +286,7 @@ function RectTokenDrawArea({
 					position,
 					area: {
 						...size,
-						color: randomItem([
-							"red",
-							"orange",
-							"yellow",
-							"green",
-							"blue",
-							"purple",
-						]),
+						color: randomItem(["red", "orange", "yellow", "green", "blue", "purple"]),
 					},
 				})
 				onTokenAdded?.()

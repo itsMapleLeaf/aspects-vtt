@@ -2,12 +2,12 @@ import { Link, useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import { LucideHome, LucidePlus } from "lucide-react"
 import { $path } from "remix-routes"
-import { usePendingDelay } from "~/helpers/react/hooks.ts"
 import { useSafeAction } from "~/modules/convex/hooks.ts"
 import { AppHeader } from "~/ui/AppHeader.tsx"
 import { Button } from "~/ui/Button.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { panel } from "~/ui/styles.ts"
+import { usePendingDelay } from "../../common/react/hooks.js"
 import { api } from "../../convex/_generated/api.js"
 
 export default function RoomListRoute() {
@@ -43,11 +43,7 @@ export default function RoomListRoute() {
 							</li>
 						))}
 					</ul>
-					<Button
-						icon={<LucidePlus />}
-						text="Create Room"
-						onClick={() => submit()}
-					/>
+					<Button icon={<LucidePlus />} text="Create Room" onClick={() => submit()} />
 				</main>
 			}
 		</div>

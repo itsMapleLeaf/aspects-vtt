@@ -1,5 +1,5 @@
 import { Iterator } from "iterator-helpers-polyfill"
-import { unwrap } from "../../app/helpers/errors.ts"
+import { unwrap } from "../../common/errors.ts"
 import type { DiceInput } from "../messages/types.ts"
 
 export function* createDiceRolls(inputs: Iterable<DiceInput>) {

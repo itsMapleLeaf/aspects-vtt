@@ -1,4 +1,4 @@
-import { Vector } from "../../helpers/Vector.ts"
+import { Vector } from "../../../common/Vector.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useCurrentRoomScene } from "./hooks.ts"
 
@@ -16,9 +16,7 @@ export function DistanceLayer() {
 			.roundedTo(scene.cellSize)
 			.times(context.viewport.scale)
 
-		const end = start.plus(
-			context.tokenDragOffset.times(context.viewport.scale),
-		)
+		const end = start.plus(context.tokenDragOffset.times(context.viewport.scale))
 
 		return (
 			<>
@@ -79,14 +77,9 @@ export function DistanceLabelLayer() {
 		if (!token.character) return
 
 		// this game system uses manhattan distance
-		const gridStart = Vector.from(token.position).dividedBy(
-			scene.cellSize,
-		).rounded
-		const gridEnd = gridStart.plus(
-			context.tokenDragOffset.dividedBy(scene.cellSize),
-		).rounded
-		const distance =
-			Math.abs(gridEnd.x - gridStart.x) + Math.abs(gridEnd.y - gridStart.y)
+		const gridStart = Vector.from(token.position).dividedBy(scene.cellSize).rounded
+		const gridEnd = gridStart.plus(context.tokenDragOffset.dividedBy(scene.cellSize)).rounded
+		const distance = Math.abs(gridEnd.x - gridStart.x) + Math.abs(gridEnd.y - gridStart.y)
 
 		return (
 			<div
@@ -102,9 +95,7 @@ export function DistanceLabelLayer() {
 						.css.translate(),
 				}}
 			>
-				<p className="rounded-md bg-black/50 p-2 text-xl/none font-bold text-white">
-					{distance}m
-				</p>
+				<p className="rounded-md bg-black/50 p-2 text-xl/none font-bold text-white">{distance}m</p>
 			</div>
 		)
 	})

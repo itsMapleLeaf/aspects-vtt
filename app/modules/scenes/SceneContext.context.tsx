@@ -1,6 +1,6 @@
 import { createContext } from "react"
-import type { Vector, VectorInput, VectorInputArgs } from "~/helpers/Vector.ts"
 import type { useDragSelectStore } from "~/ui/DragSelect.tsx"
+import type { Vector, VectorInput, VectorInputArgs } from "../../../common/Vector.ts"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 
 interface SceneContextType {
@@ -23,6 +23,4 @@ interface SceneContextType {
 }
 
 // this is in a separate file because vite is weird
-export const SceneContext = createContext<SceneContextType | undefined>(
-	undefined,
-)
+export const SceneContext = createContext<SceneContextType | undefined>(undefined)

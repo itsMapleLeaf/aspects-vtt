@@ -3,8 +3,6 @@ import { useMutation } from "convex/react"
 import { LucideDoorOpen, LucideEye } from "lucide-react"
 import type React from "react"
 import { useEffect } from "react"
-import { loadImage } from "~/helpers/dom/images.ts"
-import type { Overwrite } from "~/helpers/types.ts"
 import { Button } from "~/ui/Button.tsx"
 import { EditableInput } from "~/ui/EditableInput.tsx"
 import { EditableIntegerInput } from "~/ui/EditableIntegerInput.tsx"
@@ -17,6 +15,8 @@ import {
 	type ModalProviderProps,
 	useModalContext,
 } from "~/ui/Modal.tsx"
+import { loadImage } from "../../../common/dom/images.ts"
+import type { Overwrite } from "../../../common/types.ts"
 import { api } from "../../../convex/_generated/api"
 import { ImageUploader } from "../api-images/ImageUploader.tsx"
 import { useMutationAction } from "../convex/hooks.ts"
@@ -26,9 +26,7 @@ import type { ApiScene } from "./types.ts"
 export function SceneEditor({ scene }: { scene: ApiScene }) {
 	const room = useRoom()
 	const updateScene = useMutation(api.scenes.functions.update)
-	const [updateRoomState, updateRoom] = useMutationAction(
-		api.rooms.functions.update,
-	)
+	const [updateRoomState, updateRoom] = useMutationAction(api.rooms.functions.update)
 	const isCurrent = room.currentScene === scene._id
 	const modal = useModalContext()
 
@@ -51,9 +49,7 @@ export function SceneEditor({ scene }: { scene: ApiScene }) {
 					<EditableIntegerInput
 						align="center"
 						value={scene.cellSize}
-						onSubmit={(value) =>
-							updateScene({ id: scene._id, cellSize: value })
-						}
+						onSubmit={(value) => updateScene({ id: scene._id, cellSize: value })}
 					/>
 				</FormField>
 			</FormRow>
@@ -76,9 +72,7 @@ export function SceneEditor({ scene }: { scene: ApiScene }) {
 			<FormRow className="*:flex-1">
 				<Button
 					icon={<LucideEye />}
-					element={
-						<Link to={`?scene=${scene._id}`} onClick={() => modal?.hide()} />
-					}
+					element={<Link to={`?scene=${scene._id}`} onClick={() => modal?.hide()} />}
 				>
 					View scene
 				</Button>
@@ -100,10 +94,7 @@ export function SceneEditorModal({
 	scene,
 	children,
 	...props
-}: { scene: ApiScene } & Overwrite<
-	ModalProviderProps,
-	{ children: React.ReactNode }
->) {
+}: { scene: ApiScene } & Overwrite<ModalProviderProps, { children: React.ReactNode }>) {
 	return (
 		<ModalProvider {...props}>
 			{children}

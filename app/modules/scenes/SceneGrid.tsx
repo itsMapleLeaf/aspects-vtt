@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
-import { useSize } from "../../helpers/dom/useResizeObserver.ts"
-import { unwrap } from "../../helpers/errors.ts"
+import { useSize } from "../../../common/dom/useResizeObserver.ts"
+import { unwrap } from "../../../common/errors.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 import type { GridWorkerMessage } from "./SceneGrid.worker.ts"
 
@@ -24,8 +24,7 @@ export function SceneGrid() {
 	useEffect(() => {
 		const canvas = unwrap(canvasRef.current, "canvas ref not set")
 		if (!offscreenRef.current) {
-			const offscreen = (offscreenRef.current ??=
-				canvas.transferControlToOffscreen())
+			const offscreen = (offscreenRef.current ??= canvas.transferControlToOffscreen())
 			sendMessage({
 				type: "init",
 				canvas: offscreen,
@@ -43,11 +42,6 @@ export function SceneGrid() {
 	}, [scene.cellSize, size, viewport])
 
 	return (
-		<canvas
-			className="absolute inset-0 size-full"
-			width={size.x}
-			height={size.y}
-			ref={canvasRef}
-		/>
+		<canvas className="absolute inset-0 size-full" width={size.x} height={size.y} ref={canvasRef} />
 	)
 }

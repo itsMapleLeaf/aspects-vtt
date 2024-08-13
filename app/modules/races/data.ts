@@ -1,6 +1,6 @@
 import { Brand } from "effect"
-import { mapValues } from "~/helpers/object.ts"
-import { titleCase } from "~/helpers/string.ts"
+import { mapValues } from "../../../common/object.ts"
+import { titleCase } from "../../../common/string.ts"
 import type { Attribute } from "../attributes/data.ts"
 
 export interface RaceInput {
@@ -159,9 +159,7 @@ export interface Race {
 	readonly abilities: Record<string, RaceAbility>
 	readonly healthBonus: number
 	readonly resolveBonus: number
-	readonly attributeRollBonuses: Partial<
-		Record<Attribute["id"], { boost: number }>
-	>
+	readonly attributeRollBonuses: Partial<Record<Attribute["id"], { boost: number }>>
 }
 
 export interface RaceAbility {

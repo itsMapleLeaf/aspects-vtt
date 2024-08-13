@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { validateEnv } from "./helpers/env.ts"
+import { validateEnv } from "../common/env.ts"
 
 export const clientEnv = validateEnv(
 	z.object({

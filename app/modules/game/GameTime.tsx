@@ -1,5 +1,5 @@
-import { unwrap } from "../../helpers/errors.ts"
-import { clamp } from "../../helpers/math.ts"
+import { unwrap } from "../../../common/errors.ts"
+import { clamp } from "../../../common/math.ts"
 
 export interface GameDate {
 	year: number
@@ -25,17 +25,15 @@ export class GameTime {
 	readonly #time
 
 	/**
-	 * @param timestamp The amount in days since the start of the calendar. This
-	 *   is required to prevent mistakes.
+	 * @param timestamp The amount in days since the start of the calendar. This is required to
+	 *   prevent mistakes.
 	 */
 	constructor(timestamp: number | undefined) {
 		this.#time = Math.max(0, timestamp ?? 0)
 	}
 
 	static fromDate({ year, month, day, time }: GameDate) {
-		return (
-			year * GameTime.DaysInYear + month * GameTime.DaysInMonth + day + time
-		)
+		return year * GameTime.DaysInYear + month * GameTime.DaysInMonth + day + time
 	}
 
 	get day() {

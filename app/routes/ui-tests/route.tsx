@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node"
 import { Link, Outlet, useLoaderData } from "@remix-run/react"
-import { titleCase } from "~/helpers/string.ts"
 import { AppHeader } from "~/ui/AppHeader.tsx"
+import { titleCase } from "../../../common/string.ts"
 import { getTestCaseSlugs } from "./test-cases.ts"
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -17,11 +17,7 @@ export default function UiTests() {
 			<div className="flex gap-4">
 				<nav className="flex w-[12rem] flex-col gap-2">
 					{caseSlugs.map((slug) => (
-						<Link
-							key={slug}
-							to={slug}
-							className="text-primary-600 hover:underline"
-						>
+						<Link key={slug} to={slug} className="text-primary-600 hover:underline">
 							{titleCase(slug)}
 						</Link>
 					))}

@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge"
-import { clamp } from "../../helpers/math.ts"
+import { clamp } from "../../../common/math.ts"
 
 export function TokenMeter({
 	value,

@@ -1,6 +1,6 @@
 import * as React from "react"
-import { Rect } from "../helpers/Rect.ts"
-import { setPresentInSet } from "../helpers/iterable.ts"
+import { Rect } from "../../common/Rect.ts"
+import { setPresentInSet } from "../../common/iterable.ts"
 import { RectDrawArea } from "./RectDrawArea.tsx"
 
 export type DragSelectStore<T> = ReturnType<typeof useDragSelectStore<T>>
@@ -8,11 +8,9 @@ export type DragSelectStore<T> = ReturnType<typeof useDragSelectStore<T>>
 const empty: ReadonlySet<never> = new Set()
 
 export function useDragSelectStore<T>() {
-	const [selectedState, setSelectedState] =
-		React.useState<ReadonlySet<T>>(empty)
+	const [selectedState, setSelectedState] = React.useState<ReadonlySet<T>>(empty)
 	const [areaState, setAreaState] = React.useState<Rect>()
-	const [multiSelectState, setMultiSelectState] =
-		React.useState<ReadonlySet<T>>(empty)
+	const [multiSelectState, setMultiSelectState] = React.useState<ReadonlySet<T>>(empty)
 	const [elementRects] = React.useState(() => new Map<T, Rect>())
 
 	const selected = new Set([...selectedState, ...multiSelectState])

@@ -2,16 +2,12 @@ import { getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
-import { uniqueByProperty } from "~/helpers/iterable.ts"
-import { Result } from "../../app/helpers/Result.ts"
-import { omit } from "../../app/helpers/object.ts"
+import { Result } from "../../common/Result.ts"
+import { uniqueByProperty } from "../../common/iterable.ts"
+import { omit } from "../../common/object.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
-import {
-	UnauthorizedError,
-	getUserFromIdentity,
-	getUserFromIdentityEffect,
-} from "../auth.ts"
+import { UnauthorizedError, getUserFromIdentity, getUserFromIdentityEffect } from "../auth.ts"
 import {
 	Convex,
 	MutationCtxService,
@@ -45,9 +41,7 @@ export const get = effectQuery({
 				Effect.forEach((id) =>
 					pipe(
 						Convex.db.get(id),
-						Effect.catchTag("ConvexDocNotFoundError", () =>
-							Effect.succeed(null),
-						),
+						Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
 					),
 				),
 			)
@@ -81,9 +75,7 @@ export const list = query({
 			.withIndex("user", (q) => q.eq("user", user._id))
 			.collect()
 
-		const rooms = await Promise.all(
-			memberships.map((player) => ctx.db.get(player.roomId)),
-		)
+		const rooms = await Promise.all(memberships.map((player) => ctx.db.get(player.roomId)))
 		return Array.from(uniqueByProperty(rooms.filter(Boolean), "_id"))
 	},
 })
@@ -94,8 +86,7 @@ export const create = effectMutation({
 			const slug = generateSlug()
 			return yield* Effect.matchEffect(getRoomBySlug(slug), {
 				onFailure: () => Effect.succeed(slug),
-				onSuccess: () =>
-					Effect.fail(new ConvexError("A room with that slug already exists")),
+				onSuccess: () => Effect.fail(new ConvexError("A room with that slug already exists")),
 			})
 		})
 		return Effect.gen(function* () {
@@ -133,8 +124,7 @@ export const update = mutation({
 			...args,
 			combat: room.data.combat && {
 				...room.data.combat,
-				memberObjects:
-					args.combat?.members ?? room.data.combat.members ?? undefined,
+				memberObjects: args.combat?.members ?? room.data.combat.members ?? undefined,
 			},
 		})
 	},
@@ -162,9 +152,7 @@ export const join = effectMutation({
 			const player = yield* Effect.promise(() => {
 				return ctx.db
 					.query("players")
-					.withIndex("roomId_user", (q) =>
-						q.eq("roomId", args.id).eq("user", user._id),
-					)
+					.withIndex("roomId_user", (q) => q.eq("roomId", args.id).eq("user", user._id))
 					.first()
 			})
 			if (!player) {

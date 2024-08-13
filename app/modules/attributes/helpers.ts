@@ -1,7 +1,7 @@
 import { Brand } from "effect"
-import { clamp } from "~/helpers/math.ts"
-import { randomInt } from "~/helpers/random.ts"
-import type { Nullish } from "~/helpers/types.ts"
+import { clamp } from "../../../common/math.ts"
+import { randomInt } from "../../../common/random.ts"
+import type { Nullish } from "../../../common/types.ts"
 import { statDiceKinds, statDiceKindsByName } from "../dice/data.tsx"
 import { AttributeMax, AttributeMin } from "./constants.ts"
 
@@ -13,10 +13,7 @@ export function getAttributePower(value: number) {
 	return getAttributeDie(value).faces.length
 }
 
-export type NormalizedAttributeValue = Brand.Branded<
-	number,
-	"NormalizedAttributeValue"
->
+export type NormalizedAttributeValue = Brand.Branded<number, "NormalizedAttributeValue">
 const NormalizedAttributeValue = Brand.nominal<NormalizedAttributeValue>()
 
 export function normalizeAttributeValue(value: Nullish<number>) {

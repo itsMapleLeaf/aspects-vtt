@@ -1,11 +1,11 @@
 import { Outlet } from "@remix-run/react"
 import { Suspense, useRef } from "react"
 import banner from "~/assets/banner.webp"
-import { useWindowEvent } from "~/helpers/dom/events.ts"
-import { unwrap } from "~/helpers/errors.ts"
 import { AppHeader } from "~/ui/AppHeader.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
+import { useWindowEvent } from "../../../common/dom/events"
+import { unwrap } from "../../../common/errors"
 
 export default function GuideLayout() {
 	return (
@@ -44,11 +44,7 @@ export default function GuideLayout() {
 }
 
 function GuideNav() {
-	return (
-		<nav className="flex flex-col">
-			{/* todo: generate this from headers */}
-		</nav>
-	)
+	return <nav className="flex flex-col">{/* todo: generate this from headers */}</nav>
 }
 
 function ParallaxBanner() {

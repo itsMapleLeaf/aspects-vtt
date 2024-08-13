@@ -1,6 +1,6 @@
-import { mapValues } from "~/helpers/object.ts"
-import type { ValueOf } from "~/helpers/types.ts"
-import { titleCase } from "../../helpers/string.ts"
+import { mapValues } from "../../../common/object.ts"
+import { titleCase } from "../../../common/string.ts"
+import type { ValueOf } from "../../../common/types.ts"
 import { getAspect } from "../aspects/data.ts"
 
 const attributes = mapValues(
@@ -10,8 +10,7 @@ const attributes = mapValues(
 			aspect: "fire" as const,
 		},
 		sense: {
-			description:
-				"Perception, environmental awareness, focus, mental resilience.",
+			description: "Perception, environmental awareness, focus, mental resilience.",
 			aspect: "water" as const,
 		},
 		mobility: {

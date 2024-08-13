@@ -3,9 +3,9 @@ import * as Lucide from "lucide-react"
 import { isValidElement } from "react"
 import { Fragment } from "react/jsx-runtime"
 import { z } from "zod"
-import { useLocalStorageState } from "~/helpers/dom/useLocalStorage.ts"
 import { Button } from "~/ui/Button.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
+import { useLocalStorageState } from "../../../common/dom/useLocalStorage.ts"
 import { actions } from "./actions.ts"
 
 export function QuickReference() {
@@ -16,24 +16,20 @@ export function QuickReference() {
 			content: (
 				<>
 					<ActionSection title="Push Yourself">
-						Spend <strong>2 resolve</strong> to add one boost die to your roll.
-						You can only do this once per action.
+						Spend <strong>2 resolve</strong> to add one boost die to your roll. You can only do this
+						once per action.
 					</ActionSection>
 					<ActionSection title="Assist">
-						Spend <strong>1 resolve</strong> to add one boost die to an ally's
-						roll. You can only do this once per action. You must describe how
-						you're helping them.
+						Spend <strong>1 resolve</strong> to add one boost die to an ally's roll. You can only do
+						this once per action. You must describe how you're helping them.
 					</ActionSection>
 					<ActionSection title="Rest">
-						Rest in-game and gain 1d4 resolve per hour rested. You cannot make
-						any actions or change locations while resting, but you can play out
-						downtime.
+						Rest in-game and gain 1d4 resolve per hour rested. You cannot make any actions or change
+						locations while resting, but you can play out downtime.
 					</ActionSection>
 					{actions.map((action) => (
 						<Fragment key={action.name}>
-							<ActionSection title={action.name}>
-								{action.description}
-							</ActionSection>
+							<ActionSection title={action.name}>{action.description}</ActionSection>
 							<aside className="my-1 whitespace-pre-line text-pretty text-sm italic text-primary-800 opacity-60">
 								{action.notes}
 							</aside>
@@ -47,10 +43,7 @@ export function QuickReference() {
 			icon: <Lucide.Flame />,
 			content: (
 				<>
-					<p>
-						You can spend points from your aspect art roll to modify it in one
-						of a few ways:
-					</p>
+					<p>You can spend points from your aspect art roll to modify it in one of a few ways:</p>
 					<ActionSection title="Area">
 						<p>Add an area of effect.</p>
 						<p>Cost: 2 points / +3m area size</p>
@@ -84,9 +77,8 @@ export function QuickReference() {
 						<li>If you haven't, describe narratively how you're attacking.</li>
 						<li>Make the appropriate attribute roll.</li>
 						<li>
-							Subtract the target's defense (Strength + Mobility) from the
-							result, and they take that much damage. If the roll is less than
-							the defense, they take no damage.
+							Subtract the target's defense (Strength + Mobility) from the result, and they take
+							that much damage. If the roll is less than the defense, they take no damage.
 						</li>
 					</ol>
 				</>
@@ -102,10 +94,7 @@ export function QuickReference() {
 
 	return (
 		<div className="grid h-full grid-cols-[12rem,1fr]">
-			<TabProvider
-				activeId={activeId}
-				setActiveId={(id) => setActiveId(id ?? null)}
-			>
+			<TabProvider activeId={activeId} setActiveId={(id) => setActiveId(id ?? null)}>
 				<TabList className="flex flex-col p-2 gap-1">
 					{pages.map((page) => (
 						<Tab

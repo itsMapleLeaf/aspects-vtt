@@ -14,7 +14,7 @@
  * 		)
  * 	}
  */
-import type { Overwrite } from "../helpers/types.ts"
+import type { Overwrite } from "../../common/types.ts"
 
 export type ClassSlotProp<Keys extends string> =
 	| Partial<Record<Keys, string>>

@@ -1,7 +1,7 @@
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { parallel } from "~/helpers/async.ts"
-import { pick } from "~/helpers/object.ts"
+import { parallel } from "../../common/async.ts"
+import { pick } from "../../common/object.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { requireDoc } from "../helpers/convex.ts"
@@ -37,9 +37,7 @@ export const get = effectQuery({
 				const user = yield* getCurrentUser()
 				const scene = yield* Convex.db.get(sceneId)
 				const room = yield* Convex.db.get(scene.roomId)
-				return room.owner === user._id || room.currentScene === scene._id ?
-						scene
-					:	null
+				return room.owner === user._id || room.currentScene === scene._id ? scene : null
 			}),
 			Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
 			Effect.catchTag("NotLoggedInError", () => Effect.succeed(null)),
@@ -102,8 +100,10 @@ export const duplicate = mutation({
 		id: v.id("scenes"),
 	},
 	async handler(ctx, args) {
-		const { _id, _creationTime, ...properties } =
-			await requireSceneRoomOwnerOld(ctx, args.id).getValueOrThrow()
+		const { _id, _creationTime, ...properties } = await requireSceneRoomOwnerOld(
+			ctx,
+			args.id,
+		).getValueOrThrow()
 		return await ctx.db.insert("scenes", properties)
 	},
 })

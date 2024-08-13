@@ -1,6 +1,6 @@
 import { startTransition, useState } from "react"
-import { Rect } from "~/helpers/Rect.ts"
 import { Menu, MenuPanel } from "~/ui/Menu.tsx"
+import { Rect } from "../../common/Rect"
 
 export function ContextMenu({
 	trigger,

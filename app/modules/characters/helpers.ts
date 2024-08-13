@@ -1,14 +1,10 @@
 import { Iterator } from "iterator-helpers-polyfill"
 import { $path } from "remix-routes"
-import type { Nullish } from "~/helpers/types.ts"
+import type { Nullish } from "../../../common/types.ts"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { type Skill, SkillId, getAspectSkill } from "../aspect-skills/data.ts"
 import type { NormalizedAttributeValue } from "../attributes/helpers.ts"
-import {
-	type DiceKind,
-	statDiceKinds,
-	statDiceKindsByName,
-} from "../dice/data.tsx"
+import { type DiceKind, statDiceKinds, statDiceKindsByName } from "../dice/data.tsx"
 import { getRace } from "../races/data.ts"
 import type { ApiCharacter, OwnedApiCharacter } from "./types.ts"
 
@@ -16,9 +12,7 @@ export function formatCharacterMention(character: { _id: Id<"characters"> }) {
 	return `<@${character._id}>`
 }
 
-export function getCharacterAttributeDiceKind(
-	value: NormalizedAttributeValue,
-): DiceKind {
+export function getCharacterAttributeDiceKind(value: NormalizedAttributeValue): DiceKind {
 	return statDiceKinds[value - 1] ?? statDiceKindsByName.d4
 }
 
@@ -44,10 +38,7 @@ export function getCharacterFallbackImageUrl(character: {
 				{ race: character.race.toLowerCase() },
 				{
 					seed: String(
-						Iterator.from(character._id).reduce(
-							(total, char) => total + char.charCodeAt(0),
-							0,
-						),
+						Iterator.from(character._id).reduce((total, char) => total + char.charCodeAt(0), 0),
 					),
 				},
 			)

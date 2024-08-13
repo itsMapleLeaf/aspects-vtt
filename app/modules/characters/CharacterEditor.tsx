@@ -1,8 +1,8 @@
 import { z } from "zod"
-import { useLocalStorageState } from "~/helpers/dom/useLocalStorage.ts"
-import { unwrap } from "~/helpers/errors.ts"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { Tabs } from "~/ui/Tabs.tsx"
+import { useLocalStorageState } from "../../../common/dom/useLocalStorage.ts"
+import { unwrap } from "../../../common/errors.ts"
 import { CharacterForm } from "./CharacterForm.tsx"
 import { CharacterInventory } from "./CharacterInventory.tsx"
 import { CharacterSkillsViewer } from "./CharacterSkillsViewer.tsx"
@@ -50,11 +50,7 @@ export function CharacterEditor({ character }: { character: ApiCharacter }) {
 						))}
 					</Tabs.List>
 					{views.map((view) => (
-						<Tabs.Panel
-							key={view.title}
-							id={view.title}
-							className="min-h-0 flex-1 px-2 pb-2"
-						>
+						<Tabs.Panel key={view.title} id={view.title} className="min-h-0 flex-1 px-2 pb-2">
 							{view.content}
 						</Tabs.Panel>
 					))}

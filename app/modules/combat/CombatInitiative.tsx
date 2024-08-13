@@ -8,19 +8,15 @@ import { TranslucentPanel } from "~/ui/Panel.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { ScrollArea } from "~/ui/ScrollArea.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
+import { withMovedItem } from "../../../common/array.ts"
+import { type Nullish, typed } from "../../../common/types.ts"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
-import { withMovedItem } from "../../helpers/array.ts"
-import { type Nullish, typed } from "../../helpers/types.ts"
 import { Button } from "../../ui/Button.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { FormLayout } from "../../ui/Form.tsx"
 import { Select } from "../../ui/Select.tsx"
-import {
-	type Attribute,
-	getAttribute,
-	listAttributes,
-} from "../attributes/data.ts"
+import { type Attribute, getAttribute, listAttributes } from "../attributes/data.ts"
 import { CharacterSearchList } from "../characters/CharacterSearchList.tsx"
 import { queryMutators } from "../convex/helpers.ts"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
@@ -38,31 +34,21 @@ export function CombatInitiative() {
 		roomId: room._id,
 	}) ?? {}
 
-	const moveMember = useMutation(
-		api.rooms.combat.functions.moveMember,
-	).withOptimisticUpdate((store, args) => {
-		for (const entry of queryMutators(
-			store,
-			api.rooms.combat.functions.getCombatMembers,
-		)) {
-			entry.set({
-				...entry.value,
-				members: withMovedItem(
-					entry.value.members,
-					args.fromIndex,
-					args.toIndex,
-				),
-			})
-		}
-	})
+	const moveMember = useMutation(api.rooms.combat.functions.moveMember).withOptimisticUpdate(
+		(store, args) => {
+			for (const entry of queryMutators(store, api.rooms.combat.functions.getCombatMembers)) {
+				entry.set({
+					...entry.value,
+					members: withMovedItem(entry.value.members, args.fromIndex, args.toIndex),
+				})
+			}
+		},
+	)
 
 	const setCurrentMember = useMutation(
 		api.rooms.combat.functions.setCurrentMember,
 	).withOptimisticUpdate((store, args) => {
-		for (const entry of queryMutators(
-			store,
-			api.rooms.combat.functions.getCombatMembers,
-		)) {
+		for (const entry of queryMutators(store, api.rooms.combat.functions.getCombatMembers)) {
 			entry.set({
 				...entry.value,
 				currentMemberId: args.characterId,
@@ -91,8 +77,7 @@ export function CombatInitiative() {
 		return <CombatEmptyState />
 	}
 
-	const isRoundStart =
-		combat.currentRoundNumber === 1 && currentMemberIndex === 0
+	const isRoundStart = combat.currentRoundNumber === 1 && currentMemberIndex === 0
 
 	return (
 		<section className="flex h-full flex-col gap-3">
@@ -108,10 +93,7 @@ export function CombatInitiative() {
 			</p>
 
 			<ScrollArea className="-mx-3 h-[240px]">
-				<ol
-					ref={animateRef}
-					className="divide-y divide-primary-300 px-3 *:py-2"
-				>
+				<ol ref={animateRef} className="divide-y divide-primary-300 px-3 *:py-2">
 					{members?.map((member, index) => (
 						<li key={member.characterId}>
 							<CombatMemberItem
@@ -194,30 +176,22 @@ function AddCombatMemberListbox() {
 	const room = useRoom()
 	const addMember = useMutation(api.rooms.combat.functions.addMember)
 
-	const combatMemberIds = new Set(
-		room.combat?.memberObjects?.map((it) => it.characterId) ?? [],
-	)
+	const combatMemberIds = new Set(room.combat?.memberObjects?.map((it) => it.characterId) ?? [])
 	const tokenIds = new Set(tokens.map((it) => it.characterId).filter(Boolean))
 
 	const validCharacterIds = new Set(
-		characters
-			.map((it) => it._id)
-			.filter((it) => tokenIds.has(it) && !combatMemberIds.has(it)),
+		characters.map((it) => it._id).filter((it) => tokenIds.has(it) && !combatMemberIds.has(it)),
 	)
 
 	return (
 		<CharacterSearchList
 			characters={characters.filter((it) => validCharacterIds.has(it._id))}
-			onSelect={(character) =>
-				addMember({ id: room._id, characterId: character._id })
-			}
+			onSelect={(character) => addMember({ id: room._id, characterId: character._id })}
 		/>
 	)
 }
 
-export function CombatInitiativePanel(
-	props: React.ComponentProps<typeof TranslucentPanel>,
-) {
+export function CombatInitiativePanel(props: React.ComponentProps<typeof TranslucentPanel>) {
 	const room = useRoom()
 
 	if (!room.combat && !room.isOwner) {
@@ -254,9 +228,7 @@ function CombatMemberItem(props: {
 	const content = (
 		<h4 className="text-xl font-light" data-testid="CombatMemberItem:Name">
 			{props.name}{" "}
-			{room.isOwner && !props.nameVisible && (
-				<span className="opacity-50">(hidden)</span>
-			)}
+			{room.isOwner && !props.nameVisible && <span className="opacity-50">(hidden)</span>}
 		</h4>
 	)
 
@@ -268,9 +240,7 @@ function CombatMemberItem(props: {
 		<div
 			className={className}
 			draggable
-			onDragStart={(e) =>
-				e.dataTransfer.setData("text/plain", `${props.index}`)
-			}
+			onDragStart={(e) => e.dataTransfer.setData("text/plain", `${props.index}`)}
 			onDragEnd={(e) => e.preventDefault()}
 			onDragOver={(e) => e.preventDefault()}
 			onDrop={(e) => {
@@ -287,9 +257,7 @@ function CombatMemberItem(props: {
 			<button
 				type="button"
 				className="p-2 opacity-50 transition-opacity hover:opacity-100"
-				onClick={() =>
-					removeMember({ id: room._id, characterId: props.characterId })
-				}
+				onClick={() => removeMember({ id: room._id, characterId: props.characterId })}
 			>
 				<Lucide.X />
 			</button>
@@ -308,10 +276,7 @@ function CombatEmptyState() {
 	})
 
 	return (
-		<EmptyState
-			icon={<Lucide.ListStart />}
-			message="Combat is currently inactive."
-		>
+		<EmptyState icon={<Lucide.ListStart />} message="Combat is currently inactive.">
 			<RoomOwnerOnly>
 				<FormLayout className="w-full p-0">
 					<Select

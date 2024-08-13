@@ -2,9 +2,9 @@ import { useGesture } from "@use-gesture/react"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { twMerge } from "tailwind-merge"
+import { Vector } from "../../../common/Vector.ts"
+import { sortBy } from "../../../common/iterable.ts"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
-import { Vector } from "../../helpers/Vector.ts"
-import { sortBy } from "../../helpers/iterable.ts"
 import { CharacterImage } from "../characters/CharacterImage.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { hasFullCharacterPermissions } from "../characters/helpers.ts"
@@ -41,17 +41,11 @@ export function TokenElementLayer() {
 			<PingLayer />
 			{tokens.map((token) =>
 				token.character ?
-					<CharacterTokenDecoration
-						key={token.key}
-						token={token}
-						character={token.character}
-					/>
+					<CharacterTokenDecoration key={token.key} token={token} character={token.character} />
 				:	null,
 			)}
 			{tokens.map((token) =>
-				token.area ?
-					<AreaSizeLabel key={token.key} token={token} area={token.area} />
-				:	null,
+				token.area ? <AreaSizeLabel key={token.key} token={token} area={token.area} /> : null,
 			)}
 			<DistanceLabelLayer />
 		</div>
@@ -84,9 +78,7 @@ function TokenElement({
 		for (const token of tokens) {
 			if (!tokenSelectStore.isSelected(token.key)) continue
 
-			const position = Vector.from(token.position)
-				.roundedTo(cellSize)
-				.plus(tokenDragOffset).xy
+			const position = Vector.from(token.position).roundedTo(cellSize).plus(tokenDragOffset).xy
 
 			updateToken({
 				sceneId: currentScene,
@@ -111,8 +103,7 @@ function TokenElement({
 				from: [0, 0],
 			},
 			transform: (input) => [
-				...Vector.from(input).minus(viewport.offset).dividedBy(viewport.scale)
-					.tuple,
+				...Vector.from(input).minus(viewport.offset).dividedBy(viewport.scale).tuple,
 			],
 		},
 	)
@@ -131,10 +122,7 @@ function TokenElement({
 					setCharacterModalOpen(true)
 				}}
 			>
-				<div
-					{...tokenSelectStore.selectableProps(token.key)}
-					className="group relative"
-				>
+				<div {...tokenSelectStore.selectableProps(token.key)} className="group relative">
 					<div
 						data-is-current-combat-member={isCurrentCombatMember}
 						className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700"
@@ -149,10 +137,7 @@ function TokenElement({
 					{token.area && (
 						<div
 							className="rounded border-4 border-blue-500 bg-blue-500/30"
-							style={Vector.fromSize(token.area)
-								.roundedTo(cellSize)
-								.times(viewport.scale)
-								.toSize()}
+							style={Vector.fromSize(token.area).roundedTo(cellSize).times(viewport.scale).toSize()}
 						/>
 					)}
 					{token.visible ? null : (
@@ -192,49 +177,37 @@ function CharacterTokenDecoration({
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"
 			style={{ translate }}
 		>
-			<div
-				className="relative"
-				style={Vector.from(cellSize).times(viewport.scale).toSize()}
-			>
+			<div className="relative" style={Vector.from(cellSize).times(viewport.scale).toSize()}>
 				<div className="flex-center absolute inset-x-0 bottom-full pb-2 gap-1.5">
 					{character.conditions.map((condition) => (
-						<CharacterTokenConditionBadge
-							key={condition.name}
-							condition={condition}
-						/>
+						<CharacterTokenConditionBadge key={condition.name} condition={condition} />
 					))}
 					{hasFullCharacterPermissions(character) && character.health <= 0 && (
-						<CharacterTokenConditionBadge
-							condition={{ name: "Incapacitated", color: "red" }}
-						/>
+						<CharacterTokenConditionBadge condition={{ name: "Incapacitated", color: "red" }} />
 					)}
 					{hasFullCharacterPermissions(character) && character.resolve <= 0 && (
-						<CharacterTokenConditionBadge
-							condition={{ name: "Exhausted", color: "purple" }}
+						<CharacterTokenConditionBadge condition={{ name: "Exhausted", color: "purple" }} />
+					)}
+					{hasFullCharacterPermissions(character) && character.health < character.healthMax && (
+						<TokenMeter
+							value={character.health / character.healthMax}
+							className={{
+								base: "text-green-400",
+								warning: "text-green-400",
+								danger: "text-red-400",
+							}}
 						/>
 					)}
-					{hasFullCharacterPermissions(character) &&
-						character.health < character.healthMax && (
-							<TokenMeter
-								value={character.health / character.healthMax}
-								className={{
-									base: "text-green-400",
-									warning: "text-green-400",
-									danger: "text-red-400",
-								}}
-							/>
-						)}
-					{hasFullCharacterPermissions(character) &&
-						character.resolve < character.resolveMax && (
-							<TokenMeter
-								value={character.resolve / character.resolveMax}
-								className={{
-									base: "text-blue-400",
-									warning: "text-blue-400",
-									danger: "text-purple-400",
-								}}
-							/>
-						)}
+					{hasFullCharacterPermissions(character) && character.resolve < character.resolveMax && (
+						<TokenMeter
+							value={character.resolve / character.resolveMax}
+							className={{
+								base: "text-blue-400",
+								warning: "text-blue-400",
+								danger: "text-purple-400",
+							}}
+						/>
+					)}
 				</div>
 				{hasFullCharacterPermissions(character) ?
 					<TokenLabel text={character.name} subText={character.pronouns} />
@@ -261,13 +234,7 @@ function CharacterTokenConditionBadge({
 	)
 }
 
-function AreaSizeLabel({
-	token,
-	area,
-}: {
-	token: ApiToken
-	area: NonNullable<ApiToken["area"]>
-}) {
+function AreaSizeLabel({ token, area }: { token: ApiToken; area: NonNullable<ApiToken["area"]> }) {
 	const {
 		scene: { cellSize },
 		viewport,

@@ -1,7 +1,7 @@
 import * as Lucide from "lucide-react"
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
-import type { StrictOmit } from "../../helpers/types.ts"
+import type { StrictOmit } from "../../../common/types.ts"
 import { panel } from "../../ui/styles.ts"
 import { diceKinds } from "./data.tsx"
 
@@ -18,10 +18,7 @@ export function DiceCounter({
 	}
 
 	return (
-		<ul
-			{...props}
-			className={twMerge("grid grid-cols-2 gap-2", props.className)}
-		>
+		<ul {...props} className={twMerge("grid grid-cols-2 gap-2", props.className)}>
 			{diceKinds
 				.map((kind) => ({ kind, count: value[kind.name] ?? 0 }))
 				.map(({ kind, count }) => (
@@ -51,9 +48,7 @@ export function DiceCounter({
 							</button>
 						</div>
 
-						<p className="text-center text-xl font-medium tabular-nums">
-							{count}
-						</p>
+						<p className="text-center text-xl font-medium tabular-nums">{count}</p>
 
 						<button
 							type="button"

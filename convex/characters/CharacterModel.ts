@@ -1,8 +1,7 @@
 import { ConvexError } from "convex/values"
-import { Result } from "../../app/helpers/Result.ts"
+import { Result } from "../../common/Result.ts"
 import type { Doc, Id } from "../_generated/dataModel"
 import type { QueryCtx } from "../_generated/server.js"
-import { RoomModel } from "../rooms/RoomModel.ts"
 
 const characterDefaults = {
 	// profile

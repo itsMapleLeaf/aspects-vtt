@@ -1,22 +1,17 @@
 import * as Lucide from "lucide-react"
 import { useState } from "react"
-import { hasLength } from "~/helpers/array.ts"
-import { titleCase } from "~/helpers/string.ts"
 import { normalizeAttributeValue } from "~/modules/attributes/helpers.ts"
 import { getCharacterAttributeDiceKind } from "~/modules/characters/helpers.ts"
 import { CheckboxField } from "~/ui/CheckboxField.tsx"
 import { withMergedClassName } from "~/ui/withMergedClassName.ts"
+import { hasLength } from "../../../common/array.ts"
+import { clamp } from "../../../common/math.ts"
+import { titleCase } from "../../../common/string.ts"
+import type { PartialKeys } from "../../../common/types.ts"
 import { api } from "../../../convex/_generated/api"
-import { clamp } from "../../helpers/math.ts"
-import type { PartialKeys } from "../../helpers/types.ts"
 import { Button, type ButtonProps } from "../../ui/Button.tsx"
 import { FormField } from "../../ui/Form.tsx"
-import {
-	Popover,
-	PopoverDismiss,
-	PopoverPanel,
-	PopoverTrigger,
-} from "../../ui/Popover.tsx"
+import { Popover, PopoverDismiss, PopoverPanel, PopoverTrigger } from "../../ui/Popover.tsx"
 import { panel } from "../../ui/styles.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useMutationAction } from "../convex/hooks.ts"
@@ -38,17 +33,13 @@ export function AttributeDiceRollButton({
 	const [boostCount, setBoostCount] = useState(0)
 	const [snagCount, setSnagCount] = useState(0)
 	const [pushYourself, setPushYourself] = useState(false)
-	const [, rollAttribute] = useMutationAction(
-		api.characters.functions.rollAttribute,
-	)
+	const [, rollAttribute] = useMutationAction(api.characters.functions.rollAttribute)
 	const [, updateCharacter] = useMutationAction(api.characters.functions.update)
 	const { _id: roomId } = useRoom()
 
 	const attributeDie =
 		hasLength(characters, 1) && characters[0].permission === "full" ?
-			getCharacterAttributeDiceKind(
-				normalizeAttributeValue(characters[0][attribute]),
-			)
+			getCharacterAttributeDiceKind(normalizeAttributeValue(characters[0][attribute]))
 		:	undefined
 
 	return (
@@ -67,12 +58,7 @@ export function AttributeDiceRollButton({
 				/>
 				<div className="text-sm">{attributeDie?.name}</div>
 			</div>
-			<PopoverPanel
-				portal
-				gutter={8}
-				unmountOnHide
-				className="flex flex-col p-2 gap-2"
-			>
+			<PopoverPanel portal gutter={8} unmountOnHide className="flex flex-col p-2 gap-2">
 				<div className="flex gap-current *:flex-1">
 					<FormField label="Boost Dice">
 						<CounterInput value={boostCount} onChange={setBoostCount} />

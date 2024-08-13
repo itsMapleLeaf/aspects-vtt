@@ -1,4 +1,4 @@
-import { raise } from "~/helpers/errors.ts"
+import { raise } from "../common/errors"
 
 type SecretName = "CLERK_JWT_ISSUER_DOMAIN" | "CLERK_SECRET_KEY"
 

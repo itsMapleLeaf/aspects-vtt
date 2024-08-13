@@ -3,9 +3,9 @@ import type { ReactNode } from "react"
 import { Input } from "~/ui/Input.tsx"
 import { useDelayedSyncInput } from "~/ui/useDelayedSyncInput.ts"
 import { useControlledNumberInput } from "~/ui/useNumberInput.tsx"
+import { toNearestPositiveInt } from "../../../common/math.ts"
+import { startCase } from "../../../common/string.ts"
 import { api } from "../../../convex/_generated/api"
-import { toNearestPositiveInt } from "../../helpers/math.ts"
-import { startCase } from "../../helpers/string.ts"
 import { FormField } from "../../ui/Form.tsx"
 import { CharacterReadOnlyGuard } from "./CharacterReadOnlyGuard.tsx"
 import { hasFullCharacterPermissions } from "./helpers.ts"
@@ -31,9 +31,7 @@ export function CharacterNumberField({
 	const update = useMutation(api.characters.functions.update)
 
 	const input = useDelayedSyncInput({
-		value: String(
-			hasFullCharacterPermissions(character) ? character[field] : 0,
-		),
+		value: String(hasFullCharacterPermissions(character) ? character[field] : 0),
 		onSubmit: (value) => {
 			const int = toNearestPositiveInt(value)
 			if (int) {
@@ -53,11 +51,7 @@ export function CharacterNumberField({
 	})
 
 	return (
-		<CharacterReadOnlyGuard
-			character={character}
-			label={label}
-			value={input.value}
-		>
+		<CharacterReadOnlyGuard character={character} label={label} value={input.value}>
 			<FormField label={label}>
 				<Input
 					{...numberInput.props}

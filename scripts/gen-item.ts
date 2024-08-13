@@ -1,4 +1,4 @@
-import { randomItem } from "~/helpers/random.ts"
+import { randomItem } from "../common/random"
 
 const itemTypes = ["Consumable", "Equipment", "Tool"]
 

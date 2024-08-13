@@ -1,7 +1,7 @@
-import { getManyFrom, getOneFrom } from "convex-helpers/server/relationships"
+import { getManyFrom } from "convex-helpers/server/relationships"
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError } from "convex/values"
-import { Result } from "../../app/helpers/Result.ts"
+import { Result } from "../../common/Result.ts"
 import type { Doc, Id } from "../_generated/dataModel.js"
 import type { MutationCtx, QueryCtx } from "../_generated/server.js"
 import { auth } from "../auth.ts"
@@ -40,19 +40,11 @@ export class RoomModel {
 	}
 
 	async getPlayers() {
-		const rooms = await getManyFrom(
-			this.ctx.db,
-			"players",
-			"roomId",
-			this.data._id,
-		)
+		const rooms = await getManyFrom(this.ctx.db, "players", "roomId", this.data._id)
 		return rooms ?? []
 	}
 
-	async update(
-		ctx: MutationCtx,
-		args: Partial<WithoutSystemFields<Doc<"rooms">>>,
-	) {
+	async update(ctx: MutationCtx, args: Partial<WithoutSystemFields<Doc<"rooms">>>) {
 		if (!(await this.isOwner())) {
 			throw new ConvexError("You don't have permission to update this room.")
 		}

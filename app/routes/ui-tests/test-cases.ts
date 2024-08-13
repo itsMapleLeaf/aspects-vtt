@@ -1,4 +1,4 @@
-import { unwrap } from "~/helpers/errors.ts"
+import { unwrap } from "../../../common/errors"
 
 const routeMap = import.meta.glob("../ui-tests.*.tsx")
 export function getTestCaseSlugs() {

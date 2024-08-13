@@ -1,5 +1,5 @@
-import { SafeMap, type SafeMapValue } from "../../helpers/SafeMap.ts"
-import { titleCase } from "../../helpers/string.ts"
+import { SafeMap, type SafeMapValue } from "../../../common/SafeMap.ts"
+import { titleCase } from "../../../common/string.ts"
 import { getAttribute } from "../attributes/data.ts"
 
 export const Aspects = SafeMap.mapRecord(

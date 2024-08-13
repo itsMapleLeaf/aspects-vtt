@@ -1,14 +1,12 @@
 import { type Validator, v } from "convex/values"
-import { Result } from "../../app/helpers/Result.ts"
-import { raise } from "../../app/helpers/errors.ts"
+import { Result } from "../../common/Result.ts"
+import { raise } from "../../common/errors.ts"
 import type { Id, TableNames } from "../_generated/dataModel.js"
 import type { QueryCtx } from "../_generated/server.js"
 
 export type Branded<T> = string & { _: T }
 
-export function nullish<V extends Validator<unknown, "required", string>>(
-	validator: V,
-) {
+export function nullish<V extends Validator<unknown, "required", string>>(validator: V) {
 	return v.optional(v.union(v.null(), validator))
 }
 

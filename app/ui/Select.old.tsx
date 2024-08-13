@@ -1,7 +1,7 @@
 import * as Lucide from "lucide-react"
 import type { ComponentPropsWithoutRef } from "react"
 import { twMerge } from "tailwind-merge"
-import type { Overwrite } from "../helpers/types.ts"
+import type { Overwrite } from "../../common/types.ts"
 import { panel } from "./styles.ts"
 
 export type SelectValue = string | number | null
@@ -26,9 +26,7 @@ export function Select<T extends SelectValue>({
 		onChange: (value: T) => void
 	}
 >) {
-	let valueIndex: number | undefined = options.findIndex(
-		(option) => option.value === value,
-	)
+	let valueIndex: number | undefined = options.findIndex((option) => option.value === value)
 	if (valueIndex === -1) {
 		valueIndex = undefined
 	}

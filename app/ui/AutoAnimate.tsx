@@ -1,5 +1,5 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react"
-import { combineRefs } from "~/helpers/react/helpers.ts"
+import { combineRefs } from "../../common/react/helpers"
 
 export function AutoAnimate(props: React.ComponentProps<"div">) {
 	const [animateRef] = useAutoAnimate()

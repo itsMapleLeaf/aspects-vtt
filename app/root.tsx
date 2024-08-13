@@ -6,17 +6,10 @@ import "./root.css"
 
 import { ConvexAuthProvider } from "@convex-dev/auth/react"
 import type { MetaFunction } from "@remix-run/node"
-import {
-	Links,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
-	useLoaderData,
-} from "@remix-run/react"
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { Suspense, useState } from "react"
-import { raise } from "./helpers/errors.ts"
+import { raise } from "../common/errors.ts"
 import { getSiteMeta } from "./modules/meta/helpers.ts"
 import { PromptProvider } from "./ui/Prompt.tsx"
 import { Toaster } from "./ui/Toaster.tsx"

@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react"
-import type { OptionalKeys } from "~/helpers/types.ts"
 import { Modal, ModalContent, ModalToggle } from "~/ui/Modal.v2.tsx"
+import type { OptionalKeys } from "../../../common/types.ts"
 import { CharacterEditor } from "./CharacterEditor.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -9,11 +9,7 @@ export interface CharacterModalProps
 	character: ApiCharacter
 }
 
-export function CharacterModal({
-	character,
-	children,
-	...props
-}: CharacterModalProps) {
+export function CharacterModal({ character, children, ...props }: CharacterModalProps) {
 	return (
 		<Modal {...props}>
 			{children}

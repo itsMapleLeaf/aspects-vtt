@@ -2,7 +2,7 @@ import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import type React from "react"
 import type { ComponentProps, ReactNode } from "react"
-import { mod } from "../helpers/math.ts"
+import { mod } from "../../common/math.ts"
 import { Button } from "./Button.tsx"
 import { FormField } from "./Form.tsx"
 import { LoadingDecoration } from "./LoadingDecoration.tsx"
@@ -35,15 +35,11 @@ export function Select<T>(props: {
 }) {
 	const currentOption = props.options.find((it) => it.value === props.value)
 
-	const getOptionId = (option: SelectOption<T>) =>
-		"id" in option ? option.id : option.value
+	const getOptionId = (option: SelectOption<T>) => ("id" in option ? option.id : option.value)
 
 	const cycleOption = (delta: number) => {
-		const currentOptionIndex = props.options.findIndex(
-			(it) => it.value === props.value,
-		)
-		const nextOption =
-			props.options[mod(currentOptionIndex + delta, props.options.length)]
+		const currentOptionIndex = props.options.findIndex((it) => it.value === props.value)
+		const nextOption = props.options[mod(currentOptionIndex + delta, props.options.length)]
 		if (nextOption) props.onChange(nextOption.value)
 	}
 
@@ -78,9 +74,7 @@ export function Select<T>(props: {
 				>
 					<div className="flex flex-1 flex-row">
 						{currentOption?.label ?? (
-							<span className="opacity-50">
-								{props.placeholder ?? "Choose one"}
-							</span>
+							<span className="opacity-50">{props.placeholder ?? "Choose one"}</span>
 						)}
 						<Lucide.ChevronDown className="ml-auto" />
 					</div>

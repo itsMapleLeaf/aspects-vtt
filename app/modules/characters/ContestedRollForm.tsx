@@ -1,16 +1,12 @@
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
-import type { Nullish } from "~/helpers/types.ts"
+import type { Nullish } from "../../../common/types.ts"
 import { api } from "../../../convex/_generated/api.js"
 import { Button } from "../../ui/Button.tsx"
 import { FormActions, FormLayout, FormRow } from "../../ui/Form.tsx"
 import { NumberField } from "../../ui/NumberField.tsx"
 import { Select } from "../../ui/Select.tsx"
-import {
-	type Attribute,
-	getAttribute,
-	listAttributes,
-} from "../attributes/data.ts"
+import { type Attribute, getAttribute, listAttributes } from "../attributes/data.ts"
 import { useMutationAction } from "../convex/hooks.ts"
 import { useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { getCharacterDisplayName } from "./helpers.ts"
@@ -28,9 +24,7 @@ export function ContestedRollForm({
 	const characters = useCharacters()
 	const selfCharacter = useOwnedCharacter()
 	const strengthAttribute = getAttribute("strength")
-	const [, rollAttribute] = useMutationAction(
-		api.characters.functions.rollAttribute,
-	)
+	const [, rollAttribute] = useMutationAction(api.characters.functions.rollAttribute)
 
 	const [values, setValues] = useState<{
 		selfCharacter: Nullish<ApiCharacter>
@@ -50,10 +44,7 @@ export function ContestedRollForm({
 		opponentSnagCount: 0,
 	})
 
-	const setValue = <K extends keyof typeof values>(
-		key: K,
-		value: (typeof values)[K],
-	) => {
+	const setValue = <K extends keyof typeof values>(key: K, value: (typeof values)[K]) => {
 		setValues((values) => ({ ...values, [key]: value }))
 	}
 
