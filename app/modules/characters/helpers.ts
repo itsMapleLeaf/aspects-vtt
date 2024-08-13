@@ -46,7 +46,7 @@ export function getCharacterFallbackImageUrl(character: {
 }
 
 export function getCharacterDisplayName(character: ApiCharacter): string {
-	return "name" in character ? character.name : "???"
+	return ("name" in character && character.name) || "???"
 }
 
 export function hasFullCharacterPermissions(
