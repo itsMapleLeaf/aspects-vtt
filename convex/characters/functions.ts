@@ -435,7 +435,9 @@ export const attack = effectMutation({
 					),
 				)
 
-				const potentialDamage = attackerRoll.reduce((total, die) => total + die.result, 0)
+				const potentialDamage = attackerRoll.reduce((total, die) => {
+					return total + die.result * (die.name === snagDiceKind.name ? -1 : 1)
+				}, 0)
 
 				const attackerMention = formatCharacterMention(attacker._id)
 				const defenderMention = formatCharacterMention(defender._id)
