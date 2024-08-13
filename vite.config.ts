@@ -43,6 +43,9 @@ export default defineConfig({
 		inspect(),
 		visualizer({ emitFile: true, filename: "build/stats.html" }),
 	],
+	ssr: {
+		noExternal: ["@convex-dev/auth"],
+	},
 	// resolve: {
 	// 	alias: [
 	// 		// { find: /^react-dom$/, replacement: "react-dom/profiling" },
