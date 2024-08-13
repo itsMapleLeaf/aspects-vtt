@@ -1,4 +1,9 @@
-import { createServerApi } from "@maple/convex-effect"
+import {
+	type EffectActionCtx,
+	type EffectMutationCtx,
+	type EffectQueryCtx,
+	createServerApi,
+} from "@maple/convex-effect"
 import type { DataModel } from "./_generated/dataModel"
 
 export const {
@@ -10,3 +15,7 @@ export const {
 	internalAction,
 	httpAction,
 } = createServerApi<DataModel>()
+
+export type LocalQueryCtx = EffectQueryCtx<DataModel>
+export type LocalMutationCtx = EffectMutationCtx<DataModel>
+export type LocalActionCtx = EffectActionCtx<DataModel>
