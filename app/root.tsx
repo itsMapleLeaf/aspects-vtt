@@ -9,7 +9,6 @@ import type { MetaFunction } from "@remix-run/node"
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { Suspense, useState } from "react"
-import { clientEnv } from "./env.ts"
 import { raise } from "./helpers/errors.ts"
 import { getSiteMeta } from "./modules/meta/helpers.ts"
 import { PromptProvider } from "./ui/Prompt.tsx"
@@ -19,7 +18,11 @@ export const meta: MetaFunction = () => getSiteMeta()
 
 export const loader = () => {
 	return {
-		convexUrl: process.env.CONVEX_URL || process.env.VITE_CONVEX_URL || raise("CONVEX_URL not set"),
+		convexUrl:
+			process.env.CONVEX_URL ||
+			process.env.VITE_CONVEX_URL ||
+			import.meta.env.VITE_CONVEX_URL ||
+			raise("CONVEX_URL not set"),
 	}
 }
 
