@@ -1,2 +1,2 @@
 #!/bin/bash
-nu .husky/pre-push.nu
+bunx turbo run test typecheck
