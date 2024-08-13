@@ -102,6 +102,7 @@ function CharacterResourceTreeItem({
 			delete={async () => {
 				await deleteCharacter({ id: character._id })
 			}}
+			data-testid="CharacterResourceTreeItem"
 			{...props}
 		>
 			{getCharacterDisplayName(character)}

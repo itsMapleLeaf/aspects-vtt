@@ -14,11 +14,12 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as api_ from "../api.js";
 import type * as auth from "../auth.js";
 import type * as characterAspectSkills from "../characterAspectSkills.js";
+import type * as characters_CharacterModel from "../characters/CharacterModel.js";
 import type * as characters_functions from "../characters/functions.js";
 import type * as characters_types from "../characters/types.js";
-import type * as characters__CharacterModel from "../characters/CharacterModel.js";
 import type * as dice_helpers from "../dice/helpers.js";
 import type * as diceMacros_functions from "../diceMacros/functions.js";
 import type * as env from "../env.js";
@@ -55,11 +56,12 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  api: typeof api_;
   auth: typeof auth;
   characterAspectSkills: typeof characterAspectSkills;
+  "characters/CharacterModel": typeof characters_CharacterModel;
   "characters/functions": typeof characters_functions;
   "characters/types": typeof characters_types;
-  "characters/_CharacterModel": typeof characters__CharacterModel;
   "dice/helpers": typeof dice_helpers;
   "diceMacros/functions": typeof diceMacros_functions;
   env: typeof env;
