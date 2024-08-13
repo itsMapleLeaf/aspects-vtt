@@ -1,6 +1,6 @@
 import containerQueries from "@tailwindcss/container-queries"
 import typography from "@tailwindcss/typography"
-import Color from "colorjs.io"
+import { Iterator } from "iterator-helpers-polyfill"
 import animate from "tailwindcss-animate"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin.js"
@@ -86,18 +86,17 @@ export default {
 
 		plugin(function naturalGradient(api) {
 			function createNaturalGradient(color, steps) {
-				const stops = Color.steps(color, "transparent", {
-					space: "lch",
-					steps,
-				})
-				for (const stop of stops) {
-					stop.alpha **= 2
-				}
+				const stops = Iterator.range(0, steps, 1, true)
+					.map((step) => {
+						return color.replace("<alpha-value>", String(step / steps))
+					})
+					.toArray()
+					.toReversed()
 				return `linear-gradient(to bottom, ${stops.join(", ")})`
 			}
 
 			const entries = Object.fromEntries(
-				Object.entries(theme.colors.primaryStatic).map(([key, value]) => [
+				Object.entries(theme.colors.primary).map(([key, value]) => [
 					`.bg-natural-gradient-${key}`,
 					{ backgroundImage: createNaturalGradient(value, 8) },
 				]),
