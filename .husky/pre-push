@@ -1,2 +1,2 @@
 #!/bin/bash
-bunx turbo run lint test typecheck
+pnpm turbo run lint test typecheck

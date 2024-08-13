@@ -1,8 +1,5 @@
-diff --git a/node_modules/effect/.bun-tag-776bc7c0e9e55666 b/.bun-tag-776bc7c0e9e55666
-new file mode 100644
-index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/dist/dts/Effect.d.ts b/dist/dts/Effect.d.ts
-index bc30d2e03df32469699193c036ecda23234e9339..6e3c2b3860f9cc18dec9333d9090e45a0d5797ae 100644
+index 954e16106c3871ef91e55f77ca5db35c2a09d59a..8b6cc334e19136f4283e653110a0c36363c0bb23 100644
 --- a/dist/dts/Effect.d.ts
 +++ b/dist/dts/Effect.d.ts
 @@ -525,10 +525,15 @@ export declare namespace All {
@@ -21,7 +18,7 @@ index bc30d2e03df32469699193c036ecda23234e9339..6e3c2b3860f9cc18dec9333d9090e45a
 +        readonly batching?: boolean | "inherit" | undefined
 +      }
 +      | undefined
-+  ) => Effect<Array<V>, never, S>;;
++  ) => Effect<Array<V>, never, S>;
  /**
   * Drops all elements until the effectful predicate returns true.
   *

@@ -21,16 +21,25 @@ jobs:
       - name: "🛒 Checkout"
         uses: actions/checkout@v4
 
+      - name: "📦 Setup pnpm"
+        uses: pnpm/action-setup@v4
+
+      - name: "🟢 Setup Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
       - name: "🐰 Setup Bun"
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
       - name: "📦 Install dependencies"
-        run: bun install
+        run: pnpm install
 
       - name: "▶️ Run ${{ matrix.command }}"
-        run: bun run ${{ matrix.command }}
+        run: pnpm run ${{ matrix.command }}
 
   playwright: # disable for now
     if: ${{ false }}
@@ -39,19 +48,23 @@ jobs:
       - name: "🛒 Checkout"
         uses: actions/checkout@v4
 
-      - name: "🐰 Setup Bun"
-        uses: oven-sh/setup-bun@v2
+      - name: "📦 Setup pnpm"
+        uses: pnpm/action-setup@v4
+
+      - name: "🟢 Setup Node"
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: 20
+          cache: "pnpm"
 
       - name: "📦 Install dependencies"
-        run: bun install
+        run: pnpm install
 
       - name: "🌐 Install Playwright browsers"
-        run: bunx playwright install --with-deps chromium firefox
+        run: pnpm playwright install --with-deps chromium firefox
 
       - name: "🧪 Run Playwright tests"
-        run: bunx playwright test
+        run: pnpm playwright test
         env:
           CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
@@ -74,16 +87,20 @@ jobs:
       - name: "🛒 Checkout"
         uses: actions/checkout@v4
 
-      - name: "🐰 Setup Bun"
-        uses: oven-sh/setup-bun@v2
+      - name: "📦 Setup pnpm"
+        uses: pnpm/action-setup@v4
+
+      - name: "🟢 Setup Node"
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: 20
+          cache: "pnpm"
 
       - name: "📦 Install dependencies"
-        run: bun install
+        run: pnpm install
 
       - name: "💅 Format"
-        run: bun run format
+        run: pnpm run format
         continue-on-error: true
 
       - name: "📝 Commit changes"
