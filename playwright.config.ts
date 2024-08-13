@@ -1,4 +1,6 @@
+import { config } from "@dotenvx/dotenvx"
 import { defineConfig, devices } from "@playwright/test"
+config()
 
 export default defineConfig({
 	outputDir: "data/test-results",
