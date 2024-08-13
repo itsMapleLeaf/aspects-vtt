@@ -12,7 +12,7 @@
 		"lint": "biome check . --write",
 		"format": "prettier --write . --list-different",
 		"typecheck": "remix-routes && tsc --noEmit",
-		"test": "bun test app convex",
+		"test": "bun test",
 		"e2e": "playwright test",
 		"checks": "run-s --continue-on-error lint format typecheck test e2e",
 		"download-convex-backend": "bun ./scripts/download-convex-backend.ts"
