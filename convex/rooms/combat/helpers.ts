@@ -1,19 +1,21 @@
-import { Effect } from "effect"
+import { Data, Effect, pipe } from "effect"
 import { roll } from "../../../app/helpers/random.ts"
 import { type Attribute, getAttribute } from "../../../app/modules/attributes/data.ts"
-import type { Id } from "../../_generated/dataModel.js"
+import type { Doc, Id } from "../../_generated/dataModel.js"
 import type { QueryCtx } from "../../_generated/server.js"
-import { getDoc } from "../../helpers/effect.ts"
+import type { LocalQueryCtx } from "../../api.ts"
 
-class CombatInactiveError {
-	readonly _tag = "CombatInactiveError"
-}
+class CombatInactiveError extends Data.TaggedError("CombatInactiveError")<{
+	readonly room: Doc<"rooms">
+}> {}
 
-export function getRoomCombat(roomId: Id<"rooms">) {
-	return Effect.gen(function* () {
-		const room = yield* getDoc(roomId)
-		return room?.combat ?? (yield* Effect.fail(new CombatInactiveError()))
-	})
+export function getRoomCombat(ctx: LocalQueryCtx, roomId: Id<"rooms">) {
+	return pipe(
+		ctx.db.get(roomId),
+		Effect.flatMap((room) =>
+			room.combat ? Effect.succeed(room.combat) : new CombatInactiveError({ room }),
+		),
+	)
 }
 
 export async function getInitiativeRoll(

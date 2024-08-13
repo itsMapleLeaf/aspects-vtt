@@ -1,6 +1,7 @@
 import type { WithoutSystemFields } from "convex/server"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
+import { unwrap } from "~/helpers/errors.ts"
 import type { Doc, Id, TableNames } from "./_generated/dataModel"
 import { mutation } from "./api.ts"
 import { Convex, effectMutation } from "./helpers/effect.ts"
@@ -66,7 +67,7 @@ export const createTestRoom = mutation({
 				}
 				const roomId = yield* ctx.db.insert("rooms", roomData)
 
-				const characters: WithoutSystemFields<Doc<"characters">>[] = [
+				const characterData: WithoutSystemFields<Doc<"characters">>[] = [
 					{
 						roomId,
 						name: "Visible Character",
@@ -87,18 +88,35 @@ export const createTestRoom = mutation({
 					},
 				]
 
-				for (const character of characters) {
-					const existing = yield* ctx.db
-						.query("characters")
-						.filter((q) => q.eq("name", character.name))
-						.firstOrNull()
+				const characterDocs = yield* Effect.forEach(characterData, (character) => {
+					return Effect.gen(function* () {
+						const existing = yield* ctx.db
+							.query("characters")
+							.filter((q) => q.eq("name", character.name))
+							.firstOrNull()
 
-					if (existing) {
-						yield* ctx.db.patch(existing._id, { ...character, roomId })
-					} else {
-						yield* ctx.db.insert("characters", { ...character, roomId })
-					}
-				}
+						let id
+						if (existing) {
+							yield* ctx.db.patch(existing._id, { ...character, roomId })
+							id = existing._id
+						} else {
+							id = yield* ctx.db.insert("characters", { ...character, roomId })
+						}
+						return { ...character, _id: id }
+					})
+				})
+
+				yield* ctx.db.patch(roomId, {
+					combat: {
+						currentRoundNumber: 1,
+						initiativeAttribute: "mobility",
+						memberObjects: [
+							{ characterId: unwrap(characterDocs[0])._id, initiative: null },
+							{ characterId: unwrap(characterDocs[1])._id, initiative: null },
+							{ characterId: unwrap(characterDocs[2])._id, initiative: null },
+						],
+					},
+				})
 
 				return roomData
 			}),

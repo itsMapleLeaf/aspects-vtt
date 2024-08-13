@@ -16,13 +16,11 @@ import { Button } from "../../ui/Button.tsx"
 import { EmptyState } from "../../ui/EmptyState.tsx"
 import { FormLayout } from "../../ui/Form.tsx"
 import { Select } from "../../ui/Select.tsx"
-import { Tooltip } from "../../ui/Tooltip.old.tsx"
 import { type Attribute, getAttribute, listAttributes } from "../attributes/data.ts"
 import { CharacterSearchList } from "../characters/CharacterSearchList.tsx"
-import { hasFullCharacterPermissions } from "../characters/helpers.ts"
 import { queryMutators } from "../convex/helpers.ts"
+import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
 import { useCurrentSceneTokens } from "../scenes/hooks.ts"
-import { RoomOwnerOnly, useCharacter, useCharacters, useRoom } from "./roomContext.tsx"
 
 export function CombatInitiative() {
 	const { combat, ...room } = useRoom()
@@ -99,8 +97,7 @@ export function CombatInitiative() {
 					{members?.map((member, index) => (
 						<li key={member.characterId}>
 							<CombatMemberItem
-								characterId={member.characterId}
-								initiative={member.initiative}
+								{...member}
 								isCurrent={member.characterId === currentMemberId}
 								index={index}
 								onDrop={(fromIndex) =>
@@ -211,6 +208,8 @@ export function CombatInitiativePanel(props: React.ComponentProps<typeof Translu
 }
 
 function CombatMemberItem(props: {
+	name: Nullish<string>
+	nameVisible: Nullish<boolean>
 	characterId: Id<"characters">
 	initiative: Nullish<number>
 	isCurrent: boolean
@@ -219,7 +218,6 @@ function CombatMemberItem(props: {
 	onSetCurrentMember: (characterId: Id<"characters">) => void
 }) {
 	const room = useRoom()
-	const character = useCharacter(props.characterId)
 	const removeMember = useMutation(api.rooms.combat.functions.removeMember)
 
 	const className = twMerge(
@@ -228,39 +226,10 @@ function CombatMemberItem(props: {
 	)
 
 	const content = (
-		<>
-			<div className="grid">
-				<h4 className="text-xl font-light">
-					{character && hasFullCharacterPermissions(character) ? character.name : "???"}{" "}
-					{room.isOwner && character?.visible !== true && (
-						<span className="opacity-50">(hidden)</span>
-					)}
-				</h4>
-				<p className="flex items-center gap-2 empty:hidden">
-					{character && hasFullCharacterPermissions(character) && character.healthMax != null && (
-						<Tooltip text="Health" className="flex gap-1">
-							<Lucide.Heart className="size-5 text-red-400" />
-							<span className="leading-5 text-red-400">
-								{character.health}/{character.healthMax}
-							</span>
-						</Tooltip>
-					)}
-					{character && hasFullCharacterPermissions(character) && character.resolveMax != null && (
-						<Tooltip text="Resolve" className="flex gap-1">
-							<Lucide.Brain className="size-5 text-purple-400" />
-							<span className="leading-5 text-purple-400">
-								{character.resolve}/{character.resolveMax}
-							</span>
-						</Tooltip>
-					)}
-				</p>
-				{/* {props.initiative != null && (
-					<aside className="mt-1 text-[13px] font-bold uppercase tracking-wide text-primary-600">
-						Initiative {props.initiative}
-					</aside>
-				)} */}
-			</div>
-		</>
+		<h4 className="text-xl font-light" data-testid="CombatMemberItem:Name">
+			{props.name}{" "}
+			{room.isOwner && !props.nameVisible && <span className="opacity-50">(hidden)</span>}
+		</h4>
 	)
 
 	if (!room.isOwner) {

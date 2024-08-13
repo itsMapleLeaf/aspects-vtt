@@ -1,25 +1,35 @@
 import { literals, nullable } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { Effect, pipe } from "effect"
+import { Effect } from "effect"
 import { indexLooped, withMovedItem } from "../../../app/helpers/array.ts"
 import { unwrap } from "../../../app/helpers/errors.ts"
 import { listAttributeIds } from "../../../app/modules/attributes/data.ts"
 import { mutation } from "../../_generated/server.js"
+import { query } from "../../api.ts"
 import { CharacterModel } from "../../characters/CharacterModel.ts"
-import { effectQuery, getDoc } from "../../helpers/effect.ts"
+import { QueryCtxService } from "../../helpers/effect.ts"
+import { getCurrentUserId } from "../../users.ts"
 import { RoomModel } from "../RoomModel.ts"
 import { getInitiativeRoll, getRoomCombat } from "./helpers.ts"
 
-export const getCombatMembers = effectQuery({
+export const getCombatMembers = query({
 	args: { roomId: v.id("rooms") },
-	handler: (args) =>
+	handler: (ctx, args) =>
 		Effect.gen(function* () {
-			const combat = yield* getRoomCombat(args.roomId)
+			const userId = yield* getCurrentUserId()
+			const room = yield* ctx.db.get(args.roomId)
+			const combat = yield* getRoomCombat(ctx, args.roomId)
+			const isOwner = room.owner === userId
 
 			// filter out member items that don't have character docs
-			const members = yield* pipe(
-				Effect.fromNullable(combat.memberObjects),
-				Effect.flatMap(Effect.filter((member) => Effect.isSuccess(getDoc(member.characterId)))),
+			const members = yield* Effect.forEach(combat.memberObjects ?? [], (member) =>
+				ctx.db.get(member.characterId).pipe(
+					Effect.map((character) => ({
+						...member,
+						name: isOwner || character.nameVisible ? character.name : "???",
+						nameVisible: character.nameVisible,
+					})),
+				),
 			)
 
 			const currentMemberId = combat.currentMemberId ?? members[0]?.characterId
@@ -31,6 +41,7 @@ export const getCombatMembers = effectQuery({
 				currentMemberIndex,
 			}
 		}).pipe(
+			Effect.provideService(QueryCtxService, ctx.internal),
 			Effect.tapError((error) => {
 				if (error._tag === "CombatInactiveError") {
 					return Effect.void
