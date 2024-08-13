@@ -1,4 +1,11 @@
-import { type ReactNode, createContext, isValidElement, use, useId, useMemo } from "react"
+import {
+	type ReactNode,
+	createContext,
+	isValidElement,
+	use,
+	useId,
+	useMemo,
+} from "react"
 import { twMerge } from "tailwind-merge"
 import type { Nullish } from "~/helpers/types.ts"
 import { useConsumer, useConsumerProvider } from "./ConsumerContext.tsx"
@@ -14,8 +21,13 @@ export const FormRow = twc.div`flex flex-wrap gap-3`
 
 export const FormActions = twc.div`flex flex-wrap justify-end gap-3`
 
-export function FormErrors({ errors }: { errors: Nullish<string | Iterable<string>> }) {
-	const uniqueErrors: string[] = typeof errors === "string" ? [errors] : [...new Set(errors)]
+export function FormErrors({
+	errors,
+}: {
+	errors: Nullish<string | Iterable<string>>
+}) {
+	const uniqueErrors: string[] =
+		typeof errors === "string" ? [errors] : [...new Set(errors)]
 	return (
 		<div className="flex flex-col gap-1 empty:hidden">
 			{uniqueErrors.map((error) => (
@@ -54,7 +66,9 @@ export function FormField({
 				:	label}
 			</div>
 			{description && (
-				<div className="mb-1 text-sm/tight font-bold text-primary-700">{description}</div>
+				<div className="mb-1 text-sm/tight font-bold text-primary-700">
+					{description}
+				</div>
 			)}
 			<FieldContext value={fieldContext}>
 				<consumers.Provider>{children}</consumers.Provider>

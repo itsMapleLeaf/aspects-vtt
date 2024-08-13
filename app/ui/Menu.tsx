@@ -44,7 +44,10 @@ export function MenuItem({ onClick, ...props }: MenuItemProps) {
 			onClick={onClick}
 			render={
 				<Button
-					{...withMergedClassName(props, "cursor-default justify-start border-none text-left")}
+					{...withMergedClassName(
+						props,
+						"cursor-default justify-start border-none text-left",
+					)}
 				/>
 			}
 		>

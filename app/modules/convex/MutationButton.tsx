@@ -3,7 +3,9 @@ import type { FunctionArgs, FunctionReference } from "convex/server"
 import React from "react"
 import { useSafeAction } from "./hooks.ts"
 
-export function MutationButton<Func extends FunctionReference<"mutation", "public">>({
+export function MutationButton<
+	Func extends FunctionReference<"mutation", "public">,
+>({
 	mutationFunction,
 	args,
 	children,

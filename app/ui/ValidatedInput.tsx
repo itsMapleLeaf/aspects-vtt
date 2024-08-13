@@ -6,8 +6,8 @@ export interface ValidatedInputController {
 }
 
 /**
- * An input which only calls onChange when the parse function returns a valid value, keeping the
- * invalid input for the user to fix
+ * An input which only calls onChange when the parse function returns a valid
+ * value, keeping the invalid input for the user to fix
  */
 export function ValidatedInput<T>({
 	parse,
@@ -22,7 +22,9 @@ export function ValidatedInput<T>({
 	controllerRef?: Ref<ValidatedInputController>
 }) {
 	const [state, setState] = useState<
-		{ type: "empty"; value: string } | { type: "invalid"; value: string } | { type: "valid" }
+		| { type: "empty"; value: string }
+		| { type: "invalid"; value: string }
+		| { type: "valid" }
 	>({ type: "valid" })
 
 	const handleChange = (value: string) => {
@@ -53,9 +55,15 @@ export function ValidatedInput<T>({
 	return (
 		<Input
 			{...props}
-			invalid={state.type === "invalid" || (state.type === "empty" && fallback != null)}
+			invalid={
+				state.type === "invalid" || (state.type === "empty" && fallback != null)
+			}
 			placeholder={props.placeholder ?? String(fallback ?? "")}
-			value={state.type === "empty" || state.type === "invalid" ? state.value : props.value}
+			value={
+				state.type === "empty" || state.type === "invalid" ?
+					state.value
+				:	props.value
+			}
 			onChange={(event) => {
 				props.onChange?.(event)
 				handleChange(event.currentTarget.value)

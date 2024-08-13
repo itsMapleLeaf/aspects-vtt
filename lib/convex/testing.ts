@@ -1,10 +1,15 @@
 import { ConvexHttpClient } from "convex/browser"
 import type { DocumentByName, WithoutSystemFields } from "convex/server"
 import { api } from "../../convex/_generated/api.js"
-import type { DataModel, TableNames } from "../../convex/_generated/dataModel.js"
+import type {
+	DataModel,
+	TableNames,
+} from "../../convex/_generated/dataModel.js"
 
 export class ConvexTestDb {
-	private readonly convex = new ConvexHttpClient(process.env.VITE_CONVEX_URL as string)
+	private readonly convex = new ConvexHttpClient(
+		process.env.VITE_CONVEX_URL as string,
+	)
 	private docs = new Map<string, unknown>()
 
 	async insert<T extends TableNames>(

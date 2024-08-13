@@ -1,4 +1,6 @@
-import TextAreaAutosize, { type TextareaAutosizeProps } from "react-textarea-autosize"
+import TextAreaAutosize, {
+	type TextareaAutosizeProps,
+} from "react-textarea-autosize"
 import { useField } from "./Form.tsx"
 import { Input, type InputStyleProps } from "./Input.tsx"
 

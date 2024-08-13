@@ -75,10 +75,14 @@ export function Toaster({ children }: { children: React.ReactNode }) {
 		setToasts((toasts) => toasts.filter((it) => it.id !== id))
 	}
 
-	const info = (options: ToastPresetOptions) => add({ ...options, type: "info" })
-	const success = (options: ToastPresetOptions) => add({ ...options, type: "success" })
-	const warning = (options: ToastPresetOptions) => add({ ...options, type: "warning" })
-	const error = (options: ToastPresetOptions) => add({ ...options, type: "error" })
+	const info = (options: ToastPresetOptions) =>
+		add({ ...options, type: "info" })
+	const success = (options: ToastPresetOptions) =>
+		add({ ...options, type: "success" })
+	const warning = (options: ToastPresetOptions) =>
+		add({ ...options, type: "warning" })
+	const error = (options: ToastPresetOptions) =>
+		add({ ...options, type: "error" })
 
 	const context = {
 		add,
@@ -99,7 +103,11 @@ export function Toaster({ children }: { children: React.ReactNode }) {
 					ref={animateRef}
 				>
 					{toasts.map((toast) => (
-						<ToastElement {...toast} key={toast.id} onDismiss={() => remove(toast.id)} />
+						<ToastElement
+							{...toast}
+							key={toast.id}
+							onDismiss={() => remove(toast.id)}
+						/>
 					))}
 				</div>
 			</Portal>
@@ -124,7 +132,12 @@ interface ToastElementProps extends ToastOptions {
 	onDismiss: () => void
 }
 
-function ToastElement({ type = "info", title, body, onDismiss }: ToastElementProps) {
+function ToastElement({
+	type = "info",
+	title,
+	body,
+	onDismiss,
+}: ToastElementProps) {
 	return (
 		<button
 			type="button"
@@ -143,7 +156,9 @@ function ToastElement({ type = "info", title, body, onDismiss }: ToastElementPro
 		>
 			{type === "info" && <LucideInfo className="text-blue-300" />}
 			{type === "success" && <LucideCheckCircle2 className="text-green-300" />}
-			{type === "warning" && <LucideAlertTriangle className="text-orange-300" />}
+			{type === "warning" && (
+				<LucideAlertTriangle className="text-orange-300" />
+			)}
 			{type === "error" && <LucideAlertCircle className="text-red-300" />}
 			<div>
 				{title && <h2 className="mt-1 text-xl/5 font-light">{title}</h2>}

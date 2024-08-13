@@ -24,7 +24,12 @@ console.table({
 
 const res = await oraPromise(() => fetch(url), "Downloading")
 
-await oraPromise(() => Bun.write(destination, res, { createPath: true }), "Saving")
+await oraPromise(
+	() => Bun.write(destination, res, { createPath: true }),
+	"Saving",
+)
 
-const child = Bun.spawn(`unzip -o ${destination} -d ${dirname(destination)}`.split(" "))
+const child = Bun.spawn(
+	`unzip -o ${destination} -d ${dirname(destination)}`.split(" "),
+)
 await oraPromise(child.exited, "Unpacking")

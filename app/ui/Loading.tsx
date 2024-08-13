@@ -18,7 +18,9 @@ export function Loading({
 				className,
 			)}
 		>
-			<LoadingIcon className={twMerge(size === "sm" && "w-6", size === "md" && "w-12")} />
+			<LoadingIcon
+				className={twMerge(size === "sm" && "w-6", size === "md" && "w-12")}
+			/>
 		</div>
 	)
 }

@@ -14,7 +14,9 @@ export const list = effectQuery({
 			Effect.flatMap((user) =>
 				Convex.db
 					.query("diceMacros")
-					.withIndex("roomId_user", (q) => q.eq("roomId", args.roomId).eq("user", user))
+					.withIndex("roomId_user", (q) =>
+						q.eq("roomId", args.roomId).eq("user", user),
+					)
 					.collect(),
 			),
 			Effect.orElseSucceed(() => []),
@@ -27,7 +29,9 @@ export const create = effectMutation({
 	handler(args) {
 		return pipe(
 			getCurrentUserId(),
-			Effect.flatMap((user) => Convex.db.insert("diceMacros", { ...args, user })),
+			Effect.flatMap((user) =>
+				Convex.db.insert("diceMacros", { ...args, user }),
+			),
 		)
 	},
 })

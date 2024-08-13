@@ -15,20 +15,32 @@ import { Loading } from "../../ui/Loading.tsx"
 import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { twc } from "../../ui/twc.ts"
-import { type Skill, listAspectSkillTiers, listAspectSkillsByTier } from "../aspect-skills/data.ts"
+import {
+	type Skill,
+	listAspectSkillTiers,
+	listAspectSkillsByTier,
+} from "../aspect-skills/data.ts"
 import { type Aspect, getAspect, listAspects } from "../aspects/data.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import type { ApiCharacter, OwnedApiCharacter } from "./types.ts"
 
-export function CharacterSkillsViewer({ character }: { character: OwnedApiCharacter }) {
+export function CharacterSkillsViewer({
+	character,
+}: {
+	character: OwnedApiCharacter
+}) {
 	const room = useRoom()
 
 	const characterSkillIds = new Set(
-		Iterator.from(character.learnedAspectSkills ?? []).flatMap((doc) => doc.aspectSkillIds),
+		Iterator.from(character.learnedAspectSkills ?? []).flatMap(
+			(doc) => doc.aspectSkillIds,
+		),
 	)
 
 	const characterAspectSet = new Set(
-		Iterator.from(character.learnedAspectSkills ?? []).map((doc) => doc.aspectId),
+		Iterator.from(character.learnedAspectSkills ?? []).map(
+			(doc) => doc.aspectId,
+		),
 	)
 
 	const characterAspectList = [...characterAspectSet]
@@ -42,7 +54,8 @@ export function CharacterSkillsViewer({ character }: { character: OwnedApiCharac
 					// if the character already learned this aspect, calculate the cost based on the aspect index,
 					// otherwise, show how much it'll cost to learn this aspect (as if it's the last aspect in the list)
 					const aspectIndex = characterAspectList.indexOf(aspect.id)
-					const baseAspectCost = (aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
+					const baseAspectCost =
+						(aspectIndex === -1 ? characterAspectList.length : aspectIndex) * 5
 					const tierCost = tier.number * 10
 					return {
 						...skill,
@@ -64,7 +77,8 @@ export function CharacterSkillsViewer({ character }: { character: OwnedApiCharac
 		computedSkillTree.map((aspect) => ({
 			title: aspect.name,
 			icon:
-				characterAspectList[0] === aspect.id ? <LucideStars className="size-5" />
+				characterAspectList[0] === aspect.id ?
+					<LucideStars className="size-5" />
 				: characterAspectSet.has(aspect.id) ? <LucideStar className="size-4" />
 				: null,
 			content: aspect.tiers.map((tier) => (
@@ -100,7 +114,11 @@ export function CharacterSkillsViewer({ character }: { character: OwnedApiCharac
 				icon: <LucideList className="size-5" />,
 				content: computedSkillTree.map((aspect) =>
 					aspect.tiers.map((tier) => (
-						<TierSection key={tier.name} name={`${aspect.name}: ${tier.name}`} number={tier.number}>
+						<TierSection
+							key={tier.name}
+							name={`${aspect.name}: ${tier.name}`}
+							number={tier.number}
+						>
 							<SkillList skills={tier.skills} character={character} />
 						</TierSection>
 					)),
@@ -114,7 +132,8 @@ export function CharacterSkillsViewer({ character }: { character: OwnedApiCharac
 			<div className="flex h-full flex-col gap-2">
 				<aside className="flex-center h-16 px-2 gap-1">
 					<SomeKindaLabel>
-						<span className="opacity-75">Experience:</span> {room.experience - usedExperience}{" "}
+						<span className="opacity-75">Experience:</span>{" "}
+						{room.experience - usedExperience}{" "}
 						<span className="opacity-75">remaining</span> / {room.experience}{" "}
 						<span className="opacity-75">available</span>
 					</SomeKindaLabel>
@@ -139,7 +158,11 @@ export function CharacterSkillsViewer({ character }: { character: OwnedApiCharac
 					{viewGroups.map((group, index) => (
 						<div key={index} className="flex gap-2 *:flex-1">
 							{group.map((view) => (
-								<Tabs.Tab key={view.title} id={view.title} className="flex-center-row gap-1.5">
+								<Tabs.Tab
+									key={view.title}
+									id={view.title}
+									className="flex-center-row gap-1.5"
+								>
 									{view.icon}
 									<span>{view.title}</span>
 								</Tabs.Tab>
@@ -151,7 +174,11 @@ export function CharacterSkillsViewer({ character }: { character: OwnedApiCharac
 				<div className="min-h-0 flex-1">
 					<ScrollArea>
 						{viewGroups.flat().map((view) => (
-							<Tabs.Panel key={view.title} id={view.title} className="grid px-2 gap-4">
+							<Tabs.Panel
+								key={view.title}
+								id={view.title}
+								className="grid px-2 gap-4"
+							>
 								{view.content}
 							</Tabs.Panel>
 						))}
@@ -191,7 +218,10 @@ function SkillList({
 }) {
 	const setSkillActive = useMutation(api.characters.functions.setSkillActive)
 
-	async function handleToggleSkill(aspectSkillId: Skill["id"], active: boolean) {
+	async function handleToggleSkill(
+		aspectSkillId: Skill["id"],
+		active: boolean,
+	) {
 		try {
 			await setSkillActive({
 				characterId: character._id,
@@ -233,7 +263,10 @@ function AspectSkillButton({
 	cost: number
 	onToggle: (active: boolean) => unknown
 }) {
-	const [, dispatchToggle, pending] = useActionState(() => onToggle(!active), undefined)
+	const [, dispatchToggle, pending] = useActionState(
+		() => onToggle(!active),
+		undefined,
+	)
 	return (
 		<button
 			type="button"

@@ -47,7 +47,9 @@ export function EmptyState({
 				{icon}
 			</div>
 			<p className="text-xl font-light opacity-75">{message}</p>
-			<div className="flex-center-row flex-wrap gap-2 empty:hidden">{actions}</div>
+			<div className="flex-center-row flex-wrap gap-2 empty:hidden">
+				{actions}
+			</div>
 			{children}
 		</section>
 	)

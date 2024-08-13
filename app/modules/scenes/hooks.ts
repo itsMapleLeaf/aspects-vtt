@@ -20,5 +20,10 @@ export function useSceneParam() {
 
 export function useCurrentSceneTokens() {
 	const { currentScene: sceneId } = useRoom()
-	return useQuery(api.scenes.tokens.functions.list, sceneId ? { sceneId } : "skip") ?? []
+	return (
+		useQuery(
+			api.scenes.tokens.functions.list,
+			sceneId ? { sceneId } : "skip",
+		) ?? []
+	)
 }

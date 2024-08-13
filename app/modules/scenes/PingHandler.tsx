@@ -12,28 +12,33 @@ export function PingHandler(props: ComponentProps<"div">) {
 	const context = useSceneContext()
 	const user = useUser()
 
-	const ping = useMutation(api.rooms.functions.ping).withOptimisticUpdate((store, args) => {
-		for (const mutator of queryMutators(store, api.rooms.functions.get)) {
-			if (mutator.value?._id === args.roomId && user) {
-				mutator.set({
-					...mutator.value,
-					ping: {
-						position: args.position,
-						key: args.key,
-						name: user.name,
-						colorHue: user._creationTime % 360,
-					},
-				})
+	const ping = useMutation(api.rooms.functions.ping).withOptimisticUpdate(
+		(store, args) => {
+			for (const mutator of queryMutators(store, api.rooms.functions.get)) {
+				if (mutator.value?._id === args.roomId && user) {
+					mutator.set({
+						...mutator.value,
+						ping: {
+							position: args.position,
+							key: args.key,
+							name: user.name,
+							colorHue: user._creationTime % 360,
+						},
+					})
+				}
 			}
-		}
-	})
+		},
+	)
 
 	const handlePing = (event: { clientX: number; clientY: number }): void => {
 		if (!user) return
 		startTransition(() => {
 			ping({
 				roomId: room._id,
-				position: context.mapPositionFromViewportPosition(event.clientX, event.clientY).xy,
+				position: context.mapPositionFromViewportPosition(
+					event.clientX,
+					event.clientY,
+				).xy,
 				key: crypto.randomUUID(),
 			})
 		})

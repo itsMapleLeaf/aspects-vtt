@@ -3,7 +3,11 @@ import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { useState } from "react"
 import { AttributeIcon } from "~/modules/attributes/AttributeIcon.tsx"
-import { type Attribute, listAttributeIds, listAttributes } from "~/modules/attributes/data.ts"
+import {
+	type Attribute,
+	listAttributeIds,
+	listAttributes,
+} from "~/modules/attributes/data.ts"
 import { CharacterImage } from "~/modules/characters/CharacterImage.tsx"
 import { CharacterSearchList } from "~/modules/characters/CharacterSearchList.tsx"
 import type { ApiCharacter } from "~/modules/characters/types.ts"
@@ -19,7 +23,11 @@ import { useNumberInput } from "~/ui/useNumberInput.tsx"
 import { api } from "../../../convex/_generated/api"
 import { hasFullCharacterPermissions } from "./helpers.ts"
 
-export function CharacterAttackForm({ characters }: { characters: ApiCharacter[] }) {
+export function CharacterAttackForm({
+	characters,
+}: {
+	characters: ApiCharacter[]
+}) {
 	const { tokens } = useSceneContext()
 
 	const attackers = tokens
@@ -68,7 +76,10 @@ export function CharacterAttackForm({ characters }: { characters: ApiCharacter[]
 
 	const attackerIcon =
 		attacker ?
-			<CharacterImage character={attacker} className="rounded-full object-cover object-top" />
+			<CharacterImage
+				character={attacker}
+				className="rounded-full object-cover object-top"
+			/>
 		:	<Lucide.UserPlus2 />
 
 	return (
@@ -76,7 +87,9 @@ export function CharacterAttackForm({ characters }: { characters: ApiCharacter[]
 			<FormLayout>
 				<FormField label="Attacker" className="items-stretch">
 					<Popover placement="bottom-start" open={open} setOpen={setOpen}>
-						<PopoverTrigger render={<Button align="start" icon={attackerIcon} />}>
+						<PopoverTrigger
+							render={<Button align="start" icon={attackerIcon} />}
+						>
 							{attacker ? attacker.name : "Select attacker"}
 						</PopoverTrigger>
 						<PopoverPanel className="flex w-64 flex-col p-2 gap-2">

@@ -16,7 +16,9 @@ export async function startBackend() {
 	const binaryPath = resolveBinaryPath()
 
 	if (!existsSync(binaryPath)) {
-		throw new Error("Failed to find convex backend, make sure it's downloaded first!")
+		throw new Error(
+			"Failed to find convex backend, make sure it's downloaded first!",
+		)
 	}
 
 	rmSync(backendDataFolder, { recursive: true, force: true })

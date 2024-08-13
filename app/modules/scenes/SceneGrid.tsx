@@ -24,7 +24,8 @@ export function SceneGrid() {
 	useEffect(() => {
 		const canvas = unwrap(canvasRef.current, "canvas ref not set")
 		if (!offscreenRef.current) {
-			const offscreen = (offscreenRef.current ??= canvas.transferControlToOffscreen())
+			const offscreen = (offscreenRef.current ??=
+				canvas.transferControlToOffscreen())
 			sendMessage({
 				type: "init",
 				canvas: offscreen,
@@ -42,6 +43,11 @@ export function SceneGrid() {
 	}, [scene.cellSize, size, viewport])
 
 	return (
-		<canvas className="absolute inset-0 size-full" width={size.x} height={size.y} ref={canvasRef} />
+		<canvas
+			className="absolute inset-0 size-full"
+			width={size.x}
+			height={size.y}
+			ref={canvasRef}
+		/>
 	)
 }

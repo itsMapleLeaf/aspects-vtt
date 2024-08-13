@@ -6,7 +6,11 @@ export interface LoadingDecorationProps extends ComponentProps<"div"> {
 	pending: boolean
 }
 
-export function LoadingDecoration({ pending, children, ...props }: LoadingDecorationProps) {
+export function LoadingDecoration({
+	pending,
+	children,
+	...props
+}: LoadingDecorationProps) {
 	return (
 		<div {...props} className={twMerge(props.className, "relative")}>
 			{children}

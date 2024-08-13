@@ -31,10 +31,12 @@ export function ConfirmModalForm({
 }) {
 	const [open, setOpen] = useState(false)
 
-	const [, confirm] = useSafeAction(async (event: React.MouseEvent<HTMLButtonElement>) => {
-		await onConfirm()
-		setOpen(false)
-	})
+	const [, confirm] = useSafeAction(
+		async (event: React.MouseEvent<HTMLButtonElement>) => {
+			await onConfirm()
+			setOpen(false)
+		},
+	)
 
 	return (
 		<ModalProvider open={open} setOpen={setOpen}>

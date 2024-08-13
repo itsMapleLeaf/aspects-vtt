@@ -6,7 +6,9 @@ it("requires auth", async ({ page }) => {
 	await expect(page.getByText("You must be signed in")).toBeVisible()
 })
 
-it("supports creating rooms and listing owned/joined rooms", async ({ page }) => {
+it("supports creating rooms and listing owned/joined rooms", async ({
+	page,
+}) => {
 	await page.goto("/")
 	await signIn(page)
 	await page.getByText("create room").click()

@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useInsertionEffect, useRef, useState } from "react"
+import {
+	useCallback,
+	useEffect,
+	useInsertionEffect,
+	useRef,
+	useState,
+} from "react"
 import { timeoutEffect } from "../async.ts"
 
 export type AsyncState<Args, Return> = Readonly<
@@ -49,7 +55,9 @@ export function usePendingDelay(pendingInput: boolean) {
 	return useDelayedValue(pendingInput, pendingInput ? 100 : 500, false)
 }
 
-export function useEffectEvent<Args extends unknown[], Return>(fn: (...args: Args) => Return) {
+export function useEffectEvent<Args extends unknown[], Return>(
+	fn: (...args: Args) => Return,
+) {
 	const ref = useRef((...args: Args): Return => {
 		throw new Error("Attempted to call effect event callback during render")
 	})

@@ -50,7 +50,11 @@ export function CharacterEditor({ character }: { character: ApiCharacter }) {
 						))}
 					</Tabs.List>
 					{views.map((view) => (
-						<Tabs.Panel key={view.title} id={view.title} className="min-h-0 flex-1 px-2 pb-2">
+						<Tabs.Panel
+							key={view.title}
+							id={view.title}
+							className="min-h-0 flex-1 px-2 pb-2"
+						>
 							{view.content}
 						</Tabs.Panel>
 					))}

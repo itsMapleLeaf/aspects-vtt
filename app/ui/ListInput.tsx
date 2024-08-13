@@ -51,7 +51,13 @@ export function ListInputItem({ children, onRemove }: ListInputItemProps) {
 	return (
 		<div className="flex gap-current">
 			<Panel className="flex flex-1 items-center px-3">{children}</Panel>
-			<Button type="submit" icon={<LucideX />} appearance="clear" square onClick={onRemove} />
+			<Button
+				type="submit"
+				icon={<LucideX />}
+				appearance="clear"
+				square
+				onClick={onRemove}
+			/>
 		</div>
 	)
 }

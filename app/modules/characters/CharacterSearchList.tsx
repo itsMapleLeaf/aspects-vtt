@@ -29,7 +29,9 @@ export function CharacterSearchList<T extends ApiCharacter>({
 					<div className="flex flex-col">
 						{characters
 							.filter((character) =>
-								getCharacterDisplayName(character)?.toLowerCase().includes(search.toLowerCase()),
+								getCharacterDisplayName(character)
+									?.toLowerCase()
+									.includes(search.toLowerCase()),
 							)
 							.map((character) => (
 								<Button

@@ -49,9 +49,9 @@ export function StressUpdateMenu({
 	const [dice, setDice] = useState<Record<string, number>>({})
 	const [operation, setOperation] = useState<"heal" | "damage">("heal")
 
-	const [stressTypes, setStressTypes] = useState<(typeof stressTypeOptions)[number]["value"]>(
-		stressTypeOptions[0].value,
-	)
+	const [stressTypes, setStressTypes] = useState<
+		(typeof stressTypeOptions)[number]["value"]
+	>(stressTypeOptions[0].value)
 
 	return (
 		<Modal trigger={children} title="Update vitality" store={dialog}>
@@ -70,7 +70,10 @@ export function StressUpdateMenu({
 			>
 				<FormLayout>
 					<div className="flex flex-wrap gap-2 *:flex-1 *:basis-32">
-						<FormField label="Amount" description="Positive amounts heal, negative amounts hurt.">
+						<FormField
+							label="Amount"
+							description="Positive amounts heal, negative amounts hurt."
+						>
 							<NumberInput
 								value={amount}
 								onChange={setAmount}
@@ -121,7 +124,11 @@ export function StressUpdateMenu({
 
 function ButtonOptionGroup({ children }: { children: React.ReactNode }) {
 	return (
-		<div className={panel("flex overflow-clip bg-primary-100 *:flex-1 empty:hidden")}>
+		<div
+			className={panel(
+				"flex overflow-clip bg-primary-100 *:flex-1 empty:hidden",
+			)}
+		>
 			{children}
 		</div>
 	)
@@ -164,7 +171,13 @@ function ButtonOption({
 	)
 }
 
-function Collapse({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
+function Collapse({
+	title,
+	children,
+}: {
+	title: React.ReactNode
+	children: React.ReactNode
+}) {
 	return (
 		<Ariakit.DisclosureProvider>
 			<div className="flex flex-col gap-1">

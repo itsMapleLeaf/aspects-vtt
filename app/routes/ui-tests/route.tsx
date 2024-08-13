@@ -17,7 +17,11 @@ export default function UiTests() {
 			<div className="flex gap-4">
 				<nav className="flex w-[12rem] flex-col gap-2">
 					{caseSlugs.map((slug) => (
-						<Link key={slug} to={slug} className="text-primary-600 hover:underline">
+						<Link
+							key={slug}
+							to={slug}
+							className="text-primary-600 hover:underline"
+						>
 							{titleCase(slug)}
 						</Link>
 					))}

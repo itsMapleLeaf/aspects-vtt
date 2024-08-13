@@ -17,11 +17,15 @@ export function useStrictContext<T>(context: React.Context<T | Empty>): T {
 	return value
 }
 
-export function createStrictContextApi<Props, Value>(init: (props: Props) => Value) {
+export function createStrictContextApi<Props, Value>(
+	init: (props: Props) => Value,
+) {
 	const Context = createStrictContext<Value>()
 
 	function Provider(props: Props & { children: React.ReactNode }) {
-		return <Context.Provider value={init(props)}>{props.children}</Context.Provider>
+		return (
+			<Context.Provider value={init(props)}>{props.children}</Context.Provider>
+		)
 	}
 
 	function useContextValue() {

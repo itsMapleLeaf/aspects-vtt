@@ -15,5 +15,7 @@ export function CharacterReadOnlyGuard({
 	children: React.ReactNode
 }) {
 	const hasUpdatePermissions = useCharacterUpdatePermission(character)
-	return hasUpdatePermissions ? children : <ReadOnlyField label={label} value={value} />
+	return hasUpdatePermissions ? children : (
+			<ReadOnlyField label={label} value={value} />
+		)
 }

@@ -23,7 +23,11 @@ export function CharacterRestForm({ character }: { character: ApiCharacter }) {
 					<FormErrors errors={hoursInput.validationError} />
 					<Input {...hoursInput.props} align="center" placeholder="1" />
 				</FormField>
-				<Button type="submit" icon={<Lucide.FlameKindling />} disabled={!hoursInput.valid}>
+				<Button
+					type="submit"
+					icon={<Lucide.FlameKindling />}
+					disabled={!hoursInput.valid}
+				>
 					Rest
 				</Button>
 			</FormLayout>

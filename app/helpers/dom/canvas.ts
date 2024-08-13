@@ -2,7 +2,9 @@ import { useLayoutEffect, useState } from "react"
 import { unwrap } from "../errors.ts"
 import { useResizeObserver } from "./useResizeObserver.ts"
 
-export function useCanvasDraw(draw: (context: CanvasRenderingContext2D) => void) {
+export function useCanvasDraw(
+	draw: (context: CanvasRenderingContext2D) => void,
+) {
 	const [canvas, canvasRef] = useState<HTMLCanvasElement | null>()
 
 	useLayoutEffect(() => {

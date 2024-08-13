@@ -47,10 +47,16 @@ function UnauthenticatedMessage() {
 					message="You must be signed in to continue."
 					actions={
 						<>
-							<form action={() => auth.signIn("discord", { redirectTo: currentUrl })}>
+							<form
+								action={() =>
+									auth.signIn("discord", { redirectTo: currentUrl })
+								}
+							>
 								<Button icon={<SiDiscord />}>Sign in with Discord</Button>
 							</form>
-							{(import.meta.env.DEV || import.meta.env.MODE === "test") && <TestSignInButton />}
+							{(import.meta.env.DEV || import.meta.env.MODE === "test") && (
+								<TestSignInButton />
+							)}
 						</>
 					}
 				/>
@@ -63,7 +69,9 @@ function TestSignInButton() {
 	const currentUrl = useHref(useLocation())
 	return (
 		<ModalProvider>
-			<ModalButton render={<Button icon={<Lucide.TestTube2 />} />}>Test sign in</ModalButton>
+			<ModalButton render={<Button icon={<Lucide.TestTube2 />} />}>
+				Test sign in
+			</ModalButton>
 			<ModalPanel title="Test sign in">
 				<form
 					action={(form) =>

@@ -1,10 +1,18 @@
 import { authTables } from "@convex-dev/auth/server"
 import { migrationsTable } from "convex-helpers/server/migrations"
-import { brandedString, deprecated, literals, nullable } from "convex-helpers/validators"
+import {
+	brandedString,
+	deprecated,
+	literals,
+	nullable,
+} from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { listRaceIds } from "~/modules/races/data.ts"
-import { characterAttributeValidator, characterConditionValidator } from "./characters/types.ts"
+import {
+	characterAttributeValidator,
+	characterConditionValidator,
+} from "./characters/types.ts"
 import { nullish } from "./helpers/convex.ts"
 import { diceInputValidator, diceRollValidator } from "./messages/types.ts"
 import { roomCombatValidator } from "./rooms/combat/types.ts"
@@ -176,7 +184,9 @@ export default defineSchema({
 	scenes: defineTable({
 		name: v.string(),
 		background: nullable(v.id("_storage")),
-		backgroundDimensions: v.optional(v.object({ x: v.number(), y: v.number() })),
+		backgroundDimensions: v.optional(
+			v.object({ x: v.number(), y: v.number() }),
+		),
 		cellSize: v.number(),
 		roomId: v.id("rooms"),
 		tokens: v.optional(v.array(v.object(sceneTokenProperties))),

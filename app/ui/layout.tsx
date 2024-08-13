@@ -1,6 +1,9 @@
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
-import { type ElementProp, renderElementProp } from "../helpers/react/ElementProp.tsx"
+import {
+	type ElementProp,
+	renderElementProp,
+} from "../helpers/react/ElementProp.tsx"
 
 interface ColumnPropsBase {
 	gap?: 1 | 2 | 3 | 4 | 6
@@ -10,7 +13,9 @@ interface ColumnPropsAsDiv extends ColumnPropsBase, ComponentProps<"div"> {
 	element?: undefined
 }
 
-interface ColumnPropsAsElement extends ColumnPropsBase, Record<keyof ComponentProps<"div">, never> {
+interface ColumnPropsAsElement
+	extends ColumnPropsBase,
+		Record<keyof ComponentProps<"div">, never> {
 	element: ElementProp<ComponentProps<"div">>
 }
 

@@ -23,4 +23,6 @@ interface SceneContextType {
 }
 
 // this is in a separate file because vite is weird
-export const SceneContext = createContext<SceneContextType | undefined>(undefined)
+export const SceneContext = createContext<SceneContextType | undefined>(
+	undefined,
+)

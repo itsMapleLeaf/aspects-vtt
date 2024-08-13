@@ -15,7 +15,10 @@ export function useImage(src: string | Falsy) {
 	}, [src])
 	return image
 }
-export function loadImage(src: string, signal?: AbortSignal): Promise<HTMLImageElement> {
+export function loadImage(
+	src: string,
+	signal?: AbortSignal,
+): Promise<HTMLImageElement> {
 	return new Promise((resolve, reject) => {
 		const image = new Image()
 		image.src = src

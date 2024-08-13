@@ -3,7 +3,10 @@ import { unwrap } from "./errors.ts"
 import { entries } from "./object.ts"
 import type { AllKeys, AllValues } from "./types.ts"
 
-/** A read-only map of items with known keys, where get() is guaranteed to return a value */
+/**
+ * A read-only map of items with known keys, where get() is guaranteed to return
+ * a value
+ */
 export class SafeMap<K, V> {
 	readonly #items: ReadonlyMap<K, V>
 
@@ -11,11 +14,19 @@ export class SafeMap<K, V> {
 		this.#items = new Map(items)
 	}
 
-	static mapRecord<const Input extends Record<PropertyKey, unknown>, const MappedValue>(
+	static mapRecord<
+		const Input extends Record<PropertyKey, unknown>,
+		const MappedValue,
+	>(
 		record: Input,
 		map: (value: AllValues<Input>, key: AllKeys<Input>) => MappedValue,
 	): SafeMap<keyof Input, MappedValue> {
-		return new SafeMap(Iterator.from(entries(record)).map(([key, value]) => [key, map(value, key)]))
+		return new SafeMap(
+			Iterator.from(entries(record)).map(([key, value]) => [
+				key,
+				map(value, key),
+			]),
+		)
 	}
 
 	get __keyType(): K {

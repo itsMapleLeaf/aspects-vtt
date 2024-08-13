@@ -13,7 +13,8 @@ import type { Id } from "../../../convex/_generated/dataModel"
 import { useSafeAction } from "../convex/hooks.js"
 import { getApiImageUrl } from "./helpers.js"
 
-export interface ImageUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ImageUploaderProps
+	extends React.HTMLAttributes<HTMLDivElement> {
 	imageId?: Nullish<Id<"_storage">>
 	fallbackUrl?: string
 	onUpload: (imageId: Id<"_storage">, file: File) => Promise<unknown>
@@ -24,11 +25,18 @@ export function ImageUploader(props: ImageUploaderProps) {
 	return <ImageUploaderView {...useImageUploaderState(props)} />
 }
 
-function useImageUploaderState({ imageId, fallbackUrl, onUpload, ...props }: ImageUploaderProps) {
+function useImageUploaderState({
+	imageId,
+	fallbackUrl,
+	onUpload,
+	...props
+}: ImageUploaderProps) {
 	const getUploadUrl = useMutation(api.storage.getUploadUrl)
 	const removeFile = useMutation(api.storage.remove)
 
-	const [state, upload, pending] = useSafeAction(async function upload(file: File) {
+	const [state, upload, pending] = useSafeAction(async function upload(
+		file: File,
+	) {
 		const url = await getUploadUrl({})
 		const response = await fetch(url, {
 			method: "POST",

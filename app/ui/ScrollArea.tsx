@@ -12,9 +12,14 @@ export interface ScrollAreaProps {
 	onViewportScroll?: (event: React.UIEvent<HTMLDivElement>) => void
 }
 
-export function ScrollArea({ direction = "vertical", ...props }: ScrollAreaProps) {
+export function ScrollArea({
+	direction = "vertical",
+	...props
+}: ScrollAreaProps) {
 	return (
-		<RadixScrollArea.Root className={twMerge("flex h-full flex-col", props.className)}>
+		<RadixScrollArea.Root
+			className={twMerge("flex h-full flex-col", props.className)}
+		>
 			<RadixScrollArea.Viewport
 				className={twMerge(
 					"min-h-0 flex-1 [&>div]:!block",

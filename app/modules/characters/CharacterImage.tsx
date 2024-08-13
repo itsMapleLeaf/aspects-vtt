@@ -12,7 +12,10 @@ export function CharacterImage({
 	const fallbackUrl = getCharacterFallbackImageUrl(character)
 	return (
 		<div
-			{...withMergedClassName(props, "bg-cover bg-top will-change-transform w-full")}
+			{...withMergedClassName(
+				props,
+				"bg-cover bg-top will-change-transform w-full",
+			)}
 			style={{
 				backgroundImage: `url(${character.imageUrl ?? fallbackUrl})`,
 				...props.style,

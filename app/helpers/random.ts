@@ -3,8 +3,8 @@ import type { Equal, Expect } from "./types.ts"
 /**
  * Returns a random integer between min and max (inclusive).
  *
- * When passed a single number, it will return a random integer between 1 and that number
- * (inclusive).
+ * When passed a single number, it will return a random integer between 1 and
+ * that number (inclusive).
  */
 export function randomInt(...args: [min: number, max: number] | [max: number]) {
 	const [min, max] = args.length === 1 ? [1, args[0]] : args

@@ -22,7 +22,10 @@ export function createMessages(
 			Effect.gen(function* () {
 				const content = input.content ?? ""
 				const dice = input.dice ?? []
-				const diceInputCount = dice.reduce((total, input) => total + input.count, 0)
+				const diceInputCount = dice.reduce(
+					(total, input) => total + input.count,
+					0,
+				)
 
 				if (content.trim() === "" && diceInputCount === 0) {
 					return yield* Effect.fail(new EmptyMessageError())

@@ -15,7 +15,8 @@ export const defaultFloatingOptions = {
 } satisfies FloatingUI.UseFloatingOptions
 
 export function createFloatingComponents() {
-	const FloatingContext = React.createContext<FloatingUI.UseFloatingReturn | null>(null)
+	const FloatingContext =
+		React.createContext<FloatingUI.UseFloatingReturn | null>(null)
 
 	interface FloatingProviderProps extends FloatingUI.UseFloatingOptions {
 		children: React.ReactNode
@@ -26,7 +27,11 @@ export function createFloatingComponents() {
 			...defaultFloatingOptions,
 			...options,
 		})
-		return <FloatingContext.Provider value={floating}>{children}</FloatingContext.Provider>
+		return (
+			<FloatingContext.Provider value={floating}>
+				{children}
+			</FloatingContext.Provider>
+		)
 	}
 
 	function useFloatingContext() {

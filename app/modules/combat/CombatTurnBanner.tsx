@@ -6,7 +6,9 @@ export function CombatTurnBanner() {
 	const room = useRoom()
 	const character = useOwnedCharacter()
 	const isTurn =
-		room.combat?.currentMemberId && character && room.combat.currentMemberId === character._id
+		room.combat?.currentMemberId &&
+		character &&
+		room.combat.currentMemberId === character._id
 	return (
 		<div
 			className={panel(

@@ -8,9 +8,11 @@ export type DragSelectStore<T> = ReturnType<typeof useDragSelectStore<T>>
 const empty: ReadonlySet<never> = new Set()
 
 export function useDragSelectStore<T>() {
-	const [selectedState, setSelectedState] = React.useState<ReadonlySet<T>>(empty)
+	const [selectedState, setSelectedState] =
+		React.useState<ReadonlySet<T>>(empty)
 	const [areaState, setAreaState] = React.useState<Rect>()
-	const [multiSelectState, setMultiSelectState] = React.useState<ReadonlySet<T>>(empty)
+	const [multiSelectState, setMultiSelectState] =
+		React.useState<ReadonlySet<T>>(empty)
 	const [elementRects] = React.useState(() => new Map<T, Rect>())
 
 	const selected = new Set([...selectedState, ...multiSelectState])

@@ -31,7 +31,9 @@ export function CharacterNumberField({
 	const update = useMutation(api.characters.functions.update)
 
 	const input = useDelayedSyncInput({
-		value: String(hasFullCharacterPermissions(character) ? character[field] : 0),
+		value: String(
+			hasFullCharacterPermissions(character) ? character[field] : 0,
+		),
 		onSubmit: (value) => {
 			const int = toNearestPositiveInt(value)
 			if (int) {
@@ -51,7 +53,11 @@ export function CharacterNumberField({
 	})
 
 	return (
-		<CharacterReadOnlyGuard character={character} label={label} value={input.value}>
+		<CharacterReadOnlyGuard
+			character={character}
+			label={label}
+			value={input.value}
+		>
 			<FormField label={label}>
 				<Input
 					{...numberInput.props}

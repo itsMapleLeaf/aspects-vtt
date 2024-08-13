@@ -2,16 +2,26 @@ import { LucideImageOff } from "lucide-react"
 import type { ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 
-export interface ImageProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "className"> {
+export interface ImageProps
+	extends Omit<React.HTMLAttributes<HTMLDivElement>, "className"> {
 	src?: string
 	fallbackIcon?: ReactNode
 	className?: string | { container?: string; image?: string; icon?: string }
 }
 
-export function Image({ src, fallbackIcon = <LucideImageOff />, className, ...props }: ImageProps) {
-	const resolvedClassName = typeof className === "string" ? { container: className } : className
+export function Image({
+	src,
+	fallbackIcon = <LucideImageOff />,
+	className,
+	...props
+}: ImageProps) {
+	const resolvedClassName =
+		typeof className === "string" ? { container: className } : className
 	return (
-		<div {...props} className={twMerge("flex-center size-full", resolvedClassName?.container)}>
+		<div
+			{...props}
+			className={twMerge("flex-center size-full", resolvedClassName?.container)}
+		>
 			{src ?
 				<img
 					src={src}

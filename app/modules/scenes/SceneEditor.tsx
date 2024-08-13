@@ -26,7 +26,9 @@ import type { ApiScene } from "./types.ts"
 export function SceneEditor({ scene }: { scene: ApiScene }) {
 	const room = useRoom()
 	const updateScene = useMutation(api.scenes.functions.update)
-	const [updateRoomState, updateRoom] = useMutationAction(api.rooms.functions.update)
+	const [updateRoomState, updateRoom] = useMutationAction(
+		api.rooms.functions.update,
+	)
 	const isCurrent = room.currentScene === scene._id
 	const modal = useModalContext()
 
@@ -49,7 +51,9 @@ export function SceneEditor({ scene }: { scene: ApiScene }) {
 					<EditableIntegerInput
 						align="center"
 						value={scene.cellSize}
-						onSubmit={(value) => updateScene({ id: scene._id, cellSize: value })}
+						onSubmit={(value) =>
+							updateScene({ id: scene._id, cellSize: value })
+						}
 					/>
 				</FormField>
 			</FormRow>
@@ -72,7 +76,9 @@ export function SceneEditor({ scene }: { scene: ApiScene }) {
 			<FormRow className="*:flex-1">
 				<Button
 					icon={<LucideEye />}
-					element={<Link to={`?scene=${scene._id}`} onClick={() => modal?.hide()} />}
+					element={
+						<Link to={`?scene=${scene._id}`} onClick={() => modal?.hide()} />
+					}
 				>
 					View scene
 				</Button>
@@ -94,7 +100,10 @@ export function SceneEditorModal({
 	scene,
 	children,
 	...props
-}: { scene: ApiScene } & Overwrite<ModalProviderProps, { children: React.ReactNode }>) {
+}: { scene: ApiScene } & Overwrite<
+	ModalProviderProps,
+	{ children: React.ReactNode }
+>) {
 	return (
 		<ModalProvider {...props}>
 			{children}

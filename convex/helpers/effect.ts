@@ -33,7 +33,10 @@ import {
 	query,
 } from "../_generated/server.js"
 
-export class QueryCtxService extends Context.Tag("QueryCtxService")<QueryCtxService, QueryCtx>() {}
+export class QueryCtxService extends Context.Tag("QueryCtxService")<
+	QueryCtxService,
+	QueryCtx
+>() {}
 
 export class MutationCtxService extends Context.Tag("MutationCtxService")<
 	MutationCtxService,
@@ -45,7 +48,9 @@ export class ActionCtxService extends Context.Tag("ActionCtxService")<
 	GenericActionCtx<GenericDataModel>
 >() {}
 
-export class ConvexDocNotFoundError extends Data.TaggedError("ConvexDocNotFoundError")<{
+export class ConvexDocNotFoundError extends Data.TaggedError(
+	"ConvexDocNotFoundError",
+)<{
 	id?: string
 	table?: string
 }> {}
@@ -54,7 +59,9 @@ export class NotLoggedInError extends Data.TaggedError("NotLoggedInError") {}
 
 export class FileNotFoundError extends Data.TaggedError("FileNotFoundError") {}
 
-export class InvalidIdError<T extends string> extends Data.TaggedError("InvalidIdError")<{
+export class InvalidIdError<T extends string> extends Data.TaggedError(
+	"InvalidIdError",
+)<{
 	table: T
 	id: string
 }> {}
@@ -90,7 +97,14 @@ export function effectMutation<
 	Args extends PropertyValidators,
 	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
 	Output,
->(options: EffectBuilderOptions<Args, ArgsArray, Output, QueryCtxService | MutationCtxService>) {
+>(
+	options: EffectBuilderOptions<
+		Args,
+		ArgsArray,
+		Output,
+		QueryCtxService | MutationCtxService
+	>,
+) {
 	return mutation({
 		...options,
 		handler(ctx, ...args: ArgsArray) {
@@ -145,7 +159,14 @@ export function internalEffectMutation<
 	Args extends PropertyValidators,
 	ArgsArray extends ArgsArrayForOptionalValidator<Args>,
 	Output,
->(options: EffectBuilderOptions<Args, ArgsArray, Output, QueryCtxService | MutationCtxService>) {
+>(
+	options: EffectBuilderOptions<
+		Args,
+		ArgsArray,
+		Output,
+		QueryCtxService | MutationCtxService
+	>,
+) {
 	return internalMutation({
 		...options,
 		handler(ctx, ...args: ArgsArray) {
@@ -180,7 +201,9 @@ export function internalEffectAction<
 }
 
 export function docOrFail<D>(doc: D | undefined | null) {
-	return doc != null ? Effect.succeed(doc) : Effect.fail(new ConvexDocNotFoundError({}))
+	return doc != null ?
+			Effect.succeed(doc)
+		:	Effect.fail(new ConvexDocNotFoundError({}))
 }
 
 class ConvexEffectDb {
@@ -213,20 +236,28 @@ class ConvexEffectDb {
 		)
 	}
 
-	insert<T extends TableNames>(table: T, data: WithoutSystemFields<DocumentByName<DataModel, T>>) {
+	insert<T extends TableNames>(
+		table: T,
+		data: WithoutSystemFields<DocumentByName<DataModel, T>>,
+	) {
 		return MutationCtxService.pipe(
 			Effect.flatMap((ctx) => Effect.promise(() => ctx.db.insert(table, data))),
 		)
 	}
 
-	patch<T extends TableNames>(id: Id<T>, data: Partial<DocumentByName<DataModel, T>>) {
+	patch<T extends TableNames>(
+		id: Id<T>,
+		data: Partial<DocumentByName<DataModel, T>>,
+	) {
 		return MutationCtxService.pipe(
 			Effect.flatMap((ctx) => Effect.promise(() => ctx.db.patch(id, data))),
 		)
 	}
 
 	delete<T extends TableNames>(id: Id<T>) {
-		return MutationCtxService.pipe(Effect.flatMap((ctx) => Effect.promise(() => ctx.db.delete(id))))
+		return MutationCtxService.pipe(
+			Effect.flatMap((ctx) => Effect.promise(() => ctx.db.delete(id))),
+		)
 	}
 }
 
@@ -247,23 +278,35 @@ class ConvexEffectSystemDb {
 
 class OrderedEffectQuery<Info extends GenericTableInfo> {
 	constructor(
-		protected readonly query: Effect.Effect<OrderedQuery<Info>, never, QueryCtxService>,
+		protected readonly query: Effect.Effect<
+			OrderedQuery<Info>,
+			never,
+			QueryCtxService
+		>,
 	) {}
 
 	filter(fn: (q: FilterBuilder<Info>) => ExpressionOrValue<boolean>) {
-		return new OrderedEffectQuery(this.query.pipe(Effect.map((q) => q.filter(fn))))
+		return new OrderedEffectQuery(
+			this.query.pipe(Effect.map((q) => q.filter(fn))),
+		)
 	}
 
 	collect() {
-		return this.query.pipe(Effect.flatMap((q) => Effect.promise(() => q.collect())))
+		return this.query.pipe(
+			Effect.flatMap((q) => Effect.promise(() => q.collect())),
+		)
 	}
 
 	paginate(options: PaginationOptions) {
-		return this.query.pipe(Effect.flatMap((q) => Effect.promise(() => q.paginate(options))))
+		return this.query.pipe(
+			Effect.flatMap((q) => Effect.promise(() => q.paginate(options))),
+		)
 	}
 
 	take(n: number) {
-		return this.query.pipe(Effect.flatMap((q) => Effect.promise(() => q.take(n))))
+		return this.query.pipe(
+			Effect.flatMap((q) => Effect.promise(() => q.take(n))),
+		)
 	}
 
 	first() {
@@ -281,7 +324,9 @@ class OrderedEffectQuery<Info extends GenericTableInfo> {
 	}
 }
 
-class EffectQuery<Info extends GenericTableInfo> extends OrderedEffectQuery<Info> {
+class EffectQuery<
+	Info extends GenericTableInfo,
+> extends OrderedEffectQuery<Info> {
 	protected readonly query: Effect.Effect<Query<Info>, never, QueryCtxService>
 
 	constructor(query: Effect.Effect<Query<Info>, never, QueryCtxService>) {
@@ -290,23 +335,41 @@ class EffectQuery<Info extends GenericTableInfo> extends OrderedEffectQuery<Info
 	}
 
 	order(by: "asc" | "desc") {
-		return new OrderedEffectQuery(this.query.pipe(Effect.map((q) => q.order(by))))
+		return new OrderedEffectQuery(
+			this.query.pipe(Effect.map((q) => q.order(by))),
+		)
 	}
 }
 
-class EffectQueryInitializer<Info extends GenericTableInfo> extends EffectQuery<Info> {
-	protected readonly query: Effect.Effect<QueryInitializer<Info>, never, QueryCtxService>
+class EffectQueryInitializer<
+	Info extends GenericTableInfo,
+> extends EffectQuery<Info> {
+	protected readonly query: Effect.Effect<
+		QueryInitializer<Info>,
+		never,
+		QueryCtxService
+	>
 
-	constructor(query: Effect.Effect<QueryInitializer<Info>, never, QueryCtxService>) {
+	constructor(
+		query: Effect.Effect<QueryInitializer<Info>, never, QueryCtxService>,
+	) {
 		super(query)
 		this.query = query
 	}
 
 	withIndex<IndexName extends IndexNames<Info>>(
 		indexName: IndexName,
-		fn: (q: IndexRangeBuilder<DocumentByInfo<Info>, NamedIndex<Info, IndexName>, 0>) => IndexRange,
+		fn: (
+			q: IndexRangeBuilder<
+				DocumentByInfo<Info>,
+				NamedIndex<Info, IndexName>,
+				0
+			>,
+		) => IndexRange,
 	) {
-		return new EffectQuery(this.query.pipe(Effect.map((q) => q.withIndex(indexName, fn))))
+		return new EffectQuery(
+			this.query.pipe(Effect.map((q) => q.withIndex(indexName, fn))),
+		)
 	}
 }
 
@@ -315,13 +378,17 @@ export const Convex = {
 	storage: {
 		getUrl(storageId: Id<"_storage">) {
 			return QueryCtxService.pipe(
-				Effect.flatMap((ctx) => Effect.promise(() => ctx.storage.getUrl(storageId))),
+				Effect.flatMap((ctx) =>
+					Effect.promise(() => ctx.storage.getUrl(storageId)),
+				),
 				Effect.filterOrFail(isNonNil, () => new FileNotFoundError()),
 			)
 		},
 		getMetadata(storageId: Id<"_storage">) {
 			return QueryCtxService.pipe(
-				Effect.flatMap((ctx) => Effect.promise(() => ctx.storage.getMetadata(storageId))),
+				Effect.flatMap((ctx) =>
+					Effect.promise(() => ctx.storage.getMetadata(storageId)),
+				),
 				Effect.filterOrFail(
 					(metadata) => metadata !== null,
 					() => new FileNotFoundError(),
@@ -330,12 +397,16 @@ export const Convex = {
 		},
 		generateUploadUrl() {
 			return MutationCtxService.pipe(
-				Effect.flatMap((ctx) => Effect.promise(() => ctx.storage.generateUploadUrl())),
+				Effect.flatMap((ctx) =>
+					Effect.promise(() => ctx.storage.generateUploadUrl()),
+				),
 			)
 		},
 		delete(storageId: Id<"_storage">) {
 			return MutationCtxService.pipe(
-				Effect.flatMap((ctx) => Effect.promise(() => ctx.storage.delete(storageId))),
+				Effect.flatMap((ctx) =>
+					Effect.promise(() => ctx.storage.delete(storageId)),
+				),
 			)
 		},
 	},
@@ -343,12 +414,16 @@ export const Convex = {
 
 /** @deprecated */
 export function withQueryCtx<T>(fn: (ctx: QueryCtx) => T | PromiseLike<T>) {
-	return QueryCtxService.pipe(Effect.flatMap((ctx) => Effect.promise(async () => await fn(ctx))))
+	return QueryCtxService.pipe(
+		Effect.flatMap((ctx) => Effect.promise(async () => await fn(ctx))),
+	)
 }
 
 /** @deprecated */
 export function withMutationCtx<T>(fn: (ctx: MutationCtx) => T) {
-	return MutationCtxService.pipe(Effect.flatMap((ctx) => Effect.promise(async () => await fn(ctx))))
+	return MutationCtxService.pipe(
+		Effect.flatMap((ctx) => Effect.promise(async () => await fn(ctx))),
+	)
 }
 
 /** @deprecated */
@@ -389,5 +464,7 @@ export function patchDoc<T extends TableNames>(
 
 /** @deprecated */
 export function deleteDoc<T extends TableNames>(id: Id<T>) {
-	return MutationCtxService.pipe(Effect.flatMap((ctx) => Effect.promise(() => ctx.db.delete(id))))
+	return MutationCtxService.pipe(
+		Effect.flatMap((ctx) => Effect.promise(() => ctx.db.delete(id))),
+	)
 }

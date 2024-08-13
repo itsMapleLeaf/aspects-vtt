@@ -61,7 +61,11 @@ export const setCharacterImageFromStorage = internalAction({
 		if (!blob) {
 			throw new Error(`Image not found in storage: ${args.storageId}`)
 		}
-		const id = await createImageFromBlob(ctx, `character_${args.characterId}`, blob)
+		const id = await createImageFromBlob(
+			ctx,
+			`character_${args.characterId}`,
+			blob,
+		)
 		await ctx.runMutation(internal.characters.functions.updateInternal, {
 			id: args.characterId,
 			image: id,
@@ -70,7 +74,8 @@ export const setCharacterImageFromStorage = internalAction({
 })
 
 async function createImageFromBlob(ctx: ActionCtx, name: string, blob: Blob) {
-	const log = (...values: unknown[]) => console.info(`[image ${name}]\n->`, ...values)
+	const log = (...values: unknown[]) =>
+		console.info(`[image ${name}]\n->`, ...values)
 
 	const buffer = await blob.arrayBuffer()
 	const hash = createHash("sha256").update(new Uint8Array(buffer)).digest("hex")
@@ -94,7 +99,9 @@ async function createImageFromBlob(ctx: ActionCtx, name: string, blob: Blob) {
 			name,
 			metadata,
 		}
-		throw new Error(`Invalid image dimensions. ${JSON.stringify(errorData, null, 2)}`)
+		throw new Error(
+			`Invalid image dimensions. ${JSON.stringify(errorData, null, 2)}`,
+		)
 	}
 
 	const sizes = await Promise.all(
@@ -113,7 +120,9 @@ async function createImageFromBlob(ctx: ActionCtx, name: string, blob: Blob) {
 				const newHeight = Math.round(height * scale)
 
 				log(`Storing resized image`)
-				const storageId = await ctx.storage.store(new Blob([buffer], { type: "image/webp" }))
+				const storageId = await ctx.storage.store(
+					new Blob([buffer], { type: "image/webp" }),
+				)
 
 				return { width: newWidth, height: newHeight, storageId }
 			}),

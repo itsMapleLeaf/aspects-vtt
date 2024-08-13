@@ -30,12 +30,16 @@ interface ButtonPropsBase {
 	align?: "start" | "middle" | "end"
 }
 
-export interface ButtonPropsAsButton extends ComponentProps<"button">, ButtonPropsBase {
+export interface ButtonPropsAsButton
+	extends ComponentProps<"button">,
+		ButtonPropsBase {
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => unknown
 }
 
 export interface ButtonPropsAsElement
-	extends Disallowed<StrictOmit<ComponentProps<"button">, "className" | "key" | "children">>,
+	extends Disallowed<
+			StrictOmit<ComponentProps<"button">, "className" | "key" | "children">
+		>,
 		ButtonPropsBase {
 	element: ReactElement<{
 		className?: string
@@ -67,7 +71,8 @@ export function Button({
 
 	const status = useFormStatus()
 	const pending = usePendingDelay(
-		pendingProp ?? (transitionPending || (status.pending && props.type === "submit")),
+		pendingProp ??
+			(transitionPending || (status.pending && props.type === "submit")),
 	)
 
 	const className = twMerge(
@@ -109,7 +114,8 @@ export function Button({
 
 			"translate-y-0 active:translate-y-0.5",
 
-			active && "bg-primary-800 bg-opacity-10 text-primary-800 text-opacity-100",
+			active &&
+				"bg-primary-800 bg-opacity-10 text-primary-800 text-opacity-100",
 		],
 	)
 

@@ -49,7 +49,12 @@ const fnPattern = sequence(
 	`\\(`,
 	capture(
 		oneOrMoreOf(
-			group(either(sequence("\\(", zeroOrMoreOf(notCharacters(")")), "\\)"), notCharacters(")"))),
+			group(
+				either(
+					sequence("\\(", zeroOrMoreOf(notCharacters(")")), "\\)"),
+					notCharacters(")"),
+				),
+			),
 		),
 	),
 )

@@ -6,7 +6,9 @@ import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel.js"
 import { useQuerySuspense } from "../convex/suspense.ts"
 
-export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.functions.get>>
+export type ApiRoom = NonNullable<
+	FunctionReturnType<typeof api.rooms.functions.get>
+>
 
 export function RoomOwnerOnly({ children }: { children: React.ReactNode }) {
 	const room = useRoom()

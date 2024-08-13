@@ -1,8 +1,22 @@
-import { Disclosure, DisclosureContent, useDisclosureStore } from "@ariakit/react"
+import {
+	Disclosure,
+	DisclosureContent,
+	useDisclosureStore,
+} from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import { Fragment, createContext, startTransition, use, useContext, useState } from "react"
+import {
+	Fragment,
+	createContext,
+	startTransition,
+	use,
+	useContext,
+	useState,
+} from "react"
 import { z } from "zod"
-import { useLocalStorageState, useLocalStorageSwitch } from "~/helpers/dom/useLocalStorage.ts"
+import {
+	useLocalStorageState,
+	useLocalStorageSwitch,
+} from "~/helpers/dom/useLocalStorage.ts"
 import type { JsonValue } from "~/helpers/json.ts"
 import { mod } from "~/helpers/math.ts"
 import type { Nullish } from "~/helpers/types.ts"
@@ -22,7 +36,10 @@ interface SortMode {
 	readonly id: string
 	readonly name: string
 	readonly icon: React.ReactNode
-	readonly compare: (a: ResourceGroupItem<unknown>, b: ResourceGroupItem<unknown>) => number
+	readonly compare: (
+		a: ResourceGroupItem<unknown>,
+		b: ResourceGroupItem<unknown>,
+	) => number
 }
 
 const sortModes: [SortMode, ...SortMode[]] = [
@@ -57,7 +74,8 @@ const ResourceTreeContext = createContext<{
 })
 
 function useResourceTreeContext<T>(items: ReadonlyArray<ResourceGroupItem<T>>) {
-	const { search, sortMode, pinned, setPinned, ...context } = use(ResourceTreeContext)
+	const { search, sortMode, pinned, setPinned, ...context } =
+		use(ResourceTreeContext)
 
 	const processedItems = items
 		.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
@@ -81,18 +99,19 @@ function useResourceTreeContext<T>(items: ReadonlyArray<ResourceGroupItem<T>>) {
 export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 	const [search, setSearch] = useState("")
 	const { sortMode, cycleSortMode } = useSorting()
-	const [pinnedResourceIds, setPinnedResourceIds] = useLocalStorageState<readonly string[]>(
-		"pinnedResources",
-		[],
-		z.array(z.string()),
-	)
-	const [pinnedItemsContainer, setPinnedItemsContainer] = useState<HTMLElement | null>()
+	const [pinnedResourceIds, setPinnedResourceIds] = useLocalStorageState<
+		readonly string[]
+	>("pinnedResources", [], z.array(z.string()))
+	const [pinnedItemsContainer, setPinnedItemsContainer] =
+		useState<HTMLElement | null>()
 
 	const setResourcePinned = (resourceId: string, pinned: boolean) => {
 		if (pinned) {
 			setPinnedResourceIds((current) => [...current, resourceId])
 		} else {
-			setPinnedResourceIds((current) => current.filter((it) => it !== resourceId))
+			setPinnedResourceIds((current) =>
+				current.filter((it) => it !== resourceId),
+			)
 		}
 	}
 
@@ -126,7 +145,11 @@ export function ResourceTree({ sceneId }: { sceneId: Nullish<Id<"scenes">> }) {
 								pinnedItemsContainer,
 							}}
 						>
-							<CharacterResourceGroup id="characters" title="All Characters" sceneId={null} />
+							<CharacterResourceGroup
+								id="characters"
+								title="All Characters"
+								sceneId={null}
+							/>
 							{sceneId && (
 								<CharacterResourceGroup
 									id="sceneCharacters"
@@ -162,7 +185,10 @@ export function ResourceGroup<ItemData>(props: {
 	renderItem: (data: ItemData) => React.ReactNode
 }) {
 	const room = useRoom()
-	const [open, setOpen] = useLocalStorageSwitch(`resource-tree-group:${props.id}`, false)
+	const [open, setOpen] = useLocalStorageSwitch(
+		`resource-tree-group:${props.id}`,
+		false,
+	)
 	const disclosure = useDisclosureStore({
 		open,
 		setOpen: (open) => {
@@ -184,7 +210,14 @@ export function ResourceGroup<ItemData>(props: {
 			<div className="flex gap-1">
 				<Disclosure
 					store={disclosure}
-					render={<Button icon={folderIcon} appearance="clear" align="start" className="flex-1" />}
+					render={
+						<Button
+							icon={folderIcon}
+							appearance="clear"
+							align="start"
+							className="flex-1"
+						/>
+					}
 				>
 					{props.name}
 				</Disclosure>
@@ -201,13 +234,20 @@ export function ResourceGroup<ItemData>(props: {
 				</RoomOwnerOnly>
 			</div>
 			{context.items.length > 0 && (
-				<DisclosureContent store={disclosure} unmountOnHide className="flex flex-col pl-2 gap-1">
+				<DisclosureContent
+					store={disclosure}
+					unmountOnHide
+					className="flex flex-col pl-2 gap-1"
+				>
 					{context.items.map((item) => (
 						<Fragment key={item.id}>{props.renderItem(item.data)}</Fragment>
 					))}
 				</DisclosureContent>
 			)}
-			<Portal enabled={pinnedItems.length > 0} container={context.pinnedItemsContainer}>
+			<Portal
+				enabled={pinnedItems.length > 0}
+				container={context.pinnedItemsContainer}
+			>
 				{pinnedItems.map((item) => (
 					<Fragment key={item.id}>{props.renderItem(item.data)}</Fragment>
 				))}
@@ -325,7 +365,8 @@ function useSorting() {
 	const cycleSortMode = () => {
 		setSortModeId((sortModeId) => {
 			const index = sortModes.findIndex((it) => it.id === sortModeId)
-			const nextSortMode = sortModes[mod(index + 1, sortModes.length)] ?? sortModes[0]
+			const nextSortMode =
+				sortModes[mod(index + 1, sortModes.length)] ?? sortModes[0]
 			return nextSortMode.id
 		})
 	}

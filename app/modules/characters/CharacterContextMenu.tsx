@@ -5,7 +5,11 @@ import {
 	ContextMenuPanel,
 	ContextMenuTrigger,
 } from "../../ui/ContextMenu.tsx"
-import { ModalPanel, ModalPanelContent, ModalProvider } from "../../ui/Modal.tsx"
+import {
+	ModalPanel,
+	ModalPanelContent,
+	ModalProvider,
+} from "../../ui/Modal.tsx"
 import { ContestedRollForm } from "./ContestedRollForm.tsx"
 import type { ApiCharacter } from "./types.ts"
 
@@ -29,12 +33,17 @@ export function CharacterContextMenu(props: {
 						title={
 							<>
 								<span className="opacity-50">Contested Roll vs.</span>{" "}
-								{props.character.permission === "full" ? props.character.name : "???"}
+								{props.character.permission === "full" ?
+									props.character.name
+								:	"???"}
 							</>
 						}
 					>
 						<ModalPanelContent>
-							<ContestedRollForm opponent={props.character} onRoll={() => store.hide()} />
+							<ContestedRollForm
+								opponent={props.character}
+								onRoll={() => store.hide()}
+							/>
 						</ModalPanelContent>
 					</ModalPanel>
 				</ContextMenu>

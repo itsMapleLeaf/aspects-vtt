@@ -70,7 +70,9 @@ export function useControlledNumberInput({
 	const onWheel = (event: React.WheelEvent<HTMLInputElement>) => {
 		if (document.activeElement === event.currentTarget && event.deltaY !== 0) {
 			event.preventDefault()
-			onChangeValue(updateNumberString(input, (value) => value - Math.sign(event.deltaY)))
+			onChangeValue(
+				updateNumberString(input, (value) => value - Math.sign(event.deltaY)),
+			)
 		}
 	}
 
@@ -107,7 +109,8 @@ function getValidationError({
 }) {
 	if (input === "") return "Required"
 	if (!Number.isFinite(value)) return `Must be a valid number`
-	if (requireInteger && !Number.isSafeInteger(value)) return `Must be a whole number`
+	if (requireInteger && !Number.isSafeInteger(value))
+		return `Must be a whole number`
 	if (value < min) return `Must be ${min} or higher`
 	if (value > max) return `Must be ${max} or lower`
 }

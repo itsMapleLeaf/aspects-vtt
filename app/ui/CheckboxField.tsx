@@ -13,7 +13,11 @@ export function CheckboxField({
 }) {
 	const id = useId()
 	return (
-		<FormField label={label} htmlFor={id} className="flex-row-reverse justify-end gap-1.5">
+		<FormField
+			label={label}
+			htmlFor={id}
+			className="flex-row-reverse justify-end gap-1.5"
+		>
 			<div className="relative flex size-5 items-center justify-center overflow-clip">
 				<input
 					className="peer size-full appearance-none rounded border-2 border-primary-400 bg-primary-100 transition checked:bg-primary-300/50 hover:bg-primary-200 checked:hover:bg-primary-300 active:border-primary-600 active:duration-0"

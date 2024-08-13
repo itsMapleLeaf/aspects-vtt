@@ -11,4 +11,6 @@ export function characterConditionValidator() {
 		color: userColorValidator(),
 	})
 }
-export type ApiCharacterCondition = Infer<ReturnType<typeof characterConditionValidator>>
+export type ApiCharacterCondition = Infer<
+	ReturnType<typeof characterConditionValidator>
+>

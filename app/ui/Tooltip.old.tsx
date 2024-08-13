@@ -10,10 +10,17 @@ export interface TooltipProps extends ComponentPropsWithoutRef<"button"> {
 }
 
 /** @deprecated */
-export function Tooltip({ text, placement, buttonRef, ...props }: TooltipProps) {
+export function Tooltip({
+	text,
+	placement,
+	buttonRef,
+	...props
+}: TooltipProps) {
 	return (
 		<TooltipProvider placement={placement}>
-			<TooltipAnchor render={<button type="button" {...props} ref={buttonRef} />} />
+			<TooltipAnchor
+				render={<button type="button" {...props} ref={buttonRef} />}
+			/>
 			<TooltipContent>{text}</TooltipContent>
 		</TooltipProvider>
 	)

@@ -19,7 +19,10 @@ export default defineConfig({
 		tsconfigPaths(),
 		mdx({
 			remarkPlugins: [remarkGfm, remarkFrontmatter, remarkMdxFrontmatter],
-			rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
+			rehypePlugins: [
+				rehypeSlug,
+				[rehypeAutolinkHeadings, { behavior: "wrap" }],
+			],
 			providerImportSource: "/app/mdx-components.tsx",
 		}),
 		babel({

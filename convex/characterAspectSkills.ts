@@ -20,7 +20,12 @@ export const list = effectQuery({
 			ensureFullCharacterPermissions(args.characterId),
 			Effect.andThen(() =>
 				withQueryCtx((ctx) =>
-					getManyFrom(ctx.db, "characterAspectSkills", "characterId", args.characterId),
+					getManyFrom(
+						ctx.db,
+						"characterAspectSkills",
+						"characterId",
+						args.characterId,
+					),
 				),
 			),
 			Effect.tapError(Effect.logWarning),
@@ -36,7 +41,9 @@ export const create = effectMutation({
 	handler: (args) => {
 		return pipe(
 			ensureFullCharacterPermissions(args.characterId),
-			Effect.andThen(() => withMutationCtx((ctx) => ctx.db.insert("characterAspectSkills", args))),
+			Effect.andThen(() =>
+				withMutationCtx((ctx) => ctx.db.insert("characterAspectSkills", args)),
+			),
 		)
 	},
 })
@@ -47,9 +54,13 @@ export const remove = effectMutation({
 	},
 	handler: (args) => {
 		return Effect.gen(function* () {
-			const characterAspectSkill = yield* queryDoc((ctx) => ctx.db.get(args.characterAspectSkillId))
+			const characterAspectSkill = yield* queryDoc((ctx) =>
+				ctx.db.get(args.characterAspectSkillId),
+			)
 			yield* ensureFullCharacterPermissions(characterAspectSkill.characterId)
-			yield* withMutationCtx((ctx) => ctx.db.delete(args.characterAspectSkillId))
+			yield* withMutationCtx((ctx) =>
+				ctx.db.delete(args.characterAspectSkillId),
+			)
 		})
 	},
 })

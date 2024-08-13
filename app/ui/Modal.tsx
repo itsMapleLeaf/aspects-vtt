@@ -16,7 +16,9 @@ interface ModalBaseProps {
 	onOpenChange?: (open: boolean) => void
 }
 
-interface ModalAsButtonProps extends ModalBaseProps, StrictOmit<ButtonPropsAsButton, "title"> {}
+interface ModalAsButtonProps
+	extends ModalBaseProps,
+		StrictOmit<ButtonPropsAsButton, "title"> {}
 
 interface ModalWithTriggerProps extends ModalBaseProps {
 	trigger: React.ReactElement
@@ -28,7 +30,11 @@ type ModalProps = ModalAsButtonProps | ModalWithTriggerProps
  * @example
  * 	// using built-in button
  * 	const Example = () => (
- * 		<Modal title="Delete Character" text="Delete Character" icon={<LucideTrash />}>
+ * 		<Modal
+ * 			title="Delete Character"
+ * 			text="Delete Character"
+ * 			icon={<LucideTrash />}
+ * 		>
  * 			<p>Are you sure you want to delete this character?</p>
  * 			<ModalActions>
  * 				<ModalDismiss>Cancel</ModalDismiss>
@@ -60,15 +66,22 @@ export function Modal({
 }: ModalProps) {
 	return (
 		<ModalProvider store={store} open={open} setOpen={onOpenChange}>
-			<ModalButton render={"trigger" in props ? props.trigger : <Button {...props} />} />
-			<ModalPanel title={title} description={description} fullHeight={fullHeight}>
+			<ModalButton
+				render={"trigger" in props ? props.trigger : <Button {...props} />}
+			/>
+			<ModalPanel
+				title={title}
+				description={description}
+				fullHeight={fullHeight}
+			>
 				<ModalPanelContent>{children}</ModalPanelContent>
 			</ModalPanel>
 		</ModalProvider>
 	)
 }
 
-export interface ModalProviderProps extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
+export interface ModalProviderProps
+	extends StrictOmit<Ariakit.DialogProviderProps, "children"> {
 	children: React.ReactNode | ((store: Ariakit.DialogStore) => React.ReactNode)
 }
 
@@ -85,7 +98,8 @@ export function ModalButton(props: Ariakit.DisclosureProps) {
 	return <Ariakit.DialogDisclosure {...props} />
 }
 
-export interface ModalPanelProps extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
+export interface ModalPanelProps
+	extends StrictOmit<Ariakit.DialogProps, "backdrop" | "title"> {
 	title: React.ReactNode
 	description?: React.ReactNode
 	className?: string
@@ -120,7 +134,9 @@ export function ModalPanel({
 					<Ariakit.DialogHeading className="truncate text-2xl/tight font-light">
 						{title}
 					</Ariakit.DialogHeading>
-					{description && <Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>}
+					{description && (
+						<Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>
+					)}
 				</div>
 				<Ariakit.DialogDismiss className="-m-3 aspect-square p-3 opacity-50 transition-opacity hover:opacity-100">
 					<LucideX />
@@ -132,7 +148,14 @@ export function ModalPanel({
 }
 
 export function ModalPanelContent(props: ComponentProps<"div">) {
-	return <div {...withMergedClassName(props, "min-h-0 flex-1 overflow-y-auto bg-primary-100")} />
+	return (
+		<div
+			{...withMergedClassName(
+				props,
+				"min-h-0 flex-1 overflow-y-auto bg-primary-100",
+			)}
+		/>
+	)
 }
 
 export function ModalActions(props: ComponentPropsWithoutRef<"div">) {

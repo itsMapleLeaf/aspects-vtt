@@ -35,7 +35,9 @@ const articles = new Set([
 
 export function titleCase(text: string) {
 	return splitByCase(text)
-		.map((word) => (articles.has(word) ? word.toLocaleLowerCase() : startCase(word)))
+		.map((word) =>
+			articles.has(word) ? word.toLocaleLowerCase() : startCase(word),
+		)
 		.join(" ")
 }
 export function pluralize(word: string, count: number, pluralWord?: string) {

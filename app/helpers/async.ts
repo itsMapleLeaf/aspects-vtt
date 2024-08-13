@@ -7,9 +7,9 @@ export function timeoutEffect<Args extends unknown[]>(
 	return () => clearTimeout(timeout)
 }
 
-export async function promiseAllObject<Promises extends Record<string, unknown>>(
-	promises: Promises,
-) {
+export async function promiseAllObject<
+	Promises extends Record<string, unknown>,
+>(promises: Promises) {
 	const result: Record<string, unknown> = {}
 	await Promise.all(
 		Object.entries(promises).map(async ([key, promise]) => {
@@ -19,6 +19,9 @@ export async function promiseAllObject<Promises extends Record<string, unknown>>
 	return result as { [K in keyof Promises]: Awaited<Promises[K]> }
 }
 
-export async function parallel<In, Out>(inputs: Iterable<In>, fn: (input: In) => Promise<Out>) {
+export async function parallel<In, Out>(
+	inputs: Iterable<In>,
+	fn: (input: In) => Promise<Out>,
+) {
 	return Promise.all([...inputs].map(fn))
 }

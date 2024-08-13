@@ -7,7 +7,9 @@ export interface RoomToolbarStore {
 }
 
 export function useRoomToolbarStore(): RoomToolbarStore {
-	const [activeTool, setActiveTool] = React.useState<"Select" | "Draw">("Select")
+	const [activeTool, setActiveTool] = React.useState<"Select" | "Draw">(
+		"Select",
+	)
 	return {
 		activeTool,
 		toggleDrawTool() {

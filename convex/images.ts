@@ -26,8 +26,10 @@ export const getBestUrl = query({
 				const size = image.sizes
 					.toSorted((a, b) => a.width - b.width)
 					.find((size) => {
-						const biggerWidth = args.width !== undefined && size.width >= args.width
-						const biggerHeight = args.height !== undefined && size.height >= args.height
+						const biggerWidth =
+							args.width !== undefined && size.width >= args.width
+						const biggerHeight =
+							args.height !== undefined && size.height >= args.height
 						return biggerWidth && biggerHeight
 					})
 				return Effect.fromNullable(size ?? image.sizes.at(-1))

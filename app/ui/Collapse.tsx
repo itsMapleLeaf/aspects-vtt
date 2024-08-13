@@ -1,8 +1,18 @@
-import { Disclosure, DisclosureContent, DisclosureProvider } from "@ariakit/react"
+import {
+	Disclosure,
+	DisclosureContent,
+	DisclosureProvider,
+} from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import type { ReactNode } from "react"
 
-export function Collapse({ title, children }: { title: ReactNode; children: ReactNode }) {
+export function Collapse({
+	title,
+	children,
+}: {
+	title: ReactNode
+	children: ReactNode
+}) {
 	return (
 		<DisclosureProvider>
 			<Disclosure className="flex items-center transition-colors gap-0.5 hover:text-primary-700">

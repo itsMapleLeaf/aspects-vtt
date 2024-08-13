@@ -57,7 +57,10 @@ export function ModalContent(props: React.ComponentProps<"div">) {
 	return (
 		<Transition show={context.open} appear>
 			<Portal>
-				<FocusOn enabled={context.open} onEscapeKey={() => context.setOpen(false)}>
+				<FocusOn
+					enabled={context.open}
+					onEscapeKey={() => context.setOpen(false)}
+				>
 					<TransitionChild>
 						<div
 							id={context.panelId}

@@ -24,7 +24,10 @@ export function useLocalStorageSwitch(key: string, defaultOn: boolean) {
 	return useLocalStorageState(key, defaultOn, booleanSchema)
 }
 
-export function useLocalStorage<Value extends JsonValue, SetValue extends (value: Value) => void>(
+export function useLocalStorage<
+	Value extends JsonValue,
+	SetValue extends (value: Value) => void,
+>(
 	key: string,
 	schema: { parse: (input: unknown) => Value },
 	[value, setValue]: [Value, SetValue],
@@ -37,7 +40,10 @@ export function useLocalStorage<Value extends JsonValue, SetValue extends (value
 			try {
 				setValue(schema.parse(JSON.parse(localStorageItem)))
 			} catch (error) {
-				console.warn(`Failed to parse localStorage item for key "${key}"`, error)
+				console.warn(
+					`Failed to parse localStorage item for key "${key}"`,
+					error,
+				)
 			}
 		}
 		setInitialized(true)

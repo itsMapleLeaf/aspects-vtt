@@ -22,14 +22,20 @@ test("character name visibility", async ({ page }) => {
 	await page.getByRole("button", { name: "All Characters" }).click()
 
 	await expect(
-		page.getByTestId("CharacterResourceTreeItem").filter({ hasText: "Visible Character" }),
+		page
+			.getByTestId("CharacterResourceTreeItem")
+			.filter({ hasText: "Visible Character" }),
 	).toBeVisible()
 	await expect(
 		page.getByTestId("CharacterResourceTreeItem").filter({ hasText: "???" }),
 	).toHaveCount(1)
 
 	await expect(
-		page.getByTestId("CombatMemberItem:Name").filter({ hasText: "Visible Character" }),
+		page
+			.getByTestId("CombatMemberItem:Name")
+			.filter({ hasText: "Visible Character" }),
 	).toBeVisible()
-	await expect(page.getByTestId("CombatMemberItem:Name").filter({ hasText: "???" })).toHaveCount(2)
+	await expect(
+		page.getByTestId("CombatMemberItem:Name").filter({ hasText: "???" }),
+	).toHaveCount(2)
 })

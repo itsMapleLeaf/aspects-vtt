@@ -33,14 +33,16 @@ export function ConfirmModal({
 }) {
 	const [open, setOpen] = useState(false)
 
-	const [, confirm] = useSafeAction(async (event: React.MouseEvent<HTMLButtonElement>) => {
-		await onConfirm()
-		if (props.setOpen) {
-			props.setOpen(false)
-		} else {
-			setOpen(false)
-		}
-	})
+	const [, confirm] = useSafeAction(
+		async (event: React.MouseEvent<HTMLButtonElement>) => {
+			await onConfirm()
+			if (props.setOpen) {
+				props.setOpen(false)
+			} else {
+				setOpen(false)
+			}
+		},
+	)
 
 	return (
 		<ModalProvider {...props} open={props.open ?? open} setOpen={setOpen}>

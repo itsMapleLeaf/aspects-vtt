@@ -101,9 +101,15 @@ export const boostDiceKind = defineModifier({
 	multiplier: 1,
 	stat: boostStat,
 })
-export const diceKinds: DiceKind[] = [...numericDiceKinds, boostDiceKind, snagDiceKind]
+export const diceKinds: DiceKind[] = [
+	...numericDiceKinds,
+	boostDiceKind,
+	snagDiceKind,
+]
 
-export const diceKindsByName = new Map(diceKinds.map((kind) => [kind.name, kind]))
+export const diceKindsByName = new Map(
+	diceKinds.map((kind) => [kind.name, kind]),
+)
 
 function defineNumeric({
 	faceCount,
@@ -123,7 +129,12 @@ function defineNumeric({
 					<Diecon
 						shape={renderIcon()}
 						symbol={
-							<p className={twMerge("text-[length:28cqw] font-semibold", textClassName)}>
+							<p
+								className={twMerge(
+									"text-[length:28cqw] font-semibold",
+									textClassName,
+								)}
+							>
 								d{faceCount}
 							</p>
 						}
@@ -141,7 +152,14 @@ function defineNumeric({
 							<Diecon
 								shape={renderIcon()}
 								symbol={
-									<p className={twMerge("text-[length:36cqw] font-semibold", textClassName)}>{n}</p>
+									<p
+										className={twMerge(
+											"text-[length:36cqw] font-semibold",
+											textClassName,
+										)}
+									>
+										{n}
+									</p>
 								}
 								tooltip={`${name}: ${n}`}
 								className={n === faceCount ? "text-primary-700" : ""}
@@ -199,7 +217,9 @@ function defineModifier({
 						() => (
 							<Diecon
 								shape={<Lucide.Square />}
-								symbol={<p className="text-[length:36cqw] font-semibold">{face}</p>}
+								symbol={
+									<p className="text-[length:36cqw] font-semibold">{face}</p>
+								}
 								tooltip={`${name}: ${face}`}
 								className={className}
 							/>
@@ -231,8 +251,12 @@ function Diecon({
 					className,
 				)}
 			>
-				<div className="relative size-full *:size-full *:fill-primary-200 *:stroke-1">{shape}</div>
-				<div className="absolute hidden *:size-full @[3rem]:block">{symbol}</div>
+				<div className="relative size-full *:size-full *:fill-primary-200 *:stroke-1">
+					{shape}
+				</div>
+				<div className="absolute hidden *:size-full @[3rem]:block">
+					{symbol}
+				</div>
 			</div>
 		</Tooltip>
 	)
