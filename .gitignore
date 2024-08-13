@@ -11,3 +11,4 @@ node_modules
 /bin
 /data
 /.idea
+.turbo

@@ -2,19 +2,20 @@
 	"name": "aspects-vtt",
 	"private": true,
 	"type": "module",
+	"packageManager": "bun@1.1.22",
 	"scripts": {
 		"prepare": "npx only-allow bun && husky",
-		"build": "remix vite:build",
-		"dev": "run-p --race --print-label \"dev:*\"",
+		"dev": "turbo run dev:remix dev:convex",
 		"dev:remix": "remix vite:dev",
 		"dev:convex": "convex dev --tail-logs",
+		"build": "remix vite:build",
 		"preview": "dotenvx run -- remix-serve ./build/server/index.js",
 		"lint": "biome check . --write",
 		"format": "prettier --write . --list-different",
 		"typecheck": "remix-routes && tsc --noEmit",
 		"test": "bun test",
 		"e2e": "playwright test",
-		"checks": "run-s --continue-on-error lint format typecheck test e2e",
+		"checks": "turbo run lint format typecheck test e2e",
 		"download-convex-backend": "bun ./scripts/download-convex-backend.ts"
 	},
 	"dependencies": {

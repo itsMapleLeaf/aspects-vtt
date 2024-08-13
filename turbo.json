@@ -1,0 +1,25 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"dev:remix": {
+			"persistent": true,
+			"cache": false
+		},
+		"dev:convex": {
+			"persistent": true,
+			"cache": false
+		},
+		"build": {
+			"outputs": ["build/**"]
+		},
+		"lint": {},
+		"format": {
+			"dependsOn": ["lint"]
+		},
+		"typecheck": {
+			"dependsOn": ["lint"]
+		},
+		"test": {},
+		"e2e": {}
+	}
+}
