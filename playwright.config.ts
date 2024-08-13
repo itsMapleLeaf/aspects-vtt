@@ -27,7 +27,7 @@ export default defineConfig({
 	],
 	webServer: [
 		{
-			command: "bun run build && bun run preview",
+			command: "pnpm run build && pnpm run preview",
 			url: "http://localhost:5173",
 			reuseExistingServer: !process.env.CI,
 			stdout: "pipe",

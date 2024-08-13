@@ -8,7 +8,7 @@
 			"name": "Launch Node.js",
 			"request": "launch",
 			"type": "node",
-			"runtimeExecutable": "bun",
+			"runtimeExecutable": "pnpm",
 			"runtimeArgs": ["run", "dev"],
 			"console": "integratedTerminal"
 		},

@@ -9,7 +9,7 @@
 		},
 		{
 			"label": "dev:remix",
-			"command": "bun",
+			"command": "pnpm",
 			"args": ["run", "dev:remix"],
 			"isBackground": true,
 			"icon": { "id": "run" },
@@ -31,7 +31,7 @@
 		},
 		{
 			"label": "dev:convex",
-			"command": "bun",
+			"command": "pnpm",
 			"args": ["run", "dev:convex"],
 			"isBackground": true,
 			"icon": { "id": "run" },

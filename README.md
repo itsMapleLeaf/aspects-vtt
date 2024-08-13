@@ -6,32 +6,19 @@ A simple virtual tabletop for the [Aspects of Nature](https://itsmapleleaf.notio
 
 Requirements:
 
+- [pnpm](https://pnpm.io/)
 - [Bun](https://bun.sh/)
 - [Nushell](https://nushell.sh/)
 
-### Bun
-
-This project uses [Bun](https://bun.sh/) instead of Node.js for development and managing dependencies.
-
 ```sh
 # install dependencies
-bun install
+pnpm install
 
 # run the development server
-bun dev
+pnpm dev
 
 # list all other available scripts
-bun run
-```
-
-### Clerk
-
-This project uses [Clerk](https://clerk.com) for authentication. If you haven't already, [create an app on the Clerk dashboard](https://dashboard.clerk.com/). Generate a set of API keys and add them to your `.env.local` file:
-
-```env
-# .env.local
-CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
+pnpm run
 ```
 
 ### Convex
@@ -41,7 +28,7 @@ This project uses [Convex](https://convex.dev) for realtime data storage. If you
 After that, link the repo with your Convex project:
 
 ```sh
-bunx convex dev --once
+pnpm convex dev --once
 ```
 
 Then add the appropriate environment variables in Convex, as required in `convex/env.ts`
@@ -52,4 +39,4 @@ Press F5 to start the development server with debugging.
 
 ### Running the app - Command Line
 
-Run `bun dev` to start the development server.
+Run `pnpm dev` to start the development server.

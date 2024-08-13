@@ -2,11 +2,8 @@
 import { spawn, spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, rmSync } from "node:fs"
 import os from "node:os"
-import path from "node:path"
 import { setTimeout } from "node:timers/promises"
 import { fileURLToPath } from "node:url"
-import chalk from "chalk"
-import { oraPromise } from "ora"
 
 export const backendUrl = "http://127.0.0.1:3210"
 
@@ -34,7 +31,7 @@ export async function startBackend() {
 	}
 
 	spawnSync(
-		"bun",
+		"pnpm",
 		[
 			"convex",
 			"dev",
