@@ -36,12 +36,12 @@ export function CheckboxField({
 						absoluteStrokeWidth
 					/>
 				</div>
-				<div className="flex flex-col">
-					<FormFieldLabel>{label}</FormFieldLabel>
+				<FormFieldLabel className="flex flex-col">
+					{label}
 					{description && (
 						<FormFieldDescription>{description}</FormFieldDescription>
 					)}
-				</div>
+				</FormFieldLabel>
 			</div>
 		</FormFieldProvider>
 	)
