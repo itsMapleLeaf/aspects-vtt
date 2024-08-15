@@ -36,7 +36,7 @@ import { unwrap } from "../../common/errors.ts"
 import { clamp } from "../../common/math.ts"
 import { fromEntries, keys, omit, pick } from "../../common/object.ts"
 import { randomInt, randomItem } from "../../common/random.ts"
-import { pluralize, titleCase } from "../../common/string.ts"
+import { titleCase } from "../../common/string.ts"
 import type { Id } from "../_generated/dataModel"
 import type { Doc } from "../_generated/dataModel.js"
 import { getUserFromIdentityEffect } from "../auth.ts"
@@ -409,7 +409,6 @@ export const updateModifier = effectMutation({
 export const rest = effectMutation({
 	args: {
 		id: v.id("characters"),
-		hours: v.number(),
 	},
 	handler(args) {
 		return Effect.gen(function* () {
@@ -418,19 +417,14 @@ export const rest = effectMutation({
 			)
 			const user = yield* getCurrentUser()
 			const rolls = Array.from(
-				createDiceRolls([
-					getDiceKindApiInput(statDiceKindsByName.d4, args.hours),
-				]),
+				createDiceRolls([getDiceKindApiInput(statDiceKindsByName.d4, 3)]),
 			)
 			const restoredAmount = rolls.reduce((total, die) => total + die.result, 0)
 
 			yield* Convex.db.insert("messages", {
 				roomId: character.roomId,
 				user: user._id,
-				content: `${formatCharacterMention(character._id)} rested for ${args.hours} ${pluralize(
-					"hour",
-					args.hours,
-				)} and gained ${restoredAmount} resolve.`,
+				content: `${formatCharacterMention(character._id)} rested for 8 hours and gained ${restoredAmount} resolve.`,
 				diceRoll: {
 					dice: rolls,
 				},

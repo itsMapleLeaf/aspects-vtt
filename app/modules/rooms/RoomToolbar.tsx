@@ -1,6 +1,8 @@
+import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { Button } from "~/ui/Button.tsx"
+import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
 import {
 	ModalButton,
 	ModalPanel,
@@ -9,7 +11,8 @@ import {
 } from "~/ui/Modal.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { pluralize } from "../../../common/string.ts"
-import { CharacterRestForm } from "../characters/CharacterRestForm.tsx"
+import { api } from "../../../convex/_generated/api.js"
+import type { Id } from "../../../convex/_generated/dataModel"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { useOwnedCharacters } from "../characters/hooks.ts"
 import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
@@ -62,9 +65,7 @@ export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 							<CharacterStatusFields character={character} />
 						</div>
 					</ToolbarPopover>
-					<ToolbarPopover icon={<Lucide.FlameKindling />} tooltip="Rest">
-						<CharacterRestForm character={character} />
-					</ToolbarPopover>
+					<RestButton characterId={character._id} />
 				</>
 			)}
 
@@ -357,4 +358,30 @@ function useMap<Key, Value, Fallback = undefined>(options?: {
 	}
 
 	return [map, actions] as const
+}
+
+function RestButton({ characterId }: { characterId: Id<"characters"> }) {
+	const rest = useMutation(api.characters.functions.rest)
+	return (
+		<ConfirmModalButton
+			title="Rest"
+			message={
+				<>
+					<p>
+						Resting uses <strong>8 hours</strong> of the day.
+					</p>
+					<p>
+						You will gain <strong>3d4 resolve</strong>.
+					</p>
+					<p>Are you sure you want to rest?</p>
+				</>
+			}
+			confirmText="Yes, rest for 8 hours"
+			confirmIcon={<Lucide.FlameKindling />}
+			cancelText="Sleep is for the weak."
+			render={<ToolbarButton icon={<Lucide.FlameKindling />} tooltip="Rest" />}
+			onConfirm={() => rest({ id: characterId })}
+			dangerous={false}
+		/>
+	)
 }
