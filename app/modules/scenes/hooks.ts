@@ -3,7 +3,7 @@ import { useQuery } from "convex/react"
 import { api } from "../../../convex/_generated/api.js"
 import { useRoom } from "../rooms/roomContext.tsx"
 
-export function useCurrentRoomScene() {
+export function useSelectedScene() {
 	const sceneId = useSceneParam()
 	return useQuery(api.scenes.functions.get, sceneId ? { id: sceneId } : "skip")
 }
@@ -18,12 +18,12 @@ export function useSceneParam() {
 	return sceneParam ?? room.currentScene
 }
 
-export function useCurrentSceneTokens() {
-	const { currentScene: sceneId } = useRoom()
+export function useSelectedSceneTokens() {
+	const scene = useSelectedScene()
 	return (
 		useQuery(
 			api.scenes.tokens.functions.list,
-			sceneId ? { sceneId } : "skip",
+			scene ? { sceneId: scene._id } : "skip",
 		) ?? []
 	)
 }

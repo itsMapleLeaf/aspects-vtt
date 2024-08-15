@@ -24,7 +24,7 @@ import {
 import { CharacterSearchList } from "../characters/CharacterSearchList.tsx"
 import { queryMutators } from "../convex/helpers.ts"
 import { RoomOwnerOnly, useCharacters, useRoom } from "../rooms/roomContext.tsx"
-import { useCurrentSceneTokens } from "../scenes/hooks.ts"
+import { useSelectedSceneTokens } from "../scenes/hooks.ts"
 
 export function CombatInitiative() {
 	const { combat, ...room } = useRoom()
@@ -190,7 +190,7 @@ export function CombatInitiative() {
 
 function AddCombatMemberListbox() {
 	const characters = useCharacters()
-	const tokens = useCurrentSceneTokens()
+	const tokens = useSelectedSceneTokens()
 	const room = useRoom()
 	const addMember = useMutation(api.rooms.combat.functions.addMember)
 

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "convex/react"
+import { useMutation } from "convex/react"
 import { Suspense, useCallback, useEffect, useRef } from "react"
 import { CombatInitiativePanel } from "~/modules/combat/CombatInitiative.tsx"
 import { CombatTurnBanner } from "~/modules/combat/CombatTurnBanner.tsx"
@@ -11,7 +11,7 @@ import { useRoomToolbarStore } from "~/modules/rooms/RoomToolbarStore.ts"
 import { useRoom } from "~/modules/rooms/roomContext.tsx"
 import { SceneProvider } from "~/modules/scenes/SceneContext.tsx"
 import { SceneMap } from "~/modules/scenes/SceneMap.tsx"
-import { useCurrentRoomScene } from "~/modules/scenes/hooks.ts"
+import { useSelectedScene } from "~/modules/scenes/hooks.ts"
 import { AppHeader } from "~/ui/AppHeader.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { TranslucentPanel } from "~/ui/Panel.tsx"
@@ -21,7 +21,7 @@ import { AutoAnimate } from "../ui/AutoAnimate.tsx"
 
 export default function RoomRoute() {
 	const store = useRoomToolbarStore()
-	const scene = useCurrentRoomScene()
+	const scene = useSelectedScene()
 	return (
 		<>
 			<Suspense>
@@ -151,10 +151,11 @@ function MessageListScroller() {
 }
 
 function SceneHeading() {
+	const scene = useSelectedScene()
 	const room = useRoom()
-	const scene = useQuery(api.scenes.functions.getCurrent, { roomId: room._id })
-	const gameTime = new GameTime(room.gameTime)
 	if (!scene) return
+
+	const gameTime = new GameTime(room.gameTime)
 	return (
 		<h2 className="pointer-events-none fixed inset-x-0 top-3 mx-auto max-w-sm select-none text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)]">
 			{scene.name}

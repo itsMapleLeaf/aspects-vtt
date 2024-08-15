@@ -8,7 +8,7 @@ import { clamp } from "../../../common/math.ts"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
 import { useDragSelectStore } from "../../ui/DragSelect.tsx"
 import { SceneContext } from "./SceneContext.context.tsx"
-import { useCurrentRoomScene, useCurrentSceneTokens } from "./hooks.ts"
+import { useSelectedScene, useSelectedSceneTokens } from "./hooks.ts"
 
 export function SceneProvider({ children }: { children: ReactNode }) {
 	const [viewport, setViewport] = useState({
@@ -18,8 +18,8 @@ export function SceneProvider({ children }: { children: ReactNode }) {
 	const [tokenDragOffset, setTokenDragOffset] = useState(Vector.zero)
 	const tokenSelectStore = useDragSelectStore<ApiToken["key"]>()
 
-	const scene = useCurrentRoomScene()
-	const tokens = useCurrentSceneTokens()
+	const scene = useSelectedScene()
+	const tokens = useSelectedSceneTokens()
 
 	const viewportScale = scaleAt(viewport.scaleTick)
 

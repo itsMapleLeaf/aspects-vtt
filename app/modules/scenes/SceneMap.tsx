@@ -17,7 +17,7 @@ import { useSceneContext } from "./SceneContext.tsx"
 import { SceneGrid } from "./SceneGrid.tsx"
 import { TokenElementLayer } from "./TokenElementLayer.tsx"
 import { TokenMenu } from "./TokenMenu.tsx"
-import { useCurrentRoomScene, useCurrentSceneTokens } from "./hooks.ts"
+import { useSelectedScene, useSelectedSceneTokens } from "./hooks.ts"
 import { useAddTokenMutation } from "./useAddTokenMutation.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
@@ -115,7 +115,7 @@ function DragHandler({ children }: { children: React.ReactNode }) {
 }
 
 function SceneBackground() {
-	const scene = useCurrentRoomScene()
+	const scene = useSelectedScene()
 	const background = scene?.background
 
 	const { viewport } = useSceneContext()
@@ -198,7 +198,7 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 		scene: { cellSize },
 		...context
 	} = useSceneContext()
-	const tokens = useCurrentSceneTokens()
+	const tokens = useSelectedSceneTokens()
 	const addToken = useAddTokenMutation()
 	const updateToken = useUpdateTokenMutation()
 
