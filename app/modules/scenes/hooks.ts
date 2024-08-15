@@ -15,7 +15,7 @@ export function useSceneParam() {
 	// the param is for a viewed scene by the owner,
 	// and players shouldn't be able to use that
 	const sceneParam = room.isOwner ? searchParams.get("scene") : null
-	return sceneParam ?? room.currentScene
+	return sceneParam || room.currentScene
 }
 
 export function useSelectedSceneTokens() {

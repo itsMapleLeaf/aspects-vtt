@@ -150,7 +150,7 @@ export function SceneEditorModal({
 	...props
 }: { scene: ApiScene } & Overwrite<
 	ModalProviderProps,
-	{ children: React.ReactNode }
+	{ children?: React.ReactNode }
 >) {
 	return (
 		<ModalProvider {...props}>

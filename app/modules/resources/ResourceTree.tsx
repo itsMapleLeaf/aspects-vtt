@@ -262,6 +262,11 @@ interface ResourceTreeItemProps extends ButtonPropsAsButton {
 	resourceType: string
 	dragData?: JsonValue
 	delete: () => Promise<void>
+	additionalActions?: {
+		text: string
+		icon: React.ReactNode
+		onClick: () => void
+	}[]
 }
 
 export function ResourceTreeItem({
@@ -270,6 +275,7 @@ export function ResourceTreeItem({
 	resourceType,
 	dragData,
 	delete: deleteResource,
+	additionalActions,
 	...props
 }: ResourceTreeItemProps) {
 	const context = useContext(ResourceTreeContext)
@@ -311,6 +317,16 @@ export function ResourceTreeItem({
 		<Menu open={open} setOpen={setOpen}>
 			{button}
 			<MenuPanel>
+				{additionalActions?.map((action) => (
+					<MenuItem
+						key={action.text}
+						icon={action.icon}
+						onClick={action.onClick}
+					>
+						{action.text}
+					</MenuItem>
+				))}
+
 				{context.pinned.has(resourceId) ?
 					<MenuItem
 						icon={<Lucide.PinOff />}
