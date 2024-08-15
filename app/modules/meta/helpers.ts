@@ -8,10 +8,17 @@ export const site = {
 	domain: "https://aspects.mapleleaf.dev",
 }
 
+const titlePrefix =
+	import.meta.env.PROD ? undefined
+	: import.meta.env.DEV ? `[dev] `
+	: `[${import.meta.env.MODE}] `
+
 export function getSiteMeta(
 	options: { title?: string; description?: string; image?: string } = {},
 ): MetaDescriptor[] {
-	const title = [options.title, site.title].filter(Boolean).join(" | ")
+	const title =
+		titlePrefix + [options.title, site.title].filter(Boolean).join(" | ")
+
 	const description = options.description ?? site.description
 	const themeColor = "#1e1f3e"
 	return [
