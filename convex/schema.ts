@@ -190,6 +190,7 @@ export default defineSchema({
 		cellSize: v.number(),
 		roomId: v.id("rooms"),
 		tokens: v.optional(v.array(v.object(sceneTokenProperties))),
+		tokensVisible: v.optional(v.boolean()),
 		characterTokens: deprecated,
 	}).index("roomId", ["roomId"]),
 

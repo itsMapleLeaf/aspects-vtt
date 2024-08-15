@@ -1,9 +1,10 @@
-import { Link } from "@remix-run/react"
+import { Link, useNavigate } from "@remix-run/react"
 import { useMutation } from "convex/react"
 import { LucideDoorOpen, LucideEye } from "lucide-react"
 import type React from "react"
 import { useEffect } from "react"
 import { Button } from "~/ui/Button.tsx"
+import { CheckboxField } from "~/ui/CheckboxField.tsx"
 import { EditableInput } from "~/ui/EditableInput.tsx"
 import { EditableIntegerInput } from "~/ui/EditableIntegerInput.tsx"
 import { FormField, FormLayout, FormRow } from "~/ui/Form.tsx"
@@ -25,7 +26,36 @@ import type { ApiScene } from "./types.ts"
 
 export function SceneEditor({ scene }: { scene: ApiScene }) {
 	const room = useRoom()
-	const updateScene = useMutation(api.scenes.functions.update)
+	const navigate = useNavigate()
+
+	const updateScene = useMutation(
+		api.scenes.functions.update,
+	).withOptimisticUpdate((store, args) => {
+		const existing = store.getQuery(api.scenes.functions.get, { id: scene._id })
+		if (existing) {
+			store.setQuery(
+				api.scenes.functions.get,
+				{ id: scene._id },
+				{
+					...existing,
+					...args,
+				},
+			)
+		}
+
+		for (const listQuery of store.getAllQueries(api.scenes.functions.list)) {
+			if (listQuery.value) {
+				store.setQuery(
+					api.scenes.functions.list,
+					listQuery.args,
+					listQuery.value.map((it) =>
+						it._id === scene._id ? { ...it, ...args } : it,
+					),
+				)
+			}
+		}
+	})
+
 	const [updateRoomState, updateRoom] = useMutationAction(
 		api.rooms.functions.update,
 	)
@@ -58,6 +88,20 @@ export function SceneEditor({ scene }: { scene: ApiScene }) {
 				</FormField>
 			</FormRow>
 
+			<FormRow>
+				<CheckboxField
+					label="Use token grid"
+					description="Disable this if the background is a scenery image instead of an overhead map."
+					checked={scene.tokensVisible ?? false}
+					onChange={(event) =>
+						updateScene({
+							id: scene._id,
+							tokensVisible: event.target.checked,
+						})
+					}
+				/>
+			</FormRow>
+
 			<ImageUploader
 				imageId={scene.background}
 				onUpload={async (imageId, file) => {
@@ -87,6 +131,10 @@ export function SceneEditor({ scene }: { scene: ApiScene }) {
 						icon={<LucideDoorOpen />}
 						onClick={() => {
 							updateRoom({ id: scene.roomId, currentScene: scene._id })
+
+							const newParams = new URLSearchParams(window.location.search)
+							newParams.delete("scene")
+							navigate(`?${newParams.toString()}`)
 						}}
 					>
 						Set as current scene

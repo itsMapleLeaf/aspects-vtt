@@ -23,30 +23,48 @@ import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function SceneMap({ store }: { store: RoomToolbarStore }) {
 	const { tokenSelectStore } = useSceneContext()
-	return (
-		<WheelHandler>
-			<SceneBackground />
-			<SceneGrid />
-			<DragHandler>
-				<PingHandler>
-					<CharacterTokenDropzone>
-						{store.activeTool === "Draw" ?
-							<RectTokenDrawArea onTokenAdded={store.activateSelectTool}>
-								<TokenElementLayer />
-							</RectTokenDrawArea>
-						:	<DragSelectArea
-								className="absolute inset-0"
-								{...tokenSelectStore.areaProps()}
-							>
-								<TokenElementLayer />
-							</DragSelectArea>
-						}
-					</CharacterTokenDropzone>
-				</PingHandler>
-			</DragHandler>
-			<TokenMenu />
-		</WheelHandler>
-	)
+	const scene = useSelectedScene()
+	return scene?.tokensVisible === false ?
+			<div className="relative size-full">
+				{scene.background && (
+					<>
+						<img
+							src={getApiImageUrl(scene.background)}
+							alt=""
+							className="absolute inset-0 size-full object-cover blur-lg brightness-50"
+							draggable={false}
+						/>
+						<img
+							src={getApiImageUrl(scene.background)}
+							alt=""
+							className="absolute inset-0 size-full object-contain"
+							draggable={false}
+						/>
+					</>
+				)}
+			</div>
+		:	<WheelHandler>
+				<SceneBackground />
+				<SceneGrid />
+				<DragHandler>
+					<PingHandler>
+						<CharacterTokenDropzone>
+							{store.activeTool === "Draw" ?
+								<RectTokenDrawArea onTokenAdded={store.activateSelectTool}>
+									<TokenElementLayer />
+								</RectTokenDrawArea>
+							:	<DragSelectArea
+									className="absolute inset-0"
+									{...tokenSelectStore.areaProps()}
+								>
+									<TokenElementLayer />
+								</DragSelectArea>
+							}
+						</CharacterTokenDropzone>
+					</PingHandler>
+				</DragHandler>
+				<TokenMenu />
+			</WheelHandler>
 }
 
 function WheelHandler({ children }: { children: React.ReactNode }) {

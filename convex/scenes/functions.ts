@@ -2,7 +2,7 @@ import { v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { parallel } from "../../common/async.ts"
 import { pick } from "../../common/object.ts"
-import type { Id } from "../_generated/dataModel.js"
+import type { Doc, Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
 import { requireDoc } from "../helpers/convex.ts"
 import { Convex, effectQuery, getDoc } from "../helpers/effect.ts"
@@ -22,6 +22,7 @@ export const list = query({
 	async handler(ctx, args) {
 		return await requireRoomOwner(ctx, args.roomId)
 			.map(() => ctx.db.query("scenes").collect())
+			.map((scenes) => scenes.map(normalizeScene))
 			.getValueOrDefault([])
 	},
 })
@@ -38,7 +39,7 @@ export const get = effectQuery({
 				const scene = yield* Convex.db.get(sceneId)
 				const room = yield* Convex.db.get(scene.roomId)
 				return room.owner === user._id || room.currentScene === scene._id ?
-						scene
+						normalizeScene(scene)
 					:	null
 			}),
 			Effect.catchTag("ConvexDocNotFoundError", () => Effect.succeed(null)),
@@ -116,6 +117,7 @@ export const update = mutation({
 				"background",
 				"backgroundDimensions",
 				"cellSize",
+				"tokensVisible",
 			]),
 		),
 		id: v.id("scenes"),
@@ -136,6 +138,13 @@ export const remove = mutation({
 		return await ctx.db.delete(args.id)
 	},
 })
+
+function normalizeScene(scene: Doc<"scenes">) {
+	return {
+		...scene,
+		tokensVisible: scene.tokensVisible ?? true,
+	}
+}
 
 export function requireSceneRoomOwner(id: Id<"scenes">) {
 	return Effect.Do.pipe(
