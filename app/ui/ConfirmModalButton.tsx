@@ -11,6 +11,7 @@ export function ConfirmModalButton({
 	confirmText,
 	confirmIcon,
 	onConfirm,
+	dangerous,
 	...props
 }: ComponentProps<typeof ModalButton> & {
 	title: ReactNode
@@ -19,6 +20,7 @@ export function ConfirmModalButton({
 	cancelIcon?: ReactNode
 	confirmText: ReactNode
 	confirmIcon: ReactNode
+	dangerous?: boolean
 	onConfirm: () => unknown
 }) {
 	return (
@@ -30,6 +32,7 @@ export function ConfirmModalButton({
 			confirmText={confirmText}
 			confirmIcon={confirmIcon}
 			onConfirm={onConfirm}
+			dangerous={dangerous}
 		>
 			<ModalButton {...props} />
 		</ConfirmModal>

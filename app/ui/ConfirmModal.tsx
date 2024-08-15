@@ -1,5 +1,10 @@
 import { LucideX } from "lucide-react"
-import { type ComponentProps, type ReactNode, useState } from "react"
+import {
+	type ComponentProps,
+	type ReactNode,
+	isValidElement,
+	useState,
+} from "react"
 import { useSafeAction } from "~/modules/convex/hooks.ts"
 import { Button } from "~/ui/Button.tsx"
 import {
@@ -20,6 +25,7 @@ export function ConfirmModal({
 	confirmIcon,
 	onConfirm,
 	children,
+	dangerous = true,
 	...props
 }: ComponentProps<typeof ModalProvider> & {
 	title: ReactNode
@@ -29,6 +35,7 @@ export function ConfirmModal({
 	confirmText: ReactNode
 	confirmIcon: ReactNode
 	children: React.ReactNode
+	dangerous?: boolean
 	onConfirm: () => unknown
 }) {
 	const [open, setOpen] = useState(false)
@@ -48,17 +55,27 @@ export function ConfirmModal({
 		<ModalProvider {...props} open={props.open ?? open} setOpen={setOpen}>
 			{children}
 			<ModalPanel title={title}>
-				<ModalPanelContent className="grid place-items-center text-pretty p-2 text-center gap-2">
-					<p>{message}</p>
+				<ModalPanelContent className="grid place-items-center text-pretty p-4 text-center gap-4">
+					{isValidElement(message) ?
+						<div className="text-lg">{message}</div>
+					:	<p>{message}</p>}
 					<ModalActions>
-						<Button icon={cancelIcon} element={<ModalDismiss />}>
+						<Button
+							icon={cancelIcon}
+							element={<ModalDismiss />}
+							appearance={dangerous ? "solid" : "clear"}
+						>
 							{cancelText}
 						</Button>
 						<Button
 							icon={confirmIcon}
 							type="submit"
 							onClick={confirm}
-							className="border-red-600/40 bg-red-600/30 before:bg-red-600/30 hover:text-red-100 active:before:bg-red-500/30"
+							className={
+								dangerous ?
+									"border-red-600/40 bg-red-600/30 before:bg-red-600/30 hover:text-red-100 active:before:bg-red-500/30"
+								:	""
+							}
 						>
 							{confirmText}
 						</Button>
