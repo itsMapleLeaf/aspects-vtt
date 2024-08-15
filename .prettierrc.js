@@ -8,7 +8,7 @@ export default {
 	tailwindFunctions: ["twMerge", "mergeClassNameProp"],
 	overrides: [
 		{
-			files: ["convex/_generated/**", "pnpm-lock.yaml"],
+			files: ["convex/_generated/**", "pnpm-lock.yaml", "convex.json"],
 			options: {
 				requirePragma: true,
 			},
