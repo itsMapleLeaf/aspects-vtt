@@ -1,15 +1,15 @@
 import {
+	type ComponentProps,
 	type ReactNode,
 	createContext,
 	isValidElement,
 	use,
 	useId,
-	useMemo,
 } from "react"
-import { twMerge } from "tailwind-merge"
 import type { Nullish } from "../../common/types.ts"
 import { useConsumer, useConsumerProvider } from "./ConsumerContext.tsx"
 import { twc } from "./twc.ts"
+import { withMergedClassName } from "./withMergedClassName.ts"
 
 const FieldContext = createContext({
 	inputId: "",
@@ -52,28 +52,59 @@ export function FormField({
 	className?: string
 	children: React.ReactNode
 }) {
+	return (
+		<FormFieldProvider htmlFor={htmlFor}>
+			<FormFieldContainer className={className}>
+				<FormFieldLabel>{label}</FormFieldLabel>
+				{description && (
+					<FormFieldDescription>{description}</FormFieldDescription>
+				)}
+				{children}
+			</FormFieldContainer>
+		</FormFieldProvider>
+	)
+}
+
+export function FormFieldProvider({
+	children,
+	htmlFor,
+}: {
+	children: React.ReactNode
+	htmlFor?: string
+}) {
 	const consumers = useConsumerProvider()
 	const fallbackInputId = useId()
 	const inputId = htmlFor || (consumers.count > 0 && fallbackInputId) || ""
-	const fieldContext = useMemo(() => ({ inputId }), [inputId])
 	return (
-		<div className={twMerge("flex flex-col", className)}>
-			<div className="select-none font-bold leading-6">
-				{isValidElement(label) ?
-					label
-				: inputId ?
-					<label htmlFor={inputId}>{label}</label>
-				:	label}
-			</div>
-			{description && (
-				<div className="mb-1 text-sm/tight font-bold text-primary-700">
-					{description}
-				</div>
-			)}
-			<FieldContext value={fieldContext}>
-				<consumers.Provider>{children}</consumers.Provider>
-			</FieldContext>
+		<FieldContext value={{ inputId }}>
+			<consumers.Provider>{children}</consumers.Provider>
+		</FieldContext>
+	)
+}
+
+export function FormFieldContainer(props: ComponentProps<"div">) {
+	return <div {...withMergedClassName(props, "flex flex-col")} />
+}
+
+export function FormFieldLabel({ children, ...props }: ComponentProps<"div">) {
+	const field = useField()
+	return (
+		<div {...withMergedClassName(props, "select-none font-bold leading-6")}>
+			{isValidElement(children) ?
+				children
+			:	<label htmlFor={field.inputId}>{children}</label>}
 		</div>
+	)
+}
+
+export function FormFieldDescription(props: ComponentProps<"div">) {
+	return (
+		<div
+			{...withMergedClassName(
+				props,
+				"mb-1 text-sm/tight font-bold text-primary-700",
+			)}
+		/>
 	)
 }
 
