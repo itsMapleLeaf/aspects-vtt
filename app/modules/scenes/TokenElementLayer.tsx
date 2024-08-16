@@ -236,7 +236,7 @@ function CharacterTokenDecoration({
 							/>
 						)}
 				</div>
-				{hasFullCharacterPermissions(character) ?
+				{"name" in character && character.name ?
 					<TokenLabel text={character.name} subText={character.pronouns} />
 				:	<TokenLabel text="???" />}
 			</div>
