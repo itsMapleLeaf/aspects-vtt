@@ -22,6 +22,7 @@ import { CharacterConditionsListInput } from "../characters/CharacterConditionsL
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
+import { CharacterUpdateStatusForm } from "../characters/CharacterUpdateStatusForm.tsx"
 import {
 	useCharacterUpdatePermission,
 	useOwnedCharacters,
@@ -166,6 +167,11 @@ function TokenMenuContent() {
 										/>
 									</FormField>
 								)}
+								<FormField label="Update status">
+									<CharacterUpdateStatusForm
+										characterIds={selectedCharacters.map((it) => it._id)}
+									/>
+								</FormField>
 							</MenuPanel>
 						</Menu>
 					)}

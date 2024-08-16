@@ -39,10 +39,12 @@ import { randomInt, randomItem } from "../../common/random.ts"
 import { titleCase } from "../../common/string.ts"
 import type { Id } from "../_generated/dataModel"
 import type { Doc } from "../_generated/dataModel.js"
+import { mutation } from "../api.ts"
 import { getUserFromIdentityEffect } from "../auth.ts"
 import { createDiceRolls } from "../dice/helpers.ts"
 import {
 	Convex,
+	QueryCtxService,
 	effectMutation,
 	effectQuery,
 	getDoc,
@@ -131,6 +133,33 @@ export const updateInternal = internalEffectMutation({
 		id: v.id("characters"),
 	},
 	handler: ({ id, ...args }) => Convex.db.patch(id, args),
+})
+
+export const updateStatus = mutation({
+	args: {
+		characterIds: v.array(v.id("characters")),
+		health: v.optional(v.number()),
+		resolve: v.optional(v.number()),
+	},
+	handler(ctx, args) {
+		return Effect.gen(function* () {
+			for (const characterId of args.characterIds) {
+				const character = yield* normalizeCharacterUnsafe(
+					yield* ctx.db.get(characterId),
+				)
+				yield* ctx.db.patch(characterId, {
+					health: character.health + (args.health ?? 0),
+					resolve: character.resolve + (args.resolve ?? 0),
+				})
+			}
+		}).pipe(
+			Effect.provideService(QueryCtxService, ctx.internal),
+			Effect.catchTags({
+				DocNotFound: () => Effect.succeed(null),
+				NotLoggedInError: Effect.die,
+			}),
+		)
+	},
 })
 
 export const randomize = effectMutation({
