@@ -170,6 +170,7 @@ function AddConditionInput({
 				className={MenuPanel.style()}
 				flip={false}
 				unmountOnHide
+				portal
 			>
 				{filteredPresets.map((condition) => (
 					<Ariakit.ComboboxItem
