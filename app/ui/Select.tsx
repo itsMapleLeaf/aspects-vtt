@@ -87,11 +87,10 @@ export function Select<T>(props: {
 				</Button>
 			</FormField>
 			<Ariakit.SelectPopover
-				portal
 				gutter={8}
 				sameWidth
 				unmountOnHide
-				className={MenuPanel.style()}
+				className={MenuPanel.style("z-10")}
 			>
 				{props.options.map((option) => (
 					<Ariakit.SelectItem
