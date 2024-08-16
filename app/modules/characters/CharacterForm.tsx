@@ -1,10 +1,12 @@
 import { useAction, useMutation } from "convex/react"
+import { Iterator } from "iterator-helpers-polyfill"
 import * as Lucide from "lucide-react"
 import { Suspense } from "react"
 import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
 import { Loading } from "~/ui/Loading.tsx"
 import { Panel } from "~/ui/Panel.tsx"
 import { useDelayedSyncInput } from "~/ui/useDelayedSyncInput.ts"
+import { uniqueByProperty } from "../../../common/iterable.ts"
 import { useAsyncState } from "../../../common/react/hooks.ts"
 import { startCase } from "../../../common/string.ts"
 import { api } from "../../../convex/_generated/api.js"
@@ -50,9 +52,10 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 							field="player"
 							label="Player"
 							options={[
-								...room.players
+								...Iterator.from(uniqueByProperty(room.players, "_id"))
 									.map((p) => ({ label: p.name, value: p._id }))
-									.toSorted((a, b) => a.label.localeCompare(b.label)),
+									.toArray()
+									.sort((a, b) => a.label.localeCompare(b.label)),
 								{ id: "none", label: "None", value: null },
 							]}
 						/>
