@@ -7,14 +7,21 @@ import type { ApiCharacter } from "./types.ts"
 export function CharacterStatusFields({
 	character,
 	className,
+	notes = true,
+	labels = true,
 }: {
 	character: ApiCharacter
 	className?: string
+	notes?: boolean
+	labels?: boolean
 }) {
 	const hasPermission = useCharacterUpdatePermission(character)
 	return hasPermission ?
 			<>
-				<FormField label="Health">
+				<FormField
+					label={labels ? "Health" : null}
+					aria-label={labels ? null : "Health"}
+				>
 					<div className="relative flex items-center">
 						<CharacterNumberField
 							character={character}
@@ -28,7 +35,10 @@ export function CharacterStatusFields({
 						</div>
 					</div>
 				</FormField>
-				<FormField label="Resolve">
+				<FormField
+					label={labels ? "Resolve" : null}
+					aria-label={labels ? null : "Resolve"}
+				>
 					<div className="relative flex items-center">
 						<CharacterNumberField
 							character={character}
@@ -42,14 +52,19 @@ export function CharacterStatusFields({
 						</div>
 					</div>
 				</FormField>
-				<FormField label="Notes">
-					<CharacterNumberField
-						character={character}
-						field="currency"
-						icon={<LucideBanknote />}
-						label={null}
-					/>
-				</FormField>
+				{notes && (
+					<FormField
+						label={labels ? "Notes" : null}
+						aria-label={labels ? null : "Notes"}
+					>
+						<CharacterNumberField
+							character={character}
+							field="currency"
+							icon={<LucideBanknote />}
+							label={null}
+						/>
+					</FormField>
+				)}
 			</>
 		:	null
 }

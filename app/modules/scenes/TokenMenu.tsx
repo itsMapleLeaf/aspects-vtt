@@ -22,7 +22,6 @@ import { CharacterConditionsListInput } from "../characters/CharacterConditionsL
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
-import { StressUpdateMenu } from "../characters/StressUpdateMenu.tsx"
 import {
 	useCharacterUpdatePermission,
 	useOwnedCharacters,
@@ -134,6 +133,15 @@ function TokenMenuContent() {
 
 	return (
 		<div className={translucentPanel("flex flex-col items-center p-2 gap-2")}>
+			{singleSelectedCharacter && hasPermissions && (
+				<div className="flex w-64 gap-2 *:flex-1 empty:hidden">
+					<CharacterStatusFields
+						character={singleSelectedCharacter}
+						notes={false}
+						labels={false}
+					/>
+				</div>
+			)}
 			<div className="flex-center gap-3">
 				<div className={"flex justify-center gap-2"}>
 					{selectionHasCharacters && (
@@ -151,22 +159,6 @@ function TokenMenuContent() {
 								className={translucentPanel("max-w-[360px] p-2")}
 								gutter={16}
 							>
-								{singleSelectedCharacter && hasPermissions && (
-									<div className="flex gap-2 *:flex-1 empty:hidden">
-										<CharacterStatusFields
-											character={singleSelectedCharacter}
-										/>
-									</div>
-								)}
-								<div className="flex gap-[inherit] *:flex-1 empty:hidden">
-									<StressUpdateMenu characters={selectedCharacters}>
-										<Button
-											appearance="clear"
-											text="Advanced vitality update"
-											icon={<Lucide.WandSparkles />}
-										/>
-									</StressUpdateMenu>
-								</div>
 								{singleSelectedCharacter && (
 									<FormField label="Conditions">
 										<CharacterConditionsListInput
