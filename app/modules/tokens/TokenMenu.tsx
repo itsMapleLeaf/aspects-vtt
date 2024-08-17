@@ -34,23 +34,31 @@ import { useSceneContext } from "../scenes/SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function TokenMenu() {
-	const { scene, viewport, tokenSelectStore, tokenDragOffset, selectedTokens } =
-		useSceneContext()
+	const {
+		scene,
+		viewport,
+		tokenSelectStore,
+		tokenDragOffset,
+		selectedTokens,
+		placementSubdivisions,
+	} = useSceneContext()
+
+	const positionMultiple = scene.cellSize / placementSubdivisions
 
 	let anchor = Rect.from({
 		topLeft: selectedTokens
-			.map((it) => Vector.from(it.position).roundedTo(scene.cellSize))
+			.map((it) => Vector.from(it.position).roundedTo(positionMultiple))
 			.reduce(Vector.topLeftMost, Number.POSITIVE_INFINITY),
 		bottomRight: selectedTokens
 			.map((it) => {
 				if (it.character)
 					return Vector.from(it.position)
-						.roundedTo(scene.cellSize)
+						.roundedTo(positionMultiple)
 						.plus(scene.cellSize)
 				if (it.area)
 					return Vector.from(it.position)
-						.roundedTo(scene.cellSize)
-						.plus(Vector.from(it.area).roundedTo(scene.cellSize))
+						.roundedTo(positionMultiple)
+						.plus(Vector.from(it.area).roundedTo(positionMultiple))
 				return it.position
 			})
 			.reduce(Vector.bottomRightMost, Number.NEGATIVE_INFINITY),
