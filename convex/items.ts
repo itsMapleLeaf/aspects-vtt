@@ -63,26 +63,26 @@ export const create = mutation({
 		description: v.string(),
 		characterId: v.optional(v.id("characters")),
 	},
-	handler(ctx, args) {
+	handler(ctx, { characterId, ...args }) {
 		return pipe(
 			Effect.gen(function* () {
 				yield* getViewerRoomPlayer(ctx, args.roomId)
-				if (args.characterId) {
-					yield* ensureViewerCharacterItemsPermission(ctx, args.characterId)
+				if (characterId) {
+					yield* ensureViewerCharacterItemsPermission(ctx, characterId)
 				}
 
 				const itemId = yield* ctx.db.insert("items", args)
 
-				if (args.characterId) {
+				if (characterId) {
 					const existing = yield* queryCharacterItem(
 						ctx,
-						args.characterId,
+						characterId,
 						itemId,
 					).uniqueOrNull()
 
 					if (!existing) {
 						yield* ctx.db.insert("characterItems", {
-							characterId: args.characterId,
+							characterId: characterId,
 							itemId,
 							quantity: 1,
 						})
