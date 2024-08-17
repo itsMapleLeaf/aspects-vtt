@@ -24,6 +24,7 @@ interface SceneContextType {
 	selectedTokens: ApiToken[]
 	isDraggingTokens: boolean
 	mapPositionFromViewportPosition: (...position: VectorInputArgs) => Vector
+	placementSubdivisions: number
 }
 
 // this is in a separate file because vite is weird

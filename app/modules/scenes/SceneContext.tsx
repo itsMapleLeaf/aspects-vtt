@@ -87,6 +87,7 @@ export function SceneProvider({ children }: { children: ReactNode }) {
 		selectedTokens,
 		isDraggingTokens,
 		viewport: viewportProperties,
+		placementSubdivisions: 4,
 	}
 
 	return <SceneContext value={sceneState}>{children}</SceneContext>

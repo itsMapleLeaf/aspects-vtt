@@ -16,6 +16,7 @@ import { PingLayer } from "./PingLayer.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { TokenLabel } from "./TokenLabel.tsx"
 import { TokenMeter } from "./TokenMeter.tsx"
+import { useGetTokenViewportPosition } from "./useGetTokenViewportPosition.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function TokenElementLayer() {
@@ -72,11 +73,12 @@ function TokenElement({
 		tokenSelectStore,
 		tokenDragOffset,
 		setTokenDragOffset,
+		placementSubdivisions,
 	} = useSceneContext()
 
 	const { currentScene } = useRoom()
 
-	const translate = useTokenTranslate(token)
+	const getTokenViewportPosition = useGetTokenViewportPosition()
 	const updateToken = useUpdateTokenMutation()
 
 	function updateSelectedTokenPositions() {
@@ -85,7 +87,7 @@ function TokenElement({
 			if (!tokenSelectStore.isSelected(token.key)) continue
 
 			const position = Vector.from(token.position)
-				.roundedTo(cellSize)
+				.roundedTo(cellSize / placementSubdivisions)
 				.plus(tokenDragOffset).xy
 
 			updateToken({
@@ -125,7 +127,9 @@ function TokenElement({
 				{...bind()}
 				data-hidden={!token.visible || undefined}
 				className="absolute left-0 top-0 origin-top-left touch-none"
-				style={{ translate }}
+				style={{
+					translate: getTokenViewportPosition(token),
+				}}
 				onDoubleClick={() => {
 					if (!token.character) return
 					setCharacterModalOpen(true)
@@ -186,11 +190,11 @@ function CharacterTokenDecoration({
 		scene: { cellSize },
 		viewport,
 	} = useSceneContext()
-	const translate = useTokenTranslate(token)
+	const getTokenViewportPosition = useGetTokenViewportPosition()
 	return (
 		<div
 			className="pointer-events-none absolute left-0 top-0 origin-top-left"
-			style={{ translate }}
+			style={{ translate: getTokenViewportPosition(token) }}
 		>
 			<div
 				className="relative"
@@ -272,7 +276,7 @@ function AreaSizeLabel({
 		scene: { cellSize },
 		viewport,
 	} = useSceneContext()
-	const translate = useTokenTranslate(token)
+	const getTokenViewportPosition = useGetTokenViewportPosition()
 	const dimensions = Vector.fromSize(area).dividedBy(cellSize).rounded
 	return (
 		<div
@@ -280,7 +284,7 @@ function AreaSizeLabel({
 			style={{
 				...Vector.fromSize(area).roundedTo(cellSize).toSize(),
 				scale: viewport.scale,
-				translate,
+				translate: getTokenViewportPosition(token),
 			}}
 		>
 			<p className="rounded-lg bg-black p-3 text-3xl/none font-bold text-white opacity-50">
@@ -288,19 +292,4 @@ function AreaSizeLabel({
 			</p>
 		</div>
 	)
-}
-
-function useTokenTranslate(token: ApiToken) {
-	const {
-		scene: { cellSize },
-		viewport,
-		tokenSelectStore,
-		tokenDragOffset,
-	} = useSceneContext()
-	const isSelected = tokenSelectStore.isSelected(token.key)
-	return Vector.from(token.position)
-		.roundedTo(cellSize)
-		.times(viewport.scale)
-		.plus(isSelected ? tokenDragOffset.times(viewport.scale) : Vector.zero)
-		.css.translate()
 }
