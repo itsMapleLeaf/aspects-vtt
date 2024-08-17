@@ -36,7 +36,7 @@ export function CharacterNumberField({
 		),
 		onSubmit: (value) => {
 			const int = toNearestPositiveInt(value)
-			if (int) {
+			if (int != null) {
 				update({
 					id: character._id,
 					[field]: Math.max(int, min),
