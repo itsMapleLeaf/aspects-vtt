@@ -27,7 +27,7 @@ export function CharacterEditor({ character }: { character: ApiCharacter }) {
 		},
 		hasPermission && {
 			title: "Inventory",
-			content: <CharacterInventory character={character} />,
+			content: <CharacterInventory characterId={character._id} />,
 		},
 	].filter(Boolean)
 

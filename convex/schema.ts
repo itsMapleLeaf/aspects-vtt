@@ -205,5 +205,14 @@ export default defineSchema({
 		roomId: v.id("rooms"),
 	})
 		.index("roomId", ["roomId"])
-		.searchIndex("name", { searchField: "name" }),
+		.searchIndex("name", { searchField: "name", filterFields: ["roomId"] }),
+
+	characterItems: defineTable({
+		characterId: v.id("characters"),
+		itemId: v.id("items"),
+		quantity: v.number(),
+	})
+		.index("characterId", ["characterId"])
+		.index("itemId", ["itemId"])
+		.index("characterId_itemId", ["characterId", "itemId"]),
 })

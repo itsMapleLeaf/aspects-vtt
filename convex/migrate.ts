@@ -10,7 +10,10 @@ const migration = makeMigration(internalMutation, {
 })
 
 export default internalMutation(async (ctx) => {
-	await startMigrationsSerially(ctx, [internal.migrate.characterImages])
+	await startMigrationsSerially(ctx, [
+		internal.migrate.characterImages,
+		internal.migrate.items,
+	])
 })
 
 export const characterImages = migration({
@@ -28,6 +31,51 @@ export const characterImages = migration({
 					characterId: character._id,
 				},
 			)
+		}
+	},
+})
+
+export const items = migration({
+	table: "characters",
+	async migrateOne(ctx, character) {
+		for await (const existing of ctx.db
+			.query("characterItems")
+			.withIndex("characterId", (q) => q.eq("characterId", character._id))) {
+			await ctx.db.delete(existing._id)
+		}
+
+		for (const item of character.inventory ?? []) {
+			const existingItem = await ctx.db
+				.query("items")
+				.filter((q) => q.eq(q.field("name"), item.name))
+				.first()
+
+			const existingItemId =
+				existingItem?._id ??
+				(await ctx.db.insert("items", {
+					name: item.name,
+					description: "",
+					roomId: character.roomId,
+				}))
+
+			const existingCharacterItem = await ctx.db
+				.query("characterItems")
+				.withIndex("characterId_itemId", (q) =>
+					q.eq("characterId", character._id).eq("itemId", existingItemId),
+				)
+				.first()
+
+			if (!existingCharacterItem) {
+				await ctx.db.insert("characterItems", {
+					characterId: character._id,
+					itemId: existingItemId,
+					quantity: 1,
+				})
+			} else {
+				await ctx.db.patch(existingCharacterItem._id, {
+					quantity: existingCharacterItem.quantity + 1,
+				})
+			}
 		}
 	},
 })

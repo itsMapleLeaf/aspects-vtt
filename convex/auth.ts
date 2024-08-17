@@ -4,7 +4,7 @@ import { convexAuth } from "@convex-dev/auth/server"
 import { getOneFrom } from "convex-helpers/server/relationships"
 import type { WithoutSystemFields } from "convex/server"
 import type { Value } from "convex/values"
-import { Effect } from "effect"
+import { Data, Effect } from "effect"
 import { z } from "zod"
 import { Result } from "../common/Result.ts"
 import { omit } from "../common/object.ts"
@@ -173,6 +173,11 @@ export function getUserFromIdentityEffect() {
 	return getCurrentUser()
 }
 
-export class UnauthorizedError {
-	readonly _tag = "UnauthorizedError"
+export class UnauthorizedError extends Data.TaggedError("UnauthorizedError") {
+	readonly message: string
+
+	constructor(message?: string) {
+		super()
+		this.message = message ?? "You don't have permission to do that."
+	}
 }
