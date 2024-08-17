@@ -9,7 +9,7 @@ export const site = {
 }
 
 const titlePrefix =
-	import.meta.env.PROD ? undefined
+	import.meta.env.PROD ? ""
 	: import.meta.env.DEV ? `[dev] `
 	: `[${import.meta.env.MODE}] `
 
