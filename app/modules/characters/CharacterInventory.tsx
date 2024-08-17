@@ -95,7 +95,7 @@ function AddItemCombobox({ characterId }: { characterId: Id<"characters"> }) {
 			<Ariakit.Combobox render={<Input placeholder="Add an item..." />} />
 			<Ariakit.ComboboxPopover
 				className={MenuPanel.style(
-					"max-h-[360px] min-w-[320px] max-w-[640px] overflow-y-auto [transform:translateZ(0)]",
+					"z-10 max-h-[360px] min-w-[320px] max-w-[640px] overflow-y-auto [transform:translateZ(0)]",
 				)}
 				gutter={8}
 			>
