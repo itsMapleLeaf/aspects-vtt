@@ -147,7 +147,7 @@ function TokenElement({
 						<CharacterImage
 							character={token.character}
 							style={Vector.from(cellSize).times(viewport.scale).toSize()}
-							className="overflow-clip rounded bg-primary-300 shadow-md"
+							className="overflow-clip rounded-full bg-primary-300 shadow-md"
 						/>
 					)}
 					{token.area && (
@@ -164,7 +164,7 @@ function TokenElement({
 							<Lucide.EyeOff className="size-2/3 opacity-75" />
 						</div>
 					)}
-					<div className="pointer-events-none absolute inset-0 rounded bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+					<div className="pointer-events-none absolute inset-0 rounded-full bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
 				</div>
 			</div>
 
