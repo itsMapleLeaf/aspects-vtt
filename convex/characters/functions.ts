@@ -544,6 +544,35 @@ export const attack = effectMutation({
 	},
 })
 
+/** Rolls 1d4 and subtracts from the character's resolve */
+export const extraCombatAction = mutation({
+	args: {
+		id: v.id("characters"),
+	},
+	handler(ctx, args) {
+		return Effect.gen(function* () {
+			const { character } = yield* ensureFullCharacterPermissions(args.id)
+			const [...dice] = createDiceRolls([
+				getDiceKindApiInput(statDiceKindsByName.d4, 1),
+			])
+			const die = unwrap(dice[0])
+
+			yield* ctx.db.patch(args.id, {
+				resolve: character.resolve - die.result,
+			})
+
+			yield* ctx.db.insert("messages", {
+				roomId: character.roomId,
+				user: character.player ?? undefined,
+				content: `<@${character._id}> spent ${die.result} resolve for an extra combat action.`,
+				diceRoll: {
+					dice: [die],
+				},
+			})
+		}).pipe(Effect.provideService(QueryCtxService, ctx.internal), Effect.orDie)
+	},
+})
+
 function generateRandomCharacterProperties() {
 	const attributes = {
 		strength: 1,

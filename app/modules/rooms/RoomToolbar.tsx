@@ -13,6 +13,7 @@ import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { useOwnedCharacters } from "../characters/hooks.ts"
+import { useMutationAction } from "../convex/hooks.ts"
 import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
 import { QuickReference } from "../game/QuickReference.tsx"
 import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
@@ -21,6 +22,10 @@ import { RoomOwnerOnly } from "./roomContext.tsx"
 
 export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 	const character = useOwnedCharacters()[0]
+
+	const [, extraCombatAction] = useMutationAction(
+		api.characters.functions.extraCombatAction,
+	)
 
 	return (
 		<nav aria-label="Toolbar" className="flex gap-2">
@@ -41,6 +46,11 @@ export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 						</div>
 					</ToolbarPopover>
 					<RestButton characterId={character._id} />
+					<ToolbarButton
+						icon={<Lucide.FastForward />}
+						tooltip="Extra combat action"
+						onClick={() => extraCombatAction({ id: character._id })}
+					/>
 				</>
 			)}
 
