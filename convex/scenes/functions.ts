@@ -12,7 +12,7 @@ import { requireRoomOwner } from "../rooms/functions.ts"
 import { ensureViewerOwnsRoom } from "../rooms/functions.ts"
 import schema from "../schema.ts"
 import { vectorValidator } from "../types.ts"
-import { getCurrentUser } from "../users.ts"
+import { getCurrentUser } from "../users.old.ts"
 import { createToken } from "./tokens/functions.ts"
 
 export const list = query({

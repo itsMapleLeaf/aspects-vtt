@@ -1,60 +1,58 @@
+import { NotLoggedIn } from "@maple/convex-effect"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import type { Id } from "./_generated/dataModel"
-import { auth } from "./auth.ts"
+import { isNonNil } from "../common/validation.ts"
 import {
-	Convex,
-	NotLoggedInError,
-	QueryCtxService,
-	effectQuery,
-	internalEffectMutation,
-	internalEffectQuery,
-} from "./helpers/effect.ts"
+	type LocalQueryCtx,
+	internalMutation,
+	internalQuery,
+	query,
+} from "./api.ts"
+import { auth } from "./auth.ts"
 import { partial } from "./helpers/partial.ts"
 import schema from "./schema.ts"
 
-export const me = effectQuery({
-	handler() {
-		return getCurrentUser().pipe(Effect.orElseSucceed(() => null))
+export const me = query({
+	handler(ctx) {
+		return getCurrentUser(ctx).pipe(Effect.orElseSucceed(() => null))
 	},
 })
 
-export const list = internalEffectQuery({
-	handler() {
-		return Convex.db.query("users").collect()
+export const list = internalQuery({
+	handler(ctx) {
+		return ctx.db.query("users").collect()
 	},
 })
 
-export const update = internalEffectMutation({
+export const update = internalMutation({
 	args: {
 		...partial(schema.tables.users.validator.fields),
 		id: v.id("users"),
 	},
-	handler({ id, ...args }) {
-		return Convex.db.patch(id, args)
+	handler(ctx, { id, ...args }) {
+		return ctx.db.patch(id, args)
 	},
 })
 
-export const remove = internalEffectMutation({
+export const remove = internalMutation({
 	args: {
 		id: v.id("users"),
 	},
-	handler(args) {
-		return Convex.db.delete(args.id)
+	handler(ctx, args) {
+		return ctx.db.delete(args.id)
 	},
 })
 
-export function getCurrentUserId() {
+export function getCurrentUserId(ctx: LocalQueryCtx) {
 	return pipe(
-		QueryCtxService,
-		Effect.flatMap((ctx) => Effect.promise(() => auth.getUserId(ctx))),
-		Effect.filterOrFail(
-			(id): id is Id<"users"> => id != null,
-			() => new NotLoggedInError(),
-		),
+		Effect.promise(() => auth.getUserId(ctx.internal)),
+		Effect.filterOrFail(isNonNil, () => new NotLoggedIn()),
 	)
 }
 
-export function getCurrentUser() {
-	return pipe(getCurrentUserId(), Effect.flatMap(Convex.db.get))
+export function getCurrentUser(ctx: LocalQueryCtx) {
+	return pipe(
+		getCurrentUserId(ctx),
+		Effect.flatMap((id) => ctx.db.get(id)),
+	)
 }

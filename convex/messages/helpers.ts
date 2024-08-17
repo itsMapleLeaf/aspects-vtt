@@ -2,7 +2,7 @@ import { Effect } from "effect"
 import type { Id } from "../_generated/dataModel"
 import { createDiceRolls } from "../dice/helpers.ts"
 import { getDoc, insertDoc } from "../helpers/effect.ts"
-import { getCurrentUserId } from "../users.ts"
+import { getCurrentUserId } from "../users.old.ts"
 import type { DiceInput } from "./types.ts"
 
 export class EmptyMessageError {

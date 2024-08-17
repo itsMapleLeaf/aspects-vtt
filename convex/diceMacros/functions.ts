@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { Convex, effectMutation, effectQuery } from "../helpers/effect.ts"
 import schema from "../schema.ts"
-import { getCurrentUserId } from "../users.ts"
+import { getCurrentUserId } from "../users.old.ts"
 
 export const list = effectQuery({
 	args: {

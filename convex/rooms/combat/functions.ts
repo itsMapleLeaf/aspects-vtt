@@ -8,7 +8,7 @@ import { mutation } from "../../_generated/server.js"
 import { query } from "../../api.ts"
 import { CharacterModel } from "../../characters/CharacterModel.ts"
 import { QueryCtxService } from "../../helpers/effect.ts"
-import { getCurrentUserId } from "../../users.ts"
+import { getCurrentUserId } from "../../users.old.ts"
 import { RoomModel } from "../RoomModel.ts"
 import { getInitiativeRoll, getRoomCombat } from "./helpers.ts"
 

@@ -7,6 +7,7 @@ import { uniqueByProperty } from "../../common/iterable.ts"
 import { omit } from "../../common/object.ts"
 import type { Id } from "../_generated/dataModel.js"
 import { type QueryCtx, mutation, query } from "../_generated/server.js"
+import type { LocalQueryCtx } from "../api.ts"
 import {
 	UnauthorizedError,
 	getUserFromIdentity,
@@ -22,7 +23,7 @@ import {
 } from "../helpers/effect.js"
 import { partial } from "../helpers/partial.ts"
 import schema from "../schema.ts"
-import { getCurrentUser, getCurrentUserId } from "../users.ts"
+import { getCurrentUser, getCurrentUserId } from "../users.old.ts"
 import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
 
@@ -229,9 +230,6 @@ export function getRoomBySlug(slug: string) {
 		.withIndex("slug", (q) => q.eq("slug", slug))
 		.first()
 }
-export class RoomNotOwnedError {
-	readonly _tag = "RoomNotOwnedError"
-}
 
 export function ensureViewerOwnsRoom(roomId: Id<"rooms">) {
 	return Effect.gen(function* () {
@@ -244,4 +242,26 @@ export function ensureViewerOwnsRoom(roomId: Id<"rooms">) {
 		}
 		return yield* Effect.fail(new RoomNotOwnedError())
 	})
+}
+
+export class RoomNotOwnedError {
+	readonly _tag = "RoomNotOwnedError"
+}
+
+export function getViewerRoomPlayer(ctx: LocalQueryCtx, roomId: Id<"rooms">) {
+	return pipe(
+		getCurrentUserId(),
+		Effect.flatMap((userId) => getRoomPlayer(ctx, roomId, userId)),
+	)
+}
+
+export function getRoomPlayer(
+	ctx: LocalQueryCtx,
+	roomId: Id<"rooms">,
+	userId: Id<"users">,
+) {
+	return ctx.db
+		.query("players")
+		.withIndex("roomId_user", (q) => q.eq("roomId", roomId).eq("user", userId))
+		.first()
 }

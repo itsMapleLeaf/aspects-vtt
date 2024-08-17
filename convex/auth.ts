@@ -12,7 +12,7 @@ import { internal } from "./_generated/api"
 import type { Doc, Id } from "./_generated/dataModel"
 import type { MutationCtx, QueryCtx } from "./_generated/server.js"
 import { QueryCtxService } from "./helpers/effect.ts"
-import { getCurrentUser } from "./users.ts"
+import { getCurrentUser } from "./users.old.ts"
 
 interface Profile extends WithoutSystemFields<Doc<"users">> {
 	id: string

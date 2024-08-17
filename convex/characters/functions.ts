@@ -60,7 +60,7 @@ import { type DiceRoll, diceInputValidator } from "../messages/types.ts"
 import { ensureViewerOwnsRoom } from "../rooms/functions.ts"
 import schema from "../schema.ts"
 import { userColorValidator } from "../types.ts"
-import { getCurrentUser, getCurrentUserId } from "../users.ts"
+import { getCurrentUser, getCurrentUserId } from "../users.old.ts"
 import { characterAttributeValidator } from "./types.ts"
 
 export const list = effectQuery({
