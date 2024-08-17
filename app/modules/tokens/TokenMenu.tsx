@@ -30,7 +30,7 @@ import {
 } from "../characters/hooks.ts"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
-import { useSceneContext } from "./SceneContext.tsx"
+import { useSceneContext } from "../scenes/SceneContext.tsx"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function TokenMenu() {

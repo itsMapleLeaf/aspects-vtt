@@ -1,6 +1,6 @@
 import { Vector } from "../../../common/Vector.ts"
 import type { ApiToken } from "../../../convex/scenes/tokens/functions.ts"
-import { useSceneContext } from "./SceneContext.tsx"
+import { useSceneContext } from "../scenes/SceneContext.tsx"
 
 export function useGetTokenViewportPosition() {
 	const context = useSceneContext()

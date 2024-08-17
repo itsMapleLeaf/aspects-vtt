@@ -12,14 +12,14 @@ import { getApiImageUrl } from "../api-images/helpers.ts"
 import { characterDragData } from "../characters/types.ts"
 import type { RoomToolbarStore } from "../rooms/RoomToolbarStore.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
+import { TokenElementLayer } from "../tokens/TokenElementLayer.tsx"
+import { TokenMenu } from "../tokens/TokenMenu.tsx"
+import { useAddTokenMutation } from "../tokens/useAddTokenMutation.tsx"
+import { useUpdateTokenMutation } from "../tokens/useUpdateTokenMutation.tsx"
 import { PingHandler } from "./PingHandler.tsx"
 import { useSceneContext } from "./SceneContext.tsx"
 import { SceneGrid } from "./SceneGrid.tsx"
-import { TokenElementLayer } from "./TokenElementLayer.tsx"
-import { TokenMenu } from "./TokenMenu.tsx"
 import { useSelectedScene, useSelectedSceneTokens } from "./hooks.ts"
-import { useAddTokenMutation } from "./useAddTokenMutation.tsx"
-import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function SceneMap({ store }: { store: RoomToolbarStore }) {
 	const { tokenSelectStore } = useSceneContext()
