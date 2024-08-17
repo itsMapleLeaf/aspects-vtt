@@ -16,9 +16,10 @@ import { ScrollArea } from "../../ui/ScrollArea.tsx"
 import { Tabs } from "../../ui/Tabs.tsx"
 import { panel, translucentPanel } from "../../ui/styles.ts"
 import { AttributeDiceRollButtonGrid } from "../attributes/AttributeDiceRollButtonGrid.tsx"
+import { AddCharacterConditionInput } from "../characters/AddCharacterConditionInput.tsx"
 import { CharacterAbilityList } from "../characters/CharacterAbilityList.tsx"
 import { CharacterAttackForm } from "../characters/CharacterAttackForm.tsx"
-import { CharacterConditionsListInput } from "../characters/CharacterConditionsListInput.tsx"
+import { CharacterConditionList } from "../characters/CharacterConditionList.tsx"
 import { CharacterNotesFields } from "../characters/CharacterForm.tsx"
 import { CharacterModal } from "../characters/CharacterModal.tsx"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
@@ -160,13 +161,17 @@ function TokenMenuContent() {
 								className={translucentPanel("max-w-[360px] p-2")}
 								gutter={16}
 							>
-								{singleSelectedCharacter && (
-									<FormField label="Conditions">
-										<CharacterConditionsListInput
-											character={singleSelectedCharacter}
+								<FormField label="Conditions">
+									<div className="flex flex-col gap-1">
+										<CharacterConditionList characters={selectedCharacters} />
+										<AddCharacterConditionInput
+											characterIds={selectedCharacters.map((it) => it._id)}
+											currentConditions={
+												singleSelectedCharacter?.conditions ?? []
+											}
 										/>
-									</FormField>
-								)}
+									</div>
+								</FormField>
 								<FormField label="Update status">
 									<CharacterUpdateStatusForm
 										characterIds={selectedCharacters.map((it) => it._id)}

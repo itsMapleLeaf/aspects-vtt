@@ -328,7 +328,7 @@ export const setSkillActive = effectMutation({
 
 export const updateConditions = effectMutation({
 	args: {
-		characterId: v.id("characters"),
+		characterIds: v.array(v.id("characters")),
 		action: v.union(
 			v.object({
 				type: v.literal("add"),
@@ -344,25 +344,31 @@ export const updateConditions = effectMutation({
 			}),
 		),
 	},
-	handler({ characterId, action }) {
-		return Effect.gen(function* () {
-			const { character } = yield* ensureFullCharacterPermissions(characterId)
+	handler({ characterIds, action }) {
+		return Effect.forEach(
+			characterIds,
+			(characterId) =>
+				Effect.gen(function* () {
+					const { character } =
+						yield* ensureFullCharacterPermissions(characterId)
 
-			let conditions = character.conditions ?? []
-			if (action.type === "add") {
-				conditions = [...conditions, pick(action, ["name", "color"])]
-			} else if (action.type === "remove") {
-				conditions = conditions.filter(
-					(condition) => condition.name !== action.name,
-				)
-			} else if (action.type === "clear") {
-				conditions = []
-			}
+					let conditions = character.conditions ?? []
+					if (action.type === "add") {
+						conditions = [...conditions, pick(action, ["name", "color"])]
+					} else if (action.type === "remove") {
+						conditions = conditions.filter(
+							(condition) => condition.name !== action.name,
+						)
+					} else if (action.type === "clear") {
+						conditions = []
+					}
 
-			yield* withMutationCtx((ctx) =>
-				ctx.db.patch(character._id, { conditions }),
-			)
-		})
+					yield* withMutationCtx((ctx) =>
+						ctx.db.patch(character._id, { conditions }),
+					)
+				}),
+			{ concurrency: "unbounded" },
+		).pipe(Effect.asVoid)
 	},
 })
 
