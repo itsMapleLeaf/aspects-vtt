@@ -1,6 +1,6 @@
 import { getOneFrom } from "convex-helpers/server/relationships"
 import { ConvexError, v } from "convex/values"
-import { Effect, pipe } from "effect"
+import { Data, Effect, pipe } from "effect"
 import { generateSlug } from "random-word-slugs"
 import { Result } from "../../common/Result.ts"
 import { uniqueByProperty } from "../../common/iterable.ts"
@@ -23,7 +23,11 @@ import {
 } from "../helpers/effect.js"
 import { partial } from "../helpers/partial.ts"
 import schema from "../schema.ts"
-import { getCurrentUser, getCurrentUserId } from "../users.old.ts"
+import {
+	getCurrentUser,
+	getCurrentUserId as getCurrentUserIdOld,
+} from "../users.old.ts"
+import { getCurrentUserId } from "../users.ts"
 import { RoomModel } from "./RoomModel.js"
 import { memberValidator } from "./combat/types.ts"
 
@@ -53,7 +57,7 @@ export const get = effectQuery({
 				),
 			)
 
-			const currentUserId = yield* getCurrentUserId()
+			const currentUserId = yield* getCurrentUserIdOld()
 
 			return {
 				...room,
@@ -208,7 +212,7 @@ export function isRoomOwner(roomId: Id<"rooms">) {
 
 export function getRoomAsOwner(roomId: Id<"rooms">) {
 	return pipe(
-		Effect.all([Convex.db.get(roomId), getCurrentUserId()]),
+		Effect.all([Convex.db.get(roomId), getCurrentUserIdOld()]),
 		Effect.filterOrFail(
 			([room, user]) => room.owner === user,
 			() => new UnauthorizedError(),
@@ -250,7 +254,7 @@ export class RoomNotOwnedError {
 
 export function getViewerRoomPlayer(ctx: LocalQueryCtx, roomId: Id<"rooms">) {
 	return pipe(
-		getCurrentUserId(),
+		getCurrentUserId(ctx),
 		Effect.flatMap((userId) => getRoomPlayer(ctx, roomId, userId)),
 	)
 }
@@ -260,8 +264,18 @@ export function getRoomPlayer(
 	roomId: Id<"rooms">,
 	userId: Id<"users">,
 ) {
-	return ctx.db
-		.query("players")
-		.withIndex("roomId_user", (q) => q.eq("roomId", roomId).eq("user", userId))
-		.first()
+	return pipe(
+		ctx.db
+			.query("players")
+			.withIndex("roomId_user", (q) =>
+				q.eq("roomId", roomId).eq("user", userId),
+			)
+			.first(),
+		Effect.catchTag("DocNotFound", () => new UserNotInRoom({ roomId, userId })),
+	)
 }
+
+export class UserNotInRoom extends Data.TaggedError("UserNotInRoom")<{
+	readonly roomId: Id<"rooms">
+	readonly userId: Id<"users">
+}> {}

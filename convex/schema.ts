@@ -198,4 +198,12 @@ export default defineSchema({
 		characterId: v.id("characters"),
 		aspectSkillId: brandedString("aspectSkill"),
 	}).index("characterId", ["characterId"]),
+
+	items: defineTable({
+		name: v.string(),
+		description: v.string(),
+		roomId: v.id("rooms"),
+	})
+		.index("roomId", ["roomId"])
+		.searchIndex("name", { searchField: "name" }),
 })
