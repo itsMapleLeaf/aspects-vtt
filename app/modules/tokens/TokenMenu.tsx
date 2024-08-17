@@ -149,6 +149,8 @@ function TokenMenuContent() {
 						character={singleSelectedCharacter}
 						notes={false}
 						labels={false}
+						// ensure the fields show the correct value for the given character
+						key={singleSelectedCharacter._id}
 					/>
 				</div>
 			)}
