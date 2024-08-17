@@ -37,7 +37,7 @@ export function Input({
 	return (
 		<div
 			className={twMerge(
-				"relative flex w-full min-w-0 items-center",
+				"relative flex h-10 w-full min-w-0 items-center",
 				className,
 			)}
 		>
@@ -62,7 +62,7 @@ Input.style = function inputStyle(
 ) {
 	return panel(
 		twMerge(
-			"h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-200 px-3 ring-inset transition",
+			"h-full w-full min-w-0 rounded border border-primary-300 bg-primary-200 px-3 ring-inset transition",
 			props.align === "left" && "text-left",
 			props.align === "right" && "text-right",
 			props.align === "center" && "text-center",
