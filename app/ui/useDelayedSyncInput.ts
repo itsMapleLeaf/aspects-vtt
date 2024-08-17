@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { useEffectEvent } from "../../common/react/hooks.ts"
 
 export function useDelayedSyncInput(args: {
 	value: string
@@ -18,6 +19,18 @@ export function useDelayedSyncInput(args: {
 			setPendingValue(undefined)
 		}
 	}, [args.value, pendingValue])
+
+	// ensure we submit if we have a pending value on unmount
+	const submitOnUnmount = useEffectEvent(() => {
+		if (pendingValue != null) {
+			args.onSubmit(pendingValue)
+		}
+	})
+	useEffect(() => {
+		return () => {
+			submitOnUnmount()
+		}
+	}, [submitOnUnmount])
 
 	return {
 		value: pendingValue ?? args.value,
