@@ -9,7 +9,7 @@ export function useMDXComponents(): MDXComponents {
 				{...props}
 				to={href}
 				className={twMerge(
-					"text-primary-900 underline hover:no-underline",
+					"text-primary-100 underline hover:no-underline",
 					props.className,
 				)}
 			/>

@@ -141,13 +141,13 @@ function TokenElement({
 				>
 					<div
 						data-is-current-combat-member={isCurrentCombatMember}
-						className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-700"
+						className="pointer-events-none absolute inset-0 animate-pulse rounded outline-dashed outline-4 outline-offset-[6px] outline-transparent data-[is-current-combat-member=true]:outline-primary-300"
 					></div>
 					{token.character && (
 						<CharacterImage
 							character={token.character}
 							style={Vector.from(cellSize).times(viewport.scale).toSize()}
-							className="overflow-clip rounded-full bg-primary-300 shadow-md"
+							className="overflow-clip rounded-full bg-primary-700 shadow-md"
 						/>
 					)}
 					{token.area && (
@@ -164,7 +164,7 @@ function TokenElement({
 							<Lucide.EyeOff className="size-2/3 opacity-75" />
 						</div>
 					)}
-					<div className="pointer-events-none absolute inset-0 rounded-full bg-primary-600/25 opacity-0 outline outline-4 outline-primary-700 group-data-[selected]:opacity-100" />
+					<div className="pointer-events-none absolute inset-0 rounded-full bg-primary-400/25 opacity-0 outline outline-4 outline-primary-300 group-data-[selected]:opacity-100" />
 				</div>
 			</div>
 

@@ -57,7 +57,7 @@ export function MenuItem({ onClick, ...props }: MenuItemProps) {
 }
 MenuItem.style = function menuItemStyle(...classes: ClassNameValue[]) {
 	return twMerge(
-		"flex cursor-default rounded-sm px-2 py-2 transition duration-75 gap-2 data-[active-item]:bg-primary-100 data-[active-item]:text-primary-700",
+		"flex cursor-default rounded-sm px-2 py-2 transition duration-75 gap-2 data-[active-item]:bg-primary-900 data-[active-item]:text-primary-300",
 		classes,
 	)
 }

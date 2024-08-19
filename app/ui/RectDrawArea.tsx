@@ -55,7 +55,7 @@ export function RectDrawArea({
 			{children}
 			{rect && preview && (
 				<div
-					className="absolute left-0 top-0 border-2 border-primary-600 bg-primary-600/25"
+					className="absolute left-0 top-0 border-2 border-primary-400 bg-primary-400/25"
 					style={{
 						translate: rect.topLeft.css.translate(),
 						...rect.size.toSize(),

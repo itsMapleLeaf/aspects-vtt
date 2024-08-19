@@ -377,7 +377,7 @@ function TokenMenuContent() {
 			</div>
 			{selectedCharacters.some((it) => it.permission === "full") && (
 				<>
-					<hr className="w-full border-primary-400" />
+					<hr className="w-full border-primary-600" />
 					<AttributeDiceRollButtonGrid
 						className="gap-[inherit]"
 						characters={selectedCharacters}

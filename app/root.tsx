@@ -35,7 +35,7 @@ export const loader = () => {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="break-words bg-primary-100 text-primary-900">
+		<html lang="en" className="break-words bg-primary-900 text-primary-100">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />

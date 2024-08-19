@@ -6,7 +6,7 @@ export function Panel(props: SlottableProps) {
 		<Slottable
 			{...withMergedClassName(
 				props,
-				"rounded border border-primary-300 bg-primary-200",
+				"rounded border border-primary-700 bg-primary-800",
 			)}
 			fallback={<div />}
 		/>
@@ -18,7 +18,7 @@ export function TranslucentPanel(props: SlottableProps) {
 		<Panel
 			{...withMergedClassName(
 				props,
-				"bg-primary-100/75 shadow-md backdrop-blur",
+				"bg-primary-900/75 shadow-md backdrop-blur",
 			)}
 		/>
 	)

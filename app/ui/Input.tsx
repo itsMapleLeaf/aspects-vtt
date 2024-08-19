@@ -62,7 +62,7 @@ Input.style = function inputStyle(
 ) {
 	return panel(
 		twMerge(
-			"h-full min-h-10 w-full min-w-0 rounded border border-primary-300 bg-primary-200 px-3 ring-inset transition",
+			"h-full min-h-10 w-full min-w-0 rounded border border-primary-700 bg-primary-800 px-3 ring-inset transition",
 			props.align === "left" && "text-left",
 			props.align === "right" && "text-right",
 			props.align === "center" && "text-center",

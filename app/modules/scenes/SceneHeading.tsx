@@ -50,7 +50,7 @@ export function SceneHeading() {
 	})()
 
 	return (
-		<h2 className="pointer-events-none fixed inset-x-0 top-3 mx-auto flex max-w-md select-none flex-col items-center text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-900/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)] gap-0.5">
+		<h2 className="pointer-events-none fixed inset-x-0 top-3 mx-auto flex max-w-md select-none flex-col items-center text-pretty p-4 text-center text-2xl font-light tracking-wide text-primary-100/90 drop-shadow-[0px_0px_3px_rgba(0,0,0,0.9)] gap-0.5">
 			{scene.name}
 			<p className="text-base font-medium tracking-wide">
 				{gameTime.monthName.name} the {formatWithRankSuffix(gameTime.day + 1)},{" "}

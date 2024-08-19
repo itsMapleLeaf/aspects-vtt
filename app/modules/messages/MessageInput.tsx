@@ -203,7 +203,7 @@ function MacroList({
 								/>
 							</Tooltip>
 						</header>
-						<ul className="flex flex-wrap border-t border-primary-300 bg-black/25 p-2 gap-2">
+						<ul className="flex flex-wrap border-t border-primary-700 bg-black/25 p-2 gap-2">
 							{macro.dice.map((die) =>
 								Iterator.range(die.count)
 									.map((n) => {

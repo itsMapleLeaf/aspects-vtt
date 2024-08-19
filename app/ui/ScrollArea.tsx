@@ -46,7 +46,7 @@ export function ScrollArea({
 					props.scrollbarPosition === "outside" ? "left-full" : "",
 				)}
 			>
-				<RadixScrollArea.Thumb className="relative flex-1 rounded-full bg-primary-600 opacity-50 transition-opacity active:opacity-100 active:duration-0" />
+				<RadixScrollArea.Thumb className="relative flex-1 rounded-full bg-primary-400 opacity-50 transition-opacity active:opacity-100 active:duration-0" />
 			</RadixScrollArea.Scrollbar>
 
 			<RadixScrollArea.Scrollbar
@@ -57,7 +57,7 @@ export function ScrollArea({
 					props.scrollbarPosition === "outside" ? "top-full" : "",
 				)}
 			>
-				<RadixScrollArea.Thumb className="relative flex-1 rounded-full bg-primary-600 opacity-50 transition-opacity active:opacity-100 active:duration-0" />
+				<RadixScrollArea.Thumb className="relative flex-1 rounded-full bg-primary-400 opacity-50 transition-opacity active:opacity-100 active:duration-0" />
 			</RadixScrollArea.Scrollbar>
 		</RadixScrollArea.Root>
 	)

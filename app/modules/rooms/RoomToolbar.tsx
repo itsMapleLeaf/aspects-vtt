@@ -110,7 +110,7 @@ function ToolbarButton({
 
 function ToolbarSeparator() {
 	return (
-		<div className="shrink-0 basis-px self-stretch bg-primary-300/75 first:hidden last:hidden" />
+		<div className="shrink-0 basis-px self-stretch bg-primary-700/75 first:hidden last:hidden" />
 	)
 }
 

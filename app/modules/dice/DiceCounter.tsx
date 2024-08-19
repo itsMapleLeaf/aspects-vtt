@@ -36,7 +36,7 @@ export function DiceCounter({
 							<button
 								type="button"
 								title={`Add a ${kind.name}`}
-								className="-m-2 flex items-center justify-center p-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
+								className="-m-2 flex items-center justify-center p-2 opacity-50 transition hover:opacity-75 active:text-primary-300 active:opacity-100 active:duration-0"
 								onClick={() => update(kind.name, 1)}
 							>
 								<Lucide.ChevronUp />
@@ -44,7 +44,7 @@ export function DiceCounter({
 							<button
 								type="button"
 								title={`Add a ${kind.name}`}
-								className="-mx-2 flex items-center justify-center px-2 opacity-50 transition hover:opacity-75 active:text-primary-700 active:opacity-100 active:duration-0"
+								className="-mx-2 flex items-center justify-center px-2 opacity-50 transition hover:opacity-75 active:text-primary-300 active:opacity-100 active:duration-0"
 								onClick={() => update(kind.name, -1)}
 							>
 								<Lucide.ChevronDown />

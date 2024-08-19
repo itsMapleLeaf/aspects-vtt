@@ -270,12 +270,12 @@ function AspectSkillButton({
 	return (
 		<button
 			type="button"
-			className="group relative w-full rounded p-2 pr-16 text-left opacity-50 transition hover:bg-primary-300/25 active:bg-primary-300/50 active:duration-0 data-[active]:opacity-100"
+			className="group relative w-full rounded p-2 pr-16 text-left opacity-50 transition hover:bg-primary-700/25 active:bg-primary-700/50 active:duration-0 data-[active]:opacity-100"
 			data-active={active || undefined}
 			onPointerDown={dispatchToggle}
 		>
 			<h4 className="text-xl font-light">{name}</h4>
-			<p className="text-lg text-primary-800">{description}</p>
+			<p className="text-lg text-primary-200">{description}</p>
 			<SomeKindaLabel className="mt-1.5 block">{cost} EXP</SomeKindaLabel>
 			<div className="flex-center absolute inset-y-0 right-0 w-16 opacity-0 transition-opacity group-hover:opacity-100">
 				{pending ?
@@ -288,4 +288,4 @@ function AspectSkillButton({
 	)
 }
 
-const SomeKindaLabel = twc.span`text-sm font-bold uppercase tracking-wide text-primary-700`
+const SomeKindaLabel = twc.span`text-sm font-bold uppercase tracking-wide text-primary-300`

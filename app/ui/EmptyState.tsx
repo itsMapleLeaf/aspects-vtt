@@ -12,7 +12,7 @@ export function EmptyStatePanel({
 }) {
 	return (
 		<div className="px-4 py-16">
-			<div className="flex-center-col mx-auto w-full max-w-screen-sm rounded border border-primary-300 bg-black/10 p-6 gap-4">
+			<div className="flex-center-col mx-auto w-full max-w-screen-sm rounded border border-primary-700 bg-black/10 p-6 gap-4">
 				<div aria-hidden className="text-primary-500 opacity-60 *:size-16">
 					{icon}
 				</div>

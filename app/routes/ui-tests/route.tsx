@@ -20,7 +20,7 @@ export default function UiTests() {
 						<Link
 							key={slug}
 							to={slug}
-							className="text-primary-600 hover:underline"
+							className="text-primary-400 hover:underline"
 						>
 							{titleCase(slug)}
 						</Link>

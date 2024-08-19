@@ -94,19 +94,19 @@ export function Button({
 		"aria-disabled:pointer-events-none aria-disabled:opacity-50",
 
 		appearance === "solid" && [
-			"before:bg-primary-300/60 hover:text-primary-700 active:before:bg-primary-300",
+			"before:bg-primary-700/60 hover:text-primary-300 active:before:bg-primary-700",
 
-			"rounded border border-primary-300",
+			"rounded border border-primary-700",
 
 			"relative before:absolute before:inset-0 before:size-full",
 			"before:transition active:before:duration-0",
 			"before:origin-bottom before:scale-y-0 hover:before:scale-y-100",
 
-			active && "text-primary-800",
+			active && "text-primary-200",
 		],
 
 		appearance === "clear" && [
-			"bg-primary-900",
+			"bg-primary-100",
 			"bg-opacity-0 hover:bg-opacity-25 active:bg-opacity-50",
 			"text-white text-opacity-80 hover:text-opacity-100",
 
@@ -115,7 +115,7 @@ export function Button({
 			"translate-y-0 active:translate-y-0.5",
 
 			active &&
-				"bg-primary-800 bg-opacity-10 text-primary-800 text-opacity-100",
+				"bg-primary-200 bg-opacity-10 text-primary-200 text-opacity-100",
 		],
 	)
 

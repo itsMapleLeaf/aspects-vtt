@@ -26,7 +26,7 @@ export function Tooltip({
 			<span className="sr-only">{content}</span>
 			<Ariakit.Tooltip
 				store={store}
-				className="pointer-events-none w-fit max-w-32 translate-y-1 rounded bg-white px-2 py-0.5 text-center text-sm font-semibold text-primary-100 opacity-0 shadow-md transition data-[enter]:translate-y-0 data-[enter]:opacity-100"
+				className="pointer-events-none w-fit max-w-32 translate-y-1 rounded bg-white px-2 py-0.5 text-center text-sm font-semibold text-primary-900 opacity-0 shadow-md transition data-[enter]:translate-y-0 data-[enter]:opacity-100"
 				unmountOnHide
 				fixed
 				{...tooltipProps}

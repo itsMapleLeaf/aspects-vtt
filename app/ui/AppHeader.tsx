@@ -17,15 +17,15 @@ export function AppHeader({ center }: { center?: React.ReactNode }) {
 					}}
 				>
 					<h1 className="text-2xl">
-						<span className="font-light text-primary-600">Aspects</span>
-						<span className="font-medium text-primary-800">VTT</span>
+						<span className="font-light text-primary-400">Aspects</span>
+						<span className="font-medium text-primary-200">VTT</span>
 					</h1>
 				</Link>
 				<Button
 					icon={<Lucide.BookText />}
 					appearance="clear"
 					element={<Link to="/guide" />}
-					className="text-lg/none text-primary-800"
+					className="text-lg/none text-primary-200"
 				>
 					Guide (WIP)
 				</Button>

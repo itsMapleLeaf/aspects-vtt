@@ -126,7 +126,7 @@ function ButtonOptionGroup({ children }: { children: React.ReactNode }) {
 	return (
 		<div
 			className={panel(
-				"flex overflow-clip bg-primary-100 *:flex-1 empty:hidden",
+				"flex overflow-clip bg-primary-900 *:flex-1 empty:hidden",
 			)}
 		>
 			{children}
@@ -154,7 +154,7 @@ function ButtonOption({
 	return (
 		<label
 			className={twMerge(
-				"flex-center-row h-10 px-2 opacity-50 transition gap-1 hover:bg-primary-300/50 has-[:checked]:bg-primary-200 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-200",
+				"flex-center-row h-10 px-2 opacity-50 transition gap-1 hover:bg-primary-700/50 has-[:checked]:bg-primary-800 has-[:checked]:opacity-100 has-[:checked]:hover:bg-primary-800",
 				className,
 			)}
 		>
@@ -181,7 +181,7 @@ function Collapse({
 	return (
 		<Ariakit.DisclosureProvider>
 			<div className="flex flex-col gap-1">
-				<Ariakit.Disclosure className="-m-1 flex rounded p-1 hover:text-primary-700">
+				<Ariakit.Disclosure className="-m-1 flex rounded p-1 hover:text-primary-300">
 					<Lucide.ChevronDown className="[[aria-expanded=true]>&]:rotate-180" />
 					<span className="font-bold">{title}</span>
 				</Ariakit.Disclosure>

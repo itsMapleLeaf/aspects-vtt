@@ -97,7 +97,7 @@ export function CombatInitiative() {
 	return (
 		<section className="flex h-full flex-col gap-3">
 			<h3 className="-mb-2 text-3xl font-light">Combat</h3>
-			<p className="text-sm font-bold uppercase tracking-wide text-primary-700">
+			<p className="text-sm font-bold uppercase tracking-wide text-primary-300">
 				<span>Round {combat.currentRoundNumber}</span>
 				{initiativeAttribute && (
 					<>
@@ -110,7 +110,7 @@ export function CombatInitiative() {
 			<ScrollArea className="-mx-3 h-[240px]">
 				<ol
 					ref={animateRef}
-					className="divide-y divide-primary-300 px-3 *:py-2"
+					className="divide-y divide-primary-700 px-3 *:py-2"
 				>
 					{members?.map((member, index) => (
 						<li key={member.characterId}>

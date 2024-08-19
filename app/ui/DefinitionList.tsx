@@ -13,11 +13,11 @@ export function DefinitionList({ items }: DefinitionListProps) {
 				<Fragment key={index}>
 					<div key={index}>
 						<dt className="text-lg/tight font-light">{item.name}</dt>
-						<dd className="whitespace-pre-line text-pretty font-medium text-primary-800">
+						<dd className="whitespace-pre-line text-pretty font-medium text-primary-200">
 							{item.description.trim()}
 						</dd>
 					</div>
-					<hr className="border-primary-300 last:hidden" />
+					<hr className="border-primary-700 last:hidden" />
 				</Fragment>
 			))}
 		</dl>

@@ -33,10 +33,10 @@ export function LoadingIcon(props: ComponentProps<"div">) {
 				props.className,
 			)}
 		>
-			<div className="aspect-square rounded-md bg-primary-700" />
-			<div className="aspect-square rounded-md bg-primary-800" />
-			<div className="aspect-square rounded-md bg-primary-800" />
-			<div className="aspect-square rounded-md bg-primary-700" />
+			<div className="aspect-square rounded-md bg-primary-300" />
+			<div className="aspect-square rounded-md bg-primary-200" />
+			<div className="aspect-square rounded-md bg-primary-200" />
+			<div className="aspect-square rounded-md bg-primary-300" />
 		</div>
 	)
 }

@@ -70,14 +70,14 @@ function PingElement({ ping }: { ping: Ping }) {
 	return (
 		<>
 			<div
-				className="pointer-events-none absolute -left-6 -top-6 size-12 animate-ping rounded-full bg-primary-700"
+				className="pointer-events-none absolute -left-6 -top-6 size-12 animate-ping rounded-full bg-primary-300"
 				style={style}
 			/>
 			<div
 				className="pointer-events-none absolute left-0 top-0 animate-out fade-out"
 				style={style}
 			>
-				<p className="-translate-x-1/2 translate-y-12 text-center text-xl/tight font-medium text-primary-700">
+				<p className="-translate-x-1/2 translate-y-12 text-center text-xl/tight font-medium text-primary-300">
 					{ping.name}
 				</p>
 			</div>

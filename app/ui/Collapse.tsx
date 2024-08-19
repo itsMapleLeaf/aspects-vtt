@@ -15,7 +15,7 @@ export function Collapse({
 }) {
 	return (
 		<DisclosureProvider>
-			<Disclosure className="flex items-center transition-colors gap-0.5 hover:text-primary-700">
+			<Disclosure className="flex items-center transition-colors gap-0.5 hover:text-primary-300">
 				<Lucide.ChevronDown className="transition-transform [[aria-expanded=true]>&]:rotate-180" />
 				<span className="select-none font-bold leading-6">{title}</span>
 			</Disclosure>

@@ -23,7 +23,7 @@ export function CheckboxField({
 			<div className="flex items-center gap-1.5">
 				<div className="relative flex size-5 items-center justify-center overflow-clip">
 					<input
-						className="peer size-full appearance-none rounded border-2 border-primary-400 bg-primary-100 transition checked:bg-primary-300/50 hover:bg-primary-200 checked:hover:bg-primary-300 active:border-primary-600 active:duration-0"
+						className="peer size-full appearance-none rounded border-2 border-primary-600 bg-primary-900 transition checked:bg-primary-700/50 hover:bg-primary-800 checked:hover:bg-primary-700 active:border-primary-400 active:duration-0"
 						id={id}
 						aria-label={label}
 						type="checkbox"
@@ -31,7 +31,7 @@ export function CheckboxField({
 						onChange={onChange}
 					/>
 					<Lucide.X
-						className="pointer-events-none invisible absolute size-5 text-primary-700 peer-checked:visible"
+						className="pointer-events-none invisible absolute size-5 text-primary-300 peer-checked:visible"
 						strokeWidth={3}
 						absoluteStrokeWidth
 					/>

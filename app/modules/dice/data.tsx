@@ -27,7 +27,7 @@ export interface DiceFace {
 const effectStat = {
 	name: "Effect",
 	min: 1,
-	className: twMerge("text-primary-800"),
+	className: twMerge("text-primary-200"),
 } satisfies DiceStat
 const baseStat = {
 	name: "Base",
@@ -162,7 +162,7 @@ function defineNumeric({
 									</p>
 								}
 								tooltip={`${name}: ${n}`}
-								className={n === faceCount ? "text-primary-700" : ""}
+								className={n === faceCount ? "text-primary-300" : ""}
 							/>
 						),
 						[faceCount, renderIcon, n, textClassName],
@@ -251,7 +251,7 @@ function Diecon({
 					className,
 				)}
 			>
-				<div className="relative size-full *:size-full *:fill-primary-200 *:stroke-1">
+				<div className="relative size-full *:size-full *:fill-primary-800 *:stroke-1">
 					{shape}
 				</div>
 				<div className="absolute hidden *:size-full @[3rem]:block">

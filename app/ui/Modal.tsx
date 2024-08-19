@@ -121,7 +121,7 @@ export function ModalPanel({
 			}
 			{...props}
 			className={panel(
-				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col overflow-clip rounded-md bg-primary-100 shadow-lg [--gutter:2rem] [--height:calc(min(100%-var(--gutter),72rem))]",
+				"fixed inset-0 m-auto flex w-[calc(100%-var(--gutter))] min-w-0 max-w-xl flex-col overflow-clip rounded-md bg-primary-900 shadow-lg [--gutter:2rem] [--height:calc(min(100%-var(--gutter),72rem))]",
 				"translate-y-2 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				fullHeight ? "h-[--height]" : "h-fit max-h-[--height]",
 				className,
@@ -129,7 +129,7 @@ export function ModalPanel({
 			unmountOnHide
 			preventBodyScroll={false}
 		>
-			<div className="flex items-center border-b border-primary-300 bg-black/25 bg-primary-200 p-3 gap-3">
+			<div className="flex items-center border-b border-primary-700 bg-black/25 bg-primary-800 p-3 gap-3">
 				<div className="min-w-0 flex-1">
 					<Ariakit.DialogHeading className="truncate text-2xl/tight font-light">
 						{title}
@@ -152,7 +152,7 @@ export function ModalPanelContent(props: ComponentProps<"div">) {
 		<div
 			{...withMergedClassName(
 				props,
-				"min-h-0 flex-1 overflow-y-auto bg-primary-100",
+				"min-h-0 flex-1 overflow-y-auto bg-primary-900",
 			)}
 		/>
 	)

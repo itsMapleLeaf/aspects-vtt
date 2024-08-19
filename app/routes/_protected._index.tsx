@@ -33,7 +33,7 @@ export default function RoomListRoute() {
 								<Link
 									to={$path("/rooms/:slug", { slug: room.slug })}
 									className={panel(
-										"flex h-full items-center bg-primary-200/50 p-4 transition gap-3 hover:bg-primary-200",
+										"flex h-full items-center bg-primary-800/50 p-4 transition gap-3 hover:bg-primary-800",
 									)}
 									prefetch="intent"
 								>

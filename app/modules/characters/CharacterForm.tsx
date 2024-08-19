@@ -398,7 +398,7 @@ function DotCounterInput({
 						checked={value === index + 1}
 						onChange={(event) => onChange(Number(event.target.value))}
 						data-filled={value >= index + 1 || undefined}
-						className="block size-6 appearance-none rounded-full border-2 border-white bg-opacity-25 transition-colors checked:border-primary-800 data-[filled]:border-primary-800 data-[filled]:bg-primary-800"
+						className="block size-6 appearance-none rounded-full border-2 border-white bg-opacity-25 transition-colors checked:border-primary-200 data-[filled]:border-primary-200 data-[filled]:bg-primary-200"
 					/>
 					<span className="sr-only">{index + 1}</span>
 				</label>

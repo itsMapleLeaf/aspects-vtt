@@ -56,11 +56,11 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 				</p>
 			)}
 			{message.diceRoll && message.diceRoll.dice.length > 0 && (
-				<div className={panel("bg-primary-100/50 px-3 py-2")}>
+				<div className={panel("bg-primary-900/50 px-3 py-2")}>
 					<DiceRollSummary roll={message.diceRoll} />
 				</div>
 			)}
-			<p className="flex text-sm font-medium leading-tight tracking-wide text-primary-600 gap-1">
+			<p className="flex text-sm font-medium leading-tight tracking-wide text-primary-400 gap-1">
 				<span>{message.user?.name}</span>
 				<span className="first:hidden">•</span>
 				{formatDistanceToNow(new Date(message._creationTime), {
@@ -153,7 +153,7 @@ function DiceRollSummary({ roll }: { roll: ApiDiceRoll }) {
 					.map(({ stat, value }, index) => (
 						<Fragment key={stat.name}>
 							{index > 0 && (
-								<span className="text-primary-400" aria-hidden>
+								<span className="text-primary-600" aria-hidden>
 									•
 								</span>
 							)}
@@ -219,7 +219,7 @@ function Mention({ characterId }: { characterId: string }) {
 	return (
 		<button
 			type="button"
-			className="inline-block rounded border border-primary-500 bg-primary-700/25 px-1.5 py-1 leading-none transition hover:bg-primary-700/50 active:bg-primary-700/75 active:duration-0"
+			className="inline-block rounded border border-primary-500 bg-primary-300/25 px-1.5 py-1 leading-none transition hover:bg-primary-300/50 active:bg-primary-300/75 active:duration-0"
 			onClick={() => {
 				if (!character) return
 				// todo: select the token on the map

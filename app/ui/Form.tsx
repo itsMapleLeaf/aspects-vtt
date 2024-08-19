@@ -102,7 +102,7 @@ export function FormFieldDescription(props: ComponentProps<"div">) {
 		<div
 			{...withMergedClassName(
 				props,
-				"mb-1 text-sm/tight font-bold text-primary-700",
+				"mb-1 text-sm/tight font-bold text-primary-300",
 			)}
 		/>
 	)

@@ -204,7 +204,7 @@ function ItemListItem({
 		<div className="flex items-center gap-current">
 			<Panel className="flex-1 px-3 py-2">
 				<h3 className="text-lg/tight">{item.name}</h3>
-				<p className="font-medium text-primary-700 empty:hidden">
+				<p className="font-medium text-primary-300 empty:hidden">
 					{item.description}
 				</p>
 			</Panel>

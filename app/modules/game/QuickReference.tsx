@@ -34,7 +34,7 @@ export function QuickReference() {
 							<ActionSection title={action.name}>
 								{action.description}
 							</ActionSection>
-							<aside className="my-1 whitespace-pre-line text-pretty text-sm italic text-primary-800 opacity-60">
+							<aside className="my-1 whitespace-pre-line text-pretty text-sm italic text-primary-200 opacity-60">
 								{action.notes}
 							</aside>
 						</Fragment>

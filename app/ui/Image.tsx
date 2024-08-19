@@ -35,7 +35,7 @@ export function Image({
 				/>
 			:	<div
 					className={twMerge(
-						"flex-center aspect-square w-3/4 min-w-[min(4rem,100%)] max-w-32 text-primary-600 opacity-50 *:size-full empty:hidden",
+						"flex-center aspect-square w-3/4 min-w-[min(4rem,100%)] max-w-32 text-primary-400 opacity-50 *:size-full empty:hidden",
 						resolvedClassName?.icon,
 					)}
 				>

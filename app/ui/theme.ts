@@ -57,8 +57,8 @@ function generateOklchColor(args: {
 	delta: number
 	withTailwindAlpha?: boolean
 }) {
-	const lightness = lerp(...args.lightnessRange, args.delta ** 1.1)
-	const chroma = lerp(...args.chromaRange, args.delta ** 1)
+	const lightness = lerp(...args.lightnessRange, 1 - args.delta ** 1.1)
+	const chroma = lerp(...args.chromaRange, 1 - args.delta ** 1)
 	const alpha = args.withTailwindAlpha ? `/ <alpha-value>` : ""
 	return `oklch(${lightness * 100}% ${chroma * 100}% ${args.hue} ${alpha})`
 }
