@@ -103,23 +103,30 @@ function JoinRoomEffect() {
 function RoomTimedThemeEffect() {
 	const room = useRoom()
 	const gameTime = new GameTime(room.gameTime)
-	const themeColor = [
-		145, // daytime
-		70, // evening
-		305, // night
-	][gameTime.timeOfDay]
 
-	useEffect(() => {
-		if (themeColor !== undefined) {
-			document.body.style.setProperty("--theme-hue", String(themeColor))
-		}
-	}, [themeColor])
+	const themeClass =
+		gameTime.timeOfDayName === "Daytime" ? "theme-daytime"
+		: gameTime.timeOfDayName === "Evening" ? "theme-evening"
+		: gameTime.timeOfDayName === "Night" ? "theme-night"
+		: "theme-default"
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only want to react to time changes
 	useEffect(() => {
+		document.body.classList.add("theme-transition")
+		const timeout = setTimeout(
+			() => document.body.classList.remove("theme-transition"),
+			500,
+		)
 		return () => {
-			document.body.style.removeProperty("--theme-hue")
+			clearTimeout(timeout)
+			document.body.classList.remove("theme-transition")
 		}
-	}, [])
+	}, [themeClass])
+
+	useEffect(() => {
+		document.body.classList.add(themeClass)
+		return () => document.body.classList.remove(themeClass)
+	}, [themeClass])
 
 	return null
 }
