@@ -5,6 +5,7 @@
   "type": "module",
   "packageManager": "bun@1.1.25",
   "scripts": {
+    "preinstall": "npx only-allow bun",
     "dev": "npm-run-all --parallel --print-label 'dev:*'",
     "dev:app": "remix vite:dev",
     "dev:convex": "convex dev --tail-logs",
