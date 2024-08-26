@@ -1,8 +1,8 @@
 export function AppLogo() {
 	return (
 		<div>
-			<span className="text-primary font-light">Aspects</span>
-			<span className="font-medium text-accent-500">VTT</span>
+			<span className="font-light text-indigo-200">Aspects</span>
+			<span className="font-medium text-indigo-300">VTT</span>
 		</div>
 	)
 }

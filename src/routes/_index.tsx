@@ -1,9 +1,9 @@
-import { ProtectedLayout } from "../../auth/protected-layout.tsx"
-import { SignInButton } from "../../auth/sign-in-button.tsx"
-import { AppLogo } from "../../ui/app-logo.tsx"
-import { HeaderLayout } from "../../ui/header-layout.tsx"
-import { Heading } from "../../ui/heading.tsx"
-import { RoomList } from "./room-list.tsx"
+import { ProtectedLayout } from "../components/ProtectedLayout.tsx"
+import { SignInButton } from "../components/SignInButton.tsx"
+import { AppLogo } from "../ui/app-logo.tsx"
+import { HeaderLayout } from "../ui/header-layout.tsx"
+import { Heading } from "../ui/heading.tsx"
+import { RoomList } from "../components/RoomList.tsx"
 
 export default function IndexRoute() {
 	return (

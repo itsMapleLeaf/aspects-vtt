@@ -1,5 +1,5 @@
 import { Outlet } from "@remix-run/react"
-import { ProtectedLayout } from "../auth/protected-layout.tsx"
+import { ProtectedLayout } from "../components/ProtectedLayout.tsx"
 
 export default function ProtectedLayoutRoute() {
 	return (

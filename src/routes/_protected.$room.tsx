@@ -7,12 +7,12 @@ import {
 	LucideSettings,
 	LucideUsers2,
 } from "lucide-react"
-import { api } from "../../../convex/_generated/api.js"
-import { AppHeader } from "../../ui/app-header.tsx"
-import { mergeClassProp } from "../../ui/helpers.ts"
-import { Modal, ModalButton, ModalPanel } from "../../ui/modal.tsx"
-import { Slot, SlotProps } from "../../ui/slot.tsx"
-import { SceneList } from "./scene-list.tsx"
+import { api } from "../../convex/_generated/api.js"
+import { AppHeader } from "../ui/app-header.tsx"
+import { mergeClassProp } from "../ui/helpers.ts"
+import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
+import { Slot, SlotProps } from "../ui/slot.tsx"
+import { SceneList } from "../components/SceneList.tsx"
 
 export default function RoomRoute() {
 	const params = useParams() as { room: string }

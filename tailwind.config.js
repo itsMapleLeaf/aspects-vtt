@@ -1,9 +1,10 @@
 // @ts-check
-import daisyui from "daisyui"
-import themes from "daisyui/src/theming/themes.js"
+import { Iterator } from "iterator-helpers-polyfill"
 import animate from "tailwindcss-animate"
+import colors from "tailwindcss/colors.js"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin"
+import { lerp } from "./lib/math.ts"
 
 /** @type {import("tailwindcss").Config} */
 export default {
@@ -13,12 +14,35 @@ export default {
 			fontFamily: {
 				sans: ["Nunito Variable", ...defaultTheme.fontFamily.sans],
 			},
+			colors: {
+				primary: Object.fromEntries(
+					Iterator.range(100, 900, 100, true).map((value) => [
+						value,
+						`oklch(var(--color-primary-${value}) / <alpha-value>)`,
+					]),
+				),
+				accent: colors.indigo,
+			},
 		},
 	},
 	plugins: [
-		daisyui,
 		animate,
-		plugin(function customStyles(api) {
+
+		plugin(function theme(api) {
+			api.addBase({
+				":root": Object.fromEntries(
+					Iterator.range(100, 900, 100, true).map((value) => {
+						const t = 1 - (value - 100) / 800
+						return [
+							`--color-primary-${value}`,
+							`${lerp(20, 98, t ** 1.3).toFixed(2)}% 8% 270`,
+						]
+					}),
+				),
+			})
+		}),
+
+		plugin(function shortcuts(api) {
 			api.addComponents({
 				".margin-center": {
 					"@apply *:mx-auto first:*:mt-auto last:*:mb-auto": {},
@@ -26,22 +50,4 @@ export default {
 			})
 		}),
 	],
-	daisyui: {
-		themes: [
-			{
-				dark: {
-					...themes.dim,
-					"--rounded-box": "0.5rem", // border radius rounded-box utility class, used in card and other large boxes
-					"--rounded-btn": "0.5rem", // border radius rounded-btn utility class, used in buttons and similar element
-					// "--rounded-badge": "1.9rem", // border radius rounded-badge utility class, used in badges and similar
-					// "--animation-btn": "0.25s", // duration of animation when you click on button
-					// "--animation-input": "0.2s", // duration of animation for inputs like checkbox, toggle, radio, etc
-					// "--btn-focus-scale": "0.95", // scale transform of button when you focus on it
-					// "--border-btn": "1px", // border width of buttons
-					// "--tab-border": "1px", // border width of tabs
-					// "--tab-radius": "0.5rem", // border radius of tabs
-				},
-			},
-		],
-	},
 }

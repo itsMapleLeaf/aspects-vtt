@@ -8,7 +8,7 @@
 	}
 
 	:focus-visible {
-		outline: 2px solid theme("colors.accent.400");
+		outline: 2px solid theme("colors.primary.400");
 		outline-offset: 2px;
 	}
 

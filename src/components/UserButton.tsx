@@ -6,7 +6,8 @@ import { api } from "../../convex/_generated/api.js"
 import { Loading } from "../ui/loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
-import { AccountSettingsForm } from "./account-settings-form.tsx"
+import { AccountSettingsForm } from "./AccountSettingsForm.tsx"
+import { clearButton } from "../ui/styles.ts"
 
 export function UserButton() {
 	const user = useQuery(api.functions.users.me)
@@ -19,7 +20,7 @@ export function UserButton() {
 		</Link>
 	) : (
 		<Menu placement="bottom-end">
-			<MenuButton className="btn btn-circle">
+			<MenuButton className={clearButton("aspect-square rounded-full")}>
 				<LucideUser />
 			</MenuButton>
 			<MenuPanel unmountOnHide={false}>
