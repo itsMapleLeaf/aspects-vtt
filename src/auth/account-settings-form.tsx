@@ -4,8 +4,8 @@ import { api } from "../../convex/_generated/api.js"
 import { InputField } from "../ui/input.tsx"
 
 export function AccountSettingsForm() {
-	const user = useQuery(api.users.me)
-	const update = useMutation(api.users.update)
+	const user = useQuery(api.functions.users.me)
+	const update = useMutation(api.functions.users.update)
 	return user == null ? null : (
 		<form
 			className="grid gap-3"

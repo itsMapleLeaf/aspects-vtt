@@ -9,7 +9,7 @@ import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
 import { AccountSettingsForm } from "./account-settings-form.tsx"
 
 export function UserButton() {
-	const user = useQuery(api.users.me)
+	const user = useQuery(api.functions.users.me)
 	const actions = useAuthActions()
 	return user === undefined ? (
 		<Loading />

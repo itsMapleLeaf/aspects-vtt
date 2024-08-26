@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
-import type { Id } from "./_generated/dataModel"
-import { createMockMutationCtx } from "./lib/testing.js"
+import type { Id } from "../_generated/dataModel.d.ts"
+import { createMockMutationCtx } from "../lib/testing.ts"
 import { list } from "./scenes.ts"
 
 test("list returns scenes only for the given room", async () => {

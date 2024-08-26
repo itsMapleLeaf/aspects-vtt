@@ -1,8 +1,8 @@
 import { ConvexError, v } from "convex/values"
 import { Data, Effect, pipe } from "effect"
-import { Doc, Id } from "./_generated/dataModel"
-import { LocalQueryContext, mutation, query } from "./lib/api.ts"
-import { getAuthUserId } from "./lib/auth.ts"
+import { Doc, Id } from "../_generated/dataModel"
+import { LocalQueryContext, mutation, query } from "../lib/api.ts"
+import { getAuthUserId } from "../lib/auth.ts"
 import { normalizeScene } from "./scenes.ts"
 
 export const list = query({

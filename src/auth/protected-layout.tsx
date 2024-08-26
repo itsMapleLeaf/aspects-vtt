@@ -16,7 +16,7 @@ export function ProtectedLayout({
 	children: React.ReactNode
 	fallback?: React.ReactNode
 }) {
-	const user = useQuery(api.users.me)
+	const user = useQuery(api.functions.users.me)
 	const auth = useConvexAuth()
 	const loading = user === undefined || auth.isLoading
 	return (

@@ -1,10 +1,10 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Console, Effect, pipe } from "effect"
-import { Doc, Id } from "./_generated/dataModel"
-import { LocalQueryContext, mutation, query } from "./lib/api.ts"
+import { Doc, Id } from "../_generated/dataModel"
+import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import { ensureRoomOwner } from "./rooms.ts"
-import schema from "./schema.ts"
+import schema from "../schema.ts"
 
 export const list = query({
 	args: {

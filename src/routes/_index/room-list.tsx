@@ -16,7 +16,7 @@ import { Modal, ModalButton, ModalPanel } from "../../ui/modal.js"
 import { SkeletonGrid } from "../../ui/skeleton.js"
 
 export function RoomList() {
-	const rooms = useQuery(api.rooms.list)
+	const rooms = useQuery(api.functions.rooms.list)
 	return (
 		<div className="container mx-auto flex flex-col items-start gap-4">
 			{rooms === undefined ? (
@@ -43,7 +43,7 @@ function RoomCard({ room }: { room: Doc<"rooms"> }) {
 	return (
 		<Link
 			to={`/${room.slug}`}
-			className="card card-bordered image-full bg-base-100 shadow-lg transition-transform hover:scale-105"
+			className="card image-full card-bordered bg-base-100 shadow-lg transition-transform hover:scale-105"
 		>
 			<figure className="aspect-video">
 				<LucideImageOff className="size-16 opacity-50" />
@@ -70,7 +70,7 @@ function CreateRoomButton() {
 	)
 }
 function CreateRoomForm() {
-	const createRoom = useMutation(api.rooms.create)
+	const createRoom = useMutation(api.functions.rooms.create)
 	const navigate = useNavigate()
 
 	const form = useForm({

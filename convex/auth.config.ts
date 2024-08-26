@@ -1,4 +1,4 @@
-import { getSecret } from "./secrets.ts"
+import { getSecret } from "./lib/secrets.ts"
 
 export default {
 	providers: [

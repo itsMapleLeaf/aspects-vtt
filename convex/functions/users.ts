@@ -1,7 +1,7 @@
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { mutation, query } from "./lib/api.ts"
-import { getAuthUser } from "./lib/auth.ts"
+import { mutation, query } from "../lib/api.ts"
+import { getAuthUser } from "../lib/auth.ts"
 
 export const me = query({
 	handler: (ctx) =>

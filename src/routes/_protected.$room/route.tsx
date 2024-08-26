@@ -16,14 +16,14 @@ import { SceneList } from "./scene-list.tsx"
 
 export default function RoomRoute() {
 	const params = useParams() as { room: string }
-	const room = useQuery(api.rooms.getBySlug, { slug: params.room })
+	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
 	return (
 		<>
 			<AppHeader />
 
 			<div className="fixed inset-x-auto bottom-0">
 				<Modal>
-					<ModalButton className="btn btn-ghost btn-square btn-md">
+					<ModalButton className="btn btn-square btn-ghost btn-md">
 						<LucideImages className="size-8" />
 					</ModalButton>
 					<ModalPanel title="Scenes" className="flex max-h-full flex-col p-3">
@@ -59,7 +59,7 @@ function PanelButton(props: SlotProps) {
 			type="button"
 			{...mergeClassProp(
 				props,
-				"aspect-square rounded p-2 opacity-75 transition will-change-transform *:size-8 hover:bg-base-800 hover:opacity-100 active:scale-95 active:bg-base-700 active:duration-0",
+				"hover:bg-base-800 active:bg-base-700 aspect-square rounded p-2 opacity-75 transition will-change-transform *:size-8 hover:opacity-100 active:scale-95 active:duration-0",
 			)}
 		/>
 	)

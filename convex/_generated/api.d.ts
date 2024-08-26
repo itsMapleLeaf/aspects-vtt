@@ -15,16 +15,16 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
+import type * as functions_rooms from "../functions/rooms.js";
+import type * as functions_scenes from "../functions/scenes.js";
+import type * as functions_users from "../functions/users.js";
 import type * as http from "../http.js";
 import type * as lib_api from "../lib/api.js";
 import type * as lib_auth from "../lib/auth.js";
-import type * as lib_effect from "../lib/effect.js";
+import type * as lib_secrets from "../lib/secrets.js";
 import type * as lib_testing from "../lib/testing.js";
+import type * as lib_utils from "../lib/utils.js";
 import type * as lib_validators from "../lib/validators.js";
-import type * as rooms from "../rooms.js";
-import type * as scenes from "../scenes.js";
-import type * as secrets from "../secrets.js";
-import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -36,16 +36,16 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  "functions/rooms": typeof functions_rooms;
+  "functions/scenes": typeof functions_scenes;
+  "functions/users": typeof functions_users;
   http: typeof http;
   "lib/api": typeof lib_api;
   "lib/auth": typeof lib_auth;
-  "lib/effect": typeof lib_effect;
+  "lib/secrets": typeof lib_secrets;
   "lib/testing": typeof lib_testing;
+  "lib/utils": typeof lib_utils;
   "lib/validators": typeof lib_validators;
-  rooms: typeof rooms;
-  scenes: typeof scenes;
-  secrets: typeof secrets;
-  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
