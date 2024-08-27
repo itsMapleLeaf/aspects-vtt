@@ -19,7 +19,7 @@ export function SkeletonCard(props: ComponentProps<"div">) {
 		<div
 			{...mergeClassProp(
 				props,
-				"aspect-[4/3] w-full animate-pulse rounded-lg bg-base-800/70",
+				"aspect-[4/3] w-full animate-pulse rounded-lg bg-primary-800",
 			)}
 		></div>
 	)

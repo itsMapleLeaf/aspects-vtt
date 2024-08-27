@@ -1,39 +1,45 @@
-import { Link, useNavigate } from "@remix-run/react"
+import { useNavigate } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import {
 	LucideGamepad2,
-	LucideImageOff,
 	LucidePlus,
+	LucideTentTree,
 	LucideWand2,
 } from "lucide-react"
 import { api } from "../../convex/_generated/api.js"
 import { Doc } from "../../convex/_generated/dataModel.js"
-import { Button } from "../ui/button.js"
 import { EmptyState } from "../ui/empty-state.js"
-import { Form, FormActions, FormError, useForm } from "../ui/form.js"
+import { FormActions, FormError, useForm } from "../ui/form.js"
 import { InputField, useInput } from "../ui/input.js"
 import { Modal, ModalButton, ModalPanel } from "../ui/modal.js"
 import { SkeletonGrid } from "../ui/skeleton.js"
+import { container, formLayout, heading2xl, solidButton } from "../ui/styles.js"
+import { Card } from "../ui/Card.js"
 
 export function RoomList() {
 	const rooms = useQuery(api.functions.rooms.list)
 	return (
-		<div className="container mx-auto flex flex-col items-start gap-4">
+		<div className={container("flex flex-col gap-4")}>
+			<div className="flex items-start justify-between">
+				<h2 className="text-3xl font-light">Your rooms</h2>
+				<CreateRoomButton />
+			</div>
 			{rooms === undefined ? (
-				<SkeletonGrid count={6} />
+				<SkeletonGrid
+					count={6}
+					className="grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4"
+				/>
 			) : rooms.length === 0 ? (
-				<EmptyState title="No rooms found." icon={<LucideGamepad2 />}>
-					<CreateRoomButton />
-				</EmptyState>
+				<EmptyState
+					title="No rooms found."
+					icon={<LucideGamepad2 />}
+				></EmptyState>
 			) : (
-				<>
-					<div className="grid grid-cols-[repeat(auto-fill,16rem)] gap-4">
-						{rooms.map((room) => (
-							<RoomCard key={room._id} room={room} />
-						))}
-					</div>
-					<CreateRoomButton />
-				</>
+				<div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4">
+					{rooms.map((room) => (
+						<RoomCard key={room._id} room={room} />
+					))}
+				</div>
 			)}
 		</div>
 	)
@@ -41,23 +47,18 @@ export function RoomList() {
 
 function RoomCard({ room }: { room: Doc<"rooms"> }) {
 	return (
-		<Link
+		<Card
+			fallbackIcon={<LucideTentTree />}
+			caption={room.name}
 			to={`/${room.slug}`}
-			className="card image-full card-bordered bg-base-100 shadow-lg transition-transform hover:scale-105"
-		>
-			<figure className="aspect-video">
-				<LucideImageOff className="size-16 opacity-50" />
-			</figure>
-			<div className="card-body place-self-center">
-				<h2 className="card-title text-balance text-center">{room.name}</h2>
-			</div>
-		</Link>
+		/>
 	)
 }
+
 function CreateRoomButton() {
 	return (
 		<Modal>
-			<ModalButton className="btn">
+			<ModalButton className={solidButton()}>
 				<LucidePlus /> Create room
 			</ModalButton>
 			<ModalPanel
@@ -69,6 +70,7 @@ function CreateRoomButton() {
 		</Modal>
 	)
 }
+
 function CreateRoomForm() {
 	const createRoom = useMutation(api.functions.rooms.create)
 	const navigate = useNavigate()
@@ -85,7 +87,8 @@ function CreateRoomForm() {
 	})
 
 	return (
-		<Form className="grid gap-3" action={form.action}>
+		<form className={formLayout()} action={form.action}>
+			<h2 className={heading2xl()}>Create room</h2>
 			<InputField
 				{...form.inputs.name.props()}
 				type="text"
@@ -99,7 +102,7 @@ function CreateRoomForm() {
 				{...form.inputs.slug.props()}
 				type="text"
 				name="slug"
-				label="Slug"
+				label="URL Slug"
 				description={
 					form.values.slug &&
 					`Your room will be available at ${window.location.origin}/${form.values.slug}`
@@ -108,11 +111,11 @@ function CreateRoomForm() {
 				required
 			/>
 			<FormActions>
-				<Button type="submit" icon={<LucideWand2 />}>
-					Create
-				</Button>
+				<button type="submit" className={solidButton()}>
+					<LucideWand2 /> Create
+				</button>
 			</FormActions>
 			<FormError>{form.error}</FormError>
-		</Form>
+		</form>
 	)
 }

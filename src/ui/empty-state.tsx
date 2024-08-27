@@ -9,7 +9,7 @@ export function EmptyState({
 }: {
 	title: string
 	icon: React.ReactNode
-	children: React.ReactNode
+	children?: React.ReactNode
 }) {
 	return (
 		<div className="flex flex-col items-center gap-3 py-16">

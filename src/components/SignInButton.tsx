@@ -7,6 +7,7 @@ import { Heading } from "../ui/heading.tsx"
 import { InputField } from "../ui/input.tsx"
 import { Column, Row } from "../ui/layout.tsx"
 import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
+import { solidButton } from "../ui/styles.ts"
 
 export function SignInButton() {
 	const [action, setAction] = useState<"login" | "register">("login")
@@ -28,7 +29,7 @@ export function SignInButton() {
 
 	return (
 		<Modal>
-			<ModalButton className="btn">
+			<ModalButton className={solidButton()}>
 				<LucideLogIn /> Sign in / sign up
 			</ModalButton>
 

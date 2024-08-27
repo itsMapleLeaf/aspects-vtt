@@ -1,9 +1,10 @@
-import { ConvexError, v } from "convex/values"
-import { Data, Effect, pipe } from "effect"
+import { v } from "convex/values"
+import { Effect, pipe } from "effect"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import { getAuthUserId } from "../lib/auth.ts"
 import { normalizeScene } from "./scenes.ts"
+import { ConvexEffectError } from "@maple/convex-effect"
 
 export const list = query({
 	handler(ctx) {
@@ -15,7 +16,7 @@ export const list = query({
 					.withIndex("ownerId", (q) => q.eq("ownerId", userId))
 					.collect(),
 			),
-			Effect.catchTag("UnauthenticatedError", () => Effect.succeed([])),
+			Effect.orElseSucceed(() => []),
 		)
 	},
 })
@@ -35,10 +36,7 @@ export const getBySlug = query({
 		return pipe(
 			getRoomBySlug(ctx, slug),
 			Effect.flatMap((room) => normalizeRoom(ctx, room)),
-			Effect.catchTags({
-				UnauthenticatedError: () => Effect.succeed(null),
-				DocNotFound: () => Effect.succeed(null),
-			}),
+			Effect.orElseSucceed(() => []),
 		)
 	},
 })
@@ -65,31 +63,30 @@ export const create = mutation({
 		slug: v.string(),
 	},
 	handler: (ctx, args) =>
-		pipe(
-			getRoomBySlug(ctx, args.slug),
-			Effect.match({
-				onSuccess: () => {
-					return Effect.fail(
-						new ConvexError(`The slug "${args.slug}" is already taken`),
-					)
-				},
-				onFailure: () => Effect.void,
-			}),
-			Effect.andThen(() => getAuthUserId(ctx)),
-			Effect.flatMap((userId) =>
-				ctx.db.insert("rooms", { ...args, ownerId: userId }),
-			),
-			Effect.orDie,
-		),
+		Effect.gen(function* () {
+			const room = yield* queryRoomBySlug(ctx, args.slug).firstOrNull()
+			if (room) {
+				return yield* new ConvexEffectError(
+					`The slug "${args.slug}" is already taken`,
+				)
+			}
+			const userId = yield* getAuthUserId(ctx)
+			yield* ctx.db.insert("rooms", { ...args, ownerId: userId })
+		}).pipe(Effect.orDie),
 })
 
-export class RoomNotOwnedError extends Data.TaggedError("RoomNotOwnedError") {}
+export class RoomNotOwnedError extends ConvexEffectError {
+	constructor() {
+		super("You must be the owner of the room to perform this action.")
+	}
+}
 
 export function getRoomBySlug(ctx: LocalQueryContext, slug: string) {
-	return ctx.db
-		.query("rooms")
-		.withIndex("slug", (q) => q.eq("slug", slug))
-		.first()
+	return queryRoomBySlug(ctx, slug).first()
+}
+
+function queryRoomBySlug(ctx: LocalQueryContext, slug: string) {
+	return ctx.db.query("rooms").withIndex("slug", (q) => q.eq("slug", slug))
 }
 
 export function normalizeRoom(ctx: LocalQueryContext, room: Doc<"rooms">) {

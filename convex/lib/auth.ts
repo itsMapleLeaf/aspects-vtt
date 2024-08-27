@@ -1,15 +1,20 @@
-import { Data, Effect, pipe } from "effect"
+import { Effect, pipe } from "effect"
 import { Id } from "../_generated/dataModel"
 import { auth } from "../auth.ts"
 import { LocalQueryContext } from "./api.ts"
+import { ConvexEffectError } from "@maple/convex-effect"
 
-export class UnauthenticatedError extends Data.TaggedError(
-	"UnauthenticatedError",
-) {}
+export class UnauthenticatedError extends ConvexEffectError {
+	constructor() {
+		super("You must be logged in to perform this action.")
+	}
+}
 
-export class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{
-	userId: Id<"users">
-}> {}
+export class UserNotFoundError extends ConvexEffectError {
+	constructor(userId: Id<"users">) {
+		super(`User with ID "${userId}" not found.`)
+	}
+}
 
 export function getAuthUserId(ctx: LocalQueryContext) {
 	return pipe(
@@ -25,7 +30,7 @@ export function getAuthUser(ctx: LocalQueryContext) {
 	return pipe(
 		getAuthUserId(ctx),
 		Effect.flatMap((userId) => ctx.db.get(userId)),
-		Effect.catchTag("DocNotFound", (cause) =>
+		Effect.catchTag("DocNotFoundById", (cause) =>
 			Effect.die(new Error("User not found", { cause })),
 		),
 	)

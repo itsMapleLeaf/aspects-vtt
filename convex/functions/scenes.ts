@@ -37,11 +37,7 @@ export const get = query({
 		return pipe(
 			ensureSceneRoomOwner(ctx, args.id),
 			Effect.flatMap(({ scene }) => normalizeScene(ctx, scene)),
-			Effect.catchTags({
-				UnauthenticatedError: () => Effect.succeed(null),
-				DocNotFound: () => Effect.succeed(null),
-				RoomNotOwnedError: () => Effect.succeed(null),
-			}),
+			Effect.orElseSucceed(() => null),
 		)
 	},
 })

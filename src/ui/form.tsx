@@ -6,7 +6,7 @@ import { Slot, SlotProps } from "./slot.tsx"
 
 export function Form({ element = <form />, ...props }: SlotProps) {
 	return (
-		<Slot element={element} {...mergeClassProp(props, "grid w-full gap-3")} />
+		<Slot element={element} {...mergeClassProp(props, "grid w-full gap-5")} />
 	)
 }
 
@@ -24,13 +24,13 @@ export function FormField({
 	descriptionId?: string
 }) {
 	return (
-		<div {...mergeClassProp(props, "flex w-full flex-col gap-1 text-left")}>
+		<div {...mergeClassProp(props, "flex w-full flex-col gap-1.5 text-left")}>
 			<label htmlFor={inputId} className="text-sm font-bold leading-4">
 				{label}
 			</label>
 			{children}
 			{description && (
-				<p id={descriptionId} className="text-sm leading-4 text-base-400">
+				<p id={descriptionId} className="text-base-400 text-sm leading-4">
 					{description}
 				</p>
 			)}
@@ -79,7 +79,7 @@ export function useForm<Inputs extends Record<string, FormInputState>>({
 			await actionOption(values)
 		} catch (error) {
 			return error instanceof ConvexError
-				? error.message
+				? error.data
 				: "Oops, something went wrong. Try again."
 		}
 	})
