@@ -3,11 +3,12 @@ import { UserButton } from "../components/UserButton.tsx"
 import { AppLogo } from "./app-logo.tsx"
 import { clearButton } from "./styles.ts"
 
-export function AppHeader() {
+export function AppHeader({ left }: { left?: React.ReactNode }) {
 	const navigate = useNavigate()
 	return (
 		<div className="flex items-center p-3">
-			<div className="flex flex-1">
+			<div className="flex flex-1 items-center">
+				{left}
 				<Link
 					to="/"
 					className={clearButton()}
