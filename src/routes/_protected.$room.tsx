@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from "@remix-run/react"
+import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { api } from "../../convex/_generated/api.js"
 import { AppHeader } from "../ui/app-header.tsx"
@@ -10,15 +10,12 @@ import {
 	LucideSidebarOpen,
 } from "lucide-react"
 import { clearCircleButton, clearPanel, heading2xl } from "../ui/styles.ts"
-import { Modal, ModalPanel } from "../ui/modal.tsx"
 import { SceneList } from "../components/SceneList.tsx"
 import { useState } from "react"
-import { typed } from "../../lib/types.ts"
 
 export default function RoomRoute() {
 	const params = useParams() as { room: string }
 	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
-	const [searchParams, setSearchParams] = useSearchParams()
 
 	type Panel = {
 		id: string
@@ -26,19 +23,16 @@ export default function RoomRoute() {
 		content: React.ReactNode
 	}
 
-	const [sidebars, setSidebars] = useState({
-		left: { open: true, panels: typed<Panel[]>([]) },
-		right: { open: true, panels: typed<Panel[]>([]) },
+	const [openSidebars, setOpenSidebars] = useState({
+		left: true,
+		right: true,
 	})
 
+	const leftSidebarOpen = openSidebars.left
+	const rightSidebarOpen = openSidebars.right
+
 	function toggleSidebar(which: "left" | "right") {
-		setSidebars((current) => ({
-			...current,
-			[which]: {
-				...current[which],
-				open: !current[which].open,
-			},
-		}))
+		setOpenSidebars((current) => ({ ...current, [which]: !current[which] }))
 	}
 
 	const scenesPanel = (
@@ -70,11 +64,7 @@ export default function RoomRoute() {
 							className={clearCircleButton()}
 							onClick={() => toggleSidebar("left")}
 						>
-							{sidebars.left.open ? (
-								<LucideSidebarClose />
-							) : (
-								<LucideSidebarOpen />
-							)}
+							{leftSidebarOpen ? <LucideSidebarClose /> : <LucideSidebarOpen />}
 						</button>
 					}
 					right={
@@ -84,7 +74,7 @@ export default function RoomRoute() {
 							className={clearCircleButton("hidden lg:block")}
 							onClick={() => toggleSidebar("right")}
 						>
-							{sidebars.right.open ? (
+							{rightSidebarOpen ? (
 								<LucideSidebarClose className="-scale-x-100" />
 							) : (
 								<LucideSidebarOpen className="-scale-x-100" />
@@ -93,21 +83,21 @@ export default function RoomRoute() {
 					}
 				/>
 				<div className="hidden min-h-0 flex-1 gap-3 p-3 pt-0 *:w-80 lg:flex">
-					{sidebars.left.open && (
+					{leftSidebarOpen && (
 						<div className="flex min-h-0 flex-col gap-3">
 							{scenesPanel}
 							{scenesPanel}
 							{scenesPanel}
 						</div>
 					)}
-					{sidebars.right.open && (
+					{rightSidebarOpen && (
 						<div className="ml-auto flex min-h-0 flex-col gap-3">
 							{scenesPanel}
 							{scenesPanel}
 						</div>
 					)}
 				</div>
-				{sidebars.left.open && (
+				{leftSidebarOpen && (
 					<div className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0 *:w-80 lg:hidden">
 						{scenesPanel}
 						{scenesPanel}
@@ -117,51 +107,6 @@ export default function RoomRoute() {
 					</div>
 				)}
 			</div>
-
-			<Modal open={searchParams.get("view") === "scenes"}>
-				<ModalPanel
-					title="Scenes"
-					onClose={() =>
-						setSearchParams((p) => {
-							p.delete("view")
-							return p
-						})
-					}
-				>
-					<div className="w-[calc(100vw-8rem)] max-w-screen-sm">
-						<SceneList />
-					</div>
-				</ModalPanel>
-			</Modal>
-
-			{/* <div className="fixed inset-x-auto bottom-0">
-				<Modal>
-					<ModalButton className="btn btn-square btn-ghost btn-md">
-						<LucideImages className="size-8" />
-					</ModalButton>
-					<ModalPanel title="Scenes" className="flex max-h-full flex-col p-3">
-						<div className="-m-3 overflow-y-auto overflow-x-clip p-3">
-							<SceneList />
-						</div>
-					</ModalPanel>
-				</Modal>
-
-				<button type="button">
-					<LucideUsers2 />
-				</button>
-
-				<button type="button">
-					<LucideBoxes />
-				</button>
-
-				<button type="button">
-					<LucideCalendarClock />
-				</button>
-
-				<button type="button">
-					<LucideSettings />
-				</button>
-			</div> */}
 		</>
 	)
 }
