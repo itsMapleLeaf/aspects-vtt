@@ -6,6 +6,13 @@ export const container = (...classes: ClassNameValue[]) =>
 export const panel = (...classes: ClassNameValue[]) =>
 	twMerge("rounded-lg border border-primary-600 bg-primary-700 shadow", classes)
 
+export const clearPanel = (...classes: ClassNameValue[]) =>
+	twMerge(
+		panel(),
+		"bg-opacity-50 backdrop-blur-sm transition focus-within:bg-opacity-100 hover:bg-opacity-100",
+		classes,
+	)
+
 export const heading3xl = (...classes: ClassNameValue[]) =>
 	twMerge("text-3xl font-light", classes)
 
@@ -23,6 +30,9 @@ export const clearButton = (...classes: ClassNameValue[]) =>
 		"flex min-h-10 items-center justify-center gap-1.5 rounded bg-primary-100 bg-opacity-0 px-3 transition hover:bg-opacity-10 active:bg-opacity-25 active:duration-0 [&>[data-button-icon]]:size-6 [&>svg]:size-6",
 		classes,
 	)
+
+export const clearCircleButton = (...classes: ClassNameValue[]) =>
+	clearButton("aspect-square rounded-full p-1.5 size-10", classes)
 
 export const formLayout = (...classes: ClassNameValue[]) =>
 	twMerge("flex flex-col gap-5", classes)
