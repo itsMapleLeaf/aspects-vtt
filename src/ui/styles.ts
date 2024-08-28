@@ -9,7 +9,7 @@ export const panel = (...classes: ClassNameValue[]) =>
 export const clearPanel = (...classes: ClassNameValue[]) =>
 	twMerge(
 		panel(),
-		"bg-opacity-50 backdrop-blur-sm transition focus-within:bg-opacity-100 hover:bg-opacity-100",
+		"bg-opacity-50 backdrop-blur-sm transition hover:bg-opacity-100 has-[:focus-visible]:bg-opacity-100",
 		classes,
 	)
 

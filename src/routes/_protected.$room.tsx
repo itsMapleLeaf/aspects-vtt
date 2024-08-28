@@ -1,27 +1,52 @@
+import * as Ariakit from "@ariakit/react"
 import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { api } from "../../convex/_generated/api.js"
 import { AppHeader } from "../ui/app-header.tsx"
-import { mergeClassProp } from "../ui/helpers.ts"
-import { Slot, SlotProps } from "../ui/slot.tsx"
 import {
 	LucideImages,
+	LucideMessageSquareText,
 	LucideSidebarClose,
 	LucideSidebarOpen,
+	LucideUsers2,
 } from "lucide-react"
-import { clearCircleButton, clearPanel, heading2xl } from "../ui/styles.ts"
+import {
+	clearButton,
+	clearCircleButton,
+	clearPanel,
+	heading2xl,
+} from "../ui/styles.ts"
 import { SceneList } from "../components/SceneList.tsx"
 import { useState } from "react"
+import { mapValues } from "../../lib/object.ts"
+
+type PanelId = "characters" | "scenes" | "chat"
 
 export default function RoomRoute() {
 	const params = useParams() as { room: string }
 	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
 
-	type Panel = {
-		id: string
-		title: string
-		content: React.ReactNode
+	type PanelState = {
+		sidebar: Sidebar
+		group: number
 	}
+
+	const [panels, setPanels] = useState<Record<PanelId, PanelState>>({
+		characters: {
+			sidebar: "left",
+			group: 0,
+		},
+		scenes: {
+			sidebar: "left",
+			group: 0,
+		},
+		chat: {
+			sidebar: "right",
+			group: 0,
+		},
+	})
+
+	type Sidebar = "left" | "right"
 
 	const [openSidebars, setOpenSidebars] = useState({
 		left: true,
@@ -35,22 +60,23 @@ export default function RoomRoute() {
 		setOpenSidebars((current) => ({ ...current, [which]: !current[which] }))
 	}
 
-	const scenesPanel = (
-		<div
-			className={clearPanel(
-				"flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3",
-			)}
-		>
-			<h2
-				className={heading2xl(
-					"flex cursor-default flex-row items-center justify-center gap-1.5 text-lg/tight font-medium text-primary-100 opacity-50",
-				)}
-			>
-				<LucideImages />
-				Scenes
-			</h2>
-			<SceneList />
-		</div>
+	const panelGroups: Record<Sidebar, Record<number, PanelId[]>> = {
+		left: {},
+		right: {},
+	}
+
+	for (const panelId of Object.keys(panels) as PanelId[]) {
+		const panel = panels[panelId]
+		const group = (panelGroups[panel.sidebar][panel.group] ??= [])
+		group.push(panelId)
+	}
+
+	const panelElements = mapValues(panelGroups, (groups) =>
+		Object.entries(groups)
+			.sort(([a], [b]) => Number(a) - Number(b))
+			.map(([group, panelIds]) => (
+				<PanelGroup key={group} panelIds={panelIds} />
+			)),
 	)
 
 	return (
@@ -85,25 +111,19 @@ export default function RoomRoute() {
 				<div className="hidden min-h-0 flex-1 gap-3 p-3 pt-0 *:w-80 lg:flex">
 					{leftSidebarOpen && (
 						<div className="flex min-h-0 flex-col gap-3">
-							{scenesPanel}
-							{scenesPanel}
-							{scenesPanel}
+							{panelElements.left}
 						</div>
 					)}
 					{rightSidebarOpen && (
 						<div className="ml-auto flex min-h-0 flex-col gap-3">
-							{scenesPanel}
-							{scenesPanel}
+							{panelElements.right}
 						</div>
 					)}
 				</div>
 				{leftSidebarOpen && (
 					<div className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0 *:w-80 lg:hidden">
-						{scenesPanel}
-						{scenesPanel}
-						{scenesPanel}
-						{scenesPanel}
-						{scenesPanel}
+						{panelElements.left}
+						{panelElements.right}
 					</div>
 				)}
 			</div>
@@ -111,14 +131,91 @@ export default function RoomRoute() {
 	)
 }
 
-function PanelButton(props: SlotProps) {
+function getPanelDetails(id: PanelId) {
+	switch (id) {
+		case "characters": {
+			return {
+				id,
+				title: "Characters",
+				icon: <LucideUsers2 />,
+				content: <p>Characters</p>,
+			}
+		}
+		case "scenes": {
+			return {
+				id,
+				title: "Scenes",
+				icon: <LucideImages />,
+				content: <SceneList />,
+			}
+		}
+		case "chat": {
+			return {
+				id,
+				title: "Chat",
+				icon: <LucideMessageSquareText />,
+				content: <p className="h-[200vh]">Chat</p>,
+			}
+		}
+	}
+}
+
+function PanelGroup({ panelIds }: { panelIds: PanelId[] }) {
+	const panels = panelIds.map((panelId) => getPanelDetails(panelId))
+	return panels.length === 1 && panels[0] ? (
+		<div className={clearPanel("flex min-h-0 flex-1 flex-col")}>
+			<h2 className="p-2 opacity-50">
+				<PanelLabel icon={panels[0].icon} title={panels[0].title} />
+			</h2>
+			<div className="min-h-0 flex-1 overflow-y-auto p-3 pt-0">
+				{panels[0].content}
+			</div>
+		</div>
+	) : (
+		<div className={clearPanel("flex min-h-0 flex-1 flex-col")}>
+			<Ariakit.TabProvider>
+				<Ariakit.TabList className="flex flex-wrap items-center justify-center gap-1 p-2">
+					{panels.map((panel) => (
+						<Ariakit.Tab
+							key={panel.id}
+							id={panel.id}
+							className={clearButton(
+								"opacity-50 data-[active-item]:bg-primary-600 data-[active-item]:opacity-100",
+							)}
+						>
+							<PanelLabel icon={panel.icon} title={panel.title} />
+						</Ariakit.Tab>
+					))}
+				</Ariakit.TabList>
+				{panels.map((panel) => (
+					<Ariakit.TabPanel
+						key={panel.id}
+						id={panel.id}
+						className="min-h-0 flex-1 overflow-y-auto rounded p-3 pt-0"
+					>
+						{panel.content}
+					</Ariakit.TabPanel>
+				))}
+			</Ariakit.TabProvider>
+		</div>
+	)
+}
+
+function PanelLabel({
+	icon,
+	title,
+}: {
+	icon: React.ReactNode
+	title: React.ReactNode
+}) {
 	return (
-		<Slot
-			type="button"
-			{...mergeClassProp(
-				props,
-				"hover:bg-base-800 active:bg-base-700 aspect-square rounded p-2 opacity-75 transition will-change-transform *:size-8 hover:opacity-100 active:scale-95 active:duration-0",
+		<span
+			className={heading2xl(
+				"flex cursor-default select-none flex-row items-center justify-center gap-1.5 text-lg/tight font-medium text-primary-100",
 			)}
-		/>
+		>
+			{icon}
+			{title}
+		</span>
 	)
 }
