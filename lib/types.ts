@@ -34,3 +34,5 @@ export type AllKeys<T> = T extends object ? keyof T : never
 export type Simplify<T> = { [K in keyof T]: T[K] } & {}
 
 export type Nullish<T> = T | null | undefined
+
+export const typed = <T>(value: T) => value
