@@ -29,3 +29,9 @@ export const formLayout = (...classes: ClassNameValue[]) =>
 
 export const errorText = (...classes: ClassNameValue[]) =>
 	twMerge("text-red-300", ...classes)
+
+export const fadeTransition = (...classes: ClassNameValue[]) =>
+	twMerge("opacity-0 transition data-[enter]:opacity-100", classes)
+
+export const fadeZoomTransition = (...classes: ClassNameValue[]) =>
+	twMerge(fadeTransition(), "scale-95 data-[enter]:scale-100", classes)

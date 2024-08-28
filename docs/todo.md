@@ -1,0 +1,7 @@
+- scenes
+  - [x] create scene
+  - [x] list scenes
+  - [ ] edit scene
+  - [ ] delete scene
+  - [ ] duplicate scene
+  - [ ] backgrounds
