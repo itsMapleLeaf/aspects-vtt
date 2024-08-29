@@ -1,8 +1,18 @@
 import * as Ariakit from "@ariakit/react"
+import {
+	DndContext,
+	MouseSensor,
+	pointerWithin,
+	TouchSensor,
+	useDndContext,
+	useDraggable,
+	useDroppable,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core"
 import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
-import { api } from "../../convex/_generated/api.js"
-import { AppHeader } from "../ui/app-header.tsx"
+import { mapValues } from "lodash-es"
 import {
 	LucideImages,
 	LucideMessageSquareText,
@@ -10,43 +20,81 @@ import {
 	LucideSidebarOpen,
 	LucideUsers2,
 } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import * as v from "valibot"
+import { api } from "../../convex/_generated/api.js"
+import { useLocalStorage } from "../../lib/react.ts"
+import { SceneList } from "../components/SceneList.tsx"
+import { AppHeader } from "../ui/app-header.tsx"
+import { Portal } from "../ui/portal.tsx"
 import {
 	clearButton,
 	clearCircleButton,
 	clearPanel,
 	heading2xl,
 } from "../ui/styles.ts"
-import { SceneList } from "../components/SceneList.tsx"
-import { useState } from "react"
-import { mapValues } from "../../lib/object.ts"
 
-type PanelId = "characters" | "scenes" | "chat"
+type Sidebar = "left" | "right"
+
+type PanelDefinition = {
+	title: string
+	icon: () => React.ReactNode
+	content: () => React.ReactNode
+	defaultLocation: PanelLocation
+}
+
+type PanelLocation = v.InferOutput<typeof panelLocationSchema>
+const panelLocationSchema = v.object({
+	sidebar: v.union([v.literal("left"), v.literal("right")]),
+	group: v.number(),
+})
+
+type PanelId = keyof typeof PANELS
+
+const PANELS = {
+	characters: {
+		title: "Characters",
+		icon: () => <LucideUsers2 />,
+		content: () => <p>Characters</p>,
+		defaultLocation: {
+			sidebar: "left",
+			group: 0,
+		},
+	},
+	scenes: {
+		title: "Scenes",
+		icon: () => <LucideImages />,
+		content: () => <SceneList />,
+		defaultLocation: {
+			sidebar: "left",
+			group: 0,
+		},
+	},
+	chat: {
+		title: "Chat",
+		icon: () => <LucideMessageSquareText />,
+		content: () => <p className="h-[200vh]">Chat</p>,
+		defaultLocation: {
+			sidebar: "right",
+			group: 0,
+		},
+	},
+} as const satisfies Record<string, PanelDefinition>
+
+const defaultPanelLocations = mapValues(
+	PANELS,
+	(panel) => panel.defaultLocation,
+)
 
 export default function RoomRoute() {
 	const params = useParams() as { room: string }
 	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
 
-	type PanelState = {
-		sidebar: Sidebar
-		group: number
-	}
-
-	const [panels, setPanels] = useState<Record<PanelId, PanelState>>({
-		characters: {
-			sidebar: "left",
-			group: 0,
-		},
-		scenes: {
-			sidebar: "left",
-			group: 0,
-		},
-		chat: {
-			sidebar: "right",
-			group: 0,
-		},
-	})
-
-	type Sidebar = "left" | "right"
+	const [panelLocations, setPanelLocations] = useLocalStorage<
+		Record<string, PanelLocation>
+	>("panelLocations", defaultPanelLocations, (data) =>
+		v.parse(v.record(v.string(), panelLocationSchema), data),
+	)
 
 	const [openSidebars, setOpenSidebars] = useState({
 		left: true,
@@ -56,7 +104,7 @@ export default function RoomRoute() {
 	const leftSidebarOpen = openSidebars.left
 	const rightSidebarOpen = openSidebars.right
 
-	function toggleSidebar(which: "left" | "right") {
+	function toggleSidebar(which: Sidebar) {
 		setOpenSidebars((current) => ({ ...current, [which]: !current[which] }))
 	}
 
@@ -65,22 +113,71 @@ export default function RoomRoute() {
 		right: {},
 	}
 
-	for (const panelId of Object.keys(panels) as PanelId[]) {
-		const panel = panels[panelId]
+	for (const [id, panel] of Object.entries(panelLocations ?? {}) as [
+		PanelId,
+		PanelLocation,
+	][]) {
 		const group = (panelGroups[panel.sidebar][panel.group] ??= [])
-		group.push(panelId)
+		group.push(id)
 	}
 
-	const panelElements = mapValues(panelGroups, (groups) =>
+	const panelElements = mapValues(panelGroups, (groups, sidebar) =>
 		Object.entries(groups)
 			.sort(([a], [b]) => Number(a) - Number(b))
-			.map(([group, panelIds]) => (
-				<PanelGroup key={group} panelIds={panelIds} />
-			)),
+			.map(([group, panelIds]) => ({
+				group: Number(group),
+				element: (
+					<PanelGroup
+						key={group}
+						sidebar={sidebar as Sidebar}
+						group={Number(group)}
+						panelIds={panelIds}
+					/>
+				),
+			})),
+	)
+
+	const sensors = useSensors(
+		useSensor(MouseSensor, {
+			activationConstraint: {
+				distance: 10,
+			},
+		}),
+		useSensor(TouchSensor, {
+			activationConstraint: {
+				delay: 250,
+				tolerance: 5,
+			},
+		}),
 	)
 
 	return (
-		<>
+		<DndContext
+			sensors={sensors}
+			collisionDetection={pointerWithin}
+			modifiers={[
+				function custom(args) {
+					return {
+						...args.transform,
+						x: args.transform.x + (args.activeNodeRect?.left ?? 0),
+						y: args.transform.y + (args.activeNodeRect?.top ?? 0),
+					}
+				},
+			]}
+			onDragEnd={(event) => {
+				if (!event.over) return
+
+				const data = v.parse(panelLocationSchema, event.over?.data.current)
+
+				setPanelLocations((current) => ({
+					...current,
+					[event.active.id]: {
+						sidebar: data.sidebar,
+						group: data.group,
+					},
+				}))
+			}}
+		>
 			<div className="absolute inset-0 flex flex-col">
 				<AppHeader
 					left={
@@ -111,111 +208,264 @@ export default function RoomRoute() {
 				<div className="hidden min-h-0 flex-1 gap-3 p-3 pt-0 *:w-80 lg:flex">
 					{leftSidebarOpen && (
 						<div className="flex min-h-0 flex-col gap-3">
-							{panelElements.left}
+							<SidebarContent sidebar="left" groups={panelElements.left} />
 						</div>
 					)}
 					{rightSidebarOpen && (
 						<div className="ml-auto flex min-h-0 flex-col gap-3">
-							{panelElements.right}
+							<SidebarContent sidebar="right" groups={panelElements.right} />
 						</div>
 					)}
 				</div>
-				{leftSidebarOpen && (
-					<div className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0 *:w-80 lg:hidden">
-						{panelElements.left}
-						{panelElements.right}
-					</div>
-				)}
 			</div>
+		</DndContext>
+	)
+}
+
+function SidebarContent({
+	sidebar,
+	groups,
+}: {
+	sidebar: Sidebar
+	groups: Array<{ group: number; element: React.ReactNode }>
+}) {
+	const firstGroup = groups[0]
+	const lastGroup = groups.at(-1)
+	return (
+		<>
+			{firstGroup && (
+				<PanelGroupDroppableSpace
+					sidebar={sidebar}
+					group={firstGroup.group - 1}
+				/>
+			)}
+			{groups.map(({ element }) => element)}
+			{groups.length === 0 && <EmptyPanelGroup sidebar={sidebar} group={0} />}
+			{lastGroup && (
+				<PanelGroupDroppableSpace
+					sidebar={sidebar}
+					group={lastGroup.group + 1}
+				/>
+			)}
 		</>
 	)
 }
 
-function getPanelDetails(id: PanelId) {
-	switch (id) {
-		case "characters": {
-			return {
-				id,
-				title: "Characters",
-				icon: <LucideUsers2 />,
-				content: <p>Characters</p>,
-			}
-		}
-		case "scenes": {
-			return {
-				id,
-				title: "Scenes",
-				icon: <LucideImages />,
-				content: <SceneList />,
-			}
-		}
-		case "chat": {
-			return {
-				id,
-				title: "Chat",
-				icon: <LucideMessageSquareText />,
-				content: <p className="h-[200vh]">Chat</p>,
-			}
-		}
-	}
-}
+function PanelGroup({
+	sidebar,
+	group,
+	panelIds,
+}: {
+	sidebar: Sidebar
+	group: number
+	panelIds: PanelId[]
+}) {
+	const panels = panelIds.map((id) => ({ ...PANELS[id], id }))
 
-function PanelGroup({ panelIds }: { panelIds: PanelId[] }) {
-	const panels = panelIds.map((panelId) => getPanelDetails(panelId))
-	return panels.length === 1 && panels[0] ? (
-		<div className={clearPanel("flex min-h-0 flex-1 flex-col")}>
-			<h2 className="p-2 opacity-50">
-				<PanelLabel icon={panels[0].icon} title={panels[0].title} />
-			</h2>
-			<div className="min-h-0 flex-1 overflow-y-auto p-3 pt-0">
-				{panels[0].content}
-			</div>
-		</div>
-	) : (
-		<div className={clearPanel("flex min-h-0 flex-1 flex-col")}>
-			<Ariakit.TabProvider>
-				<Ariakit.TabList className="flex flex-wrap items-center justify-center gap-1 p-2">
+	const [activeTabState, setActiveTab] = useState<string | null | undefined>()
+
+	const activeTab =
+		activeTabState != null && panelIds.includes(activeTabState)
+			? activeTabState
+			: panelIds[0]
+
+	const droppable = useDroppable({
+		id: `${group}-${sidebar}`,
+		data: {
+			group,
+			sidebar,
+		},
+	})
+
+	return (
+		<div
+			data-over={droppable.isOver || undefined}
+			className={clearPanel(
+				"flex min-h-0 flex-1 flex-col data-[over]:bg-primary-700",
+			)}
+			ref={droppable.setNodeRef}
+		>
+			{panels.length === 0 ? null : panels.length === 1 && panels[0] ? (
+				<>
+					<div className="flex items-center justify-center p-2 opacity-50">
+						<PanelLabel
+							id={panels[0].id}
+							icon={panels[0].icon()}
+							title={panels[0].title}
+						/>
+					</div>
+					<div className="min-h-0 flex-1 overflow-y-auto p-3 pt-0">
+						{panels[0].content()}
+					</div>
+				</>
+			) : (
+				<Ariakit.TabProvider activeId={activeTab} setActiveId={setActiveTab}>
+					<Ariakit.TabList className="flex flex-wrap items-center justify-center gap-1 p-2">
+						{panels.map((panel) => (
+							<Ariakit.Tab
+								key={panel.id}
+								id={panel.id}
+								className={clearButton(
+									"px-0 opacity-50 data-[active-item]:bg-primary-600 data-[active-item]:opacity-100",
+								)}
+							>
+								<PanelLabel
+									id={panel.id}
+									icon={panel.icon()}
+									title={panel.title}
+								/>
+							</Ariakit.Tab>
+						))}
+					</Ariakit.TabList>
 					{panels.map((panel) => (
-						<Ariakit.Tab
+						<Ariakit.TabPanel
 							key={panel.id}
 							id={panel.id}
-							className={clearButton(
-								"opacity-50 data-[active-item]:bg-primary-600 data-[active-item]:opacity-100",
-							)}
+							className="min-h-0 flex-1 overflow-y-auto rounded p-3 pt-0"
 						>
-							<PanelLabel icon={panel.icon} title={panel.title} />
-						</Ariakit.Tab>
+							{panel.content()}
+						</Ariakit.TabPanel>
 					))}
-				</Ariakit.TabList>
-				{panels.map((panel) => (
-					<Ariakit.TabPanel
-						key={panel.id}
-						id={panel.id}
-						className="min-h-0 flex-1 overflow-y-auto rounded p-3 pt-0"
-					>
-						{panel.content}
-					</Ariakit.TabPanel>
-				))}
-			</Ariakit.TabProvider>
+				</Ariakit.TabProvider>
+			)}
 		</div>
 	)
 }
 
 function PanelLabel({
+	id,
 	icon,
 	title,
 }: {
+	id: PanelId
 	icon: React.ReactNode
 	title: React.ReactNode
 }) {
-	return (
-		<span
-			className={heading2xl(
-				"flex cursor-default select-none flex-row items-center justify-center gap-1.5 text-lg/tight font-medium text-primary-100",
-			)}
+	const draggable = useDraggable({
+		id,
+	})
+
+	const [pointer, setPointer] = useState<{ x: number; y: number }>()
+	useEffect(() => {
+		if (!draggable.isDragging) {
+			return
+		}
+
+		const handler = (event: PointerEvent): void => {
+			setPointer({ x: event.clientX, y: event.clientY })
+		}
+
+		const controller = new AbortController()
+		window.addEventListener("pointerdown", handler, {
+			signal: controller.signal,
+		})
+		window.addEventListener("pointermove", handler, {
+			signal: controller.signal,
+		})
+
+		return () => {
+			controller.abort()
+		}
+	}, [draggable.isDragging])
+
+	const content = (
+		<div
+			data-dragging={draggable.isDragging || undefined}
+			className="relative flex h-10 items-center justify-center gap-1.5 rounded px-3 will-change-transform data-[dragging]:bg-primary-600"
 		>
 			{icon}
-			{title}
-		</span>
+			<span
+				className={heading2xl(
+					"flex select-none flex-row items-center justify-center gap-1.5 text-lg/tight font-medium text-primary-100",
+				)}
+			>
+				{title}
+			</span>
+		</div>
+	)
+
+	return (
+		<>
+			<div
+				className={draggable.isDragging ? "invisible" : ""}
+				{...draggable.attributes}
+				{...draggable.listeners}
+			>
+				{content}
+			</div>
+			{draggable.isDragging && pointer && (
+				<Portal>
+					<div
+						className="pointer-events-none fixed"
+						ref={draggable.setNodeRef}
+						style={{
+							translate: `calc(${pointer.x}px - 50%) calc(${pointer.y}px - 50%)`,
+						}}
+					>
+						{content}
+					</div>
+				</Portal>
+			)}
+		</>
+	)
+}
+
+function EmptyPanelGroup({
+	sidebar,
+	group,
+}: {
+	sidebar: Sidebar
+	group: number
+}) {
+	const droppable = useDroppable({
+		id: `${group}-${sidebar}`,
+		data: {
+			group,
+			sidebar,
+		},
+	})
+
+	return (
+		<div
+			data-over={droppable.isOver || undefined}
+			className={clearPanel(
+				"flex min-h-0 flex-1 flex-col data-[over]:bg-primary-700",
+			)}
+			ref={droppable.setNodeRef}
+		>
+			{droppable.isOver && <div className="h-full"></div>}
+		</div>
+	)
+}
+
+function PanelGroupDroppableSpace({
+	sidebar,
+	group,
+}: {
+	sidebar: Sidebar
+	group: number
+}) {
+	const droppable = useDroppable({
+		id: `${group}-${sidebar}`,
+		data: {
+			group,
+			sidebar,
+		},
+	})
+
+	const context = useDndContext()
+
+	if (!context.active) {
+		return null
+	}
+
+	return (
+		<div
+			data-over={droppable.isOver || undefined}
+			className="h-6 rounded bg-primary-800 transition-colors data-[over]:bg-primary-700"
+			ref={droppable.setNodeRef}
+		>
+			{droppable.isOver && <div className="h-full"></div>}
+		</div>
 	)
 }

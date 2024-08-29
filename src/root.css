@@ -12,7 +12,8 @@
 		outline-offset: 2px;
 	}
 
-	button {
+	button,
+	[role="button"] {
 		cursor: default;
 	}
 }

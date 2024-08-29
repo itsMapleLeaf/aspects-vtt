@@ -1,4 +1,5 @@
 import "@remix-run/node"
+import "@total-typescript/ts-reset"
 import "vite/client"
 
 declare global {
