@@ -96,12 +96,13 @@ export default function RoomRoute() {
 	>("panelLocations", defaultPanelLocations, (data) =>
 		v.parse(v.record(v.string(), panelLocationSchema), data),
 	)
-	const panelGroups = buildPanelGroups(panelLocations)
 
 	const [openSidebars, setOpenSidebars] = useState({
 		left: true,
 		right: true,
 	})
+
+	const panelGroups = buildPanelGroups(panelLocations)
 
 	function toggleSidebar(which: Sidebar) {
 		setOpenSidebars((current) => ({ ...current, [which]: !current[which] }))
