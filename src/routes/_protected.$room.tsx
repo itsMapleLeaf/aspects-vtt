@@ -1,6 +1,7 @@
 import * as Ariakit from "@ariakit/react"
 import {
 	DndContext,
+	DragEndEvent,
 	MouseSensor,
 	pointerWithin,
 	TouchSensor,
@@ -95,59 +96,37 @@ export default function RoomRoute() {
 	>("panelLocations", defaultPanelLocations, (data) =>
 		v.parse(v.record(v.string(), panelLocationSchema), data),
 	)
+	const panelGroups = buildPanelGroups(panelLocations)
 
 	const [openSidebars, setOpenSidebars] = useState({
 		left: true,
 		right: true,
 	})
 
-	const leftSidebarOpen = openSidebars.left
-	const rightSidebarOpen = openSidebars.right
-
 	function toggleSidebar(which: Sidebar) {
 		setOpenSidebars((current) => ({ ...current, [which]: !current[which] }))
 	}
 
-	const panelGroups: Record<Sidebar, Record<number, PanelId[]>> = {
-		left: {},
-		right: {},
-	}
+	function handleDragEnd(event: DragEndEvent) {
+		if (!event.over) return
 
-	for (const [id, panel] of Object.entries(panelLocations ?? {}) as [
-		PanelId,
-		PanelLocation,
-	][]) {
-		const group = (panelGroups[panel.sidebar][panel.group] ??= [])
-		group.push(id)
-	}
+		const data = v.parse(panelLocationSchema, event.over?.data.current)
 
-	const panelElements = mapValues(panelGroups, (groups, sidebar) =>
-		Object.entries(groups)
-			.sort(([a], [b]) => Number(a) - Number(b))
-			.map(([group, panelIds]) => ({
-				group: Number(group),
-				element: (
-					<PanelGroup
-						key={group}
-						sidebar={sidebar as Sidebar}
-						group={Number(group)}
-						panelIds={panelIds}
-					/>
-				),
-			})),
-	)
+		setPanelLocations((current) => ({
+			...current,
+			[event.active.id]: {
+				sidebar: data.sidebar,
+				group: data.group,
+			},
+		}))
+	}
 
 	const sensors = useSensors(
 		useSensor(MouseSensor, {
-			activationConstraint: {
-				distance: 10,
-			},
+			activationConstraint: { distance: 10 },
 		}),
 		useSensor(TouchSensor, {
-			activationConstraint: {
-				delay: 250,
-				tolerance: 5,
-			},
+			activationConstraint: { delay: 250, tolerance: 5 },
 		}),
 	)
 
@@ -155,70 +134,55 @@ export default function RoomRoute() {
 		<DndContext
 			sensors={sensors}
 			collisionDetection={pointerWithin}
-			modifiers={[
-				function custom(args) {
-					return {
-						...args.transform,
-						x: args.transform.x + (args.activeNodeRect?.left ?? 0),
-						y: args.transform.y + (args.activeNodeRect?.top ?? 0),
-					}
-				},
-			]}
-			onDragEnd={(event) => {
-				if (!event.over) return
-
-				const data = v.parse(panelLocationSchema, event.over?.data.current)
-
-				setPanelLocations((current) => ({
-					...current,
-					[event.active.id]: {
-						sidebar: data.sidebar,
-						group: data.group,
-					},
-				}))
-			}}
+			onDragEnd={handleDragEnd}
 		>
 			<div className="absolute inset-0 flex flex-col">
 				<AppHeader
 					left={
-						<button
-							type="button"
-							key="close"
-							className={clearCircleButton()}
+						<SidebarToggle
+							open={openSidebars.left}
 							onClick={() => toggleSidebar("left")}
-						>
-							{leftSidebarOpen ? <LucideSidebarClose /> : <LucideSidebarOpen />}
-						</button>
+						/>
 					}
 					right={
-						<button
-							type="button"
-							key="close"
-							className={clearCircleButton("hidden lg:block")}
+						<SidebarToggle
+							open={openSidebars.right}
 							onClick={() => toggleSidebar("right")}
-						>
-							{rightSidebarOpen ? (
-								<LucideSidebarClose className="-scale-x-100" />
-							) : (
-								<LucideSidebarOpen className="-scale-x-100" />
-							)}
-						</button>
+							flipped
+						/>
 					}
 				/>
 				<div className="hidden min-h-0 flex-1 gap-3 p-3 pt-0 *:w-80 lg:flex">
-					{leftSidebarOpen && (
+					{openSidebars.left && (
 						<div className="flex min-h-0 flex-col gap-3">
-							<SidebarContent sidebar="left" groups={panelElements.left} />
+							<SidebarContent sidebar="left" groups={panelGroups.left} />
 						</div>
 					)}
-					{rightSidebarOpen && (
+					{openSidebars.right && (
 						<div className="ml-auto flex min-h-0 flex-col gap-3">
-							<SidebarContent sidebar="right" groups={panelElements.right} />
+							<SidebarContent sidebar="right" groups={panelGroups.right} />
 						</div>
 					)}
 				</div>
 			</div>
 		</DndContext>
+	)
+}
+
+function SidebarToggle({
+	open,
+	flipped,
+	onClick,
+}: {
+	open: boolean
+	flipped?: boolean
+	onClick: () => void
+}) {
+	const Icon = open ? LucideSidebarClose : LucideSidebarOpen
+	return (
+		<button type="button" className={clearCircleButton()} onClick={onClick}>
+			<Icon className={flipped ? "-scale-x-100" : ""} />
+		</button>
 	)
 }
 
@@ -262,19 +226,9 @@ function PanelGroup({
 }) {
 	const panels = panelIds.map((id) => ({ ...PANELS[id], id }))
 
-	const [activeTabState, setActiveTab] = useState<string | null | undefined>()
-
-	const activeTab =
-		activeTabState != null && panelIds.includes(activeTabState)
-			? activeTabState
-			: panelIds[0]
-
 	const droppable = useDroppable({
 		id: `${group}-${sidebar}`,
-		data: {
-			group,
-			sidebar,
-		},
+		data: { group, sidebar },
 	})
 
 	return (
@@ -286,49 +240,66 @@ function PanelGroup({
 			ref={droppable.setNodeRef}
 		>
 			{panels.length === 0 ? null : panels.length === 1 && panels[0] ? (
-				<>
-					<div className="flex items-center justify-center p-2 opacity-50">
-						<PanelLabel
-							id={panels[0].id}
-							icon={panels[0].icon()}
-							title={panels[0].title}
-						/>
-					</div>
-					<div className="min-h-0 flex-1 overflow-y-auto p-3 pt-0">
-						{panels[0].content()}
-					</div>
-				</>
+				<SinglePanel panel={panels[0]} />
 			) : (
-				<Ariakit.TabProvider activeId={activeTab} setActiveId={setActiveTab}>
-					<Ariakit.TabList className="flex flex-wrap items-center justify-center gap-1 p-2">
-						{panels.map((panel) => (
-							<Ariakit.Tab
-								key={panel.id}
-								id={panel.id}
-								className={clearButton(
-									"px-0 opacity-50 data-[active-item]:bg-primary-600 data-[active-item]:opacity-100",
-								)}
-							>
-								<PanelLabel
-									id={panel.id}
-									icon={panel.icon()}
-									title={panel.title}
-								/>
-							</Ariakit.Tab>
-						))}
-					</Ariakit.TabList>
-					{panels.map((panel) => (
-						<Ariakit.TabPanel
-							key={panel.id}
-							id={panel.id}
-							className="min-h-0 flex-1 overflow-y-auto rounded p-3 pt-0"
-						>
-							{panel.content()}
-						</Ariakit.TabPanel>
-					))}
-				</Ariakit.TabProvider>
+				<MultiPanel panels={panels} />
 			)}
 		</div>
+	)
+}
+
+function SinglePanel({ panel }: { panel: PanelDefinition & { id: PanelId } }) {
+	return (
+		<>
+			<div className="flex items-center justify-center p-2 opacity-50">
+				<PanelLabel id={panel.id} icon={panel.icon()} title={panel.title} />
+			</div>
+			<div className="min-h-0 flex-1 overflow-y-auto p-3 pt-0">
+				{panel.content()}
+			</div>
+		</>
+	)
+}
+
+function MultiPanel({
+	panels,
+}: {
+	panels: Array<PanelDefinition & { id: PanelId }>
+}) {
+	const [activeTabState, setActiveTab] = useState<string | null | undefined>()
+
+	// ensure we always have an active tab
+	const activeTab =
+		activeTabState != null &&
+		panels.some((panel) => panel.id === activeTabState)
+			? activeTabState
+			: panels[0]?.id
+
+	return (
+		<Ariakit.TabProvider activeId={activeTab} setActiveId={setActiveTab}>
+			<Ariakit.TabList className="flex flex-wrap items-center justify-center gap-1 p-2">
+				{panels.map((panel) => (
+					<Ariakit.Tab
+						key={panel.id}
+						id={panel.id}
+						className={clearButton(
+							"px-0 opacity-50 data-[active-item]:bg-primary-600 data-[active-item]:opacity-100",
+						)}
+					>
+						<PanelLabel id={panel.id} icon={panel.icon()} title={panel.title} />
+					</Ariakit.Tab>
+				))}
+			</Ariakit.TabList>
+			{panels.map((panel) => (
+				<Ariakit.TabPanel
+					key={panel.id}
+					id={panel.id}
+					className="min-h-0 flex-1 overflow-y-auto rounded p-3 pt-0"
+				>
+					{panel.content()}
+				</Ariakit.TabPanel>
+			))}
+		</Ariakit.TabProvider>
 	)
 }
 
@@ -341,32 +312,8 @@ function PanelLabel({
 	icon: React.ReactNode
 	title: React.ReactNode
 }) {
-	const draggable = useDraggable({
-		id,
-	})
-
-	const [pointer, setPointer] = useState<{ x: number; y: number }>()
-	useEffect(() => {
-		if (!draggable.isDragging) {
-			return
-		}
-
-		const handler = (event: PointerEvent): void => {
-			setPointer({ x: event.clientX, y: event.clientY })
-		}
-
-		const controller = new AbortController()
-		window.addEventListener("pointerdown", handler, {
-			signal: controller.signal,
-		})
-		window.addEventListener("pointermove", handler, {
-			signal: controller.signal,
-		})
-
-		return () => {
-			controller.abort()
-		}
-	}, [draggable.isDragging])
+	const draggable = useDraggable({ id })
+	const pointer = usePointer(draggable.isDragging)
 
 	const content = (
 		<div
@@ -419,10 +366,7 @@ function EmptyPanelGroup({
 }) {
 	const droppable = useDroppable({
 		id: `${group}-${sidebar}`,
-		data: {
-			group,
-			sidebar,
-		},
+		data: { group, sidebar },
 	})
 
 	return (
@@ -447,10 +391,7 @@ function PanelGroupDroppableSpace({
 }) {
 	const droppable = useDroppable({
 		id: `${group}-${sidebar}`,
-		data: {
-			group,
-			sidebar,
-		},
+		data: { group, sidebar },
 	})
 
 	const context = useDndContext()
@@ -468,4 +409,63 @@ function PanelGroupDroppableSpace({
 			{droppable.isOver && <div className="h-full"></div>}
 		</div>
 	)
+}
+
+function buildPanelGroups(
+	panelLocations: Record<string, PanelLocation> | null,
+) {
+	const panelGroups: Record<Sidebar, Record<number, PanelId[]>> = {
+		left: {},
+		right: {},
+	}
+
+	for (const [id, panel] of Object.entries(panelLocations ?? {}) as [
+		PanelId,
+		PanelLocation,
+	][]) {
+		const group = (panelGroups[panel.sidebar][panel.group] ??= [])
+		group.push(id)
+	}
+
+	return mapValues(panelGroups, (groups, sidebar) =>
+		Object.entries(groups)
+			.sort(([a], [b]) => Number(a) - Number(b))
+			.map(([group, panelIds]) => ({
+				group: Number(group),
+				element: (
+					<PanelGroup
+						key={group}
+						sidebar={sidebar as Sidebar}
+						group={Number(group)}
+						panelIds={panelIds}
+					/>
+				),
+			})),
+	)
+}
+
+function usePointer(enabled = true) {
+	const [pointer, setPointer] = useState<{ x: number; y: number }>()
+
+	useEffect(() => {
+		if (!enabled) return
+
+		const handler = (event: PointerEvent) => {
+			setPointer({ x: event.clientX, y: event.clientY })
+		}
+
+		const controller = new AbortController()
+
+		window.addEventListener("pointerdown", handler, {
+			signal: controller.signal,
+		})
+
+		window.addEventListener("pointermove", handler, {
+			signal: controller.signal,
+		})
+
+		return () => controller.abort()
+	}, [enabled])
+
+	return pointer
 }
