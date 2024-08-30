@@ -35,4 +35,6 @@ export type Simplify<T> = { [K in keyof T]: T[K] } & {}
 
 export type Nullish<T> = T | null | undefined
 
+export type StringKeys<T> = Extract<keyof T, string>
+
 export const typed = <T>(value: T) => value

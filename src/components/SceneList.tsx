@@ -1,5 +1,6 @@
-import { GridList } from "../ui/grid-list.tsx"
-import { ImageCard } from "../ui/image-card.tsx"
+import { LucideImagePlus } from "lucide-react"
+import { SearchableList } from "../ui/SearchableList.tsx"
+import { clearButton, heading2xl } from "../ui/styles.ts"
 
 const mockScenes = [
 	{
@@ -36,22 +37,28 @@ const mockScenes = [
 
 export function SceneList() {
 	return (
-		<GridList className="gap-4">
-			{mockScenes.map((scene) => (
-				<SceneCard key={scene._id} scene={scene} />
-			))}
-		</GridList>
+		<SearchableList
+			items={mockScenes}
+			renderItem={(scene) => <SceneCard scene={scene} />}
+			searchKeys={["name"]}
+			actions={
+				<button type="button" className={clearButton()}>
+					<LucideImagePlus />
+					<span className="sr-only">Create scene</span>
+				</button>
+			}
+		/>
 	)
 }
 
 function SceneCard({ scene }: { scene: (typeof mockScenes)[number] }) {
 	return (
-		<ImageCard caption={scene.name}>
-			{scene.background ? (
-				<ImageCard.Image src={scene.background} />
-			) : (
-				<ImageCard.Placeholder />
-			)}
-		</ImageCard>
+		<div className="group relative grid h-20 cursor-default place-content-center">
+			<div
+				style={{ backgroundImage: `url(${scene.background})` }}
+				className="absolute inset-0 size-full rounded-lg object-cover brightness-[40%] backdrop-blur-lg transition group-hover:brightness-[60%] group-hover:backdrop-blur-sm"
+			/>
+			<p className={heading2xl("relative")}>{scene.name}</p>
+		</div>
 	)
 }

@@ -25,6 +25,9 @@ export default {
 			},
 		},
 	},
+	corePlugins: {
+		gap: false,
+	},
 	plugins: [
 		animate,
 
@@ -48,6 +51,48 @@ export default {
 					"@apply *:mx-auto first:*:mt-auto last:*:mb-auto": {},
 				},
 			})
+		}),
+
+		plugin(function gap(api) {
+			api.addBase({
+				"--gap-x": api.theme("spacing.3"),
+				"--gap-y": api.theme("spacing.3"),
+			})
+
+			api.addUtilities({
+				".gap": {
+					"column-gap": "var(--gap-x)",
+					"row-gap": "var(--gap-y)",
+				},
+				".gap-x": {
+					"column-gap": "var(--gap-x)",
+				},
+				".gap-y": {
+					"row-gap": "var(--gap-y)",
+				},
+			})
+
+			api.matchUtilities(
+				{
+					gap: (value) => ({
+						"--gap-x": value,
+						"--gap-y": value,
+						"column-gap": value,
+						"row-gap": value,
+					}),
+					"gap-x": (value) => ({
+						"--gap-x": value,
+						"column-gap": value,
+					}),
+					"gap-y": (value) => ({
+						"--gap-y": value,
+						"row-gap": value,
+					}),
+				},
+				{
+					values: api.theme("gap"),
+				},
+			)
 		}),
 	],
 }

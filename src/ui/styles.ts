@@ -34,6 +34,12 @@ export const clearButton = (...classes: ClassNameValue[]) =>
 export const clearCircleButton = (...classes: ClassNameValue[]) =>
 	clearButton("aspect-square rounded-full p-1.5 size-10", classes)
 
+export const input = (...classes: ClassNameValue[]) =>
+	twMerge(
+		"h-10 w-full min-w-0 rounded-md border border-primary-700 bg-primary-900 px-3 transition",
+		classes,
+	)
+
 export const formLayout = (...classes: ClassNameValue[]) =>
 	twMerge("flex flex-col gap-5", classes)
 

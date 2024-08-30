@@ -74,7 +74,11 @@ const PANELS = {
 	chat: {
 		title: "Chat",
 		icon: () => <LucideMessageSquareText />,
-		content: () => <p className="h-[200vh]">Chat</p>,
+		content: () => (
+			<div className="h-full min-h-0 overflow-y-auto">
+				<p className="h-[200vh]">Chat</p>
+			</div>
+		),
 		defaultLocation: {
 			sidebar: "right",
 			group: 0,
@@ -153,7 +157,7 @@ export default function RoomRoute() {
 						/>
 					}
 				/>
-				<div className="hidden min-h-0 flex-1 gap-3 p-3 pt-0 *:w-80 lg:flex">
+				<div className="hidden min-h-0 flex-1 p-3 pt-0 gap-3 *:w-80 lg:flex">
 					{openSidebars.left && (
 						<div className="flex min-h-0 flex-col gap-3">
 							<SidebarContent sidebar="left" groups={panelGroups.left} />
@@ -262,9 +266,7 @@ function SinglePanel({ panel }: { panel: PanelDefinition & { id: PanelId } }) {
 			<div className="flex items-center justify-center p-2 opacity-50">
 				<PanelLabel id={panel.id} icon={panel.icon()} title={panel.title} />
 			</div>
-			<div className="min-h-0 flex-1 overflow-y-auto p-3 pt-0">
-				{panel.content()}
-			</div>
+			<div className="min-h-0 flex-1 p-3 pt-0">{panel.content()}</div>
 		</>
 	)
 }
@@ -285,7 +287,7 @@ function MultiPanel({
 
 	return (
 		<Ariakit.TabProvider activeId={activeTab} setActiveId={setActiveTab}>
-			<Ariakit.TabList className="flex flex-wrap items-center justify-center gap-1 p-2">
+			<Ariakit.TabList className="flex flex-wrap items-center justify-center p-2 gap-1">
 				{panels.map((panel) => (
 					<Ariakit.Tab
 						key={panel.id}
@@ -302,7 +304,7 @@ function MultiPanel({
 				<Ariakit.TabPanel
 					key={panel.id}
 					id={panel.id}
-					className="min-h-0 flex-1 overflow-y-auto rounded p-3 pt-0"
+					className="min-h-0 flex-1 p-3 pt-0"
 				>
 					{panel.content()}
 				</Ariakit.TabPanel>
@@ -326,12 +328,12 @@ function PanelLabel({
 	const content = (
 		<div
 			data-dragging={draggable.isDragging || undefined}
-			className="relative flex h-10 items-center justify-center gap-1.5 rounded px-3 will-change-transform data-[dragging]:bg-primary-600"
+			className="relative flex h-10 items-center justify-center rounded px-3 will-change-transform gap-1.5 data-[dragging]:bg-primary-600"
 		>
 			{icon}
 			<span
 				className={heading2xl(
-					"flex select-none flex-row items-center justify-center gap-1.5 text-lg/tight font-medium text-primary-100",
+					"flex select-none flex-row items-center justify-center text-lg/tight font-medium text-primary-100 gap-1.5",
 				)}
 			>
 				{title}
