@@ -1,10 +1,10 @@
+import { ConvexEffectError } from "@maple/convex-effect"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import { getAuthUserId } from "../lib/auth.ts"
 import { normalizeScene } from "./scenes.ts"
-import { ConvexEffectError } from "@maple/convex-effect"
 
 export const list = query({
 	handler(ctx) {
@@ -36,7 +36,7 @@ export const getBySlug = query({
 		return pipe(
 			getRoomBySlug(ctx, slug),
 			Effect.flatMap((room) => normalizeRoom(ctx, room)),
-			Effect.orElseSucceed(() => []),
+			Effect.orElseSucceed(() => null),
 		)
 	},
 })

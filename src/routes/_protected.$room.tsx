@@ -24,6 +24,7 @@ import {
 import React, { useEffect, useState } from "react"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
+import { Id } from "../../convex/_generated/dataModel"
 import { useLocalStorage } from "../../lib/react.ts"
 import { SceneList } from "../components/SceneList.tsx"
 import { AppHeader } from "../ui/app-header.tsx"
@@ -40,7 +41,7 @@ type Sidebar = "left" | "right"
 type PanelDefinition = {
 	title: string
 	icon: () => React.ReactNode
-	content: () => React.ReactNode
+	content: (args: { roomId: Id<"rooms"> }) => React.ReactNode
 	defaultLocation: PanelLocation
 }
 
@@ -65,7 +66,7 @@ const PANELS = {
 	scenes: {
 		title: "Scenes",
 		icon: () => <LucideImages />,
-		content: () => <SceneList />,
+		content: (args) => <SceneList roomId={args.roomId} />,
 		defaultLocation: {
 			sidebar: "left",
 			group: 0,
@@ -92,7 +93,7 @@ const defaultPanelLocations = mapValues(
 )
 
 export default function RoomRoute() {
-	const params = useParams() as { room: string }
+	const params = useParams() as { room: Id<"rooms"> }
 	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
 
 	const [panelLocations, setPanelLocations] = useLocalStorage<
@@ -254,29 +255,42 @@ function PanelGroup({
 			{panels.length === 0 ? null : panels.length === 1 && panels[0] ? (
 				<SinglePanel panel={panels[0]} />
 			) : (
-				<MultiPanel panels={panels} />
+				<MultiPanel panels={panels} storageKey={`${sidebar}:${group}`} />
 			)}
 		</div>
 	)
 }
 
 function SinglePanel({ panel }: { panel: PanelDefinition & { id: PanelId } }) {
+	const params = useParams() as { room: Id<"rooms"> }
+	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
 	return (
 		<>
 			<div className="flex items-center justify-center p-2 opacity-50">
 				<PanelLabel id={panel.id} icon={panel.icon()} title={panel.title} />
 			</div>
-			<div className="min-h-0 flex-1 p-3 pt-0">{panel.content()}</div>
+			<div className="min-h-0 flex-1 p-3 pt-0">
+				{room && panel.content({ roomId: room._id })}
+			</div>
 		</>
 	)
 }
 
 function MultiPanel({
 	panels,
+	storageKey,
 }: {
 	panels: Array<PanelDefinition & { id: PanelId }>
+	storageKey: string
 }) {
-	const [activeTabState, setActiveTab] = useState<string | null | undefined>()
+	const params = useParams() as { room: Id<"rooms"> }
+	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
+
+	const [activeTabState, setActiveTab] = useLocalStorage<
+		string | null | undefined
+	>(`${storageKey}:activeTab`, panels[0]?.id, (data) =>
+		v.parse(v.nullish(v.string()), data),
+	)
 
 	// ensure we always have an active tab
 	const activeTab =
@@ -306,7 +320,10 @@ function MultiPanel({
 					id={panel.id}
 					className="min-h-0 flex-1 p-3 pt-0"
 				>
-					{panel.content()}
+					{room &&
+						panel.content({
+							roomId: room._id,
+						})}
 				</Ariakit.TabPanel>
 			))}
 		</Ariakit.TabProvider>

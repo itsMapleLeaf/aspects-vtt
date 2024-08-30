@@ -1,10 +1,11 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Console, Effect, pipe } from "effect"
+import { omit } from "lodash-es"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
-import { ensureRoomOwner } from "./rooms.ts"
 import schema from "../schema.ts"
+import { ensureRoomOwner } from "./rooms.ts"
 
 export const list = query({
 	args: {
@@ -12,7 +13,8 @@ export const list = query({
 	},
 	handler(ctx, args) {
 		return pipe(
-			ensureRoomOwner(ctx, args.room),
+			// ensureRoomOwner(ctx, args.room),
+			ctx.db.get(args.room),
 			Effect.flatMap((room) =>
 				ctx.db
 					.query("scenes")
@@ -43,13 +45,28 @@ export const get = query({
 })
 
 export const create = mutation({
-	args: schema.tables.scenes.validator.fields,
-	handler(ctx, args) {
-		return pipe(
-			ensureRoomOwner(ctx, args.roomId),
-			Effect.andThen(() => ctx.db.insert("scenes", args)),
-			Effect.orDie,
-		)
+	args: {
+		...omit(schema.tables.scenes.validator.fields, [
+			"backgrounds",
+			"activeBackgroundId",
+		]),
+		backgroundIds: v.array(v.id("_storage")),
+	},
+	handler(ctx, { backgroundIds, ...args }) {
+		return Effect.gen(function* () {
+			yield* ensureRoomOwner(ctx, args.roomId)
+
+			const backgrounds = backgroundIds.map((id) => ({
+				id: crypto.randomUUID(),
+				imageId: id,
+			}))
+
+			return yield* ctx.db.insert("scenes", {
+				...args,
+				backgrounds,
+				activeBackgroundId: backgrounds[0]?.id,
+			})
+		}).pipe(Effect.orDie)
 	},
 })
 
@@ -81,22 +98,24 @@ export const remove = mutation({
 })
 
 export function normalizeScene(ctx: LocalQueryContext, scene: Doc<"scenes">) {
-	return pipe(
-		Effect.fromNullable(scene.backgroundId),
-		Effect.flatMap((id) => ctx.storage.getUrl(id)),
-		Effect.catchTags({
-			FileNotFound: (error) =>
-				pipe(
-					Console.warn(`File missing: ${error.info.storageId}`),
-					Effect.andThen(() => Effect.succeed(null)),
-				),
-			NoSuchElementException: () => Effect.succeed(null),
-		}),
-		Effect.map((backgroundUrl) => ({
+	return Effect.gen(function* () {
+		const activeBackgroundUrl = yield* pipe(
+			scene.backgrounds.find(
+				(background) => background.id === scene.activeBackgroundId,
+			) ?? scene.backgrounds[0],
+			Effect.fromNullable,
+			Effect.flatMap((background) => ctx.storage.getUrl(background.imageId)),
+			Effect.tapErrorTag("FileNotFound", (error) =>
+				Console.warn(`File missing:`, error.info),
+			),
+			Effect.orElseSucceed(() => null),
+		)
+
+		return {
 			...scene,
-			backgroundUrl,
-		})),
-	)
+			activeBackgroundUrl,
+		}
+	})
 }
 
 export function ensureSceneRoomOwner(ctx: LocalQueryContext, id: Id<"scenes">) {

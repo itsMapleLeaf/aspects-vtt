@@ -17,6 +17,7 @@ import type {
 import type * as auth from "../auth.js";
 import type * as functions_rooms from "../functions/rooms.js";
 import type * as functions_scenes from "../functions/scenes.js";
+import type * as functions_storage from "../functions/storage.js";
 import type * as functions_users from "../functions/users.js";
 import type * as http from "../http.js";
 import type * as lib_api from "../lib/api.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   "functions/rooms": typeof functions_rooms;
   "functions/scenes": typeof functions_scenes;
+  "functions/storage": typeof functions_storage;
   "functions/users": typeof functions_users;
   http: typeof http;
   "lib/api": typeof lib_api;

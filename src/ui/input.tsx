@@ -1,7 +1,7 @@
 import React, { ComponentProps, useId } from "react"
 import { FormField, FormInputState } from "./form.tsx"
 import { mergeClassProp } from "./helpers.ts"
-import { twMerge } from "tailwind-merge"
+import { input } from "./styles.ts"
 
 export function Input(props: ComponentProps<"input">) {
 	return <input {...mergeClassProp(props, "input")} />
@@ -31,10 +31,7 @@ export function InputField({
 				id={inputId}
 				aria-describedby={descriptionId}
 				{...props}
-				className={twMerge(
-					"h-10 w-full min-w-0 rounded-md border border-primary-700 bg-primary-900 px-3 transition",
-					props.className,
-				)}
+				className={input(props.className)}
 				onChange={(event) => {
 					props.onChange?.(event)
 					onValueChange?.(event.target.value)

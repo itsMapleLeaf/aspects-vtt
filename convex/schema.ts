@@ -1,5 +1,4 @@
 import { authTables } from "@convex-dev/auth/server"
-import { nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { nullish } from "./lib/validators.ts"
@@ -28,6 +27,12 @@ export default defineSchema({
 	scenes: defineTable({
 		name: v.string(),
 		roomId: v.id("rooms"),
-		backgroundId: nullable(v.id("_storage")),
+		backgrounds: v.array(
+			v.object({
+				id: v.string(),
+				imageId: v.id("_storage"),
+			}),
+		),
+		activeBackgroundId: nullish(v.string()),
 	}).index("roomId", ["roomId"]),
 })

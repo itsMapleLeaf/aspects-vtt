@@ -16,6 +16,6 @@ export default defineConfig({
 		}),
 	],
 	ssr: {
-		noExternal: ["react-use-rect", "react-use"],
+		noExternal: ["react-use-rect", "react-use", "react-dropzone"],
 	},
 })

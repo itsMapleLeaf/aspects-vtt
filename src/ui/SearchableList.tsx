@@ -45,11 +45,10 @@ export function SearchableList<T extends { _id?: string }>({
 	)
 }
 
-type SearchableKeys<T> =
-	T extends Record<infer K, unknown>
-		? K extends string
-			? string extends T[K] // it doesn't need to be exactly string, it just needs to have string in the union
-				? K
-				: never
+type SearchableKeys<T, K extends keyof T = keyof T> = K extends string
+	? T[K] extends string
+		? K
+		: string extends T[K]
+			? K
 			: never
-		: never
+	: never
