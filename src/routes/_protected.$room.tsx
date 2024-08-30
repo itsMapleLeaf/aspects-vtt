@@ -191,7 +191,7 @@ function SidebarContent({
 	groups,
 }: {
 	sidebar: Sidebar
-	groups: Array<{ group: number; element: React.ReactNode }>
+	groups: Array<{ group: number; panelIds: PanelId[] }>
 }) {
 	const firstGroup = groups[0]
 	const lastGroup = groups.at(-1)
@@ -203,7 +203,14 @@ function SidebarContent({
 					group={firstGroup.group - 1}
 				/>
 			)}
-			{groups.map(({ element }) => element)}
+			{groups.map(({ group, panelIds }) => (
+				<PanelGroup
+					key={group}
+					group={group}
+					sidebar={sidebar}
+					panelIds={panelIds}
+				/>
+			))}
 			{groups.length === 0 && <EmptyPanelGroup sidebar={sidebar} group={0} />}
 			{lastGroup && (
 				<PanelGroupDroppableSpace
@@ -411,15 +418,13 @@ function PanelGroupDroppableSpace({
 	)
 }
 
-function buildPanelGroups(
-	panelLocations: Record<string, PanelLocation> | null,
-) {
+function buildPanelGroups(panelLocations: Record<string, PanelLocation>) {
 	const panelGroups: Record<Sidebar, Record<number, PanelId[]>> = {
 		left: {},
 		right: {},
 	}
 
-	for (const [id, panel] of Object.entries(panelLocations ?? {}) as [
+	for (const [id, panel] of Object.entries(panelLocations) as [
 		PanelId,
 		PanelLocation,
 	][]) {
@@ -427,20 +432,10 @@ function buildPanelGroups(
 		group.push(id)
 	}
 
-	return mapValues(panelGroups, (groups, sidebar) =>
+	return mapValues(panelGroups, (groups) =>
 		Object.entries(groups)
 			.sort(([a], [b]) => Number(a) - Number(b))
-			.map(([group, panelIds]) => ({
-				group: Number(group),
-				element: (
-					<PanelGroup
-						key={group}
-						sidebar={sidebar as Sidebar}
-						group={Number(group)}
-						panelIds={panelIds}
-					/>
-				),
-			})),
+			.map(([group, panelIds]) => ({ group: Number(group), panelIds })),
 	)
 }
 
