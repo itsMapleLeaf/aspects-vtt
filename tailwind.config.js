@@ -38,7 +38,7 @@ export default {
 						const t = 1 - (value - 100) / 800
 						return [
 							`--color-primary-${value}`,
-							`${lerp(20, 98, t ** 1.8).toFixed(2)}% 8% 270`,
+							`${lerp(20, 98, t ** 1.8).toFixed(2)}% 13% 275`,
 						]
 					}),
 				),
