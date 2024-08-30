@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef } from "react"
+import React, {
+	useCallback,
+	useEffect,
+	useInsertionEffect,
+	useLayoutEffect,
+	useRef,
+} from "react"
 import { Nullish } from "./types.ts"
 
 export function useMergedRefs<T>(...refs: Nullish<React.Ref<T>>[]) {
@@ -41,7 +47,7 @@ export function useLocalStorage<T>(
 		}
 	})
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		loadValue(key)
 	}, [key])
 
@@ -63,7 +69,8 @@ export function useEffectEvent<Args extends unknown[], Result>(
 		throw new Error("attempted to call effect function during render")
 	})
 
-	useEffect(() => {
+	// useInsertionEffect makes this run before useLayoutEffect and useEffect
+	useInsertionEffect(() => {
 		ref.current = fn
 	})
 
