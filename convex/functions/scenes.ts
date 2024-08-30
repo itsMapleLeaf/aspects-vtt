@@ -5,7 +5,7 @@ import { omit } from "lodash-es"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import schema from "../schema.ts"
-import { ensureRoomOwner } from "./rooms.ts"
+import { ensureRoomOwner, normalizeRoom } from "./rooms.ts"
 
 export const list = query({
 	args: {
@@ -99,6 +99,8 @@ export const remove = mutation({
 
 export function normalizeScene(ctx: LocalQueryContext, scene: Doc<"scenes">) {
 	return Effect.gen(function* () {
+		const room = yield* normalizeRoom(ctx, yield* ctx.db.get(scene.roomId))
+
 		const activeBackgroundUrl = yield* pipe(
 			scene.backgrounds.find(
 				(background) => background.id === scene.activeBackgroundId,
@@ -113,6 +115,7 @@ export function normalizeScene(ctx: LocalQueryContext, scene: Doc<"scenes">) {
 
 		return {
 			...scene,
+			isActive: room.activeSceneId === scene._id,
 			activeBackgroundUrl,
 		}
 	})

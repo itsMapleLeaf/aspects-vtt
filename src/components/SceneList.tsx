@@ -1,45 +1,27 @@
+import * as Ariakit from "@ariakit/react"
 import { useMutation, useQuery } from "convex/react"
 import { FunctionReturnType } from "convex/server"
-import { LucideImageOff, LucideImagePlus } from "lucide-react"
+import {
+	LucideCopy,
+	LucideEdit,
+	LucideEye,
+	LucideImageOff,
+	LucideImagePlus,
+	LucidePlay,
+	LucideTrash,
+} from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
 import { SearchableList } from "../ui/SearchableList.tsx"
-import { clearButton, heading2xl, panel } from "../ui/styles.ts"
-
-const mockScenes = [
-	{
-		_id: "1",
-		name: "Rosenfeld",
-		background: "https://placehold.co/800x450.webp",
-	},
-	{
-		_id: "2",
-		name: "Whisperwood Forest",
-		background: "https://placehold.co/800x450.webp",
-	},
-	{
-		_id: "3",
-		name: "Azeurus",
-		background: "https://placehold.co/800x450.webp",
-	},
-	{
-		_id: "4",
-		name: "The Caldera",
-		// background: "https://placehold.co/800x450.webp",
-	},
-	{
-		_id: "5",
-		name: "Aeropolis",
-		background: "https://placehold.co/800x450.webp",
-	},
-	{
-		_id: "6",
-		name: "The Undergrowth",
-		// background: "https://placehold.co/800x450.webp",
-	},
-]
+import {
+	clearButton,
+	clearPanel,
+	fadeZoomTransition,
+	heading2xl,
+	panel,
+} from "../ui/styles.ts"
 
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	const scenes = useQuery(api.functions.scenes.list, { room: roomId })
@@ -127,30 +109,80 @@ function SceneCard({
 }: {
 	scene: FunctionReturnType<typeof api.functions.scenes.list>[number]
 }) {
+	// const updateRoom = useMutation(api.functions.rooms.update)
+	// const duplicateScene = useMutation(api.functions.scenes.duplicate)
+	const removeScene = useMutation(api.functions.scenes.remove)
+
 	return (
-		<div
-			className={panel(
-				"group relative grid h-20 cursor-default cursor-zoom-in place-content-center overflow-clip",
-			)}
-		>
-			{scene.activeBackgroundUrl ? (
-				<img
-					src={scene.activeBackgroundUrl}
-					alt=""
-					className="absolute inset-0 size-full object-cover blur-sm brightness-[35%] transition group-hover:blur-0"
-				/>
-			) : (
-				<div className="absolute inset-0 grid place-content-center">
-					<LucideImageOff className="size-24" />
-				</div>
-			)}
-			<p
-				className={heading2xl(
-					"relative line-clamp-2 text-balance text-center text-xl",
+		<Ariakit.MenuProvider placement="bottom-start">
+			<Ariakit.MenuButton
+				className={panel(
+					"group relative grid h-20 cursor-default select-none place-content-center overflow-clip",
 				)}
+				render={<figure />}
 			>
-				{scene.name}
-			</p>
-		</div>
+				{scene.activeBackgroundUrl ? (
+					<img
+						src={scene.activeBackgroundUrl}
+						alt=""
+						className="absolute inset-0 size-full object-cover blur-sm brightness-[35%] transition group-hover:blur-0 group-aria-expanded:blur-0"
+					/>
+				) : (
+					<div className="absolute inset-0 grid place-content-center">
+						<LucideImageOff className="size-24" />
+					</div>
+				)}
+				<figcaption>
+					<h3
+						className={heading2xl(
+							"relative line-clamp-1 text-balance text-center text-xl",
+						)}
+					>
+						{scene.name}
+					</h3>
+					{scene.isActive && (
+						<p className="relative line-clamp-1 flex items-center justify-center text-balance text-center text-sm font-bold text-primary-200 opacity-75 gap-1">
+							<LucidePlay className="size-4" />
+							<span>Now playing</span>
+						</p>
+					)}
+				</figcaption>
+			</Ariakit.MenuButton>
+			<Ariakit.Menu
+				className={clearPanel(
+					fadeZoomTransition(),
+					"flex flex-wrap items-center justify-center p-1 gap-1",
+				)}
+				portal
+				gutter={8}
+				unmountOnHide
+			>
+				<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
+					<LucidePlay />
+					<span className="text-xs/3 font-bold text-primary-200">Play</span>
+				</Ariakit.MenuItem>
+				<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
+					<LucideEye />
+					<span className="text-xs/3 font-bold text-primary-200">View</span>
+				</Ariakit.MenuItem>
+				<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
+					<LucideEdit />
+					<span className="text-xs/3 font-bold text-primary-200">Edit</span>
+				</Ariakit.MenuItem>
+				<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
+					<LucideCopy />
+					<span className="text-xs/3 font-bold text-primary-200">
+						Duplicate
+					</span>
+				</Ariakit.MenuItem>
+				<Ariakit.MenuItem
+					className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-red-300/75 transition gap-1 hover:bg-primary-600"
+					onClick={() => removeScene({ id: scene._id })}
+				>
+					<LucideTrash />
+					<span className="text-xs/3 font-bold">Delete</span>
+				</Ariakit.MenuItem>
+			</Ariakit.Menu>
+		</Ariakit.MenuProvider>
 	)
 }

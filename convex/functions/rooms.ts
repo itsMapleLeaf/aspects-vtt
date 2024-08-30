@@ -90,13 +90,13 @@ function queryRoomBySlug(ctx: LocalQueryContext, slug: string) {
 }
 
 export function normalizeRoom(ctx: LocalQueryContext, room: Doc<"rooms">) {
-	return pipe(
-		getAuthUserId(ctx),
-		Effect.map((userId) => ({
+	return Effect.gen(function* () {
+		const userId = yield* getAuthUserId(ctx)
+		return {
 			...room,
 			isOwner: room.ownerId === userId,
-		})),
-	)
+		}
+	})
 }
 
 export function ensureRoomOwner(ctx: LocalQueryContext, id: Id<"rooms">) {

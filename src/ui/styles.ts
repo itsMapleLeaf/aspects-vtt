@@ -7,7 +7,7 @@ export const panel = (...classes: ClassNameValue[]) =>
 	twMerge("rounded-lg border border-primary-600 bg-primary-700 shadow", classes)
 
 export const clearPanel = (...classes: ClassNameValue[]) =>
-	twMerge(panel(), "bg-opacity-50 backdrop-blur-sm transition", classes)
+	twMerge(panel(), "bg-opacity-75 backdrop-blur transition", classes)
 
 export const heading3xl = (...classes: ClassNameValue[]) =>
 	twMerge("text-3xl font-light", classes)
