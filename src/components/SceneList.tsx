@@ -26,7 +26,6 @@ import {
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	const scenes = useQuery(api.functions.scenes.list, { room: roomId })
 	const createScene = useMutation(api.functions.scenes.create)
-	const createUploadUrl = useMutation(api.functions.storage.createUploadUrl)
 
 	const dropzone = useDropzone({
 		accept: {
@@ -38,16 +37,22 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 		noClick: true,
 		onDrop: async (files) => {
 			try {
-				const url = await createUploadUrl()
-
 				const storageIds = await Promise.all(
 					files.map(async (file) => {
 						try {
-							const response = await fetch(url, {
-								method: "POST",
-								body: file,
-								headers: { "Content-Type": file.type },
-							})
+							const response = await fetch(
+								new URL("/images", import.meta.env.VITE_CONVEX_API_URL),
+								{
+									method: "PUT",
+									body: file,
+									headers: { "Content-Type": file.type },
+								},
+							)
+
+							if (!response.ok) {
+								throw new Error(`Upload failed: ${await response.text()}`)
+							}
+
 							const data = v.parse(
 								v.object({ storageId: v.string() }),
 								await response.json(),
@@ -129,19 +134,15 @@ function SceneCard({
 					/>
 				) : (
 					<div className="absolute inset-0 grid place-content-center">
-						<LucideImageOff className="size-24" />
+						<LucideImageOff className="size-16 opacity-25" />
 					</div>
 				)}
-				<figcaption>
-					<h3
-						className={heading2xl(
-							"relative line-clamp-1 text-balance text-center text-xl",
-						)}
-					>
+				<figcaption className="relative truncate px-4 text-center">
+					<h3 className={heading2xl("min-w-0 truncate text-center text-xl")}>
 						{scene.name}
 					</h3>
 					{scene.isActive && (
-						<p className="relative line-clamp-1 flex items-center justify-center text-balance text-center text-sm font-bold text-primary-200 opacity-75 gap-1">
+						<p className="relative flex items-center justify-center text-sm font-bold text-primary-200 opacity-75 gap-1">
 							<LucidePlay className="size-4" />
 							<span>Now playing</span>
 						</p>
