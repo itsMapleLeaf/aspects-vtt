@@ -24,12 +24,29 @@ export default {
 				accent: colors.cyan,
 			},
 		},
+		screens: {
+			sm: "var(--screens-sm)",
+			md: "var(--screens-md)",
+			lg: "var(--screens-lg)",
+			xl: "var(--screens-xl)",
+		},
 	},
 	corePlugins: {
 		gap: false,
 	},
 	plugins: [
 		animate,
+
+		plugin(function screenVariables(api) {
+			api.addBase({
+				":root": {
+					"--screens-sm": "768px",
+					"--screens-md": "1024px",
+					"--screens-lg": "1280px",
+					"--screens-xl": "1536px",
+				},
+			})
+		}),
 
 		plugin(function theme(api) {
 			api.addBase({

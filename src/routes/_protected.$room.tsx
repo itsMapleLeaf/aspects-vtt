@@ -21,11 +21,17 @@ import {
 	LucideSidebarOpen,
 	LucideUsers2,
 } from "lucide-react"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
-import { useLocalStorage } from "../../lib/react.ts"
+import {
+	useCssVar,
+	useLocalStorage,
+	useLocalStorageSwitch,
+	useMediaQuery,
+	usePointer,
+} from "../../lib/react.ts"
 import { SceneList } from "../components/SceneList.tsx"
 import { AppHeader } from "../ui/app-header.tsx"
 import { Portal } from "../ui/portal.tsx"
@@ -102,16 +108,16 @@ export default function RoomRoute() {
 		v.parse(v.record(v.string(), panelLocationSchema), data),
 	)
 
-	const [openSidebars, setOpenSidebars] = useState({
-		left: true,
-		right: true,
-	})
+	const [leftSidebarOpen, leftSidebarActions] = useLocalStorageSwitch(
+		"leftSidebar",
+		true,
+	)
+	const [rightSidebarOpen, rightSidebarActions] = useLocalStorageSwitch(
+		"rightSidebar",
+		true,
+	)
 
 	const panelGroups = buildPanelGroups(panelLocations)
-
-	function toggleSidebar(which: Sidebar) {
-		setOpenSidebars((current) => ({ ...current, [which]: !current[which] }))
-	}
 
 	function handleDragEnd(event: DragEndEvent) {
 		if (!event.over) return
@@ -136,6 +142,9 @@ export default function RoomRoute() {
 		}),
 	)
 
+	const smallBreakpoint = useCssVar("--screens-lg")
+	const isSmallScreen = useMediaQuery(`(max-width: ${smallBreakpoint})`)
+
 	return (
 		<DndContext
 			sensors={sensors}
@@ -146,30 +155,45 @@ export default function RoomRoute() {
 				<AppHeader
 					left={
 						<SidebarToggle
-							open={openSidebars.left}
-							onClick={() => toggleSidebar("left")}
+							open={leftSidebarOpen}
+							onClick={leftSidebarActions.toggle}
 						/>
 					}
 					right={
-						<SidebarToggle
-							open={openSidebars.right}
-							onClick={() => toggleSidebar("right")}
-							flipped
-						/>
+						isSmallScreen ? null : (
+							<SidebarToggle
+								open={rightSidebarOpen}
+								onClick={rightSidebarActions.toggle}
+								flipped
+							/>
+						)
 					}
 				/>
-				<div className="hidden min-h-0 flex-1 p-3 pt-0 gap-3 *:w-80 lg:flex">
-					{openSidebars.left && (
-						<div className="flex min-h-0 flex-col gap-3">
-							<SidebarContent sidebar="left" groups={panelGroups.left} />
+				{isSmallScreen ? (
+					leftSidebarOpen && (
+						<div className="flex min-h-0 w-80 flex-1 flex-col p-3 pt-0 gap-3">
+							{panelGroups.left.length > 0 && (
+								<PanelGroupList sidebar="left" groups={panelGroups.left} />
+							)}
+							{panelGroups.right.length > 0 && (
+								<PanelGroupList sidebar="right" groups={panelGroups.right} />
+							)}
 						</div>
-					)}
-					{openSidebars.right && (
-						<div className="ml-auto flex min-h-0 flex-col gap-3">
-							<SidebarContent sidebar="right" groups={panelGroups.right} />
-						</div>
-					)}
-				</div>
+					)
+				) : (
+					<div className="flex min-h-0 flex-1 p-3 pt-0 gap-3 *:w-80">
+						{leftSidebarOpen && (
+							<div className="flex flex-col gap-3">
+								<PanelGroupList sidebar="left" groups={panelGroups.left} />
+							</div>
+						)}
+						{rightSidebarOpen && (
+							<div className="ml-auto flex flex-col gap-3">
+								<PanelGroupList sidebar="right" groups={panelGroups.right} />
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 		</DndContext>
 	)
@@ -192,7 +216,7 @@ function SidebarToggle({
 	)
 }
 
-function SidebarContent({
+function PanelGroupList({
 	sidebar,
 	groups,
 }: {
@@ -457,30 +481,4 @@ function buildPanelGroups(panelLocations: Record<string, PanelLocation>) {
 			.sort(([a], [b]) => Number(a) - Number(b))
 			.map(([group, panelIds]) => ({ group: Number(group), panelIds })),
 	)
-}
-
-function usePointer(enabled = true) {
-	const [pointer, setPointer] = useState<{ x: number; y: number }>()
-
-	useEffect(() => {
-		if (!enabled) return
-
-		const handler = (event: PointerEvent) => {
-			setPointer({ x: event.clientX, y: event.clientY })
-		}
-
-		const controller = new AbortController()
-
-		window.addEventListener("pointerdown", handler, {
-			signal: controller.signal,
-		})
-
-		window.addEventListener("pointermove", handler, {
-			signal: controller.signal,
-		})
-
-		return () => controller.abort()
-	}, [enabled])
-
-	return pointer
 }

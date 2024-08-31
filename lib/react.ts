@@ -1,19 +1,14 @@
-import React, {
-	useCallback,
-	useEffect,
-	useInsertionEffect,
-	useLayoutEffect,
-	useRef,
-} from "react"
+import * as React from "react"
+import * as v from "valibot"
 import { Nullish } from "./types.ts"
 
 export function useMergedRefs<T>(...refs: Nullish<React.Ref<T>>[]) {
-	const cache = useRef(refs)
-	useEffect(() => {
+	const cache = React.useRef(refs)
+	React.useEffect(() => {
 		cache.current = refs
 	})
 
-	return useCallback((node: T | null) => {
+	return React.useCallback((node: T | null) => {
 		for (const ref of cache.current) {
 			if (typeof ref === "function") {
 				ref(node)
@@ -47,7 +42,7 @@ export function useLocalStorage<T>(
 		}
 	})
 
-	useLayoutEffect(() => {
+	React.useLayoutEffect(() => {
 		loadValue(key)
 	}, [key])
 
@@ -65,14 +60,116 @@ export function useLocalStorage<T>(
 export function useEffectEvent<Args extends unknown[], Result>(
 	fn: (...args: Args) => Result,
 ) {
-	const ref = useRef<typeof fn>(() => {
+	const ref = React.useRef<typeof fn>(() => {
 		throw new Error("attempted to call effect function during render")
 	})
 
 	// useInsertionEffect makes this run before useLayoutEffect and useEffect
-	useInsertionEffect(() => {
+	React.useInsertionEffect(() => {
 		ref.current = fn
 	})
 
-	return useCallback((...args: Args) => ref.current(...args), [])
+	return React.useCallback((...args: Args) => ref.current(...args), [])
+}
+
+export function useSwitchActions([on, setOn]: readonly [
+	boolean,
+	React.Dispatch<React.SetStateAction<boolean>>,
+]) {
+	return [
+		on,
+		React.useMemo(
+			() => ({
+				enable: () => setOn(true),
+				disable: () => setOn(false),
+				toggle: () => setOn((current) => !current),
+				set: (value: boolean) => setOn(value),
+			}),
+			[],
+		),
+	] as const
+}
+
+export function useLocalStorageSwitch(key: string, initialOn: boolean) {
+	return useSwitchActions(
+		useLocalStorage(key, initialOn, v.parser(v.boolean())),
+	)
+}
+
+export function usePointer(enabled = true) {
+	const [pointer, setPointer] = React.useState<{ x: number; y: number }>()
+
+	React.useEffect(() => {
+		if (!enabled) return
+
+		const handler = (event: PointerEvent) => {
+			setPointer({ x: event.clientX, y: event.clientY })
+		}
+
+		const controller = new AbortController()
+
+		window.addEventListener("pointerdown", handler, {
+			signal: controller.signal,
+		})
+
+		window.addEventListener("pointermove", handler, {
+			signal: controller.signal,
+		})
+
+		return () => controller.abort()
+	}, [enabled])
+
+	return pointer
+}
+
+export function useMediaQuery(query: string) {
+	const [matches, setMatches] = React.useState(false)
+
+	React.useLayoutEffect(() => {
+		const media = window.matchMedia(query)
+		setMatches(media.matches)
+
+		const controller = new AbortController()
+
+		media.addEventListener(
+			"change",
+			(event) => {
+				setMatches(event.matches)
+			},
+			{ signal: controller.signal },
+		)
+
+		return () => controller.abort()
+	}, [query])
+
+	return matches
+}
+
+export function useCssVar(name: string, customElement?: HTMLElement) {
+	const [value, setValue] = React.useState("")
+
+	React.useLayoutEffect(() => {
+		const element = customElement ?? document.body
+		if (!element) {
+			return
+		}
+
+		setValue(window.getComputedStyle(element).getPropertyValue(name))
+
+		const observer = new MutationObserver(() => {
+			const newValue = window.getComputedStyle(element).getPropertyValue(name)
+			if (newValue !== value) {
+				setValue(newValue)
+			}
+		})
+
+		observer.observe(element, {
+			attributes: true,
+			attributeFilter: ["style"],
+		})
+
+		return () => observer.disconnect()
+	}, [name, customElement])
+
+	return value
 }

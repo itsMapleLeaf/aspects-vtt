@@ -125,7 +125,7 @@ function SceneCard({
 					<img
 						src={scene.activeBackgroundUrl}
 						alt=""
-						className="absolute inset-0 size-full object-cover blur-sm brightness-[35%] transition group-hover:blur-0 group-aria-expanded:blur-0"
+						className="absolute inset-0 size-full scale-110 object-cover blur-sm brightness-[35%] transition group-hover:blur-0 group-aria-expanded:blur-0"
 					/>
 				) : (
 					<div className="absolute inset-0 grid place-content-center">
