@@ -12,28 +12,34 @@ import {
 	LucideTrash,
 	LucideX,
 } from "lucide-react"
-import { useRef, useState } from "react"
+import { ComponentProps, useState } from "react"
 import { useDropzone } from "react-dropzone"
+import { twMerge } from "tailwind-merge"
+import { match } from "ts-pattern"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
 import { useSet } from "../../lib/react.ts"
+import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
 import { FormButton } from "../ui/FormButton.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { SearchableList } from "../ui/SearchableList.tsx"
 import { clearButton, heading2xl, panel } from "../ui/styles.ts"
-import { toastAction } from "../ui/toast.ts"
+import { ToastActionForm } from "../ui/toast.tsx"
+
+type ApiScene = FunctionReturnType<typeof api.functions.scenes.list>[number]
 
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
-	const scenes = useQuery(api.functions.scenes.list, { room: roomId })
+	const scenes = useQuery(api.functions.scenes.list, { room: roomId }) ?? []
 	const createScene = useMutation(api.functions.scenes.create)
 	const removeScenes = useMutation(api.functions.scenes.remove)
-	const [selection, selectionActions] = useSet<Id<"scenes">>()
-	const [latestSelected, setLatestSelected] = useState<Id<"scenes">>()
+
+	const { selection, getSelectableProps, selectionActions } =
+		useSelectableList<ApiScene["_id"]>()
+
 	const selectedScenes = (scenes ?? []).filter((scene) =>
 		selection.has(scene._id),
 	)
-	const containerRef = useRef<HTMLDivElement>(null)
 
 	const dropzone = useDropzone({
 		accept: {
@@ -88,153 +94,76 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 		<div
 			{...dropzone.getRootProps()}
 			className="relative flex h-full flex-col gap-3"
-			ref={containerRef}
 		>
 			<input {...dropzone.getInputProps()} />
 			<div className="flex-1">
 				<SearchableList
 					items={scenes ?? []}
-					renderItem={(scene, scenes) => (
-						<div
-							onPointerDown={(event) => {
-								if (event.ctrlKey) {
-									selectionActions.toggle(scene._id)
-									setLatestSelected(scene._id)
-								} else if (event.shiftKey) {
-									if (latestSelected == null) {
-										selectionActions.set([scene._id])
-										setLatestSelected(scene._id)
-									} else {
-										const sceneIds = scenes.map((scene) => scene._id)
-										const latestIndex = sceneIds.indexOf(latestSelected)
-										const currentIndex = sceneIds.indexOf(scene._id)
-										selectionActions.set(
-											scenes
-												.slice(
-													Math.min(latestIndex, currentIndex),
-													Math.max(latestIndex, currentIndex) + 1,
-												)
-												.map((scene) => scene._id),
-										)
-									}
-								} else {
-									selectionActions.set([scene._id])
-									setLatestSelected(scene._id)
-								}
-							}}
-							className="relative"
+					renderItem={(scene, filteredScenes) => (
+						<Selectable
+							{...getSelectableProps(
+								scene._id,
+								filteredScenes.map((scene) => scene._id),
+							)}
 						>
 							<SceneCard scene={scene} />
-							<div
-								className="pointer-events-none absolute inset-0 grid scale-95 place-content-center rounded-lg border-2 border-accent-500 bg-accent-800/60 text-accent-600 opacity-0 transition data-[active]:scale-100 data-[active]:opacity-100"
-								data-active={selection.has(scene._id) || undefined}
-							></div>
-						</div>
+						</Selectable>
 					)}
 					searchKeys={["name"]}
 					actions={
-						<form
-							action={toastAction("Creating scene...", () => {
-								return createScene({
-									name: "New scene",
-									roomId,
-								})
-							})}
+						<ToastActionForm
+							message="Creating scene..."
+							action={() => createScene({ name: "New scene", roomId })}
 						>
 							<FormButton className={clearButton()}>
 								<LucideImagePlus />
 								<span className="sr-only">Create scene</span>
 							</FormButton>
-						</form>
+						</ToastActionForm>
 					}
 				/>
 			</div>
 
 			{selectedScenes.length > 0 && (
-				<div className="flex gap-1 *:flex-1">
-					<button
-						type="button"
-						className="flex cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-primary-200 transition gap-1 hover:bg-primary-600"
-					>
-						<LucidePlay />
-						<span className="text-xs/3 font-bold">Play</span>
-					</button>
-					<button
-						type="button"
-						className="flex cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-primary-200 transition gap-1 hover:bg-primary-600"
-					>
-						<LucideEye />
-						<span className="text-xs/3 font-bold">View</span>
-					</button>
-					<button
-						type="button"
-						className="flex cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-primary-200 transition gap-1 hover:bg-primary-600"
-					>
-						<LucideEdit />
-						<span className="text-xs/3 font-bold">Edit</span>
-					</button>
-					<button
-						type="button"
-						className="flex cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-primary-200 transition gap-1 hover:bg-primary-600"
-						onClick={() => selectionActions.clear()}
-					>
-						<LucideX />
-						<span className="text-xs/3 font-bold">Dismiss</span>
-					</button>
+				<ActionRow className="flex gap-1 *:flex-1">
+					<ActionRowItem icon={<LucidePlay />}>Play</ActionRowItem>
+					<ActionRowItem icon={<LucideEye />}>View</ActionRowItem>
+					<ActionRowItem icon={<LucideEdit />}>Edit</ActionRowItem>
+					<ActionRowItem icon={<LucideX />} onClick={selectionActions.clear}>
+						Dismiss
+					</ActionRowItem>
+
 					<Menu>
-						<MenuButton className="flex cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-primary-200 transition gap-1 hover:bg-primary-600">
-							<LucideCircleEllipsis />
-							<span className="text-xs/3 font-bold">More</span>
+						<MenuButton
+							render={<ActionRowItem icon={<LucideCircleEllipsis />} />}
+						>
+							More
 						</MenuButton>
+
 						<MenuPanel>
 							<MenuItem>
 								<LucidePin /> Pin
 							</MenuItem>
+
 							<MenuItem>
 								<LucideCopy /> Clone
 							</MenuItem>
-							<form
-								className="contents"
-								// action={() => {
-								// 	return toast
-								// 		.promise(
-								// 			throttle(
-								// 				1000,
-								// 				removeScenes({
-								// 					ids: selectedScenes.map((scene) => scene._id),
-								// 				}),
-								// 			),
-								// 			{
-								// 				pending: `Deleting ${selectedScenes.length} scenes...`,
-								// 				error: "Something went wrong.",
-								// 			},
-								// 		)
-								// 		.catch(console.error)
-								// }}
-								action={toastAction(
-									`Deleting ${selectedScenes.length} scene(s)...`,
-									() => {
-										return removeScenes({
-											ids: selectedScenes.map((scene) => scene._id),
-										})
-									},
-								)}
+
+							<ToastActionForm
+								message="Deleting scene(s)..."
+								action={() => {
+									return removeScenes({
+										ids: selectedScenes.map((scene) => scene._id),
+									})
+								}}
 							>
 								<MenuItem type="submit">
 									<LucideTrash /> Delete
 								</MenuItem>
-							</form>
+							</ToastActionForm>
 						</MenuPanel>
 					</Menu>
-					{/* <button
-						type="button"
-						className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-red-300/75 transition gap-1 hover:bg-primary-600"
-						// onClick={() => removeScene({ id: scene._id })}
-					>
-						<LucideTrash />
-						<span className="text-xs/3 font-bold">Delete</span>
-					</button> */}
-				</div>
+				</ActionRow>
 			)}
 
 			<div
@@ -252,11 +181,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	)
 }
 
-function SceneCard({
-	scene,
-}: {
-	scene: FunctionReturnType<typeof api.functions.scenes.list>[number]
-}) {
+function SceneCard({ scene }: { scene: ApiScene }) {
 	return (
 		<figure
 			className={panel(
@@ -360,4 +285,71 @@ function SceneCard({
 	// 		</Ariakit.Menu>
 	// 	</Ariakit.MenuProvider>
 	// )
+}
+
+function Selectable({
+	children,
+	active,
+	...props
+}: ComponentProps<"div"> & {
+	active: boolean
+}) {
+	return (
+		<div {...props} className={twMerge("relative", props.className)}>
+			{children}
+			<div
+				className="pointer-events-none absolute inset-0 grid scale-95 place-content-center rounded-lg border-2 border-accent-500 bg-accent-800/60 text-accent-600 opacity-0 transition data-[active]:scale-100 data-[active]:opacity-100"
+				data-active={active || undefined}
+			></div>
+		</div>
+	)
+}
+
+function useSelectableList<T>() {
+	const [selection, selectionActions] = useSet<T>()
+	const [latestSelected, setLatestSelected] = useState<T>()
+
+	const handleItemPointerDown = (
+		event: React.PointerEvent,
+		selectedItem: T,
+		selectableItems: T[],
+	) => {
+		match(event)
+			.with({ ctrlKey: true, shiftKey: false }, () => {
+				selectionActions.toggle(selectedItem)
+				setLatestSelected(selectedItem)
+			})
+			.with({ ctrlKey: false, shiftKey: true }, () => {
+				if (latestSelected == null) {
+					selectionActions.set([selectedItem])
+					setLatestSelected(selectedItem)
+				} else {
+					const latestIndex = selectableItems.indexOf(latestSelected)
+					const currentIndex = selectableItems.indexOf(selectedItem)
+					selectionActions.set(
+						selectableItems.slice(
+							Math.min(latestIndex, currentIndex),
+							Math.max(latestIndex, currentIndex) + 1,
+						),
+					)
+				}
+			})
+			.otherwise(() => {
+				selectionActions.set([selectedItem])
+				setLatestSelected(selectedItem)
+			})
+	}
+
+	const getSelectableProps = (item: T, selectableItems: T[]) => ({
+		active: selection.has(item),
+		onPointerDown: (event: React.PointerEvent) => {
+			handleItemPointerDown(event, item, selectableItems)
+		},
+	})
+
+	return {
+		selection,
+		getSelectableProps,
+		selectionActions,
+	}
 }

@@ -1,3 +1,4 @@
+import { ComponentProps } from "react"
 import { toast, ToastOptions, ToastPromiseParams } from "react-toastify"
 import { throttle } from "../../lib/async.ts"
 
@@ -22,4 +23,21 @@ export function toastAction<Result, Args extends unknown[]>(
 			return console.error(data)
 		}
 	}
+}
+
+export function ToastActionForm({
+	action,
+	message,
+	...props
+}: {
+	action: (formData: FormData) => Promise<unknown>
+	message: string
+} & ComponentProps<"form">) {
+	return (
+		<form
+			action={toastAction(message, action)}
+			{...props}
+			className="contents"
+		/>
+	)
 }
