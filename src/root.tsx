@@ -1,4 +1,5 @@
 import "@fontsource-variable/nunito"
+import "react-toastify/dist/ReactToastify.css"
 import "./root.css"
 
 import { ConvexAuthProvider } from "@convex-dev/auth/react"
@@ -12,6 +13,9 @@ import {
 } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import React from "react"
+import { Slide, ToastContainer } from "react-toastify"
+import { twMerge } from "tailwind-merge"
+import { clearPanel } from "./ui/styles.ts"
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -26,6 +30,34 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				{children}
+				<ToastContainer
+					position="top-center"
+					autoClose={5000}
+					closeOnClick
+					pauseOnFocusLoss
+					draggable
+					pauseOnHover
+					transition={Slide}
+					theme="dark"
+					stacked
+					toastClassName={(context) =>
+						clearPanel(
+							context?.defaultClassName,
+							"text-primary-100 hover:bg-opacity-100 transition",
+							{
+								default: "",
+								success: twMerge(
+									"border-emerald-700 bg-emerald-800 text-emerald-100",
+								),
+								info: twMerge("border-sky-700 bg-sky-800 text-sky-100"),
+								warning: twMerge(
+									"border-yellow-700 bg-yellow-800 text-yellow-100",
+								),
+								error: twMerge("border-rose-700 bg-rose-800 text-rose-100"),
+							}[context?.type ?? "default"],
+						)
+					}
+				/>
 				<Scripts />
 				<ScrollRestoration />
 			</body>
