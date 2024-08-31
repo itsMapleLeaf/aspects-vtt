@@ -12,9 +12,16 @@ import {
 	useNavigate,
 } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
+import {
+	LucideCheckCircle2,
+	LucideInfo,
+	LucideTriangleAlert,
+	LucideXCircle,
+} from "lucide-react"
 import React from "react"
-import { Slide, ToastContainer } from "react-toastify"
+import { IconProps, Slide, ToastContainer } from "react-toastify"
 import { twMerge } from "tailwind-merge"
+import { Loading } from "./ui/loading.tsx"
 import { clearPanel } from "./ui/styles.ts"
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -57,6 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 							}[context?.type ?? "default"],
 						)
 					}
+					icon={ToastIcon}
 				/>
 				<Scripts />
 				<ScrollRestoration />
@@ -79,4 +87,15 @@ export default function Root() {
 			<Outlet />
 		</ConvexAuthProvider>
 	)
+}
+
+function ToastIcon({ type, isLoading }: IconProps) {
+	const element = {
+		error: <LucideXCircle />,
+		success: <LucideCheckCircle2 />,
+		warning: <LucideTriangleAlert />,
+		info: <LucideInfo />,
+		default: null,
+	}
+	return isLoading ? <Loading className="size-6" /> : element[type]
 }

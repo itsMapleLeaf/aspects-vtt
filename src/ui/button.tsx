@@ -64,10 +64,10 @@ export function Button({
 const styles = {
 	appearance: {
 		solid: twMerge(
-			`border-base-700 bg-base-800 hover:[&:not(:disabled)]:border-base-600 hover:[&:not(:disabled)]:bg-base-900 active:[&:not(:disabled)]:bg-base-700`,
+			`border-primary-700 bg-primary-800 hover:[&:not(:disabled)]:border-primary-600 hover:[&:not(:disabled)]:bg-primary-900 active:[&:not(:disabled)]:bg-primary-700`,
 		),
 		clear: twMerge(
-			`bg-transparent hover:[&:not(:disabled)]:border-base-800 hover:[&:not(:disabled)]:bg-base-800 active:[&:not(:disabled)]:border-base-700 active:[&:not(:disabled)]:bg-base-700`,
+			`bg-transparent hover:[&:not(:disabled)]:border-primary-800 hover:[&:not(:disabled)]:bg-primary-800 active:[&:not(:disabled)]:border-primary-700 active:[&:not(:disabled)]:bg-primary-700`,
 		),
 	},
 }

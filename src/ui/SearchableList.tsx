@@ -10,7 +10,7 @@ export function SearchableList<T extends { _id?: string }>({
 	actions,
 }: {
 	items: T[]
-	renderItem: (item: T) => React.ReactNode
+	renderItem: (item: T, filteredItems: T[]) => React.ReactNode
 	searchKeys: SearchableKeys<T>[]
 	actions?: React.ReactNode
 }) {
@@ -36,7 +36,7 @@ export function SearchableList<T extends { _id?: string }>({
 					className="h-full"
 					data={sortedItems}
 					itemContent={(index, item) => (
-						<div className="py-1.5">{renderItem(item)}</div>
+						<div className="py-1.5">{renderItem(item, sortedItems)}</div>
 					)}
 					computeItemKey={(index, item) => item._id ?? index}
 				/>

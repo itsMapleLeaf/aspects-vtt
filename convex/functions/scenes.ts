@@ -46,13 +46,16 @@ export const get = query({
 
 export const create = mutation({
 	args: {
-		...omit(schema.tables.scenes.validator.fields, [
-			"backgrounds",
-			"activeBackgroundId",
-		]),
-		backgroundIds: v.array(v.id("_storage")),
+		...partial(
+			omit(schema.tables.scenes.validator.fields, [
+				"backgrounds",
+				"activeBackgroundId",
+			]),
+		),
+		roomId: v.id("rooms"),
+		backgroundIds: v.optional(v.array(v.id("_storage"))),
 	},
-	handler(ctx, { backgroundIds, ...args }) {
+	handler(ctx, { backgroundIds = [], ...args }) {
 		return Effect.gen(function* () {
 			yield* ensureRoomOwner(ctx, args.roomId)
 
@@ -63,6 +66,7 @@ export const create = mutation({
 
 			return yield* ctx.db.insert("scenes", {
 				...args,
+				name: args.name ?? "New Scene",
 				backgrounds,
 				activeBackgroundId: backgrounds[0]?.id,
 			})
@@ -86,13 +90,18 @@ export const update = mutation({
 
 export const remove = mutation({
 	args: {
-		id: v.id("scenes"),
+		ids: v.array(v.id("scenes")),
 	},
 	handler(ctx, args) {
 		return pipe(
-			ensureSceneRoomOwner(ctx, args.id),
-			Effect.flatMap(({ scene }) => ctx.db.delete(scene._id)),
+			Effect.forEach(args.ids, (id) =>
+				pipe(
+					ensureSceneRoomOwner(ctx, id),
+					Effect.flatMap(({ scene }) => ctx.db.delete(scene._id)),
+				),
+			),
 			Effect.orDie,
+			Effect.asVoid,
 		)
 	},
 })

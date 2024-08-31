@@ -23,7 +23,7 @@ export const solidButton = (...classes: ClassNameValue[]) =>
 
 export const clearButton = (...classes: ClassNameValue[]) =>
 	twMerge(
-		"flex min-h-10 items-center justify-center rounded bg-primary-100 bg-opacity-0 px-3 transition gap-1.5 hover:bg-opacity-10 active:bg-opacity-25 active:duration-0 [&>[data-button-icon]]:size-6 [&>svg]:size-6",
+		"flex min-h-10 items-center justify-center rounded bg-primary-100 bg-opacity-0 px-3 transition gap-1.5 disabled:opacity-50 [&:not(:disabled)]:hover:bg-opacity-10 [&:not(:disabled)]:active:bg-opacity-25 [&:not(:disabled)]:active:duration-0 [&>[data-button-icon]]:size-6 [&>svg]:size-6",
 		classes,
 	)
 

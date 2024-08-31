@@ -1,9 +1,9 @@
 import * as Ariakit from "@ariakit/react"
+import { NavLink } from "@remix-run/react"
+import { To } from "@remix-run/router"
 import { ComponentProps } from "react"
 import { Popover } from "./popover.tsx"
 import { clearButton, panel } from "./styles.ts"
-import { To } from "@remix-run/router"
-import { NavLink } from "@remix-run/react"
 
 export function Menu(props: ComponentProps<typeof Popover>) {
 	return <Ariakit.MenuProvider {...props} />
@@ -19,7 +19,7 @@ export function MenuPanel(props: Ariakit.MenuProps) {
 			unmountOnHide
 			{...props}
 			className={panel(
-				"grid min-w-40 max-w-64 translate-y-2 gap-1 p-1 opacity-0 transition data-[enter]:translate-y-0 data-[enter]:opacity-100",
+				"grid min-w-40 max-w-64 translate-y-2 p-1 opacity-0 transition gap-1 data-[enter]:translate-y-0 data-[enter]:opacity-100",
 				props.className,
 			)}
 		/>
@@ -28,9 +28,11 @@ export function MenuPanel(props: Ariakit.MenuProps) {
 
 export function MenuItem({
 	to,
+	type = "button",
 	...props
 }: Ariakit.MenuItemProps & {
 	to?: To
+	type?: "submit" | "button"
 }) {
 	return (
 		<Ariakit.MenuItem
@@ -38,7 +40,7 @@ export function MenuItem({
 				to ? (
 					<NavLink to={to} prefetch="intent" {...props} />
 				) : (
-					<button type="button" {...props} />
+					<button {...props} type={type} />
 				)
 			}
 			{...props}

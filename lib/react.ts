@@ -173,3 +173,40 @@ export function useCssVar(name: string, customElement?: HTMLElement) {
 
 	return value
 }
+
+export function useSet<T>(initialValue?: Iterable<T>) {
+	const [value, setValue] = React.useState<ReadonlySet<T>>(
+		new Set(initialValue ?? []),
+	)
+
+	const actions = React.useMemo(
+		() => ({
+			add: (item: T) => {
+				setValue((current) => new Set([...current, item]))
+			},
+			remove: (item: T) => {
+				setValue((current) => {
+					const next = new Set(current)
+					next.delete(item)
+					return next
+				})
+			},
+			toggle: (item: T) => {
+				setValue((current) => {
+					const next = new Set(current)
+					next.has(item) ? next.delete(item) : next.add(item)
+					return next
+				})
+			},
+			set: (items: Iterable<T>) => {
+				setValue(new Set(items))
+			},
+			clear: () => {
+				setValue(new Set())
+			},
+		}),
+		[],
+	)
+
+	return [value, actions] as const
+}
