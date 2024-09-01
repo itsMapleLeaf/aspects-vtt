@@ -18,6 +18,7 @@ export function ActionRowItem({
 	return (
 		<button
 			type="button"
+			{...props}
 			className={twMerge(
 				"flex cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-primary-200 transition gap-1 hover:bg-primary-600",
 				props.className,
