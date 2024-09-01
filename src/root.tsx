@@ -26,7 +26,10 @@ import { clearPanel } from "./ui/styles.ts"
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" className="break-words bg-primary-900 text-primary-100">
+		<html
+			lang="en"
+			className="text-pretty break-words bg-primary-900 text-primary-100"
+		>
 			<head>
 				<meta charSet="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -50,7 +53,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					toastClassName={(context) =>
 						clearPanel(
 							context?.defaultClassName,
-							"text-primary-100 hover:bg-opacity-100 transition",
+							twMerge("text-primary-100 transition hover:bg-opacity-100"),
 							{
 								default: "",
 								success: twMerge(
