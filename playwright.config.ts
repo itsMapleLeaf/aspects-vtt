@@ -1,5 +1,12 @@
+import { config } from "@dotenvx/dotenvx"
+import { existsSync } from "node:fs"
+
+// conditionals avoids warnings when the files are not present
+if (existsSync(".env")) config({ path: ".env" })
+if (existsSync(".env.local")) config({ path: ".env.local" })
+
 import { defineConfig, devices } from "@playwright/test"
-import { BASE_URL } from "./e2e/constants.ts"
+import { BASE_URL } from "./tests/constants.ts"
 
 /** Read environment variables from file. https://github.com/motdotla/dotenv */
 // import dotenv from 'dotenv';
@@ -7,7 +14,6 @@ import { BASE_URL } from "./e2e/constants.ts"
 
 /** See https://playwright.dev/docs/test-configuration. */
 export default defineConfig({
-	testDir: "./e2e",
 	/* Run tests in files in parallel */
 	fullyParallel: true,
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -17,7 +23,7 @@ export default defineConfig({
 	/* Opt out of parallel tests on CI. */
 	workers: process.env.CI ? 1 : undefined,
 	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
-	reporter: "html",
+	reporter: "list",
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
 		/* Base URL to use in actions like `await page.goto('/')`. */
@@ -25,6 +31,9 @@ export default defineConfig({
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: "on-first-retry",
+
+		// use headless mode only on CI
+		headless: !!process.env.CI,
 	},
 
 	/* Configure projects for major browsers */
@@ -33,7 +42,6 @@ export default defineConfig({
 			name: "chromium",
 			use: { ...devices["Desktop Chrome"] },
 		},
-
 		{
 			name: "firefox",
 			use: { ...devices["Desktop Firefox"] },

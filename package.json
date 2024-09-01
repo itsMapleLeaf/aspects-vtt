@@ -12,8 +12,7 @@
     "build": "remix vite:build",
     "format": "prettier --write .",
     "preview": "remix-serve ./build/server/index.js",
-    "test:unit": "bun test convex --coverage",
-    "test:e2e": "playwright test"
+    "test": "playwright test"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.8",

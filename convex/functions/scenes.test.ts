@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test"
+import { expect, test } from "@playwright/test"
 import type { Id } from "../_generated/dataModel.d.ts"
 import { createMockMutationCtx } from "../lib/testing.ts"
 import { list } from "./scenes.ts"
@@ -21,19 +21,19 @@ test("list returns scenes only for the given room", async () => {
 	await queryCtx.db.insert("scenes", {
 		name: "scene1",
 		roomId: room1Id,
-		backgroundId: "background1" as Id<"_storage">,
+		backgrounds: [],
 	})
 
 	await queryCtx.db.insert("scenes", {
 		name: "scene2",
 		roomId: room1Id,
-		backgroundId: "background2" as Id<"_storage">,
+		backgrounds: [],
 	})
 
 	await queryCtx.db.insert("scenes", {
 		name: "scene3",
 		roomId: room2Id,
-		backgroundId: "background3" as Id<"_storage">,
+		backgrounds: [],
 	})
 
 	const scenes = await list(queryCtx, {

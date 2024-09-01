@@ -6,8 +6,8 @@ import { api } from "../../convex/_generated/api.js"
 import { Loading } from "../ui/loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
-import { AccountSettingsForm } from "./AccountSettingsForm.tsx"
 import { clearCircleButton } from "../ui/styles.ts"
+import { AccountSettingsForm } from "./AccountSettingsForm.tsx"
 
 export function UserButton() {
 	const user = useQuery(api.functions.users.me)
@@ -22,6 +22,7 @@ export function UserButton() {
 		<Menu placement="bottom-end">
 			<MenuButton className={clearCircleButton()}>
 				<LucideUser />
+				<span className="sr-only">Account actions</span>
 			</MenuButton>
 			<MenuPanel unmountOnHide={false}>
 				<Modal>
@@ -30,7 +31,7 @@ export function UserButton() {
 					</MenuItem>
 					<ModalPanel
 						title="Account settings"
-						className="grid max-w-sm gap-3 p-3"
+						className="grid max-w-sm p-3 gap-3"
 					>
 						<AccountSettingsForm />
 					</ModalPanel>

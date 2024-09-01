@@ -1,5 +1,6 @@
 import "@remix-run/node"
 import "@total-typescript/ts-reset"
+import "@vitest/browser/providers/playwright.d.ts"
 import "vite/client"
 
 declare global {
