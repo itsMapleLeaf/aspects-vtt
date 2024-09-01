@@ -38,13 +38,50 @@ export const deleteUser = mutation({
 			yield* Effect.forEach([user, account, ...sessions, ...tokens], (doc) =>
 				ctx.db.delete(doc._id),
 			)
-		}).pipe(
-			Effect.filterOrDieMessage(
-				() => process.env.TEST === "true",
-				"Not in testing environment",
-			),
-			Effect.tapError(Console.error),
-			Effect.ignore,
-		)
+		}).pipe(testingEnvOrDie)
 	},
 })
+
+export const deleteRoom = mutation({
+	args: {
+		slug: v.string(),
+	},
+	handler(ctx, { slug }) {
+		return pipe(
+			ctx.db
+				.query("rooms")
+				.withIndex("slug", (q) => q.eq("slug", slug))
+				.first(),
+			Effect.flatMap((room) => ctx.db.delete(room._id)),
+		).pipe(testingEnvOrDie)
+	},
+})
+
+export const clearScenes = mutation({
+	handler(ctx) {
+		return Effect.gen(function* () {
+			const room = yield* ctx.db
+				.query("rooms")
+				.withIndex("slug", (q) => q.eq("slug", "testroom"))
+				.first()
+
+			const scenes = yield* ctx.db
+				.query("scenes")
+				.withIndex("roomId", (q) => q.eq("roomId", room._id))
+				.collect()
+
+			yield* Effect.forEach(scenes, (scene) => ctx.db.delete(scene._id))
+		}).pipe(testingEnvOrDie)
+	},
+})
+
+function testingEnvOrDie(effect: Effect.Effect<unknown, unknown, never>) {
+	return effect.pipe(
+		Effect.filterOrDieMessage(
+			() => process.env.TEST === "true",
+			"Not in testing environment",
+		),
+		Effect.tapError(Console.error),
+		Effect.ignore,
+	)
+}

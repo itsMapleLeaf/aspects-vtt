@@ -187,6 +187,7 @@ function SceneCard({ scene }: { scene: ApiScene }) {
 			className={panel(
 				"group relative grid h-20 cursor-default select-none place-content-center overflow-clip",
 			)}
+			data-testid="scene-card"
 		>
 			{scene.activeBackgroundUrl ? (
 				<img
