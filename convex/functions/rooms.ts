@@ -77,7 +77,7 @@ export const create = mutation({
 
 export class RoomNotOwnedError extends ConvexEffectError {
 	constructor() {
-		super("You must be the owner of the room to perform this action.")
+		super("Sorry, only the room owner can do that.")
 	}
 }
 
