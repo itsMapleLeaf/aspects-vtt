@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values"
 import { ComponentProps } from "react"
 import { toast, ToastOptions, ToastPromiseParams } from "react-toastify"
 import { throttle } from "../../lib/async.ts"
@@ -14,13 +15,15 @@ export function toastAction<Result, Args extends unknown[]>(
 				throttle(1000, action(...args)),
 				{
 					pending: message,
-					error: "Sorry, something went wrong.",
 					...params,
 				},
 				options,
 			)
-		} catch (data) {
-			return console.error(data)
+		} catch (error) {
+			console.error(error)
+			toast.error(
+				error instanceof ConvexError ? error.data : "Something went wrong. :(",
+			)
 		}
 	}
 }
