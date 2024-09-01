@@ -24,7 +24,7 @@ import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
 import { FormButton } from "../ui/FormButton.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { SearchableList } from "../ui/SearchableList.tsx"
-import { clearButton, heading2xl, panel } from "../ui/styles.ts"
+import { clearButton, errorText, heading2xl, panel } from "../ui/styles.ts"
 import { ToastActionForm } from "../ui/toast.tsx"
 
 type ApiScene = FunctionReturnType<typeof api.functions.scenes.list>[number]
@@ -157,7 +157,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 									})
 								}}
 							>
-								<MenuItem type="submit">
+								<MenuItem type="submit" className={errorText()}>
 									<LucideTrash /> Delete
 								</MenuItem>
 							</ToastActionForm>
