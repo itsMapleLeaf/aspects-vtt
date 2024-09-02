@@ -1,3 +1,4 @@
+import { Focusable } from "@ariakit/react"
 import { useMutation, useQuery } from "convex/react"
 import { FunctionReturnType } from "convex/server"
 import {
@@ -13,12 +14,13 @@ import {
 	LucideTrash,
 	LucideX,
 } from "lucide-react"
-import { ComponentProps, useState } from "react"
+import { ComponentProps, startTransition, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import { twMerge } from "tailwind-merge"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
+import { hasLength } from "../../lib/array.ts"
 import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
 import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
@@ -188,7 +190,16 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 					renderItem={(scene) => (
 						<Selectable
 							active={state.selectedSceneIds.has(scene._id)}
-							onPress={(event) => handleScenePress(scene._id, event)}
+							onPress={(event) => {
+								if (state.selectedSceneIds.has(scene._id)) {
+									// this startTransition makes autoFocus work in the editor, for some reason
+									startTransition(() => {
+										openSceneEditor(scene)
+									})
+								} else {
+									handleScenePress(scene._id, event)
+								}
+							}}
 						>
 							<SceneCard scene={scene} />
 						</Selectable>
@@ -214,7 +225,14 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 				<ActionRow className="flex gap-1 *:flex-1">
 					<ActionRowItem icon={<LucidePlay />}>Play</ActionRowItem>
 					<ActionRowItem icon={<LucideEye />}>View</ActionRowItem>
-					<ActionRowItem icon={<LucideEdit />}>Edit</ActionRowItem>
+					{hasLength(selectedScenes, 1) && (
+						<ActionRowItem
+							icon={<LucideEdit />}
+							onClick={() => openSceneEditor(selectedScenes[0])}
+						>
+							Edit
+						</ActionRowItem>
+					)}
 					<ActionRowItem icon={<LucideX />} onClick={clearSelection}>
 						Dismiss
 					</ActionRowItem>
@@ -279,11 +297,16 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 							className={formLayout()}
 							key={sceneEditorScene._id}
 						>
-							<InputField
-								label="Name"
-								name="name"
-								defaultValue={sceneEditorScene.name}
-								required
+							<Focusable
+								autoFocus
+								render={
+									<InputField
+										label="Name"
+										name="name"
+										defaultValue={sceneEditorScene.name}
+										required
+									/>
+								}
 							/>
 							{/* todo: backgrounds */}
 							<FormButton className={solidButton()}>
@@ -348,6 +371,7 @@ function Selectable({
 				props.onPointerDown?.(event)
 				onPress?.(event)
 			}}
+			tabIndex={0}
 		>
 			{children}
 			<div
