@@ -1,6 +1,7 @@
 import { ConvexError } from "convex/values"
 import { ComponentProps } from "react"
 import { toast, ToastOptions, ToastPromiseParams } from "react-toastify"
+import { twMerge } from "tailwind-merge"
 import { throttle } from "../../lib/async.ts"
 
 export function toastAction<Result, Args extends unknown[]>(
@@ -40,7 +41,7 @@ export function ToastActionForm({
 		<form
 			action={toastAction(message, action)}
 			{...props}
-			className="contents"
+			className={twMerge("contents", props.className)}
 		/>
 	)
 }

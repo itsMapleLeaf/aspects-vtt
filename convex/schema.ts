@@ -34,5 +34,7 @@ export default defineSchema({
 			}),
 		),
 		activeBackgroundId: nullish(v.string()),
-	}).index("roomId", ["roomId"]),
+	})
+		.index("roomId", ["roomId"])
+		.searchIndex("name", { searchField: "name", filterFields: ["roomId"] }),
 })

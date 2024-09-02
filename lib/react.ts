@@ -90,6 +90,10 @@ export function useSwitchActions([on, setOn]: readonly [
 	] as const
 }
 
+export function useSwitch(initialOn: boolean) {
+	return useSwitchActions(React.useState(initialOn))
+}
+
 export function useLocalStorageSwitch(key: string, initialOn: boolean) {
 	return useSwitchActions(
 		useLocalStorage(key, initialOn, v.parser(v.boolean())),

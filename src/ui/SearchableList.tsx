@@ -1,25 +1,19 @@
-import { matchSorter } from "match-sorter"
-import { useState } from "react"
 import { Virtuoso } from "react-virtuoso"
 import { input } from "./styles.ts"
 
-export function SearchableList<T extends { _id?: string }>({
+export function SearchableList<T extends object>({
+	search,
+	onSearchChange,
 	items,
 	renderItem,
-	searchKeys,
 	actions,
 }: {
+	search: string
+	onSearchChange: (search: string) => void
 	items: T[]
-	renderItem: (item: T, filteredItems: T[]) => React.ReactNode
-	searchKeys: SearchableKeys<T>[]
+	renderItem: (item: T) => React.ReactNode
 	actions?: React.ReactNode
 }) {
-	const [search, setSearch] = useState("")
-
-	const sortedItems = matchSorter(items, search, {
-		keys: searchKeys,
-	})
-
 	return (
 		<div className="flex h-full flex-col gap">
 			<div className="flex gap-2">
@@ -27,28 +21,22 @@ export function SearchableList<T extends { _id?: string }>({
 					className={input()}
 					placeholder="Search"
 					value={search}
-					onChange={(event) => setSearch(event.target.value)}
+					onChange={(event) => onSearchChange(event.target.value)}
 				/>
 				{actions}
 			</div>
 			<div className="-my-1.5 flex-1">
 				<Virtuoso
 					className="h-full"
-					data={sortedItems}
-					itemContent={(index, item) => (
-						<div className="py-1.5">{renderItem(item, sortedItems)}</div>
+					data={items}
+					itemContent={(_index, item) => (
+						<div className="py-1.5">{renderItem(item)}</div>
 					)}
-					computeItemKey={(index, item) => item._id ?? index}
+					computeItemKey={(index, item) =>
+						"_id" in item && typeof item._id === "string" ? item._id : index
+					}
 				/>
 			</div>
 		</div>
 	)
 }
-
-type SearchableKeys<T, K extends keyof T = keyof T> = K extends string
-	? T[K] extends string
-		? K
-		: string extends T[K]
-			? K
-			: never
-	: never

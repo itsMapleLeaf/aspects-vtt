@@ -1,6 +1,6 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { Console, Effect, pipe } from "effect"
+import { Console, Effect, Array as EffectArray, Order, pipe } from "effect"
 import { omit } from "lodash-es"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
@@ -10,21 +10,30 @@ import { ensureRoomOwner, normalizeRoom } from "./rooms.ts"
 export const list = query({
 	args: {
 		room: v.id("rooms"),
+		search: v.optional(v.string()),
 	},
 	handler(ctx, args) {
 		return pipe(
-			// ensureRoomOwner(ctx, args.room),
-			ctx.db.get(args.room),
-			Effect.flatMap((room) =>
-				ctx.db
-					.query("scenes")
-					.withIndex("roomId", (q) => q.eq("roomId", room._id))
-					.collect(),
-			),
+			ensureRoomOwner(ctx, args.room),
+			Effect.flatMap((room) => {
+				let query
+				query = ctx.db.query("scenes")
+				if (args.search) {
+					query = query.withSearchIndex("name", (q) =>
+						q.search("name", args.search ?? "").eq("roomId", room._id),
+					)
+				} else {
+					query = query.withIndex("roomId", (q) => q.eq("roomId", room._id))
+				}
+				return query.collect()
+			}),
 			Effect.flatMap(
 				Effect.forEach((scene) => normalizeScene(ctx, scene), {
 					concurrency: "unbounded",
 				}),
+			),
+			Effect.map(
+				EffectArray.sortBy(Order.mapInput(Order.string, (scene) => scene.name)),
 			),
 			Effect.orElseSucceed(() => []),
 		)
@@ -64,12 +73,14 @@ export const create = mutation({
 				imageId: id,
 			}))
 
-			return yield* ctx.db.insert("scenes", {
+			const id = yield* ctx.db.insert("scenes", {
 				...args,
 				name: args.name ?? "New Scene",
 				backgrounds,
 				activeBackgroundId: backgrounds[0]?.id,
 			})
+
+			return yield* normalizeScene(ctx, yield* ctx.db.get(id))
 		}).pipe(Effect.orDie)
 	},
 })

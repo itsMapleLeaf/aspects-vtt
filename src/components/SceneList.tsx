@@ -9,37 +9,121 @@ import {
 	LucideImagePlus,
 	LucidePin,
 	LucidePlay,
+	LucideSave,
 	LucideTrash,
 	LucideX,
 } from "lucide-react"
 import { ComponentProps, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import { twMerge } from "tailwind-merge"
-import { match } from "ts-pattern"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
-import { useSet } from "../../lib/react.ts"
+import { setToggle } from "../../lib/set.ts"
+import { typed } from "../../lib/types.ts"
 import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
 import { FormButton } from "../ui/FormButton.tsx"
+import { InputField } from "../ui/input.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
+import { Modal, ModalPanel } from "../ui/modal.tsx"
 import { SearchableList } from "../ui/SearchableList.tsx"
-import { clearButton, errorText, heading2xl, panel } from "../ui/styles.ts"
+import {
+	clearButton,
+	errorText,
+	formLayout,
+	heading2xl,
+	panel,
+	solidButton,
+} from "../ui/styles.ts"
 import { ToastActionForm } from "../ui/toast.tsx"
 
 type ApiScene = FunctionReturnType<typeof api.functions.scenes.list>[number]
 
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
-	const scenes = useQuery(api.functions.scenes.list, { room: roomId }) ?? []
+	const [state, setState] = useState({
+		search: "",
+		selectedSceneIds: typed<ReadonlySet<Id<"scenes">>>(new Set<Id<"scenes">>()),
+		lastSelectedSceneId: typed<Id<"scenes"> | null>(null),
+		sceneEditorOpen: false,
+		sceneEditorSceneId: typed<string | null>(null),
+	})
+
+	const scenes =
+		useStableValue(
+			useQuery(api.functions.scenes.list, {
+				room: roomId,
+				search: state.search,
+			}),
+		) ?? []
+
 	const createScene = useMutation(api.functions.scenes.create)
+	const updateScene = useMutation(api.functions.scenes.update)
 	const removeScenes = useMutation(api.functions.scenes.remove)
 
-	const { selection, getSelectableProps, selectionActions } =
-		useSelectableList<ApiScene["_id"]>()
-
-	const selectedScenes = (scenes ?? []).filter((scene) =>
-		selection.has(scene._id),
+	const selectedScenes = scenes.filter((scene) =>
+		state.selectedSceneIds.has(scene._id),
 	)
+
+	const sceneEditorScene = scenes.find(
+		(scene) => scene._id === state.sceneEditorSceneId,
+	)
+
+	const setSearch = (search: string) => {
+		setState((current) => ({ ...current, search }))
+	}
+
+	const openSceneEditor = (scene: ApiScene) => {
+		setState((current) => ({
+			...current,
+			sceneEditorOpen: true,
+			sceneEditorSceneId: scene._id,
+		}))
+	}
+
+	const setSceneEditorOpen = (open: boolean) => {
+		setState((current) => ({ ...current, sceneEditorOpen: open }))
+	}
+
+	const clearSelection = () => {
+		setState((current) => ({
+			...current,
+			selectedSceneIds: new Set<Id<"scenes">>(),
+		}))
+	}
+
+	const handleScenePress = (
+		sceneId: Id<"scenes">,
+		event: React.PointerEvent,
+	) => {
+		if (event.shiftKey) {
+			const lastSelectedIndex = scenes.findIndex(
+				(scene) => scene._id === state.lastSelectedSceneId,
+			)
+			const selectedIndex = scenes.findIndex((scene) => scene._id === sceneId)
+			setState((current) => ({
+				...current,
+				selectedSceneIds: new Set(
+					scenes
+						.slice(
+							Math.min(lastSelectedIndex, selectedIndex),
+							Math.max(lastSelectedIndex, selectedIndex) + 1,
+						)
+						.map((scene) => scene._id),
+				),
+			}))
+		} else if (event.ctrlKey) {
+			setState((current) => ({
+				...current,
+				selectedSceneIds: setToggle(current.selectedSceneIds, sceneId),
+			}))
+		} else {
+			setState((current) => ({
+				...current,
+				selectedSceneIds: new Set([sceneId]),
+				lastSelectedSceneId: sceneId,
+			}))
+		}
+	}
 
 	const dropzone = useDropzone({
 		accept: {
@@ -98,22 +182,24 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 			<input {...dropzone.getInputProps()} />
 			<div className="flex-1">
 				<SearchableList
-					items={scenes ?? []}
-					renderItem={(scene, filteredScenes) => (
+					search={state.search}
+					onSearchChange={setSearch}
+					items={scenes}
+					renderItem={(scene) => (
 						<Selectable
-							{...getSelectableProps(
-								scene._id,
-								filteredScenes.map((scene) => scene._id),
-							)}
+							active={state.selectedSceneIds.has(scene._id)}
+							onPress={(event) => handleScenePress(scene._id, event)}
 						>
 							<SceneCard scene={scene} />
 						</Selectable>
 					)}
-					searchKeys={["name"]}
 					actions={
 						<ToastActionForm
 							message="Creating scene..."
-							action={() => createScene({ name: "New scene", roomId })}
+							action={async () => {
+								const scene = await createScene({ name: "New scene", roomId })
+								openSceneEditor(scene)
+							}}
 						>
 							<FormButton className={clearButton()}>
 								<LucideImagePlus />
@@ -129,7 +215,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 					<ActionRowItem icon={<LucidePlay />}>Play</ActionRowItem>
 					<ActionRowItem icon={<LucideEye />}>View</ActionRowItem>
 					<ActionRowItem icon={<LucideEdit />}>Edit</ActionRowItem>
-					<ActionRowItem icon={<LucideX />} onClick={selectionActions.clear}>
+					<ActionRowItem icon={<LucideX />} onClick={clearSelection}>
 						Dismiss
 					</ActionRowItem>
 
@@ -177,6 +263,36 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 					Drop images here to create a scene
 				</p>
 			</div>
+
+			{sceneEditorScene && (
+				<Modal open={state.sceneEditorOpen} setOpen={setSceneEditorOpen}>
+					<ModalPanel title="Edit scene">
+						<ToastActionForm
+							message="Saving scene..."
+							action={async (formData) => {
+								await updateScene({
+									id: sceneEditorScene._id,
+									name: formData.get("name") as string,
+								})
+								setSceneEditorOpen(false)
+							}}
+							className={formLayout()}
+							key={sceneEditorScene._id}
+						>
+							<InputField
+								label="Name"
+								name="name"
+								defaultValue={sceneEditorScene.name}
+								required
+							/>
+							{/* todo: backgrounds */}
+							<FormButton className={solidButton()}>
+								<LucideSave /> Save
+							</FormButton>
+						</ToastActionForm>
+					</ModalPanel>
+				</Modal>
+			)}
 		</div>
 	)
 }
@@ -213,90 +329,26 @@ function SceneCard({ scene }: { scene: ApiScene }) {
 			</figcaption>
 		</figure>
 	)
-
-	// const updateRoom = useMutation(api.functions.rooms.update)
-	// const duplicateScene = useMutation(api.functions.scenes.duplicate)
-	// const removeScene = useMutation(api.functions.scenes.remove)
-
-	// return (
-	// 	<Ariakit.MenuProvider placement="bottom-start">
-	// 		<Ariakit.MenuButton
-	// 			className={panel(
-	// 				"group relative grid h-20 cursor-default select-none place-content-center overflow-clip",
-	// 			)}
-	// 			render={<figure />}
-	// 		>
-	// 			{scene.activeBackgroundUrl ? (
-	// 				<img
-	// 					src={scene.activeBackgroundUrl}
-	// 					alt=""
-	// 					className="absolute inset-0 size-full scale-110 object-cover blur-sm brightness-[35%] transition group-hover:blur-0 group-aria-expanded:blur-0"
-	// 				/>
-	// 			) : (
-	// 				<div className="absolute inset-0 grid place-content-center">
-	// 					<LucideImageOff className="size-16 opacity-25" />
-	// 				</div>
-	// 			)}
-	// 			<figcaption className="relative truncate px-4 text-center">
-	// 				<h3 className={heading2xl("min-w-0 truncate text-center text-xl")}>
-	// 					{scene.name}
-	// 				</h3>
-	// 				{scene.isActive && (
-	// 					<p className="relative flex items-center justify-center text-sm font-bold text-primary-200 opacity-75 gap-1">
-	// 						<LucidePlay className="size-4" />
-	// 						<span>Now playing</span>
-	// 					</p>
-	// 				)}
-	// 			</figcaption>
-	// 		</Ariakit.MenuButton>
-	// 		<Ariakit.Menu
-	// 			className={clearPanel(
-	// 				fadeZoomTransition(),
-	// 				"flex flex-wrap items-center justify-center p-1 gap-1",
-	// 			)}
-	// 			portal
-	// 			gutter={8}
-	// 			unmountOnHide
-	// 		>
-	// 			<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
-	// 				<LucidePlay />
-	// 				<span className="text-xs/3 font-bold text-primary-200">Play</span>
-	// 			</Ariakit.MenuItem>
-	// 			<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
-	// 				<LucideEye />
-	// 				<span className="text-xs/3 font-bold text-primary-200">View</span>
-	// 			</Ariakit.MenuItem>
-	// 			<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
-	// 				<LucideEdit />
-	// 				<span className="text-xs/3 font-bold text-primary-200">Edit</span>
-	// 			</Ariakit.MenuItem>
-	// 			<Ariakit.MenuItem className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 transition gap-1 hover:bg-primary-600">
-	// 				<LucideCopy />
-	// 				<span className="text-xs/3 font-bold text-primary-200">
-	// 					Duplicate
-	// 				</span>
-	// 			</Ariakit.MenuItem>
-	// 			<Ariakit.MenuItem
-	// 				className="flex min-w-16 cursor-default flex-col items-center justify-center rounded-md p-2 pb-1.5 text-red-300/75 transition gap-1 hover:bg-primary-600"
-	// 				onClick={() => removeScene({ id: scene._id })}
-	// 			>
-	// 				<LucideTrash />
-	// 				<span className="text-xs/3 font-bold">Delete</span>
-	// 			</Ariakit.MenuItem>
-	// 		</Ariakit.Menu>
-	// 	</Ariakit.MenuProvider>
-	// )
 }
 
 function Selectable({
 	children,
 	active,
+	onPress,
 	...props
 }: ComponentProps<"div"> & {
 	active: boolean
+	onPress?: (event: React.PointerEvent) => void
 }) {
 	return (
-		<div {...props} className={twMerge("relative", props.className)}>
+		<div
+			{...props}
+			className={twMerge("relative block w-full", props.className)}
+			onPointerDown={(event) => {
+				props.onPointerDown?.(event)
+				onPress?.(event)
+			}}
+		>
 			{children}
 			<div
 				className="pointer-events-none absolute inset-0 grid scale-95 place-content-center rounded-lg border-2 border-accent-500 bg-accent-800/60 text-accent-600 opacity-0 transition data-[active]:scale-100 data-[active]:opacity-100"
@@ -306,51 +358,10 @@ function Selectable({
 	)
 }
 
-function useSelectableList<T>() {
-	const [selection, selectionActions] = useSet<T>()
-	const [latestSelected, setLatestSelected] = useState<T>()
-
-	const handleItemPointerDown = (
-		event: React.PointerEvent,
-		selectedItem: T,
-		selectableItems: T[],
-	) => {
-		match(event)
-			.with({ ctrlKey: true, shiftKey: false }, () => {
-				selectionActions.toggle(selectedItem)
-				setLatestSelected(selectedItem)
-			})
-			.with({ ctrlKey: false, shiftKey: true }, () => {
-				if (latestSelected == null) {
-					selectionActions.set([selectedItem])
-					setLatestSelected(selectedItem)
-				} else {
-					const latestIndex = selectableItems.indexOf(latestSelected)
-					const currentIndex = selectableItems.indexOf(selectedItem)
-					selectionActions.set(
-						selectableItems.slice(
-							Math.min(latestIndex, currentIndex),
-							Math.max(latestIndex, currentIndex) + 1,
-						),
-					)
-				}
-			})
-			.otherwise(() => {
-				selectionActions.set([selectedItem])
-				setLatestSelected(selectedItem)
-			})
+function useStableValue<T>(value: T): T {
+	const [stableValue, setStableValue] = useState(value)
+	if (stableValue !== value && value != null) {
+		setStableValue(value)
 	}
-
-	const getSelectableProps = (item: T, selectableItems: T[]) => ({
-		active: selection.has(item),
-		onPointerDown: (event: React.PointerEvent) => {
-			handleItemPointerDown(event, item, selectableItems)
-		},
-	})
-
-	return {
-		selection,
-		getSelectableProps,
-		selectionActions,
-	}
+	return stableValue
 }
