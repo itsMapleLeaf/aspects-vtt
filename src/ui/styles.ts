@@ -17,7 +17,7 @@ export const heading2xl = (...classes: ClassNameValue[]) =>
 
 export const solidButton = (...classes: ClassNameValue[]) =>
 	twMerge(
-		"flex min-h-10 items-center justify-center rounded bg-accent-700 px-3 font-medium text-accent-50 shadow transition gap-1.5 active:duration-0 [&:not(:disabled)]:hover:bg-accent-600 [&:not(:disabled)]:active:bg-accent-500 [&>[data-button-icon]]:size-6 [&>svg]:size-6",
+		"flex min-h-10 items-center justify-center rounded bg-accent-700 px-3 font-medium text-accent-50 transition gap-1.5 active:duration-0 [&:not(:disabled)]:hover:bg-accent-600 [&:not(:disabled)]:active:bg-accent-500 [&>[data-button-icon]]:size-6 [&>svg]:size-6",
 		classes,
 	)
 
@@ -38,6 +38,9 @@ export const input = (...classes: ClassNameValue[]) =>
 
 export const formLayout = (...classes: ClassNameValue[]) =>
 	twMerge("flex flex-col gap-5", classes)
+
+export const labelText = (...classes: ClassNameValue[]) =>
+	twMerge("text-sm font-bold", classes)
 
 export const errorText = (...classes: ClassNameValue[]) =>
 	twMerge("text-red-300", ...classes)

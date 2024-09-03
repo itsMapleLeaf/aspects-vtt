@@ -1,7 +1,6 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Console, Effect, Array as EffectArray, Order, pipe } from "effect"
-import { omit } from "lodash-es"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import schema from "../schema.ts"
@@ -55,12 +54,7 @@ export const get = query({
 
 export const create = mutation({
 	args: {
-		...partial(
-			omit(schema.tables.scenes.validator.fields, [
-				"backgrounds",
-				"activeBackgroundId",
-			]),
-		),
+		...partial(schema.tables.scenes.validator.fields),
 		roomId: v.id("rooms"),
 		backgroundIds: v.optional(v.array(v.id("_storage"))),
 	},
@@ -68,16 +62,9 @@ export const create = mutation({
 		return Effect.gen(function* () {
 			yield* ensureRoomOwner(ctx, args.roomId)
 
-			const backgrounds = backgroundIds.map((id) => ({
-				id: crypto.randomUUID(),
-				imageId: id,
-			}))
-
 			const id = yield* ctx.db.insert("scenes", {
 				...args,
 				name: args.name ?? "New Scene",
-				backgrounds,
-				activeBackgroundId: backgrounds[0]?.id,
 			})
 
 			return yield* normalizeScene(ctx, yield* ctx.db.get(id))
@@ -121,22 +108,24 @@ export function normalizeScene(ctx: LocalQueryContext, scene: Doc<"scenes">) {
 	return Effect.gen(function* () {
 		const room = yield* normalizeRoom(ctx, yield* ctx.db.get(scene.roomId))
 
-		const activeBackgroundUrl = yield* pipe(
-			scene.backgrounds.find(
-				(background) => background.id === scene.activeBackgroundId,
-			) ?? scene.backgrounds[0],
-			Effect.fromNullable,
-			Effect.flatMap((background) => ctx.storage.getUrl(background.imageId)),
-			Effect.tapErrorTag("FileNotFound", (error) =>
-				Console.warn(`File missing:`, error.info),
-			),
-			Effect.orElseSucceed(() => null),
+		const dayBackgroundUrl = yield* getImageUrl(ctx, scene.dayBackgroundId)
+		const eveningBackgroundUrl = yield* getImageUrl(
+			ctx,
+			scene.eveningBackgroundId,
 		)
+		const nightBackgroundUrl = yield* getImageUrl(ctx, scene.nightBackgroundId)
+
+		// TODO: get active scene based on game time
+		const activeBackgroundUrl = dayBackgroundUrl
 
 		return {
 			...scene,
 			isActive: room.activeSceneId === scene._id,
+			dayBackgroundUrl,
+			eveningBackgroundUrl,
+			nightBackgroundUrl,
 			activeBackgroundUrl,
+			mode: scene.mode ?? { type: "battlemap", cellSize: 70 },
 		}
 	})
 }
@@ -147,4 +136,18 @@ export function ensureSceneRoomOwner(ctx: LocalQueryContext, id: Id<"scenes">) {
 		const room = yield* ensureRoomOwner(ctx, scene.roomId)
 		return { scene, room }
 	})
+}
+
+function getImageUrl(
+	ctx: LocalQueryContext,
+	id: Id<"_storage"> | undefined | null,
+) {
+	return pipe(
+		Effect.fromNullable(id),
+		Effect.flatMap((id) => ctx.storage.getUrl(id)),
+		Effect.tapErrorTag("FileNotFound", (error) =>
+			Console.warn(`File missing:`, error.info),
+		),
+		Effect.orElseSucceed(() => null),
+	)
 }

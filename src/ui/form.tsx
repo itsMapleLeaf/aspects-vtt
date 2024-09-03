@@ -3,6 +3,7 @@ import { ComponentProps, ReactNode, useActionState } from "react"
 import { mapValues } from "../../lib/object.ts"
 import { mergeClassProp } from "./helpers.ts"
 import { Slot, SlotProps } from "./slot.tsx"
+import { labelText } from "./styles.ts"
 
 export function Form({ element = <form />, ...props }: SlotProps) {
 	return (
@@ -24,8 +25,8 @@ export function FormField({
 	descriptionId?: string
 }) {
 	return (
-		<div {...mergeClassProp(props, "flex w-full flex-col gap-1.5 text-left")}>
-			<label htmlFor={inputId} className="text-sm font-bold leading-4">
+		<div {...mergeClassProp(props, "flex w-full flex-col text-left gap-1.5")}>
+			<label htmlFor={inputId} className={labelText("leading-4")}>
 				{label}
 			</label>
 			{children}

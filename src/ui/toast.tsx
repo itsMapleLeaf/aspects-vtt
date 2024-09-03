@@ -3,6 +3,7 @@ import { ComponentProps } from "react"
 import { toast, ToastOptions, ToastPromiseParams } from "react-toastify"
 import { twMerge } from "tailwind-merge"
 import { throttle } from "../../lib/async.ts"
+import { AppError } from "../../lib/errors.ts"
 
 export function toastAction<Result, Args extends unknown[]>(
 	message: string,
@@ -23,7 +24,9 @@ export function toastAction<Result, Args extends unknown[]>(
 		} catch (error) {
 			console.error(error)
 			toast.error(
-				error instanceof ConvexError ? error.data : "Something went wrong. :(",
+				error instanceof ConvexError ? error.data
+				: error instanceof AppError ? error.userMessage
+				: "Something went wrong. :(",
 			)
 		}
 	}

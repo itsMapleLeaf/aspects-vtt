@@ -1,7 +1,9 @@
 import { useQuery } from "convex/react"
-import { FunctionReference } from "convex/server"
+import { FunctionReference, SystemTableNames } from "convex/server"
+import * as v from "valibot"
+import { Id, TableNames } from "../convex/_generated/dataModel"
+import { isNonNil } from "./guards.ts"
 import { useFilter } from "./react.ts"
-import { isNonNil } from "./validation.ts"
 
 /**
  * A version of `useQuery` that only updates when the query is not loading. This
@@ -12,4 +14,8 @@ export function useStableQuery<
 	Query extends FunctionReference<"query", "public">,
 >(...args: Parameters<typeof useQuery<Query>>) {
 	return useFilter(useQuery(...args), isNonNil)
+}
+
+export function convexIdValidator<T extends TableNames | SystemTableNames>() {
+	return v.custom<Id<T>>((value) => typeof value === "string")
 }

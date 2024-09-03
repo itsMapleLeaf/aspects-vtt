@@ -1,11 +1,13 @@
 import { Focusable } from "@ariakit/react"
-import { useMutation, useQuery } from "convex/react"
+import { useMutation } from "convex/react"
 import { FunctionReturnType } from "convex/server"
 import {
 	LucideCircleEllipsis,
 	LucideCopy,
 	LucideEdit,
 	LucideEye,
+	LucideGrid2x2,
+	LucideImage,
 	LucideImageOff,
 	LucideImagePlus,
 	LucidePin,
@@ -23,15 +25,19 @@ import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
 import { useStableQuery } from "../../lib/convex.ts"
 import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
+import { formDataSchema, formNumberSchema } from "../../lib/validation.ts"
+import { uploadImage } from "../lib/uploadImage.ts"
 import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
 import { EmptyState } from "../ui/empty-state.tsx"
+import { FormField } from "../ui/form.tsx"
 import { FormButton } from "../ui/FormButton.tsx"
+import { ImageDropzone } from "../ui/ImageUploader.tsx"
 import { InputField } from "../ui/input.tsx"
-import { Loading } from "../ui/loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { Modal, ModalPanel } from "../ui/modal.tsx"
 import { PressEvent } from "../ui/Pressable.tsx"
 import { SearchableList } from "../ui/SearchableList.tsx"
+import { Select, SelectOption } from "../ui/Select.tsx"
 import { Selectable } from "../ui/Selectable.tsx"
 import {
 	clearButton,
@@ -62,6 +68,10 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 
 	const createScene = useMutation(api.functions.scenes.create)
 	const removeScenes = useMutation(api.functions.scenes.remove)
+
+	const sceneEditorScene = scenes.find(
+		(scene) => scene._id === state.sceneEditorSceneId,
+	)
 
 	const selectedScenes = scenes.filter((scene) =>
 		state.selectedSceneIds.has(scene._id),
@@ -281,40 +291,99 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 				</p>
 			</div>
 
-			{state.sceneEditorSceneId && (
-				<Modal open={state.sceneEditorOpen} setOpen={setSceneEditorOpen}>
-					<ModalPanel title="Edit scene">
-						<SceneEditorForm sceneId={state.sceneEditorSceneId} />
-					</ModalPanel>
-				</Modal>
-			)}
+			<Modal open={state.sceneEditorOpen} setOpen={setSceneEditorOpen}>
+				<ModalPanel title="Edit scene">
+					{sceneEditorScene ?
+						<SceneEditorForm
+							scene={sceneEditorScene}
+							onSubmitSuccess={() => setSceneEditorOpen(false)}
+						/>
+					:	<EmptyState title="Scene not found" icon={<LucideImageOff />}>
+							This scene has been deleted.
+						</EmptyState>
+					}
+				</ModalPanel>
+			</Modal>
 		</div>
 	)
 }
 
 function SceneEditorForm({
-	sceneId,
+	scene,
 	onSubmitSuccess,
 }: {
-	sceneId: Id<"scenes">
+	scene: ApiScene
 	onSubmitSuccess?: (scene: ApiScene) => void
 }) {
-	const scene = useQuery(api.functions.scenes.get, { id: sceneId })
 	const updateScene = useMutation(api.functions.scenes.update)
 
-	return scene === undefined ? (
-		<Loading className="size-24" />
-	) : scene === null ? (
-		<EmptyState title="Scene not found" icon={<LucideImageOff />}>
-			This scene has been deleted.
-		</EmptyState>
-	) : (
+	type Mode = ApiScene["mode"]["type"]
+
+	const modeOptions: SelectOption<Mode>[] = [
+		{
+			value: "scenery",
+			label: "Scenery",
+			icon: <LucideImage />,
+		},
+		{
+			value: "battlemap",
+			label: "Battlemap",
+			icon: <LucideGrid2x2 />,
+		},
+	]
+
+	const [mode, setMode] = useState(scene.mode.type)
+
+	return (
 		<ToastActionForm
 			message="Saving scene..."
 			action={async (formData) => {
+				const schema = v.pipe(
+					formDataSchema(),
+					v.intersect([
+						v.object({
+							name: v.optional(v.pipe(v.string(), v.maxLength(255))),
+							dayBackground: v.optional(v.file()),
+							eveningBackground: v.optional(v.file()),
+							nightBackground: v.optional(v.file()),
+						}),
+						v.union([
+							v.object({
+								mode: v.literal("scenery"),
+							}),
+							v.object({
+								mode: v.literal("battlemap"),
+								cellSize: v.pipe(
+									formNumberSchema(),
+									v.integer(),
+									v.minValue(1),
+								),
+							}),
+						]),
+					]),
+				)
+
+				const data = v.parse(schema, formData)
+
+				const [dayBackgroundId, eveningBackgroundId, nightBackgroundId] =
+					await Promise.all([
+						data.dayBackground && uploadImage(data.dayBackground),
+						data.eveningBackground && uploadImage(data.eveningBackground),
+						data.nightBackground && uploadImage(data.nightBackground),
+					])
+
+				const mode =
+					data.mode === "scenery" ?
+						{ type: "scenery" as const }
+					:	{ type: "battlemap" as const, cellSize: data.cellSize }
+
 				await updateScene({
 					id: scene._id,
-					name: formData.get("name") as string,
+					name: data.name,
+					mode: mode,
+					dayBackgroundId,
+					eveningBackgroundId,
+					nightBackgroundId,
 				})
 				onSubmitSuccess?.(scene)
 			}}
@@ -332,7 +401,47 @@ function SceneEditorForm({
 					/>
 				}
 			/>
-			{/* todo: backgrounds */}
+
+			<Select
+				name="mode"
+				label="Scene mode"
+				defaultValue={scene.mode.type}
+				onValueChange={setMode}
+				options={modeOptions}
+			/>
+
+			{mode === "battlemap" && (
+				<InputField
+					label="Cell size"
+					name="cellSize"
+					defaultValue={
+						scene.mode.type === "battlemap" ? scene.mode.cellSize : 70
+					}
+					required
+				/>
+			)}
+
+			<fieldset className="grid auto-cols-fr grid-flow-col gap-2">
+				<FormField label="Day background">
+					<ImageDropzone
+						name="dayBackground"
+						defaultImageUrl={scene.dayBackgroundUrl}
+					/>
+				</FormField>
+				<FormField label="Evening background">
+					<ImageDropzone
+						name="eveningBackground"
+						defaultImageUrl={scene.eveningBackgroundUrl}
+					/>
+				</FormField>
+				<FormField label="Night background">
+					<ImageDropzone
+						name="nightBackground"
+						defaultImageUrl={scene.nightBackgroundUrl}
+					/>
+				</FormField>
+			</fieldset>
+
 			<FormButton className={solidButton()}>
 				<LucideSave /> Save
 			</FormButton>
@@ -348,17 +457,16 @@ function SceneListCard({ scene }: { scene: ApiScene }) {
 			)}
 			data-testid="scene-card"
 		>
-			{scene.activeBackgroundUrl ? (
+			{scene.activeBackgroundUrl ?
 				<img
 					src={scene.activeBackgroundUrl}
 					alt=""
 					className="absolute inset-0 size-full scale-110 object-cover blur-sm brightness-[35%] transition group-hover:blur-0 group-aria-expanded:blur-0"
 				/>
-			) : (
-				<div className="absolute inset-0 grid place-content-center">
+			:	<div className="absolute inset-0 grid place-content-center">
 					<LucideImageOff className="size-16 opacity-25" />
 				</div>
-			)}
+			}
 			<figcaption className="relative truncate px-4 text-center">
 				<h3 className={heading2xl("min-w-0 truncate text-center text-xl")}>
 					{scene.name}
