@@ -50,6 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					transition={Slide}
 					theme="dark"
 					stacked
+					className="z-10"
 					toastClassName={(context) =>
 						clearPanel(
 							context?.defaultClassName,
