@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useState } from "react"
 import * as v from "valibot"
 import { Nullish } from "./types.ts"
 
@@ -213,4 +214,12 @@ export function useSet<T>(initialValue?: Iterable<T>) {
 	)
 
 	return [value, actions] as const
+}
+
+export function useStableValue<T>(value: T): T {
+	const [stableValue, setStableValue] = useState(value)
+	if (stableValue !== value && value != null) {
+		setStableValue(value)
+	}
+	return stableValue
 }

@@ -14,13 +14,14 @@ import {
 	LucideTrash,
 	LucideX,
 } from "lucide-react"
-import { ComponentProps, startTransition, useState } from "react"
+import { useState } from "react"
 import { useDropzone } from "react-dropzone"
 import { twMerge } from "tailwind-merge"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
 import { hasLength } from "../../lib/array.ts"
+import { useStableValue } from "../../lib/react.ts"
 import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
 import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
@@ -28,6 +29,7 @@ import { FormButton } from "../ui/FormButton.tsx"
 import { InputField } from "../ui/input.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { Modal, ModalPanel } from "../ui/modal.tsx"
+import { Pressable, PressableProps, PressEvent } from "../ui/Pressable.tsx"
 import { SearchableList } from "../ui/SearchableList.tsx"
 import {
 	clearButton,
@@ -93,15 +95,22 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 		}))
 	}
 
-	const handleScenePress = (
-		sceneId: Id<"scenes">,
-		event: React.PointerEvent,
-	) => {
+	const handleScenePress = (scene: ApiScene, event: PressEvent) => {
+		// ctrl should toggle the scene
+		if (event.ctrlKey) {
+			setState((current) => ({
+				...current,
+				selectedSceneIds: setToggle(current.selectedSceneIds, scene._id),
+			}))
+			return
+		}
+
+		// shift should do a range select from the last selected scene to the current one
 		if (event.shiftKey) {
 			const lastSelectedIndex = scenes.findIndex(
 				(scene) => scene._id === state.lastSelectedSceneId,
 			)
-			const selectedIndex = scenes.findIndex((scene) => scene._id === sceneId)
+			const selectedIndex = scenes.findIndex((scene) => scene._id === scene._id)
 			setState((current) => ({
 				...current,
 				selectedSceneIds: new Set(
@@ -113,18 +122,22 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 						.map((scene) => scene._id),
 				),
 			}))
-		} else if (event.ctrlKey) {
-			setState((current) => ({
-				...current,
-				selectedSceneIds: setToggle(current.selectedSceneIds, sceneId),
-			}))
-		} else {
-			setState((current) => ({
-				...current,
-				selectedSceneIds: new Set([sceneId]),
-				lastSelectedSceneId: sceneId,
-			}))
+			return
 		}
+
+		// if selected, open the editor
+		if (state.selectedSceneIds.has(scene._id)) {
+			// this startTransition makes autoFocus work in the editor, for some reason
+			openSceneEditor(scene)
+			return
+		}
+
+		// otherwise, set the current scene as the only selected one
+		setState((current) => ({
+			...current,
+			selectedSceneIds: new Set([scene._id]),
+			lastSelectedSceneId: scene._id,
+		}))
 	}
 
 	const dropzone = useDropzone({
@@ -190,16 +203,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 					renderItem={(scene) => (
 						<Selectable
 							active={state.selectedSceneIds.has(scene._id)}
-							onPress={(event) => {
-								if (state.selectedSceneIds.has(scene._id)) {
-									// this startTransition makes autoFocus work in the editor, for some reason
-									startTransition(() => {
-										openSceneEditor(scene)
-									})
-								} else {
-									handleScenePress(scene._id, event)
-								}
-							}}
+							onPress={(event) => handleScenePress(scene, event)}
 						>
 							<SceneCard scene={scene} />
 						</Selectable>
@@ -357,35 +361,22 @@ function SceneCard({ scene }: { scene: ApiScene }) {
 function Selectable({
 	children,
 	active,
-	onPress,
 	...props
-}: ComponentProps<"div"> & {
+}: PressableProps & {
 	active: boolean
 	onPress?: (event: React.PointerEvent) => void
 }) {
 	return (
-		<div
+		<Pressable
 			{...props}
+			data-selectable-active={active || undefined}
 			className={twMerge("relative block w-full", props.className)}
-			onPointerDown={(event) => {
-				props.onPointerDown?.(event)
-				onPress?.(event)
-			}}
-			tabIndex={0}
 		>
 			{children}
 			<div
 				className="pointer-events-none absolute inset-0 grid scale-95 place-content-center rounded-lg border-2 border-accent-500 bg-accent-800/60 text-accent-600 opacity-0 transition data-[active]:scale-100 data-[active]:opacity-100"
 				data-active={active || undefined}
 			></div>
-		</div>
+		</Pressable>
 	)
-}
-
-function useStableValue<T>(value: T): T {
-	const [stableValue, setStableValue] = useState(value)
-	if (stableValue !== value && value != null) {
-		setStableValue(value)
-	}
-	return stableValue
 }
