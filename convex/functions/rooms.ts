@@ -5,7 +5,6 @@ import { Nullish } from "../../lib/types.ts"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import { getAuthUserId } from "../lib/auth.ts"
-import { getStorageUrl } from "../lib/storage.ts"
 import { nullish } from "../lib/validators.ts"
 import { normalizeScene } from "./scenes.ts"
 
@@ -28,7 +27,12 @@ export const get = query({
 	args: {
 		id: v.id("rooms"),
 	},
-	handler: (ctx, args) => ctx.db.getOrNull(args.id),
+	handler: (ctx, args) =>
+		pipe(
+			ctx.db.get(args.id),
+			Effect.flatMap((room) => normalizeRoom(ctx, room)),
+			Effect.orElseSucceed(() => null),
+		),
 })
 
 export const getBySlug = query({
@@ -123,24 +127,17 @@ export function normalizeRoom(
 	return Effect.gen(function* () {
 		const userId = yield* getAuthUserId(ctx)
 
-		const activeSceneBackgroundUrl = yield* pipe(
+		const activeScene = yield* pipe(
 			Effect.fromNullable(previewSceneId ?? room.activeSceneId),
 			Effect.flatMap((sceneId) => ctx.db.get(sceneId)),
-			Effect.flatMap((scene) =>
-				Effect.fromNullable(
-					scene.dayBackgroundId ??
-						scene.eveningBackgroundId ??
-						scene.nightBackgroundId,
-				),
-			),
-			Effect.flatMap((id) => getStorageUrl(ctx, id)),
+			Effect.flatMap((scene) => normalizeScene(ctx, scene)),
 			Effect.orElseSucceed(() => null),
 		)
 
 		return {
 			...room,
 			isOwner: room.ownerId === userId,
-			activeSceneBackgroundUrl,
+			activeScene,
 		}
 	})
 }

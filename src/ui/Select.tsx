@@ -51,7 +51,7 @@ export function Select<const Value extends string>({
 					</span>
 					<LucideChevronDown className="size-5" />
 				</Ariakit.Select>
-				<Ariakit.SelectPopover className={menuPanelStyle()} gutter={8}>
+				<Ariakit.SelectPopover className={menuPanelStyle()} gutter={8} portal>
 					<Ariakit.SelectList>
 						{options.map((option) => (
 							<Ariakit.SelectItem

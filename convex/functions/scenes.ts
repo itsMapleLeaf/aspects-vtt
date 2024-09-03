@@ -55,7 +55,9 @@ export const get = query({
 
 export const create = mutation({
 	args: {
-		...partial(schema.tables.scenes.validator.fields),
+		...schema.tables.scenes.validator.fields,
+		name: v.optional(v.string()),
+		mode: v.optional(v.union(v.literal("scenery"), v.literal("battlemap"))),
 		roomId: v.id("rooms"),
 		backgroundIds: v.optional(v.array(v.id("_storage"))),
 	},
@@ -66,6 +68,7 @@ export const create = mutation({
 			const id = yield* ctx.db.insert("scenes", {
 				...args,
 				name: args.name ?? "New Scene",
+				mode: args.mode ?? "battlemap",
 			})
 
 			return yield* normalizeScene(ctx, yield* ctx.db.get(id))

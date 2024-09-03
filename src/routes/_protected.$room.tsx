@@ -32,6 +32,7 @@ import {
 	useMediaQuery,
 	usePointer,
 } from "../../lib/react.ts"
+import { BattleMap } from "../components/BattleMap.tsx"
 import { SceneList } from "../components/SceneList.tsx"
 import { AppHeader } from "../ui/app-header.tsx"
 import { Portal } from "../ui/portal.tsx"
@@ -159,14 +160,19 @@ export default function RoomRoute() {
 			onDragEnd={handleDragEnd}
 		>
 			<div className="absolute inset-0 flex flex-col">
-				{room?.activeSceneBackgroundUrl && (
+				{room?.activeScene == null ?
+					undefined
+				: (
+					room.activeScene.mode === "scenery" &&
+					room.activeScene.activeBackgroundUrl
+				) ?
 					<img
-						src={room.activeSceneBackgroundUrl}
+						src={room.activeScene.activeBackgroundUrl}
 						alt=""
 						className="absolute inset-0 size-full object-contain"
 						draggable={false}
 					/>
-				)}
+				:	<BattleMap scene={room.activeScene} />}
 				<AppHeader
 					left={
 						<SidebarToggle

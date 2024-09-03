@@ -1,7 +1,6 @@
 import { Focusable } from "@ariakit/react"
 import { useNavigate, useSearchParams } from "@remix-run/react"
 import { useMutation } from "convex/react"
-import { FunctionReturnType } from "convex/server"
 import {
 	LucideEdit,
 	LucideEye,
@@ -25,6 +24,7 @@ import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
 import { formDataSchema, formNumberSchema } from "../../lib/validation.ts"
 import { uploadImage } from "../lib/uploadImage.ts"
+import { ApiScene } from "../types.ts"
 import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
 import { EmptyState } from "../ui/empty-state.tsx"
 import { FormField } from "../ui/form.tsx"
@@ -45,8 +45,6 @@ import {
 	solidButton,
 } from "../ui/styles.ts"
 import { ToastActionForm } from "../ui/toast.tsx"
-
-type ApiScene = FunctionReturnType<typeof api.functions.scenes.list>[number]
 
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	const navigate = useNavigate()
@@ -322,7 +320,7 @@ function SceneEditorForm({
 }) {
 	const updateScene = useMutation(api.functions.scenes.update)
 
-	type Mode = ApiScene["mode"]["type"]
+	type Mode = ApiScene["mode"]
 
 	const modeOptions: SelectOption<Mode>[] = [
 		{
@@ -337,7 +335,7 @@ function SceneEditorForm({
 		},
 	]
 
-	const [mode, setMode] = useState(scene.mode.type)
+	const [mode, setMode] = useState(scene.mode)
 
 	return (
 		<ToastActionForm
@@ -345,27 +343,16 @@ function SceneEditorForm({
 			action={async (formData) => {
 				const schema = v.pipe(
 					formDataSchema(),
-					v.intersect([
-						v.object({
-							name: v.optional(v.pipe(v.string(), v.maxLength(255))),
-							dayBackground: v.optional(v.file()),
-							eveningBackground: v.optional(v.file()),
-							nightBackground: v.optional(v.file()),
-						}),
-						v.union([
-							v.object({
-								mode: v.literal("scenery"),
-							}),
-							v.object({
-								mode: v.literal("battlemap"),
-								cellSize: v.pipe(
-									formNumberSchema(),
-									v.integer(),
-									v.minValue(1),
-								),
-							}),
-						]),
-					]),
+					v.object({
+						name: v.optional(v.pipe(v.string(), v.maxLength(255))),
+						dayBackground: v.optional(v.file()),
+						eveningBackground: v.optional(v.file()),
+						nightBackground: v.optional(v.file()),
+						mode: v.union([v.literal("battlemap"), v.literal("scenery")]),
+						cellSize: v.optional(
+							v.pipe(formNumberSchema(), v.integer(), v.minValue(1)),
+						),
+					}),
 				)
 
 				const data = v.parse(schema, formData)
@@ -377,15 +364,11 @@ function SceneEditorForm({
 						data.nightBackground && uploadImage(data.nightBackground),
 					])
 
-				const mode =
-					data.mode === "scenery" ?
-						{ type: "scenery" as const }
-					:	{ type: "battlemap" as const, cellSize: data.cellSize }
-
 				await updateScene({
 					id: scene._id,
 					name: data.name,
-					mode: mode,
+					mode: data.mode,
+					cellSize: data.mode === "battlemap" ? data.cellSize : undefined,
 					dayBackgroundId,
 					eveningBackgroundId,
 					nightBackgroundId,
@@ -410,7 +393,7 @@ function SceneEditorForm({
 			<Select
 				name="mode"
 				label="Scene mode"
-				defaultValue={scene.mode.type}
+				defaultValue={scene.mode}
 				onValueChange={setMode}
 				options={modeOptions}
 			/>
@@ -419,9 +402,7 @@ function SceneEditorForm({
 				<InputField
 					label="Cell size"
 					name="cellSize"
-					defaultValue={
-						scene.mode.type === "battlemap" ? scene.mode.cellSize : 70
-					}
+					defaultValue={scene.cellSize}
 					required
 				/>
 			)}

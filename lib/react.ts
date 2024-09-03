@@ -226,3 +226,47 @@ export function useFilter<In, Out extends In>(
 	}
 	return output
 }
+
+export function useImage(src: string | undefined | null) {
+	const [image, setImage] = useState<HTMLImageElement | null>(null)
+	const [status, setStatus] = useState<"loading" | "loaded" | "error">(
+		"loading",
+	)
+
+	React.useEffect(() => {
+		if (!src) {
+			setImage(null)
+			setStatus("error")
+			return
+		}
+
+		const img = new Image()
+		img.src = src
+
+		const controller = new AbortController()
+
+		img.addEventListener(
+			"load",
+			() => {
+				setImage(img)
+				setStatus("loaded")
+			},
+			{ signal: controller.signal },
+		)
+
+		img.addEventListener(
+			"error",
+			() => {
+				setImage(null)
+				setStatus("error")
+			},
+			{ signal: controller.signal },
+		)
+
+		return () => {
+			controller.abort()
+		}
+	}, [src])
+
+	return [image, status] as const
+}

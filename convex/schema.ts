@@ -27,15 +27,11 @@ export default defineSchema({
 	scenes: defineTable({
 		name: v.string(),
 		roomId: v.id("rooms"),
+		mode: v.union(v.literal("scenery"), v.literal("battlemap")),
+		cellSize: v.optional(v.number()),
 		dayBackgroundId: nullish(v.id("_storage")),
 		eveningBackgroundId: nullish(v.id("_storage")),
 		nightBackgroundId: nullish(v.id("_storage")),
-		mode: v.optional(
-			v.union(
-				v.object({ type: v.literal("scenery") }),
-				v.object({ type: v.literal("battlemap"), cellSize: v.number() }),
-			),
-		),
 	})
 		.index("roomId", ["roomId"])
 		.searchIndex("name", { searchField: "name", filterFields: ["roomId"] }),
