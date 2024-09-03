@@ -41,7 +41,7 @@ function ImageCardPlaceholder({
 		<div
 			{...mergeClassProp(
 				props,
-				"flex aspect-video w-full rounded-md bg-base-900 transition *:m-auto group-hover:text-accent-200",
+				"bg-base-900 flex aspect-video w-full rounded-md transition *:m-auto group-hover:text-accent-200",
 			)}
 		>
 			{children}

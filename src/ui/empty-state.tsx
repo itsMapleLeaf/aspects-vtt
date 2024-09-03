@@ -12,7 +12,7 @@ export function EmptyState({
 	children?: React.ReactNode
 }) {
 	return (
-		<div className="flex flex-col items-center gap-3 py-16">
+		<div className="flex flex-col items-center py-16 gap-3">
 			<Slot element={icon} className="size-24 opacity-25" />
 			<HeadingLevel>
 				<Heading className="text-center text-2xl opacity-50">{title}</Heading>

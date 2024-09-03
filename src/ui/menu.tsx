@@ -35,11 +35,9 @@ export function MenuItem({
 	return (
 		<Ariakit.MenuItem
 			render={(props) =>
-				to ? (
+				to ?
 					<NavLink to={to} prefetch="intent" {...props} />
-				) : (
-					<button {...props} type={type} />
-				)
+				:	<button {...props} type={type} />
 			}
 			{...props}
 			className={menuItemStyle(props.className)}

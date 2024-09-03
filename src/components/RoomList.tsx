@@ -24,23 +24,22 @@ export function RoomList() {
 				<h2 className="text-3xl font-light">Your rooms</h2>
 				<CreateRoomButton />
 			</div>
-			{rooms === undefined ? (
+			{rooms === undefined ?
 				<SkeletonGrid
 					count={6}
 					className="grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4"
 				/>
-			) : rooms.length === 0 ? (
+			: rooms.length === 0 ?
 				<EmptyState
 					title="No rooms found."
 					icon={<LucideGamepad2 />}
 				></EmptyState>
-			) : (
-				<div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4">
+			:	<div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4">
 					{rooms.map((room) => (
 						<RoomCard key={room._id} room={room} />
 					))}
 				</div>
-			)}
+			}
 		</div>
 	)
 }
@@ -63,7 +62,7 @@ function CreateRoomButton() {
 			</ModalButton>
 			<ModalPanel
 				title="Create room"
-				className="grid w-full max-w-sm gap-3 p-3"
+				className="grid w-full max-w-sm p-3 gap-3"
 			>
 				<CreateRoomForm />
 			</ModalPanel>

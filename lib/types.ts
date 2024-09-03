@@ -16,9 +16,8 @@ export type MaybeFunction<Args extends unknown[], Result> =
  * 	type Bad = Omit<A, "a"> // {}
  * 	type Good = StrictOmit<A, "a"> // {} | { b: number }
  */
-export type StrictOmit<T, K extends AllKeys<T>> = T extends unknown
-	? Simplify<Omit<T, K>>
-	: never
+export type StrictOmit<T, K extends AllKeys<T>> =
+	T extends unknown ? Simplify<Omit<T, K>> : never
 
 /**
  * Gets all the keys of every object type in a union.

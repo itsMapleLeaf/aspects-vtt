@@ -10,17 +10,17 @@ import { clearButton, solidButton } from "../ui/styles.ts"
 export default function DesignSystem() {
 	return (
 		<HeaderLayout>
-			<div className="mx-auto flex w-full max-w-screen-sm flex-col items-stretch gap-8 p-4">
+			<div className="mx-auto flex w-full max-w-screen-sm flex-col items-stretch p-4 gap-8">
 				<div className="grid grid-flow-col gap-2">
-					<div className="bg-primary-100 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-200 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-300 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-400 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-500 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-600 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-700 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-800 aspect-square rounded-full border-2 border-white shadow"></div>
-					<div className="bg-primary-900 aspect-square rounded-full border-2 border-white shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-100 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-200 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-300 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-400 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-500 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-600 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-700 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-800 shadow"></div>
+					<div className="aspect-square rounded-full border-2 border-white bg-primary-900 shadow"></div>
 				</div>
 				<PageSection title="Button">
 					<Column className="gap-2">
@@ -97,7 +97,7 @@ function PageSection({
 	return (
 		<section>
 			<HeadingLevel>
-				<Heading className="mb-3 text-3xl text-base-300">{title}</Heading>
+				<Heading className="text-base-300 mb-3 text-3xl">{title}</Heading>
 				{children}
 			</HeadingLevel>
 		</section>

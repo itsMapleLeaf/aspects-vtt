@@ -8,7 +8,7 @@ export function Loading(props: ComponentProps<"div">) {
 		<div
 			{...props}
 			className={twMerge(
-				"wipe-down relative size-24 text-base-500 *:absolute *:inset-0 *:size-full",
+				"wipe-down text-base-500 relative size-24 *:absolute *:inset-0 *:size-full",
 				props.className,
 			)}
 		>
@@ -25,7 +25,7 @@ export function LoadingCover({ visible }: { visible: boolean }) {
 	return (
 		<div
 			className={twMerge(
-				"invisible fixed inset-0 z-10 flex items-center justify-center bg-base-900 opacity-0 transition-all duration-1000",
+				"bg-base-900 invisible fixed inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-1000",
 				visible && "visible opacity-100",
 			)}
 		>

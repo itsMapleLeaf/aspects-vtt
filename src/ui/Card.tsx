@@ -39,26 +39,26 @@ export function Card({
 
 	const wrapperClass = twMerge(
 		panel(),
-		"overflow-clip shadow-lg transition-transform hover:scale-105",
+		"shadow-lg overflow-clip transition-transform hover:scale-105",
 		className,
 	)
 
-	return to ? (
-		<NavLink
-			to={to}
-			prefetch="intent"
-			onClick={onClick}
-			className={({ isPending }) =>
-				twMerge(wrapperClass, isPending && "animate-pulse")
-			}
-		>
-			{content}
-		</NavLink>
-	) : onClick ? (
-		<button onClick={onClick} className={wrapperClass}>
-			{content}
-		</button>
-	) : (
-		<figure className={wrapperClass}>{content}</figure>
+	return (
+		to ?
+			<NavLink
+				to={to}
+				prefetch="intent"
+				onClick={onClick}
+				className={({ isPending }) =>
+					twMerge(wrapperClass, isPending && "animate-pulse")
+				}
+			>
+				{content}
+			</NavLink>
+		: onClick ?
+			<button onClick={onClick} className={wrapperClass}>
+				{content}
+			</button>
+		:	<figure className={wrapperClass}>{content}</figure>
 	)
 }

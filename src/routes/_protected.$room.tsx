@@ -169,7 +169,7 @@ export default function RoomRoute() {
 						)
 					}
 				/>
-				{isSmallScreen ? (
+				{isSmallScreen ?
 					leftSidebarOpen && (
 						<div className="flex min-h-0 w-80 flex-1 flex-col p-3 pt-0 gap-3">
 							{panelGroups.left.length > 0 && (
@@ -180,8 +180,7 @@ export default function RoomRoute() {
 							)}
 						</div>
 					)
-				) : (
-					<div className="flex min-h-0 flex-1 p-3 pt-0 gap-3 *:w-80">
+				:	<div className="flex min-h-0 flex-1 p-3 pt-0 gap-3 *:w-80">
 						{leftSidebarOpen && (
 							<div className="flex flex-col gap-3">
 								<PanelGroupList sidebar="left" groups={panelGroups.left} />
@@ -193,7 +192,7 @@ export default function RoomRoute() {
 							</div>
 						)}
 					</div>
-				)}
+				}
 			</div>
 		</DndContext>
 	)
@@ -276,11 +275,11 @@ function PanelGroup({
 			)}
 			ref={droppable.setNodeRef}
 		>
-			{panels.length === 0 ? null : panels.length === 1 && panels[0] ? (
+			{panels.length === 0 ?
+				null
+			: panels.length === 1 && panels[0] ?
 				<SinglePanel panel={panels[0]} />
-			) : (
-				<MultiPanel panels={panels} storageKey={`${sidebar}:${group}`} />
-			)}
+			:	<MultiPanel panels={panels} storageKey={`${sidebar}:${group}`} />}
 		</div>
 	)
 }
@@ -318,10 +317,12 @@ function MultiPanel({
 
 	// ensure we always have an active tab
 	const activeTab =
-		activeTabState != null &&
-		panels.some((panel) => panel.id === activeTabState)
-			? activeTabState
-			: panels[0]?.id
+		(
+			activeTabState != null &&
+			panels.some((panel) => panel.id === activeTabState)
+		) ?
+			activeTabState
+		:	panels[0]?.id
 
 	return (
 		<Ariakit.TabProvider activeId={activeTab} setActiveId={setActiveTab}>

@@ -6,7 +6,9 @@ export function FormButton({ children, ...props }: ComponentProps<"button">) {
 	const status = useFormStatus()
 	return (
 		<button disabled={status.pending} {...props} type="submit">
-			{status.pending ? <Loading data-button-icon /> : children}
+			{status.pending ?
+				<Loading data-button-icon />
+			:	children}
 		</button>
 	)
 }

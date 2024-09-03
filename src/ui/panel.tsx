@@ -6,7 +6,7 @@ export function Panel(props: SlotProps) {
 		<Slot
 			{...props}
 			className={twMerge(
-				"block rounded-lg border border-base-700 bg-base-900 shadow",
+				"border-base-700 bg-base-900 block rounded-lg border shadow",
 				props.className,
 			)}
 		/>

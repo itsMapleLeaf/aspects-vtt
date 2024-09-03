@@ -21,7 +21,11 @@ export function ProtectedLayout({
 	const loading = user === undefined || auth.isLoading
 	return (
 		<>
-			{loading ? null : user === null ? fallback : children}
+			{loading ?
+				null
+			: user === null ?
+				fallback
+			:	children}
 			<LoadingCover visible={loading} />
 		</>
 	)

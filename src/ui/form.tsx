@@ -79,9 +79,9 @@ export function useForm<Inputs extends Record<string, FormInputState>>({
 		try {
 			await actionOption(values)
 		} catch (error) {
-			return error instanceof ConvexError
-				? error.data
-				: "Oops, something went wrong. Try again."
+			return error instanceof ConvexError ?
+					error.data
+				:	"Oops, something went wrong. Try again."
 		}
 	})
 

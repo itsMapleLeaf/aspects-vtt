@@ -35,7 +35,7 @@ export function SignInButton() {
 
 			<ModalPanel
 				title={`${action === "login" ? "Sign in" : "Sign up"} to continue.`}
-				className="flex w-80 flex-col gap-6 p-4 text-center"
+				className="flex w-80 flex-col p-4 text-center gap-6"
 			>
 				<Column items="stretch">
 					<form
@@ -58,24 +58,25 @@ export function SignInButton() {
 					</Heading>
 
 					<Form action={handleSubmit}>
-						{action === "login" ? <LoginFields /> : <RegisterFields />}
+						{action === "login" ?
+							<LoginFields />
+						:	<RegisterFields />}
 						{error && <FormError>{error}</FormError>}
 					</Form>
 				</Column>
 
-				{action === "login" ? (
+				{action === "login" ?
 					<ActionSwitchMessage
 						message="don't have an account?"
 						buttonText="sign up"
 						onSwitch={() => setAction("register")}
 					/>
-				) : (
-					<ActionSwitchMessage
+				:	<ActionSwitchMessage
 						message="already have an account?"
 						buttonText="sign in"
 						onSwitch={() => setAction("login")}
 					/>
-				)}
+				}
 			</ModalPanel>
 		</Modal>
 	)

@@ -29,28 +29,31 @@ export function AccountSettingsForm() {
 	)
 
 	return user == null ? null : (
-		<form className={formLayout()} action={action}>
-			<h2 className={heading2xl()}>Account settings</h2>
-			<InputField
-				type="text"
-				name="handle"
-				label="Handle"
-				description="Your handle uniquely identifies you, and you use it to sign in."
-				required
-				defaultValue={user.handle}
-			/>
-			<InputField
-				type="text"
-				name="name"
-				label="Display name"
-				description="This is the name others will see."
-				required
-				defaultValue={user.name}
-			/>
-			{errorMessage && <p className={errorText()}>{errorMessage}</p>}
-			<button type="submit" className={solidButton("self-start")}>
-				{pending ? <Loading data-button-icon /> : <LucideSave />} Save
-			</button>
-		</form>
-	)
+			<form className={formLayout()} action={action}>
+				<h2 className={heading2xl()}>Account settings</h2>
+				<InputField
+					type="text"
+					name="handle"
+					label="Handle"
+					description="Your handle uniquely identifies you, and you use it to sign in."
+					required
+					defaultValue={user.handle}
+				/>
+				<InputField
+					type="text"
+					name="name"
+					label="Display name"
+					description="This is the name others will see."
+					required
+					defaultValue={user.name}
+				/>
+				{errorMessage && <p className={errorText()}>{errorMessage}</p>}
+				<button type="submit" className={solidButton("self-start")}>
+					{pending ?
+						<Loading data-button-icon />
+					:	<LucideSave />}{" "}
+					Save
+				</button>
+			</form>
+		)
 }
