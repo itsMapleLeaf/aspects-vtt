@@ -10,7 +10,7 @@ export function SearchableList<T extends object>({
 }: {
 	search: string
 	onSearchChange: (search: string) => void
-	items: T[]
+	items: readonly T[]
 	renderItem: (item: T) => React.ReactNode
 	actions?: React.ReactNode
 }) {

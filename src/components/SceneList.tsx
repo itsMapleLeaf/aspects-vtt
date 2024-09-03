@@ -16,21 +16,23 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { useDropzone } from "react-dropzone"
-import { twMerge } from "tailwind-merge"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
-import { hasLength } from "../../lib/array.ts"
-import { useStableValue } from "../../lib/react.ts"
+import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
+import { useStableQuery } from "../../lib/convex.ts"
 import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
 import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
+import { EmptyState } from "../ui/empty-state.tsx"
 import { FormButton } from "../ui/FormButton.tsx"
 import { InputField } from "../ui/input.tsx"
+import { Loading } from "../ui/loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { Modal, ModalPanel } from "../ui/modal.tsx"
-import { Pressable, PressableProps, PressEvent } from "../ui/Pressable.tsx"
+import { PressEvent } from "../ui/Pressable.tsx"
 import { SearchableList } from "../ui/SearchableList.tsx"
+import { Selectable } from "../ui/Selectable.tsx"
 import {
 	clearButton,
 	errorText,
@@ -49,27 +51,20 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 		selectedSceneIds: typed<ReadonlySet<Id<"scenes">>>(new Set<Id<"scenes">>()),
 		lastSelectedSceneId: typed<Id<"scenes"> | null>(null),
 		sceneEditorOpen: false,
-		sceneEditorSceneId: typed<string | null>(null),
+		sceneEditorSceneId: typed<Id<"scenes"> | null>(null),
 	})
 
 	const scenes =
-		useStableValue(
-			useQuery(api.functions.scenes.list, {
-				room: roomId,
-				search: state.search,
-			}),
-		) ?? []
+		useStableQuery(api.functions.scenes.list, {
+			room: roomId,
+			search: state.search,
+		}) ?? EMPTY_ARRAY
 
 	const createScene = useMutation(api.functions.scenes.create)
-	const updateScene = useMutation(api.functions.scenes.update)
 	const removeScenes = useMutation(api.functions.scenes.remove)
 
 	const selectedScenes = scenes.filter((scene) =>
 		state.selectedSceneIds.has(scene._id),
-	)
-
-	const sceneEditorScene = scenes.find(
-		(scene) => scene._id === state.sceneEditorSceneId,
 	)
 
 	const setSearch = (search: string) => {
@@ -205,7 +200,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 							active={state.selectedSceneIds.has(scene._id)}
 							onPress={(event) => handleScenePress(scene, event)}
 						>
-							<SceneCard scene={scene} />
+							<SceneListCard scene={scene} />
 						</Selectable>
 					)}
 					actions={
@@ -286,37 +281,10 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 				</p>
 			</div>
 
-			{sceneEditorScene && (
+			{state.sceneEditorSceneId && (
 				<Modal open={state.sceneEditorOpen} setOpen={setSceneEditorOpen}>
 					<ModalPanel title="Edit scene">
-						<ToastActionForm
-							message="Saving scene..."
-							action={async (formData) => {
-								await updateScene({
-									id: sceneEditorScene._id,
-									name: formData.get("name") as string,
-								})
-								setSceneEditorOpen(false)
-							}}
-							className={formLayout()}
-							key={sceneEditorScene._id}
-						>
-							<Focusable
-								autoFocus
-								render={
-									<InputField
-										label="Name"
-										name="name"
-										defaultValue={sceneEditorScene.name}
-										required
-									/>
-								}
-							/>
-							{/* todo: backgrounds */}
-							<FormButton className={solidButton()}>
-								<LucideSave /> Save
-							</FormButton>
-						</ToastActionForm>
+						<SceneEditorForm sceneId={state.sceneEditorSceneId} />
 					</ModalPanel>
 				</Modal>
 			)}
@@ -324,7 +292,55 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	)
 }
 
-function SceneCard({ scene }: { scene: ApiScene }) {
+function SceneEditorForm({
+	sceneId,
+	onSubmitSuccess,
+}: {
+	sceneId: Id<"scenes">
+	onSubmitSuccess?: (scene: ApiScene) => void
+}) {
+	const scene = useQuery(api.functions.scenes.get, { id: sceneId })
+	const updateScene = useMutation(api.functions.scenes.update)
+
+	return scene === undefined ? (
+		<Loading className="size-24" />
+	) : scene === null ? (
+		<EmptyState title="Scene not found" icon={<LucideImageOff />}>
+			This scene has been deleted.
+		</EmptyState>
+	) : (
+		<ToastActionForm
+			message="Saving scene..."
+			action={async (formData) => {
+				await updateScene({
+					id: scene._id,
+					name: formData.get("name") as string,
+				})
+				onSubmitSuccess?.(scene)
+			}}
+			className={formLayout()}
+			key={scene._id}
+		>
+			<Focusable
+				autoFocus
+				render={
+					<InputField
+						label="Name"
+						name="name"
+						defaultValue={scene.name}
+						required
+					/>
+				}
+			/>
+			{/* todo: backgrounds */}
+			<FormButton className={solidButton()}>
+				<LucideSave /> Save
+			</FormButton>
+		</ToastActionForm>
+	)
+}
+
+function SceneListCard({ scene }: { scene: ApiScene }) {
 	return (
 		<figure
 			className={panel(
@@ -355,28 +371,5 @@ function SceneCard({ scene }: { scene: ApiScene }) {
 				)}
 			</figcaption>
 		</figure>
-	)
-}
-
-function Selectable({
-	children,
-	active,
-	...props
-}: PressableProps & {
-	active: boolean
-	onPress?: (event: React.PointerEvent) => void
-}) {
-	return (
-		<Pressable
-			{...props}
-			data-selectable-active={active || undefined}
-			className={twMerge("relative block w-full", props.className)}
-		>
-			{children}
-			<div
-				className="pointer-events-none absolute inset-0 grid scale-95 place-content-center rounded-lg border-2 border-accent-500 bg-accent-800/60 text-accent-600 opacity-0 transition data-[active]:scale-100 data-[active]:opacity-100"
-				data-active={active || undefined}
-			></div>
-		</Pressable>
 	)
 }

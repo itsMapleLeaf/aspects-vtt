@@ -216,10 +216,13 @@ export function useSet<T>(initialValue?: Iterable<T>) {
 	return [value, actions] as const
 }
 
-export function useStableValue<T>(value: T): T {
-	const [stableValue, setStableValue] = useState(value)
-	if (stableValue !== value && value != null) {
-		setStableValue(value)
+export function useFilter<In, Out extends In>(
+	input: In,
+	filter: (value: In) => value is Out,
+): In | Out {
+	const [output, setOutput] = useState(input)
+	if (output !== input && filter(input)) {
+		setOutput(input)
 	}
-	return stableValue
+	return output
 }
