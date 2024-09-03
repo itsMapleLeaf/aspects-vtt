@@ -4,6 +4,8 @@ import { Effect, pipe } from "effect"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import { getAuthUserId } from "../lib/auth.ts"
+import { getStorageUrl } from "../lib/storage.ts"
+import { nullish } from "../lib/validators.ts"
 import { normalizeScene } from "./scenes.ts"
 
 export const list = query({
@@ -75,6 +77,20 @@ export const create = mutation({
 		}).pipe(Effect.orDie),
 })
 
+export const update = mutation({
+	args: {
+		id: v.id("rooms"),
+		activeSceneId: nullish(v.id("scenes")),
+	},
+	handler: (ctx, { id, ...args }) => {
+		return pipe(
+			ensureRoomOwner(ctx, id),
+			Effect.flatMap((room) => ctx.db.patch(room._id, args)),
+			Effect.orDie,
+		)
+	},
+})
+
 export class RoomNotOwnedError extends ConvexEffectError {
 	constructor() {
 		super("Sorry, only the room owner can do that.")
@@ -92,9 +108,25 @@ function queryRoomBySlug(ctx: LocalQueryContext, slug: string) {
 export function normalizeRoom(ctx: LocalQueryContext, room: Doc<"rooms">) {
 	return Effect.gen(function* () {
 		const userId = yield* getAuthUserId(ctx)
+
+		const activeSceneBackgroundUrl = yield* pipe(
+			Effect.fromNullable(room.activeSceneId),
+			Effect.flatMap((sceneId) => ctx.db.get(sceneId)),
+			Effect.flatMap((scene) =>
+				Effect.fromNullable(
+					scene.dayBackgroundId ??
+						scene.eveningBackgroundId ??
+						scene.nightBackgroundId,
+				),
+			),
+			Effect.flatMap((id) => getStorageUrl(ctx, id)),
+			Effect.orElseSucceed(() => null),
+		)
+
 		return {
 			...room,
 			isOwner: room.ownerId === userId,
+			activeSceneBackgroundUrl,
 		}
 	})
 }

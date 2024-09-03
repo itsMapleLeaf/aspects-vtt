@@ -152,6 +152,14 @@ export default function RoomRoute() {
 			onDragEnd={handleDragEnd}
 		>
 			<div className="absolute inset-0 flex flex-col">
+				{room?.activeSceneBackgroundUrl && (
+					<img
+						src={room.activeSceneBackgroundUrl}
+						alt=""
+						className="absolute inset-0 size-full object-contain"
+						draggable={false}
+					/>
+				)}
 				<AppHeader
 					left={
 						<SidebarToggle

@@ -1,10 +1,11 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { Console, Effect, Array as EffectArray, Order, pipe } from "effect"
+import { Effect, Array as EffectArray, Order, pipe } from "effect"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
+import { getStorageUrl } from "../lib/storage.ts"
 import schema from "../schema.ts"
-import { ensureRoomOwner, normalizeRoom } from "./rooms.ts"
+import { ensureRoomOwner } from "./rooms.ts"
 
 export const list = query({
 	args: {
@@ -106,17 +107,29 @@ export const remove = mutation({
 
 export function normalizeScene(ctx: LocalQueryContext, scene: Doc<"scenes">) {
 	return Effect.gen(function* () {
-		const room = yield* normalizeRoom(ctx, yield* ctx.db.get(scene.roomId))
+		const room = yield* ctx.db.get(scene.roomId)
 
-		const dayBackgroundUrl = yield* getImageUrl(ctx, scene.dayBackgroundId)
-		const eveningBackgroundUrl = yield* getImageUrl(
-			ctx,
-			scene.eveningBackgroundId,
+		const dayBackgroundUrl = yield* pipe(
+			Effect.fromNullable(scene.dayBackgroundId),
+			Effect.flatMap((id) => getStorageUrl(ctx, id)),
+			Effect.orElseSucceed(() => null),
 		)
-		const nightBackgroundUrl = yield* getImageUrl(ctx, scene.nightBackgroundId)
+
+		const eveningBackgroundUrl = yield* pipe(
+			Effect.fromNullable(scene.eveningBackgroundId),
+			Effect.flatMap((id) => getStorageUrl(ctx, id)),
+			Effect.orElseSucceed(() => null),
+		)
+
+		const nightBackgroundUrl = yield* pipe(
+			Effect.fromNullable(scene.nightBackgroundId),
+			Effect.flatMap((id) => getStorageUrl(ctx, id)),
+			Effect.orElseSucceed(() => null),
+		)
 
 		// TODO: get active scene based on game time
-		const activeBackgroundUrl = dayBackgroundUrl
+		const activeBackgroundUrl =
+			dayBackgroundUrl ?? eveningBackgroundUrl ?? nightBackgroundUrl
 
 		return {
 			...scene,
@@ -136,18 +149,4 @@ export function ensureSceneRoomOwner(ctx: LocalQueryContext, id: Id<"scenes">) {
 		const room = yield* ensureRoomOwner(ctx, scene.roomId)
 		return { scene, room }
 	})
-}
-
-function getImageUrl(
-	ctx: LocalQueryContext,
-	id: Id<"_storage"> | undefined | null,
-) {
-	return pipe(
-		Effect.fromNullable(id),
-		Effect.flatMap((id) => ctx.storage.getUrl(id)),
-		Effect.tapErrorTag("FileNotFound", (error) =>
-			Console.warn(`File missing:`, error.info),
-		),
-		Effect.orElseSucceed(() => null),
-	)
 }

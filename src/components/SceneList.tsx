@@ -68,6 +68,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 
 	const createScene = useMutation(api.functions.scenes.create)
 	const removeScenes = useMutation(api.functions.scenes.remove)
+	const updateRoom = useMutation(api.functions.rooms.update)
 
 	const sceneEditorScene = scenes.find(
 		(scene) => scene._id === state.sceneEditorSceneId,
@@ -232,7 +233,20 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 
 			{selectedScenes.length > 0 && (
 				<ActionRow className="flex gap-1 *:flex-1">
-					<ActionRowItem icon={<LucidePlay />}>Play</ActionRowItem>
+					{hasLength(selectedScenes, 1) && (
+						<ActionRowItem
+							icon={<LucidePlay />}
+							onClick={() =>
+								updateRoom({
+									id: roomId,
+									activeSceneId: selectedScenes[0]._id,
+								})
+							}
+						>
+							Play
+						</ActionRowItem>
+					)}
+
 					<ActionRowItem icon={<LucideEye />}>View</ActionRowItem>
 					{hasLength(selectedScenes, 1) && (
 						<ActionRowItem
@@ -242,6 +256,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 							Edit
 						</ActionRowItem>
 					)}
+
 					<ActionRowItem icon={<LucideX />} onClick={clearSelection}>
 						Dismiss
 					</ActionRowItem>

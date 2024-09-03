@@ -23,6 +23,7 @@ import type * as lib_api from "../lib/api.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_errors from "../lib/errors.js";
 import type * as lib_secrets from "../lib/secrets.js";
+import type * as lib_storage from "../lib/storage.js";
 import type * as lib_testing from "../lib/testing.js";
 import type * as lib_utils from "../lib/utils.js";
 import type * as lib_validators from "../lib/validators.js";
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   "lib/auth": typeof lib_auth;
   "lib/errors": typeof lib_errors;
   "lib/secrets": typeof lib_secrets;
+  "lib/storage": typeof lib_storage;
   "lib/testing": typeof lib_testing;
   "lib/utils": typeof lib_utils;
   "lib/validators": typeof lib_validators;
