@@ -1,8 +1,9 @@
 import Konva from "konva"
-import { useEffect, useRef, useState } from "react"
+import { clamp } from "lodash-es"
+import { useRef } from "react"
 import { Image, Layer, Stage } from "react-konva"
 import * as v from "valibot"
-import { useImage, useLocalStorage } from "../../lib/react"
+import { useImage, useLocalStorage, useSize } from "../../lib/react"
 import { ApiScene } from "../types"
 
 Konva.dragButtons = [0, 2]
@@ -41,7 +42,7 @@ export function BattleMap({ scene }: { scene: ApiScene }) {
 			y: (pointer.y - stage.y()) / currentScale,
 		}
 
-		const newScaleTick = scaleTick - Math.sign(event.evt.deltaY)
+		const newScaleTick = clamp(scaleTick - Math.sign(event.evt.deltaY), -10, 10)
 		if (scaleTick === newScaleTick) return
 
 		setScaleTick(newScaleTick)
@@ -82,30 +83,4 @@ export function BattleMap({ scene }: { scene: ApiScene }) {
 			</Stage>
 		</div>
 	)
-}
-
-function useSize() {
-	const [size, setSize] = useState({ width: 0, height: 0 })
-	const [element, ref] = useState<HTMLElement | null>(null) // using a state ref to react to ref changes
-
-	useEffect(() => {
-		if (!element) return
-
-		setSize({ width: element.clientWidth, height: element.clientHeight })
-
-		const observer = new ResizeObserver(([info]) => {
-			setSize({
-				width: info!.contentRect.width,
-				height: info!.contentRect.height,
-			})
-		})
-
-		observer.observe(element)
-
-		return () => {
-			observer.disconnect()
-		}
-	}, [element])
-
-	return [size, ref] as const
 }

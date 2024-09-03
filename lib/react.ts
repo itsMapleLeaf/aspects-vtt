@@ -270,3 +270,29 @@ export function useImage(src: string | undefined | null) {
 
 	return [image, status] as const
 }
+
+export function useSize() {
+	const [size, setSize] = useState({ width: 0, height: 0 })
+	const [element, ref] = useState<HTMLElement | null>(null)
+
+	React.useEffect(() => {
+		if (!element) return
+
+		setSize({ width: element.clientWidth, height: element.clientHeight })
+
+		const observer = new ResizeObserver(([info]) => {
+			setSize({
+				width: info!.contentRect.width,
+				height: info!.contentRect.height,
+			})
+		})
+
+		observer.observe(element)
+
+		return () => {
+			observer.disconnect()
+		}
+	}, [element])
+
+	return [size, ref] as const
+}
