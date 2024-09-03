@@ -30,6 +30,10 @@ export default {
 			lg: "var(--screens-lg)",
 			xl: "var(--screens-xl)",
 		},
+		boxShadow: {
+			DEFAULT: "0 1px 4px rgba(0, 0, 0, 0.25)",
+			none: "none",
+		},
 	},
 	corePlugins: {
 		gap: false,
