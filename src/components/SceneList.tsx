@@ -1,16 +1,14 @@
 import { Focusable } from "@ariakit/react"
+import { useNavigate, useSearchParams } from "@remix-run/react"
 import { useMutation } from "convex/react"
 import { FunctionReturnType } from "convex/server"
 import {
-	LucideCircleEllipsis,
-	LucideCopy,
 	LucideEdit,
 	LucideEye,
 	LucideGrid2x2,
 	LucideImage,
 	LucideImageOff,
 	LucideImagePlus,
-	LucidePin,
 	LucidePlay,
 	LucideSave,
 	LucideTrash,
@@ -33,7 +31,6 @@ import { FormField } from "../ui/form.tsx"
 import { FormButton } from "../ui/FormButton.tsx"
 import { ImageDropzone } from "../ui/ImageUploader.tsx"
 import { InputField } from "../ui/input.tsx"
-import { Menu, MenuButton, MenuItem, MenuPanel } from "../ui/menu.tsx"
 import { Modal, ModalPanel } from "../ui/modal.tsx"
 import { PressEvent } from "../ui/Pressable.tsx"
 import { SearchableList } from "../ui/SearchableList.tsx"
@@ -52,6 +49,8 @@ import { ToastActionForm } from "../ui/toast.tsx"
 type ApiScene = FunctionReturnType<typeof api.functions.scenes.list>[number]
 
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
+	const navigate = useNavigate()
+
 	const [state, setState] = useState({
 		search: "",
 		selectedSceneIds: typed<ReadonlySet<Id<"scenes">>>(new Set<Id<"scenes">>()),
@@ -234,63 +233,54 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 			{selectedScenes.length > 0 && (
 				<ActionRow className="flex gap-1 *:flex-1">
 					{hasLength(selectedScenes, 1) && (
-						<ActionRowItem
-							icon={<LucidePlay />}
-							onClick={() =>
-								updateRoom({
-									id: roomId,
-									activeSceneId: selectedScenes[0]._id,
-								})
-							}
-						>
-							Play
-						</ActionRowItem>
-					)}
-
-					<ActionRowItem icon={<LucideEye />}>View</ActionRowItem>
-					{hasLength(selectedScenes, 1) && (
-						<ActionRowItem
-							icon={<LucideEdit />}
-							onClick={() => openSceneEditor(selectedScenes[0])}
-						>
-							Edit
-						</ActionRowItem>
+						<>
+							<ActionRowItem
+								icon={<LucidePlay />}
+								onClick={async () => {
+									await updateRoom({
+										id: roomId,
+										activeSceneId: selectedScenes[0]._id,
+									})
+									navigate(`?preview=`)
+								}}
+							>
+								Play
+							</ActionRowItem>
+							<ActionRowItem
+								icon={<LucideEye />}
+								to={`?preview=${selectedScenes[0]._id}`}
+							>
+								View
+							</ActionRowItem>
+							<ActionRowItem
+								icon={<LucideEdit />}
+								onClick={() => openSceneEditor(selectedScenes[0])}
+							>
+								Edit
+							</ActionRowItem>
+						</>
 					)}
 
 					<ActionRowItem icon={<LucideX />} onClick={clearSelection}>
 						Dismiss
 					</ActionRowItem>
 
-					<Menu>
-						<MenuButton
-							render={<ActionRowItem icon={<LucideCircleEllipsis />} />}
+					<ToastActionForm
+						message="Deleting scene(s)..."
+						action={() => {
+							return removeScenes({
+								ids: selectedScenes.map((scene) => scene._id),
+							})
+						}}
+					>
+						<ActionRowItem
+							type="submit"
+							icon={<LucideTrash />}
+							className={errorText()}
 						>
-							More
-						</MenuButton>
-
-						<MenuPanel>
-							<MenuItem>
-								<LucidePin /> Pin
-							</MenuItem>
-
-							<MenuItem>
-								<LucideCopy /> Clone
-							</MenuItem>
-
-							<ToastActionForm
-								message="Deleting scene(s)..."
-								action={() => {
-									return removeScenes({
-										ids: selectedScenes.map((scene) => scene._id),
-									})
-								}}
-							>
-								<MenuItem type="submit" className={errorText()}>
-									<LucideTrash /> Delete
-								</MenuItem>
-							</ToastActionForm>
-						</MenuPanel>
-					</Menu>
+							Delete
+						</ActionRowItem>
+					</ToastActionForm>
 				</ActionRow>
 			)}
 
@@ -465,6 +455,9 @@ function SceneEditorForm({
 }
 
 function SceneListCard({ scene }: { scene: ApiScene }) {
+	const [searchParams] = useSearchParams()
+	const previewSceneId = searchParams.get("preview")
+
 	return (
 		<figure
 			className={panel(
@@ -486,12 +479,17 @@ function SceneListCard({ scene }: { scene: ApiScene }) {
 				<h3 className={heading2xl("min-w-0 truncate text-center text-xl")}>
 					{scene.name}
 				</h3>
-				{scene.isActive && (
+				{scene.isActive ?
 					<p className="relative flex items-center justify-center text-sm font-bold text-primary-200 opacity-75 gap-1">
 						<LucidePlay className="size-4" />
 						<span>Now playing</span>
 					</p>
-				)}
+				: previewSceneId === scene._id ?
+					<p className="relative flex items-center justify-center text-sm font-bold text-primary-200 opacity-75 gap-1">
+						<LucideEye className="size-4" />
+						<span>Previewing</span>
+					</p>
+				:	null}
 			</figcaption>
 		</figure>
 	)

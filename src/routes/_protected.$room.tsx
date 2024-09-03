@@ -11,7 +11,7 @@ import {
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core"
-import { useParams } from "@remix-run/react"
+import { useParams, useSearchParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { mapValues } from "lodash-es"
 import {
@@ -100,7 +100,14 @@ const defaultPanelLocations = mapValues(
 
 export default function RoomRoute() {
 	const params = useParams() as { room: Id<"rooms"> }
-	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
+
+	const [searchParams] = useSearchParams()
+	const previewSceneId = searchParams.get("preview")
+
+	const room = useQuery(api.functions.rooms.getBySlug, {
+		slug: params.room,
+		previewSceneId,
+	})
 
 	const [panelLocations, setPanelLocations] = useLocalStorage<
 		Record<string, PanelLocation>

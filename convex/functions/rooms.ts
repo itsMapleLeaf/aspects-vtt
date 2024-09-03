@@ -1,6 +1,7 @@
 import { ConvexEffectError } from "@maple/convex-effect"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
+import { Nullish } from "../../lib/types.ts"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import { getAuthUserId } from "../lib/auth.ts"
@@ -33,13 +34,22 @@ export const get = query({
 export const getBySlug = query({
 	args: {
 		slug: v.string(),
+		previewSceneId: nullish(v.string()),
 	},
-	handler(ctx, { slug }) {
-		return pipe(
-			getRoomBySlug(ctx, slug),
-			Effect.flatMap((room) => normalizeRoom(ctx, room)),
-			Effect.orElseSucceed(() => null),
-		)
+	handler(ctx, { slug, previewSceneId }) {
+		// return pipe(
+		// 	getRoomBySlug(ctx, slug),
+		// 	Effect.flatMap((room) => normalizeRoom(ctx, room, previewSceneId)),
+		// 	Effect.orElseSucceed(() => null),
+		// )
+		return Effect.gen(function* () {
+			const room = yield* getRoomBySlug(ctx, slug)
+			const normalizedPreviewSceneId =
+				previewSceneId ?
+					yield* ctx.db.normalizeId("scenes", previewSceneId)
+				:	undefined
+			return yield* normalizeRoom(ctx, room, normalizedPreviewSceneId)
+		}).pipe(Effect.orElseSucceed(() => null))
 	},
 })
 
@@ -105,12 +115,16 @@ function queryRoomBySlug(ctx: LocalQueryContext, slug: string) {
 	return ctx.db.query("rooms").withIndex("slug", (q) => q.eq("slug", slug))
 }
 
-export function normalizeRoom(ctx: LocalQueryContext, room: Doc<"rooms">) {
+export function normalizeRoom(
+	ctx: LocalQueryContext,
+	room: Doc<"rooms">,
+	previewSceneId?: Nullish<Id<"scenes">>,
+) {
 	return Effect.gen(function* () {
 		const userId = yield* getAuthUserId(ctx)
 
 		const activeSceneBackgroundUrl = yield* pipe(
-			Effect.fromNullable(room.activeSceneId),
+			Effect.fromNullable(previewSceneId ?? room.activeSceneId),
 			Effect.flatMap((sceneId) => ctx.db.get(sceneId)),
 			Effect.flatMap((scene) =>
 				Effect.fromNullable(
