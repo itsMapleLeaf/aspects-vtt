@@ -6,15 +6,20 @@ import {
 	LucideTentTree,
 	LucideWand2,
 } from "lucide-react"
-import { api } from "../../convex/_generated/api.js"
-import { Doc } from "../../convex/_generated/dataModel.js"
-import { EmptyState } from "../ui/empty-state.js"
-import { FormActions, FormError, useForm } from "../ui/form.js"
-import { InputField, useInput } from "../ui/input.js"
-import { Modal, ModalButton, ModalPanel } from "../ui/modal.js"
-import { SkeletonGrid } from "../ui/skeleton.js"
-import { container, formLayout, heading2xl, solidButton } from "../ui/styles.js"
-import { Card } from "../ui/Card.js"
+import { api } from "../../../convex/_generated/api.js"
+import { Doc } from "../../../convex/_generated/dataModel.js"
+import { Card } from "../../ui/Card.js"
+import { EmptyState } from "../../ui/empty-state.js"
+import { FormActions, FormError, useForm } from "../../ui/form.js"
+import { InputField, useInput } from "../../ui/input.js"
+import { Modal, ModalButton, ModalPanel } from "../../ui/modal.js"
+import { SkeletonGrid } from "../../ui/skeleton.js"
+import {
+	container,
+	formLayout,
+	heading2xl,
+	solidButton,
+} from "../../ui/styles.js"
 
 export function RoomList() {
 	const rooms = useQuery(api.functions.rooms.list)

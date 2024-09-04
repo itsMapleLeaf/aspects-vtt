@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values"
 import { ComponentProps, ReactNode, useActionState } from "react"
-import { mapValues } from "../../lib/object.ts"
+import { mapValues } from "../lib/object.ts"
 import { mergeClassProp } from "./helpers.ts"
 import { Slot, SlotProps } from "./slot.tsx"
 import { labelText } from "./styles.ts"

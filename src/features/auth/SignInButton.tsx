@@ -2,12 +2,12 @@ import { useAuthActions } from "@convex-dev/auth/react"
 import { SiDiscord } from "@icons-pack/react-simple-icons"
 import { LucideDoorOpen, LucideLogIn, LucideUserPlus } from "lucide-react"
 import { useActionState, useState } from "react"
-import { Form, FormError } from "../ui/form.tsx"
-import { Heading } from "../ui/heading.tsx"
-import { InputField } from "../ui/input.tsx"
-import { Column, Row } from "../ui/layout.tsx"
-import { Modal, ModalButton, ModalPanel } from "../ui/modal.tsx"
-import { solidButton } from "../ui/styles.ts"
+import { Form, FormError } from "../../ui/form.tsx"
+import { Heading } from "../../ui/heading.tsx"
+import { InputField } from "../../ui/input.tsx"
+import { Column, Row } from "../../ui/layout.tsx"
+import { Modal, ModalButton, ModalPanel } from "../../ui/modal.tsx"
+import { solidButton } from "../../ui/styles.ts"
 
 export function SignInButton() {
 	const [action, setAction] = useState<"login" | "register">("login")

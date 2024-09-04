@@ -1,8 +1,8 @@
 import { useConvexAuth, useQuery } from "convex/react"
 import { LucideLogIn } from "lucide-react"
-import { api } from "../../convex/_generated/api.js"
-import { EmptyState } from "../ui/empty-state.tsx"
-import { LoadingCover } from "../ui/loading.tsx"
+import { api } from "../../../convex/_generated/api.js"
+import { EmptyState } from "../../ui/empty-state.tsx"
+import { LoadingCover } from "../../ui/loading.tsx"
 import { SignInButton } from "./SignInButton.tsx"
 
 export function ProtectedLayout({

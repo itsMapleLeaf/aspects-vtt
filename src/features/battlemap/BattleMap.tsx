@@ -4,7 +4,7 @@ import { useRef } from "react"
 import { Image, Layer, Stage } from "react-konva"
 import * as v from "valibot"
 import { useImage, useLocalStorage, useSize } from "../../lib/react"
-import { ApiScene } from "../types"
+import { ApiScene } from "../scenes/types"
 
 Konva.dragButtons = [0, 2]
 

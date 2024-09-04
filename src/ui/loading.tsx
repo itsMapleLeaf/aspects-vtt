@@ -25,7 +25,7 @@ export function LoadingCover({ visible }: { visible: boolean }) {
 	return (
 		<div
 			className={twMerge(
-				"bg-base-900 invisible fixed inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-1000",
+				"bg-base-900 pointer-events-none invisible fixed inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-1000",
 				visible && "visible opacity-100",
 			)}
 		>

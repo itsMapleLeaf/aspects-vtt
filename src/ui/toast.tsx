@@ -2,8 +2,8 @@ import { ConvexError } from "convex/values"
 import { ComponentProps } from "react"
 import { toast, ToastOptions, ToastPromiseParams } from "react-toastify"
 import { twMerge } from "tailwind-merge"
-import { throttle } from "../../lib/async.ts"
-import { AppError } from "../../lib/errors.ts"
+import { AppError } from "../lib/AppError.ts"
+import { throttle } from "../lib/async.ts"
 
 export function toastAction<Result, Args extends unknown[]>(
 	message: string,

@@ -21,19 +21,19 @@ test("list returns scenes only for the given room", async () => {
 	await queryCtx.db.insert("scenes", {
 		name: "scene1",
 		roomId: room1Id,
-		backgrounds: [],
+		mode: "battlemap",
 	})
 
 	await queryCtx.db.insert("scenes", {
 		name: "scene2",
 		roomId: room1Id,
-		backgrounds: [],
+		mode: "battlemap",
 	})
 
 	await queryCtx.db.insert("scenes", {
 		name: "scene3",
 		roomId: room2Id,
-		backgrounds: [],
+		mode: "scenery",
 	})
 
 	const scenes = await list(queryCtx, {

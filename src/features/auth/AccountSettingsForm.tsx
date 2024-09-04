@@ -1,11 +1,16 @@
 import { useMutation, useQuery } from "convex/react"
-import { LucideSave } from "lucide-react"
-import { api } from "../../convex/_generated/api.js"
-import { InputField } from "../ui/input.tsx"
-import { errorText, formLayout, heading2xl, solidButton } from "../ui/styles.ts"
-import { useActionState } from "react"
-import { Loading } from "../ui/loading.tsx"
 import { ConvexError } from "convex/values"
+import { LucideSave } from "lucide-react"
+import { useActionState } from "react"
+import { api } from "../../../convex/_generated/api.js"
+import { InputField } from "../../ui/input.tsx"
+import { Loading } from "../../ui/loading.tsx"
+import {
+	errorText,
+	formLayout,
+	heading2xl,
+	solidButton,
+} from "../../ui/styles.ts"
 
 export function AccountSettingsForm() {
 	const user = useQuery(api.functions.users.me)

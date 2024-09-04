@@ -2,7 +2,7 @@ import { LucideImagePlus } from "lucide-react"
 import { ComponentProps, useMemo } from "react"
 import { useDropzone } from "react-dropzone"
 import { convertBytes } from "../../lib/math.ts"
-import { panel } from "./styles.ts"
+import { panel } from "../../ui/styles.ts"
 
 export interface ImageDropzoneProps extends ComponentProps<"div"> {
 	name?: string

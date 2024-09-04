@@ -25,15 +25,15 @@ import React from "react"
 import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
+import { BattleMap } from "../features/battlemap/BattleMap.tsx"
+import { SceneList } from "../features/scenes/SceneList.tsx"
 import {
 	useCssVar,
 	useLocalStorage,
 	useLocalStorageSwitch,
 	useMediaQuery,
 	usePointer,
-} from "../../lib/react.ts"
-import { BattleMap } from "../components/BattleMap.tsx"
-import { SceneList } from "../components/SceneList.tsx"
+} from "../lib/react.ts"
 import { AppHeader } from "../ui/app-header.tsx"
 import { Portal } from "../ui/portal.tsx"
 import {

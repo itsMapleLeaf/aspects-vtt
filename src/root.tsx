@@ -18,6 +18,7 @@ import {
 	LucideTriangleAlert,
 	LucideXCircle,
 } from "lucide-react"
+import { Flame } from "lucide-static"
 import React from "react"
 import { IconProps, Slide, ToastContainer } from "react-toastify"
 import { twMerge } from "tailwind-merge"
@@ -33,7 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<head>
 				<meta charSet="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-				<link rel="icon" type="image/svg+xml" href="/convex.svg" />
+				<link rel="icon" type="image/svg+xml" href={Flame} />
 				<Meta />
 				<Links />
 				<title>Aspects VTT</title>

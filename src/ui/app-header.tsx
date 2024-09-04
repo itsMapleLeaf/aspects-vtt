@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@remix-run/react"
-import { UserButton } from "../components/UserButton.tsx"
+import { UserButton } from "../features/auth/UserButton.tsx"
 import { AppLogo } from "./app-logo.tsx"
 import { clearButton } from "./styles.ts"
 

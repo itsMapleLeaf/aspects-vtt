@@ -1,50 +1,35 @@
-import { Focusable } from "@ariakit/react"
-import { useNavigate, useSearchParams } from "@remix-run/react"
+import { useNavigate } from "@remix-run/react"
 import { useMutation } from "convex/react"
 import {
 	LucideEdit,
 	LucideEye,
-	LucideGrid2x2,
-	LucideImage,
 	LucideImageOff,
 	LucideImagePlus,
 	LucidePlay,
-	LucideSave,
 	LucideTrash,
 	LucideX,
 } from "lucide-react"
 import { useState } from "react"
 import { useDropzone } from "react-dropzone"
 import * as v from "valibot"
-import { api } from "../../convex/_generated/api.js"
-import { Id } from "../../convex/_generated/dataModel"
+import { api } from "../../../convex/_generated/api.js"
+import { Id } from "../../../convex/_generated/dataModel"
 import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
 import { useStableQuery } from "../../lib/convex.ts"
 import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
-import { formDataSchema, formNumberSchema } from "../../lib/validation.ts"
-import { uploadImage } from "../lib/uploadImage.ts"
-import { ApiScene } from "../types.ts"
-import { ActionRow, ActionRowItem } from "../ui/ActionRow.tsx"
-import { EmptyState } from "../ui/empty-state.tsx"
-import { FormField } from "../ui/form.tsx"
-import { FormButton } from "../ui/FormButton.tsx"
-import { ImageDropzone } from "../ui/ImageUploader.tsx"
-import { InputField } from "../ui/input.tsx"
-import { Modal, ModalPanel } from "../ui/modal.tsx"
-import { PressEvent } from "../ui/Pressable.tsx"
-import { SearchableList } from "../ui/SearchableList.tsx"
-import { Select, SelectOption } from "../ui/Select.tsx"
-import { Selectable } from "../ui/Selectable.tsx"
-import {
-	clearButton,
-	errorText,
-	formLayout,
-	heading2xl,
-	panel,
-	solidButton,
-} from "../ui/styles.ts"
-import { ToastActionForm } from "../ui/toast.tsx"
+import { ActionRow, ActionRowItem } from "../../ui/ActionRow.tsx"
+import { EmptyState } from "../../ui/empty-state.tsx"
+import { FormButton } from "../../ui/FormButton.tsx"
+import { Modal, ModalPanel } from "../../ui/modal.tsx"
+import { PressEvent } from "../../ui/Pressable.tsx"
+import { SearchableList } from "../../ui/SearchableList.tsx"
+import { Selectable } from "../../ui/Selectable.tsx"
+import { clearButton, errorText, heading2xl } from "../../ui/styles.ts"
+import { ToastActionForm } from "../../ui/toast.tsx"
+import { SceneEditorForm } from "./SceneEditorForm"
+import { SceneListCard } from "./SceneListCard"
+import { ApiScene } from "./types.ts"
 
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	const navigate = useNavigate()
@@ -308,170 +293,5 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 				</ModalPanel>
 			</Modal>
 		</div>
-	)
-}
-
-function SceneEditorForm({
-	scene,
-	onSubmitSuccess,
-}: {
-	scene: ApiScene
-	onSubmitSuccess?: (scene: ApiScene) => void
-}) {
-	const updateScene = useMutation(api.functions.scenes.update)
-
-	type Mode = ApiScene["mode"]
-
-	const modeOptions: SelectOption<Mode>[] = [
-		{
-			value: "scenery",
-			label: "Scenery",
-			icon: <LucideImage />,
-		},
-		{
-			value: "battlemap",
-			label: "Battlemap",
-			icon: <LucideGrid2x2 />,
-		},
-	]
-
-	const [mode, setMode] = useState(scene.mode)
-
-	return (
-		<ToastActionForm
-			message="Saving scene..."
-			action={async (formData) => {
-				const schema = v.pipe(
-					formDataSchema(),
-					v.object({
-						name: v.optional(v.pipe(v.string(), v.maxLength(255))),
-						dayBackground: v.optional(v.file()),
-						eveningBackground: v.optional(v.file()),
-						nightBackground: v.optional(v.file()),
-						mode: v.union([v.literal("battlemap"), v.literal("scenery")]),
-						cellSize: v.optional(
-							v.pipe(formNumberSchema(), v.integer(), v.minValue(1)),
-						),
-					}),
-				)
-
-				const data = v.parse(schema, formData)
-
-				const [dayBackgroundId, eveningBackgroundId, nightBackgroundId] =
-					await Promise.all([
-						data.dayBackground && uploadImage(data.dayBackground),
-						data.eveningBackground && uploadImage(data.eveningBackground),
-						data.nightBackground && uploadImage(data.nightBackground),
-					])
-
-				await updateScene({
-					id: scene._id,
-					name: data.name,
-					mode: data.mode,
-					cellSize: data.mode === "battlemap" ? data.cellSize : undefined,
-					dayBackgroundId,
-					eveningBackgroundId,
-					nightBackgroundId,
-				})
-				onSubmitSuccess?.(scene)
-			}}
-			className={formLayout()}
-			key={scene._id}
-		>
-			<Focusable
-				autoFocus
-				render={
-					<InputField
-						label="Name"
-						name="name"
-						defaultValue={scene.name}
-						required
-					/>
-				}
-			/>
-
-			<Select
-				name="mode"
-				label="Scene mode"
-				defaultValue={scene.mode}
-				onValueChange={setMode}
-				options={modeOptions}
-			/>
-
-			{mode === "battlemap" && (
-				<InputField
-					label="Cell size"
-					name="cellSize"
-					defaultValue={scene.cellSize}
-					required
-				/>
-			)}
-
-			<fieldset className="grid auto-cols-fr grid-flow-col gap-2">
-				<FormField label="Day background">
-					<ImageDropzone
-						name="dayBackground"
-						defaultImageUrl={scene.dayBackgroundUrl}
-					/>
-				</FormField>
-				<FormField label="Evening background">
-					<ImageDropzone
-						name="eveningBackground"
-						defaultImageUrl={scene.eveningBackgroundUrl}
-					/>
-				</FormField>
-				<FormField label="Night background">
-					<ImageDropzone
-						name="nightBackground"
-						defaultImageUrl={scene.nightBackgroundUrl}
-					/>
-				</FormField>
-			</fieldset>
-
-			<FormButton className={solidButton()}>
-				<LucideSave /> Save
-			</FormButton>
-		</ToastActionForm>
-	)
-}
-
-function SceneListCard({ scene }: { scene: ApiScene }) {
-	const [searchParams] = useSearchParams()
-	const previewSceneId = searchParams.get("preview")
-
-	return (
-		<figure
-			className={panel(
-				"group relative grid h-20 cursor-default select-none place-content-center overflow-clip",
-			)}
-			data-testid="scene-card"
-		>
-			{scene.activeBackgroundUrl ?
-				<img
-					src={scene.activeBackgroundUrl}
-					alt=""
-					className="absolute inset-0 size-full scale-110 object-cover blur-sm brightness-[35%] transition group-hover:blur-0 group-aria-expanded:blur-0"
-				/>
-			:	<div className="absolute inset-0 grid place-content-center">
-					<LucideImageOff className="size-16 opacity-25" />
-				</div>
-			}
-			<figcaption className="relative truncate px-4 text-center">
-				<h3 className={heading2xl("min-w-0 truncate text-center text-xl")}>
-					{scene.name}
-				</h3>
-				{scene.isActive ?
-					<p className="relative flex items-center justify-center text-sm font-bold text-primary-200 opacity-75 gap-1">
-						<LucidePlay className="size-4" />
-						<span>Now playing</span>
-					</p>
-				: previewSceneId === scene._id ?
-					<p className="relative flex items-center justify-center text-sm font-bold text-primary-200 opacity-75 gap-1">
-						<LucideEye className="size-4" />
-						<span>Previewing</span>
-					</p>
-				:	null}
-			</figcaption>
-		</figure>
 	)
 }

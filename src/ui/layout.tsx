@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge"
-import { StrictOmit } from "../../lib/types.ts"
+import { StrictOmit } from "../lib/types.ts"
 import { mergeClassProp } from "./helpers.ts"
 import { Slot, SlotProps } from "./slot.tsx"
 
