@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
+import type * as functions_characters from "../functions/characters.js";
 import type * as functions_rooms from "../functions/rooms.js";
 import type * as functions_scenes from "../functions/scenes.js";
 import type * as functions_storage from "../functions/storage.js";
@@ -39,6 +40,7 @@ import type * as test_functions from "../test/functions.js";
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  "functions/characters": typeof functions_characters;
   "functions/rooms": typeof functions_rooms;
   "functions/scenes": typeof functions_scenes;
   "functions/storage": typeof functions_storage;

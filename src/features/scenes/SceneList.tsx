@@ -10,8 +10,6 @@ import {
 	LucideX,
 } from "lucide-react"
 import { useState } from "react"
-import { useDropzone } from "react-dropzone"
-import * as v from "valibot"
 import { api } from "../../../convex/_generated/api.js"
 import { Id } from "../../../convex/_generated/dataModel"
 import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
@@ -25,7 +23,7 @@ import { Modal, ModalPanel } from "../../ui/modal.tsx"
 import { PressEvent } from "../../ui/Pressable.tsx"
 import { SearchableList } from "../../ui/SearchableList.tsx"
 import { Selectable } from "../../ui/Selectable.tsx"
-import { clearButton, errorText, heading2xl } from "../../ui/styles.ts"
+import { clearButton, errorText } from "../../ui/styles.ts"
 import { ToastActionForm } from "../../ui/toast.tsx"
 import { SceneEditorForm } from "./SceneEditorForm"
 import { SceneListCard } from "./SceneListCard"
@@ -128,61 +126,8 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 		}))
 	}
 
-	const dropzone = useDropzone({
-		accept: {
-			"image/png": [],
-			"image/jpeg": [],
-			"image/webp": [],
-		},
-		multiple: true,
-		noClick: true,
-		onDrop: async (files) => {
-			try {
-				const storageIds = await Promise.all(
-					files.map(async (file) => {
-						try {
-							const response = await fetch(
-								new URL("/images", import.meta.env.VITE_CONVEX_API_URL),
-								{
-									method: "PUT",
-									body: file,
-									headers: { "Content-Type": file.type },
-								},
-							)
-
-							if (!response.ok) {
-								throw new Error(`Upload failed: ${await response.text()}`)
-							}
-
-							const data = v.parse(
-								v.object({ storageId: v.string() }),
-								await response.json(),
-							)
-							return data.storageId
-						} catch (error) {
-							console.error("Upload failed", error, file)
-						}
-					}),
-				)
-
-				await createScene({
-					name: files[0]!.name,
-					roomId,
-					backgroundIds: storageIds.filter(Boolean),
-				})
-			} catch (error) {
-				alert("Something went wrong. Try again.")
-				console.error(error)
-			}
-		},
-	})
-
 	return (
-		<div
-			{...dropzone.getRootProps()}
-			className="relative flex h-full flex-col gap-3"
-		>
-			<input {...dropzone.getInputProps()} />
+		<div className="relative flex h-full flex-col gap-3">
 			<div className="flex-1">
 				<SearchableList
 					search={state.search}
@@ -266,18 +211,6 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 					</ToastActionForm>
 				</ActionRow>
 			)}
-
-			<div
-				data-active={dropzone.isDragActive || undefined}
-				className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center rounded-md bg-primary-900 opacity-0 transition data-[active]:opacity-50"
-			>
-				<LucideImagePlus className="size-24" />
-				<p
-					className={heading2xl("max-w-[75%] text-balance text-center text-lg")}
-				>
-					Drop images here to create a scene
-				</p>
-			</div>
 
 			<Modal open={state.sceneEditorOpen} setOpen={setSceneEditorOpen}>
 				<ModalPanel title="Edit scene">

@@ -1,4 +1,5 @@
 // @ts-check
+import containerQueries from "@tailwindcss/container-queries"
 import { Iterator } from "iterator-helpers-polyfill"
 import animate from "tailwindcss-animate"
 import colors from "tailwindcss/colors.js"
@@ -39,6 +40,7 @@ export default {
 		gap: false,
 	},
 	plugins: [
+		containerQueries,
 		animate,
 
 		plugin(function screenVariables(api) {
@@ -114,6 +116,21 @@ export default {
 					values: api.theme("gap"),
 				},
 			)
+		}),
+
+		plugin(function naturalGradient(api) {
+			api.addUtilities({
+				".natural-gradient": {
+					"--tw-gradient-stops": [
+						"var(--tw-gradient-from)",
+						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 20%) calc(100% * pow(0.2,2))",
+						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 40%) calc(100% * pow(0.4,2))",
+						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 60%) calc(100% * pow(0.6,2))",
+						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 80%) calc(100% * pow(0.8,2))",
+						"var(--tw-gradient-to)",
+					].join(", "),
+				},
+			})
 		}),
 	],
 }

@@ -1,17 +1,22 @@
 import { LucideImagePlus } from "lucide-react"
 import { ComponentProps, useMemo } from "react"
 import { useDropzone } from "react-dropzone"
+import { twMerge } from "tailwind-merge"
 import { convertBytes } from "../../lib/math.ts"
-import { panel } from "../../ui/styles.ts"
+import { StrictOmit } from "../../lib/types.ts"
+import { innerPanel } from "../../ui/styles.ts"
 
-export interface ImageDropzoneProps extends ComponentProps<"div"> {
+export interface ImageDropzoneProps
+	extends StrictOmit<ComponentProps<"div">, "className"> {
 	name?: string
 	defaultImageUrl: string | undefined | null
+	className?: string | { wrapper?: string; image?: string }
 }
 
 export function ImageDropzone({
 	name,
 	defaultImageUrl,
+	className,
 	...props
 }: ImageDropzoneProps) {
 	const dropzone = useDropzone({
@@ -30,12 +35,15 @@ export function ImageDropzone({
 
 	const renderedImageUrl = fileUrl ?? defaultImageUrl
 
+	const classes =
+		typeof className === "string" ? { wrapper: className } : className
+
 	return (
 		<div
 			{...dropzone.getRootProps(props)}
-			className={panel(
-				"group relative grid aspect-video place-content-center overflow-clip text-balance text-center transition gap-2 hover:bg-primary-600",
-				props.className,
+			className={innerPanel(
+				"group relative grid aspect-video place-content-center overflow-clip text-balance text-center transition gap-2 hover:bg-primary-700",
+				classes?.wrapper,
 			)}
 		>
 			<input {...dropzone.getInputProps({ name })} />
@@ -44,7 +52,10 @@ export function ImageDropzone({
 					<img
 						src={renderedImageUrl}
 						alt=""
-						className="absolute inset-0 size-full object-cover transition group-hover:opacity-50"
+						className={twMerge(
+							"absolute inset-0 size-full object-cover transition group-hover:opacity-50",
+							classes?.image,
+						)}
 					/>
 					<LucideImagePlus className="aspect-square size-16 max-w-[max(theme(spacing.16),100%-theme(spacing.2))] opacity-0 transition group-hover:opacity-50" />
 				</>

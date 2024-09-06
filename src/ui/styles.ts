@@ -7,7 +7,10 @@ export const panel = (...classes: ClassNameValue[]) =>
 	twMerge("rounded-lg border border-primary-600 bg-primary-700 shadow", classes)
 
 export const clearPanel = (...classes: ClassNameValue[]) =>
-	twMerge(panel(), "bg-opacity-75 backdrop-blur transition", classes)
+	twMerge(panel(), "bg-opacity-90 backdrop-blur transition", classes)
+
+export const innerPanel = (...classes: ClassNameValue[]) =>
+	twMerge(panel(), "bg-primary-900 shadow-none", classes)
 
 export const heading3xl = (...classes: ClassNameValue[]) =>
 	twMerge("text-3xl font-light", classes)
@@ -32,7 +35,7 @@ export const clearCircleButton = (...classes: ClassNameValue[]) =>
 
 export const input = (...classes: ClassNameValue[]) =>
 	twMerge(
-		"h-10 w-full min-w-0 rounded-md border border-primary-600 bg-primary-900 px-3 transition",
+		"h-10 w-full min-w-0 rounded-md border border-primary-600 bg-primary-900 px-3 transition data-[invalid]:border-red-500",
 		classes,
 	)
 

@@ -18,7 +18,7 @@ import {
 	LucideTriangleAlert,
 	LucideXCircle,
 } from "lucide-react"
-import { Flame } from "lucide-static"
+import Flame from "lucide-static/icons/flame.svg?url"
 import React from "react"
 import { IconProps, Slide, ToastContainer } from "react-toastify"
 import { twMerge } from "tailwind-merge"

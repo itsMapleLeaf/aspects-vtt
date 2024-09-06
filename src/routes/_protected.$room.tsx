@@ -26,6 +26,7 @@ import * as v from "valibot"
 import { api } from "../../convex/_generated/api.js"
 import { Id } from "../../convex/_generated/dataModel"
 import { BattleMap } from "../features/battlemap/BattleMap.tsx"
+import { CharacterList } from "../features/characters/CharacterList.tsx"
 import { SceneList } from "../features/scenes/SceneList.tsx"
 import {
 	useCssVar,
@@ -64,7 +65,7 @@ const PANELS = {
 	characters: {
 		title: "Characters",
 		icon: () => <LucideUsers2 />,
-		content: () => <p>Characters</p>,
+		content: (args) => <CharacterList roomId={args.roomId} />,
 		defaultLocation: {
 			sidebar: "left",
 			group: 0,
@@ -173,7 +174,9 @@ export default function RoomRoute() {
 						draggable={false}
 					/>
 				:	<BattleMap scene={room.activeScene} />}
+				<div className="natural-gradient pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary-900" />
 				<AppHeader
+					className="relative"
 					left={
 						<SidebarToggle
 							open={leftSidebarOpen}
