@@ -29,11 +29,11 @@ export function ModalPanel({
 				props.className,
 			)}
 		>
-			<div className="flex items-center justify-between">
+			<div className="-m-3 mb-3 flex h-14 items-center justify-between rounded-t-[inherit] border-b border-primary-600 bg-primary-900 px-3">
 				<Ariakit.DialogHeading className={heading2xl()}>
 					{title}
 				</Ariakit.DialogHeading>
-				<Ariakit.DialogDismiss className={clearCircleButton("-mx-1")}>
+				<Ariakit.DialogDismiss className={clearCircleButton("-mx-2")}>
 					<LucideX />
 				</Ariakit.DialogDismiss>
 			</div>

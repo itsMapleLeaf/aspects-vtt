@@ -5,7 +5,7 @@ import { useActionState, useState } from "react"
 import { Form, FormError } from "../../ui/form.tsx"
 import { Heading } from "../../ui/heading.tsx"
 import { InputField } from "../../ui/input.tsx"
-import { Column, Row } from "../../ui/layout.tsx"
+import { Row } from "../../ui/layout.tsx"
 import { Modal, ModalButton, ModalPanel } from "../../ui/modal.tsx"
 import { solidButton } from "../../ui/styles.ts"
 
@@ -35,9 +35,9 @@ export function SignInButton() {
 
 			<ModalPanel
 				title={`${action === "login" ? "Sign in" : "Sign up"} to continue.`}
-				className="flex w-80 flex-col p-4 text-center gap-6"
+				className="w-80"
 			>
-				<Column items="stretch">
+				<div className="flex flex-col items-center text-center gap-4">
 					<form
 						action={async () => {
 							await auth.signIn("discord", {
@@ -45,38 +45,34 @@ export function SignInButton() {
 							})
 						}}
 					>
-						<button type="submit" className="btn">
+						<button type="submit" className={solidButton()}>
 							<SiDiscord /> Continue with Discord
 						</button>
 					</form>
-
 					<OrDivider />
-
 					<Heading className="text-balance text-xl">
 						{action === "register" ? "Sign up" : "Sign in"} with username &
 						password
 					</Heading>
-
 					<Form action={handleSubmit}>
 						{action === "login" ?
 							<LoginFields />
 						:	<RegisterFields />}
 						{error && <FormError>{error}</FormError>}
 					</Form>
-				</Column>
-
-				{action === "login" ?
-					<ActionSwitchMessage
-						message="don't have an account?"
-						buttonText="sign up"
-						onSwitch={() => setAction("register")}
-					/>
-				:	<ActionSwitchMessage
-						message="already have an account?"
-						buttonText="sign in"
-						onSwitch={() => setAction("login")}
-					/>
-				}
+					{action === "login" ?
+						<ActionSwitchMessage
+							message="don't have an account?"
+							buttonText="sign up"
+							onSwitch={() => setAction("register")}
+						/>
+					:	<ActionSwitchMessage
+							message="already have an account?"
+							buttonText="sign in"
+							onSwitch={() => setAction("login")}
+						/>
+					}
+				</div>
 			</ModalPanel>
 		</Modal>
 	)
@@ -97,7 +93,7 @@ function LoginFields() {
 		<>
 			<InputField type="text" name="handle" label="Account handle" required />
 			<InputField type="password" name="password" label="Password" required />
-			<button type="submit" className="btn">
+			<button type="submit" className={solidButton()}>
 				<LucideDoorOpen /> Sign in
 			</button>
 		</>
@@ -128,7 +124,7 @@ function RegisterFields() {
 				description="Make it strong!"
 				required
 			/>
-			<button type="submit" className="btn">
+			<button type="submit" className={solidButton()}>
 				<LucideUserPlus /> Create account
 			</button>
 		</>
