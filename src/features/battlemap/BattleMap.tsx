@@ -1,9 +1,9 @@
 import Konva from "konva"
 import { clamp } from "lodash-es"
-import { useRef } from "react"
 import { Image, Layer, Stage } from "react-konva"
 import * as v from "valibot"
-import { useImage, useLocalStorage, useSize } from "../../lib/react"
+import { observeSize } from "../../lib/dom"
+import { useImage, useLocalStorage } from "../../lib/react"
 import { ApiScene } from "../scenes/types"
 
 Konva.dragButtons = [0, 2]
@@ -21,16 +21,14 @@ export function BattleMap({ scene }: { scene: ApiScene }) {
 		v.parser(v.number()),
 	)
 
-	const stageRef = useRef<Konva.Stage>(null)
 	const [image] = useImage(scene.activeBackgroundUrl)
-	const [size, sizeRef] = useSize()
 
 	const scaleFromTick = (tick: number) => 1.2 ** tick
 
 	const handleWheel = (event: Konva.KonvaEventObject<WheelEvent>) => {
 		event.evt.preventDefault()
 
-		const stage = stageRef.current
+		const stage = event.target.getStage()
 		if (!stage) return
 
 		const pointer = stage.getPointerPosition()
@@ -55,32 +53,34 @@ export function BattleMap({ scene }: { scene: ApiScene }) {
 	}
 
 	return (
-		<div className="absolute inset-0" ref={sizeRef}>
-			<Stage
-				width={size.width}
-				height={size.height}
-				onWheel={handleWheel}
-				scaleX={scaleFromTick(scaleTick)}
-				scaleY={scaleFromTick(scaleTick)}
-				x={position.x}
-				y={position.y}
-				onContextMenu={(event) => event.evt.preventDefault()}
-				onPointerDown={(event) => {
-					event.target.draggable(event.evt.button === 2)
-				}}
-				onPointerUp={(event) => {
-					if (event.evt.button === 2) {
-						setPosition(event.target.position())
-					}
-				}}
-				ref={stageRef}
-			>
-				<Layer>
-					{image && (
-						<Image image={image} width={image.width} height={image.height} />
-					)}
-				</Layer>
-			</Stage>
-		</div>
+		<Stage
+			onWheel={handleWheel}
+			scaleX={scaleFromTick(scaleTick)}
+			scaleY={scaleFromTick(scaleTick)}
+			x={position.x}
+			y={position.y}
+			onContextMenu={(event) => event.evt.preventDefault()}
+			onPointerDown={(event) => {
+				event.target.draggable(event.evt.button === 2)
+			}}
+			onPointerUp={(event) => {
+				if (event.evt.button === 2) {
+					setPosition(event.target.position())
+				}
+			}}
+			ref={(stage) => {
+				if (!stage) return
+				return observeSize(stage.container(), (contentRect) => {
+					stage.width(contentRect.width)
+					stage.height(contentRect.height)
+				})
+			}}
+		>
+			<Layer>
+				{image && (
+					<Image image={image} width={image.width} height={image.height} />
+				)}
+			</Layer>
+		</Stage>
 	)
 }

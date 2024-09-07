@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import * as v from "valibot"
 import { Nullish } from "./types.ts"
 
@@ -295,4 +295,17 @@ export function useSize() {
 	}, [element])
 
 	return [size, ref] as const
+}
+
+export function useDebouncedValue<T>(value: T, delay: number) {
+	const [debouncedValue, setDebouncedValue] = useState(value)
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setDebouncedValue(value)
+		}, delay)
+		return () => clearTimeout(timeout)
+	}, [value, delay])
+
+	return debouncedValue
 }

@@ -3,11 +3,11 @@ import { useDndContext, useDraggable, useDroppable } from "@dnd-kit/core"
 import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import * as v from "valibot"
-import { api } from "../../../convex/_generated/api.js"
-import { Id } from "../../../convex/_generated/dataModel.js"
-import { useLocalStorage, usePointer } from "../../lib/react.ts"
-import { clearButton, clearPanel, heading2xl } from "../../ui/styles.ts"
-import { Panel, Sidebar } from "./types.ts"
+import { api } from "../../../../convex/_generated/api.js"
+import { Id } from "../../../../convex/_generated/dataModel.js"
+import { useLocalStorage, usePointer } from "../../../lib/react.ts"
+import { clearButton, clearPanel, heading2xl } from "../../../ui/styles.ts"
+import { Panel, Sidebar } from "../types.ts"
 
 export function PanelGroupList({
 	sidebar,

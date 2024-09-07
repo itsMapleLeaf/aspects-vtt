@@ -2,7 +2,7 @@ import { useParams, useSearchParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { api } from "../../convex/_generated/api.js"
-import { RoomContent } from "../features/rooms/RoomContent.tsx"
+import { RoomRoot } from "../features/rooms/RoomRoot.tsx"
 import { assert } from "../lib/assertions.ts"
 import { QueryResult } from "../lib/convex.tsx"
 import { EmptyState } from "../ui/empty-state.tsx"
@@ -29,7 +29,7 @@ export default function RoomRoute() {
 					icon={<Lucide.SearchX className="size-12" />}
 				/>
 			)}
-			renderData={(room) => <RoomContent room={room} />}
+			renderData={(room) => <RoomRoot room={room} />}
 		/>
 	)
 }
