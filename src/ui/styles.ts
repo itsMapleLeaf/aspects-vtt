@@ -30,8 +30,11 @@ export const clearButton = (...classes: ClassNameValue[]) =>
 		classes,
 	)
 
+export const clearIconButton = (...classes: ClassNameValue[]) =>
+	clearButton("aspect-square p-1.5 size-10", classes)
+
 export const clearCircleButton = (...classes: ClassNameValue[]) =>
-	clearButton("aspect-square rounded-full p-1.5 size-10", classes)
+	clearButton(clearIconButton(), "rounded-full", classes)
 
 export const input = (...classes: ClassNameValue[]) =>
 	twMerge(

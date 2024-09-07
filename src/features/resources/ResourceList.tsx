@@ -1,65 +1,187 @@
-import { groupBy } from "lodash-es"
-import { ComponentProps } from "react"
+import { useMutation } from "convex/react"
+import { startCase } from "lodash-es"
+import {
+	LucideImagePlus,
+	LucideMap,
+	LucidePlus,
+	LucideUserPlus,
+} from "lucide-react"
+import { ComponentProps, useState } from "react"
 import { twMerge } from "tailwind-merge"
-import { heading2xl, innerPanel, input } from "../../ui/styles.ts"
+import { api } from "../../../convex/_generated/api.js"
+import { useStableQuery } from "../../lib/convex.tsx"
+import { useDebouncedValue } from "../../lib/react.ts"
+import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/menu.tsx"
+import { Modal, ModalPanel } from "../../ui/modal.tsx"
+import {
+	clearIconButton,
+	heading2xl,
+	innerPanel,
+	input,
+} from "../../ui/styles.ts"
+import { ToastActionForm } from "../../ui/toast.tsx"
+import { CharacterAvatar } from "../characters/CharacterAvatar.tsx"
+import { CharacterEditorForm } from "../characters/CharacterEditorForm.tsx"
+import { uploadImage } from "../images/uploadImage.ts"
+import { ApiRoom } from "../rooms/types.ts"
+import { SceneEditorForm } from "../scenes/SceneEditorForm.tsx"
 
-export interface Resource {
+interface Resource {
 	id: string
 	name: string
 	icon: React.ReactNode
-	section: string
+	editor: () => React.ReactNode
 }
 
-export interface ResourceListProps<T extends Resource>
-	extends ComponentProps<"div"> {
-	resources: T[]
-	activeResourceId: string | null | undefined
-	onSelectResource: (resource: T) => void
-
-	search: string
-	onSearchChange: (search: string) => void
+interface ResourceSection {
+	resourceName: string
+	resources: Resource[] | undefined
+	create: {
+		icon: React.ReactNode
+		action: () => Promise<{ id: string }>
+	}
 }
 
-export function ResourceList<T extends Resource>({
-	resources,
-	activeResourceId,
-	onSelectResource,
+export interface ResourceListProps extends ComponentProps<"div"> {
+	room: ApiRoom
+}
 
-	search,
-	onSearchChange,
+export function ResourceList({ room, ...props }: ResourceListProps) {
+	const [search, setSearch] = useState("")
+	const debouncedSearch = useDebouncedValue(search, 400)
 
-	...props
-}: ResourceListProps<T>) {
-	const sections = groupBy(resources, (it) => it.section)
+	const characters = useStableQuery(api.functions.characters.list, {
+		roomId: room._id,
+		search: debouncedSearch,
+	})
+
+	const createCharacter = useMutation(api.functions.characters.create)
+	const updateCharacter = useMutation(api.functions.characters.update)
+
+	const scenes = useStableQuery(api.functions.scenes.list, {
+		roomId: room._id,
+		search: debouncedSearch,
+	})
+
+	const createScene = useMutation(api.functions.scenes.create)
+
+	const sections: ResourceSection[] = [
+		{
+			resourceName: "character",
+			resources: characters?.map((character) => ({
+				id: character._id,
+				name: character.name,
+				icon: <CharacterAvatar character={character} className="bg-top" />,
+				editor: () => (
+					<CharacterEditorForm
+						character={character}
+						action={async ({ image, ...data }) => {
+							const imageId = image ? await uploadImage(image) : undefined
+							await updateCharacter({
+								...data,
+								imageId,
+								characterId: character._id,
+							})
+						}}
+					/>
+				),
+			})),
+			create: {
+				icon: <LucideUserPlus />,
+				action: async () => {
+					const id = await createCharacter({ roomId: room._id })
+					return { id }
+				},
+			},
+		},
+		{
+			resourceName: "scene",
+			resources: scenes?.map((scene) => ({
+				id: scene._id,
+				name: scene.name,
+				icon: <LucideMap />,
+				editor: () => <SceneEditorForm scene={scene} />,
+			})),
+			create: {
+				icon: <LucideImagePlus />,
+				action: async () => {
+					const id = await createScene({ roomId: room._id })
+					return { id }
+				},
+			},
+		},
+	]
+
+	const [editorOpen, setEditorOpen] = useState(false)
+	const [editingResourceId, setEditingResourceId] = useState<string | null>(
+		null,
+	)
+	const editingResource = sections
+		.flatMap((section) => section.resources)
+		.find((resource) => resource?.id === editingResourceId)
+
+	const openEditor = (resourceId: string) => {
+		setEditingResourceId(resourceId)
+		setEditorOpen(true)
+	}
+
 	return (
-		<div className="flex h-full flex-col gap-2">
-			<div className="flex gap">
+		<div className="flex h-full flex-col gap-4" {...props}>
+			<div className="flex gap-2">
 				<input
 					type="text"
 					placeholder="Search"
 					value={search}
-					onChange={(e) => onSearchChange(e.target.value)}
+					onChange={(e) => setSearch(e.target.value)}
 					className={input("flex-1")}
 				/>
+				<Menu>
+					<MenuButton className={clearIconButton()}>
+						<LucidePlus />
+						<span className="sr-only">New...</span>
+					</MenuButton>
+					<MenuPanel>
+						{sections.map((section) => (
+							<ToastActionForm
+								key={section.resourceName}
+								action={async () => {
+									const { id } = await section.create.action()
+									openEditor(id)
+								}}
+								message={`Creating ${section.resourceName}...`}
+							>
+								<MenuItem key={section.resourceName} type="submit">
+									{section.create.icon}
+									{`Create ${startCase(section.resourceName)}`}
+								</MenuItem>
+							</ToastActionForm>
+						))}
+					</MenuPanel>
+				</Menu>
 			</div>
+
 			<div
-				{...props}
 				className={twMerge(
 					"flex min-h-0 flex-1 flex-col overflow-y-auto gap",
 					props.className,
 				)}
 			>
-				{Object.entries(sections).map(([section, resources]) => (
-					<section key={section}>
-						<h3 className={heading2xl("mb-1 opacity-50")}>{section}</h3>
+				{sections.map((section) => (
+					<section key={section.resourceName}>
+						<h3 className={heading2xl("mb-1 opacity-50")}>
+							{startCase(section.resourceName)}s
+						</h3>
 						<ul className="flex flex-col gap-1">
-							{resources.map((resource) => (
+							{section.resources?.map((resource) => (
 								<li key={resource.id} className="contents">
 									<button
 										type="button"
 										className={innerPanel(
-											"flex h-14 items-center justify-start px-3 text-start gap-2",
+											"flex h-14 items-center justify-start px-3 text-start transition gap-2 hover:bg-primary-800",
 										)}
+										onClick={() => {
+											openEditor(resource.id)
+										}}
 									>
 										<div aria-hidden className="*:size-8">
 											{resource.icon}
@@ -72,6 +194,17 @@ export function ResourceList<T extends Resource>({
 					</section>
 				))}
 			</div>
+
+			{editingResource && (
+				<Modal open={editorOpen}>
+					<ModalPanel
+						title={`Editing ${editingResource.name}`}
+						onClose={() => setEditorOpen(false)}
+					>
+						{editingResource?.editor()}
+					</ModalPanel>
+				</Modal>
+			)}
 		</div>
 	)
 }

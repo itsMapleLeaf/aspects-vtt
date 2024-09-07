@@ -65,13 +65,11 @@ export const create = mutation({
 		return Effect.gen(function* () {
 			yield* ensureRoomOwner(ctx, args.roomId)
 
-			const id = yield* ctx.db.insert("scenes", {
+			return yield* ctx.db.insert("scenes", {
 				...args,
 				name: args.name ?? "New Scene",
 				mode: args.mode ?? "battlemap",
 			})
-
-			return yield* normalizeScene(ctx, yield* ctx.db.get(id))
 		}).pipe(Effect.orDie)
 	},
 })
