@@ -9,12 +9,12 @@ import { ensureRoomOwner } from "./rooms.ts"
 
 export const list = query({
 	args: {
-		room: v.id("rooms"),
+		roomId: v.id("rooms"),
 		search: v.optional(v.string()),
 	},
 	handler(ctx, args) {
 		return pipe(
-			ensureRoomOwner(ctx, args.room),
+			ensureRoomOwner(ctx, args.roomId),
 			Effect.flatMap((room) => {
 				let query
 				query = ctx.db.query("scenes")

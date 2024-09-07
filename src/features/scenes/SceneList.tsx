@@ -13,7 +13,7 @@ import { useState } from "react"
 import { api } from "../../../convex/_generated/api.js"
 import { Id } from "../../../convex/_generated/dataModel"
 import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
-import { useStableQuery } from "../../lib/convex.ts"
+import { useStableQuery } from "../../lib/convex.tsx"
 import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
 import { ActionRow, ActionRowItem } from "../../ui/ActionRow.tsx"
@@ -42,7 +42,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 
 	const scenes =
 		useStableQuery(api.functions.scenes.list, {
-			room: roomId,
+			roomId,
 			search: state.search,
 		}) ?? EMPTY_ARRAY
 

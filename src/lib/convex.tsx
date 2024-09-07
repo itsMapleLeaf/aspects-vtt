@@ -19,3 +19,21 @@ export function useStableQuery<
 export function convexIdValidator<T extends TableNames | SystemTableNames>() {
 	return v.custom<Id<T>>((value) => typeof value === "string")
 }
+
+export function QueryResult<T>({
+	data,
+	renderLoading,
+	renderEmpty,
+	renderData,
+}: {
+	data: T | undefined | null
+	renderLoading: () => React.ReactNode
+	renderEmpty: () => React.ReactNode
+	renderData: (data: T) => React.ReactNode
+}) {
+	return (
+		data === undefined ? renderLoading()
+		: data === null ? renderEmpty()
+		: renderData(data)
+	)
+}
