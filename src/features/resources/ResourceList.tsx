@@ -10,8 +10,10 @@ import { ComponentProps, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api.js"
 import { useStableQuery } from "../../lib/convex.tsx"
-import { useDebouncedValue } from "../../lib/react.ts"
+import { useDebouncedValue, useSet } from "../../lib/react.ts"
 import { StrictOmit } from "../../lib/types.ts"
+import { PressEvent, Pressable, PressableProps } from "../../ui/Pressable.tsx"
+import { SelectionOverlay } from "../../ui/SelectionOverlay"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/menu.tsx"
 import { Modal, ModalPanel } from "../../ui/modal.tsx"
 import {
@@ -113,10 +115,34 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 		},
 	]
 
+	const resources = sections.flatMap((section) => section.resources ?? [])
+
+	const getResourceIndex = (resourceId: string) =>
+		resources.findIndex((it) => it.id === resourceId)
+
+	const [selectedResourceIds, selectedResourceIdActions] = useSet<string>()
+	const [rangeSelectStart, setRangeSelectStart] = useState<string>()
+
+	const handleResourcePress = (event: PressEvent, resourceId: string) => {
+		if (event.ctrlKey) {
+			selectedResourceIdActions.toggle(resourceId)
+			setRangeSelectStart(resourceId)
+		} else if (event.shiftKey) {
+			const [start, end] = normalizeRange(
+				getResourceIndex(rangeSelectStart ?? resourceId),
+				getResourceIndex(resourceId),
+			)
+			selectedResourceIdActions.set(
+				resources.slice(start, end + 1).map((it) => it.id),
+			)
+		} else {
+			selectedResourceIdActions.set([resourceId])
+			setRangeSelectStart(resourceId)
+		}
+	}
+
 	const [editorOpen, setEditorOpen] = useState(false)
-	const [editingResourceId, setEditingResourceId] = useState<string | null>(
-		null,
-	)
+	const [editingResourceId, setEditingResourceId] = useState<string>()
 
 	const editingResource = sections
 		.flatMap((section) => section.resources)
@@ -144,20 +170,32 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 			</div>
 
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto gap">
-				{sections.map((section) => (
-					<ResourceListSection key={section.resourceName} section={section}>
-						<ul className="flex flex-col gap-1">
-							{section.resources?.map((resource) => (
-								<li key={resource.id} className="contents">
-									<ResourceListItem
-										resource={resource}
-										onClick={() => openEditor(resource.id)}
-									/>
-								</li>
-							))}
-						</ul>
-					</ResourceListSection>
-				))}
+				{sections
+					.filter((section) => section.resources?.length)
+					.map((section) => (
+						<ResourceListSection key={section.resourceName} section={section}>
+							<ul className="flex flex-col gap-1">
+								{section.resources?.map((resource) => (
+									<li key={resource.id} className="contents">
+										<ResourceListItem
+											resource={resource}
+											selected={selectedResourceIds.has(resource.id)}
+											onPress={(event) =>
+												handleResourcePress(event, resource.id)
+											}
+											onDoublePress={(event) => {
+												if (!event.ctrlKey && !event.shiftKey) {
+													openEditor(resource.id)
+												} else {
+													handleResourcePress(event, resource.id)
+												}
+											}}
+										/>
+									</li>
+								))}
+							</ul>
+						</ResourceListSection>
+					))}
 			</div>
 
 			{editingResource && (
@@ -193,16 +231,17 @@ function ResourceListSection({
 
 function ResourceListItem({
 	resource,
+	selected,
 	...props
-}: StrictOmit<ComponentProps<"button">, "resource"> & {
+}: StrictOmit<PressableProps, "resource"> & {
 	resource: Resource
+	selected: boolean
 }) {
 	return (
-		<button
-			type="button"
+		<Pressable
 			{...props}
 			className={innerPanel(
-				"flex h-14 items-center justify-start px-3 text-start transition gap-2 hover:bg-primary-800",
+				"relative flex h-14 items-center justify-start px-3 text-start transition gap-2 hover:bg-primary-800",
 				props.className,
 			)}
 		>
@@ -210,7 +249,8 @@ function ResourceListItem({
 				{resource.icon}
 			</div>
 			<p>{resource.name}</p>
-		</button>
+			<SelectionOverlay visible={selected} />
+		</Pressable>
 	)
 }
 
@@ -246,4 +286,8 @@ function CreateResourceMenu({
 			</MenuPanel>
 		</Menu>
 	)
+}
+
+function normalizeRange(start: number, end: number) {
+	return [Math.min(start, end), Math.max(start, end)] as const
 }

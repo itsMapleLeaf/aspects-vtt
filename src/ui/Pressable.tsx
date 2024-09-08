@@ -1,12 +1,21 @@
-import { ComponentProps, startTransition } from "react"
-
-export type PressEvent = React.PointerEvent | React.KeyboardEvent
-
-export type PressHandler = (event: PressEvent) => void
+import { ComponentProps, startTransition, useRef } from "react"
 
 export interface PressableProps extends ComponentProps<"div"> {
 	onPress?: PressHandler
+	onDoublePress?: PressHandler
 }
+
+export type PressHandler = (event: PressEvent) => void
+
+export interface PressEvent {
+	type: "pointer" | "keyboard" | (string & {})
+	ctrlKey: boolean
+	shiftKey: boolean
+	altKey: boolean
+	metaKey: boolean
+}
+
+const DOUBLE_PRESS_DELAY = 350
 
 /**
  * Represents an element that can be pressed via mouse or keyboard.
@@ -17,7 +26,22 @@ export interface PressableProps extends ComponentProps<"div"> {
  * For ease of styling, it renders a div, but with `role="button"` and
  * `tabIndex={0}` for accessibility.
  */
-export function Pressable({ onPress, ...props }: PressableProps) {
+export function Pressable({
+	onPress,
+	onDoublePress,
+	...props
+}: PressableProps) {
+	const lastPressTime = useRef(0)
+
+	const handlePress = (event: PressEvent) => {
+		if (Date.now() - lastPressTime.current < DOUBLE_PRESS_DELAY) {
+			onDoublePress?.(event)
+		} else {
+			onPress?.(event)
+		}
+		lastPressTime.current = Date.now()
+	}
+
 	return (
 		<div
 			role="button"
@@ -27,7 +51,7 @@ export function Pressable({ onPress, ...props }: PressableProps) {
 				event.preventDefault()
 				startTransition(() => {
 					props.onPointerDown?.(event)
-					onPress?.(event)
+					handlePress(event)
 				})
 			}}
 			onKeyDown={(event) => {
@@ -35,7 +59,7 @@ export function Pressable({ onPress, ...props }: PressableProps) {
 				startTransition(() => {
 					props.onKeyDown?.(event)
 					if (event.key === "Enter" || event.key === " ") {
-						onPress?.(event)
+						handlePress(event)
 					}
 				})
 			}}

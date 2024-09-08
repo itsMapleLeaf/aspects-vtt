@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import * as v from "valibot"
 import { Nullish } from "./types.ts"
 
@@ -308,4 +308,36 @@ export function useDebouncedValue<T>(value: T, delay: number) {
 	}, [value, delay])
 
 	return debouncedValue
+}
+
+export function useEffectRef<T>(value: T) {
+	const ref = useRef(value)
+	useEffect(() => {
+		ref.current = value
+	}, [value])
+	return ref
+}
+
+export function usePointerDownDoubleClick<Target extends HTMLElement>(
+	onDoubleClick: (event: React.PointerEvent<Target>) => void,
+	delay = 200,
+) {
+	const lastClickTime = useRef<number | null>(null)
+	const onDoubleClickRef = useEffectRef(onDoubleClick)
+
+	return useCallback(
+		(event: React.PointerEvent<Target>) => {
+			const now = Date.now()
+			if (
+				lastClickTime.current != null &&
+				now - lastClickTime.current < delay
+			) {
+				onDoubleClickRef.current(event)
+				lastClickTime.current = null
+			} else {
+				lastClickTime.current = now
+			}
+		},
+		[delay],
+	)
 }

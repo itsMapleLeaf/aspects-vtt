@@ -1,7 +1,7 @@
 import { offset, Placement, shift, useFloating } from "@floating-ui/react-dom"
 import React, { useEffect } from "react"
 import { FocusOn } from "react-focus-on"
-import { useMergedRefs } from "../lib/react.ts"
+import { useMergedRefs } from "../lib/react/useMergedRefs.ts"
 import { mergeClassProp } from "./helpers.ts"
 import { Portal } from "./portal.tsx"
 import { fadeZoomTransition } from "./transitions.ts"
