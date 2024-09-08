@@ -11,6 +11,7 @@ import { twMerge } from "tailwind-merge"
 import { api } from "../../../convex/_generated/api.js"
 import { useStableQuery } from "../../lib/convex.tsx"
 import { useDebouncedValue } from "../../lib/react.ts"
+import { StrictOmit } from "../../lib/types.ts"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/menu.tsx"
 import { Modal, ModalPanel } from "../../ui/modal.tsx"
 import {
@@ -116,6 +117,7 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 	const [editingResourceId, setEditingResourceId] = useState<string | null>(
 		null,
 	)
+
 	const editingResource = sections
 		.flatMap((section) => section.resources)
 		.find((resource) => resource?.id === editingResourceId)
@@ -126,72 +128,35 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 	}
 
 	return (
-		<div className="flex h-full flex-col gap-4" {...props}>
+		<div
+			{...props}
+			className={twMerge("flex h-full flex-col gap-4", props.className)}
+		>
 			<div className="flex gap-2">
 				<input
 					type="text"
 					placeholder="Search"
 					value={search}
-					onChange={(e) => setSearch(e.target.value)}
+					onChange={(event) => setSearch(event.target.value)}
 					className={input("flex-1")}
 				/>
-				<Menu>
-					<MenuButton className={clearIconButton()}>
-						<LucidePlus />
-						<span className="sr-only">New...</span>
-					</MenuButton>
-					<MenuPanel>
-						{sections.map((section) => (
-							<ToastActionForm
-								key={section.resourceName}
-								action={async () => {
-									const { id } = await section.create.action()
-									openEditor(id)
-								}}
-								message={`Creating ${section.resourceName}...`}
-							>
-								<MenuItem key={section.resourceName} type="submit">
-									{section.create.icon}
-									{`Create ${startCase(section.resourceName)}`}
-								</MenuItem>
-							</ToastActionForm>
-						))}
-					</MenuPanel>
-				</Menu>
+				<CreateResourceMenu sections={sections} afterCreate={openEditor} />
 			</div>
 
-			<div
-				className={twMerge(
-					"flex min-h-0 flex-1 flex-col overflow-y-auto gap",
-					props.className,
-				)}
-			>
+			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto gap">
 				{sections.map((section) => (
-					<section key={section.resourceName}>
-						<h3 className={heading2xl("mb-1 opacity-50")}>
-							{startCase(section.resourceName)}s
-						</h3>
+					<ResourceListSection key={section.resourceName} section={section}>
 						<ul className="flex flex-col gap-1">
 							{section.resources?.map((resource) => (
 								<li key={resource.id} className="contents">
-									<button
-										type="button"
-										className={innerPanel(
-											"flex h-14 items-center justify-start px-3 text-start transition gap-2 hover:bg-primary-800",
-										)}
-										onClick={() => {
-											openEditor(resource.id)
-										}}
-									>
-										<div aria-hidden className="*:size-8">
-											{resource.icon}
-										</div>
-										<p>{resource.name}</p>
-									</button>
+									<ResourceListItem
+										resource={resource}
+										onClick={() => openEditor(resource.id)}
+									/>
 								</li>
 							))}
 						</ul>
-					</section>
+					</ResourceListSection>
 				))}
 			</div>
 
@@ -206,5 +171,79 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 				</Modal>
 			)}
 		</div>
+	)
+}
+
+function ResourceListSection({
+	section,
+	children,
+}: {
+	section: ResourceSection
+	children: React.ReactNode
+}) {
+	return (
+		<section key={section.resourceName}>
+			<h3 className={heading2xl("mb-1 opacity-50")}>
+				{startCase(section.resourceName)}s
+			</h3>
+			{children}
+		</section>
+	)
+}
+
+function ResourceListItem({
+	resource,
+	...props
+}: StrictOmit<ComponentProps<"button">, "resource"> & {
+	resource: Resource
+}) {
+	return (
+		<button
+			type="button"
+			{...props}
+			className={innerPanel(
+				"flex h-14 items-center justify-start px-3 text-start transition gap-2 hover:bg-primary-800",
+				props.className,
+			)}
+		>
+			<div aria-hidden className="*:size-8">
+				{resource.icon}
+			</div>
+			<p>{resource.name}</p>
+		</button>
+	)
+}
+
+function CreateResourceMenu({
+	sections,
+	afterCreate,
+}: {
+	sections: ResourceSection[]
+	afterCreate: (id: string) => void
+}) {
+	return (
+		<Menu>
+			<MenuButton className={clearIconButton()}>
+				<LucidePlus />
+				<span className="sr-only">New...</span>
+			</MenuButton>
+			<MenuPanel>
+				{sections.map((section) => (
+					<ToastActionForm
+						key={section.resourceName}
+						action={async () => {
+							const { id } = await section.create.action()
+							afterCreate(id)
+						}}
+						message={`Creating ${section.resourceName}...`}
+					>
+						<MenuItem key={section.resourceName} type="submit">
+							{section.create.icon}
+							{`Create ${startCase(section.resourceName)}`}
+						</MenuItem>
+					</ToastActionForm>
+				))}
+			</MenuPanel>
+		</Menu>
 	)
 }
