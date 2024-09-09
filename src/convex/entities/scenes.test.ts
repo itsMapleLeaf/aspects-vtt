@@ -37,7 +37,7 @@ test("list returns scenes only for the given room", async () => {
 	})
 
 	const scenes = await list(queryCtx, {
-		room: room1Id,
+		roomId: room1Id,
 	})
 
 	expect(scenes).toHaveLength(2)

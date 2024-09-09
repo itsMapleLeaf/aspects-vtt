@@ -9,8 +9,7 @@
 		"allowJs": true,
 		"allowImportingTsExtensions": true,
 		"paths": {
-			"~/*": ["./src/*"],
-			"~/convex/*": ["./convex/_generated/*"]
+			"~/*": ["./src/*"]
 		},
 
 		/* Type Checking */
