@@ -3,8 +3,8 @@ import { useDndContext, useDraggable, useDroppable } from "@dnd-kit/core"
 import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import * as v from "valibot"
-import { api } from "../../../../convex/_generated/api.js"
-import { Id } from "../../../../convex/_generated/dataModel.js"
+import { api } from "~/convex/_generated/api.js"
+import { Id } from "~/convex/_generated/dataModel.js"
 import { useLocalStorage, usePointer } from "../../../lib/react.ts"
 import { clearButton, clearPanel, heading2xl } from "../../../ui/styles.ts"
 import { Panel, Sidebar } from "../types.ts"
@@ -78,7 +78,7 @@ function PanelGroup({
 
 function SinglePanel({ panel }: { panel: Panel }) {
 	const params = useParams() as { room: Id<"rooms"> }
-	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
+	const room = useQuery(api.entities.rooms.getBySlug, { slug: params.room })
 	return (
 		<>
 			<div className="flex items-center justify-center p-2 opacity-50">
@@ -97,7 +97,7 @@ function MultiPanel({
 	storageKey: string
 }) {
 	const params = useParams() as { room: Id<"rooms"> }
-	const room = useQuery(api.functions.rooms.getBySlug, { slug: params.room })
+	const room = useQuery(api.entities.rooms.getBySlug, { slug: params.room })
 
 	const [activeTabState, setActiveTab] = useLocalStorage<
 		string | null | undefined

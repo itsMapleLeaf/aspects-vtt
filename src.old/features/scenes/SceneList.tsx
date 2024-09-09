@@ -10,8 +10,8 @@ import {
 	LucideX,
 } from "lucide-react"
 import { useState } from "react"
-import { api } from "../../../convex/_generated/api.js"
-import { Id } from "../../../convex/_generated/dataModel"
+import { api } from "~/convex/_generated/api.js"
+import { Id } from "~/convex/_generated/dataModel"
 import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
 import { useStableQuery } from "../../lib/convex.tsx"
 import { useSet } from "../../lib/react.ts"
@@ -52,14 +52,14 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	const [sceneEditorSceneId, setSceneEditorSceneId] = useState<Id<"scenes">>()
 
 	const scenes =
-		useStableQuery(api.functions.scenes.list, {
+		useStableQuery(api.entities.scenes.list, {
 			roomId,
 			search,
 		}) ?? EMPTY_ARRAY
 
-	const createScene = useMutation(api.functions.scenes.create)
-	const removeScenes = useMutation(api.functions.scenes.remove)
-	const updateRoom = useMutation(api.functions.rooms.update)
+	const createScene = useMutation(api.entities.scenes.create)
+	const removeScenes = useMutation(api.entities.scenes.remove)
+	const updateRoom = useMutation(api.entities.rooms.update)
 
 	const navigate = useNavigate()
 

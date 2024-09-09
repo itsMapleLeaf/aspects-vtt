@@ -9,19 +9,19 @@ import {
 	LucideX,
 } from "lucide-react"
 import { useState } from "react"
-import { api } from "../../../convex/_generated/api.js"
-import { Id } from "../../../convex/_generated/dataModel"
+import { api } from "~/convex/_generated/api.js"
+import { Id } from "~/convex/_generated/dataModel"
 import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
 import { useStableQuery } from "../../lib/convex.tsx"
 import { setToggle } from "../../lib/set.ts"
 import { typed } from "../../lib/types.ts"
 import { ActionRow, ActionRowItem } from "../../ui/ActionRow.tsx"
-import { EmptyState } from "../../ui/empty-state.tsx"
 import { FormButton } from "../../ui/FormButton.tsx"
-import { Modal, ModalPanel } from "../../ui/modal.tsx"
 import { PressEvent } from "../../ui/Pressable.tsx"
 import { SearchableList } from "../../ui/SearchableList.tsx"
 import { Selectable } from "../../ui/Selectable.tsx"
+import { EmptyState } from "../../ui/empty-state.tsx"
+import { Modal, ModalPanel } from "../../ui/modal.tsx"
 import { clearButton, errorText } from "../../ui/styles.ts"
 import { ToastActionForm } from "../../ui/toast.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
@@ -43,15 +43,15 @@ export function CharacterList({ roomId }: { roomId: Id<"rooms"> }) {
 	})
 
 	const characters =
-		useStableQuery(api.functions.characters.list, {
+		useStableQuery(api.entities.characters.list, {
 			roomId,
 			search: state.search,
 		}) ?? EMPTY_ARRAY
 
-	const createCharacter = useMutation(api.functions.characters.create)
-	const updateCharacter = useMutation(api.functions.characters.update)
-	const removeCharacters = useMutation(api.functions.characters.remove)
-	const duplicateCharacters = useMutation(api.functions.characters.duplicate)
+	const createCharacter = useMutation(api.entities.characters.create)
+	const updateCharacter = useMutation(api.entities.characters.update)
+	const removeCharacters = useMutation(api.entities.characters.remove)
+	const duplicateCharacters = useMutation(api.entities.characters.duplicate)
 
 	const characterEditorCharacter = characters.find(
 		(character) => character._id === state.characterEditorCharacterId,

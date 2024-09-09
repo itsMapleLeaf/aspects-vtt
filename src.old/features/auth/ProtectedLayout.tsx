@@ -1,6 +1,6 @@
 import { useConvexAuth, useQuery } from "convex/react"
 import { LucideLogIn } from "lucide-react"
-import { api } from "../../../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 import { EmptyState } from "../../ui/empty-state.tsx"
 import { LoadingCover } from "../../ui/loading.tsx"
 import { SignInButton } from "./SignInButton.tsx"
@@ -16,7 +16,7 @@ export function ProtectedLayout({
 	children: React.ReactNode
 	fallback?: React.ReactNode
 }) {
-	const user = useQuery(api.functions.users.me)
+	const user = useQuery(api.entities.users.me)
 	const auth = useConvexAuth()
 	const loading = user === undefined || auth.isLoading
 	return (

@@ -7,8 +7,8 @@ import {
 	LucideTrash,
 } from "lucide-react"
 import { ComponentProps } from "react"
-import { api } from "../../../convex/_generated/api.js"
-import { Id } from "../../../convex/_generated/dataModel"
+import { api } from "~/convex/_generated/api.js"
+import { Id } from "~/convex/_generated/dataModel"
 import {
 	Menu,
 	MenuButton,
@@ -30,9 +30,9 @@ export function SceneMenu({
 	scene: ApiScene
 	roomId: Id<"rooms">
 }) {
-	const updateRoom = useMutation(api.functions.rooms.update)
-	const duplicateScene = useMutation(api.functions.scenes.duplicate)
-	const deleteScene = useMutation(api.functions.scenes.remove)
+	const updateRoom = useMutation(api.entities.rooms.update)
+	const duplicateScene = useMutation(api.entities.scenes.duplicate)
+	const deleteScene = useMutation(api.entities.scenes.remove)
 	const { setPreviewSceneId } = useRoomParams()
 	return (
 		<Menu {...props}>

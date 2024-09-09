@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from "@remix-run/react"
 import * as Lucide from "lucide-react"
-import { api } from "../../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 import { RoomRoot } from "../features/rooms/RoomRoot.tsx"
 import { assert } from "../lib/assertions.ts"
 import { QueryResult, useStableQuery } from "../lib/convex.tsx"
@@ -13,7 +13,7 @@ export default function RoomRoute() {
 	const [searchParams] = useSearchParams()
 	const previewSceneId = searchParams.get("preview")
 
-	const room = useStableQuery(api.functions.rooms.getBySlug, {
+	const room = useStableQuery(api.entities.rooms.getBySlug, {
 		slug: assert(params.room, "Room param not found"),
 		previewSceneId,
 	})

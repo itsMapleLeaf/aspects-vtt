@@ -6,8 +6,8 @@ import {
 	LucideTentTree,
 	LucideWand2,
 } from "lucide-react"
-import { api } from "../../../convex/_generated/api.js"
-import { Doc } from "../../../convex/_generated/dataModel.js"
+import { api } from "~/convex/_generated/api.js"
+import { Doc } from "~/convex/_generated/dataModel.js"
 import { Card } from "../../ui/Card.js"
 import { EmptyState } from "../../ui/empty-state.js"
 import { FormActions, FormError, useForm } from "../../ui/form.js"
@@ -22,7 +22,7 @@ import {
 } from "../../ui/styles.js"
 
 export function RoomList() {
-	const rooms = useQuery(api.functions.rooms.list)
+	const rooms = useQuery(api.entities.rooms.list)
 	return (
 		<div className={container("flex flex-col gap-4")}>
 			<div className="flex items-start justify-between">
@@ -76,7 +76,7 @@ function CreateRoomButton() {
 }
 
 function CreateRoomForm() {
-	const createRoom = useMutation(api.functions.rooms.create)
+	const createRoom = useMutation(api.entities.rooms.create)
 	const navigate = useNavigate()
 
 	const form = useForm({

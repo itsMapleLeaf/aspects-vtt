@@ -14,3 +14,15 @@ export function useEffectEvent<Args extends unknown[], Result>(
 
 	return React.useCallback((...args: Args) => ref.current(...args), [])
 }
+
+export function useMergedRefs<T>(...refs: Array<React.Ref<T> | undefined>) {
+	return React.useCallback((node: T | null) => {
+		for (const ref of refs) {
+			if (typeof ref === "function") {
+				ref(node)
+			} else if (ref != null) {
+				ref.current = node
+			}
+		}
+	}, refs)
+}

@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test"
-import { api } from "../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 import { authTest } from "./fixtures.js"
 
 const roomName = `test_${Math.random().toString(36).slice(8)}`

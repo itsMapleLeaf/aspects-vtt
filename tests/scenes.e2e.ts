@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test"
-import { api } from "../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 import { roomTest } from "./fixtures.ts"
 
 roomTest.beforeEach(async ({ convex }) => {

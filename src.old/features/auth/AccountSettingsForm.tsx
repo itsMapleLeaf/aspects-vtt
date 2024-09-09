@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "convex/react"
 import { ConvexError } from "convex/values"
 import { LucideSave } from "lucide-react"
 import { useActionState } from "react"
-import { api } from "../../../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 import { InputField } from "../../ui/input.tsx"
 import { Loading } from "../../ui/loading.tsx"
 import {
@@ -13,8 +13,8 @@ import {
 } from "../../ui/styles.ts"
 
 export function AccountSettingsForm() {
-	const user = useQuery(api.functions.users.me)
-	const update = useMutation(api.functions.users.update)
+	const user = useQuery(api.entities.users.me)
+	const update = useMutation(api.entities.users.update)
 
 	const [errorMessage, action, pending] = useActionState(
 		async (_: string | undefined, form: FormData) => {

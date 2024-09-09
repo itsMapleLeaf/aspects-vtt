@@ -1,7 +1,7 @@
 import { useQuery } from "convex/react"
 import { FunctionReference, SystemTableNames } from "convex/server"
 import * as v from "valibot"
-import { Id, TableNames } from "../../convex/_generated/dataModel"
+import { Id, TableNames } from "~/convex/_generated/dataModel"
 import { isNonNil } from "./guards.ts"
 import { useFilter } from "./react.ts"
 

@@ -2,7 +2,7 @@ import { useAuthActions } from "@convex-dev/auth/react"
 import { Link } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { LucideLogOut, LucideSettings, LucideUser } from "lucide-react"
-import { api } from "../../../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 import { Loading } from "../../ui/loading.tsx"
 import { Menu, MenuButton, MenuItem, MenuPanel } from "../../ui/menu.tsx"
 import { Modal, ModalButton, ModalPanel } from "../../ui/modal.tsx"
@@ -10,7 +10,7 @@ import { clearCircleButton } from "../../ui/styles.ts"
 import { AccountSettingsForm } from "./AccountSettingsForm.tsx"
 
 export function UserButton() {
-	const user = useQuery(api.functions.users.me)
+	const user = useQuery(api.entities.users.me)
 	const actions = useAuthActions()
 	return (
 		user === undefined ? <Loading />

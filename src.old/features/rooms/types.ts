@@ -1,10 +1,10 @@
 import { FunctionReturnType } from "convex/server"
 import React from "react"
 import * as v from "valibot"
-import { api } from "../../../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 
 export type ApiRoom = NonNullable<
-	FunctionReturnType<typeof api.functions.rooms.get>
+	FunctionReturnType<typeof api.entities.rooms.get>
 >
 
 export type PanelLocation = v.InferOutput<typeof panelLocationSchema>

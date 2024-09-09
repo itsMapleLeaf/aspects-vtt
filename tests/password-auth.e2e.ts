@@ -1,6 +1,6 @@
 import test, { expect } from "@playwright/test"
 import { ConvexHttpClient } from "convex/browser"
-import { api } from "../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 
 const username = `test_${Math.random().toString(36).slice(2)}`
 const displayName = `Test ${Math.random().toString(36).slice(2)}`

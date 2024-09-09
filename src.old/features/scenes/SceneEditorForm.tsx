@@ -3,12 +3,12 @@ import { useMutation } from "convex/react"
 import { LucideGrid2x2, LucideImage, LucideSave } from "lucide-react"
 import { useState } from "react"
 import * as v from "valibot"
-import { api } from "../../../convex/_generated/api.js"
+import { api } from "~/convex/_generated/api.js"
 import { formDataSchema, formNumberSchema } from "../../lib/validation.ts"
-import { FormField } from "../../ui/form.tsx"
 import { FormButton } from "../../ui/FormButton.tsx"
-import { InputField } from "../../ui/input.tsx"
 import { Select, SelectOption } from "../../ui/Select.tsx"
+import { FormField } from "../../ui/form.tsx"
+import { InputField } from "../../ui/input.tsx"
 import { formLayout, solidButton } from "../../ui/styles.ts"
 import { ToastActionForm } from "../../ui/toast.tsx"
 import { ImageDropzone } from "../images/ImageDropzone.tsx"
@@ -22,7 +22,7 @@ export function SceneEditorForm({
 	scene: ApiScene
 	onSubmitSuccess?: (scene: ApiScene) => void
 }) {
-	const updateScene = useMutation(api.functions.scenes.update)
+	const updateScene = useMutation(api.entities.scenes.update)
 
 	type Mode = ApiScene["mode"]
 

@@ -12,8 +12,8 @@ import {
 } from "lucide-react"
 import { ComponentProps, useState } from "react"
 import { twMerge } from "tailwind-merge"
-import { api } from "../../../convex/_generated/api.js"
-import { Id } from "../../../convex/_generated/dataModel"
+import { api } from "~/convex/_generated/api.js"
+import { Id } from "~/convex/_generated/dataModel"
 import { useStableQuery } from "../../lib/convex.tsx"
 import { useDebouncedValue, useSet } from "../../lib/react.ts"
 import { StrictOmit } from "../../lib/types.ts"
@@ -57,24 +57,24 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 	const debouncedSearch = useDebouncedValue(search, 400)
 	const [batchEditMode, setBatchEditMode] = useState(false)
 
-	const characters = useStableQuery(api.functions.characters.list, {
+	const characters = useStableQuery(api.entities.characters.list, {
 		roomId: room._id,
 		search: debouncedSearch,
 	})
 
-	const createCharacter = useMutation(api.functions.characters.create)
-	const updateCharacter = useMutation(api.functions.characters.update)
-	const deleteCharacters = useMutation(api.functions.characters.remove)
-	const duplicateCharacters = useMutation(api.functions.characters.duplicate)
+	const createCharacter = useMutation(api.entities.characters.create)
+	const updateCharacter = useMutation(api.entities.characters.update)
+	const deleteCharacters = useMutation(api.entities.characters.remove)
+	const duplicateCharacters = useMutation(api.entities.characters.duplicate)
 
-	const scenes = useStableQuery(api.functions.scenes.list, {
+	const scenes = useStableQuery(api.entities.scenes.list, {
 		roomId: room._id,
 		search: debouncedSearch,
 	})
 
-	const createScene = useMutation(api.functions.scenes.create)
-	const deleteScenes = useMutation(api.functions.scenes.remove)
-	const duplicateScenes = useMutation(api.functions.scenes.duplicate)
+	const createScene = useMutation(api.entities.scenes.create)
+	const deleteScenes = useMutation(api.entities.scenes.remove)
+	const duplicateScenes = useMutation(api.entities.scenes.duplicate)
 
 	const sections: ResourceSection[] = [
 		{
@@ -352,7 +352,7 @@ function CreateResourceMenu({
 						}}
 						message={`Creating ${section.resourceName}...`}
 					>
-						<MenuItem key={section.resourceName} type="submit">
+						<MenuItem key={section.resourceName}>
 							{section.create.icon}
 							{`Create ${startCase(section.resourceName)}`}
 						</MenuItem>
