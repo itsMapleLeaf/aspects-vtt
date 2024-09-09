@@ -48,7 +48,7 @@
 	.dark {
 		--background: var(--primary-900);
 		--foreground: var(--primary-100);
-		--card: var(--primary-900);
+		--card: var(--primary-800);
 		--card-foreground: var(--primary-100);
 		--popover: var(--primary-900);
 		--popover-foreground: var(--primary-100);
@@ -56,13 +56,13 @@
 		--primary-foreground: var(--primary-800);
 		--secondary: var(--primary-800);
 		--secondary-foreground: var(--primary-100);
-		--muted: var(--primary-800);
+		--muted: var(--primary-700);
 		--muted-foreground: var(--primary-400);
-		--accent: var(--primary-800);
-		--accent-foreground: var(--primary-100);
+		--accent: var(--accent-800);
+		--accent-foreground: var(--accent-100);
 		--destructive: var(--primary-700);
 		--destructive-foreground: var(--primary-100);
-		--border: var(--primary-800);
+		--border: var(--primary-700);
 		--input: var(--primary-800);
 		--ring: var(--primary-300);
 		--chart-1: var(--primary-300);
