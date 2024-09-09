@@ -7,7 +7,7 @@ export function ActionRow(props: ComponentProps<"div">) {
 	return (
 		<div
 			{...props}
-			className={twMerge(":flex-1 flex gap-1", props.className)}
+			className={twMerge("flex gap-1 *:flex-1", props.className)}
 		/>
 	)
 }

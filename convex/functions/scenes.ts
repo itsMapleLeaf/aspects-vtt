@@ -90,14 +90,38 @@ export const update = mutation({
 
 export const remove = mutation({
 	args: {
-		ids: v.array(v.id("scenes")),
+		sceneIds: v.array(v.id("scenes")),
 	},
 	handler(ctx, args) {
 		return pipe(
-			Effect.forEach(args.ids, (id) =>
+			Effect.forEach(args.sceneIds, (id) =>
 				pipe(
 					ensureSceneRoomOwner(ctx, id),
 					Effect.flatMap(({ scene }) => ctx.db.delete(scene._id)),
+				),
+			),
+			Effect.orDie,
+			Effect.asVoid,
+		)
+	},
+})
+
+export const duplicate = mutation({
+	args: {
+		sceneIds: v.array(v.id("scenes")),
+	},
+	handler(ctx, args) {
+		return pipe(
+			Effect.forEach(args.sceneIds, (id) =>
+				ensureSceneRoomOwner(ctx, id).pipe(
+					Effect.map(({ scene }) => scene),
+					Effect.flatMap((scene) => {
+						const { _id, _creationTime, ...rest } = scene
+						return ctx.db.insert("scenes", {
+							...rest,
+							name: `${scene.name} Copy`,
+						})
+					}),
 				),
 			),
 			Effect.orDie,
