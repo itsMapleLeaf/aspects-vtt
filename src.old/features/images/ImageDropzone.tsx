@@ -42,7 +42,7 @@ export function ImageDropzone({
 		<div
 			{...dropzone.getRootProps(props)}
 			className={innerPanel(
-				"hover:bg-primary-700 group relative grid aspect-video place-content-center overflow-clip text-balance text-center transition gap-2",
+				"group relative grid aspect-video place-content-center overflow-clip text-balance text-center transition gap-2 hover:bg-primary-700",
 				classes?.wrapper,
 			)}
 		>

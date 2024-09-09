@@ -73,7 +73,7 @@ export function CharacterEditorForm({
 			message="Saving character..."
 			className={formLayout("@container gap-3")}
 		>
-			<div className="@md:flex-row flex flex-col items-stretch gap-y gap-x-3">
+			<div className="flex flex-col items-stretch gap-y gap-x-3 @md:flex-row">
 				<div className="flex flex-1 flex-col gap">
 					<ImageDropzone
 						name="image"
@@ -156,7 +156,7 @@ export function CharacterEditorForm({
 				</div>
 			</div>
 
-			<div className="@xs:flex-row flex flex-col gap">
+			<div className="flex flex-col gap @xs:flex-row">
 				<FormField label="Health" className="flex-1">
 					<div className="flex items-center gap-2">
 						<NumberInput
