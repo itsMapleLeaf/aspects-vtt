@@ -174,16 +174,6 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 			{...props}
 			className={twMerge("flex h-full flex-col gap-4", props.className)}
 		>
-			<div className="flex gap-2">
-				<input
-					type="text"
-					placeholder="Search"
-					value={search}
-					onChange={(event) => setSearch(event.target.value)}
-					className={input("flex-1")}
-				/>
-			</div>
-
 			<ActionRow>
 				{batchEditMode && selectedResourceIds.size > 0 && (
 					<ActionRowItem
@@ -244,6 +234,14 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 
 				<CreateResourceMenu sections={sections} afterCreate={openEditor} />
 			</ActionRow>
+
+			<input
+				type="text"
+				placeholder="Search"
+				value={search}
+				onChange={(event) => setSearch(event.target.value)}
+				className={input()}
+			/>
 
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto gap">
 				{sections
