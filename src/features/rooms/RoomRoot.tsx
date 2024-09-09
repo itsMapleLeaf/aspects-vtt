@@ -1,5 +1,9 @@
 import { mapValues } from "lodash-es"
-import { LucideFolderTree, LucideMessageSquareText } from "lucide-react"
+import {
+	LucideImages,
+	LucideMessageSquareText,
+	LucideUsers,
+} from "lucide-react"
 import { ReactNode } from "react"
 import * as v from "valibot"
 import {
@@ -10,7 +14,8 @@ import {
 } from "../../lib/react.ts"
 import { AppHeader } from "../../ui/app-header.tsx"
 import { BattleMap } from "../battlemap/BattleMap.tsx"
-import { ResourceList } from "../resources/ResourceList.tsx"
+import { CharacterList } from "../characters/CharacterList.tsx"
+import { SceneList } from "../scenes/SceneList.tsx"
 import { ApiScene } from "../scenes/types.ts"
 import { SidebarToggle } from "./SidebarToggle.tsx"
 import { buildPanelGroups } from "./panels.tsx"
@@ -25,10 +30,19 @@ import {
 
 export function RoomRoot({ room }: { room: ApiRoom }) {
 	const panels: Record<string, PanelProperties> = {
-		resources: {
-			title: "Resources",
-			icon: <LucideFolderTree />,
-			content: <ResourceList room={room} />,
+		scenes: {
+			title: "Scenes",
+			icon: <LucideImages />,
+			content: <SceneList roomId={room._id} />,
+			defaultLocation: {
+				sidebar: "left",
+				group: 0,
+			},
+		},
+		characters: {
+			title: "Characters",
+			icon: <LucideUsers />,
+			content: <CharacterList roomId={room._id} />,
 			defaultLocation: {
 				sidebar: "left",
 				group: 0,

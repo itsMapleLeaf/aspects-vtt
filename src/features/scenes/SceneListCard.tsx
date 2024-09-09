@@ -1,16 +1,23 @@
 import { useSearchParams } from "@remix-run/react"
 import { LucideEye, LucideImageOff, LucidePlay } from "lucide-react"
+import { Pressable, PressableProps } from "../../ui/Pressable.tsx"
 import { heading2xl, panel } from "../../ui/styles.ts"
 import { ApiScene } from "./types.ts"
 
-export function SceneListCard({ scene }: { scene: ApiScene }) {
+/** A card displayed in the scene list. */
+export function SceneListCard({
+	scene,
+	...props
+}: { scene: ApiScene } & PressableProps) {
 	const [searchParams] = useSearchParams()
 	const previewSceneId = searchParams.get("preview")
 
 	return (
-		<figure
+		<Pressable
+			{...props}
 			className={panel(
 				"group relative grid h-20 cursor-default select-none place-content-center overflow-clip",
+				props.className,
 			)}
 			data-testid="scene-card"
 		>
@@ -24,10 +31,10 @@ export function SceneListCard({ scene }: { scene: ApiScene }) {
 					<LucideImageOff className="size-16 opacity-25" />
 				</div>
 			}
-			<figcaption className="relative truncate px-4 text-center">
-				<h3 className={heading2xl("min-w-0 truncate text-center text-xl")}>
+			<div className="relative truncate px-4 text-center">
+				<p className={heading2xl("min-w-0 truncate text-center text-xl")}>
 					{scene.name}
-				</h3>
+				</p>
 				{scene.isActive ?
 					<p className="relative flex items-center justify-center text-sm font-bold text-primary-200 opacity-75 gap-1">
 						<LucidePlay className="size-4" />
@@ -39,7 +46,7 @@ export function SceneListCard({ scene }: { scene: ApiScene }) {
 						<span>Previewing</span>
 					</p>
 				:	null}
-			</figcaption>
-		</figure>
+			</div>
+		</Pressable>
 	)
 }

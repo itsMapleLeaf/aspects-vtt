@@ -14,92 +14,88 @@ import { api } from "../../../convex/_generated/api.js"
 import { Id } from "../../../convex/_generated/dataModel"
 import { EMPTY_ARRAY, hasLength } from "../../lib/array.ts"
 import { useStableQuery } from "../../lib/convex.tsx"
-import { setToggle } from "../../lib/set.ts"
-import { typed } from "../../lib/types.ts"
+import { useSet } from "../../lib/react.ts"
 import { ActionRow, ActionRowItem } from "../../ui/ActionRow.tsx"
-import { EmptyState } from "../../ui/empty-state.tsx"
 import { FormButton } from "../../ui/FormButton.tsx"
-import { Modal, ModalPanel } from "../../ui/modal.tsx"
 import { PressEvent } from "../../ui/Pressable.tsx"
 import { SearchableList } from "../../ui/SearchableList.tsx"
-import { Selectable } from "../../ui/Selectable.tsx"
+import { EmptyState } from "../../ui/empty-state.tsx"
+import { Modal, ModalPanel } from "../../ui/modal.tsx"
 import { clearButton, errorText } from "../../ui/styles.ts"
 import { ToastActionForm } from "../../ui/toast.tsx"
 import { SceneEditorForm } from "./SceneEditorForm"
 import { SceneListCard } from "./SceneListCard"
-import { ApiScene } from "./types.ts"
+import { SceneMenu, SceneMenuButton } from "./SceneMenu.tsx"
 
+/**
+ * Renders a searchable list of scenes in a room.
+ *
+ * Clicking on a scene opens a menu of actions for that scene:
+ *
+ * - Play: sets the active scene to this one
+ * - Preview: lets the GM view the scene without changing the active scene
+ * - Edit: opens the scene editor for this scene
+ * - Duplicate: creates a new scene with the same content
+ * - Delete: deletes the scene
+ *
+ * For power users, multiple scenes can be selected by ctrl-clicking or
+ * shift-clicking. Then a delete button will appear at the bottom of the list to
+ * delete all selected scenes.
+ */
 export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
-	const navigate = useNavigate()
+	const [search, setSearch] = useState("")
 
-	const [state, setState] = useState({
-		search: "",
-		selectedSceneIds: typed<ReadonlySet<Id<"scenes">>>(new Set<Id<"scenes">>()),
-		lastSelectedSceneId: typed<Id<"scenes"> | null>(null),
-		sceneEditorOpen: false,
-		sceneEditorSceneId: typed<Id<"scenes"> | null>(null),
-	})
+	const [selectedSceneIds, selectedSceneIdActions] = useSet<Id<"scenes">>()
+	const [lastSelectedSceneId, setLastSelectedSceneId] = useState<Id<"scenes">>()
+
+	const [sceneEditorOpen, setSceneEditorOpen] = useState(false)
+	const [sceneEditorSceneId, setSceneEditorSceneId] = useState<Id<"scenes">>()
 
 	const scenes =
 		useStableQuery(api.functions.scenes.list, {
 			roomId,
-			search: state.search,
+			search,
 		}) ?? EMPTY_ARRAY
 
 	const createScene = useMutation(api.functions.scenes.create)
 	const removeScenes = useMutation(api.functions.scenes.remove)
 	const updateRoom = useMutation(api.functions.rooms.update)
 
+	const navigate = useNavigate()
+
 	const sceneEditorScene = scenes.find(
-		(scene) => scene._id === state.sceneEditorSceneId,
+		(scene) => scene._id === sceneEditorSceneId,
 	)
 
 	const selectedScenes = scenes.filter((scene) =>
-		state.selectedSceneIds.has(scene._id),
+		selectedSceneIds.has(scene._id),
 	)
 
-	const setSearch = (search: string) => {
-		setState((current) => ({ ...current, search }))
-	}
-
-	const openSceneEditor = (scene: ApiScene) => {
-		setState((current) => ({
-			...current,
-			sceneEditorOpen: true,
-			sceneEditorSceneId: scene._id,
-		}))
-	}
-
-	const setSceneEditorOpen = (open: boolean) => {
-		setState((current) => ({ ...current, sceneEditorOpen: open }))
+	const openSceneEditor = (sceneId: Id<"scenes">) => {
+		setSceneEditorSceneId(sceneId)
+		setSceneEditorOpen(true)
 	}
 
 	const clearSelection = () => {
-		setState((current) => ({
-			...current,
-			selectedSceneIds: new Set<Id<"scenes">>(),
-		}))
+		selectedSceneIdActions.clear()
+		setLastSelectedSceneId(undefined)
 	}
 
-	const handleScenePress = (scene: ApiScene, event: PressEvent) => {
+	const handleScenePress = (sceneId: Id<"scenes">, event: PressEvent) => {
 		// ctrl should toggle the scene
 		if (event.ctrlKey) {
-			setState((current) => ({
-				...current,
-				selectedSceneIds: setToggle(current.selectedSceneIds, scene._id),
-			}))
+			selectedSceneIdActions.toggle(sceneId)
 			return
 		}
 
 		// shift should do a range select from the last selected scene to the current one
 		if (event.shiftKey) {
 			const lastSelectedIndex = scenes.findIndex(
-				(scene) => scene._id === state.lastSelectedSceneId,
+				(scene) => scene._id === lastSelectedSceneId,
 			)
-			const selectedIndex = scenes.findIndex((scene) => scene._id === scene._id)
-			setState((current) => ({
-				...current,
-				selectedSceneIds: new Set(
+			const selectedIndex = scenes.findIndex((scene) => scene._id === sceneId)
+			selectedSceneIdActions.set(
+				new Set(
 					scenes
 						.slice(
 							Math.min(lastSelectedIndex, selectedIndex),
@@ -107,46 +103,31 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 						)
 						.map((scene) => scene._id),
 				),
-			}))
+			)
 			return
 		}
 
-		// if selected, open the editor
-		if (state.selectedSceneIds.has(scene._id)) {
-			// this startTransition makes autoFocus work in the editor, for some reason
-			openSceneEditor(scene)
-			return
-		}
-
-		// otherwise, set the current scene as the only selected one
-		setState((current) => ({
-			...current,
-			selectedSceneIds: new Set([scene._id]),
-			lastSelectedSceneId: scene._id,
-		}))
+		openSceneEditor(sceneId)
 	}
 
 	return (
 		<div className="relative flex h-full flex-col gap-3">
 			<div className="flex-1">
 				<SearchableList
-					search={state.search}
+					search={search}
 					onSearchChange={setSearch}
 					items={scenes}
 					renderItem={(scene) => (
-						<Selectable
-							active={state.selectedSceneIds.has(scene._id)}
-							onPress={(event) => handleScenePress(scene, event)}
-						>
-							<SceneListCard scene={scene} />
-						</Selectable>
+						<SceneMenu scene={scene} roomId={roomId} placement="right">
+							<SceneMenuButton render={<SceneListCard scene={scene} />} />
+						</SceneMenu>
 					)}
 					actions={
 						<ToastActionForm
 							message="Creating scene..."
 							action={async () => {
-								const scene = await createScene({ name: "New scene", roomId })
-								openSceneEditor(scene)
+								const sceneId = await createScene({ name: "New scene", roomId })
+								openSceneEditor(sceneId)
 							}}
 						>
 							<FormButton className={clearButton()}>
@@ -182,7 +163,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 							</ActionRowItem>
 							<ActionRowItem
 								icon={<LucideEdit />}
-								onClick={() => openSceneEditor(selectedScenes[0])}
+								onClick={() => openSceneEditor(selectedScenes[0]._id)}
 							>
 								Edit
 							</ActionRowItem>
@@ -197,7 +178,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 						message="Deleting scene(s)..."
 						action={() => {
 							return removeScenes({
-								ids: selectedScenes.map((scene) => scene._id),
+								sceneIds: selectedScenes.map((scene) => scene._id),
 							})
 						}}
 					>
@@ -212,7 +193,7 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 				</ActionRow>
 			)}
 
-			<Modal open={state.sceneEditorOpen} setOpen={setSceneEditorOpen}>
+			<Modal open={sceneEditorOpen} setOpen={setSceneEditorOpen}>
 				<ModalPanel title="Edit scene">
 					{sceneEditorScene ?
 						<SceneEditorForm

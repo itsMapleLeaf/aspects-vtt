@@ -1,12 +1,12 @@
 import * as Ariakit from "@ariakit/react"
 import { NavLink } from "@remix-run/react"
 import { To } from "@remix-run/router"
-import { ComponentProps } from "react"
 import { ClassNameValue } from "tailwind-merge"
-import { Popover } from "./popover.tsx"
+import { FormButton } from "./FormButton.tsx"
 import { clearButton, panel } from "./styles.ts"
+import { ToastActionForm } from "./toast.tsx"
 
-export function Menu(props: ComponentProps<typeof Popover>) {
+export function Menu(props: Ariakit.MenuProviderProps) {
 	return <Ariakit.MenuProvider {...props} />
 }
 
@@ -24,21 +24,42 @@ export function MenuPanel(props: Ariakit.MenuProps) {
 	)
 }
 
-export function MenuItem({
+export function MenuItem(props: Ariakit.MenuItemProps) {
+	return (
+		<Ariakit.MenuItem {...props} className={menuItemStyle(props.className)} />
+	)
+}
+
+export function MenuLinkItem({
 	to,
-	type = "button",
 	...props
 }: Ariakit.MenuItemProps & {
-	to?: To
-	type?: "submit" | "button"
+	to: To
 }) {
 	return (
-		<Ariakit.MenuItem
-			render={(props) =>
-				to ?
-					<NavLink to={to} prefetch="intent" {...props} />
-				:	<button {...props} type={type} />
-			}
+		<MenuItem
+			render={(props) => <NavLink to={to} prefetch="intent" {...props} />}
+			{...props}
+			className={menuItemStyle(props.className)}
+		/>
+	)
+}
+
+export function MenuFormItem({
+	action,
+	message,
+	...props
+}: Ariakit.MenuItemProps & {
+	action: (formData: FormData) => Promise<unknown>
+	message: string
+}) {
+	return (
+		<MenuItem
+			render={(props) => (
+				<ToastActionForm action={action} message={message} className="contents">
+					<FormButton {...props} type="submit" />
+				</ToastActionForm>
+			)}
 			{...props}
 			className={menuItemStyle(props.className)}
 		/>
