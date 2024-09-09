@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values"
 import { Effect } from "effect"
-import { AppError } from "../../src/lib/AppError"
+import { AppError } from "../../src/common/AppError"
 
 // Remove the AppError class definition as it's now imported from src/lib/errors.ts
 

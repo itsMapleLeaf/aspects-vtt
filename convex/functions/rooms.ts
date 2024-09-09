@@ -1,7 +1,7 @@
 import { ConvexEffectError } from "@maple/convex-effect"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { Nullish } from "../../src/lib/types.ts"
+import { Nullish } from "../../src/common/types.ts"
 import { Doc, Id } from "../_generated/dataModel"
 import { LocalQueryContext, mutation, query } from "../lib/api.ts"
 import { getAuthUserId } from "../lib/auth.ts"

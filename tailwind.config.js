@@ -5,7 +5,7 @@ import animate from "tailwindcss-animate"
 import colors from "tailwindcss/colors.js"
 import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin"
-import { lerp } from "./src/lib/math.ts"
+import { lerp } from "./src/common/math.ts"
 
 /** @type {import("tailwindcss").Config} */
 export default {

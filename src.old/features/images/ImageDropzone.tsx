@@ -2,7 +2,7 @@ import { LucideImagePlus } from "lucide-react"
 import { ComponentProps, useMemo } from "react"
 import { useDropzone } from "react-dropzone"
 import { twMerge } from "tailwind-merge"
-import { convertBytes } from "../../lib/math.ts"
+import { convertBytes } from "../../../src/common/math.ts"
 import { StrictOmit } from "../../lib/types.ts"
 import { innerPanel } from "../../ui/styles.ts"
 
@@ -42,7 +42,7 @@ export function ImageDropzone({
 		<div
 			{...dropzone.getRootProps(props)}
 			className={innerPanel(
-				"group relative grid aspect-video place-content-center overflow-clip text-balance text-center transition gap-2 hover:bg-primary-700",
+				"hover:bg-primary-700 group relative grid aspect-video place-content-center overflow-clip text-balance text-center transition gap-2",
 				classes?.wrapper,
 			)}
 		>

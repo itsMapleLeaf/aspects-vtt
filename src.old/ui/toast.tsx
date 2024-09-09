@@ -2,7 +2,7 @@ import { ConvexError } from "convex/values"
 import { ComponentProps } from "react"
 import { toast, ToastOptions, ToastPromiseParams } from "react-toastify"
 import { twMerge } from "tailwind-merge"
-import { AppError } from "../lib/AppError.ts"
+import { AppError } from "../../src/common/AppError.ts"
 import { throttle } from "../lib/async.ts"
 
 export function toastAction<Result, Args extends unknown[]>(

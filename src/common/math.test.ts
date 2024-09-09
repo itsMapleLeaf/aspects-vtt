@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { ByteUnit, convertBytes } from "./math"
+import { ByteUnit, convertBytes } from "./math.ts"
 
 test.describe("convertBytes", () => {
 	test("converts from B to KB", () => {
