@@ -8,6 +8,10 @@
 		"resolveJsonModule": true,
 		"allowJs": true,
 		"allowImportingTsExtensions": true,
+		"paths": {
+			"~/*": ["./src/*"],
+			"~/convex/*": ["./convex/_generated/*"]
+		},
 
 		/* Type Checking */
 		"target": "es2022",

@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:focus {
+		outline: none;
+	}
+
+	:focus-visible {
+		outline: 2px solid theme("colors.accent.300");
+		outline-offset: 2px;
+	}
+
+	button,
+	[role="button"] {
+		cursor: default;
+	}
+
+	:root {
+		--background: var(--primary-100);
+		--foreground: var(--primary-900);
+		--card: var(--primary-100);
+		--card-foreground: var(--primary-900);
+		--popover: var(--primary-100);
+		--popover-foreground: var(--primary-900);
+		--primary: var(--primary-800);
+		--primary-foreground: var(--primary-100);
+		--secondary: var(--primary-200);
+		--secondary-foreground: var(--primary-800);
+		--muted: var(--primary-200);
+		--muted-foreground: var(--primary-600);
+		--accent: var(--primary-200);
+		--accent-foreground: var(--primary-800);
+		--destructive: var(--primary-500);
+		--destructive-foreground: var(--primary-100);
+		--border: var(--primary-200);
+		--input: var(--primary-200);
+		--ring: var(--primary-900);
+		--chart-1: var(--primary-500);
+		--chart-2: var(--primary-600);
+		--chart-3: var(--primary-700);
+		--chart-4: var(--primary-400);
+		--chart-5: var(--primary-300);
+		--radius: 0.5rem;
+	}
+
+	.dark {
+		--background: var(--primary-900);
+		--foreground: var(--primary-100);
+		--card: var(--primary-900);
+		--card-foreground: var(--primary-100);
+		--popover: var(--primary-900);
+		--popover-foreground: var(--primary-100);
+		--primary: var(--primary-100);
+		--primary-foreground: var(--primary-800);
+		--secondary: var(--primary-800);
+		--secondary-foreground: var(--primary-100);
+		--muted: var(--primary-800);
+		--muted-foreground: var(--primary-400);
+		--accent: var(--primary-800);
+		--accent-foreground: var(--primary-100);
+		--destructive: var(--primary-700);
+		--destructive-foreground: var(--primary-100);
+		--border: var(--primary-800);
+		--input: var(--primary-800);
+		--ring: var(--primary-300);
+		--chart-1: var(--primary-300);
+		--chart-2: var(--primary-400);
+		--chart-3: var(--primary-500);
+		--chart-4: var(--primary-200);
+		--chart-5: var(--primary-600);
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
