@@ -1,3 +1,6 @@
+import "@fontsource-variable/nunito"
+import "./root.css"
+
 import {
 	Links,
 	Meta,
@@ -5,7 +8,6 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react"
-import "./root.css"
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (

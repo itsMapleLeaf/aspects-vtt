@@ -55,12 +55,20 @@ export function useLocalStorage<T>(
 		loadValue(key)
 	}, [key])
 
+	const idleCallbackRef = React.useRef<number | undefined>(undefined)
 	const saveValue = useEffectEvent((action: React.SetStateAction<T>) => {
 		setValue(action)
-		localStorage.setItem(
-			key,
-			JSON.stringify(action instanceof Function ? action(value) : action),
-		)
+
+		if (idleCallbackRef.current != null) {
+			cancelIdleCallback(idleCallbackRef.current)
+		}
+
+		idleCallbackRef.current = requestIdleCallback(() => {
+			localStorage.setItem(
+				key,
+				JSON.stringify(action instanceof Function ? action(value) : action),
+			)
+		})
 	})
 
 	return [value, saveValue] as const

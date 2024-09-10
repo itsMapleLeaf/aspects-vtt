@@ -1,7 +1,17 @@
+import { Tooltip, TooltipProvider } from "@ariakit/react"
+import { Iterator } from "iterator-helpers-polyfill"
 import Konva from "konva"
-import { clamp } from "lodash-es"
-import { startTransition, useState } from "react"
-import { Image, Layer, Stage } from "react-konva"
+import { clamp, random } from "lodash-es"
+import { useEffect, useRef, useState, type ReactNode } from "react"
+import {
+	Circle,
+	Group,
+	Image,
+	Layer,
+	Stage,
+	type StageProps,
+} from "react-konva"
+import { Html } from "react-konva-utils"
 import * as v from "valibot"
 import luna from "~/assets/luna.png"
 import map from "~/assets/map.jpg"
@@ -37,36 +47,44 @@ export default function RoomRoute() {
 		},
 	])
 
-	const [characters, setCharacters] = useState([
-		{
-			id: "luna",
-			name: "Luna",
-			pronouns: "she/her",
-			race: "Renari",
-			imageUrl: luna,
-			health: 20,
-			resolve: 8,
-			battlemapPosition: {
-				x: 70,
-				y: 70,
-			},
-		},
-		{
-			id: "priya",
-			name: "Priya",
-			pronouns: "she/her",
-			race: "Renari",
-			imageUrl: priya,
-			health: 20,
-			resolve: 8,
-			battlemapPosition: {
-				x: 140,
-				y: 140,
-			},
-		},
-	])
+	const [characters, setCharacters] = useState(() =>
+		Iterator.range(0, 50)
+			.flatMap((i) => [
+				{
+					id: "luna" + i,
+					name: "Luna",
+					pronouns: "she/her",
+					race: "Renari",
+					imageUrl: luna,
+					health: 20,
+					resolve: 8,
+					battlemapPosition: {
+						x: random(0, 4000),
+						y: random(0, 5000),
+					},
+					updatedAt: Date.now(),
+				},
+				{
+					id: "priya" + i,
+					name: "Priya",
+					pronouns: "she/her",
+					race: "Umbraleth",
+					imageUrl: priya,
+					health: 20,
+					resolve: 8,
+					battlemapPosition: {
+						x: random(0, 4000),
+						y: random(0, 5000),
+					},
+					updatedAt: Date.now(),
+				},
+			])
+			.toArray(),
+	)
 
 	const activeScene = scenes.find((scene) => scene.id === room.activeSceneId)
+
+	const [draggingViewport, setDraggingViewport] = useState(false)
 
 	return (
 		<>
@@ -77,22 +95,32 @@ export default function RoomRoute() {
 					<BattlemapBackground
 						backgroundUrl={activeScene.battlemapBackground}
 					/>
-					{characters.map((character) => (
-						<BattlemapCharacterToken
-							key={character.id}
-							{...character}
-							cellSize={activeScene.cellSize}
-							onMove={(pos) => {
-								setCharacters((prev) =>
-									prev.map((it) =>
-										it.id === character.id ?
-											{ ...it, battlemapPosition: pos }
-										:	it,
-									),
-								)
-							}}
-						/>
-					))}
+					{characters
+						.toSorted((a, b) => a.updatedAt - b.updatedAt)
+						.map((character) => (
+							<BattlemapCharacterToken
+								key={character.id}
+								{...character}
+								cellSize={activeScene.cellSize}
+								shadow={draggingViewport ? false : true}
+								onDragStart={() => {
+									setCharacters((current) => {
+										return current.map((it) => {
+											if (it.id !== character.id) return it
+											return { ...it, updatedAt: Date.now() }
+										})
+									})
+								}}
+								onMove={(newPosition) => {
+									setCharacters((current) => {
+										return current.map((it) => {
+											if (it.id !== character.id) return it
+											return { ...it, battlemapPosition: newPosition }
+										})
+									})
+								}}
+							/>
+						))}
 				</BattlemapStage>
 			: activeScene.sceneryBackground ?
 				<img
@@ -153,7 +181,10 @@ export default function RoomRoute() {
 	)
 }
 
-function BattlemapStage({ children }: { children: React.ReactNode }) {
+function BattlemapStage({
+	children,
+	...props
+}: StageProps & { children: ReactNode }) {
 	const [windowWidth, windowHeight] = useWindowSize()
 
 	const [translateX, setTranslateX] = useLocalStorage(
@@ -180,6 +211,8 @@ function BattlemapStage({ children }: { children: React.ReactNode }) {
 		clamp(Math.round(zoomTick), -10, 10)
 
 	const handleWheel = (event: Konva.KonvaEventObject<WheelEvent>) => {
+		props.onWheel?.(event)
+
 		const newZoomTick = normalizeZoomTick(
 			zoomTick - Math.sign(event.evt.deltaY),
 		)
@@ -210,20 +243,24 @@ function BattlemapStage({ children }: { children: React.ReactNode }) {
 			y={translateY}
 			scaleX={getZoom(zoomTick)}
 			scaleY={getZoom(zoomTick)}
-			onWheel={handleWheel}
 			draggable
+			{...props}
 			onPointerDown={(event) => {
-				if (event.evt.button !== 2) {
-					event.evt.preventDefault()
-				}
+				props.onPointerDown?.(event)
+			}}
+			onDragStart={(event) => {
+				props.onDragStart?.(event)
 			}}
 			onDragEnd={(event) => {
+				props.onDragEnd?.(event)
 				setTranslateX(event.target.x())
 				setTranslateY(event.target.y())
 			}}
 			onContextMenu={(event) => {
+				props.onContextMenu?.(event)
 				event.evt.preventDefault()
 			}}
+			onWheel={handleWheel}
 		>
 			<Layer>{children}</Layer>
 		</Stage>
@@ -244,7 +281,9 @@ function BattlemapCharacterToken({
 	resolve,
 	battlemapPosition,
 	cellSize,
+	shadow = true,
 	onMove,
+	onDragStart,
 }: {
 	name: string
 	pronouns: string
@@ -254,7 +293,9 @@ function BattlemapCharacterToken({
 	resolve: number
 	battlemapPosition: { x: number; y: number }
 	cellSize: number
+	shadow?: boolean
 	onMove: (newPosition: { x: number; y: number }) => void
+	onDragStart: () => void
 }) {
 	const [image] = useImage(imageUrl)
 	const [dragging, setDragging] = useState(false)
@@ -262,38 +303,146 @@ function BattlemapCharacterToken({
 	const roundedX = roundTo(battlemapPosition.x, cellSize / 4)
 	const roundedY = roundTo(battlemapPosition.y, cellSize / 4)
 
+	const position = { x: roundedX, y: roundedY }
+
+	const [over, setOver] = useState(false)
+	const ref = useRef<Konva.Group>(null)
+
+	useEffect(() => {
+		ref.current?.offset({
+			x: ref.current.width() / 2,
+			y: ref.current.height() / 2,
+		})
+	})
+
 	return (
-		<Image
-			image={image}
-			x={dragging ? undefined : roundedX}
-			y={dragging ? undefined : roundedY}
-			width={cellSize}
-			height={cellSize}
-			{...(image && getCrop(image, { width: 70, height: 70 }, "center-top"))}
-			cornerRadius={Number.POSITIVE_INFINITY}
-			shadowColor="black"
-			shadowOpacity={0.5}
-			shadowBlur={8}
-			draggable
-			onPointerDown={(event) => {
-				if (event.evt.button === 0) {
-					event.cancelBubble = true
-				}
-			}}
-			onDragStart={(event) => {
-				startTransition(() => {
+		<>
+			<Group
+				{...position}
+				width={cellSize}
+				height={cellSize}
+				onPointerEnter={() => setOver(true)}
+				onPointerLeave={() => setOver(false)}
+				draggable
+				onPointerDown={(event) => {
+					if (event.evt.button === 0) {
+						event.cancelBubble = true
+					} else {
+						event.evt.preventDefault()
+					}
+				}}
+				onDragStart={() => {
 					setDragging(true)
-				})
-			}}
-			onDragEnd={(event) => {
-				event.cancelBubble = true
-				setDragging(false)
-				onMove({
-					x: event.target.x(),
-					y: event.target.y(),
-				})
-			}}
-		/>
+					onDragStart()
+				}}
+				onDragEnd={(event) => {
+					event.cancelBubble = true
+					setDragging(false)
+					onMove({
+						x: event.target.x(),
+						y: event.target.y(),
+					})
+				}}
+				ref={ref}
+			>
+				<Circle
+					fill="black"
+					opacity={0.3}
+					radius={cellSize / 2 + 4}
+					offset={{
+						x: -cellSize / 2,
+						y: -cellSize / 2,
+					}}
+				/>
+				<Circle
+					fill="black"
+					opacity={0.3}
+					radius={cellSize / 2 + 2}
+					offset={{
+						x: -cellSize / 2,
+						y: -cellSize / 2,
+					}}
+				/>
+				<Image
+					image={image}
+					width={cellSize}
+					height={cellSize}
+					{...(image &&
+						getCrop(image, { width: 70, height: 70 }, "center-top"))}
+					cornerRadius={999999}
+				/>
+			</Group>
+
+			<Html transform={false}>
+				<TooltipProvider open={over && !dragging} placement="bottom">
+					<Tooltip
+						className="pointer-events-none flex scale-90 flex-col items-center rounded bg-black/75 p-2 text-center font-bold text-white opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
+						unmountOnHide
+						portal={false}
+						flip={false}
+						getAnchorRect={() => {
+							const node = ref.current
+							if (!node) return null
+							const { x, y, scaleX, scaleY } = node
+								.getAbsoluteTransform()
+								.decompose()
+							return {
+								x: x,
+								y: y,
+								width: node.width() * scaleX,
+								height: node.height() * scaleY,
+							}
+						}}
+					>
+						<p className="leading-none">{name}</p>
+						<p className="text-sm leading-none text-primary-100/80">
+							{race} &bull; {pronouns}
+						</p>
+					</Tooltip>
+				</TooltipProvider>
+				<TooltipProvider open={over && !dragging} placement="top">
+					<Tooltip
+						className="pointer-events-none flex w-24 scale-90 flex-col opacity-0 transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
+						unmountOnHide
+						flip={false}
+						portal={false}
+						getAnchorRect={() => {
+							const node = ref.current
+							if (!node) return null
+							const { x, y, scaleX, scaleY } = node
+								.getAbsoluteTransform()
+								.decompose()
+							return {
+								x: x,
+								y: y,
+								width: node.width() * scaleX,
+								height: node.height() * scaleY,
+							}
+						}}
+					>
+						<div className="self-center rounded border-2 border-pink-700 bg-pink-700/75 px-1.5 py-1 leading-none text-white shadow">
+							Gay
+						</div>
+						<div className="self-center rounded border-2 border-orange-700 bg-orange-700/75 px-1.5 py-1 leading-none text-white shadow">
+							Angery
+						</div>
+						<div className="self-center rounded border-2 border-purple-700 bg-purple-700/75 px-1.5 py-1 leading-none text-white shadow">
+							Sexy
+						</div>
+						<div className="self-center rounded border-2 border-red-700 bg-red-700/75 px-1.5 py-1 leading-none text-white shadow">
+							Exploding
+						</div>
+						<div className="relative h-5 overflow-clip rounded border-2 border-green-500 shadow">
+							{/* minus 1px inset ensures it actually fills the rectangle without a pixel gap from subpixel rendering */}
+							<div className="absolute -inset-px origin-left scale-x-[0.3] bg-green-500/75" />
+						</div>
+						<div className="relative h-5 overflow-clip rounded border-2 border-blue-500 shadow">
+							<div className="absolute -inset-px origin-left scale-x-[0.6] bg-blue-500/75" />
+						</div>
+					</Tooltip>
+				</TooltipProvider>
+			</Html>
+		</>
 	)
 }
 
