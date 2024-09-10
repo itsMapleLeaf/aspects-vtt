@@ -151,14 +151,14 @@ export function useCssVar(name: string, customElement?: HTMLElement) {
 }
 
 export function useImage(src: string | undefined | null) {
-	const [image, setImage] = React.useState<HTMLImageElement | null>(null)
+	const [image, setImage] = React.useState<HTMLImageElement>()
 	const [status, setStatus] = React.useState<"loading" | "loaded" | "error">(
 		"loading",
 	)
 
 	React.useEffect(() => {
 		if (!src) {
-			setImage(null)
+			setImage(undefined)
 			setStatus("error")
 			return
 		}
@@ -180,7 +180,7 @@ export function useImage(src: string | undefined | null) {
 		img.addEventListener(
 			"error",
 			() => {
-				setImage(null)
+				setImage(undefined)
 				setStatus("error")
 			},
 			{ signal: controller.signal },

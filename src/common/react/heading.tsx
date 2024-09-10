@@ -1,3 +1,4 @@
+import { clamp } from "lodash-es"
 import { createContext, useContext, type ComponentProps } from "react"
 
 const HeadingContext = createContext(0)
@@ -16,6 +17,6 @@ export function Heading({
 	...props
 }: { children: React.ReactNode } & ComponentProps<"h1">) {
 	const level = useContext(HeadingContext)
-	const Tag = `h${Math.min(6, level)}`
+	const Tag = `h${clamp(1, 6, level)}`
 	return <Tag {...props}>{children}</Tag>
 }

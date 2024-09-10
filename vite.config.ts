@@ -21,3 +21,9 @@ export default defineConfig({
 		noExternal: ["react-use-rect", "react-use", "react-dropzone"],
 	},
 })
+
+declare module "@remix-run/server-runtime" {
+	interface Future {
+		unstable_singleFetch: true
+	}
+}

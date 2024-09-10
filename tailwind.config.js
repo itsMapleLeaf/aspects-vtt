@@ -119,6 +119,14 @@ export default {
 				".margin-center": {
 					"@apply *:mx-auto first:*:mt-auto last:*:mb-auto": {},
 				},
+
+				// increase specificity to allow children to also apply this
+				".pointer-events-children.pointer-events-children": {
+					"pointer-events": "none",
+				},
+				".pointer-events-children > *": {
+					"pointer-events": "auto",
+				},
 			})
 		}),
 
