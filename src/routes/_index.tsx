@@ -102,7 +102,6 @@ export default function RoomRoute() {
 								key={character.id}
 								{...character}
 								cellSize={activeScene.cellSize}
-								shadow={draggingViewport ? false : true}
 								onDragStart={() => {
 									setCharacters((current) => {
 										return current.map((it) => {
