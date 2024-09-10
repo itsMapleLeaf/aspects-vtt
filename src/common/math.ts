@@ -2,6 +2,10 @@ export function lerp(a: number, b: number, t: number) {
 	return a * (1 - t) + b * t
 }
 
+export function roundTo(num: number, multiple: number) {
+	return Math.round(num / multiple) * multiple
+}
+
 export const ByteUnit = {
 	B: "B",
 	KB: "KB",
