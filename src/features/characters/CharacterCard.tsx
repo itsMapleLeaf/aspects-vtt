@@ -1,12 +1,10 @@
-import { startCase } from "lodash-es"
 import * as Lucide from "lucide-react"
 import type { Character } from "~/types.ts"
 import { Avatar, AvatarFallback, AvatarImage } from "~/ui/avatar.tsx"
 import { Button } from "~/ui/button.tsx"
 import { Card, CardDescription, CardTitle } from "~/ui/card.tsx"
-import { Input } from "~/ui/input.tsx"
-import { Label } from "~/ui/label.tsx"
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/ui/tooltip.tsx"
+import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
+import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 
 export function CharacterCard({ character }: { character: Character }) {
 	return (
@@ -29,42 +27,8 @@ export function CharacterCard({ character }: { character: Character }) {
 					<Lucide.Edit className="size-5" />
 				</Button>
 			</div>
-			<div className="flex gap *:min-w-0 *:flex-1">
-				<div className="flex flex-col gap-0.5">
-					<Label>Health</Label>
-					<Input />
-				</div>
-				<div className="flex flex-col gap-0.5">
-					<Label>Resolve</Label>
-					<Input />
-				</div>
-			</div>
-			<div className="flex items-center gap">
-				<AttributeButton attribute="strength" icon={<Lucide.BicepsFlexed />} />
-				<AttributeButton attribute="sense" icon={<Lucide.Eye />} />
-				<AttributeButton attribute="mobility" icon={<Lucide.Wind />} />
-				<AttributeButton attribute="intellect" icon={<Lucide.Lightbulb />} />
-				<AttributeButton attribute="wit" icon={<Lucide.Sparkle />} />
-			</div>
+			<CharacterVitalFields />
+			<CharacterAttributeButtonRow />
 		</Card>
-	)
-}
-
-function AttributeButton({
-	attribute,
-	icon,
-}: {
-	attribute: keyof NonNullable<Character["attributes"]>
-	icon: React.ReactNode
-}) {
-	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button variant="ghost" size="icon" className="*:size-5">
-					{icon}
-				</Button>
-			</TooltipTrigger>
-			<TooltipContent side="bottom">{startCase(attribute)}</TooltipContent>
-		</Tooltip>
 	)
 }

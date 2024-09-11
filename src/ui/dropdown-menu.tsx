@@ -1,101 +1,64 @@
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { Check, ChevronRight, Circle } from "lucide-react"
+import * as Ariakit from "@ariakit/react"
+import { Check, Circle } from "lucide-react"
 import * as React from "react"
 
 import { cn } from "./helpers"
 
-const DropdownMenu = DropdownMenuPrimitive.Root
+export const DropdownMenu = Ariakit.MenuProvider
 
-const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
-
-const DropdownMenuGroup = DropdownMenuPrimitive.Group
-
-const DropdownMenuPortal = DropdownMenuPrimitive.Portal
-
-const DropdownMenuSub = DropdownMenuPrimitive.Sub
-
-const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup
-
-const DropdownMenuSubTrigger = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & {
-		inset?: boolean
-	}
->(({ className, inset, children, ...props }, ref) => (
-	<DropdownMenuPrimitive.SubTrigger
-		ref={ref}
-		className={cn(
-			"flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
-			inset && "pl-8",
-			className,
-		)}
+export const DropdownMenuTrigger = ({
+	className,
+	children,
+	...props
+}: React.ComponentProps<typeof Ariakit.MenuButton>) => (
+	<Ariakit.MenuButton
+		className={cn("flex items-center justify-between", className)}
 		{...props}
 	>
 		{children}
-		<ChevronRight className="ml-auto h-4 w-4" />
-	</DropdownMenuPrimitive.SubTrigger>
-))
-DropdownMenuSubTrigger.displayName =
-	DropdownMenuPrimitive.SubTrigger.displayName
+	</Ariakit.MenuButton>
+)
+DropdownMenuTrigger.displayName = "DropdownMenuTrigger"
 
-const DropdownMenuSubContent = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.SubContent>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
->(({ className, ...props }, ref) => (
-	<DropdownMenuPrimitive.SubContent
-		ref={ref}
+export const DropdownMenuContent = ({
+	className,
+	...props
+}: React.ComponentProps<typeof Ariakit.Menu>) => (
+	<Ariakit.Menu
 		className={cn(
-			"shadow-lg z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+			"flex min-w-40 scale-90 flex-col overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100",
 			className,
 		)}
+		gutter={8}
+		unmountOnHide
 		{...props}
 	/>
-))
-DropdownMenuSubContent.displayName =
-	DropdownMenuPrimitive.SubContent.displayName
+)
+DropdownMenuContent.displayName = "DropdownMenuContent"
 
-const DropdownMenuContent = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.Content>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-	<DropdownMenuPrimitive.Portal>
-		<DropdownMenuPrimitive.Content
-			ref={ref}
-			sideOffset={sideOffset}
-			className={cn(
-				"shadow-md z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-				className,
-			)}
-			{...props}
-		/>
-	</DropdownMenuPrimitive.Portal>
-))
-DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
-
-const DropdownMenuItem = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.Item>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
-		inset?: boolean
-	}
->(({ className, inset, ...props }, ref) => (
-	<DropdownMenuPrimitive.Item
-		ref={ref}
+export const DropdownMenuItem = ({
+	className,
+	inset,
+	...props
+}: React.ComponentProps<typeof Ariakit.MenuItem> & { inset?: boolean }) => (
+	<Ariakit.MenuItem
 		className={cn(
-			"relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+			"relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 outline-none transition-colors gap-2 data-[disabled]:pointer-events-none data-[active-item]:bg-accent data-[active-item]:text-accent-foreground data-[disabled]:opacity-50 [&_svg]:size-5",
 			inset && "pl-8",
 			className,
 		)}
 		{...props}
 	/>
-))
-DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName
+)
+DropdownMenuItem.displayName = "DropdownMenuItem"
 
-const DropdownMenuCheckboxItem = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem>
->(({ className, children, checked, ...props }, ref) => (
-	<DropdownMenuPrimitive.CheckboxItem
-		ref={ref}
+export const DropdownMenuCheckboxItem = ({
+	className,
+	children,
+	checked,
+	...props
+}: React.ComponentProps<typeof Ariakit.MenuItemCheckbox>) => (
+	<Ariakit.MenuItemCheckbox
 		className={cn(
 			"relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 			className,
@@ -104,22 +67,19 @@ const DropdownMenuCheckboxItem = React.forwardRef<
 		{...props}
 	>
 		<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-			<DropdownMenuPrimitive.ItemIndicator>
-				<Check className="h-4 w-4" />
-			</DropdownMenuPrimitive.ItemIndicator>
+			{checked && <Check className="h-4 w-4" />}
 		</span>
 		{children}
-	</DropdownMenuPrimitive.CheckboxItem>
-))
-DropdownMenuCheckboxItem.displayName =
-	DropdownMenuPrimitive.CheckboxItem.displayName
+	</Ariakit.MenuItemCheckbox>
+)
+DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem"
 
-const DropdownMenuRadioItem = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem>
->(({ className, children, ...props }, ref) => (
-	<DropdownMenuPrimitive.RadioItem
-		ref={ref}
+export const DropdownMenuRadioItem = ({
+	className,
+	children,
+	...props
+}: React.ComponentProps<typeof Ariakit.MenuItemRadio>) => (
+	<Ariakit.MenuItemRadio
 		className={cn(
 			"relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 			className,
@@ -127,23 +87,19 @@ const DropdownMenuRadioItem = React.forwardRef<
 		{...props}
 	>
 		<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-			<DropdownMenuPrimitive.ItemIndicator>
-				<Circle className="h-2 w-2 fill-current" />
-			</DropdownMenuPrimitive.ItemIndicator>
+			<Circle className="h-2 w-2 fill-current" />
 		</span>
 		{children}
-	</DropdownMenuPrimitive.RadioItem>
-))
-DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName
+	</Ariakit.MenuItemRadio>
+)
+DropdownMenuRadioItem.displayName = "DropdownMenuRadioItem"
 
-const DropdownMenuLabel = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.Label>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
-		inset?: boolean
-	}
->(({ className, inset, ...props }, ref) => (
-	<DropdownMenuPrimitive.Label
-		ref={ref}
+export const DropdownMenuLabel = ({
+	className,
+	inset,
+	...props
+}: React.ComponentProps<typeof Ariakit.MenuHeading> & { inset?: boolean }) => (
+	<Ariakit.MenuHeading
 		className={cn(
 			"px-2 py-1.5 text-sm font-semibold",
 			inset && "pl-8",
@@ -151,22 +107,21 @@ const DropdownMenuLabel = React.forwardRef<
 		)}
 		{...props}
 	/>
-))
-DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName
+)
+DropdownMenuLabel.displayName = "DropdownMenuLabel"
 
-const DropdownMenuSeparator = React.forwardRef<
-	React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
-	React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
->(({ className, ...props }, ref) => (
-	<DropdownMenuPrimitive.Separator
-		ref={ref}
-		className={cn("-mx-1 my-1 h-px bg-muted", className)}
+export const DropdownMenuSeparator = ({
+	className,
+	...props
+}: React.ComponentProps<typeof Ariakit.MenuSeparator>) => (
+	<Ariakit.MenuSeparator
+		className={cn("-mx-1 h-px bg-muted", className)}
 		{...props}
 	/>
-))
-DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName
+)
+DropdownMenuSeparator.displayName = "DropdownMenuSeparator"
 
-const DropdownMenuShortcut = ({
+export const DropdownMenuShortcut = ({
 	className,
 	...props
 }: React.HTMLAttributes<HTMLSpanElement>) => {
@@ -179,20 +134,6 @@ const DropdownMenuShortcut = ({
 }
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
 
-export {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuPortal,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSeparator,
-	DropdownMenuShortcut,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-}
+// Note: Some components like DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuSub,
+// DropdownMenuSubContent, and DropdownMenuSubTrigger are not directly available in Ariakit.
+// You might need to implement these differently or use alternative Ariakit components.

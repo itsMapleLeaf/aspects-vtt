@@ -50,8 +50,10 @@
 		--foreground: var(--primary-100);
 		--card: var(--primary-800);
 		--card-foreground: var(--primary-100);
-		--popover: var(--primary-900);
+		--popover: var(--primary-800);
 		--popover-foreground: var(--primary-100);
+		--tooltip: var(--primary-700);
+		--tooltip-foreground: var(--primary-100);
 		--primary: var(--primary-100);
 		--primary-foreground: var(--primary-800);
 		--secondary: var(--primary-800);

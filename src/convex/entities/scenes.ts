@@ -120,7 +120,7 @@ export async function normalizeScene(ctx: EntQueryCtx, scene: Ent<"scenes">) {
 		mode: scene.mode ?? "battlemap",
 		sceneryBackgroundUrl,
 		battlemapBackgroundUrl,
-		cellSize: scene.cellSize ?? 70,
+		cellSize: scene.cellSize ?? 140,
 		isActive: room.activeSceneId === scene._id,
 	}
 }

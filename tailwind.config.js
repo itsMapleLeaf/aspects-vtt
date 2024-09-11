@@ -7,6 +7,13 @@ import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin"
 import { lerp } from "./src/common/math.ts"
 
+const primaryVarColors = Object.fromEntries(
+	Iterator.range(100, 900, 100, true).map((value) => [
+		value,
+		`oklch(var(--primary-${value}) / <alpha-value>)`,
+	]),
+)
+
 /** @type {import("tailwindcss").Config} */
 export default {
 	darkMode: ["class"],
@@ -20,20 +27,16 @@ export default {
 				primary: {
 					DEFAULT: "oklch(var(--primary))",
 					foreground: "oklch(var(--primary-foreground))",
-					...Object.fromEntries(
-						Iterator.range(100, 900, 100, true).map((value) => [
-							value,
-							`oklch(var(--primary-${value}) / <alpha-value>)`,
-						]),
-					),
+					...primaryVarColors,
 				},
+				slate: primaryVarColors, // override slate to use primary colors
 				accent: {
 					DEFAULT: "var(--accent)",
 					foreground: "var(--accent-foreground)",
 					...Object.fromEntries(
 						Iterator.range(100, 900, 100, true).map((value) => [
 							value,
-							`hsl(var(--accent-${value}) / <alpha-value>)`,
+							`var(--accent-${value})`,
 						]),
 					),
 				},
@@ -46,6 +49,10 @@ export default {
 				popover: {
 					DEFAULT: "oklch(var(--popover))",
 					foreground: "oklch(var(--popover-foreground))",
+				},
+				tooltip: {
+					DEFAULT: "oklch(var(--tooltip))",
+					foreground: "oklch(var(--tooltip-foreground))",
 				},
 				secondary: {
 					DEFAULT: "oklch(var(--secondary))",
@@ -75,12 +82,6 @@ export default {
 				md: "calc(var(--radius) - 2px)",
 				sm: "calc(var(--radius) - 4px)",
 			},
-		},
-		screens: {
-			sm: "var(--screens-sm)",
-			md: "var(--screens-md)",
-			lg: "var(--screens-lg)",
-			xl: "var(--screens-xl)",
 		},
 		boxShadow: {
 			DEFAULT: "0 1px 4px rgba(0, 0, 0, 0.25)",
