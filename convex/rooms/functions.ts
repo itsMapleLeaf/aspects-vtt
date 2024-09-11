@@ -271,7 +271,10 @@ export function getRoomPlayer(
 				q.eq("roomId", roomId).eq("user", userId),
 			)
 			.first(),
-		Effect.catchTag("DocNotFound", () => new UserNotInRoom({ roomId, userId })),
+		Effect.catchTag(
+			"DocNotFoundInTable",
+			() => new UserNotInRoom({ roomId, userId }),
+		),
 	)
 }
 

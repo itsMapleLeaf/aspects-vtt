@@ -1,5 +1,6 @@
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
+import { Iterator } from "iterator-helpers-polyfill"
 import { omit } from "../common/object.ts"
 import type { Id } from "./_generated/dataModel"
 import { type LocalQueryCtx, mutation, query } from "./api.ts"
@@ -8,7 +9,6 @@ import { partial } from "./helpers/partial.ts"
 import { getViewerRoomPlayer } from "./rooms/functions.ts"
 import schema from "./schema.ts"
 import { getCurrentUserId } from "./users.ts"
-import { Iterator } from "iterator-helpers-polyfill"
 
 export const get = query({
 	args: {
