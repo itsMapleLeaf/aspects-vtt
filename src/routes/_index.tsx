@@ -31,8 +31,6 @@ export default function RoomRoute() {
 		return <div>Loading...</div>
 	}
 
-	const [draggingViewport, setDraggingViewport] = useState(false)
-
 	return (
 		<>
 			<RoomBackground scenes={scenes} characters={characters} />
