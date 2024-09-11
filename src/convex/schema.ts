@@ -39,7 +39,7 @@ const entSchema = defineEntSchema({
 		name: v.string(),
 		pronouns: v.optional(v.string()),
 		imageId: nullish(v.id("_storage")),
-		species: v.optional(v.string()),
+		race: v.optional(v.string()),
 		notes: v.optional(v.string()),
 
 		strength: v.optional(v.number()),

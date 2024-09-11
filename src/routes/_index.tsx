@@ -3,6 +3,7 @@ import Konva from "konva"
 import { Heading, HeadingLevel } from "~/common/react/heading.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Battlemap } from "~/features/battlemap/Battlemap.tsx"
+import { CharacterCard } from "~/features/characters/CharacterCard.tsx"
 import type { Character, Scene } from "~/types.ts"
 import { Avatar, AvatarFallback } from "~/ui/avatar.tsx"
 import { Card, CardTitle } from "~/ui/card.tsx"
@@ -66,6 +67,13 @@ export default function RoomRoute() {
 						<nav className="flex flex-col gap" aria-label="Left sidebar">
 							<Card className="flex-1">
 								<CardTitle>Characters</CardTitle>
+								<ul className="flex flex-col p-3 gap">
+									{characters.map((character) => (
+										<li key={character._id}>
+											<CharacterCard character={character} />
+										</li>
+									))}
+								</ul>
 							</Card>
 							<Card className="flex-1">
 								<CardTitle>Notes</CardTitle>
