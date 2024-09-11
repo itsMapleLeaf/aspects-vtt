@@ -105,31 +105,23 @@ export const duplicate = mutation({
 export async function normalizeScene(ctx: EntQueryCtx, scene: Ent<"scenes">) {
 	const room = await ctx.table("rooms").getX(scene.roomId)
 
-	const dayBackgroundUrl =
-		scene.dayBackgroundId ?
-			await ctx.storage.getUrl(scene.dayBackgroundId)
-		:	null
-	const eveningBackgroundUrl =
-		scene.eveningBackgroundId ?
-			await ctx.storage.getUrl(scene.eveningBackgroundId)
-		:	null
-	const nightBackgroundUrl =
-		scene.nightBackgroundId ?
-			await ctx.storage.getUrl(scene.nightBackgroundId)
+	const sceneryBackgroundUrl =
+		scene.sceneryBackgroundId ?
+			await ctx.storage.getUrl(scene.sceneryBackgroundId)
 		:	null
 
-	// TODO: get active scene based on game time
-	const activeBackgroundUrl =
-		dayBackgroundUrl ?? eveningBackgroundUrl ?? nightBackgroundUrl
+	const battlemapBackgroundUrl =
+		scene.battlemapBackgroundId ?
+			await ctx.storage.getUrl(scene.battlemapBackgroundId)
+		:	null
 
 	return {
 		...scene,
+		mode: scene.mode ?? "battlemap",
+		sceneryBackgroundUrl,
+		battlemapBackgroundUrl,
+		cellSize: scene.cellSize ?? 70,
 		isActive: room.activeSceneId === scene._id,
-		dayBackgroundUrl,
-		eveningBackgroundUrl,
-		nightBackgroundUrl,
-		activeBackgroundUrl,
-		mode: scene.mode ?? { type: "battlemap", cellSize: 70 },
 	}
 }
 

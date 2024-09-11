@@ -28,17 +28,14 @@ const entSchema = defineEntSchema({
 	scenes: defineEnt({
 		name: v.string(),
 		mode: v.union(v.literal("scenery"), v.literal("battlemap")),
+		sceneryBackgroundId: nullish(v.id("_storage")),
+		battlemapBackgroundId: nullish(v.id("_storage")),
 		cellSize: v.optional(v.number()),
-		dayBackgroundId: nullish(v.id("_storage")),
-		eveningBackgroundId: nullish(v.id("_storage")),
-		nightBackgroundId: nullish(v.id("_storage")),
 	})
 		.edge("room")
 		.searchIndex("name", { searchField: "name", filterFields: ["roomId"] }),
 
 	characters: defineEnt({
-		sceneId: nullish(v.id("scenes")),
-
 		name: v.string(),
 		pronouns: v.optional(v.string()),
 		imageId: nullish(v.id("_storage")),
@@ -53,6 +50,10 @@ const entSchema = defineEntSchema({
 
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),
+
+		sceneId: nullish(v.id("scenes")),
+		battlemapPosition: v.optional(v.object({ x: v.number(), y: v.number() })),
+		updatedAt: v.number(),
 	})
 		.index("sceneId", ["sceneId"])
 		.edge("room")

@@ -41,8 +41,9 @@ export const create = mutation({
 	},
 	handler: async (ctx: EntMutationCtx, args) => {
 		return ctx.table("characters").insert({
-			roomId: args.roomId,
 			name: "New Character",
+			roomId: args.roomId,
+			updatedAt: Date.now(),
 		})
 	},
 })
@@ -108,6 +109,8 @@ async function normalizeCharacter(ctx: EntQueryCtx, doc: Doc<"characters">) {
 
 		resolve: doc.resolve ?? resolveMax,
 		resolveMax,
+
+		battlemapPosition: doc.battlemapPosition ?? { x: 0, y: 0 },
 	}
 }
 

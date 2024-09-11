@@ -1,6 +1,7 @@
 import "@fontsource-variable/nunito"
 import "./root.css"
 
+import { ConvexAuthProvider } from "@convex-dev/auth/react"
 import {
 	Links,
 	Meta,
@@ -8,6 +9,8 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react"
+import { ConvexReactClient } from "convex/react"
+import { useState } from "react"
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -31,5 +34,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function Root() {
-	return <Outlet />
+	const [client] = useState(
+		() => new ConvexReactClient(import.meta.env.VITE_CONVEX_URL),
+	)
+	return (
+		<ConvexAuthProvider client={client}>
+			<Outlet />
+		</ConvexAuthProvider>
+	)
 }
