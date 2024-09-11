@@ -240,7 +240,7 @@ function BattlemapCharacterToken({
 					>
 						<p className="leading-none">{character.name}</p>
 						<p className="text-sm leading-none text-primary-100/80">
-							{character.species} &bull; {character.pronouns}
+							{character.race} &bull; {character.pronouns}
 						</p>
 					</Tooltip>
 				</TooltipProvider>
