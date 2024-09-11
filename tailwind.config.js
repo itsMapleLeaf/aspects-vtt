@@ -28,9 +28,14 @@ export default {
 					),
 				},
 				accent: {
-					DEFAULT: "oklch(var(--accent))",
-					foreground: "oklch(var(--accent-foreground))",
-					...colors.cyan,
+					DEFAULT: "var(--accent)",
+					foreground: "var(--accent-foreground)",
+					...Object.fromEntries(
+						Iterator.range(100, 900, 100, true).map((value) => [
+							value,
+							`hsl(var(--accent-${value}) / <alpha-value>)`,
+						]),
+					),
 				},
 				background: "oklch(var(--background))",
 				foreground: "oklch(var(--foreground))",
@@ -102,15 +107,23 @@ export default {
 
 		plugin(function theme(api) {
 			api.addBase({
-				":root": Object.fromEntries(
-					Iterator.range(100, 900, 100, true).map((value) => {
-						const t = 1 - (value - 100) / 800
-						return [
-							`--primary-${value}`,
-							`${lerp(20, 98, t ** 1.8).toFixed(2)}% 13% 275`,
-						]
-					}),
-				),
+				":root": {
+					...Object.fromEntries(
+						Iterator.range(100, 900, 100, true).map((value) => {
+							const t = 1 - (value - 100) / 800
+							return [
+								`--primary-${value}`,
+								`${lerp(20, 98, t ** 1.8).toFixed(2)}% 13% 275`,
+							]
+						}),
+					),
+					...Object.fromEntries(
+						Iterator.range(100, 900, 100, true).map((value) => {
+							// @ts-expect-error
+							return [`--accent-${value}`, colors.cyan[value]]
+						}),
+					),
+				},
 			})
 		}),
 

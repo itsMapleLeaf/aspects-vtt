@@ -57,13 +57,13 @@
 		--secondary: var(--primary-800);
 		--secondary-foreground: var(--primary-100);
 		--muted: var(--primary-700);
-		--muted-foreground: var(--primary-400);
+		--muted-foreground: var(--primary-300);
 		--accent: var(--accent-800);
 		--accent-foreground: var(--accent-100);
 		--destructive: var(--primary-700);
 		--destructive-foreground: var(--primary-100);
 		--border: var(--primary-700);
-		--input: var(--primary-800);
+		--input: var(--primary-600);
 		--ring: var(--primary-300);
 		--chart-1: var(--primary-300);
 		--chart-2: var(--primary-400);
