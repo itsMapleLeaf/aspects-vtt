@@ -51,19 +51,6 @@
 				"instanceLimit": 1
 			},
 			"group": "build"
-		},
-		{
-			"label": "tsc: watch",
-			"type": "typescript",
-			"option": "watch",
-			"options": {
-				"shell": {
-					"executable": "bunx"
-				}
-			},
-			"tsconfig": "tsconfig.json",
-			"group": "build",
-			"isBackground": true
 		}
 	]
 }
