@@ -1,8 +1,6 @@
-import { DocNotFound, FileNotFound } from "@maple/convex-effect"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { internalMutation, internalQuery, query } from "./api.ts"
-import { Convex, effectQuery } from "./helpers/effect.js"
 import { partial } from "./helpers/partial.js"
 import schema from "./schema.js"
 
@@ -36,7 +34,7 @@ export const getBestUrl = query({
 			}),
 			Effect.flatMap((size) => ctx.storage.getUrl(size.storageId)),
 			Effect.catchTags({
-				DocNotFound: () => Effect.succeed(null),
+				DocNotFoundById: () => Effect.succeed(null),
 				FileNotFound: () => Effect.succeed(null),
 				NoSuchElementException: () => Effect.dieMessage("Image has no sizes"),
 			}),

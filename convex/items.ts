@@ -8,6 +8,7 @@ import { partial } from "./helpers/partial.ts"
 import { getViewerRoomPlayer } from "./rooms/functions.ts"
 import schema from "./schema.ts"
 import { getCurrentUserId } from "./users.ts"
+import { Iterator } from "iterator-helpers-polyfill"
 
 export const get = query({
 	args: {
@@ -21,7 +22,7 @@ export const get = query({
 		}).pipe(
 			Effect.catchTags({
 				NotLoggedIn: () => Effect.succeed(null),
-				DocNotFound: () => Effect.succeed(null),
+				DocNotFoundById: () => Effect.succeed(null),
 				UserNotInRoom: () => Effect.succeed(null),
 			}),
 		)
@@ -145,7 +146,7 @@ export const listByCharacter = query({
 				.collect()
 
 			return yield* Effect.allSuccesses(
-				characterItems.map((characterItem) =>
+				Iterator.from(characterItems).map((characterItem) =>
 					pipe(
 						ctx.db.get(characterItem.itemId),
 						Effect.map((item) => ({
@@ -158,7 +159,7 @@ export const listByCharacter = query({
 		}).pipe(
 			Effect.catchTags({
 				NotLoggedIn: () => Effect.succeed([]),
-				DocNotFound: () => Effect.succeed([]),
+				DocNotFoundById: () => Effect.succeed([]),
 			}),
 		)
 	},

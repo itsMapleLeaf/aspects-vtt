@@ -72,7 +72,9 @@ export const list = effectQuery({
 			const characters = yield* withQueryCtx((ctx) =>
 				getManyFrom(ctx.db, "characters", "roomId", args.roomId),
 			)
-			return yield* Effect.allSuccesses(characters.map(normalizeCharacter))
+			return yield* Effect.allSuccesses(
+				Iterator.from(characters).map(normalizeCharacter),
+			)
 		}).pipe(
 			Effect.tapError(Console.warn),
 			Effect.orElseSucceed(() => []),
@@ -155,7 +157,7 @@ export const updateStatus = mutation({
 		}).pipe(
 			Effect.provideService(QueryCtxService, ctx.internal),
 			Effect.catchTags({
-				DocNotFound: () => Effect.succeed(null),
+				DocNotFoundById: () => Effect.succeed(null),
 				NotLoggedInError: Effect.die,
 			}),
 		)

@@ -197,7 +197,9 @@ function AddCombatMemberListbox() {
 	const combatMemberIds = new Set(
 		room.combat?.memberObjects?.map((it) => it.characterId) ?? [],
 	)
-	const tokenIds = new Set(tokens.map((it) => it.characterId).filter(Boolean))
+	const tokenIds = new Set<Id<"characters">>(
+		tokens.map((it) => it.characterId).filter(Boolean),
+	)
 
 	const validCharacterIds = new Set(
 		characters
