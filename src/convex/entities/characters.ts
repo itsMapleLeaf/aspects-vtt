@@ -88,19 +88,21 @@ async function normalizeCharacter(ctx: EntQueryCtx, doc: Doc<"characters">) {
 	const imageUrl = doc.imageId ? await ctx.storage.getUrl(doc.imageId) : null
 
 	const attributes = {
-		strength: normalizeAttribute(doc.strength),
-		sense: normalizeAttribute(doc.sense),
-		mobility: normalizeAttribute(doc.mobility),
-		intellect: normalizeAttribute(doc.intellect),
-		wit: normalizeAttribute(doc.wit),
+		strength: normalizeAttribute(doc.attributes?.strength),
+		sense: normalizeAttribute(doc.attributes?.sense),
+		mobility: normalizeAttribute(doc.attributes?.mobility),
+		intellect: normalizeAttribute(doc.attributes?.intellect),
+		wit: normalizeAttribute(doc.attributes?.wit),
 	}
 
 	const healthMax =
 		getAttributeDie(attributes.strength) + getAttributeDie(attributes.mobility)
 	const resolveMax = attributes.sense + attributes.intellect + attributes.wit
-	return {
+
+	const normalized = {
 		...doc,
-		...attributes,
+
+		attributes,
 
 		imageUrl,
 
@@ -112,6 +114,7 @@ async function normalizeCharacter(ctx: EntQueryCtx, doc: Doc<"characters">) {
 
 		battlemapPosition: doc.battlemapPosition ?? { x: 0, y: 0 },
 	}
+	return normalized satisfies Doc<"characters">
 }
 
 function normalizeAttribute(attribute: number | undefined): number {

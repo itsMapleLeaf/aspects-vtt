@@ -16,7 +16,7 @@ export const list = query({
 		search: v.optional(v.string()),
 	},
 	handler: async (ctx: EntQueryCtx, args) => {
-		await ensureRoomOwner(ctx, args.roomId)
+		// await ensureRoomOwner(ctx, args.roomId)
 
 		const scenes =
 			args.search ?

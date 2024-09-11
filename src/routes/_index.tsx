@@ -61,11 +61,11 @@ export default function RoomRoute() {
 						)}
 					</header>
 
-					<main className="pointer-events-children flex flex-1 items-stretch justify-between *:basis-64">
+					<main className="pointer-events-children flex flex-1 items-stretch justify-between *:w-72">
 						<nav className="flex flex-col gap" aria-label="Left sidebar">
 							<Card className="flex-1">
 								<CardTitle>Characters</CardTitle>
-								<ul className="flex flex-col p-3 gap">
+								<ul className="flex flex-col gap">
 									{characters.map((character) => (
 										<li key={character._id}>
 											<CharacterCard character={character} />

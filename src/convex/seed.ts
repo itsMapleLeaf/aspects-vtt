@@ -51,5 +51,25 @@ export const createDocuments = internalMutation({
 			slug: "rosenfeld",
 			ownerId: args.userId,
 		})
+
+		const sceneId = await ctx.db.insert("scenes", {
+			name: "Rosenfeld",
+			roomId,
+			mode: "battlemap",
+		})
+
+		await ctx.db.insert("characters", {
+			name: "Luna",
+			updatedAt: Date.now(),
+			roomId,
+			sceneId,
+		})
+
+		await ctx.db.insert("characters", {
+			name: "Priya",
+			updatedAt: Date.now(),
+			roomId,
+			sceneId,
+		})
 	},
 })

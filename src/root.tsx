@@ -11,6 +11,7 @@ import {
 } from "@remix-run/react"
 import { ConvexReactClient } from "convex/react"
 import { useState } from "react"
+import { TooltipProvider } from "./ui/tooltip.tsx"
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -25,7 +26,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				{children}
+				<TooltipProvider delayDuration={250}>{children}</TooltipProvider>
 				<Scripts />
 				<ScrollRestoration />
 			</body>

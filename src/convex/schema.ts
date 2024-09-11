@@ -27,7 +27,7 @@ const entSchema = defineEntSchema({
 
 	scenes: defineEnt({
 		name: v.string(),
-		mode: v.union(v.literal("scenery"), v.literal("battlemap")),
+		mode: v.optional(v.union(v.literal("scenery"), v.literal("battlemap"))),
 		sceneryBackgroundId: nullish(v.id("_storage")),
 		battlemapBackgroundId: nullish(v.id("_storage")),
 		cellSize: v.optional(v.number()),
@@ -42,11 +42,15 @@ const entSchema = defineEntSchema({
 		race: v.optional(v.string()),
 		notes: v.optional(v.string()),
 
-		strength: v.optional(v.number()),
-		sense: v.optional(v.number()),
-		mobility: v.optional(v.number()),
-		intellect: v.optional(v.number()),
-		wit: v.optional(v.number()),
+		attributes: v.optional(
+			v.object({
+				strength: v.number(),
+				sense: v.number(),
+				mobility: v.number(),
+				intellect: v.number(),
+				wit: v.number(),
+			}),
+		),
 
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),

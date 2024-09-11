@@ -14,8 +14,9 @@ import { normalizeScene } from "./scenes.ts"
 export const list = query({
 	handler: async (ctx: EntQueryCtx) => {
 		try {
-			const userId = await getAuthUserId(ctx)
-			return await ctx.table("rooms", "ownerId", (q) => q.eq("ownerId", userId))
+			// const userId = await getAuthUserId(ctx)
+			// return await ctx.table("rooms", "ownerId", (q) => q.eq("ownerId", userId))
+			return await ctx.table("rooms")
 		} catch (error) {
 			console.warn(error)
 			return []
