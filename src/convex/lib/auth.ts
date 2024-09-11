@@ -1,37 +1,29 @@
-import { Effect, pipe } from "effect"
+import * as convexAuth from "@convex-dev/auth/server"
+import { ConvexError } from "convex/values"
 import { Id } from "../_generated/dataModel"
-import { auth } from "../auth.ts"
-import { LocalQueryContext } from "./api.ts"
-import { ConvexEffectError } from "@maple/convex-effect"
+import type { EntQueryCtx } from "./ents.ts"
 
-export class UnauthenticatedError extends ConvexEffectError {
-	constructor() {
-		super("You must be logged in to perform this action.")
+function UnauthenticatedError() {
+	return new ConvexError("You must be logged in to perform this action.")
+}
+
+function UserNotFoundError(userId: Id<"users">) {
+	return new ConvexError(`User with ID "${userId}" not found.`)
+}
+
+export async function getAuthUserId(ctx: EntQueryCtx) {
+	const id = await convexAuth.getAuthUserId(ctx)
+	if (!id) {
+		throw UnauthenticatedError()
 	}
+	return id
 }
 
-export class UserNotFoundError extends ConvexEffectError {
-	constructor(userId: Id<"users">) {
-		super(`User with ID "${userId}" not found.`)
+export async function getAuthUser(ctx: EntQueryCtx) {
+	const id = await getAuthUserId(ctx)
+	const user = await ctx.table("users").get(id)
+	if (!user) {
+		throw UserNotFoundError(id)
 	}
-}
-
-export function getAuthUserId(ctx: LocalQueryContext) {
-	return pipe(
-		Effect.promise(() => auth.getUserId(ctx.internal)),
-		Effect.filterOrFail(
-			(value): value is Id<"users"> => value != null,
-			() => new UnauthenticatedError(),
-		),
-	)
-}
-
-export function getAuthUser(ctx: LocalQueryContext) {
-	return pipe(
-		getAuthUserId(ctx),
-		Effect.flatMap((userId) => ctx.db.get(userId)),
-		Effect.catchTag("DocNotFoundById", (cause) =>
-			Effect.die(new Error("User not found", { cause })),
-		),
-	)
+	return user
 }

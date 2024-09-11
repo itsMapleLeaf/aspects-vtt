@@ -1,22 +1,17 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { Effect } from "effect"
-import { Iterator } from "iterator-helpers-polyfill"
 import { clamp } from "lodash-es"
 import { Doc } from "../_generated/dataModel"
-import { LocalQueryContext, mutation, query } from "../lib/api.ts"
-import { getStorageUrl } from "../lib/storage.ts"
+import { EntMutationCtx, EntQueryCtx, mutation, query } from "../lib/ents.ts"
 import schema from "../schema.ts"
 
 export const get = query({
 	args: {
 		characterId: v.id("characters"),
 	},
-	handler(ctx, args) {
-		return ctx.db.get(args.characterId).pipe(
-			Effect.flatMap((char) => normalizeCharacter(ctx, char)),
-			Effect.orElseSucceed(() => null),
-		)
+	handler: async (ctx: EntQueryCtx, args) => {
+		const character = await ctx.table("characters").get(args.characterId)
+		return character ? normalizeCharacter(ctx, character) : null
 	},
 })
 
@@ -25,27 +20,18 @@ export const list = query({
 		roomId: v.id("rooms"),
 		search: v.optional(v.string()),
 	},
-	handler(ctx, args) {
-		let query
-		query = ctx.db.query("characters")
-
-		if (args.search) {
-			query = query.withSearchIndex("name", (q) =>
-				q.search("name", args.search!).eq("roomId", args.roomId),
-			)
+	handler: async (ctx: EntQueryCtx, { roomId, search }) => {
+		let characters
+		if (search) {
+			characters = ctx
+				.table("characters")
+				.search("name", (q) => q.search("name", search))
 		} else {
-			query = query.withIndex("roomId", (q) => q.eq("roomId", args.roomId))
-		}
-
-		return query
-			.collect()
-			.pipe(
-				Effect.flatMap((chars) =>
-					Effect.allSuccesses(
-						Iterator.from(chars).map((it) => normalizeCharacter(ctx, it)),
-					),
-				),
+			characters = ctx.table("characters", "roomId", (q) =>
+				q.eq("roomId", roomId),
 			)
+		}
+		return characters.map((char) => normalizeCharacter(ctx, char))
 	},
 })
 
@@ -53,8 +39,8 @@ export const create = mutation({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, args) {
-		return ctx.db.insert("characters", {
+	handler: async (ctx: EntMutationCtx, args) => {
+		return ctx.table("characters").insert({
 			roomId: args.roomId,
 			name: "New Character",
 		})
@@ -66,8 +52,8 @@ export const update = mutation({
 		...partial(schema.tables.characters.validator.fields),
 		characterId: v.id("characters"),
 	},
-	handler(ctx, { characterId, ...args }) {
-		return ctx.db.patch(characterId, args)
+	handler: async (ctx: EntMutationCtx, { characterId, ...args }) => {
+		return ctx.table("characters").getX(characterId).patch(args)
 	},
 })
 
@@ -75,12 +61,10 @@ export const remove = mutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			for (const characterId of args.characterIds) {
-				yield* ctx.db.delete(characterId)
-			}
-		}).pipe(Effect.orDie)
+	handler: async (ctx: EntMutationCtx, args) => {
+		for (const characterId of args.characterIds) {
+			await ctx.table("characters").getX(characterId).delete()
+		}
 	},
 })
 
@@ -88,49 +72,43 @@ export const duplicate = mutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			for (const characterId of args.characterIds) {
-				const { _id, _creationTime, ...character } =
-					yield* ctx.db.get(characterId)
-				yield* ctx.db.insert("characters", character)
+	handler: async (ctx: EntMutationCtx, args) => {
+		for (const characterId of args.characterIds) {
+			const character = await ctx.table("characters").get(characterId)
+			if (character) {
+				const { _id, _creationTime, ...characterData } = character
+				await ctx.table("characters").insert(characterData)
 			}
-		}).pipe(Effect.orDie)
+		}
 	},
 })
 
-export function normalizeCharacter(
-	ctx: LocalQueryContext,
-	doc: Doc<"characters">,
-) {
-	return Effect.gen(function* () {
-		const imageUrl = doc.imageId ? yield* getStorageUrl(ctx, doc.imageId) : null
+async function normalizeCharacter(ctx: EntQueryCtx, doc: Doc<"characters">) {
+	const imageUrl = doc.imageId ? await ctx.storage.getUrl(doc.imageId) : null
 
-		const attributes = {
-			strength: normalizeAttribute(doc.strength),
-			sense: normalizeAttribute(doc.sense),
-			mobility: normalizeAttribute(doc.mobility),
-			intellect: normalizeAttribute(doc.intellect),
-			wit: normalizeAttribute(doc.wit),
-		}
+	const attributes = {
+		strength: normalizeAttribute(doc.strength),
+		sense: normalizeAttribute(doc.sense),
+		mobility: normalizeAttribute(doc.mobility),
+		intellect: normalizeAttribute(doc.intellect),
+		wit: normalizeAttribute(doc.wit),
+	}
 
-		const healthMax =
-			getAttributeDie(attributes.strength) +
-			getAttributeDie(attributes.mobility)
-		const resolveMax = attributes.sense + attributes.intellect + attributes.wit
-		return {
-			...doc,
-			...attributes,
+	const healthMax =
+		getAttributeDie(attributes.strength) + getAttributeDie(attributes.mobility)
+	const resolveMax = attributes.sense + attributes.intellect + attributes.wit
+	return {
+		...doc,
+		...attributes,
 
-			imageUrl,
+		imageUrl,
 
-			health: doc.health ?? healthMax,
-			healthMax,
+		health: doc.health ?? healthMax,
+		healthMax,
 
-			resolve: doc.resolve ?? resolveMax,
-			resolveMax,
-		}
-	})
+		resolve: doc.resolve ?? resolveMax,
+		resolveMax,
+	}
 }
 
 function normalizeAttribute(attribute: number | undefined): number {

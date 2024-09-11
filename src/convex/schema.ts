@@ -1,43 +1,42 @@
 import { authTables } from "@convex-dev/auth/server"
+import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { nullish } from "./lib/validators.ts"
 
-export default defineSchema({
-	...authTables,
-
-	users: defineTable({
+const entSchema = defineEntSchema({
+	users: defineEnt({
 		...authTables.users.validator.fields,
 		handle: v.string(),
 		name: v.string(),
 		email: v.optional(v.string()),
 	})
 		.index("handle", ["handle"])
-		.index("email", ["email"]),
+		.index("email", ["email"])
+		.edges("rooms", { ref: true }),
 
-	rooms: defineTable({
+	rooms: defineEnt({
 		name: v.string(),
 		slug: v.string(),
-		ownerId: v.id("users"),
 		activeSceneId: nullish(v.id("scenes")),
 	})
 		.index("slug", ["slug"])
-		.index("ownerId", ["ownerId"]),
+		.edge("user", { field: "ownerId" })
+		.edges("scenes", { ref: true })
+		.edges("characters", { ref: true }),
 
-	scenes: defineTable({
+	scenes: defineEnt({
 		name: v.string(),
-		roomId: v.id("rooms"),
 		mode: v.union(v.literal("scenery"), v.literal("battlemap")),
 		cellSize: v.optional(v.number()),
 		dayBackgroundId: nullish(v.id("_storage")),
 		eveningBackgroundId: nullish(v.id("_storage")),
 		nightBackgroundId: nullish(v.id("_storage")),
 	})
-		.index("roomId", ["roomId"])
+		.edge("room")
 		.searchIndex("name", { searchField: "name", filterFields: ["roomId"] }),
 
-	characters: defineTable({
-		roomId: v.id("rooms"),
+	characters: defineEnt({
 		sceneId: nullish(v.id("scenes")),
 
 		name: v.string(),
@@ -55,10 +54,23 @@ export default defineSchema({
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),
 	})
-		.index("roomId", ["roomId"])
 		.index("sceneId", ["sceneId"])
+		.edge("room")
 		.searchIndex("name", {
 			searchField: "name",
 			filterFields: ["roomId", "sceneId"],
 		}),
+})
+
+export const entDefinitions = getEntDefinitions(entSchema)
+
+export default defineSchema({
+	...entSchema.tables,
+	...authTables,
+	users: defineTable({
+		...authTables.users.validator.fields,
+		...entSchema.tables.users.validator.fields,
+	})
+		.index("handle", ["handle"])
+		.index("email", ["email"]),
 })

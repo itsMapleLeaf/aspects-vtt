@@ -1,15 +1,15 @@
 import { v } from "convex/values"
-import { Effect, pipe } from "effect"
-import { mutation, query } from "../lib/api.ts"
 import { getAuthUser } from "../lib/auth.ts"
-import { ConvexEffectError } from "@maple/convex-effect"
+import { EntMutationCtx, EntQueryCtx, mutation, query } from "../lib/ents.ts"
 
 export const me = query({
-	handler: (ctx) =>
-		pipe(
-			getAuthUser(ctx),
-			Effect.orElseSucceed(() => null),
-		),
+	handler: async (ctx: EntQueryCtx) => {
+		try {
+			return await getAuthUser(ctx)
+		} catch {
+			return null
+		}
+	},
 })
 
 export const update = mutation({
@@ -17,23 +17,22 @@ export const update = mutation({
 		handle: v.optional(v.string()),
 		name: v.optional(v.string()),
 	},
-	handler: (ctx, { handle, ...args }) =>
-		Effect.gen(function* () {
-			const user = yield* getAuthUser(ctx)
+	handler: async (ctx: EntMutationCtx, { handle, ...args }) => {
+		const user = await getAuthUser(ctx)
 
-			if (handle !== undefined && handle !== user.handle) {
-				const existing = yield* ctx.db
-					.query("users")
-					.withIndex("handle", (q) => q.eq("handle", handle))
-					.firstOrNull()
+		if (handle !== undefined && handle !== user.handle) {
+			const existing = await ctx
+				.table("users", "handle", (q) => q.eq("handle", handle))
+				.first()
 
-				if (existing != null) {
-					return yield* new ConvexEffectError(
-						`Sorry, the handle "${handle}" is already taken.`,
-					)
-				}
+			if (existing != null) {
+				throw new Error(`Sorry, the handle "${handle}" is already taken.`)
 			}
+		}
 
-			yield* ctx.db.patch(user._id, { ...args, handle })
-		}).pipe(Effect.orDie),
+		await ctx
+			.table("users")
+			.getX(user._id)
+			.patch({ ...args, handle })
+	},
 })

@@ -1,9 +1,12 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { Effect, Array as EffectArray, Order, pipe } from "effect"
-import { Doc, Id } from "../_generated/dataModel"
-import { LocalQueryContext, mutation, query } from "../lib/api.ts"
-import { getStorageUrl } from "../lib/storage.ts"
+import {
+	EntMutationCtx,
+	EntQueryCtx,
+	mutation,
+	query,
+	type Ent,
+} from "../lib/ents.ts"
 import schema from "../schema.ts"
 import { ensureRoomOwner } from "./rooms.ts"
 
@@ -12,31 +15,22 @@ export const list = query({
 		roomId: v.id("rooms"),
 		search: v.optional(v.string()),
 	},
-	handler(ctx, args) {
-		return pipe(
-			ensureRoomOwner(ctx, args.roomId),
-			Effect.flatMap((room) => {
-				let query
-				query = ctx.db.query("scenes")
-				if (args.search) {
-					query = query.withSearchIndex("name", (q) =>
-						q.search("name", args.search ?? "").eq("roomId", room._id),
+	handler: async (ctx: EntQueryCtx, args) => {
+		await ensureRoomOwner(ctx, args.roomId)
+
+		const scenes =
+			args.search ?
+				ctx
+					.table("scenes")
+					.search("name", (q) =>
+						q.search("name", args.search ?? "").eq("roomId", args.roomId),
 					)
-				} else {
-					query = query.withIndex("roomId", (q) => q.eq("roomId", room._id))
-				}
-				return query.collect()
-			}),
-			Effect.flatMap(
-				Effect.forEach((scene) => normalizeScene(ctx, scene), {
-					concurrency: "unbounded",
-				}),
-			),
-			Effect.map(
-				EffectArray.sortBy(Order.mapInput(Order.string, (scene) => scene.name)),
-			),
-			Effect.orElseSucceed(() => []),
+			:	ctx.table("scenes", "roomId", (q) => q.eq("roomId", args.roomId))
+
+		const normalizedScenes = await scenes.map((scene) =>
+			normalizeScene(ctx, scene),
 		)
+		return normalizedScenes.sort((a, b) => a.name.localeCompare(b.name))
 	},
 })
 
@@ -44,12 +38,9 @@ export const get = query({
 	args: {
 		id: v.id("scenes"),
 	},
-	handler(ctx, args) {
-		return pipe(
-			ensureSceneRoomOwner(ctx, args.id),
-			Effect.flatMap(({ scene }) => normalizeScene(ctx, scene)),
-			Effect.orElseSucceed(() => null),
-		)
+	handler: async (ctx: EntQueryCtx, args) => {
+		const { scene } = await ensureSceneRoomOwner(ctx, args.id)
+		return scene ? normalizeScene(ctx, scene) : null
 	},
 })
 
@@ -61,16 +52,14 @@ export const create = mutation({
 		roomId: v.id("rooms"),
 		backgroundIds: v.optional(v.array(v.id("_storage"))),
 	},
-	handler(ctx, { backgroundIds = [], ...args }) {
-		return Effect.gen(function* () {
-			yield* ensureRoomOwner(ctx, args.roomId)
+	handler: async (ctx: EntMutationCtx, { backgroundIds = [], ...args }) => {
+		await ensureRoomOwner(ctx, args.roomId)
 
-			return yield* ctx.db.insert("scenes", {
-				...args,
-				name: args.name ?? "New Scene",
-				mode: args.mode ?? "battlemap",
-			})
-		}).pipe(Effect.orDie)
+		return await ctx.table("scenes").insert({
+			...args,
+			name: args.name ?? "New Scene",
+			mode: args.mode ?? "battlemap",
+		})
 	},
 })
 
@@ -79,12 +68,9 @@ export const update = mutation({
 		...partial(schema.tables.scenes.validator.fields),
 		id: v.id("scenes"),
 	},
-	handler(ctx, { id, ...args }) {
-		return pipe(
-			ensureSceneRoomOwner(ctx, id),
-			Effect.flatMap(({ scene }) => ctx.db.patch(scene._id, args)),
-			Effect.orDie,
-		)
+	handler: async (ctx: EntMutationCtx, { id, ...args }) => {
+		const { scene } = await ensureSceneRoomOwner(ctx, id)
+		await ctx.table("scenes").getX(scene._id).patch(args)
 	},
 })
 
@@ -92,17 +78,11 @@ export const remove = mutation({
 	args: {
 		sceneIds: v.array(v.id("scenes")),
 	},
-	handler(ctx, args) {
-		return pipe(
-			Effect.forEach(args.sceneIds, (id) =>
-				pipe(
-					ensureSceneRoomOwner(ctx, id),
-					Effect.flatMap(({ scene }) => ctx.db.delete(scene._id)),
-				),
-			),
-			Effect.orDie,
-			Effect.asVoid,
-		)
+	handler: async (ctx: EntMutationCtx, args) => {
+		for (const id of args.sceneIds) {
+			const { scene } = await ensureSceneRoomOwner(ctx, id)
+			await ctx.table("scenes").getX(scene._id).delete()
+		}
 	},
 })
 
@@ -110,68 +90,51 @@ export const duplicate = mutation({
 	args: {
 		sceneIds: v.array(v.id("scenes")),
 	},
-	handler(ctx, args) {
-		return pipe(
-			Effect.forEach(args.sceneIds, (id) =>
-				ensureSceneRoomOwner(ctx, id).pipe(
-					Effect.map(({ scene }) => scene),
-					Effect.flatMap((scene) => {
-						const { _id, _creationTime, ...rest } = scene
-						return ctx.db.insert("scenes", {
-							...rest,
-							name: `${scene.name} Copy`,
-						})
-					}),
-				),
-			),
-			Effect.orDie,
-			Effect.asVoid,
-		)
+	handler: async (ctx: EntMutationCtx, args) => {
+		for (const id of args.sceneIds) {
+			const { scene } = await ensureSceneRoomOwner(ctx, id)
+			const { _id, _creationTime, ...rest } = scene
+			await ctx.table("scenes").insert({
+				...rest,
+				name: `${scene.name} Copy`,
+			})
+		}
 	},
 })
 
-export function normalizeScene(ctx: LocalQueryContext, scene: Doc<"scenes">) {
-	return Effect.gen(function* () {
-		const room = yield* ctx.db.get(scene.roomId)
+export async function normalizeScene(ctx: EntQueryCtx, scene: Ent<"scenes">) {
+	const room = await ctx.table("rooms").getX(scene.roomId)
 
-		const dayBackgroundUrl = yield* pipe(
-			Effect.fromNullable(scene.dayBackgroundId),
-			Effect.flatMap((id) => getStorageUrl(ctx, id)),
-			Effect.orElseSucceed(() => null),
-		)
+	const dayBackgroundUrl =
+		scene.dayBackgroundId ?
+			await ctx.storage.getUrl(scene.dayBackgroundId)
+		:	null
+	const eveningBackgroundUrl =
+		scene.eveningBackgroundId ?
+			await ctx.storage.getUrl(scene.eveningBackgroundId)
+		:	null
+	const nightBackgroundUrl =
+		scene.nightBackgroundId ?
+			await ctx.storage.getUrl(scene.nightBackgroundId)
+		:	null
 
-		const eveningBackgroundUrl = yield* pipe(
-			Effect.fromNullable(scene.eveningBackgroundId),
-			Effect.flatMap((id) => getStorageUrl(ctx, id)),
-			Effect.orElseSucceed(() => null),
-		)
+	// TODO: get active scene based on game time
+	const activeBackgroundUrl =
+		dayBackgroundUrl ?? eveningBackgroundUrl ?? nightBackgroundUrl
 
-		const nightBackgroundUrl = yield* pipe(
-			Effect.fromNullable(scene.nightBackgroundId),
-			Effect.flatMap((id) => getStorageUrl(ctx, id)),
-			Effect.orElseSucceed(() => null),
-		)
-
-		// TODO: get active scene based on game time
-		const activeBackgroundUrl =
-			dayBackgroundUrl ?? eveningBackgroundUrl ?? nightBackgroundUrl
-
-		return {
-			...scene,
-			isActive: room.activeSceneId === scene._id,
-			dayBackgroundUrl,
-			eveningBackgroundUrl,
-			nightBackgroundUrl,
-			activeBackgroundUrl,
-			mode: scene.mode ?? { type: "battlemap", cellSize: 70 },
-		}
-	})
+	return {
+		...scene,
+		isActive: room.activeSceneId === scene._id,
+		dayBackgroundUrl,
+		eveningBackgroundUrl,
+		nightBackgroundUrl,
+		activeBackgroundUrl,
+		mode: scene.mode ?? { type: "battlemap", cellSize: 70 },
+	}
 }
 
-export function ensureSceneRoomOwner(ctx: LocalQueryContext, id: Id<"scenes">) {
-	return Effect.gen(function* () {
-		const scene = yield* ctx.db.get(id)
-		const room = yield* ensureRoomOwner(ctx, scene.roomId)
-		return { scene, room }
-	})
+async function ensureSceneRoomOwner(ctx: EntQueryCtx, id: any) {
+	const scene = await ctx.table("scenes").getX(id)
+	const room = await ensureRoomOwner(ctx, scene.roomId)
+	return { scene, room }
 }

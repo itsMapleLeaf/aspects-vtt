@@ -1,7 +1,6 @@
 import { httpRouter } from "convex/server"
-import { Effect } from "effect"
+import { httpAction } from "./_generated/server.js"
 import { auth } from "./auth"
-import { httpAction } from "./lib/api.ts"
 
 const http = httpRouter()
 
@@ -10,39 +9,38 @@ auth.addHttpRoutes(http)
 http.route({
 	pathPrefix: "/",
 	method: "OPTIONS",
-	handler: httpAction((ctx, request) => {
+	handler: httpAction(async (ctx, request) => {
 		const origin = request.headers.get("Origin")
-		if (
-			origin?.startsWith("http://localhost") ||
-			origin?.endsWith("mapleleaf.dev")
-		) {
-			const headers = new Headers([
-				["Access-Control-Allow-Origin", origin],
-				["Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"],
-				["Access-Control-Allow-Headers", "Content-Type"],
-			])
-			return Effect.succeed(new Response(null, { status: 204, headers }))
+
+		const isValidOrigin =
+			origin &&
+			(origin?.startsWith("http://localhost") ||
+				origin?.endsWith("mapleleaf.dev"))
+
+		if (!isValidOrigin) {
+			return new Response(null, { status: 400 })
 		}
 
-		return Effect.succeed(new Response(null, { status: 400 }))
+		const headers = new Headers([
+			["Access-Control-Allow-Origin", origin],
+			["Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"],
+			["Access-Control-Allow-Headers", "Content-Type"],
+		])
+		return new Response(null, { status: 204, headers })
 	}),
 })
 
 http.route({
 	path: "/images",
 	method: "PUT",
-	handler: httpAction((ctx, request) =>
-		Effect.gen(function* () {
-			const blob = yield* Effect.promise(() => request.blob())
-			const storageId = yield* Effect.promise(() =>
-				ctx.internal.storage.store(blob),
-			)
-			return Response.json(
-				{ storageId },
-				{ status: 201, headers: { "Access-Control-Allow-Origin": "*" } },
-			)
-		}),
-	),
+	handler: httpAction(async (ctx, request) => {
+		const blob = await request.blob()
+		const storageId = await ctx.storage.store(blob)
+		return Response.json(
+			{ storageId },
+			{ status: 201, headers: { "Access-Control-Allow-Origin": "*" } },
+		)
+	}),
 })
 
 export default http
