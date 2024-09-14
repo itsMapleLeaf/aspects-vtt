@@ -1,3 +1,4 @@
+import { Fragment } from "react/jsx-runtime"
 import { Vector } from "../../../common/Vector.ts"
 import { useSceneContext } from "./SceneContext.tsx"
 import { useSelectedScene } from "./hooks.ts"
@@ -21,7 +22,7 @@ export function DistanceLayer() {
 		)
 
 		return (
-			<>
+			<Fragment key={token.key}>
 				{/* horizontal line */}
 				<div
 					className="absolute left-0 top-0 box-content outline outline-4 outline-primary-200"
@@ -63,7 +64,7 @@ export function DistanceLayer() {
 						translate: end.css.translate(),
 					}}
 				/>
-			</>
+			</Fragment>
 		)
 	})
 }
