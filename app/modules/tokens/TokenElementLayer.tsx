@@ -18,6 +18,7 @@ import { useUpdateTokenMutation } from "../tokens/useUpdateTokenMutation.tsx"
 import { type UserColorName, getColorStyle } from "../user-colors/data.ts"
 import { TokenLabel } from "./TokenLabel.tsx"
 import { TokenMeter } from "./TokenMeter.tsx"
+import { useSelectedScene } from "../scenes/hooks.ts"
 
 export function TokenElementLayer() {
 	const { viewport, tokens } = useSceneContext()
@@ -76,8 +77,7 @@ function TokenElement({
 		placementSubdivisions,
 	} = useSceneContext()
 
-	const { currentScene } = useRoom()
-
+	const currentScene = useSelectedScene()
 	const getTokenViewportPosition = useGetTokenViewportPosition()
 	const updateToken = useUpdateTokenMutation()
 
@@ -91,7 +91,7 @@ function TokenElement({
 				.plus(tokenDragOffset).xy
 
 			updateToken({
-				sceneId: currentScene,
+				sceneId: currentScene._id,
 				key: token.key,
 				position,
 			})
