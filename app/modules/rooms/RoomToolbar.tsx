@@ -1,7 +1,9 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
+import { useState } from "react"
 import { Button } from "~/ui/Button.tsx"
 import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
+import { FormActions, FormLayout } from "~/ui/Form.tsx"
 import {
 	Modal,
 	ModalButton,
@@ -9,6 +11,7 @@ import {
 	ModalPanelContent,
 	ModalProvider,
 } from "~/ui/Modal.tsx"
+import { NumberField } from "~/ui/NumberField.tsx"
 import { Popover, PopoverPanel, PopoverTrigger } from "~/ui/Popover.tsx"
 import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel"
@@ -20,9 +23,6 @@ import { QuickReference } from "../game/QuickReference.tsx"
 import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
 import type { RoomToolbarStore } from "./RoomToolbarStore.ts"
 import { RoomOwnerOnly } from "./roomContext.tsx"
-import { NumberField } from "~/ui/NumberField.tsx"
-import { useState } from "react"
-import { FormActions, FormLayout } from "~/ui/Form.tsx"
 
 export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 	const character = useOwnedCharacters()[0]

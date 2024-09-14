@@ -20,6 +20,7 @@ import { TextArea } from "../../ui/TextArea.tsx"
 import { ImageUploader } from "../api-images/ImageUploader.tsx"
 import type { Attribute } from "../attributes/data.ts"
 import { statDiceKinds } from "../dice/data.tsx"
+import { WealthTiers } from "../game/wealth.ts"
 import { listRaces } from "../races/data.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { CharacterAbilityList } from "./CharacterAbilityList.tsx"
@@ -130,8 +131,9 @@ export function CharacterForm({ character }: { character: ApiCharacter }) {
 			</div>
 
 			{hasUpdatePermissions && (
-				<div className="grid grid-flow-col gap-current">
+				<div className="grid auto-cols-fr grid-flow-col gap-current">
 					<CharacterStatusFields character={character} />
+					<CharacterWealthTierField character={character} />
 				</div>
 			)}
 
@@ -428,4 +430,32 @@ function CharacterImageField({ character }: { character: ApiCharacter }) {
 				/>
 			</Suspense>
 		:	<CharacterImage character={character} className="aspect-square" />
+}
+
+function CharacterWealthTierField({ character }: { character: ApiCharacter }) {
+	const update = useMutation(api.characters.functions.update)
+
+	if (!hasFullCharacterPermissions(character)) {
+		return null
+	}
+
+	return (
+		<CharacterReadOnlyGuard
+			character={character}
+			label="Wealth Tier"
+			value={character.wealthTier}
+		>
+			<Select
+				label="Wealth Tier"
+				value={character.wealthTier}
+				options={WealthTiers.map((tier, index) => ({
+					id: String(index),
+					value: index,
+					label: `${index + 1}. ${tier.name}`,
+					description: tier.occupations.join(", "),
+				}))}
+				onChange={(value) => update({ id: character._id, wealthTier: value })}
+			/>
+		</CharacterReadOnlyGuard>
+	)
 }

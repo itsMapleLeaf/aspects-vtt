@@ -143,7 +143,7 @@ export default defineSchema({
 		// status
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),
-		currency: v.optional(v.number()),
+		wealthTier: v.optional(v.number()),
 		conditions: v.optional(v.array(characterConditionValidator())),
 		inventory: v.optional(
 			v.array(
@@ -176,6 +176,7 @@ export default defineSchema({
 		fatigue: deprecated,
 		damageThresholdDelta: deprecated,
 		fatigueThresholdDelta: deprecated,
+		currency: deprecated,
 	})
 		.index("roomId", ["roomId"])
 		.index("sceneId", ["sceneId"])

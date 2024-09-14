@@ -18,6 +18,7 @@ import {
 	snagDiceKind,
 	statDiceKindsByName,
 } from "~/modules/dice/data.tsx"
+import { WealthTiers } from "~/modules/game/wealth.ts"
 import { getRace } from "~/modules/races/data.ts"
 import {
 	type Skill,
@@ -647,7 +648,7 @@ function generateRandomCharacterProperties() {
 			"she/they",
 		]),
 		race,
-		currency: (Math.floor(Math.random() * 10) + 1) * 50,
+		wealthTier: randomInt(WealthTiers.length) - 1,
 		learnedAspectSkills: Iterator.from(skillsByAspect)
 			.map(([aspectId, skillIds]) => ({
 				aspectId,
@@ -829,7 +830,7 @@ export function normalizeCharacterUnsafe(character: Doc<"characters">) {
 			ownerNotes: "",
 			playerNotes: "",
 
-			currency: 0,
+			wealthTier: 3, // lower middle class
 			conditions: [],
 
 			visible: false,

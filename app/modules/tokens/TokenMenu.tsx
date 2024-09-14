@@ -147,7 +147,6 @@ function TokenMenuContent() {
 				<div className="flex w-64 gap-2 *:flex-1 empty:hidden">
 					<CharacterStatusFields
 						character={singleSelectedCharacter}
-						notes={false}
 						labels={false}
 						// ensure the fields show the correct value for the given character
 						key={singleSelectedCharacter._id}
