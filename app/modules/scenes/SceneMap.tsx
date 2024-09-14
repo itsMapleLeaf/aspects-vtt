@@ -249,12 +249,12 @@ function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
 				if (existing) {
 					updateToken({
 						key: existing.key,
-						sceneId: currentScene,
+						sceneId: currentScene._id,
 						position,
 					})
 				} else {
 					addToken({
-						sceneId: currentScene,
+						sceneId: currentScene._id,
 						characterId: data.characterId,
 						position,
 						visible: data.visible,
