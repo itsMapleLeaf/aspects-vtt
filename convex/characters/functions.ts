@@ -446,32 +446,24 @@ export const updateModifier = effectMutation({
 export const rest = effectMutation({
 	args: {
 		id: v.id("characters"),
+		hours: v.number(),
 	},
 	handler(args) {
 		return Effect.gen(function* () {
+			const user = yield* getCurrentUser()
+
 			const character = yield* normalizeCharacterUnsafe(
 				yield* Convex.db.get(args.id),
 			)
-			const user = yield* getCurrentUser()
-			const rolls = Array.from(
-				createDiceRolls([getDiceKindApiInput(statDiceKindsByName.d4, 3)]),
-			)
-			const restoredAmount = rolls.reduce((total, die) => total + die.result, 0)
+
+			yield* Convex.db.patch(character._id, {
+				resolve: Math.min(character.resolve + args.hours, character.resolveMax),
+			})
 
 			yield* Convex.db.insert("messages", {
 				roomId: character.roomId,
 				user: user._id,
-				content: `${formatCharacterMention(character._id)} rested for 8 hours and gained ${restoredAmount} resolve.`,
-				diceRoll: {
-					dice: rolls,
-				},
-			})
-
-			yield* Convex.db.patch(character._id, {
-				resolve: Math.min(
-					character.resolve + restoredAmount,
-					character.resolveMax,
-				),
+				content: `${formatCharacterMention(character._id)} rested for ${args.hours} hours and gained ${args.hours} resolve.`,
 			})
 		})
 	},

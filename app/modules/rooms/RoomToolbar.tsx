@@ -3,6 +3,7 @@ import * as Lucide from "lucide-react"
 import { Button } from "~/ui/Button.tsx"
 import { ConfirmModalButton } from "~/ui/ConfirmModalButton.tsx"
 import {
+	Modal,
 	ModalButton,
 	ModalPanel,
 	ModalPanelContent,
@@ -13,12 +14,15 @@ import { api } from "../../../convex/_generated/api.js"
 import type { Id } from "../../../convex/_generated/dataModel"
 import { CharacterStatusFields } from "../characters/CharacterStatusFields.tsx"
 import { useOwnedCharacters } from "../characters/hooks.ts"
-import { useMutationAction } from "../convex/hooks.ts"
+import { useMutationAction, useSafeAction } from "../convex/hooks.ts"
 import { DateTimeSettingsForm } from "../game/DateTimeSettingsForm.tsx"
 import { QuickReference } from "../game/QuickReference.tsx"
 import { RoomSettingsForm } from "./RoomSettingsForm.tsx"
 import type { RoomToolbarStore } from "./RoomToolbarStore.ts"
 import { RoomOwnerOnly } from "./roomContext.tsx"
+import { NumberField } from "~/ui/NumberField.tsx"
+import { useState } from "react"
+import { FormActions, FormLayout } from "~/ui/Form.tsx"
 
 export function RoomToolbar({ store }: { store: RoomToolbarStore }) {
 	const character = useOwnedCharacters()[0]
@@ -150,28 +154,52 @@ function ToolbarModal({
 	)
 }
 
+/**
+ * Shows a modal which asks for a certain number of hours, then they gain that
+ * much resolve.
+ */
 function RestButton({ characterId }: { characterId: Id<"characters"> }) {
 	const rest = useMutation(api.characters.functions.rest)
+
+	const [hours, setHours] = useState(1)
+	const [open, setOpen] = useState(false)
+
+	const [, action, pending] = useSafeAction(async (_: FormData) => {
+		await rest({ id: characterId, hours })
+		setOpen(false)
+	})
+
 	return (
-		<ConfirmModalButton
+		<Modal
 			title="Rest"
-			message={
-				<>
-					<p>
-						Resting uses <strong>8 hours</strong> of the day.
+			trigger={<ToolbarButton icon={<Lucide.FlameKindling />} tooltip="Rest" />}
+			open={open}
+			onOpenChange={setOpen}
+		>
+			<form action={action} className="contents">
+				<FormLayout className="items-center">
+					<NumberField
+						label="Hours"
+						min={1}
+						value={hours}
+						onChange={setHours}
+						className="w-32"
+					/>
+					<p className="text-pretty">
+						You will rest for <strong>{hours}</strong> hour(s) and gain{" "}
+						<strong>{hours}</strong> resolve.
 					</p>
-					<p>
-						You will gain <strong>3d4 resolve</strong>.
-					</p>
-					<p>Are you sure you want to rest?</p>
-				</>
-			}
-			confirmText="Yes, rest for 8 hours"
-			confirmIcon={<Lucide.FlameKindling />}
-			cancelText="Sleep is for the weak."
-			render={<ToolbarButton icon={<Lucide.FlameKindling />} tooltip="Rest" />}
-			onConfirm={() => rest({ id: characterId })}
-			dangerous={false}
-		/>
+					<FormActions>
+						<Button
+							type="submit"
+							icon={<Lucide.FlameKindling />}
+							pending={pending}
+						>
+							Rest
+						</Button>
+					</FormActions>
+				</FormLayout>
+			</form>
+		</Modal>
 	)
 }
