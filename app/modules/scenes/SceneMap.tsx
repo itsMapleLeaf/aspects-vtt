@@ -211,7 +211,7 @@ function useWindowSize() {
 }
 
 function CharacterTokenDropzone({ children }: { children: React.ReactNode }) {
-	const { currentScene } = useRoom()
+	const currentScene = useSelectedScene()
 	const {
 		scene: { cellSize },
 		...context

@@ -31,6 +31,7 @@ import {
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoom } from "../rooms/roomContext.tsx"
 import { useSceneContext } from "../scenes/SceneContext.tsx"
+import { useSelectedScene } from "../scenes/hooks.ts"
 import { useUpdateTokenMutation } from "./useUpdateTokenMutation.tsx"
 
 export function TokenMenu() {
@@ -121,6 +122,7 @@ function TokenMenuContent() {
 	const { tokenSelectStore, selectedTokens: selectedTokensInput } =
 		useSceneContext()
 	const room = useRoom()
+	const currentScene = useSelectedScene()
 	const updateToken = useUpdateTokenMutation()
 	const removeToken = useMutation(api.scenes.tokens.functions.remove)
 	const updateCharacter = useMutation(api.characters.functions.update)
@@ -288,7 +290,7 @@ function TokenMenuContent() {
 					)}
 
 					{room.isOwner &&
-						room.currentScene &&
+						currentScene &&
 						selectedTokens.some((it) => !it.visible) && (
 							<Button
 								appearance="clear"
@@ -297,7 +299,7 @@ function TokenMenuContent() {
 								onClick={() => {
 									for (const token of selectedTokens) {
 										updateToken({
-											sceneId: unwrap(room.currentScene),
+											sceneId: currentScene._id,
 											key: token.key,
 											visible: true,
 										})
@@ -307,7 +309,7 @@ function TokenMenuContent() {
 						)}
 
 					{room.isOwner &&
-						room.currentScene &&
+						currentScene &&
 						selectedTokens.some((it) => it.visible) && (
 							<Button
 								appearance="clear"
@@ -316,7 +318,7 @@ function TokenMenuContent() {
 								onClick={() => {
 									for (const token of selectedTokens) {
 										updateToken({
-											sceneId: unwrap(room.currentScene),
+											sceneId: currentScene._id,
 											key: token.key,
 											visible: false,
 										})
@@ -357,7 +359,7 @@ function TokenMenuContent() {
 						/>
 					)}
 
-					{room.currentScene && selectedTokens.length > 0 && (
+					{currentScene && selectedTokens.length > 0 && (
 						<Button
 							appearance="clear"
 							tooltip="Remove"
@@ -365,7 +367,7 @@ function TokenMenuContent() {
 							onClick={() => {
 								for (const token of selectedTokens) {
 									removeToken({
-										sceneId: unwrap(room.currentScene),
+										sceneId: currentScene._id,
 										tokenKey: token.key,
 									})
 								}
