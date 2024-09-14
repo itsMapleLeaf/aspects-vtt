@@ -13,12 +13,12 @@ import { useRoom } from "../rooms/roomContext.tsx"
 import { DistanceLabelLayer, DistanceLayer } from "../scenes/DistanceLayer.tsx"
 import { PingLayer } from "../scenes/PingLayer.tsx"
 import { useSceneContext } from "../scenes/SceneContext.tsx"
+import { useSelectedScene } from "../scenes/hooks.ts"
 import { useGetTokenViewportPosition } from "../tokens/useGetTokenViewportPosition.tsx"
 import { useUpdateTokenMutation } from "../tokens/useUpdateTokenMutation.tsx"
 import { type UserColorName, getColorStyle } from "../user-colors/data.ts"
 import { TokenLabel } from "./TokenLabel.tsx"
 import { TokenMeter } from "./TokenMeter.tsx"
-import { useSelectedScene } from "../scenes/hooks.ts"
 
 export function TokenElementLayer() {
 	const { viewport, tokens } = useSceneContext()
