@@ -71,56 +71,6 @@ function MessagePanel({ message }: { message: ApiMessage }) {
 	)
 }
 
-// function MessageMenu(props: { message: ApiMessage; children: React.ReactNode }) {
-// 	// const sceneContext = useSceneContext()
-// 	const updateCharacter = useMutation(api.characters.functions.update)
-// 	const diceTotal = props.message.diceRoll?.dice.reduce((total, it) => total + it.result, 0) ?? 0
-
-// 	function updateCharacters(
-// 		getArgs: (character: ApiCharacter) => Partial<Parameters<typeof updateCharacter>[0]>,
-// 	) {
-// 		// for (const character of sceneContext.selectedCharacters()) {
-// 		// 	updateCharacter({ ...getArgs(character), id: character._id })
-// 		// }
-// 	}
-
-// 	return (
-// 		<MoreMenu>
-// 			{props.children}
-// 			<MoreMenuPanel>
-// 				<MoreMenuItem
-// 					icon={<Lucide.Heart />}
-// 					text="Heal selected characters"
-// 					onClick={() => {
-// 						updateCharacters((it) => ({ damage: it.damage - diceTotal }))
-// 					}}
-// 				/>
-// 				<MoreMenuItem
-// 					icon={<Lucide.HeartCrack />}
-// 					text="Damage selected characters"
-// 					onClick={() => {
-// 						updateCharacters((it) => ({ damage: it.damage + diceTotal }))
-// 					}}
-// 				/>
-// 				<MoreMenuItem
-// 					icon={<Lucide.Zap />}
-// 					text="Refresh selected characters"
-// 					onClick={() => {
-// 						updateCharacters((it) => ({ fatigue: it.fatigue - diceTotal }))
-// 					}}
-// 				/>
-// 				<MoreMenuItem
-// 					icon={<Lucide.ZapOff />}
-// 					text="Exhaust selected characters"
-// 					onClick={() => {
-// 						updateCharacters((it) => ({ fatigue: it.fatigue + diceTotal }))
-// 					}}
-// 				/>
-// 			</MoreMenuPanel>
-// 		</MoreMenu>
-// 	)
-// }
-
 type ApiDiceRoll = NonNullable<ApiMessage["diceRoll"]>
 
 function DiceRollSummary({ roll }: { roll: ApiDiceRoll }) {
