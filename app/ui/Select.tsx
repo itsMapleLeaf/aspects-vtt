@@ -13,6 +13,7 @@ export interface SelectOptionWithoutId<T> {
 	id?: string | undefined
 	value: Extract<T, string>
 	label: ReactNode
+	description?: ReactNode
 	icon?: ReactNode
 }
 
@@ -20,6 +21,7 @@ export interface SelectOptionWithId<T> {
 	id: string
 	value: T
 	label: ReactNode
+	description?: ReactNode
 	icon?: ReactNode
 }
 
@@ -88,9 +90,10 @@ export function Select<T>(props: {
 			</FormField>
 			<Ariakit.SelectPopover
 				gutter={8}
-				sameWidth
 				unmountOnHide
-				className={MenuPanel.style("z-10")}
+				className={MenuPanel.style(
+					"z-10 max-h-[320px] min-w-[--popover-anchor-width] max-w-[400px] overflow-y-auto",
+				)}
 			>
 				{props.options.map((option) => (
 					<Ariakit.SelectItem
@@ -99,7 +102,14 @@ export function Select<T>(props: {
 						className={MenuItem.style()}
 					>
 						{option.icon}
-						{option.label}
+						<div className="flex flex-col">
+							<div>{option.label}</div>
+							{option.description && (
+								<div className="text-sm text-primary-300">
+									{option.description}
+								</div>
+							)}
+						</div>
 					</Ariakit.SelectItem>
 				))}
 			</Ariakit.SelectPopover>
