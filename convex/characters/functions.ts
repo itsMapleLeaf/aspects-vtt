@@ -818,11 +818,12 @@ export function normalizeCharacterUnsafe(character: Doc<"characters">) {
 		)
 		const health = clamp(character.health ?? healthMax, 0, healthMax)
 
-		const resolveMax = sum(
-			[stats.intellect, stats.wit, stats.sense, race?.resolveBonus ?? 0].map(
-				getAttributePower,
-			),
-		)
+		const resolveMax = sum([
+			stats.intellect,
+			stats.wit,
+			stats.sense,
+			race?.resolveBonus ?? 0,
+		])
 		const resolve = clamp(character.resolve ?? resolveMax, 0, resolveMax)
 
 		return {
