@@ -7,12 +7,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# dependencies
 node_modules
+
+# build output / generated files
 dist
 dist-ssr
 /build
-*.local
 **/convex/_generated
+
+# config
+*.local
 
 # Editor directories and files
 .vscode/*
@@ -25,9 +30,15 @@ dist-ssr
 *.sln
 *.sw?
 
-# Ignored for the template, you probably want to remove it:
+# lockfiles
 package-lock.json
+
+# cache
+/playwright/.cache/
+*.tsbuildinfo
+.turbo
+
+# test output
 /test-results/
 /playwright-report/
 /blob-report/
-/playwright/.cache/
