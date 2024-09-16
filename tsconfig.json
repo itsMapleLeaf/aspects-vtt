@@ -2,7 +2,7 @@
 	// copied from "@total-typescript/tsconfig/bundler/dom"
 	"compilerOptions": {
 		/* Resolution */
-		"module": "ESNext", // set this to Preserve after updating to TS 5.5+
+		"module": "Preserve",
 		"moduleResolution": "Bundler",
 		"moduleDetection": "force",
 		"resolveJsonModule": true,
@@ -24,7 +24,8 @@
 		"jsx": "react-jsx",
 
 		/* Emit */
-		"noEmit": true
+		"noEmit": true,
+		"incremental": true
 	},
 	"exclude": ["node_modules", "dist", "src.old"]
 }
