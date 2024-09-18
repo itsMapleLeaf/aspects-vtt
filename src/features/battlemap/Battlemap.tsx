@@ -7,6 +7,8 @@ import { useImage, useLocalStorage, useWindowSize } from "~/common/react/dom.ts"
 import type { Character, Scene } from "~/types.ts"
 import { CharacterBattlemapToken } from "../characters/CharacterBattlemapToken.tsx"
 
+Konva.dragButtons = [0, 2]
+
 export function Battlemap({
 	scene,
 	characters,

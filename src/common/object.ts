@@ -15,3 +15,12 @@ export function extract<
 		rest as Simplify<Omit<Input, Key>>,
 	] as const
 }
+
+export function filterValues<Input>(
+	record: Record<PropertyKey, Input>,
+	predicate: (value: Input) => boolean,
+) {
+	return Object.fromEntries(
+		Object.entries(record).filter((entry) => predicate(entry[1])),
+	)
+}

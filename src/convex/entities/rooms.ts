@@ -16,7 +16,7 @@ export const list = query({
 		try {
 			// const userId = await getAuthUserId(ctx)
 			// return await ctx.table("rooms", "ownerId", (q) => q.eq("ownerId", userId))
-			return await ctx.table("rooms")
+			return await ctx.table("rooms").map((room) => normalizeRoom(ctx, room))
 		} catch (error) {
 			console.warn(error)
 			return []
@@ -101,7 +101,7 @@ function getRoomBySlug(ctx: EntQueryCtx, slug: string) {
 }
 
 async function normalizeRoom(ctx: EntQueryCtx, room: Ent<"rooms">) {
-	const userId = await getAuthUserId(ctx)
+	const userId = await getAuthUserId(ctx).catch(() => null)
 
 	const activeSceneDoc =
 		room.activeSceneId && (await ctx.table("scenes").get(room.activeSceneId))

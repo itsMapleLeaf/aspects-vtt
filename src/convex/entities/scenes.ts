@@ -44,6 +44,18 @@ export const get = query({
 	},
 })
 
+export const getActive = query({
+	args: {
+		roomId: v.id("rooms"),
+	},
+	handler: async (ctx: EntQueryCtx, args) => {
+		const room = await ctx.table("rooms").get(args.roomId)
+		const scene =
+			room?.activeSceneId && (await ctx.table("scenes").get(room.activeSceneId))
+		return scene && normalizeScene(ctx, scene)
+	},
+})
+
 export const create = mutation({
 	args: {
 		...schema.tables.scenes.validator.fields,
