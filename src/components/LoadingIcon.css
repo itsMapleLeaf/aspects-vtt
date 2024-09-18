@@ -1,0 +1,41 @@
+@keyframes wipe-down {
+	0% {
+		clip-path: inset(0 0 100% 0);
+	}
+	50% {
+		clip-path: inset(0 0 0 0);
+	}
+	100% {
+		clip-path: inset(100% 0 0 0);
+	}
+}
+
+.wipe-down {
+	animation: wipe-down 1s theme(transitionTimingFunction.out) infinite;
+}
+
+@keyframes peek {
+	0% {
+		opacity: 0;
+	}
+	1% {
+		opacity: 1;
+	}
+	19% {
+		opacity: 1;
+	}
+	20% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.peek {
+	animation-name: peek;
+	animation-duration: 5s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-fill-mode: both;
+}

@@ -62,7 +62,7 @@ export default function RoomRoute() {
 					</header>
 
 					<main className="pointer-events-children flex flex-1 items-stretch justify-between *:w-72">
-						<nav className="flex flex-col gap" aria-label="Left sidebar">
+						<Sidebar aria-label="Left sidebar">
 							<Card className="flex-1">
 								<CardTitle>Characters</CardTitle>
 								<ul className="flex flex-col gap">
@@ -76,15 +76,15 @@ export default function RoomRoute() {
 							<Card className="flex-1">
 								<CardTitle>Notes</CardTitle>
 							</Card>
-						</nav>
-						<nav className="flex flex-col gap" aria-label="Right sidebar">
+						</Sidebar>
+						<Sidebar aria-label="Right sidebar">
 							<Card className="flex-1">
 								<CardTitle>Combat</CardTitle>
 							</Card>
 							<Card className="flex-1">
 								<CardTitle>Messages</CardTitle>
 							</Card>
-						</nav>
+						</Sidebar>
 					</main>
 				</HeadingLevel>
 			</div>
@@ -129,4 +129,12 @@ function RoomBackground({
 	}
 
 	return null
+}
+
+function Sidebar({ children, ...props }: { children: React.ReactNode }) {
+	return (
+		<div className="flex flex-col gap" {...props}>
+			{children}
+		</div>
+	)
 }
