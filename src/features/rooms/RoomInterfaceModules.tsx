@@ -17,6 +17,7 @@ import { Button } from "~/components/Button.tsx"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { panel } from "~/styles/panel.ts"
 import { CharacterList } from "../characters/CharacterList.tsx"
+import { MessageList } from "../messages/MessageList.tsx"
 
 interface ModuleDefinition {
 	name: string
@@ -41,7 +42,7 @@ const MODULES: Record<string, ModuleDefinition> = {
 		name: "Messages",
 		icon: <LucideMessageCircle className="size-4" />,
 		defaultLocation: { sidebar: 1, panel: 1 },
-		content: () => <p>messages</p>,
+		content: ({ roomId }) => <MessageList roomId={roomId} />,
 	},
 	combat: {
 		name: "Combat",
@@ -174,7 +175,7 @@ function Sidebar({
 		:	0
 
 	return (
-		<div className="flex flex-col gap-1" {...props}>
+		<div className="flex h-full flex-col gap-1" {...props}>
 			<SidebarPanelSpaceDroppable
 				onDrop={({ moduleId }) => {
 					onModuleDrop({

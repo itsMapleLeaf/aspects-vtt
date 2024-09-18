@@ -22,7 +22,7 @@ export default function RoomRoute() {
 
 function RoomInterface({ roomId }: { roomId: Id<"rooms"> }) {
 	return (
-		<div className="pointer-events-children absolute inset-0 flex flex-col p-3 gap-3">
+		<div className="pointer-events-children absolute inset-0 flex h-screen w-screen flex-col p-3 gap-3">
 			<HeadingLevel>
 				<header className="pointer-events-children flex items-center justify-between">
 					<Heading className={heading()}>AspectsVTT</Heading>
@@ -34,7 +34,7 @@ function RoomInterface({ roomId }: { roomId: Id<"rooms"> }) {
 					<ActiveSceneHeading roomId={roomId} />
 				</header>
 
-				<main className="pointer-events-children flex flex-1 items-stretch justify-between *:w-72">
+				<main className="pointer-events-children flex min-h-0 flex-1 items-stretch justify-between *:w-72">
 					<RoomInterfaceModules roomId={roomId} />
 				</main>
 			</HeadingLevel>
