@@ -135,9 +135,9 @@ export function CharacterBattlemapToken({
 						flip={false}
 						getAnchorRect={getAnchorRect}
 					>
-						<p className="leading-none">{character.name}</p>
-						<p className="text-sm leading-none text-primary-100/80">
-							{character.race} &bull; {character.pronouns}
+						<p className="leading-none empty:hidden">{character.name}</p>
+						<p className="text-sm leading-none text-primary-100/80 empty:hidden">
+							{[character.race, character.pronouns].filter(Boolean).join(" • ")}
 						</p>
 					</TooltipContent>
 				</Tooltip>
