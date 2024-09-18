@@ -3,7 +3,7 @@ import { CharacterAttributeButton } from "./CharacterAttributeButton.tsx"
 
 export function CharacterAttributeButtonRow() {
 	return (
-		<div className="flex w-full items-center gap *:flex-1">
+		<div className="flex w-full items-center justify-between gap-1">
 			<CharacterAttributeButton
 				attribute="strength"
 				icon={<Lucide.BicepsFlexed />}

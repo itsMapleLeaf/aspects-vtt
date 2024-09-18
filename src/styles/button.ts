@@ -23,8 +23,8 @@ const buttonVariants = cva(
 			},
 			shape: {
 				default: `h-[--height] p-[--padding] [&>[data-button-icon]]:-mx-[--icon-inset] [&>svg]:-mx-[--icon-inset]`,
-				square: `size-[--height]`,
-				circle: `size-[--height] rounded-full`,
+				square: `aspect-square w-[--height]`,
+				circle: `aspect-square w-[--height] rounded-full`,
 			},
 			disabled: {
 				true: `opacity-50`,

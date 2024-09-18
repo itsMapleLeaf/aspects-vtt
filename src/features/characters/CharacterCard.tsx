@@ -1,34 +1,38 @@
 import * as Lucide from "lucide-react"
+import { Button } from "~/components/Button.tsx"
+import { Heading } from "~/components/Heading.tsx"
+import { secondaryHeading } from "~/styles/text.ts"
 import type { Character } from "~/types.ts"
-import { Avatar, AvatarFallback, AvatarImage } from "~/ui/avatar.tsx"
-import { Button } from "~/ui/button.tsx"
-import { Card, CardDescription, CardTitle } from "~/ui/card.tsx"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 
 export function CharacterCard({ character }: { character: Character }) {
 	return (
-		<Card className="flex flex-col p-3 gap-3">
+		<div className={"flex flex-col gap-3"}>
 			<div className="flex items-center gap">
-				<Avatar className="size-14">
-					<AvatarImage
-						src={character.imageUrl ?? undefined}
-						className="object-cover object-top"
-					/>
-					<AvatarFallback>{character.name[0]}</AvatarFallback>
-				</Avatar>
-				<div>
-					<CardTitle>{character.name}</CardTitle>
-					<CardDescription>
-						{[character.race, character.pronouns].filter(Boolean).join(" • ")}
-					</CardDescription>
+				<div className="size-14 overflow-clip rounded-full border border-primary-600">
+					{character.imageUrl ?
+						<img
+							src={character.imageUrl}
+							className="size-full rounded-full object-cover object-top p-px"
+						/>
+					:	<div className="size-full bg-primary-900">
+							<Lucide.VenetianMask className="size-full scale-[0.6]" />
+						</div>
+					}
 				</div>
-				<Button variant="ghost" className="ml-auto" size="icon">
+				<div>
+					<Heading className={secondaryHeading()}>{character.name}</Heading>
+					<p>
+						{[character.race, character.pronouns].filter(Boolean).join(" • ")}
+					</p>
+				</div>
+				<Button appearance="clear" shape="circle" className="ml-auto">
 					<Lucide.Edit className="size-5" />
 				</Button>
 			</div>
-			<CharacterVitalFields />
 			<CharacterAttributeButtonRow />
-		</Card>
+			<CharacterVitalFields />
+		</div>
 	)
 }

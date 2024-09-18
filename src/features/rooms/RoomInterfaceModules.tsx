@@ -253,7 +253,7 @@ function SidebarPanel({
 	return (
 		<div
 			className={panel(
-				"flex min-h-0 flex-1 flex-col p-2 transition gap-2",
+				"flex min-h-0 flex-1 flex-col shadow shadow-primary-900/75 transition",
 				over && "border-accent-500",
 			)}
 			ref={ref}
@@ -262,7 +262,7 @@ function SidebarPanel({
 				selectedId={selectedModule?.id}
 				setSelectedId={setSelectedId}
 			>
-				<div className="flex flex-wrap justify-center gap">
+				<div className="flex flex-wrap justify-center p-2 gap">
 					{modules.map((module) => (
 						<ModuleHandle
 							key={module.id}

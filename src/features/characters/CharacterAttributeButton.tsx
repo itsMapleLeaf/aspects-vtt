@@ -1,6 +1,6 @@
 import { startCase } from "lodash-es"
+import { Button } from "~/components/Button.tsx"
 import { Character } from "~/types.ts"
-import { Button } from "~/ui/button.tsx"
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/ui/tooltip.tsx"
 
 export function CharacterAttributeButton({
@@ -13,10 +13,8 @@ export function CharacterAttributeButton({
 	return (
 		<Tooltip placement="bottom">
 			<TooltipTrigger
-				render={<Button variant="ghost" size="icon" className="*:size-5" />}
-			>
-				{icon}
-			</TooltipTrigger>
+				render={<Button appearance="clear" shape="circle" icon={icon} />}
+			></TooltipTrigger>
 			<TooltipContent>{startCase(attribute)}</TooltipContent>
 		</Tooltip>
 	)
