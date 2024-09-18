@@ -1,3 +1,4 @@
+import * as Ariakit from "@ariakit/react"
 import {
 	draggable,
 	dropTargetForElements,
@@ -11,6 +12,8 @@ import {
 	LucideUsers2,
 } from "lucide-react"
 import { Fragment, useEffect, useRef, useState } from "react"
+import * as v from "valibot"
+import { useLocalStorage } from "~/common/react/dom.ts"
 import { Heading, HeadingLevel } from "~/common/react/heading.tsx"
 import { Button } from "~/components/Button.tsx"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
@@ -74,6 +77,7 @@ interface ModuleDefinition {
 	name: string
 	icon: React.ReactNode
 	defaultLocation: ModuleLocation
+	content: (context: { roomId: Id<"rooms"> }) => React.ReactNode
 }
 
 interface ModuleLocation {
@@ -81,33 +85,47 @@ interface ModuleLocation {
 	panel: number
 }
 
-const modules: Record<string, ModuleDefinition> = {
+const MODULES: Record<string, ModuleDefinition> = {
 	characters: {
 		name: "Characters",
 		icon: <LucideUsers2 className="size-4" />,
 		defaultLocation: { sidebar: 0, panel: 0 },
-	},
-	notes: {
-		name: "Notes",
-		icon: <LucideFileText className="size-4" />,
-		defaultLocation: { sidebar: 0, panel: 0 },
-	},
-	combat: {
-		name: "Combat",
-		icon: <LucideShield className="size-4" />,
-		defaultLocation: { sidebar: 1, panel: 0 },
+		content: ({ roomId }) => <CharacterList roomId={roomId} />,
 	},
 	messages: {
 		name: "Messages",
 		icon: <LucideMessageCircle className="size-4" />,
 		defaultLocation: { sidebar: 1, panel: 1 },
+		content: () => <p>messages</p>,
+	},
+	combat: {
+		name: "Combat",
+		icon: <LucideShield className="size-4" />,
+		defaultLocation: { sidebar: 1, panel: 0 },
+		content: () => <p>combat</p>,
+	},
+	notes: {
+		name: "Notes",
+		icon: <LucideFileText className="size-4" />,
+		defaultLocation: { sidebar: 0, panel: 0 },
+		content: () => <p>notes</p>,
 	},
 }
 
+const moduleLocationsParser = v.parser(
+	v.record(
+		v.string(),
+		v.object({
+			sidebar: v.number(),
+			panel: v.number(),
+		}),
+	),
+)
+
 function RoomSidebars({ roomId }: { roomId: Id<"rooms"> }) {
-	const [moduleLocations, setModuleLocations] = useState<
+	const [moduleLocations, setModuleLocations] = useLocalStorage<
 		Record<string, ModuleLocation>
-	>({})
+	>("room:moduleLocations", {}, moduleLocationsParser)
 
 	const handleModuleDrop = (event: {
 		moduleId: string
@@ -161,12 +179,14 @@ function RoomSidebars({ roomId }: { roomId: Id<"rooms"> }) {
 	return (
 		<>
 			<Sidebar
+				roomId={roomId}
 				aria-label="Left sidebar"
 				index={0}
 				moduleLocations={moduleLocations}
 				onModuleDrop={handleModuleDrop}
 			/>
 			<Sidebar
+				roomId={roomId}
 				aria-label="Right sidebar"
 				index={1}
 				moduleLocations={moduleLocations}
@@ -177,11 +197,13 @@ function RoomSidebars({ roomId }: { roomId: Id<"rooms"> }) {
 }
 
 function Sidebar({
+	roomId,
 	index: sidebarIndex,
 	moduleLocations,
 	onModuleDrop,
 	...props
 }: {
+	roomId: Id<"rooms">
 	index: number
 	moduleLocations: Record<string, ModuleLocation>
 	onModuleDrop: (event: {
@@ -190,7 +212,7 @@ function Sidebar({
 		panelIndex: number
 	}) => void
 }) {
-	const presentModules = Object.entries(modules)
+	const presentModules = Object.entries(MODULES)
 		.map(([id, module]) => ({
 			id,
 			location: moduleLocations[id] ?? module.defaultLocation,
@@ -207,7 +229,7 @@ function Sidebar({
 		:	0
 
 	return (
-		<div className="flex flex-col gap-2" {...props}>
+		<div className="flex flex-col gap-1" {...props}>
 			<SidebarPanelSpaceDroppable
 				onDrop={({ moduleId }) => {
 					onModuleDrop({
@@ -221,6 +243,7 @@ function Sidebar({
 				.map((panelIndex) => (
 					<Fragment key={panelIndex}>
 						<SidebarPanel
+							roomId={roomId}
 							onModuleDrop={({ moduleId }) => {
 								onModuleDrop({
 									moduleId,
@@ -249,12 +272,22 @@ function Sidebar({
 }
 
 function SidebarPanel({
+	roomId,
 	moduleIds,
 	onModuleDrop,
 }: {
+	roomId: Id<"rooms">
 	moduleIds: string[]
 	onModuleDrop: (event: { moduleId: string }) => void
 }) {
+	const modules = moduleIds.flatMap((id) =>
+		MODULES[id] ? [{ ...MODULES[id], id }] : [],
+	)
+
+	const [selectedId, setSelectedId] = useState<string | null>()
+	const selectedModule =
+		modules.find((it) => it.id === selectedId) ?? modules[0]
+
 	const ref = useRef<HTMLDivElement>(null)
 	const [over, setOver] = useState(false)
 
@@ -275,26 +308,35 @@ function SidebarPanel({
 	return (
 		<div
 			className={panel(
-				"flex flex-1 flex-col p-2 transition gap",
+				"flex min-h-0 flex-1 flex-col p-2 transition gap-2",
 				over && "border-accent-500",
 			)}
 			ref={ref}
 		>
-			<div className="flex flex-wrap justify-center gap">
-				{moduleIds.map((moduleId) => {
-					const module = modules[moduleId]
-					if (!module) return null
-					return (
+			<Ariakit.TabProvider
+				selectedId={selectedModule?.id}
+				setSelectedId={setSelectedId}
+			>
+				<div className="flex flex-wrap justify-center gap">
+					{modules.map((module) => (
 						<ModuleHandle
-							key={moduleId}
-							moduleId={moduleId}
+							key={module.id}
+							moduleId={module.id}
 							name={module.name}
 							icon={module.icon}
 						/>
-					)
-				})}
-			</div>
-			<p>content</p>
+					))}
+				</div>
+				{modules.map((module) => (
+					<Ariakit.TabPanel
+						key={module.id}
+						id={module.id}
+						className="min-h-0 flex-1"
+					>
+						{module.content({ roomId })}
+					</Ariakit.TabPanel>
+				))}
+			</Ariakit.TabProvider>
 		</div>
 	)
 }
@@ -320,8 +362,8 @@ function SidebarPanelSpaceDroppable({
 	})
 
 	return (
-		<div className="relative -my-1 first:-mb-2 last:-mt-2">
-			<div className="absolute -inset-y-2 inset-x-0" ref={ref} />
+		<div className="relative">
+			<div className="absolute -inset-y-3 inset-x-0" ref={ref} />
 			<div
 				data-visible={over || undefined}
 				className="pointer-events-none absolute -inset-y-px inset-x-0 rounded-full bg-accent-500 opacity-0 transition-opacity data-[visible]:opacity-100"
@@ -339,18 +381,34 @@ function ModuleHandle({
 	name: string
 	icon: React.ReactNode
 }) {
+	const context = Ariakit.useTabContext()
+	const selected = Ariakit.useStoreState(
+		context,
+		(state) => state?.selectedId === moduleId,
+	)
+
 	const ref = useRef<HTMLButtonElement>(null)
+	const [dragging, setDragging] = useState(false)
 
 	useEffect(() => {
 		return draggable({
 			element: ref.current!,
 			getInitialData: () => ({ moduleId }),
+			onDragStart: () => setDragging(true),
+			onDrop: () => setDragging(false),
 		})
 	})
 
 	return (
-		<Button size="small" appearance="clear" icon={icon} ref={ref}>
-			{name}
+		<Button
+			size="small"
+			appearance={selected ? "solid" : "clear"}
+			icon={icon}
+			ref={ref}
+			asChild
+			className={dragging ? "invisible" : ""}
+		>
+			<Ariakit.Tab id={moduleId}>{name}</Ariakit.Tab>
 		</Button>
 	)
 }
@@ -365,13 +423,11 @@ function CharacterList({ roomId }: { roomId: Id<"rooms"> }) {
 			<div className="flex flex-col items-center py-8">
 				<LoadingIcon />
 			</div>
-		:	<ul className="flex flex-col gap">
+		:	<div className="flex h-full min-h-0 flex-col overflow-y-auto gap">
 				{characters.map((character) => (
-					<li key={character._id}>
-						<CharacterCard character={character} />
-					</li>
+					<CharacterCard key={character._id} character={character} />
 				))}
-			</ul>
+			</div>
 }
 
 function RoomBackground({ roomId }: { roomId: Id<"rooms"> }) {

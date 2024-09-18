@@ -9,7 +9,7 @@ const buttonVariants = cva(
 		variants: {
 			appearance: {
 				solid: `border-primary-600 bg-primary-700 hover:border-primary-500 hover:bg-primary-600 active:bg-primary-500`,
-				clear: `border-transparent opacity-75 hover:border-primary-700 hover:bg-primary-700 hover:opacity-100 active:border-primary-600 active:bg-primary-600`,
+				clear: `border-transparent opacity-60 hover:border-primary-700 hover:bg-primary-700 hover:opacity-100 active:border-primary-600 active:bg-primary-600`,
 				outline: `border-primary-600 hover:border-primary-500 hover:bg-primary-700 active:bg-primary-600`,
 			},
 			intent: {
