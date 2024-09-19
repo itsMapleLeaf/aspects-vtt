@@ -50,7 +50,7 @@ export function Content({
 		>
 			<div
 				className={panel(
-					"p-gap flex w-screen max-w-lg flex-col rounded-lg shadow-lg shadow-primary-900/75 gap",
+					"flex w-screen max-w-lg flex-col rounded-lg p-gap shadow-lg shadow-primary-900/75 gap",
 					className,
 				)}
 			>

@@ -10,7 +10,7 @@
     "dev:app": "remix vite:dev",
     "dev:convex": "convex dev --tail-logs",
     "build": "remix vite:build",
-    "format": "prettier --write .",
+    "format": "prettier . --write --list-different",
     "preview": "remix-serve ./build/server/index.js",
     "test": "playwright test",
     "typecheck": "tsc --noEmit"

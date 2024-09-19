@@ -26,7 +26,7 @@ export const DropdownMenuContent = ({
 }: React.ComponentProps<typeof Ariakit.Menu>) => (
 	<Ariakit.Menu
 		className={cn(
-			"flex min-w-40 scale-90 flex-col overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100",
+			"bg-popover text-popover-foreground flex min-w-40 scale-90 flex-col overflow-hidden rounded-md border p-1 opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100",
 			className,
 		)}
 		gutter={8}
@@ -43,7 +43,7 @@ export const DropdownMenuItem = ({
 }: React.ComponentProps<typeof Ariakit.MenuItem> & { inset?: boolean }) => (
 	<Ariakit.MenuItem
 		className={cn(
-			"relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 outline-none transition-colors gap-2 data-[disabled]:pointer-events-none data-[active-item]:bg-accent data-[active-item]:text-accent-foreground data-[disabled]:opacity-50 [&_svg]:size-5",
+			"data-[active-item]:bg-accent data-[active-item]:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 outline-none transition-colors gap-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-5",
 			inset && "pl-8",
 			className,
 		)}
@@ -60,7 +60,7 @@ export const DropdownMenuCheckboxItem = ({
 }: React.ComponentProps<typeof Ariakit.MenuItemCheckbox>) => (
 	<Ariakit.MenuItemCheckbox
 		className={cn(
-			"relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+			"focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 			className,
 		)}
 		checked={checked}
@@ -81,7 +81,7 @@ export const DropdownMenuRadioItem = ({
 }: React.ComponentProps<typeof Ariakit.MenuItemRadio>) => (
 	<Ariakit.MenuItemRadio
 		className={cn(
-			"relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+			"focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 			className,
 		)}
 		{...props}
@@ -115,7 +115,7 @@ export const DropdownMenuSeparator = ({
 	...props
 }: React.ComponentProps<typeof Ariakit.MenuSeparator>) => (
 	<Ariakit.MenuSeparator
-		className={cn("-mx-1 h-px bg-muted", className)}
+		className={cn("bg-muted -mx-1 h-px", className)}
 		{...props}
 	/>
 )

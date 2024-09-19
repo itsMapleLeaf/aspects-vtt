@@ -54,7 +54,7 @@ export function Select({
 					className={twMerge(
 						panel(),
 						fadeZoomTransition(),
-						"p-gap flex w-[--popover-anchor-width] min-w-56 max-w-lg flex-col rounded-md border border-primary-600 bg-primary-700 shadow-md gap-1",
+						"flex w-[--popover-anchor-width] min-w-56 max-w-lg flex-col rounded-md border border-primary-600 bg-primary-700 p-gap shadow-md gap-1",
 					)}
 					gutter={8}
 					portal

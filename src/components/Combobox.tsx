@@ -41,7 +41,7 @@ export function Combobox({
 			{matches.length > 0 && (
 				<Ariakit.ComboboxPopover
 					className={panel(
-						"p-gap flex w-[--popover-anchor-width] min-w-64 max-w-lg flex-col rounded-md border border-primary-600 bg-primary-700 shadow-md gap-1",
+						"flex w-[--popover-anchor-width] min-w-64 max-w-lg flex-col rounded-md border border-primary-600 bg-primary-700 p-gap shadow-md gap-1",
 					)}
 					gutter={8}
 					portal
@@ -52,7 +52,7 @@ export function Combobox({
 							key={item.value}
 							id={item.value}
 							value={item.value}
-							className="px-control-padding-md flex h-control-md cursor-default items-center rounded hover:bg-primary-600 data-[active-item]:bg-primary-600"
+							className="flex h-control-md cursor-default items-center rounded px-control-padding-md hover:bg-primary-600 data-[active-item]:bg-primary-600"
 						>
 							<p>{item.name ?? item.value}</p>
 							{item.description && <p>{item.name ?? item.value}</p>}

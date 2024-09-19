@@ -23,13 +23,13 @@ export const controlVariants = cva(
 			},
 			size: {
 				small: [
-					"px-control-padding-sm h-8 text-sm gap-1 control-icon:-mx-0.5 control-icon:size-4",
+					"h-8 px-control-padding-sm text-sm gap-1 control-icon:-mx-0.5 control-icon:size-4",
 				],
 				medium: [
-					"px-control-padding-md h-10 text-base gap-2.5 control-icon:-mx-1 control-icon:size-5",
+					"h-10 px-control-padding-md text-base gap-2.5 control-icon:-mx-1 control-icon:size-5",
 				],
 				large: [
-					"px-control-padding-md h-12 text-lg gap-3 control-icon:-mx-1.5 control-icon:size-6",
+					"h-12 px-control-padding-md text-lg gap-3 control-icon:-mx-1.5 control-icon:size-6",
 				],
 			},
 			disabled: {

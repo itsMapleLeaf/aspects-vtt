@@ -39,7 +39,7 @@ export function Card({
 
 	const wrapperClass = twMerge(
 		panel(),
-		"shadow-lg overflow-clip transition-transform hover:scale-105",
+		"overflow-clip shadow-lg transition-transform hover:scale-105",
 		className,
 	)
 
