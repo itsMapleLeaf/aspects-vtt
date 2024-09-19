@@ -26,8 +26,10 @@ export function CharacterCard({ character }: { character: ApiCharacter }) {
 					}
 				</div>
 				<div>
-					<Heading className={secondaryHeading()}>{character.name}</Heading>
-					<p>
+					<Heading className={secondaryHeading("leading-none")}>
+						{character.name}
+					</Heading>
+					<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
 						{[character.race, character.pronouns].filter(Boolean).join(" • ")}
 					</p>
 				</div>
