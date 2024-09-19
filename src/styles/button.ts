@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
+import { extract } from "~/common/object.ts"
 import {
 	control,
 	controlVariantNames,
@@ -10,25 +11,24 @@ export interface ButtonVariantProps
 	extends VariantProps<typeof buttonVariants>,
 		ControlVariantProps {}
 
-export const button = ({
-	appearance,
-	square,
-	rounded,
-	...controlProps
-}: ButtonVariantProps) =>
-	twMerge(
-		control({ ...controlProps }),
-		buttonVariants({ appearance, square, rounded }),
-	)
+export const button = (props: ButtonVariantProps) => {
+	const [buttonProps, controlProps] = extract(props, uniqueButtonVariantNames)
+	return twMerge(control(controlProps), buttonVariants(buttonProps))
+}
 
-const uniqueButtonVariantNames = ["appearance", "square", "rounded"] as const
+const uniqueButtonVariantNames = [
+	"appearance",
+	"square",
+	"rounded",
+	"align",
+] as const
 
 export const buttonVariantNames = [
 	...controlVariantNames,
 	...uniqueButtonVariantNames,
 ] as const
 
-export const buttonVariants = cva("", {
+export const buttonVariants = cva("cursor-default", {
 	variants: {
 		appearance: {
 			solid: `border-primary-600 bg-primary-700 hover:border-primary-500 hover:bg-primary-600 active:bg-primary-500`,
@@ -41,8 +41,14 @@ export const buttonVariants = cva("", {
 		rounded: {
 			true: "rounded-full",
 		},
+		align: {
+			start: "justify-start",
+			middle: "justify-center",
+			end: "justify-end",
+		},
 	} satisfies Record<(typeof uniqueButtonVariantNames)[number], unknown>,
 	defaultVariants: {
 		appearance: "solid",
+		align: "middle",
 	},
 })

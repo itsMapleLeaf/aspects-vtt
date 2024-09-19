@@ -1,11 +1,11 @@
 import type { Simplify } from "./types.ts"
 
-export function extract<
-	Input extends Record<PropertyKey, unknown>,
-	Key extends keyof Input | (string & {}),
->(fromObject: Input, keys: readonly Key[]) {
+export function extract<Input extends object, Key extends keyof Input>(
+	fromObject: Input,
+	keys: readonly Key[],
+) {
 	const extracted: Record<PropertyKey, unknown> = {}
-	const rest: Record<PropertyKey, unknown> = { ...fromObject }
+	const rest = { ...fromObject } as Record<PropertyKey, unknown>
 	for (const key of keys) {
 		extracted[key] = rest[key]
 		delete rest[key]

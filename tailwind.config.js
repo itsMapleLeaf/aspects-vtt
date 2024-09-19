@@ -43,21 +43,28 @@ export default {
 				"control-sm": defaultTheme.spacing[8],
 				"control-md": defaultTheme.spacing[10],
 				"control-lg": defaultTheme.spacing[12],
+				"control-padding-sm": defaultTheme.spacing[3],
+				"control-padding-md": defaultTheme.spacing[3.5],
+				"control-padding-lg": defaultTheme.spacing[4],
 				"control-icon-sm": defaultTheme.spacing[3],
 				"control-icon-md": defaultTheme.spacing[4],
 				"control-icon-lg": defaultTheme.spacing[5],
 			},
 
 			padding: {
-				"control-sm": defaultTheme.spacing[2],
-				"control-md": defaultTheme.spacing[3],
-				"control-lg": defaultTheme.spacing[3],
+				"gap": "var(--gap)",
+				"gap-x": "var(--gap-x)",
+				"gap-y": "var(--gap-y)",
 			},
 
 			margin: {
 				"control-icon-sm": defaultTheme.spacing[0.5],
 				"control-icon-md": defaultTheme.spacing[1],
 				"control-icon-lg": defaultTheme.spacing[1.5],
+			},
+
+			gap: {
+				DEFAULT: defaultTheme.spacing[3],
 			},
 		},
 	},
@@ -114,8 +121,11 @@ export default {
 
 		plugin(function gap(api) {
 			api.addBase({
-				"--gap-x": api.theme("spacing.3"),
-				"--gap-y": api.theme("spacing.3"),
+				":root": {
+					"--gap": api.theme("gap.DEFAULT", "1rem"),
+					"--gap-x": "var(--gap)",
+					"--gap-y": "var(--gap)",
+				},
 			})
 
 			api.addUtilities({
@@ -133,9 +143,8 @@ export default {
 
 			api.matchUtilities(
 				{
-					gap: (value) => ({
-						"--gap-x": value,
-						"--gap-y": value,
+					"gap": (value) => ({
+						"--gap": value,
 						"column-gap": value,
 						"row-gap": value,
 					}),

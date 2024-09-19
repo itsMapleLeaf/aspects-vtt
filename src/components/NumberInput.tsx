@@ -12,6 +12,7 @@ export interface NumberInputProps extends ComponentProps<"input"> {
 	max?: number
 	step?: number
 	value?: number
+	defaultValue?: number
 	onSubmitValue?: (value: number) => unknown
 }
 
@@ -70,10 +71,12 @@ export function NumberInput({
 		let value
 		if (editingValue !== undefined) {
 			value = parseInt(editingValue)
-		} else if (valueProp !== undefined) {
-			value = valueProp
+			// } else if (valueProp !== undefined) {
+			// 	value = valueProp
+			// } else if (props.defaultValue !== undefined) {
+			// 	value = props.defaultValue
 		} else {
-			value = min
+			value = valueProp ?? props.defaultValue ?? min
 		}
 		setEditingValue(String(clamp(value + delta, min, max)))
 	}
@@ -86,7 +89,7 @@ export function NumberInput({
 			disabled={pending}
 			{...props}
 			className={twMerge("text-center tabular-nums", props.className)}
-			value={editingValue ?? valueProp ?? ""}
+			value={editingValue ?? valueProp}
 			data-success={success || undefined}
 			data-error={success === false || undefined}
 			onChange={(event) => {

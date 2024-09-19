@@ -56,6 +56,7 @@ const entSchema = defineEntSchema({
 
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),
+		wealth: v.optional(v.number()),
 
 		sceneId: nullish(v.id("scenes")),
 		battlemapPosition: v.optional(v.object({ x: v.number(), y: v.number() })),

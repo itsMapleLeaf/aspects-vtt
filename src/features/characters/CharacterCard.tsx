@@ -32,11 +32,16 @@ export function CharacterCard({ character }: { character: ApiCharacter }) {
 					</p>
 				</div>
 				<CharacterEditorDialog character={character}>
-					<CharacterEditorDialogButton asChild>
-						<Button appearance="clear" square className="ml-auto">
-							<Lucide.Edit className="size-5" />
-						</Button>
-					</CharacterEditorDialogButton>
+					<CharacterEditorDialogButton
+						render={
+							<Button
+								appearance="clear"
+								square
+								className="ml-auto"
+								icon={<Lucide.Edit className="size-5" />}
+							/>
+						}
+					></CharacterEditorDialogButton>
 				</CharacterEditorDialog>
 			</div>
 			<CharacterAttributeButtonRow character={character} />

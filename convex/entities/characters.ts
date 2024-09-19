@@ -1,6 +1,7 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { clamp } from "lodash-es"
+import { DEFAULT_WEALTH_TIER } from "~/features/characters/constants.ts"
 import { Doc } from "../_generated/dataModel"
 import { EntMutationCtx, EntQueryCtx, mutation, query } from "../lib/ents.ts"
 import schema from "../schema.ts"
@@ -108,6 +109,8 @@ export async function normalizeCharacter(
 
 		resolve: doc.resolve ?? resolveMax,
 		resolveMax,
+
+		wealth: doc.wealth ?? DEFAULT_WEALTH_TIER,
 
 		battlemapPosition: doc.battlemapPosition ?? { x: 0, y: 0 },
 	}
