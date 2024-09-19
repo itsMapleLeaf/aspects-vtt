@@ -27,7 +27,7 @@ export function CharacterCard({ character }: { character: Character }) {
 						{[character.race, character.pronouns].filter(Boolean).join(" • ")}
 					</p>
 				</div>
-				<Button appearance="clear" shape="circle" className="ml-auto">
+				<Button appearance="clear" square className="ml-auto">
 					<Lucide.Edit className="size-5" />
 				</Button>
 			</div>
