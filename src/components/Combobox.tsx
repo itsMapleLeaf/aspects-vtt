@@ -2,7 +2,7 @@ import * as Ariakit from "@ariakit/react"
 import { matchSorter } from "match-sorter"
 import { type ReactNode } from "react"
 import { textInput } from "~/styles/input.ts"
-import { panel } from "~/styles/panel.ts"
+import { menuItem, menuPanel } from "~/styles/menu.ts"
 
 export interface ComboboxProps extends Ariakit.ComboboxProps {
 	options: ComboboxOption[]
@@ -40,9 +40,7 @@ export function Combobox({
 			/>
 			{matches.length > 0 && (
 				<Ariakit.ComboboxPopover
-					className={panel(
-						"flex w-[--popover-anchor-width] min-w-64 max-w-lg flex-col rounded-md border border-primary-600 bg-primary-700 p-gap shadow-md gap-1",
-					)}
+					className={menuPanel()}
 					gutter={8}
 					portal
 					unmountOnHide
@@ -52,7 +50,7 @@ export function Combobox({
 							key={item.value}
 							id={item.value}
 							value={item.value}
-							className="flex h-control-md cursor-default items-center rounded px-control-padding-md hover:bg-primary-600 data-[active-item]:bg-primary-600"
+							className={menuItem()}
 						>
 							<p>{item.name ?? item.value}</p>
 							{item.description && <p>{item.name ?? item.value}</p>}
