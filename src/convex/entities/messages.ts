@@ -55,8 +55,8 @@ export const createAttributeRollMessage = mutation({
 		const attributeDieFaceCount = getAttributeDie(attributes[attribute])
 
 		const results = [
-			random(0, attributeDieFaceCount, false) + 1,
-			random(0, attributeDieFaceCount, false) + 1,
+			random(1, attributeDieFaceCount, false),
+			random(1, attributeDieFaceCount, false),
 		]
 
 		return await ctx.table("messages").insert({
