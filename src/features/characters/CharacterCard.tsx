@@ -2,11 +2,26 @@ import * as Lucide from "lucide-react"
 import { Button } from "~/components/Button.tsx"
 import { Heading } from "~/components/Heading.tsx"
 import { secondaryHeading } from "~/styles/text.ts"
-import type { Character } from "~/types.ts"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
+import type { ApiCharacter } from "./types.ts"
 
-export function CharacterCard({ character }: { character: Character }) {
+export function CharacterCard({
+	character,
+}: {
+	character: Pick<
+		ApiCharacter,
+		| "_id"
+		| "name"
+		| "race"
+		| "pronouns"
+		| "imageUrl"
+		| "health"
+		| "resolve"
+		| "healthMax"
+		| "resolveMax"
+	>
+}) {
 	return (
 		<div className={"flex flex-col gap-3"}>
 			<div className="flex items-center gap">
@@ -32,7 +47,7 @@ export function CharacterCard({ character }: { character: Character }) {
 				</Button>
 			</div>
 			<CharacterAttributeButtonRow />
-			<CharacterVitalFields />
+			<CharacterVitalFields character={character} />
 		</div>
 	)
 }

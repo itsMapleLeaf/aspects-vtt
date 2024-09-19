@@ -4,8 +4,9 @@ import { ReactNode } from "react"
 import { Image, Layer, Stage, StageProps } from "react-konva"
 import * as v from "valibot"
 import { useImage, useLocalStorage, useWindowSize } from "~/common/react/dom.ts"
-import type { Character, Scene } from "~/types.ts"
 import { CharacterBattlemapToken } from "../characters/CharacterBattlemapToken.tsx"
+import type { ApiCharacter } from "../characters/types.ts"
+import type { ApiScene } from "../scenes/types.ts"
 
 Konva.dragButtons = [0, 2]
 
@@ -14,8 +15,8 @@ export function Battlemap({
 	characters,
 	backgroundUrl,
 }: {
-	scene: Scene
-	characters: Character[]
+	scene: ApiScene
+	characters: ApiCharacter[]
 	backgroundUrl: string
 }) {
 	return (

@@ -1,12 +1,23 @@
-import { useId, useState } from "react"
+import { useMutation } from "convex/react"
+import { useId } from "react"
 import { twMerge } from "tailwind-merge"
 import { NumberInput } from "~/components/NumberInput.tsx"
+import { api } from "~/convex/_generated/api.js"
 import { formField } from "~/styles/forms.ts"
 import { textInput } from "~/styles/input.ts"
+import type { ApiCharacter } from "./types.ts"
 
-export function CharacterVitalFields({ className }: { className?: string }) {
-	const [health, setHealth] = useState(20)
-	const [resolve, setResolve] = useState(10)
+export function CharacterVitalFields({
+	character,
+	className,
+}: {
+	character: Pick<
+		ApiCharacter,
+		"_id" | "health" | "resolve" | "healthMax" | "resolveMax"
+	>
+	className?: string
+}) {
+	const updateCharacter = useMutation(api.entities.characters.update)
 	const healthId = useId()
 	const resolveId = useId()
 	return (
@@ -16,8 +27,14 @@ export function CharacterVitalFields({ className }: { className?: string }) {
 				<NumberInput
 					id={healthId}
 					className={textInput()}
-					value={health}
-					onSubmitValue={setHealth}
+					value={character.health}
+					max={character.healthMax}
+					onSubmitValue={(health) =>
+						updateCharacter({
+							characterId: character._id,
+							health,
+						})
+					}
 				/>
 			</div>
 			<div className={formField()}>
@@ -25,8 +42,14 @@ export function CharacterVitalFields({ className }: { className?: string }) {
 				<NumberInput
 					id={resolveId}
 					className={textInput()}
-					value={resolve}
-					onSubmitValue={setResolve}
+					value={character.resolve}
+					max={character.resolveMax}
+					onSubmitValue={(resolve) =>
+						updateCharacter({
+							characterId: character._id,
+							resolve,
+						})
+					}
 				/>
 			</div>
 		</div>

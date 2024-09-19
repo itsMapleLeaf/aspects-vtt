@@ -6,8 +6,8 @@ import { Circle, Group, Image } from "react-konva"
 import { Html } from "react-konva-utils"
 import { roundTo } from "~/common/math.ts"
 import { useImage } from "~/common/react/dom.ts"
+import { StatusBar } from "~/components/StatusBar.tsx"
 import { api } from "~/convex/_generated/api.js"
-import { Character, Scene } from "~/types.ts"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -15,16 +15,18 @@ import {
 	DropdownMenuSeparator,
 } from "~/ui/dropdown-menu.tsx"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
+import { ApiScene } from "../scenes/types.ts"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
 import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
+import { ApiCharacter } from "./types.ts"
 
 export function CharacterBattlemapToken({
 	character,
 	scene,
 }: {
-	character: Character
-	scene: Scene
+	character: ApiCharacter
+	scene: ApiScene
 }) {
 	const updateCharacter = useMutation(api.entities.characters.update)
 
@@ -162,13 +164,16 @@ export function CharacterBattlemapToken({
 						<div className="self-center rounded border-2 border-red-700 bg-red-700/75 px-1.5 py-1 leading-none text-white shadow">
 							Exploding
 						</div>
-						<div className="relative h-5 overflow-clip rounded border-2 border-green-500 shadow">
-							{/* minus 1px inset ensures it actually fills the rectangle without a pixel gap from subpixel rendering */}
-							<div className="absolute -inset-px origin-left scale-x-[0.3] bg-green-500/75" />
-						</div>
-						<div className="relative h-5 overflow-clip rounded border-2 border-blue-500 shadow">
-							<div className="absolute -inset-px origin-left scale-x-[0.6] bg-blue-500/75" />
-						</div>
+						<StatusBar
+							value={character.health}
+							max={character.healthMax}
+							className="text-green-500"
+						/>
+						<StatusBar
+							value={character.resolve}
+							max={character.resolveMax}
+							className="text-blue-500"
+						/>
 					</TooltipContent>
 				</Tooltip>
 
@@ -186,7 +191,10 @@ export function CharacterBattlemapToken({
 							<LucideSwords /> Attack
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<CharacterVitalFields className="w-[220px] p-1 gap-2" />
+						<CharacterVitalFields
+							className="w-[220px] p-1 gap-2"
+							character={character}
+						/>
 					</DropdownMenuContent>
 				</DropdownMenu>
 
