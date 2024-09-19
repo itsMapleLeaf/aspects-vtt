@@ -201,7 +201,7 @@ export function CharacterBattlemapToken({
 				<CharacterEditorDialog
 					character={character}
 					open={editorOpen}
-					onOpenChange={setEditorOpen}
+					setOpen={setEditorOpen}
 				/>
 			</Html>
 		</>
