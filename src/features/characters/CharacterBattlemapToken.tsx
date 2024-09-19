@@ -198,7 +198,11 @@ export function CharacterBattlemapToken({
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-				<CharacterEditorDialog open={editorOpen} onOpenChange={setEditorOpen} />
+				<CharacterEditorDialog
+					character={character}
+					open={editorOpen}
+					onOpenChange={setEditorOpen}
+				/>
 			</Html>
 		</>
 	)

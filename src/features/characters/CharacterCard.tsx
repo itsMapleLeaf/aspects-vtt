@@ -3,26 +3,14 @@ import { Button } from "~/components/Button.tsx"
 import { Heading } from "~/components/Heading.tsx"
 import { secondaryHeading } from "~/styles/text.ts"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
+import {
+	CharacterEditorDialog,
+	CharacterEditorDialogButton,
+} from "./CharacterEditorDialog.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 import type { ApiCharacter } from "./types.ts"
 
-export function CharacterCard({
-	character,
-}: {
-	character: Pick<
-		ApiCharacter,
-		| "_id"
-		| "roomId"
-		| "name"
-		| "race"
-		| "pronouns"
-		| "imageUrl"
-		| "health"
-		| "resolve"
-		| "healthMax"
-		| "resolveMax"
-	>
-}) {
+export function CharacterCard({ character }: { character: ApiCharacter }) {
 	return (
 		<div className={"flex flex-col gap-3"}>
 			<div className="flex items-center gap">
@@ -43,9 +31,13 @@ export function CharacterCard({
 						{[character.race, character.pronouns].filter(Boolean).join(" • ")}
 					</p>
 				</div>
-				<Button appearance="clear" square className="ml-auto">
-					<Lucide.Edit className="size-5" />
-				</Button>
+				<CharacterEditorDialog character={character}>
+					<CharacterEditorDialogButton asChild>
+						<Button appearance="clear" square className="ml-auto">
+							<Lucide.Edit className="size-5" />
+						</Button>
+					</CharacterEditorDialogButton>
+				</CharacterEditorDialog>
 			</div>
 			<CharacterAttributeButtonRow character={character} />
 			<CharacterVitalFields character={character} />

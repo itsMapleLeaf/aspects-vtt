@@ -8,6 +8,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from "~/ui/dialog.tsx"
 import { Input } from "~/ui/input.tsx"
 import { Label } from "~/ui/label.tsx"
@@ -22,16 +23,20 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/ui/tabs.tsx"
 import { Textarea } from "~/ui/textarea.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
+import type { ApiCharacter } from "./types.ts"
 
 export function CharacterEditorDialog({
 	children,
+	character,
 	...props
-}: ComponentProps<typeof Dialog>) {
+}: ComponentProps<typeof Dialog> & {
+	character: ApiCharacter
+}) {
 	return (
 		<Dialog {...props}>
 			{children}
 
-			<DialogContent>
+			<DialogContent className="flex h-screen max-h-[800px] flex-col">
 				<DialogHeader>
 					<DialogTitle>Edit Character</DialogTitle>
 				</DialogHeader>
@@ -65,7 +70,7 @@ export function CharacterEditorDialog({
 								<Label>Attributes</Label>
 								{/* todo */}
 							</div>
-							<CharacterVitalFields />
+							<CharacterVitalFields character={character} />
 							<div className="flex flex-col gap-1">
 								<Label>Wealth</Label>
 								<Input />
@@ -141,7 +146,7 @@ export function CharacterEditorDialog({
 					</TabsContent>
 				</Tabs>
 
-				<DialogFooter>
+				<DialogFooter className="mt-auto">
 					<DialogClose asChild>
 						<Button variant="outline">
 							<LucideX /> Cancel
@@ -155,3 +160,5 @@ export function CharacterEditorDialog({
 		</Dialog>
 	)
 }
+
+export { DialogTrigger as CharacterEditorDialogButton }
