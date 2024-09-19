@@ -21,10 +21,15 @@ export interface ComboboxOption {
 export function Combobox({
 	options,
 	value,
+	defaultValue,
 	onChangeValue,
 	...props
 }: ComboboxProps) {
-	const store = Ariakit.useComboboxStore({ value, setValue: onChangeValue })
+	const store = Ariakit.useComboboxStore({
+		value,
+		defaultValue,
+		setValue: onChangeValue,
+	})
 	const searchInput = Ariakit.useStoreState(store, "value")
 
 	const matches = matchSorter(options, searchInput, {
