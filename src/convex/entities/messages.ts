@@ -14,6 +14,8 @@ export const list = query({
 	handler: async (ctx, { roomId }) => {
 		return await ctx
 			.table("messages", "roomId", (q) => q.eq("roomId", roomId))
+			.order("desc")
+			.take(50)
 			.map(async (message) => ({
 				...message.doc(),
 				author: await message.edge("author").then((user) => ({
