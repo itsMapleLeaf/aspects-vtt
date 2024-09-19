@@ -7,13 +7,6 @@ import defaultTheme from "tailwindcss/defaultTheme.js"
 import plugin from "tailwindcss/plugin"
 import { lerp } from "./src/common/math.ts"
 
-const primaryVarColors = Object.fromEntries(
-	Iterator.range(100, 900, 100, true).map((value) => [
-		value,
-		`oklch(var(--primary-${value}) / <alpha-value>)`,
-	]),
-)
-
 /** @type {import("tailwindcss").Config} */
 export default {
 	darkMode: ["class"],
@@ -23,87 +16,62 @@ export default {
 			fontFamily: {
 				sans: ["Nunito Variable", ...defaultTheme.fontFamily.sans],
 			},
+
 			colors: {
-				primary: {
-					DEFAULT: "oklch(var(--primary))",
-					foreground: "oklch(var(--primary-foreground))",
-					...primaryVarColors,
-				},
-				slate: primaryVarColors, // override slate to use primary colors
-				accent: {
-					DEFAULT: "var(--accent)",
-					foreground: "var(--accent-foreground)",
-					...Object.fromEntries(
-						Iterator.range(100, 900, 100, true).map((value) => [
-							value,
-							`var(--accent-${value})`,
-						]),
-					),
-				},
-				background: "oklch(var(--background))",
-				foreground: "oklch(var(--foreground))",
-				card: {
-					DEFAULT: "oklch(var(--card))",
-					foreground: "oklch(var(--card-foreground))",
-				},
-				popover: {
-					DEFAULT: "oklch(var(--popover))",
-					foreground: "oklch(var(--popover-foreground))",
-				},
-				tooltip: {
-					DEFAULT: "oklch(var(--tooltip))",
-					foreground: "oklch(var(--tooltip-foreground))",
-				},
-				secondary: {
-					DEFAULT: "oklch(var(--secondary))",
-					foreground: "oklch(var(--secondary-foreground))",
-				},
-				muted: {
-					DEFAULT: "oklch(var(--muted))",
-					foreground: "oklch(var(--muted-foreground))",
-				},
-				destructive: {
-					DEFAULT: "oklch(var(--destructive))",
-					foreground: "oklch(var(--destructive-foreground))",
-				},
-				border: "oklch(var(--border))",
-				input: "oklch(var(--input))",
-				ring: "oklch(var(--ring))",
-				chart: {
-					1: "oklch(var(--chart-1))",
-					2: "oklch(var(--chart-2))",
-					3: "oklch(var(--chart-3))",
-					4: "oklch(var(--chart-4))",
-					5: "oklch(var(--chart-5))",
-				},
+				// 100: oklch(var(--primary-100) / <alpha-value>)
+				// 200: oklch(var(--primary-200) / <alpha-value>)
+				// ...
+				primary: Object.fromEntries(
+					Iterator.range(100, 900, 100, true).map((value) => [
+						value,
+						`oklch(var(--primary-${value}) / <alpha-value>)`,
+					]),
+				),
+
+				// 100: oklch(from var(--accent-100) l c h / <alpha-value>)
+				// 200: oklch(from var(--accent-200) l c h / <alpha-value>)
+				// ...
+				accent: Object.fromEntries(
+					Iterator.range(100, 900, 100, true).map((value) => [
+						value,
+						`oklch(from var(--accent-${value}) l c h / <alpha-value>)`,
+					]),
+				),
 			},
-			borderRadius: {
-				lg: "var(--radius)",
-				md: "calc(var(--radius) - 2px)",
-				sm: "calc(var(--radius) - 4px)",
+
+			spacing: {
+				"control-sm": defaultTheme.spacing[8],
+				"control-md": defaultTheme.spacing[10],
+				"control-lg": defaultTheme.spacing[12],
+				"control-icon-sm": defaultTheme.spacing[3],
+				"control-icon-md": defaultTheme.spacing[4],
+				"control-icon-lg": defaultTheme.spacing[5],
 			},
-			boxShadow: {
-				DEFAULT: "0 1px 4px rgba(0, 0, 0, 0.25)",
-				none: "none",
+
+			padding: {
+				"control-sm": defaultTheme.spacing[2],
+				"control-md": defaultTheme.spacing[3],
+				"control-lg": defaultTheme.spacing[3],
+			},
+
+			margin: {
+				"control-icon-sm": defaultTheme.spacing[0.5],
+				"control-icon-md": defaultTheme.spacing[1],
+				"control-icon-lg": defaultTheme.spacing[1.5],
 			},
 		},
 	},
+
 	corePlugins: {
 		gap: false,
 	},
+
 	plugins: [
 		containerQueries,
 		animate,
 
-		plugin(function screenVariables(api) {
-			api.addBase({
-				":root": {
-					"--screens-sm": "768px",
-					"--screens-md": "1024px",
-					"--screens-lg": "1280px",
-					"--screens-xl": "1536px",
-				},
-			})
+		plugin(function control(api) {
+			api.addVariant("control-icon", ["& > svg", "& > [data-control-icon]"])
 		}),
 
 		plugin(function theme(api) {
@@ -187,16 +155,29 @@ export default {
 		}),
 
 		plugin(function naturalGradient(api) {
+			const stepCount = 10
 			api.addUtilities({
 				".natural-gradient": {
 					"--tw-gradient-stops": [
-						"var(--tw-gradient-from)",
-						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 20%) calc(100% * pow(0.2,2))",
-						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 40%) calc(100% * pow(0.4,2))",
-						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 60%) calc(100% * pow(0.6,2))",
-						"color-mix(in oklch, var(--tw-gradient-from), var(--tw-gradient-to) 80%) calc(100% * pow(0.8,2))",
-						"var(--tw-gradient-to)",
+						"var(--tw-gradient-from) 0%",
+						...Iterator.range(1, stepCount).map((step) => {
+							const progress = step / stepCount
+							return `
+								color-mix(
+									in srgb,
+									var(--tw-gradient-from),
+									var(--tw-gradient-to) ${progress * 100}%
+								)
+								calc(100% * pow(${progress}, 2))
+							`
+						}),
+						"var(--tw-gradient-to) 100%",
 					].join(", "),
+
+					// the gradient stop classes include the positions,
+					// so we need to remove them in order to get the colors and mix them
+					"--tw-gradient-from-position": "",
+					"--tw-gradient-to-position": "",
 				},
 			})
 		}),

@@ -2,6 +2,10 @@ export function lerp(a: number, b: number, t: number) {
 	return a * (1 - t) + b * t
 }
 
+export function delta(value: number, min: number, max: number) {
+	return (value - min) / (max - min)
+}
+
 export function roundTo(num: number, multiple: number) {
 	return Math.round(num / multiple) * multiple
 }

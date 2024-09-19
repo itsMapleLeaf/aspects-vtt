@@ -4,7 +4,11 @@ import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import { extract } from "~/common/object.ts"
 import type { StrictOmit } from "~/common/types.ts"
-import { button, type ButtonVariantProps } from "~/styles/button.ts"
+import {
+	button,
+	buttonVariantNames,
+	type ButtonVariantProps,
+} from "~/styles/button.ts"
 import { LoadingIcon } from "./LoadingIcon.tsx"
 
 export interface ButtonProps
@@ -23,14 +27,7 @@ export function Button({
 	icon,
 	...props
 }: ButtonProps) {
-	const [variantProps, buttonProps] = extract(props, [
-		"appearance",
-		"intent",
-		"size",
-		"icon",
-		"shape",
-		"disabled",
-	])
+	const [variantProps, buttonProps] = extract(props, buttonVariantNames)
 
 	const formStatus = useFormStatus()
 	const pending = pendingProp ?? formStatus.pending
