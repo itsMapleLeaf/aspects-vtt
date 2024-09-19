@@ -1,11 +1,6 @@
 import * as Ariakit from "@ariakit/react"
-import * as React from "react"
 
 import { cn } from "~/ui/helpers"
-
-// this is a no-op leftover from radix that's no longer needed
-const TooltipProvider = ({ children }: { children: React.ReactNode }) =>
-	children
 
 const Tooltip = Ariakit.TooltipProvider
 
@@ -23,4 +18,4 @@ const TooltipContent = ({ className, ...props }: Ariakit.TooltipProps) => (
 	/>
 )
 
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }
+export { Tooltip, TooltipContent, TooltipTrigger }
