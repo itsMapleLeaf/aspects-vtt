@@ -25,6 +25,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@floating-ui/react-dom": "^2.1.1",
     "@fontsource-variable/nunito": "^5.0.21",
+    "@formkit/auto-animate": "^0.8.2",
     "@icons-pack/react-simple-icons": "^10.0.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",

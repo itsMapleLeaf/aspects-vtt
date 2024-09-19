@@ -1,18 +1,36 @@
+import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useQuery } from "convex/react"
 import type { FunctionReturnType } from "convex/server"
 import { formatDistanceToNow } from "date-fns"
 import * as Lucide from "lucide-react"
+import { useEffect, useRef } from "react"
 import { Fragment } from "react/jsx-runtime"
+import { useMergedRefs } from "~/common/react/core.ts"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 
 export function MessageList({ roomId }: { roomId: Id<"rooms"> }) {
 	const messages = useQuery(api.entities.messages.list, { roomId })
+	const latestMessageTimestamp = messages?.[0]?._creationTime
+	const [animateRef] = useAutoAnimate()
+	const listRef = useRef<HTMLDivElement | null>(null)
+	const ref = useMergedRefs(animateRef, listRef)
+
+	useEffect(() => {
+		listRef.current!.scrollTo({
+			top: listRef.current!.scrollHeight,
+			behavior: "smooth",
+		})
+	}, [latestMessageTimestamp])
+
 	return (
-		<div className="flex h-full min-h-0 flex-col overflow-y-auto border-t border-primary-700 *:border-b *:border-b-primary-700">
-			{messages?.map((message) => (
-				<MessageCard key={message._id} message={message} />
-			))}
+		<div
+			className="flex h-full flex-col overflow-y-auto border-t border-primary-700 *:border-t *:border-t-primary-700"
+			ref={ref}
+		>
+			{messages
+				?.toReversed()
+				.map((message) => <MessageCard key={message._id} message={message} />)}
 		</div>
 	)
 }
