@@ -1,7 +1,5 @@
-import "@fontsource-variable/nunito"
-import "./root.css"
-
 import { ConvexAuthProvider } from "@convex-dev/auth/react"
+import nunito from "@fontsource-variable/nunito?url"
 import {
 	Links,
 	Meta,
@@ -9,8 +7,18 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react"
+import type { LinksFunction } from "@remix-run/server-runtime"
 import { ConvexReactClient } from "convex/react"
 import { useState } from "react"
+import toastify from "react-toastify/ReactToastify.css?url"
+import { CustomToastContainer } from "./components/CustomToastContainer.tsx"
+import styles from "./root.css?url"
+
+export const links: LinksFunction = () => [
+	{ rel: "stylesheet", href: nunito },
+	{ rel: "stylesheet", href: toastify },
+	{ rel: "stylesheet", href: styles },
+]
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -28,6 +36,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				{children}
 				<Scripts />
 				<ScrollRestoration />
+				<CustomToastContainer />
 			</body>
 		</html>
 	)
