@@ -36,7 +36,7 @@ export function CharacterAttributeButton({
 					}
 				></TooltipTrigger>
 			</ToastActionForm>
-			<TooltipContent>{startCase(attribute)}</TooltipContent>
+			<TooltipContent>Roll {startCase(attribute)}</TooltipContent>
 		</Tooltip>
 	)
 }
