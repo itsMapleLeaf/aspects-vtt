@@ -12,6 +12,7 @@ export function CharacterCard({
 	character: Pick<
 		ApiCharacter,
 		| "_id"
+		| "roomId"
 		| "name"
 		| "race"
 		| "pronouns"
@@ -46,7 +47,7 @@ export function CharacterCard({
 					<Lucide.Edit className="size-5" />
 				</Button>
 			</div>
-			<CharacterAttributeButtonRow />
+			<CharacterAttributeButtonRow character={character} />
 			<CharacterVitalFields character={character} />
 		</div>
 	)

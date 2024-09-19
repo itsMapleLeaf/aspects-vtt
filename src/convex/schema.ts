@@ -13,7 +13,8 @@ const entSchema = defineEntSchema({
 	})
 		.index("handle", ["handle"])
 		.index("email", ["email"])
-		.edges("rooms", { ref: true }),
+		.edges("rooms", { ref: true })
+		.edges("messages", { ref: true }),
 
 	rooms: defineEnt({
 		name: v.string(),
@@ -21,9 +22,10 @@ const entSchema = defineEntSchema({
 		activeSceneId: nullish(v.id("scenes")),
 	})
 		.index("slug", ["slug"])
-		.edge("user", { field: "ownerId" })
+		.edge("owner", { to: "users", field: "ownerId" })
 		.edges("scenes", { ref: true })
-		.edges("characters", { ref: true }),
+		.edges("characters", { ref: true })
+		.edges("messages", { ref: true }),
 
 	scenes: defineEnt({
 		name: v.string(),
@@ -65,6 +67,29 @@ const entSchema = defineEntSchema({
 			searchField: "name",
 			filterFields: ["roomId", "sceneId"],
 		}),
+
+	messages: defineEnt({
+		blocks: v.array(
+			v.union(
+				v.object({
+					type: v.literal("text"),
+					text: v.string(),
+				}),
+				v.object({
+					type: v.literal("diceRoll"),
+					rolledDice: v.array(
+						v.object({
+							faces: v.number(),
+							result: v.number(),
+							operation: v.optional(v.literal("subtract")),
+						}),
+					),
+				}),
+			),
+		),
+	})
+		.edge("author", { to: "users", field: "authorId" })
+		.edge("room"),
 })
 
 export const entDefinitions = getEntDefinitions(entSchema)

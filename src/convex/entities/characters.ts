@@ -84,16 +84,13 @@ export const duplicate = mutation({
 	},
 })
 
-async function normalizeCharacter(ctx: EntQueryCtx, doc: Doc<"characters">) {
+export async function normalizeCharacter(
+	ctx: EntQueryCtx,
+	doc: Doc<"characters">,
+) {
 	const imageUrl = doc.imageId ? await ctx.storage.getUrl(doc.imageId) : null
 
-	const attributes = {
-		strength: normalizeAttribute(doc.attributes?.strength),
-		sense: normalizeAttribute(doc.attributes?.sense),
-		mobility: normalizeAttribute(doc.attributes?.mobility),
-		intellect: normalizeAttribute(doc.attributes?.intellect),
-		wit: normalizeAttribute(doc.attributes?.wit),
-	}
+	const attributes = normalizeCharacterAttributes(doc.attributes)
 
 	const healthMax =
 		getAttributeDie(attributes.strength) + getAttributeDie(attributes.mobility)
@@ -117,10 +114,22 @@ async function normalizeCharacter(ctx: EntQueryCtx, doc: Doc<"characters">) {
 	return normalized satisfies Doc<"characters">
 }
 
+export function normalizeCharacterAttributes(
+	attributes: Doc<"characters">["attributes"],
+) {
+	return {
+		strength: normalizeAttribute(attributes?.strength),
+		sense: normalizeAttribute(attributes?.sense),
+		mobility: normalizeAttribute(attributes?.mobility),
+		intellect: normalizeAttribute(attributes?.intellect),
+		wit: normalizeAttribute(attributes?.wit),
+	}
+}
+
 function normalizeAttribute(attribute: number | undefined): number {
 	return clamp(attribute ?? 1, 1, 5)
 }
 
-function getAttributeDie(attribute: number) {
+export function getAttributeDie(attribute: number) {
 	return [4, 6, 8, 10, 12][normalizeAttribute(attribute) - 1] as number
 }

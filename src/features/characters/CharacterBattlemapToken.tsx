@@ -182,7 +182,7 @@ export function CharacterBattlemapToken({
 						getAnchorRect={getAnchorRect}
 						className="rounded-lg"
 					>
-						<CharacterAttributeButtonRow />
+						<CharacterAttributeButtonRow character={character} />
 						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={() => setEditorOpen(true)}>
 							<LucideEdit /> Edit
