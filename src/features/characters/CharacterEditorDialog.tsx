@@ -4,6 +4,14 @@ import { pick } from "lodash-es"
 import { LucideSave, LucideTrash2, Table } from "lucide-react"
 import { ComponentProps, useImperativeHandle, useRef } from "react"
 import * as v from "valibot"
+import {
+	longText,
+	nonEmptyShortText,
+	numericTextInput,
+	positiveInteger,
+	shortText,
+	wealthTier,
+} from "~/common/validators.ts"
 import { Button } from "~/components/Button.tsx"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Dialog } from "~/components/Dialog.tsx"
@@ -102,46 +110,13 @@ function CharacterProfileEditor({
 
 		action: valibotAction(
 			v.object({
-				name: v.pipe(
-					v.string(),
-					v.trim(),
-					v.nonEmpty("Cannot be empty"),
-					v.maxLength(100, "Must be 100 characters or less"),
-				),
-				pronouns: v.pipe(
-					v.string(),
-					v.trim(),
-					v.maxLength(100, "Must be 100 characters or less"),
-				),
-				race: v.pipe(
-					v.string(),
-					v.trim(),
-					v.maxLength(100, "Must be 100 characters or less"),
-				),
-				health: v.pipe(
-					v.string(),
-					v.trim(),
-					v.transform((input) => parseInt(input, 10)),
-					v.integer("Must be an integer (whole number)"),
-					v.minValue(0, "Must be a positive number"),
-				),
-				resolve: v.pipe(
-					v.string(),
-					v.trim(),
-					v.transform((input) => parseInt(input, 10)),
-					v.integer("Must be an integer (whole number)"),
-					v.minValue(0, "Must be a positive number"),
-				),
-				wealth: v.pipe(
-					v.string(),
-					v.trim(),
-					v.transform((input) => parseInt(input, 10)),
-					v.number(),
-					v.integer("Must be an integer (whole number)"),
-					v.minValue(0, "Must be a positive number"),
-					v.maxValue(WEALTH_TIERS.length - 1),
-				),
-				notes: v.pipe(v.string(), v.trim(), v.maxLength(50_000)),
+				name: nonEmptyShortText,
+				pronouns: shortText,
+				race: shortText,
+				health: v.pipe(numericTextInput, positiveInteger),
+				resolve: v.pipe(numericTextInput, positiveInteger),
+				wealth: v.pipe(numericTextInput, wealthTier),
+				notes: longText,
 			}),
 			async (data) => {
 				await update({
