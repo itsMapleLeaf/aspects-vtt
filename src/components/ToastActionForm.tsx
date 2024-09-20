@@ -33,20 +33,16 @@ export function useToastAction<State, Payload = void>(
 	return useActionState(
 		async (state: Awaited<State> | undefined, payload: Payload) => {
 			try {
-				let promise = Promise.all([
-					action(state, payload),
+				const promise = action(state, payload)
+				if (options?.pendingMessage) {
 					// ensure the promise runs for at least a second,
 					// to keep the toast from blinking in and out
-					sleep(1000),
-				])
-				if (options?.pendingMessage) {
-					promise = toast.promise(promise, {
+					toast.promise(Promise.all([promise, sleep(1000)]), {
 						pending: options?.pendingMessage,
 						success: options?.successMessage,
 					})
 				}
-				const [result] = await promise
-				return result
+				return await promise
 			} catch (error) {
 				console.error(error)
 				if (error instanceof ConvexError && typeof error.data === "string") {
