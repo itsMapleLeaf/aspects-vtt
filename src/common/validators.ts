@@ -1,5 +1,4 @@
 import * as v from "valibot"
-import { WEALTH_TIERS } from "~/features/characters/constants.ts"
 
 export const shortText = v.pipe(
 	v.string(),
@@ -33,9 +32,4 @@ export const longText = v.pipe(
 	v.string(),
 	v.trim(),
 	v.maxLength(50_000, "Must be 50,000 characters or less"),
-)
-
-export const wealthTier = v.pipe(
-	positiveInteger,
-	v.maxValue(WEALTH_TIERS.length - 1, "Invalid wealth tier"),
 )

@@ -10,7 +10,6 @@ import {
 	numericTextInput,
 	positiveInteger,
 	shortText,
-	wealthTier,
 } from "~/common/validators.ts"
 import { Button } from "~/components/Button.tsx"
 import { Combobox } from "~/components/Combobox.tsx"
@@ -31,6 +30,7 @@ import { Form } from "../forms/Form.tsx"
 import { FormField } from "../forms/FormField.tsx"
 import { RACES, WEALTH_TIERS } from "./constants.ts"
 import type { ApiCharacter } from "./types.ts"
+import { wealthTier } from "./validators.ts"
 
 export { Button as CharacterEditorDialogButton } from "~/components/Dialog.tsx"
 
@@ -95,8 +95,7 @@ function CharacterProfileEditor({
 	const update = useMutation(api.entities.characters.update)
 
 	const form = useForm({
-		initialValues: pick(
-			character,
+		initialValues: pick(character, [
 			"name",
 			"pronouns",
 			"race",
@@ -104,7 +103,7 @@ function CharacterProfileEditor({
 			"resolve",
 			"wealth",
 			"notes",
-		),
+		] as const),
 
 		pendingMessage: "Saving character...",
 
