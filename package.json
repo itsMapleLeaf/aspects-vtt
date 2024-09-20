@@ -74,7 +74,7 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "ts-pattern": "^5.3.1",
-    "valibot": "^0.41.0"
+    "valibot": "^0.42.0"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.14.1",

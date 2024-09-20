@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react"
 import { useId } from "react"
 import { twMerge } from "tailwind-merge"
-import { FormField } from "~/components/FormField.tsx"
+import { Field } from "~/components/Field.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { textInput } from "~/styles/input.ts"
@@ -22,7 +22,7 @@ export function CharacterVitalFields({
 	const resolveId = useId()
 	return (
 		<div className={twMerge("grid grid-cols-2 gap", className)}>
-			<FormField label="Health" htmlFor={healthId}>
+			<Field label="Health" htmlFor={healthId}>
 				<NumberInput
 					id={healthId}
 					name="health"
@@ -36,8 +36,8 @@ export function CharacterVitalFields({
 						})
 					}
 				/>
-			</FormField>
-			<FormField label="Resolve" htmlFor={resolveId}>
+			</Field>
+			<Field label="Resolve" htmlFor={resolveId}>
 				<NumberInput
 					id={resolveId}
 					name="resolve"
@@ -51,7 +51,7 @@ export function CharacterVitalFields({
 						})
 					}
 				/>
-			</FormField>
+			</Field>
 		</div>
 	)
 }

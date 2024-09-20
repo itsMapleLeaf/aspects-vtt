@@ -5,3 +5,6 @@ export const formField = (...classes: ClassNameValue[]) =>
 
 export const labelText = (...classes: ClassNameValue[]) =>
 	twMerge("text-sm font-semibold tracking-wide", ...classes)
+
+export const errorText = (...classes: ClassNameValue[]) =>
+	twMerge("text-sm font-semibold text-red-400", ...classes)

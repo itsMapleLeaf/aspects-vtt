@@ -4,21 +4,13 @@ import { pick } from "lodash-es"
 import { LucideSave, LucideTrash2, Table } from "lucide-react"
 import { ComponentProps, useId, useImperativeHandle, useRef } from "react"
 import * as v from "valibot"
-import {
-	getFormProps,
-	getInputProps,
-	getLabelProps,
-	useForm,
-	valibotValidator,
-} from "~/common/forms/useForm.ts"
 import { Button } from "~/components/Button.tsx"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Dialog } from "~/components/Dialog.tsx"
-import { FormField } from "~/components/FormField.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
 import { Select } from "~/components/Select.tsx"
 import { api } from "~/convex/_generated/api.js"
-import { control } from "~/styles/control.ts"
+import { useForm, valibotAction } from "~/features/forms/useForm.ts"
 import { textArea, textInput } from "~/styles/input.ts"
 import {
 	TableBody,
@@ -27,6 +19,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "~/ui/table.tsx"
+import { Form } from "../forms/Form.tsx"
+import { FormField } from "../forms/FormField.tsx"
 import { RACES, WEALTH_TIERS } from "./constants.ts"
 import type { ApiCharacter } from "./types.ts"
 
@@ -83,23 +77,6 @@ type ProfileEditorRef = {
 	submit: () => Promise<unknown>
 }
 
-const validate = valibotValidator(
-	v.object({
-		name: v.string(),
-		pronouns: v.optional(v.pipe(v.string(), v.maxLength(100))),
-		race: v.optional(v.pipe(v.string(), v.maxLength(100))),
-		health: v.pipe(v.number(), v.integer(), v.minValue(0)),
-		resolve: v.pipe(v.number(), v.integer(), v.minValue(0)),
-		wealth: v.pipe(
-			v.number(),
-			v.integer(),
-			v.minValue(0),
-			v.maxValue(WEALTH_TIERS.length - 1),
-		),
-		notes: v.optional(v.pipe(v.string(), v.maxLength(50000))),
-	}),
-)
-
 function CharacterProfileEditor({
 	character,
 	ref,
@@ -125,14 +102,56 @@ function CharacterProfileEditor({
 
 		pendingMessage: "Saving character...",
 
-		validate: validate,
-
-		async action(data) {
-			await update({
-				...data,
-				characterId: character._id,
-			})
-		},
+		action: valibotAction(
+			v.object({
+				name: v.pipe(
+					v.string(),
+					v.trim(),
+					v.nonEmpty("Cannot be empty"),
+					v.maxLength(100, "Must be 100 characters or less"),
+				),
+				pronouns: v.pipe(
+					v.string(),
+					v.trim(),
+					v.maxLength(100, "Must be 100 characters or less"),
+				),
+				race: v.pipe(
+					v.string(),
+					v.trim(),
+					v.maxLength(100, "Must be 100 characters or less"),
+				),
+				health: v.pipe(
+					v.string(),
+					v.trim(),
+					v.transform((input) => parseInt(input, 10)),
+					v.integer("Must be an integer (whole number)"),
+					v.minValue(0, "Must be a positive number"),
+				),
+				resolve: v.pipe(
+					v.string(),
+					v.trim(),
+					v.transform((input) => parseInt(input, 10)),
+					v.integer("Must be an integer (whole number)"),
+					v.minValue(0, "Must be a positive number"),
+				),
+				wealth: v.pipe(
+					v.string(),
+					v.trim(),
+					v.transform((input) => parseInt(input, 10)),
+					v.number(),
+					v.integer("Must be an integer (whole number)"),
+					v.minValue(0, "Must be a positive number"),
+					v.maxValue(WEALTH_TIERS.length - 1),
+				),
+				notes: v.pipe(v.string(), v.trim(), v.maxLength(50_000)),
+			}),
+			async (data) => {
+				await update({
+					...data,
+					characterId: character._id,
+				})
+			},
+		),
 	})
 
 	useImperativeHandle(ref, () => ({
@@ -140,18 +159,13 @@ function CharacterProfileEditor({
 	}))
 
 	return (
-		<form {...getFormProps(form)} className="flex h-full min-h-0 flex-col gap">
-			<FormField {...getLabelProps(form, "name")} label="Name">
-				<input
-					{...getInputProps(form, "name")}
-					required
-					className={textInput()}
-				/>
+		<Form form={form} className="flex h-full min-h-0 flex-col gap">
+			<FormField form={form} name="name" label="Name">
+				<input className={textInput()} />
 			</FormField>
 
-			<FormField {...getLabelProps(form, "pronouns")} label="Pronouns">
+			<FormField form={form} name="pronouns" label="Pronouns">
 				<Combobox
-					{...getInputProps(form, "pronouns")}
 					className={textInput()}
 					options={[
 						{ value: "he/him" },
@@ -164,15 +178,14 @@ function CharacterProfileEditor({
 				/>
 			</FormField>
 
-			<FormField {...getLabelProps(form, "race")} label="Race">
+			<FormField form={form} name="race" label="Race">
 				<Combobox
-					{...getInputProps(form, "race")}
 					className={textInput()}
 					options={RACES.map((race) => ({ value: race.name }))}
 				/>
 			</FormField>
 
-			<FormField label="Image" htmlFor={inputId("image")}>
+			{/* <FormField label="Image" htmlFor={inputId("image")}>
 				<input
 					id={inputId("image")}
 					name="image"
@@ -180,31 +193,19 @@ function CharacterProfileEditor({
 					accept="image/*"
 					className={control({})}
 				/>
-			</FormField>
+			</FormField> */}
 
 			<div className="grid grid-cols-[1fr,1fr,2fr] gap">
-				<FormField label="Health" htmlFor={inputId("health")}>
-					<NumberInput
-						id={inputId("health")}
-						name="health"
-						className={textInput()}
-						defaultValue={character.health}
-						max={character.healthMax}
-					/>
+				<FormField form={form} label="Health" name="health">
+					<NumberInput className={textInput()} max={character.healthMax} />
 				</FormField>
 
-				<FormField label="Resolve" htmlFor={inputId("resolve")}>
-					<NumberInput
-						id={inputId("resolve")}
-						name="resolve"
-						className={textInput()}
-						defaultValue={character.resolve}
-						max={character.resolveMax}
-					/>
+				<FormField form={form} name="resolve" label="Resolve">
+					<NumberInput className={textInput()} max={character.resolveMax} />
 				</FormField>
 
 				<Select
-					{...getInputProps(form, "wealth")}
+					{...form.getInputProps("wealth")}
 					label="Wealth"
 					className={textInput()}
 					options={WEALTH_TIERS.map((tier, index) => ({
@@ -214,12 +215,8 @@ function CharacterProfileEditor({
 				/>
 			</div>
 
-			<FormField {...getLabelProps(form, "notes")} label="Notes">
-				<textarea
-					{...getInputProps(form, "notes")}
-					className={textArea()}
-					rows={3}
-				/>
+			<FormField form={form} name="notes" label="Notes">
+				<textarea className={textArea()} rows={3} />
 			</FormField>
 
 			<Dialog.Actions>
@@ -227,7 +224,7 @@ function CharacterProfileEditor({
 					Save
 				</Button>
 			</Dialog.Actions>
-		</form>
+		</Form>
 	)
 }
 
