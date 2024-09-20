@@ -7,6 +7,7 @@ import {
 } from "react"
 import { toast } from "react-toastify"
 import * as v from "valibot"
+import { useLatestRef } from "~/common/react/core.ts"
 import { useToastAction } from "~/components/ToastActionForm.tsx"
 
 export interface FormConfig<Values extends FormValues> {
@@ -40,6 +41,8 @@ export type FormState<Values extends FormValues = FormValues> = ReturnType<
 export function useForm<Values extends FormValues>(
 	options: FormConfig<Values>,
 ) {
+	const initialValuesRef = useLatestRef(options.initialValues)
+
 	const [defaultValues, setDefaultValues] = useState<FormValues | undefined>(
 		options.initialValues,
 	)
@@ -57,7 +60,19 @@ export function useForm<Values extends FormValues>(
 			// instead of the initial ones
 			setDefaultValues(values)
 
-			return await options.action(values as FormActionInput<keyof Values>)
+			const errors = await options.action(
+				values as FormActionInput<keyof Values>,
+			)
+
+			// if successful, revert back to the current initial values,
+			// so that the form resets to those,
+			// assuming those new initial values have been updated
+			// through the action
+			if (errors == null) {
+				setDefaultValues(initialValuesRef.current)
+			}
+
+			return errors
 		},
 		{
 			pendingMessage: options.pendingMessage,
