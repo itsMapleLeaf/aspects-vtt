@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs"
 import { useMutation } from "convex/react"
 import { pick } from "lodash-es"
 import { LucideSave, LucideTrash2, Table } from "lucide-react"
-import { ComponentProps, useId, useImperativeHandle, useRef } from "react"
+import { ComponentProps, useImperativeHandle, useRef } from "react"
 import * as v from "valibot"
 import { Button } from "~/components/Button.tsx"
 import { Combobox } from "~/components/Combobox.tsx"
@@ -43,7 +43,7 @@ export function CharacterEditorDialog({
 				title="Edit Character"
 				className="h-screen max-h-[800px]"
 				onClose={() => {
-					profileEditorRef.current?.submit()
+					// profileEditorRef.current?.submit()
 				}}
 			>
 				<Tabs className="flex h-full min-h-0 flex-col" defaultValue="profile">
@@ -84,8 +84,6 @@ function CharacterProfileEditor({
 	character: ApiCharacter
 	ref: React.Ref<ProfileEditorRef>
 }) {
-	const inputIdPrefix = useId()
-	const inputId = (suffix: string) => `${inputIdPrefix}:${suffix}`
 	const update = useMutation(api.entities.characters.update)
 
 	const form = useForm({
