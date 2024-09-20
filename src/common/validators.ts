@@ -11,10 +11,10 @@ export const nonEmptyShortText = v.pipe(
 	v.nonEmpty("Cannot be empty"),
 )
 
-export const numericTextInput = v.pipe(
+export const longText = v.pipe(
 	v.string(),
 	v.trim(),
-	v.transform((input) => parseInt(input, 10)),
+	v.maxLength(50_000, "Must be 50,000 characters or less"),
 )
 
 export const positiveInteger = v.pipe(
@@ -23,13 +23,10 @@ export const positiveInteger = v.pipe(
 	v.minValue(0, "Must be a positive number"),
 )
 
-export const positiveNumericTextInput = v.pipe(
-	numericTextInput,
-	positiveInteger,
-)
-
-export const longText = v.pipe(
+export const numericTextInput = v.pipe(
 	v.string(),
 	v.trim(),
-	v.maxLength(50_000, "Must be 50,000 characters or less"),
+	v.nonEmpty("Not a valid number"),
+	v.transform((input) => Number(input)),
+	v.finite("Not a valid number"),
 )
