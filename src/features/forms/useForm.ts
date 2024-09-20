@@ -13,16 +13,20 @@ export interface FormConfig<Values extends FormValues> {
 	initialValues?: Values
 	pendingMessage?: string
 	successMessage?: string
-	action: FormAction
+	action: FormAction<keyof Values>
 }
 
 export type FormValues = Partial<
 	Record<string, string | number | File | undefined>
 >
 
-export type FormAction = (
-	values: Record<string, FormDataEntryValue>,
+export type FormAction<Keys extends PropertyKey> = (
+	values: FormActionInput<Keys>,
 ) => Promise<readonly FormError[] | undefined>
+
+export type FormActionInput<Keys extends PropertyKey> = Partial<
+	Record<Keys, FormDataEntryValue>
+>
 
 export interface FormError {
 	message: string
@@ -53,7 +57,7 @@ export function useForm<Values extends FormValues>(
 			// instead of the initial ones
 			setDefaultValues(values)
 
-			return await options.action(values)
+			return await options.action(values as FormActionInput<keyof Values>)
 		},
 		{
 			pendingMessage: options.pendingMessage,
@@ -95,8 +99,7 @@ export function useForm<Values extends FormValues>(
 		const props = {
 			id: fieldId(String(name)),
 			name: String(name),
-			defaultValue:
-				defaultValue instanceof File ? undefined : String(defaultValue),
+			defaultValue: defaultValue instanceof File ? undefined : defaultValue,
 		}
 		return props satisfies ComponentProps<"input">
 	}
@@ -122,14 +125,15 @@ export function useForm<Values extends FormValues>(
 	}
 }
 
-export function valibotAction<T>(
-	schema: v.GenericSchema<Record<string, FormDataEntryValue>, T>,
-	action: (input: T) => unknown,
-): FormAction {
-	return async (data: Record<string, FormDataEntryValue>) => {
+export function valibotAction<const Keys extends PropertyKey, ParsedInput>(
+	schema: v.GenericSchema<
+		Required<FormActionInput<NoInfer<Keys>>>,
+		ParsedInput
+	>,
+	action: (input: ParsedInput) => unknown,
+): FormAction<Keys> {
+	return async (data) => {
 		const result = v.safeParse(schema, data)
-
-		console.log(schema, data, result)
 
 		if (result.issues) {
 			return result.issues.map((issue) => ({
