@@ -71,10 +71,6 @@ export function NumberInput({
 		let value
 		if (editingValue !== undefined) {
 			value = parseInt(editingValue)
-			// } else if (valueProp !== undefined) {
-			// 	value = valueProp
-			// } else if (props.defaultValue !== undefined) {
-			// 	value = props.defaultValue
 		} else {
 			value = valueProp ?? props.defaultValue ?? min
 		}
@@ -96,9 +92,11 @@ export function NumberInput({
 				setEditingValue(event.target.value)
 			}}
 			onBlur={() => {
-				startTransition(() => {
-					submit()
-				})
+				if (valueProp) {
+					startTransition(() => {
+						submit()
+					})
+				}
 			}}
 			onKeyDown={(event) => {
 				if (event.key === "Enter") {
