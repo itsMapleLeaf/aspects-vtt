@@ -8,8 +8,8 @@ import { menuItem, menuPanel } from "~/styles/menu.ts"
 export interface SelectProps extends Ariakit.SelectProps {
 	label: string
 	options: SelectOption[]
-	value?: string
-	defaultValue?: string
+	value?: string | number
+	defaultValue?: string | number
 }
 
 export interface SelectOption {
@@ -26,7 +26,7 @@ export function Select({
 	...props
 }: SelectProps) {
 	const store = Ariakit.useSelectStore({
-		defaultValue,
+		defaultValue: defaultValue?.toString(),
 	})
 
 	const value = Ariakit.useStoreState(store, "value")

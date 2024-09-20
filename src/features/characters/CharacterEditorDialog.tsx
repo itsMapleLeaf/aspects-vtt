@@ -1,17 +1,22 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs"
 import { useMutation } from "convex/react"
+import { pick } from "lodash-es"
 import { LucideSave, LucideTrash2, Table } from "lucide-react"
-import { ComponentProps, startTransition, useId, useRef } from "react"
-import { twMerge } from "tailwind-merge"
+import { ComponentProps, useId, useImperativeHandle, useRef } from "react"
 import * as v from "valibot"
-import { vfd } from "~/common/valibot-form-data.ts"
+import {
+	getFormProps,
+	getInputProps,
+	getLabelProps,
+	useForm,
+	valibotValidator,
+} from "~/common/forms/useForm.ts"
 import { Button } from "~/components/Button.tsx"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Dialog } from "~/components/Dialog.tsx"
 import { FormField } from "~/components/FormField.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
 import { Select } from "~/components/Select.tsx"
-import { useToastAction } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { control } from "~/styles/control.ts"
 import { textArea, textInput } from "~/styles/input.ts"
@@ -34,37 +39,7 @@ export function CharacterEditorDialog({
 }: ComponentProps<typeof Dialog.Root> & {
 	character: ApiCharacter
 }) {
-	const update = useMutation(api.entities.characters.update)
-	const profileEditorFormRef = useRef<HTMLFormElement>(null)
-
-	const [, submit] = useToastAction(
-		async (_state, formData: FormData) => {
-			const schema = vfd.formData({
-				name: vfd.text(),
-				pronouns: v.optional(v.pipe(vfd.text(), v.maxLength(100))),
-				race: v.optional(v.pipe(vfd.text(), v.maxLength(100))),
-				health: v.pipe(vfd.number(), v.integer(), v.minValue(0)),
-				resolve: v.pipe(vfd.number(), v.integer(), v.minValue(0)),
-				wealth: v.pipe(
-					vfd.number(),
-					v.integer(),
-					v.minValue(0),
-					v.maxValue(WEALTH_TIERS.length - 1),
-				),
-				notes: v.optional(v.pipe(vfd.text(), v.maxLength(50_000))),
-			})
-
-			const data = v.parse(schema, formData)
-
-			await update({
-				...data,
-				characterId: character._id,
-			})
-		},
-		{
-			pendingMessage: "Saving character...",
-		},
-	)
+	const profileEditorRef = useRef<ProfileEditorRef>(null)
 
 	return (
 		<Dialog.Root {...props}>
@@ -74,9 +49,7 @@ export function CharacterEditorDialog({
 				title="Edit Character"
 				className="h-screen max-h-[800px]"
 				onClose={() => {
-					startTransition(() => {
-						submit(new FormData(profileEditorFormRef.current ?? undefined))
-					})
+					profileEditorRef.current?.submit()
 				}}
 			>
 				<Tabs className="flex h-full min-h-0 flex-col" defaultValue="profile">
@@ -89,8 +62,7 @@ export function CharacterEditorDialog({
 					<TabsContent value="profile" className="flex-1">
 						<CharacterProfileEditor
 							character={character}
-							action={submit}
-							ref={profileEditorFormRef}
+							ref={profileEditorRef}
 						/>
 					</TabsContent>
 
@@ -107,33 +79,80 @@ export function CharacterEditorDialog({
 	)
 }
 
+type ProfileEditorRef = {
+	submit: () => Promise<unknown>
+}
+
+const validate = valibotValidator(
+	v.object({
+		name: v.string(),
+		pronouns: v.optional(v.pipe(v.string(), v.maxLength(100))),
+		race: v.optional(v.pipe(v.string(), v.maxLength(100))),
+		health: v.pipe(v.number(), v.integer(), v.minValue(0)),
+		resolve: v.pipe(v.number(), v.integer(), v.minValue(0)),
+		wealth: v.pipe(
+			v.number(),
+			v.integer(),
+			v.minValue(0),
+			v.maxValue(WEALTH_TIERS.length - 1),
+		),
+		notes: v.optional(v.pipe(v.string(), v.maxLength(50000))),
+	}),
+)
+
 function CharacterProfileEditor({
 	character,
-	...props
-}: { character: ApiCharacter } & ComponentProps<"form">) {
+	ref,
+}: {
+	character: ApiCharacter
+	ref: React.Ref<ProfileEditorRef>
+}) {
 	const inputIdPrefix = useId()
 	const inputId = (suffix: string) => `${inputIdPrefix}:${suffix}`
+	const update = useMutation(api.entities.characters.update)
+
+	const form = useForm({
+		initialValues: pick(
+			character,
+			"name",
+			"pronouns",
+			"race",
+			"health",
+			"resolve",
+			"wealth",
+			"notes",
+		),
+
+		pendingMessage: "Saving character...",
+
+		validate: validate,
+
+		async action(data) {
+			await update({
+				...data,
+				characterId: character._id,
+			})
+		},
+	})
+
+	useImperativeHandle(ref, () => ({
+		submit: form.submit,
+	}))
 
 	return (
-		<form
-			{...props}
-			className={twMerge("flex h-full min-h-0 flex-col gap", props.className)}
-		>
-			<FormField label="Name" inputId={inputId("name")}>
+		<form {...getFormProps(form)} className="flex h-full min-h-0 flex-col gap">
+			<FormField {...getLabelProps(form, "name")} label="Name">
 				<input
-					id={inputId("name")}
-					name="name"
+					{...getInputProps(form, "name")}
 					required
 					className={textInput()}
-					defaultValue={character.name}
 				/>
 			</FormField>
-			<FormField label="Pronouns" inputId={inputId("pronouns")}>
+
+			<FormField {...getLabelProps(form, "pronouns")} label="Pronouns">
 				<Combobox
-					id={inputId("pronouns")}
-					name="pronouns"
+					{...getInputProps(form, "pronouns")}
 					className={textInput()}
-					defaultValue={character.pronouns}
 					options={[
 						{ value: "he/him" },
 						{ value: "she/her" },
@@ -144,16 +163,16 @@ function CharacterProfileEditor({
 					]}
 				/>
 			</FormField>
-			<FormField label="Race" inputId={inputId("race")}>
+
+			<FormField {...getLabelProps(form, "race")} label="Race">
 				<Combobox
-					id={inputId("race")}
-					name="race"
+					{...getInputProps(form, "race")}
 					className={textInput()}
-					defaultValue={character.race}
 					options={RACES.map((race) => ({ value: race.name }))}
 				/>
 			</FormField>
-			<FormField label="Image" inputId={inputId("image")}>
+
+			<FormField label="Image" htmlFor={inputId("image")}>
 				<input
 					id={inputId("image")}
 					name="image"
@@ -162,8 +181,9 @@ function CharacterProfileEditor({
 					className={control({})}
 				/>
 			</FormField>
+
 			<div className="grid grid-cols-[1fr,1fr,2fr] gap">
-				<FormField label="Health" inputId={inputId("health")}>
+				<FormField label="Health" htmlFor={inputId("health")}>
 					<NumberInput
 						id={inputId("health")}
 						name="health"
@@ -172,7 +192,8 @@ function CharacterProfileEditor({
 						max={character.healthMax}
 					/>
 				</FormField>
-				<FormField label="Resolve" inputId={inputId("resolve")}>
+
+				<FormField label="Resolve" htmlFor={inputId("resolve")}>
 					<NumberInput
 						id={inputId("resolve")}
 						name="resolve"
@@ -181,22 +202,21 @@ function CharacterProfileEditor({
 						max={character.resolveMax}
 					/>
 				</FormField>
+
 				<Select
-					name="wealth"
+					{...getInputProps(form, "wealth")}
 					label="Wealth"
 					className={textInput()}
-					defaultValue={String(character.wealth ?? "0")}
 					options={WEALTH_TIERS.map((tier, index) => ({
 						value: String(index),
 						name: `${index + 1}. ${tier.name}`,
 					}))}
 				/>
 			</div>
-			<FormField label="Notes" inputId={inputId("notes")}>
+
+			<FormField {...getLabelProps(form, "notes")} label="Notes">
 				<textarea
-					id={inputId("notes")}
-					name="notes"
-					defaultValue={character.notes}
+					{...getInputProps(form, "notes")}
 					className={textArea()}
 					rows={3}
 				/>

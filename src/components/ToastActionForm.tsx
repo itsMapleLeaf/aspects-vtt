@@ -22,7 +22,7 @@ export function ToastActionForm({
 
 export function useToastAction<State, Payload = void>(
 	action: (
-		state: State | undefined,
+		state: Awaited<State> | undefined,
 		payload: Payload,
 	) => Promise<State | undefined>,
 	options?: {
@@ -30,29 +30,32 @@ export function useToastAction<State, Payload = void>(
 		successMessage?: string
 	},
 ) {
-	return useActionState(async (state: State | undefined, payload: Payload) => {
-		try {
-			let promise = Promise.all([
-				action(state, payload),
-				// ensure the promise runs for at least a second,
-				// to keep the toast from blinking in and out
-				sleep(1000),
-			])
-			if (options?.pendingMessage) {
-				promise = toast.promise(promise, {
-					pending: options?.pendingMessage,
-					success: options?.successMessage,
-				})
+	return useActionState(
+		async (state: Awaited<State> | undefined, payload: Payload) => {
+			try {
+				let promise = Promise.all([
+					action(state, payload),
+					// ensure the promise runs for at least a second,
+					// to keep the toast from blinking in and out
+					sleep(1000),
+				])
+				if (options?.pendingMessage) {
+					promise = toast.promise(promise, {
+						pending: options?.pendingMessage,
+						success: options?.successMessage,
+					})
+				}
+				const [result] = await promise
+				return result
+			} catch (error) {
+				console.error(error)
+				if (error instanceof ConvexError && typeof error.data === "string") {
+					toast.error(error.data)
+				} else {
+					toast.error("Something went wrong. Try again.")
+				}
 			}
-			const [result] = await promise
-			return result
-		} catch (error) {
-			console.error(error)
-			if (error instanceof ConvexError && typeof error.data === "string") {
-				toast.error(error.data)
-			} else {
-				toast.error("Something went wrong. Try again.")
-			}
-		}
-	})
+		},
+		undefined,
+	)
 }

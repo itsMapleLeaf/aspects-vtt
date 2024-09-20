@@ -22,7 +22,7 @@ export function CharacterVitalFields({
 	const resolveId = useId()
 	return (
 		<div className={twMerge("grid grid-cols-2 gap", className)}>
-			<FormField label="Health" inputId={healthId}>
+			<FormField label="Health" htmlFor={healthId}>
 				<NumberInput
 					id={healthId}
 					name="health"
@@ -37,7 +37,7 @@ export function CharacterVitalFields({
 					}
 				/>
 			</FormField>
-			<FormField label="Resolve" inputId={resolveId}>
+			<FormField label="Resolve" htmlFor={resolveId}>
 				<NumberInput
 					id={resolveId}
 					name="resolve"

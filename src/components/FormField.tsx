@@ -3,19 +3,19 @@ import { formField, labelText } from "~/styles/forms.ts"
 
 export interface FormFieldProps extends ComponentProps<"div"> {
 	label?: string
-	inputId?: string
+	htmlFor?: string
 }
 
 export function FormField({
 	label,
-	inputId,
+	htmlFor,
 	children,
 	className,
 	...props
 }: FormFieldProps) {
 	return (
 		<div {...props} className={formField(className)}>
-			<label htmlFor={inputId} className={labelText()}>
+			<label htmlFor={htmlFor} className={labelText()}>
 				{label}
 			</label>
 			{children}
