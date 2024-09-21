@@ -20,8 +20,7 @@ export default internalAction({
 				secret: "maple",
 			},
 			profile: {
-				name: "Maple",
-				handle: "maple",
+				name: "maple",
 			},
 		})
 

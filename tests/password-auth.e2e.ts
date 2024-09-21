@@ -9,7 +9,7 @@ const password = `test-${Math.random().toString(36).slice(2)}`
 test.describe(() => {
 	test.afterAll(async () => {
 		const convex = new ConvexHttpClient(process.env.VITE_CONVEX_URL as string)
-		await convex.mutation(api.test.functions.deleteUser, { handle: username })
+		await convex.mutation(api.test.functions.deleteUser, { username: username })
 	})
 
 	test("password auth", async ({ page }) => {

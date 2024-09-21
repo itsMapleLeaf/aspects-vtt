@@ -7,11 +7,8 @@ import { nullish } from "./lib/validators.ts"
 const entSchema = defineEntSchema({
 	users: defineEnt({
 		...authTables.users.validator.fields,
-		handle: v.string(),
-		name: v.string(),
 		email: v.optional(v.string()),
 	})
-		.index("handle", ["handle"])
 		.index("email", ["email"])
 		.edges("rooms", { ref: true })
 		.edges("messages", { ref: true }),
@@ -101,7 +98,5 @@ export default defineSchema({
 	users: defineTable({
 		...authTables.users.validator.fields,
 		...entSchema.tables.users.validator.fields,
-	})
-		.index("handle", ["handle"])
-		.index("email", ["email"]),
+	}).index("email", ["email"]),
 })

@@ -6,10 +6,10 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useNavigate,
 } from "@remix-run/react"
 import type { LinksFunction } from "@remix-run/server-runtime"
 import { ConvexReactClient } from "convex/react"
-import { useState } from "react"
 import toastify from "react-toastify/ReactToastify.css?url"
 import { CustomToastContainer } from "./components/CustomToastContainer.tsx"
 import styles from "./root.css?url"
@@ -42,12 +42,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL)
 export default function Root() {
-	const [client] = useState(
-		() => new ConvexReactClient(import.meta.env.VITE_CONVEX_URL),
-	)
+	const navigate = useNavigate()
 	return (
-		<ConvexAuthProvider client={client}>
+		<ConvexAuthProvider
+			client={convex}
+			replaceURL={(url) => {
+				navigate(url)
+			}}
+		>
 			<Outlet />
 		</ConvexAuthProvider>
 	)

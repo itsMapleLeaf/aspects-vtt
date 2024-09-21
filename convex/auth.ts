@@ -1,13 +1,15 @@
 import Discord from "@auth/core/providers/discord"
 import { ConvexCredentials } from "@convex-dev/auth/providers/ConvexCredentials"
+import { Password } from "@convex-dev/auth/providers/Password"
 import {
 	convexAuth,
 	createAccount,
 	retrieveAccount,
 } from "@convex-dev/auth/server"
 import { WithoutSystemFields } from "convex/server"
-import { Scrypt } from "lucia"
-import { literal, object, parse, pipe, regex, string, union } from "valibot"
+import { ConvexError } from "convex/values"
+import { parse } from "valibot"
+import { credentialsPayloadValidator } from "../shared/auth/validators"
 import { Doc, Id } from "./_generated/dataModel"
 
 export const { auth, signIn, signOut, store } = convexAuth({
@@ -16,8 +18,6 @@ export const { auth, signIn, signOut, store } = convexAuth({
 			profile(profile): WithoutSystemFields<Doc<"users">> & { id: string } {
 				return {
 					id: profile.username,
-					handle: profile.username,
-					name: profile.global_name,
 					email: profile.email,
 				}
 			},
@@ -25,65 +25,42 @@ export const { auth, signIn, signOut, store } = convexAuth({
 
 		ConvexCredentials({
 			id: "credentials",
-			async authorize(input, ctx) {
-				const accountHandleValidator = pipe(string(), regex(/^[a-z0-9_.]+$/i))
-
-				const credentials = parse(
-					union([
-						object({
-							action: literal("login"),
-							handle: accountHandleValidator,
-							password: string(),
-						}),
-						object({
-							action: literal("register"),
-							handle: accountHandleValidator,
-							name: string(),
-							// email: optional(string()),
-							password: string(),
-						}),
-					]),
-					input,
-				)
+			async authorize(rawInput, ctx) {
+				const input = parse(credentialsPayloadValidator, rawInput)
 
 				let userId: Id<"users">
 
-				if (credentials.action === "login") {
-					const { user } = await retrieveAccount(ctx, {
-						provider: "credentials",
-						account: {
-							id: credentials.handle,
-							secret: credentials.password,
-						},
-					})
-					userId = user._id
+				if (input.action === "login") {
+					try {
+						const result = await retrieveAccount(ctx, {
+							provider: "credentials",
+							account: {
+								id: input.username,
+								secret: input.password,
+							},
+						})
+						userId = result.user._id
+					} catch (error) {
+						throw new ConvexError("Invalid username or password")
+					}
 				} else {
 					const { user } = await createAccount(ctx, {
 						provider: "credentials",
 						account: {
-							id: credentials.handle,
-							secret: credentials.password,
+							id: input.username,
+							secret: input.password,
 						},
 						profile: {
-							handle: credentials.handle,
-							name: credentials.name,
-							// email: credentials.email,
+							name: input.username,
 						},
-						// shouldLinkViaEmail: credentials.email !== undefined,
 					})
 					userId = user._id
 				}
 
 				return { userId }
 			},
-			crypto: {
-				async hashSecret(password) {
-					return await new Scrypt().hash(password)
-				},
-				async verifySecret(password, hash) {
-					return await new Scrypt().verify(hash, password)
-				},
-			},
+			// @ts-expect-error: convex team are mean :(
+			crypto: Password().options.crypto,
 		}),
 	],
 })

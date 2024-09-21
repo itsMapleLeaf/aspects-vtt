@@ -3,15 +3,19 @@ import { EntMutationCtx, mutation } from "../lib/ents.ts"
 
 export const deleteUser = mutation({
 	args: {
-		handle: v.string(),
+		username: v.string(),
 	},
-	handler: async (ctx: EntMutationCtx, { handle }) => {
+	handler: async (ctx: EntMutationCtx, { username }) => {
 		if (process.env.TEST !== "true") {
 			throw new ConvexError("Not in testing environment")
 		}
 
-		const user = await ctx.table("users").getX("handle", handle)
-		await ctx.table("users").getX(user._id).delete()
+		// const user = await ctx.db
+		// 	.query("authAccounts")
+		// 	.withIndex("providerAndAccountId", (q) =>
+		// 		q.eq("provider", "credentials").eq("providerAccountId", username),
+		// 	)
+		// await ctx.table("users").getX(user._id).delete()
 	},
 })
 

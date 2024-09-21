@@ -1,14 +1,27 @@
-import { useQuery } from "convex/react"
-import { Heading, HeadingLevel } from "~/common/react/heading.tsx"
+import { useConvexAuth, useQuery } from "convex/react"
+import { Heading, HeadingLevel } from "~/common/react/heading"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
+import { AuthForm } from "~/features/auth/AuthForm.tsx"
+import { UserButton } from "~/features/auth/UserButton.tsx"
 import { Battlemap } from "~/features/battlemap/Battlemap.tsx"
 import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
-import { Avatar, AvatarFallback } from "~/ui/avatar.tsx"
 import { heading } from "~/ui/styles.ts"
 
 export default function RoomRoute() {
+	const auth = useConvexAuth()
+	return (
+		<>
+			{auth.isAuthenticated ?
+				<ProtectedContent />
+			:	<AuthForm />}
+			<LoadingCover visible={auth.isLoading} />
+		</>
+	)
+}
+
+function ProtectedContent() {
 	const room = useQuery(api.entities.rooms.list)?.[0]
 	return (
 		<>
@@ -26,11 +39,7 @@ function RoomInterface({ roomId }: { roomId: Id<"rooms"> }) {
 			<HeadingLevel>
 				<header className="pointer-events-children flex items-center justify-between">
 					<Heading className={heading()}>AspectsVTT</Heading>
-					<button>
-						<Avatar>
-							<AvatarFallback>M</AvatarFallback>
-						</Avatar>
-					</button>
+					<UserButton />
 					<ActiveSceneHeading roomId={roomId} />
 				</header>
 
