@@ -57,7 +57,13 @@ export function NumberInput({
 
 			try {
 				await onSubmitValue?.(value)
-				setEditingValue(undefined)
+
+				// queue this update for later,
+				// so that the component can re-render first with the new value,
+				// avoiding a "flicker of old value"
+				startTransition(() => {
+					setEditingValue(undefined)
+				})
 			} catch (error) {
 				console.error(error)
 				return false
