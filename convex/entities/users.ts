@@ -1,13 +1,11 @@
-import { getAuthUser } from "../lib/auth.ts"
-import { EntQueryCtx, query } from "../lib/ents.ts"
+import { ensureUser } from "../lib/auth.ts"
+import { query } from "../lib/ents.ts"
 
 export const me = query({
-	handler: async (ctx: EntQueryCtx) => {
-		try {
-			const user = await getAuthUser(ctx)
-			return user.doc()
-		} catch {
-			return null
-		}
+	async handler(ctx) {
+		return ensureUser(ctx)({
+			onAuthorized: (userId) => ctx.table("users").get(userId)?.doc(),
+			onUnauthorized: () => null,
+		})
 	},
 })

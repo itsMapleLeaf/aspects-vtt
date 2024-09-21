@@ -1,64 +1,37 @@
-import { v } from "convex/values"
-import type { Id } from "../_generated/dataModel"
-import { getAuthUserId } from "../lib/auth.ts"
-import {
-	EntMutationCtx,
-	EntQueryCtx,
-	mutation,
-	query,
-	type Ent,
-} from "../lib/ents.ts"
+import { ConvexError, v } from "convex/values"
+import type { Doc, Id } from "../_generated/dataModel"
+import { ensureUser, InaccessibleError } from "../lib/auth.ts"
+import { mutation, query } from "../lib/ents.ts"
 import { nullish } from "../lib/validators.ts"
-import { normalizeScene } from "./scenes.ts"
 
 export const list = query({
-	handler: async (ctx: EntQueryCtx) => {
-		try {
-			// const userId = await getAuthUserId(ctx)
-			// return await ctx.table("rooms", "ownerId", (q) => q.eq("ownerId", userId))
-			return await ctx.table("rooms").map((room) => normalizeRoom(ctx, room))
-		} catch (error) {
-			console.warn(error)
-			return []
-		}
+	async handler(ctx) {
+		return ensureUser(ctx)({
+			onAuthorized(userId) {
+				return ctx.table("rooms", "ownerId", (q) => q.eq("ownerId", userId))
+			},
+			onUnauthorized: () => [],
+		})
 	},
 })
 
 export const get = query({
 	args: {
-		id: v.id("rooms"),
+		id: v.string(),
 	},
-	handler: async (ctx: EntQueryCtx, args) => {
-		const room = await ctx.table("rooms").get(args.id)
-		return room ? normalizeRoom(ctx, room) : null
-	},
-})
+	async handler(ctx, args) {
+		return ensureUser(ctx)({
+			onAuthorized: async () => {
+				const id = ctx.table("rooms").normalizeId(args.id)
 
-export const getBySlug = query({
-	args: {
-		slug: v.string(),
-	},
-	handler: async (ctx: EntQueryCtx, { slug }) => {
-		try {
-			const room = await ctx.table("rooms").getX("slug", slug)
-			return await normalizeRoom(ctx, room)
-		} catch {
-			return null
-		}
-	},
-})
+				const room =
+					id ?
+						await ctx.table("rooms").get(id)
+					:	await ctx.table("rooms").get("slug", args.id)
 
-export const getActiveScene = query({
-	args: {
-		id: v.id("rooms"),
-	},
-	handler: async (ctx: EntQueryCtx, args) => {
-		const room = await ctx.table("rooms").get(args.id)
-		if (!room || !room.activeSceneId) {
-			return null
-		}
-		const scene = await ctx.table("scenes").get(room.activeSceneId)
-		return scene ? normalizeScene(ctx, scene) : null
+				return room?.doc()
+			},
+		})
 	},
 })
 
@@ -67,15 +40,16 @@ export const create = mutation({
 		name: v.string(),
 		slug: v.string(),
 	},
-	handler: async (ctx: EntMutationCtx, args) => {
-		const room = await ctx
-			.table("rooms", "slug", (q) => q.eq("slug", args.slug))
-			.first()
-		if (room) {
-			throw new Error(`The slug "${args.slug}" is already taken`)
-		}
-		const userId = await getAuthUserId(ctx)
-		await ctx.table("rooms").insert({ ...args, ownerId: userId })
+	async handler(ctx, args) {
+		return ensureUser(ctx)({
+			onAuthorized: async (userId) => {
+				const existing = await ctx.table("rooms").get("slug", args.slug)
+				if (existing) {
+					throw new ConvexError(`The slug "${args.slug}" is already taken`)
+				}
+				await ctx.table("rooms").insert({ ...args, ownerId: userId })
+			},
+		})
 	},
 })
 
@@ -84,42 +58,30 @@ export const update = mutation({
 		id: v.id("rooms"),
 		activeSceneId: nullish(v.id("scenes")),
 	},
-	handler: async (ctx: EntMutationCtx, { id, ...args }) => {
-		const room = await ensureRoomOwner(ctx, id)
-		await ctx.table("rooms").getX(room._id).patch(args)
-	},
+	handler: protectedMutationHandler(async (ctx, userId, { id, ...args }) => {
+		const room = await ctx.table("rooms").get(id)
+		if (room == null || !isRoomOwner(room, userId)) {
+			throw new ConvexError(`You don't have permission to update this room`)
+		}
+
+		await room.patch(args)
+	}),
 })
 
-export class RoomNotOwnedError extends Error {
-	constructor() {
-		super("Sorry, only the room owner can do that.")
-	}
-}
+export const remove = mutation({
+	args: {
+		id: v.id("rooms"),
+	},
+	handler: protectedMutationHandler(async (ctx, userId, { id }) => {
+		const room = await ctx.table("rooms").get(id)
+		if (!room || !isRoomOwner(room, userId)) {
+			throw new InaccessibleError({ id, collection: "rooms" })
+		}
 
-function getRoomBySlug(ctx: EntQueryCtx, slug: string) {
-	return ctx.table("rooms").get("slug", slug)
-}
+		await room.delete()
+	}),
+})
 
-async function normalizeRoom(ctx: EntQueryCtx, room: Ent<"rooms">) {
-	const userId = await getAuthUserId(ctx).catch(() => null)
-
-	const activeSceneDoc =
-		room.activeSceneId && (await ctx.table("scenes").get(room.activeSceneId))
-	const activeScene =
-		activeSceneDoc && (await normalizeScene(ctx, activeSceneDoc))
-
-	return {
-		...room,
-		isOwner: room.ownerId === userId,
-		activeScene,
-	}
-}
-
-export async function ensureRoomOwner(ctx: EntQueryCtx, id: Id<"rooms">) {
-	const room = await ctx.table("rooms").getX(id)
-	const normalizedRoom = await normalizeRoom(ctx, room)
-	if (!normalizedRoom.isOwner) {
-		throw new RoomNotOwnedError()
-	}
-	return room
+export function isRoomOwner(room: Doc<"rooms">, userId: Id<"users">) {
+	return room.ownerId === userId
 }

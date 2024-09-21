@@ -53,46 +53,42 @@ export function AuthForm() {
 	const fields = useFields(form)
 
 	return (
-		<main className="absolute inset-0 flex size-full flex-col">
-			<Form
-				form={form}
-				className={panel(
-					"m-auto flex w-full max-w-sm flex-col p-gap shadow-md gap-3",
-				)}
+		<Form
+			form={form}
+			className={panel("flex w-full max-w-sm flex-col p-gap shadow-md gap-3")}
+		>
+			<Heading className={primaryHeading()}>
+				{action === "login" ? "Sign in" : "Sign up"}
+			</Heading>
+			<InputField label="Username" field={fields.username} />
+			<InputField label="Password" type="password" field={fields.password} />
+			{action === "register" && (
+				<InputField
+					label="Confirm Password"
+					type="password"
+					field={fields.confirmPassword}
+				/>
+			)}
+			<Button
+				type="submit"
+				icon={action === "login" ? <LucideLogIn /> : <LucideUserPlus />}
 			>
-				<Heading className={primaryHeading()}>
-					{action === "login" ? "Sign in" : "Sign up"}
-				</Heading>
-				<InputField label="Username" field={fields.username} />
-				<InputField label="Password" type="password" field={fields.password} />
-				{action === "register" && (
-					<InputField
-						label="Confirm Password"
-						type="password"
-						field={fields.confirmPassword}
-					/>
-				)}
-				<Button
-					type="submit"
-					icon={action === "login" ? <LucideLogIn /> : <LucideUserPlus />}
+				{action === "login" ? "Sign in" : "Sign up"}
+			</Button>
+			{action === "login" ?
+				<Link
+					className="self-center text-sm font-semibold text-primary-200 underline"
+					to="?action=register"
 				>
-					{action === "login" ? "Sign in" : "Sign up"}
-				</Button>
-				{action === "login" ?
-					<Link
-						className="self-center text-sm font-semibold text-primary-200 underline"
-						to="?action=register"
-					>
-						Create an account
-					</Link>
-				:	<Link
-						className="self-center text-sm font-semibold text-primary-200 underline"
-						to="?action=login"
-					>
-						Already have an account?
-					</Link>
-				}
-			</Form>
-		</main>
+					Create an account
+				</Link>
+			:	<Link
+					className="self-center text-sm font-semibold text-primary-200 underline"
+					to="?action=login"
+				>
+					Already have an account?
+				</Link>
+			}
+		</Form>
 	)
 }

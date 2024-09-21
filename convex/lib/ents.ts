@@ -6,16 +6,11 @@ import {
 	customQuery,
 } from "convex-helpers/server/customFunctions"
 import type { TableNamesInDataModel } from "convex/server"
-import {
-	internalMutation as baseInternalMutation,
-	internalQuery as baseInternalQuery,
-	mutation as baseMutation,
-	query as baseQuery,
-} from "../_generated/server"
+import * as generated from "../_generated/server"
 import { entDefinitions } from "../schema"
 
 export const query = customQuery(
-	baseQuery,
+	generated.query,
 	customCtx(async (ctx) => {
 		return {
 			table: entsTableFactory(ctx, entDefinitions),
@@ -25,7 +20,7 @@ export const query = customQuery(
 )
 
 export const internalQuery = customQuery(
-	baseInternalQuery,
+	generated.internalQuery,
 	customCtx(async (ctx) => {
 		return {
 			table: entsTableFactory(ctx, entDefinitions),
@@ -35,7 +30,7 @@ export const internalQuery = customQuery(
 )
 
 export const mutation = customMutation(
-	baseMutation,
+	generated.mutation,
 	customCtx(async (ctx) => {
 		return {
 			table: entsTableFactory(ctx, entDefinitions),
@@ -45,7 +40,7 @@ export const mutation = customMutation(
 )
 
 export const internalMutation = customMutation(
-	baseInternalMutation,
+	generated.internalMutation,
 	customCtx(async (ctx) => {
 		return {
 			table: entsTableFactory(ctx, entDefinitions),

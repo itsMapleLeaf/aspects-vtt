@@ -76,6 +76,7 @@ export const createDocuments = internalMutation({
 			name: "Luna",
 			updatedAt: Date.now(),
 			roomId,
+			ownerId: args.userId,
 			imageId: "kg2f4vvcqt3dax3mvjf2h0g6vh70kjvk" as Id<"_storage">,
 		})
 
@@ -84,6 +85,7 @@ export const createDocuments = internalMutation({
 			updatedAt: Date.now(),
 			roomId,
 			sceneId: scenes.rosenfeld,
+			ownerId: args.userId,
 			imageId: "kg22rmepz9vqrv5h1377h4ykbn70js8k" as Id<"_storage">,
 		})
 	},

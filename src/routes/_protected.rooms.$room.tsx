@@ -1,27 +1,14 @@
-import { useConvexAuth, useQuery } from "convex/react"
+import { useQuery } from "convex/react"
 import { Heading, HeadingLevel } from "~/common/react/heading"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
-import { AuthForm } from "~/features/auth/AuthForm.tsx"
 import { UserButton } from "~/features/auth/UserButton.tsx"
 import { Battlemap } from "~/features/battlemap/Battlemap.tsx"
 import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
 import { heading } from "~/ui/styles.ts"
 
 export default function RoomRoute() {
-	const auth = useConvexAuth()
-	return (
-		<>
-			{auth.isAuthenticated ?
-				<ProtectedContent />
-			:	<AuthForm />}
-			<LoadingCover visible={auth.isLoading} />
-		</>
-	)
-}
-
-function ProtectedContent() {
 	const room = useQuery(api.entities.rooms.list)?.[0]
 	return (
 		<>

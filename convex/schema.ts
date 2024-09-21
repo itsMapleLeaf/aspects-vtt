@@ -11,7 +11,8 @@ const entSchema = defineEntSchema({
 	})
 		.index("email", ["email"])
 		.edges("rooms", { ref: true })
-		.edges("messages", { ref: true }),
+		.edges("messages", { ref: true })
+		.edges("ownedCharacters", { to: "characters", ref: "ownerId" }),
 
 	rooms: defineEnt({
 		name: v.string(),
@@ -35,12 +36,14 @@ const entSchema = defineEntSchema({
 		.searchIndex("name", { searchField: "name", filterFields: ["roomId"] }),
 
 	characters: defineEnt({
+		// profile
 		name: v.string(),
 		pronouns: v.optional(v.string()),
-		imageId: nullish(v.id("_storage")),
 		race: v.optional(v.string()),
 		notes: v.optional(v.string()),
+		imageId: nullish(v.id("_storage")),
 
+		// attributes
 		attributes: v.optional(
 			v.object({
 				strength: v.number(),
@@ -51,19 +54,33 @@ const entSchema = defineEntSchema({
 			}),
 		),
 
+		// status
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),
 		wealth: v.optional(v.number()),
 
-		sceneId: nullish(v.id("scenes")),
+		// token info
 		battlemapPosition: v.optional(v.object({ x: v.number(), y: v.number() })),
+
+		// permissions
+		visible: v.optional(v.boolean()),
+		nameVisible: v.optional(v.boolean()),
+		tokenVisible: v.optional(v.boolean()),
+
+		// metadata
 		updatedAt: v.number(),
+
+		// relations
+		sceneId: nullish(v.id("scenes")),
+		playerId: nullish(v.id("users")),
 	})
 		.index("sceneId", ["sceneId"])
+		.index("playerId", ["playerId"])
 		.edge("room")
+		.edge("owner", { to: "users", field: "ownerId" })
 		.searchIndex("name", {
 			searchField: "name",
-			filterFields: ["roomId", "sceneId"],
+			filterFields: ["roomId", "sceneId", "playerId", "ownerId"],
 		}),
 
 	messages: defineEnt({

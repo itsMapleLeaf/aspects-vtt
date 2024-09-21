@@ -1,138 +1,168 @@
 import { partial } from "convex-helpers/validators"
+import type { WithoutSystemFields } from "convex/server"
 import { v } from "convex/values"
-import { clamp } from "lodash-es"
-import { DEFAULT_WEALTH_TIER } from "~/features/characters/constants.ts"
-import { Doc } from "../_generated/dataModel"
-import { EntMutationCtx, EntQueryCtx, mutation, query } from "../lib/ents.ts"
+import { Doc, type Id } from "../_generated/dataModel"
+import {
+	InaccessibleError,
+	protectedMutation,
+	protectedQuery,
+	type ProtectedCtx,
+} from "../lib/auth.ts"
+import type { EntMutationCtx } from "../lib/ents.ts"
 import schema from "../schema.ts"
+import { isRoomOwner } from "./rooms.ts"
 
-export const get = query({
+export const get = protectedQuery({
 	args: {
 		characterId: v.id("characters"),
 	},
-	handler: async (ctx: EntQueryCtx, args) => {
+	fallback: null,
+	handler: async (ctx, args) => {
 		const character = await ctx.table("characters").get(args.characterId)
-		return character ? normalizeCharacter(ctx, character) : null
+		if (!character) {
+			return null
+		}
+
+		return protectCharacter(character, ctx.userId, await character.edge("room"))
 	},
 })
 
-export const list = query({
+export const list = protectedQuery({
 	args: {
 		roomId: v.id("rooms"),
 		search: v.optional(v.string()),
 	},
-	handler: async (ctx: EntQueryCtx, { roomId, search }) => {
+	fallback: [],
+	handler: async (ctx, { roomId, search }) => {
 		let characters
 		if (search) {
 			characters = ctx
 				.table("characters")
-				.search("name", (q) => q.search("name", search))
+				.search("name", (q) => q.search("name", search).eq("roomId", roomId))
 		} else {
 			characters = ctx.table("characters", "roomId", (q) =>
 				q.eq("roomId", roomId),
 			)
 		}
-		return characters.map((char) => normalizeCharacter(ctx, char))
+
+		return characters
+			.map(async (it) =>
+				protectCharacter(it, ctx.userId, await it.edge("room")),
+			)
+			.filter((it) => it != null)
 	},
 })
 
-export const create = mutation({
+export const create = protectedMutation({
 	args: {
+		...partial(schema.tables.characters.validator.fields),
 		roomId: v.id("rooms"),
 	},
-	handler: async (ctx: EntMutationCtx, args) => {
-		return ctx.table("characters").insert({
-			name: "New Character",
-			roomId: args.roomId,
-			updatedAt: Date.now(),
-		})
+	handler: async (ctx, args) => {
+		return createCharacter(ctx, args)
 	},
 })
 
-export const update = mutation({
+export const update = protectedMutation({
 	args: {
 		...partial(schema.tables.characters.validator.fields),
 		characterId: v.id("characters"),
 	},
-	handler: async (ctx: EntMutationCtx, { characterId, ...args }) => {
-		return ctx.table("characters").getX(characterId).patch(args)
+	handler: async (ctx, { characterId, ...args }) => {
+		const character = await ctx.table("characters").getX(characterId)
+		const room = await character.edgeX("room")
+
+		const authorized =
+			isRoomOwner(room, ctx.userId) || character.ownerId === ctx.userId
+
+		if (!authorized) {
+			throw new InaccessibleError({
+				id: characterId,
+				collection: "characters",
+			})
+		}
+
+		await character.patch(args)
 	},
 })
 
-export const remove = mutation({
+export const remove = protectedMutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 	},
-	handler: async (ctx: EntMutationCtx, args) => {
+	handler: async (ctx, args) => {
 		for (const characterId of args.characterIds) {
-			await ctx.table("characters").getX(characterId).delete()
+			const character = await ctx.table("characters").getX(characterId)
+			const room = await character.edgeX("room")
+
+			const authorized =
+				isRoomOwner(room, ctx.userId) || character.ownerId === ctx.userId
+
+			if (!authorized) {
+				throw new InaccessibleError({
+					id: characterId,
+					collection: "characters",
+				})
+			}
+
+			await character.delete()
 		}
 	},
 })
 
-export const duplicate = mutation({
+export const duplicate = protectedMutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 	},
-	handler: async (ctx: EntMutationCtx, args) => {
+	handler: async (ctx, args) => {
 		for (const characterId of args.characterIds) {
 			const character = await ctx.table("characters").get(characterId)
 			if (character) {
 				const { _id, _creationTime, ...characterData } = character
-				await ctx.table("characters").insert(characterData)
+				await createCharacter(ctx, characterData)
 			}
 		}
 	},
 })
 
-export async function normalizeCharacter(
-	ctx: EntQueryCtx,
-	doc: Doc<"characters">,
+async function createCharacter(
+	ctx: ProtectedCtx<EntMutationCtx>,
+	args: Partial<WithoutSystemFields<Doc<"characters">>> & {
+		roomId: Id<"rooms">
+	},
 ) {
-	const imageUrl = doc.imageId ? await ctx.storage.getUrl(doc.imageId) : null
-
-	const attributes = normalizeCharacterAttributes(doc.attributes)
-
-	const healthMax =
-		getAttributeDie(attributes.strength) + getAttributeDie(attributes.mobility)
-	const resolveMax = attributes.sense + attributes.intellect + attributes.wit
-
-	const normalized = {
-		...doc,
-
-		attributes,
-
-		imageUrl,
-
-		health: doc.health ?? healthMax,
-		healthMax,
-
-		resolve: doc.resolve ?? resolveMax,
-		resolveMax,
-
-		wealth: doc.wealth ?? DEFAULT_WEALTH_TIER,
-
-		battlemapPosition: doc.battlemapPosition ?? { x: 0, y: 0 },
-	}
-	return normalized satisfies Doc<"characters">
+	return await ctx.table("characters").insert({
+		name: "New Character",
+		...args,
+		ownerId: ctx.userId,
+		updatedAt: Date.now(),
+	})
 }
 
-export function normalizeCharacterAttributes(
-	attributes: Doc<"characters">["attributes"],
+function protectCharacter(
+	character: Doc<"characters">,
+	userId: Id<"users">,
+	room: Doc<"rooms">,
 ) {
-	return {
-		strength: normalizeAttribute(attributes?.strength),
-		sense: normalizeAttribute(attributes?.sense),
-		mobility: normalizeAttribute(attributes?.mobility),
-		intellect: normalizeAttribute(attributes?.intellect),
-		wit: normalizeAttribute(attributes?.wit),
+	if (isRoomOwner(room, userId) || character.playerId === userId) {
+		return character
 	}
-}
 
-function normalizeAttribute(attribute: number | undefined): number {
-	return clamp(attribute ?? 1, 1, 5)
-}
+	if (character.visible && character.nameVisible) {
+		return {
+			_id: character._id,
+			name: character.name,
+			pronouns: character.pronouns,
+			imageId: character.imageId,
+		} satisfies Partial<Doc<"characters">>
+	}
 
-export function getAttributeDie(attribute: number) {
-	return [4, 6, 8, 10, 12][normalizeAttribute(attribute) - 1] as number
+	if (character.visible) {
+		return {
+			_id: character._id,
+			imageId: character.imageId,
+		} satisfies Partial<Doc<"characters">>
+	}
+
+	return null
 }
