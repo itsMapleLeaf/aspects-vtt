@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values"
 import { useId, useState, type SetStateAction } from "react"
 import { toast } from "react-toastify"
 import * as v from "valibot"
@@ -65,7 +66,22 @@ export function useForm<Values extends FormValues>(
 	const [values, setValues] = useState(options.initialValues)
 
 	const [errors, submit, pending] = useToastAction<readonly FormError[], void>(
-		async (_state) => await options.action(values),
+		async (_state) => {
+			try {
+				return await options.action(values)
+			} catch (error) {
+				console.log(error)
+				if (error instanceof ConvexError && typeof error.data === "string") {
+					return [{ message: error.data }]
+				}
+
+				console.error("Form submission failed", error)
+				toast.error(
+					"Form submission failed. Check the browser console for details.",
+				)
+				return [{ message: "Unknown submission error" }]
+			}
+		},
 		{
 			pendingMessage: options.pendingMessage,
 			successMessage: options.successMessage,
@@ -143,22 +159,13 @@ export function valibotAction<Values, ActionArgs>(
 ): FormAction {
 	return async (data) => {
 		const result = v.safeParse(schema, data)
-
-		if (result.issues) {
+		if (!result.issues) {
+			await action(result.output)
+		} else {
 			return result.issues.map((issue) => ({
 				field: issue.path?.[0].key?.toString(),
 				message: issue.message,
 			}))
-		}
-
-		try {
-			await action(result.output)
-		} catch (error) {
-			console.error("Form submission failed", error)
-			toast.error(
-				"Form submission failed. Check the browser console for details.",
-			)
-			return [{ message: "Unknown submission error" }]
 		}
 	}
 }
