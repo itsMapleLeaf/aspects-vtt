@@ -7,18 +7,26 @@ import * as v from "valibot"
 import {
 	longText,
 	nonEmptyShortText,
-	numericTextInput,
 	positiveInteger,
 	shortText,
 } from "~/common/validators.ts"
 import { Button } from "~/components/Button.tsx"
-import { Combobox } from "~/components/Combobox.tsx"
 import { Dialog } from "~/components/Dialog.tsx"
-import { NumberInput } from "~/components/NumberInput.tsx"
-import { Select } from "~/components/Select.tsx"
 import { api } from "~/convex/_generated/api.js"
-import { useForm, valibotAction } from "~/features/forms/useForm.ts"
-import { textArea, textInput } from "~/styles/input.ts"
+import {
+	ComboboxField,
+	InputField,
+	NumberInputField,
+	SelectField,
+	TextAreaField,
+} from "~/features/forms/fields.tsx"
+import {
+	FieldAccessor,
+	useFields,
+	useForm,
+	valibotAction,
+} from "~/features/forms/useForm.ts"
+import { textInput } from "~/styles/input.ts"
 import {
 	TableBody,
 	TableCell,
@@ -27,7 +35,6 @@ import {
 	TableRow,
 } from "~/ui/table.tsx"
 import { Form } from "../forms/Form.tsx"
-import { FormField } from "../forms/FormField.tsx"
 import { RACES, WEALTH_TIERS } from "./constants.ts"
 import type { ApiCharacter } from "./types.ts"
 import { wealthTier } from "./validators.ts"
@@ -82,7 +89,7 @@ export function CharacterEditorDialog({
 }
 
 type ProfileEditorRef = {
-	submit: () => Promise<unknown>
+	submit: () => unknown
 }
 
 function CharacterProfileEditor({
@@ -110,12 +117,12 @@ function CharacterProfileEditor({
 		action: valibotAction(
 			v.object({
 				name: nonEmptyShortText,
-				pronouns: shortText,
-				race: shortText,
-				health: v.pipe(numericTextInput, positiveInteger),
-				resolve: v.pipe(numericTextInput, positiveInteger),
-				wealth: v.pipe(numericTextInput, wealthTier),
-				notes: longText,
+				pronouns: v.optional(shortText),
+				race: v.optional(shortText),
+				health: v.optional(positiveInteger),
+				resolve: v.optional(positiveInteger),
+				wealth: v.optional(wealthTier),
+				notes: v.optional(longText),
 			}),
 			async (data) => {
 				await update({
@@ -126,70 +133,59 @@ function CharacterProfileEditor({
 		),
 	})
 
+	const fields = useFields(form)
+
 	useImperativeHandle(ref, () => ({
 		submit: form.submit,
 	}))
 
 	return (
 		<Form form={form} className="flex h-full min-h-0 flex-col gap">
-			<FormField form={form} name="name" label="Name">
-				<input className={textInput()} />
-			</FormField>
+			<InputField label="Name" field={fields.name} />
 
-			<FormField form={form} name="pronouns" label="Pronouns">
-				<Combobox
-					className={textInput()}
-					options={[
-						{ value: "he/him" },
-						{ value: "she/her" },
-						{ value: "they/them" },
-						{ value: "he/they" },
-						{ value: "she/they" },
-						{ value: "it/its" },
-					]}
-				/>
-			</FormField>
+			<ComboboxField
+				label="Pronouns"
+				field={fields.pronouns as FieldAccessor<string>}
+				options={[
+					{ value: "he/him" },
+					{ value: "she/her" },
+					{ value: "they/them" },
+					{ value: "he/they" },
+					{ value: "she/they" },
+					{ value: "it/its" },
+				]}
+			/>
 
-			<FormField form={form} name="race" label="Race">
-				<Combobox
-					className={textInput()}
-					options={RACES.map((race) => ({ value: race.name }))}
-				/>
-			</FormField>
-
-			{/* <FormField label="Image" htmlFor={inputId("image")}>
-				<input
-					id={inputId("image")}
-					name="image"
-					type="file"
-					accept="image/*"
-					className={control({})}
-				/>
-			</FormField> */}
+			<ComboboxField
+				label="Race"
+				field={fields.race as FieldAccessor<string>}
+				options={RACES.map((race) => ({ value: race.name }))}
+			/>
 
 			<div className="grid grid-cols-[1fr,1fr,2fr] gap">
-				<FormField form={form} label="Health" name="health">
-					<NumberInput className={textInput()} max={character.healthMax} />
-				</FormField>
+				<NumberInputField
+					label="Health"
+					field={fields.health}
+					max={character.healthMax}
+				/>
 
-				<FormField form={form} name="resolve" label="Resolve">
-					<NumberInput className={textInput()} max={character.resolveMax} />
-				</FormField>
+				<NumberInputField
+					label="Resolve"
+					field={fields.resolve}
+					max={character.resolveMax}
+				/>
 
-				<Select
-					{...form.getInputProps("wealth")}
+				<SelectField
 					label="Wealth"
-					className={textInput()}
+					field={fields.wealth}
 					options={WEALTH_TIERS.map((tier, index) => ({
-						value: String(index),
+						value: index,
 						name: `${index + 1}. ${tier.name}`,
 					}))}
 				/>
 			</div>
 
-			<FormField form={form} name="notes" label="Notes">
-				<textarea className={textArea()} rows={3} />
-			</FormField>
+			<TextAreaField label="Notes" field={fields.notes} rows={3} />
 
 			<Dialog.Actions>
 				<Button type="submit" appearance="solid" icon={<LucideSave />}>

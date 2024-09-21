@@ -1,158 +1,152 @@
-import {
-	startTransition,
-	useId,
-	useRef,
-	useState,
-	type ComponentProps,
-} from "react"
+import { useId, useState, type SetStateAction } from "react"
 import { toast } from "react-toastify"
 import * as v from "valibot"
-import { useLatestRef } from "~/common/react/core.ts"
+import type { Something } from "~/common/types.ts"
 import { useToastAction } from "~/components/ToastActionForm.tsx"
 
+export type FormValues = Record<string, unknown>
+
 export interface FormConfig<Values extends FormValues> {
-	initialValues?: Values
+	initialValues: Values
 	pendingMessage?: string
 	successMessage?: string
-	action: FormAction<keyof Values>
+	action: FormAction
 }
 
-export type FormValues = Partial<
-	Record<string, string | number | File | undefined>
->
-
-export type FormAction<Keys extends PropertyKey> = (
-	values: FormActionInput<Keys>,
+export type FormAction = (
+	values: FormValues,
 ) => Promise<readonly FormError[] | undefined>
-
-export type FormActionInput<Keys extends PropertyKey> = Partial<
-	Record<Keys, FormDataEntryValue>
->
 
 export interface FormError {
 	message: string
 	field?: string
 }
 
-export type FormState<Values extends FormValues = FormValues> = ReturnType<
+export interface FieldAccessor<T extends Something = Something> {
+	id: string
+	name: string
+	value: T | undefined
+	errors: string[]
+	set: (next: SetStateAction<T | undefined>) => void
+	label: {
+		htmlFor: string
+	}
+	input: {
+		id: string
+		name: string
+		value: (T & string) | undefined
+		onChange: (event: { currentTarget: { value: string } }) => void
+	}
+	numeric: {
+		id: string
+		name: string
+		value: (T & number) | undefined
+		onChange: (event: { currentTarget: { valueAsNumber: number } }) => void
+	}
+	checkbox: {
+		id: string
+		name: string
+		checked: (T & boolean) | undefined
+		onChange: (event: { currentTarget: { checked: boolean } }) => void
+	}
+}
+
+export type FieldCollection<Values> = Required<{
+	[K in keyof Values]: FieldAccessor<Values[K] & Something>
+}>
+
+export type FormStore<Values extends FormValues = FormValues> = ReturnType<
 	typeof useForm<Values>
 >
 
 export function useForm<Values extends FormValues>(
 	options: FormConfig<Values>,
 ) {
-	const initialValuesRef = useLatestRef(options.initialValues)
+	const [values, setValues] = useState(options.initialValues)
 
-	const [defaultValues, setDefaultValues] = useState<FormValues | undefined>(
-		options.initialValues,
-	)
-	const formRef = useRef<HTMLFormElement | null>(null)
-
-	const [errors, action, pending] = useToastAction<
-		readonly FormError[],
-		FormData
-	>(
-		async (_state, formData) => {
-			const values = Object.fromEntries(formData)
-
-			// set the new default values so that when react resets the form,
-			// the input will use the user's entered values
-			// instead of the initial ones
-			setDefaultValues(values)
-
-			const errors = await options.action(
-				values as FormActionInput<keyof Values>,
-			)
-
-			// if successful, revert back to the current initial values,
-			// so that the form resets to those,
-			// assuming those new initial values have been updated
-			// through the action
-			if (errors == null) {
-				setDefaultValues(initialValuesRef.current)
-			}
-
-			return errors
-		},
+	const [errors, submit, pending] = useToastAction<readonly FormError[], void>(
+		async (_state) => await options.action(values),
 		{
 			pendingMessage: options.pendingMessage,
 			successMessage: options.successMessage,
 		},
 	)
 
-	const fieldIdPrefix = useId()
-	const fieldId = (name: string) => `${fieldIdPrefix}:${name}`
-
-	const formErrors =
-		errors
-			?.filter((error) => error.field === undefined)
-			.map((error) => error.message) ?? []
-
-	function getFieldErrors(name: keyof Values) {
-		return (
-			errors
-				?.filter((error) => error.field === name)
-				.map((error) => error.message) ?? []
-		)
-	}
-
-	function getFormProps() {
-		return {
-			action,
-			ref: formRef,
-		} satisfies ComponentProps<"form">
-	}
-
-	function getLabelProps(name: keyof Values) {
-		return {
-			htmlFor: fieldId(String(name)),
-		}
-	}
-
-	function getInputProps<Name extends keyof Values>(name: Name) {
-		const defaultValue = defaultValues?.[String(name)]
-		const props = {
-			id: fieldId(String(name)),
-			name: String(name),
-			defaultValue: defaultValue instanceof File ? undefined : defaultValue,
-		}
-		return props satisfies ComponentProps<"input">
-	}
-
 	return {
-		action,
+		values,
+		setValues,
+		submit: () => submit(),
 		pending,
-		fieldId,
-		formErrors,
-		getFieldErrors,
-		getFormProps,
-		getLabelProps,
-		getInputProps,
-		submit: async () => {
-			const form = formRef.current
-			if (!form) {
-				throw new Error("form ref not set")
-			}
-			startTransition(() => {
-				action(new FormData(form))
-			})
-		},
+		errors,
+		formErrors: errors?.flatMap((e) => (e.field == null ? [e.message] : [])),
 	}
 }
 
-export function valibotAction<const Keys extends PropertyKey, ParsedInput>(
-	schema: v.GenericSchema<
-		Required<FormActionInput<NoInfer<Keys>>>,
-		ParsedInput
-	>,
-	action: (input: ParsedInput) => unknown,
-): FormAction<Keys> {
+export function useFields<Values extends FormValues>({
+	values,
+	setValues,
+	errors,
+}: FormStore<Values>) {
+	const fieldIdPrefix = useId()
+	const fieldId = (name: string) => `${fieldIdPrefix}:${name}`
+
+	return new Proxy({} as FieldCollection<Values>, {
+		get(_target, name: string) {
+			const id = fieldId(name)
+			const value = values[name] ?? undefined
+
+			const set = (next: SetStateAction<{} | undefined | null>) => {
+				setValues((prev) => ({
+					...prev,
+					[name]: next instanceof Function ? next(prev[name]) : next,
+				}))
+			}
+
+			return {
+				id,
+				name,
+				value,
+				errors:
+					errors
+						?.filter((error) => error.field === name)
+						.map((error) => error.message) ?? [],
+				set,
+				label: {
+					htmlFor: id,
+				},
+				input: {
+					id,
+					name,
+					value: typeof value === "string" ? value : undefined,
+					onChange: (event) => set(event.currentTarget.value),
+				},
+				numeric: {
+					id,
+					name,
+					value: typeof value === "number" ? value : undefined,
+					onChange: (event) => set(event.currentTarget.valueAsNumber),
+				},
+				checkbox: {
+					id,
+					name,
+					checked: typeof value === "boolean" ? value : undefined,
+					onChange: (event) => set(event.currentTarget.checked),
+				},
+			} satisfies FieldAccessor
+		},
+	})
+}
+
+export function valibotAction<Values, ActionArgs>(
+	schema: v.GenericSchema<Values, ActionArgs>,
+	action: (input: ActionArgs) => unknown,
+): FormAction {
 	return async (data) => {
 		const result = v.safeParse(schema, data)
 
 		if (result.issues) {
 			return result.issues.map((issue) => ({
-				field: String(issue.path?.[0].key),
+				field: issue.path?.[0].key?.toString(),
 				message: issue.message,
 			}))
 		}
