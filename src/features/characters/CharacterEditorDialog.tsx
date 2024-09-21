@@ -124,6 +124,7 @@ function CharacterProfileEditor({
 				"wealth",
 				"notes",
 			] as const),
+			wealth: String(character.wealth), // select only supports string for now
 			image: typed<File | undefined>(undefined),
 		},
 
@@ -136,7 +137,13 @@ function CharacterProfileEditor({
 				race: v.optional(shortText),
 				health: v.optional(positiveInteger),
 				resolve: v.optional(positiveInteger),
-				wealth: v.optional(wealthTier),
+				wealth: v.optional(
+					v.pipe(
+						v.string(),
+						v.transform((input) => parseInt(input, 10)),
+						wealthTier,
+					),
+				),
 				notes: v.optional(longText),
 				image: v.optional(
 					v.pipe(v.file(), v.maxSize(8_000_000, "File cannot exceed 8MB")),
@@ -201,7 +208,7 @@ function CharacterProfileEditor({
 					label="Wealth"
 					field={fields.wealth}
 					options={WEALTH_TIERS.map((tier, index) => ({
-						value: index,
+						value: String(index),
 						name: `${index + 1}. ${tier.name}`,
 					}))}
 				/>

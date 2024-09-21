@@ -5,41 +5,34 @@ import { formField, labelText } from "~/styles/forms.ts"
 import { textInput } from "~/styles/input.ts"
 import { menuItem, menuPanel } from "~/styles/menu.ts"
 
-export interface SelectProps<T>
+export interface SelectProps
 	extends Omit<Ariakit.SelectProps, "value" | "defaultValue"> {
 	label: string
-	options: SelectOption<T>[]
-	value?: T
-	defaultValue?: T
-	onChangeValue?: (value: T) => void
+	options: SelectOption[]
+	value?: string
+	defaultValue?: string
+	onChangeValue?: (value: string) => void
 }
 
-export interface SelectOption<T> {
-	value: T
+export interface SelectOption {
 	name?: ReactNode
 	description?: ReactNode
 	icon?: ReactNode
+	value: string
 }
 
-export function Select<T extends NonNullable<unknown>>({
+export function Select({
 	label,
 	options,
 	value: valueProp,
 	defaultValue,
 	onChangeValue,
 	...props
-}: SelectProps<T>) {
+}: SelectProps) {
 	const store = Ariakit.useSelectStore({
-		value: valueProp?.toString(),
-		defaultValue: defaultValue?.toString(),
-		setValue: (value) => {
-			const selectedItem = options.find(
-				(option) => option.value.toString() === value,
-			)
-			if (selectedItem) {
-				onChangeValue?.(selectedItem.value)
-			}
-		},
+		value: valueProp,
+		defaultValue: defaultValue,
+		setValue: onChangeValue,
 	})
 
 	const value = Ariakit.useStoreState(store, "value")
@@ -55,7 +48,7 @@ export function Select<T extends NonNullable<unknown>>({
 				</Ariakit.SelectLabel>
 				<Ariakit.Select
 					{...props}
-					value={selectedItem?.value.toString()}
+					value={selectedItem?.value}
 					className={textInput(
 						"!flex items-center text-start gap-1.5",
 						props.className,
@@ -72,9 +65,8 @@ export function Select<T extends NonNullable<unknown>>({
 				>
 					{options.map((item) => (
 						<Ariakit.SelectItem
-							key={item.value.toString()}
-							id={item.value.toString()}
-							value={item.value.toString()}
+							key={item.value}
+							value={item.value}
 							className={menuItem()}
 						>
 							{item.icon && <span className="mr-2">{item.icon}</span>}

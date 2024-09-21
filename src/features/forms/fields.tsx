@@ -1,5 +1,4 @@
 import { type ComponentProps } from "react"
-import type { Something } from "~/common/types.ts"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Field } from "~/components/Field.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
@@ -119,13 +118,17 @@ export function NumberInputField({
 	)
 }
 
-export interface SelectFieldProps<T extends Something> extends SelectProps<T> {
-	field: FieldAccessor<T>
+export interface SelectFieldProps extends SelectProps {
+	field: FieldAccessor<string>
 }
 
-export function SelectField<T extends Something>({
-	field,
-	...props
-}: SelectFieldProps<T>) {
-	return <Select<T> {...field.input} onChangeValue={field.set} {...props} />
+export function SelectField({ field, ...props }: SelectFieldProps) {
+	return (
+		<Select
+			{...field.input}
+			onChange={undefined}
+			onChangeValue={field.set}
+			{...props}
+		/>
+	)
 }
