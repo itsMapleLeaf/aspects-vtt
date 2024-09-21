@@ -4,6 +4,7 @@ import { pick } from "lodash-es"
 import { LucideSave, LucideTrash2, Table } from "lucide-react"
 import { ComponentProps, useImperativeHandle, useRef } from "react"
 import * as v from "valibot"
+import { typed } from "~/common/types.ts"
 import {
 	longText,
 	nonEmptyShortText,
@@ -15,6 +16,7 @@ import { Dialog } from "~/components/Dialog.tsx"
 import { api } from "~/convex/_generated/api.js"
 import {
 	ComboboxField,
+	FileField,
 	InputField,
 	NumberInputField,
 	SelectField,
@@ -35,6 +37,7 @@ import {
 	TableRow,
 } from "~/ui/table.tsx"
 import { Form } from "../forms/Form.tsx"
+import { uploadImage } from "../images/uploadImage.ts"
 import { RACES, WEALTH_TIERS } from "./constants.ts"
 import type { ApiCharacter } from "./types.ts"
 import { wealthTier } from "./validators.ts"
@@ -68,18 +71,27 @@ export function CharacterEditorDialog({
 						<TabsTrigger value="inventory">Inventory</TabsTrigger>
 					</TabsList>
 
-					<TabsContent value="profile" className="flex-1">
+					<TabsContent
+						value="profile"
+						className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
+					>
 						<CharacterProfileEditor
 							character={character}
 							ref={profileEditorRef}
 						/>
 					</TabsContent>
 
-					<TabsContent value="skills" className="flex-1">
+					<TabsContent
+						value="skills"
+						className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
+					>
 						<CharacterSkillsEditor />
 					</TabsContent>
 
-					<TabsContent value="inventory" className="flex-1">
+					<TabsContent
+						value="inventory"
+						className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
+					>
 						<CharacterInventoryEditor />
 					</TabsContent>
 				</Tabs>
@@ -102,15 +114,18 @@ function CharacterProfileEditor({
 	const update = useMutation(api.entities.characters.update)
 
 	const form = useForm({
-		initialValues: pick(character, [
-			"name",
-			"pronouns",
-			"race",
-			"health",
-			"resolve",
-			"wealth",
-			"notes",
-		] as const),
+		initialValues: {
+			...pick(character, [
+				"name",
+				"pronouns",
+				"race",
+				"health",
+				"resolve",
+				"wealth",
+				"notes",
+			] as const),
+			image: typed<File | undefined>(undefined),
+		},
 
 		pendingMessage: "Saving character...",
 
@@ -123,10 +138,15 @@ function CharacterProfileEditor({
 				resolve: v.optional(positiveInteger),
 				wealth: v.optional(wealthTier),
 				notes: v.optional(longText),
+				image: v.optional(
+					v.pipe(v.file(), v.maxSize(8_000_000, "File cannot exceed 8MB")),
+				),
 			}),
-			async (data) => {
+			async ({ image, ...data }) => {
+				const imageId = image && (await uploadImage(image))
 				await update({
 					...data,
+					...(imageId && { imageId }),
 					characterId: character._id,
 				})
 			},
@@ -140,7 +160,9 @@ function CharacterProfileEditor({
 	}))
 
 	return (
-		<Form form={form} className="flex h-full min-h-0 flex-col gap">
+		<Form form={form} className="flex h-full flex-col gap">
+			<FileField label="Image" field={fields.image} />
+
 			<InputField label="Name" field={fields.name} />
 
 			<ComboboxField

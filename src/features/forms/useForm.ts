@@ -2,6 +2,7 @@ import { ConvexError } from "convex/values"
 import { useId, useState, type SetStateAction } from "react"
 import { toast } from "react-toastify"
 import * as v from "valibot"
+import { AppError } from "~/common/AppError.ts"
 import type { Something } from "~/common/types.ts"
 import { useToastAction } from "~/components/ToastActionForm.tsx"
 
@@ -71,8 +72,13 @@ export function useForm<Values extends FormValues>(
 				return await options.action(values)
 			} catch (error) {
 				console.log(error)
+
 				if (error instanceof ConvexError && typeof error.data === "string") {
 					return [{ message: error.data }]
+				}
+
+				if (error instanceof AppError) {
+					return [{ message: error.message }]
 				}
 
 				console.error("Form submission failed", error)

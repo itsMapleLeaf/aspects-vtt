@@ -25,6 +25,32 @@ export function InputField({
 	)
 }
 
+export interface FileFieldProps extends ComponentProps<"input"> {
+	label: string
+	field: FieldAccessor<File>
+	type?: never
+}
+
+export function FileField({
+	field,
+	className,
+	label,
+	...props
+}: FileFieldProps) {
+	return (
+		<Field label={label} htmlFor={field.input.id} errors={field.errors}>
+			<input
+				{...props}
+				type="file"
+				className={textInput("items-center")}
+				onChange={(event) => {
+					field.set(event.currentTarget.files?.[0])
+				}}
+			/>
+		</Field>
+	)
+}
+
 export interface TextAreaFieldProps extends ComponentProps<"textarea"> {
 	label: string
 	field: FieldAccessor<string>
