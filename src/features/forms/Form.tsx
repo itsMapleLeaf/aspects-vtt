@@ -11,12 +11,12 @@ export function Form({
 }) {
 	return (
 		<form {...props} action={form.submit}>
+			{children}
 			{[...new Set(form.formErrors)].map((error) => (
 				<p key={error} className={errorText()}>
 					{error}
 				</p>
 			))}
-			{children}
 		</form>
 	)
 }
