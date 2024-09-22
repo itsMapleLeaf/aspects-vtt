@@ -23,7 +23,7 @@ export function Battlemap({
 		<BattlemapStage>
 			<BattlemapBackground backgroundUrl={backgroundUrl} />
 			{characters
-				.flatMap((c) => (c.tokenVisible ? [c] : []))
+				.flatMap((c) => (c.tokenVisible || !c.protected ? [c] : []))
 				.toSorted((a, b) => a.updatedAt - b.updatedAt)
 				.map((character) => (
 					<CharacterBattlemapToken
