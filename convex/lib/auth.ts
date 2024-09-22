@@ -1,7 +1,7 @@
 import * as convexAuth from "@convex-dev/auth/server"
 import type { Auth } from "convex/server"
 import { ConvexError } from "convex/values"
-import type { Id } from "../_generated/dataModel.d.ts"
+import { Data, Effect, pipe } from "effect"
 import type { EntQueryCtx } from "./ents.ts"
 
 export class UnauthenticatedError extends ConvexError<string> {
@@ -11,7 +11,7 @@ export class UnauthenticatedError extends ConvexError<string> {
 }
 
 export class InaccessibleError extends ConvexError<string> {
-	constructor(readonly details: { id?: string; collection?: string }) {
+	constructor(details: { id?: string; collection?: string }) {
 		super(
 			[
 				"Operation failed: either the requested entity does not exist, or you do not have access to it.",
@@ -22,57 +22,35 @@ export class InaccessibleError extends ConvexError<string> {
 	}
 }
 
-export class UserNotFoundError extends Error {
+export class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{
+	message: string
+}> {
 	constructor(userId: string) {
-		super(`User with ID "${userId}" not found.`)
+		super({
+			message: `User with ID "${userId}" not found.`,
+		})
 	}
 }
 
-export async function getAuthUserId(ctx: { auth: Auth }) {
-	return await convexAuth.getAuthUserId(ctx)
+export function getAuthUserId(ctx: { auth: Auth }) {
+	return pipe(
+		Effect.promise(() => convexAuth.getAuthUserId(ctx)),
+		Effect.filterOrFail(
+			(id) => id != null,
+			() => new UnauthenticatedError(),
+		),
+	)
 }
 
-export async function getAuthUserIdOrThrow(ctx: { auth: Auth }) {
-	const id = await getAuthUserId(ctx)
-	if (!id) {
-		throw new UnauthenticatedError()
-	}
-	return id
+export function getAuthUser(ctx: EntQueryCtx) {
+	return pipe(
+		getAuthUserId(ctx),
+		Effect.flatMap((userId) =>
+			Effect.filterOrDieMessage(
+				Effect.promise(() => ctx.table("users").get(userId)),
+				(user) => user != null,
+				`User with ID "${userId}" not found.`,
+			),
+		),
+	)
 }
-
-export async function getAuthUser(ctx: EntQueryCtx) {
-	const id = await getAuthUserId(ctx)
-	if (!id) {
-		return null
-	}
-	const user = await ctx.table("users").get(id)
-	if (!user) {
-		throw new UserNotFoundError(id)
-	}
-	return user
-}
-
-export type ProtectedCtx<Ctx> = Ctx & { userId: Id<"users"> }
-
-export function createAuthGate<AuthorizeResult>(
-	authorize: () => AuthorizeResult,
-) {
-	return async function next<Result, Fallback>({
-		onAuthorized,
-		onUnauthorized = () => {
-			throw new UnauthenticatedError()
-		},
-	}: {
-		onAuthorized: (input: NonNullable<Awaited<AuthorizeResult>>) => Result
-		onUnauthorized?: () => Fallback
-	}) {
-		const result = await authorize()
-		if (result != null) {
-			return onAuthorized(result)
-		}
-		return onUnauthorized()
-	}
-}
-
-export const ensureUser = (ctx: { auth: Auth }) =>
-	createAuthGate(() => getAuthUserId(ctx))

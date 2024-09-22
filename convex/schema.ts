@@ -109,11 +109,16 @@ const entSchema = defineEntSchema({
 
 export const entDefinitions = getEntDefinitions(entSchema)
 
-export default defineSchema({
-	...entSchema.tables,
-	...authTables,
-	users: defineTable({
-		...authTables.users.validator.fields,
-		...entSchema.tables.users.validator.fields,
-	}).index("email", ["email"]),
-})
+export default defineSchema(
+	{
+		...entSchema.tables,
+		...authTables,
+		users: defineTable({
+			...authTables.users.validator.fields,
+			...entSchema.tables.users.validator.fields,
+		}).index("email", ["email"]),
+	},
+	{
+		schemaValidation: true,
+	},
+)

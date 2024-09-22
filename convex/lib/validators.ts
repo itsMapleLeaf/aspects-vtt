@@ -7,6 +7,10 @@ export function nullish<InputValidator extends Validator<unknown>>(
 	return v.optional(v.union(v.null(), validator))
 }
 
-export function tableFields<T extends keyof typeof schema.tables>(table: T) {
+type Tables = typeof schema.tables
+
+export function tableFields<T extends keyof Tables>(
+	table: T,
+): Tables[T]["validator"]["fields"] {
 	return schema.tables[table].validator.fields
 }

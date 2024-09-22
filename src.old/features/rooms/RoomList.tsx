@@ -22,7 +22,7 @@ import {
 } from "../../ui/styles.js"
 
 export function RoomList() {
-	const rooms = useQuery(api.entities.rooms.list)
+	const rooms = useQuery(api.rooms.list)
 	return (
 		<div className={container("flex flex-col gap-4")}>
 			<div className="flex items-start justify-between">
@@ -76,7 +76,7 @@ function CreateRoomButton() {
 }
 
 function CreateRoomForm() {
-	const createRoom = useMutation(api.entities.rooms.create)
+	const createRoom = useMutation(api.rooms.create)
 	const navigate = useNavigate()
 
 	const form = useForm({

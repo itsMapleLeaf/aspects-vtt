@@ -13,7 +13,7 @@ export default function RoomRoute() {
 	const [searchParams] = useSearchParams()
 	const previewSceneId = searchParams.get("preview")
 
-	const room = useStableQuery(api.entities.rooms.getBySlug, {
+	const room = useStableQuery(api.rooms.getBySlug, {
 		slug: assert(params.room, "Room param not found"),
 		previewSceneId,
 	})

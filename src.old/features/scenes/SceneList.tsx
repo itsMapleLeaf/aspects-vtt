@@ -52,14 +52,14 @@ export function SceneList({ roomId }: { roomId: Id<"rooms"> }) {
 	const [sceneEditorSceneId, setSceneEditorSceneId] = useState<Id<"scenes">>()
 
 	const scenes =
-		useStableQuery(api.entities.scenes.list, {
+		useStableQuery(api.scenes.list, {
 			roomId,
 			search,
 		}) ?? EMPTY_ARRAY
 
-	const createScene = useMutation(api.entities.scenes.create)
-	const removeScenes = useMutation(api.entities.scenes.remove)
-	const updateRoom = useMutation(api.entities.rooms.update)
+	const createScene = useMutation(api.scenes.create)
+	const removeScenes = useMutation(api.scenes.remove)
+	const updateRoom = useMutation(api.rooms.update)
 
 	const navigate = useNavigate()
 

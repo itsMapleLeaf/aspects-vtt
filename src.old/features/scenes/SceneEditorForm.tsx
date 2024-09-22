@@ -22,7 +22,7 @@ export function SceneEditorForm({
 	scene: ApiScene
 	onSubmitSuccess?: (scene: ApiScene) => void
 }) {
-	const updateScene = useMutation(api.entities.scenes.update)
+	const updateScene = useMutation(api.scenes.update)
 
 	type Mode = ApiScene["mode"]
 

@@ -1,11 +1,11 @@
 import * as Lucide from "lucide-react"
+import type { NormalizedCharacter } from "~/convex/characters.ts"
 import { CharacterAttributeButton } from "./CharacterAttributeButton.tsx"
-import type { ApiCharacter } from "./types.ts"
 
 export function CharacterAttributeButtonRow({
 	character,
 }: {
-	character: Pick<ApiCharacter, "_id">
+	character: NormalizedCharacter
 }) {
 	return (
 		<div className="flex w-full items-center justify-between gap-1">

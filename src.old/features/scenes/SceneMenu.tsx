@@ -30,9 +30,9 @@ export function SceneMenu({
 	scene: ApiScene
 	roomId: Id<"rooms">
 }) {
-	const updateRoom = useMutation(api.entities.rooms.update)
-	const duplicateScene = useMutation(api.entities.scenes.duplicate)
-	const deleteScene = useMutation(api.entities.scenes.remove)
+	const updateRoom = useMutation(api.rooms.update)
+	const duplicateScene = useMutation(api.scenes.duplicate)
+	const deleteScene = useMutation(api.scenes.remove)
 	const { setPreviewSceneId } = useRoomParams()
 	return (
 		<Menu {...props}>

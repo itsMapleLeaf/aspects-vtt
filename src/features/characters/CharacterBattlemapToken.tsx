@@ -15,6 +15,7 @@ import {
 	DropdownMenuSeparator,
 } from "~/ui/dropdown-menu.tsx"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
+import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
 import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
@@ -25,12 +26,15 @@ export function CharacterBattlemapToken({
 	character,
 	scene,
 }: {
-	character: ApiCharacter
+	character: Extract<
+		ApiCharacter,
+		{ battlemapPosition: { x: number; y: number } }
+	>
 	scene: ApiScene
 }) {
-	const updateCharacter = useMutation(api.entities.characters.update)
+	const updateCharacter = useMutation(api.characters.update)
 
-	const [image] = useImage(character.imageUrl)
+	const [image] = useImage(character.imageId && getImageUrl(character.imageId))
 	const [dragging, setDragging] = useState(false)
 	const [over, setOver] = useState(false)
 	const [menuOpen, setMenuOpen] = useState(false)
@@ -147,7 +151,6 @@ export function CharacterBattlemapToken({
 				<Tooltip open={over && !dragging} placement="top">
 					<TooltipContent
 						className="pointer-events-none flex w-24 scale-90 flex-col bg-transparent opacity-0 shadow-none transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
-						unmountOnHide
 						flip={false}
 						portal={false}
 						getAnchorRect={getAnchorRect}
@@ -164,16 +167,20 @@ export function CharacterBattlemapToken({
 						<div className="self-center rounded border-2 border-red-700 bg-red-700/75 px-1.5 py-1 leading-none text-white shadow">
 							Exploding
 						</div>
-						<StatusBar
-							value={character.health}
-							max={character.healthMax}
-							className="text-green-500"
-						/>
-						<StatusBar
-							value={character.resolve}
-							max={character.resolveMax}
-							className="text-blue-500"
-						/>
+						{character.protected ? null : (
+							<StatusBar
+								value={character.health}
+								max={character.healthMax}
+								className="text-green-500"
+							/>
+						)}
+						{character.protected ? null : (
+							<StatusBar
+								value={character.resolve}
+								max={character.resolveMax}
+								className="text-blue-500"
+							/>
+						)}
 					</TooltipContent>
 				</Tooltip>
 
@@ -182,27 +189,35 @@ export function CharacterBattlemapToken({
 						getAnchorRect={getAnchorRect}
 						className="rounded-lg"
 					>
-						<CharacterAttributeButtonRow character={character} />
+						{character.protected ? null : (
+							<CharacterAttributeButtonRow character={character} />
+						)}
 						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={() => setEditorOpen(true)}>
-							<LucideEdit /> Edit
-						</DropdownMenuItem>
+						{character.protected ? null : (
+							<DropdownMenuItem onClick={() => setEditorOpen(true)}>
+								<LucideEdit /> Edit
+							</DropdownMenuItem>
+						)}
 						<DropdownMenuItem>
 							<LucideSwords /> Attack
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<CharacterVitalFields
-							className="w-[220px] p-1 gap-2"
-							character={character}
-						/>
+						{character.protected ? null : (
+							<CharacterVitalFields
+								className="w-[220px] p-1 gap-2"
+								character={character}
+							/>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-				<CharacterEditorDialog
-					character={character}
-					open={editorOpen}
-					setOpen={setEditorOpen}
-				/>
+				{character.protected ? null : (
+					<CharacterEditorDialog
+						character={character}
+						open={editorOpen}
+						setOpen={setEditorOpen}
+					/>
+				)}
 			</Html>
 		</>
 	)

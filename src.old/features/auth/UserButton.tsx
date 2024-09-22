@@ -10,7 +10,7 @@ import { clearCircleButton } from "../../ui/styles.ts"
 import { AccountSettingsForm } from "./AccountSettingsForm.tsx"
 
 export function UserButton() {
-	const user = useQuery(api.entities.users.me)
+	const user = useQuery(api.users.me)
 	const actions = useAuthActions()
 	return (
 		user === undefined ? <Loading />

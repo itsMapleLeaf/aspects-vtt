@@ -1,4 +1,5 @@
 import { httpRouter } from "convex/server"
+import type { Id } from "./_generated/dataModel.js"
 import { httpAction } from "./_generated/server.js"
 import { auth } from "./auth"
 
@@ -40,6 +41,27 @@ http.route({
 			{ storageId },
 			{ status: 201, headers: { "Access-Control-Allow-Origin": "*" } },
 		)
+	}),
+})
+
+http.route({
+	path: "/images",
+	method: "GET",
+	handler: httpAction(async (ctx, request) => {
+		const id = new URL(request.url).searchParams.get("id")
+		if (!id) {
+			return new Response("Missing ID param", { status: 404 })
+		}
+
+		const blob = await ctx.storage.get(id as Id<"_storage">)
+		if (!blob) {
+			return new Response("Image not found", { status: 404 })
+		}
+
+		return new Response(blob, {
+			status: 200,
+			headers: { "Access-Control-Allow-Origin": "*" },
+		})
 	}),
 })
 

@@ -14,7 +14,6 @@ import { Fragment, useEffect, useRef, useState } from "react"
 import * as v from "valibot"
 import { useLocalStorage } from "~/common/react/dom.ts"
 import { Button } from "~/components/Button.tsx"
-import { Id } from "~/convex/_generated/dataModel.js"
 import { panel } from "~/styles/panel.ts"
 import { CharacterList } from "../characters/CharacterList.tsx"
 import { MessageList } from "../messages/MessageList.tsx"
@@ -23,7 +22,7 @@ interface ModuleDefinition {
 	name: string
 	icon: React.ReactNode
 	defaultLocation: ModuleLocation
-	content: (context: { roomId: Id<"rooms"> }) => React.ReactNode
+	content: () => React.ReactNode
 }
 
 interface ModuleLocation {
@@ -36,13 +35,13 @@ const MODULES: Record<string, ModuleDefinition> = {
 		name: "Characters",
 		icon: <LucideUsers2 className="size-4" />,
 		defaultLocation: { sidebar: 0, panel: 0 },
-		content: ({ roomId }) => <CharacterList roomId={roomId} />,
+		content: () => <CharacterList />,
 	},
 	messages: {
 		name: "Messages",
 		icon: <LucideMessageCircle className="size-4" />,
 		defaultLocation: { sidebar: 1, panel: 1 },
-		content: ({ roomId }) => <MessageList roomId={roomId} />,
+		content: () => <MessageList />,
 	},
 	combat: {
 		name: "Combat",
@@ -68,7 +67,7 @@ const moduleLocationsParser = v.parser(
 	),
 )
 
-export function RoomInterfaceModules({ roomId }: { roomId: Id<"rooms"> }) {
+export function RoomInterfaceModules() {
 	const [moduleLocations, setModuleLocations] = useLocalStorage<
 		Record<string, ModuleLocation>
 	>("room:moduleLocations", {}, moduleLocationsParser)
@@ -125,14 +124,12 @@ export function RoomInterfaceModules({ roomId }: { roomId: Id<"rooms"> }) {
 	return (
 		<>
 			<Sidebar
-				roomId={roomId}
 				aria-label="Left sidebar"
 				index={0}
 				moduleLocations={moduleLocations}
 				onModuleDrop={handleModuleDrop}
 			/>
 			<Sidebar
-				roomId={roomId}
 				aria-label="Right sidebar"
 				index={1}
 				moduleLocations={moduleLocations}
@@ -143,13 +140,11 @@ export function RoomInterfaceModules({ roomId }: { roomId: Id<"rooms"> }) {
 }
 
 function Sidebar({
-	roomId,
 	index: sidebarIndex,
 	moduleLocations,
 	onModuleDrop,
 	...props
 }: {
-	roomId: Id<"rooms">
 	index: number
 	moduleLocations: Record<string, ModuleLocation>
 	onModuleDrop: (event: {
@@ -189,7 +184,6 @@ function Sidebar({
 				.map((panelIndex) => (
 					<Fragment key={panelIndex}>
 						<SidebarPanel
-							roomId={roomId}
 							onModuleDrop={({ moduleId }) => {
 								onModuleDrop({
 									moduleId,
@@ -218,11 +212,9 @@ function Sidebar({
 }
 
 function SidebarPanel({
-	roomId,
 	moduleIds,
 	onModuleDrop,
 }: {
-	roomId: Id<"rooms">
 	moduleIds: string[]
 	onModuleDrop: (event: { moduleId: string }) => void
 }) {
@@ -279,7 +271,7 @@ function SidebarPanel({
 						id={module.id}
 						className="min-h-0 flex-1"
 					>
-						{module.content({ roomId })}
+						{module.content()}
 					</Ariakit.TabPanel>
 				))}
 			</Ariakit.TabProvider>

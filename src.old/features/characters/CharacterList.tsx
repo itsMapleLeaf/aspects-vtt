@@ -43,15 +43,15 @@ export function CharacterList({ roomId }: { roomId: Id<"rooms"> }) {
 	})
 
 	const characters =
-		useStableQuery(api.entities.characters.list, {
+		useStableQuery(api.characters.list, {
 			roomId,
 			search: state.search,
 		}) ?? EMPTY_ARRAY
 
-	const createCharacter = useMutation(api.entities.characters.create)
-	const updateCharacter = useMutation(api.entities.characters.update)
-	const removeCharacters = useMutation(api.entities.characters.remove)
-	const duplicateCharacters = useMutation(api.entities.characters.duplicate)
+	const createCharacter = useMutation(api.characters.create)
+	const updateCharacter = useMutation(api.characters.update)
+	const removeCharacters = useMutation(api.characters.remove)
+	const duplicateCharacters = useMutation(api.characters.duplicate)
 
 	const characterEditorCharacter = characters.find(
 		(character) => character._id === state.characterEditorCharacterId,

@@ -11,13 +11,10 @@ export function CharacterVitalFields({
 	character,
 	className,
 }: {
-	character: Pick<
-		ApiCharacter,
-		"_id" | "health" | "resolve" | "healthMax" | "resolveMax"
-	>
+	character: Extract<ApiCharacter, { health: number }>
 	className?: string
 }) {
-	const updateCharacter = useMutation(api.entities.characters.update)
+	const updateCharacter = useMutation(api.characters.update)
 	const healthId = useId()
 	const resolveId = useId()
 	return (

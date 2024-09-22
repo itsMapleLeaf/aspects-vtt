@@ -7,10 +7,11 @@ import { useEffect, useRef } from "react"
 import { Fragment } from "react/jsx-runtime"
 import { useMergedRefs } from "~/common/react/core.ts"
 import { api } from "~/convex/_generated/api.js"
-import { Id } from "~/convex/_generated/dataModel.js"
+import { useRoomContext } from "../rooms/context.tsx"
 
-export function MessageList({ roomId }: { roomId: Id<"rooms"> }) {
-	const messages = useQuery(api.entities.messages.list, { roomId })
+export function MessageList() {
+	const roomId = useRoomContext()._id
+	const messages = useQuery(api.messages.list, { roomId })
 	const latestMessageTimestamp = messages?.[0]?._creationTime
 	const [animateRef] = useAutoAnimate()
 	const listRef = useRef<HTMLDivElement | null>(null)
@@ -38,7 +39,7 @@ export function MessageList({ roomId }: { roomId: Id<"rooms"> }) {
 function MessageCard({
 	message,
 }: {
-	message: FunctionReturnType<typeof api.entities.messages.list>[number]
+	message: FunctionReturnType<typeof api.messages.list>[number]
 }) {
 	return (
 		<div className="flex flex-col p-2 gap-2">

@@ -3,20 +3,21 @@ import { startCase } from "lodash-es"
 import { Button } from "~/components/Button.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
+import type { NormalizedCharacter } from "~/convex/characters.ts"
+import { CharacterAttributeName } from "~/features/characters/types.ts"
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/ui/tooltip.tsx"
-import { ApiCharacter } from "./types"
 
 export function CharacterAttributeButton({
 	character,
 	attribute,
 	icon,
 }: {
-	character: Pick<ApiCharacter, "_id">
-	attribute: keyof NonNullable<ApiCharacter["attributes"]>
+	character: NormalizedCharacter
+	attribute: CharacterAttributeName
 	icon: React.ReactNode
 }) {
 	const createAttributeRollMessage = useMutation(
-		api.entities.messages.createAttributeRollMessage,
+		api.messages.createAttributeRollMessage,
 	)
 	return (
 		<Tooltip placement="bottom">

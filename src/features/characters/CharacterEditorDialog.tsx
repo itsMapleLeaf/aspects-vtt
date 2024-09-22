@@ -14,6 +14,7 @@ import {
 import { Button } from "~/components/Button.tsx"
 import { Dialog } from "~/components/Dialog.tsx"
 import { api } from "~/convex/_generated/api.js"
+import type { NormalizedCharacter } from "~/convex/characters.ts"
 import {
 	ComboboxField,
 	FileField,
@@ -39,7 +40,6 @@ import {
 import { Form } from "../forms/Form.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { RACES, WEALTH_TIERS } from "./constants.ts"
-import type { ApiCharacter } from "./types.ts"
 import { wealthTier } from "./validators.ts"
 
 export { Button as CharacterEditorDialogButton } from "~/components/Dialog.tsx"
@@ -49,7 +49,7 @@ export function CharacterEditorDialog({
 	character,
 	...props
 }: ComponentProps<typeof Dialog.Root> & {
-	character: ApiCharacter
+	character: NormalizedCharacter
 }) {
 	const profileEditorRef = useRef<ProfileEditorRef>(null)
 
@@ -108,10 +108,10 @@ function CharacterProfileEditor({
 	character,
 	ref,
 }: {
-	character: ApiCharacter
+	character: NormalizedCharacter
 	ref: React.Ref<ProfileEditorRef>
 }) {
-	const update = useMutation(api.entities.characters.update)
+	const update = useMutation(api.characters.update)
 
 	const form = useForm({
 		initialValues: {

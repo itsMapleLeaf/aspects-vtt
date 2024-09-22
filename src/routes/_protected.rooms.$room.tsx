@@ -1,3 +1,4 @@
+import { useParams } from "@remix-run/react"
 import { useQuery } from "convex/react"
 import { Heading, HeadingLevel } from "~/common/react/heading"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
@@ -5,41 +6,51 @@ import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
 import { UserButton } from "~/features/auth/UserButton.tsx"
 import { Battlemap } from "~/features/battlemap/Battlemap.tsx"
+import { getImageUrl } from "~/features/images/getImageUrl.ts"
+import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
 import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
 import { heading } from "~/ui/styles.ts"
 
 export default function RoomRoute() {
-	const room = useQuery(api.entities.rooms.list)?.[0]
+	const id = useParams().room as string
+	const room = useQuery(api.rooms.get, { id })
 	return (
 		<>
-			{room && <RoomBackground roomId={room._id} />}
-			<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
-			{room && <RoomInterface roomId={room._id} />}
+			{room && (
+				<RoomContext value={room}>
+					<RoomBackground />
+					<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
+					<RoomInterface />
+				</RoomContext>
+			)}
 			<LoadingCover visible={room === undefined} />
 		</>
 	)
 }
 
-function RoomInterface({ roomId }: { roomId: Id<"rooms"> }) {
+function RoomInterface() {
+	const room = useRoomContext()
 	return (
 		<div className="pointer-events-children absolute inset-0 flex h-screen w-screen flex-col p-3 gap-3">
 			<HeadingLevel>
 				<header className="pointer-events-children flex items-center justify-between">
 					<Heading className={heading()}>AspectsVTT</Heading>
 					<UserButton />
-					<ActiveSceneHeading roomId={roomId} />
+					{room.activeSceneId && (
+						<ActiveSceneHeading sceneId={room.activeSceneId} />
+					)}
 				</header>
 
 				<main className="pointer-events-children flex min-h-0 flex-1 items-stretch justify-between *:w-72">
-					<RoomInterfaceModules roomId={roomId} />
+					<RoomInterfaceModules />
 				</main>
 			</HeadingLevel>
 		</div>
 	)
 }
 
-function ActiveSceneHeading({ roomId }: { roomId: Id<"rooms"> }) {
-	const activeScene = useQuery(api.entities.scenes.getActive, { roomId })
+function ActiveSceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
+	const activeScene = useQuery(api.scenes.get, { sceneId })
 	return activeScene ?
 			<HeadingLevel>
 				<div className="pointer-events-children absolute inset-x-0 top-6 flex flex-col items-center animate-in fade-in">
@@ -51,24 +62,22 @@ function ActiveSceneHeading({ roomId }: { roomId: Id<"rooms"> }) {
 		:	null
 }
 
-function RoomBackground({ roomId }: { roomId: Id<"rooms"> }) {
-	const scenes = useQuery(
-		api.entities.scenes.list,
-		roomId ? { roomId } : "skip",
+function RoomBackground() {
+	const room = useRoomContext()
+	const characters = useQuery(api.characters.list, { roomId: room._id })
+
+	const activeScene = useQuery(
+		api.scenes.get,
+		room.activeSceneId ? { sceneId: room.activeSceneId } : "skip",
 	)
-	const characters = useQuery(
-		api.entities.characters.list,
-		roomId ? { roomId } : "skip",
-	)
-	const activeScene = scenes?.find((scene) => scene.isActive)
 
 	if (
-		activeScene?.sceneryBackgroundUrl &&
-		(activeScene.mode === "scenery" || !activeScene.battlemapBackgroundUrl)
+		activeScene?.sceneryBackgroundId &&
+		(activeScene.mode === "scenery" || !activeScene.battlemapBackgroundId)
 	) {
 		return (
 			<img
-				src={activeScene.sceneryBackgroundUrl}
+				src={getImageUrl(activeScene.sceneryBackgroundId)}
 				alt=""
 				className="absolute inset-0 size-full object-cover"
 				draggable={false}
@@ -77,14 +86,14 @@ function RoomBackground({ roomId }: { roomId: Id<"rooms"> }) {
 	}
 
 	if (
-		activeScene?.battlemapBackgroundUrl &&
-		(activeScene.mode === "battlemap" || !activeScene.sceneryBackgroundUrl)
+		activeScene?.battlemapBackgroundId &&
+		(activeScene.mode === "battlemap" || !activeScene.sceneryBackgroundId)
 	) {
 		return (
 			<Battlemap
 				scene={activeScene}
 				characters={characters ?? []}
-				backgroundUrl={activeScene.battlemapBackgroundUrl}
+				backgroundUrl={getImageUrl(activeScene.battlemapBackgroundId)}
 			/>
 		)
 	}

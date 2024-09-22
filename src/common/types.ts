@@ -46,3 +46,10 @@ export type Anything = Something | Nil
 
 /* Alias for `undefined | null` */
 export type Nil = undefined | null
+
+export type PickUnion<T, K extends AllKeys<T>> =
+	T extends object ?
+		K extends keyof T ?
+			T[K]
+		:	never
+	:	never

@@ -13,8 +13,8 @@ import {
 } from "../../ui/styles.ts"
 
 export function AccountSettingsForm() {
-	const user = useQuery(api.entities.users.me)
-	const update = useMutation(api.entities.users.update)
+	const user = useQuery(api.users.me)
+	const update = useMutation(api.users.update)
 
 	const [errorMessage, action, pending] = useActionState(
 		async (_: string | undefined, form: FormData) => {

@@ -57,24 +57,24 @@ export function ResourceList({ room, ...props }: ResourceListProps) {
 	const debouncedSearch = useDebouncedValue(search, 400)
 	const [batchEditMode, setBatchEditMode] = useState(false)
 
-	const characters = useStableQuery(api.entities.characters.list, {
+	const characters = useStableQuery(api.characters.list, {
 		roomId: room._id,
 		search: debouncedSearch,
 	})
 
-	const createCharacter = useMutation(api.entities.characters.create)
-	const updateCharacter = useMutation(api.entities.characters.update)
-	const deleteCharacters = useMutation(api.entities.characters.remove)
-	const duplicateCharacters = useMutation(api.entities.characters.duplicate)
+	const createCharacter = useMutation(api.characters.create)
+	const updateCharacter = useMutation(api.characters.update)
+	const deleteCharacters = useMutation(api.characters.remove)
+	const duplicateCharacters = useMutation(api.characters.duplicate)
 
-	const scenes = useStableQuery(api.entities.scenes.list, {
+	const scenes = useStableQuery(api.scenes.list, {
 		roomId: room._id,
 		search: debouncedSearch,
 	})
 
-	const createScene = useMutation(api.entities.scenes.create)
-	const deleteScenes = useMutation(api.entities.scenes.remove)
-	const duplicateScenes = useMutation(api.entities.scenes.duplicate)
+	const createScene = useMutation(api.scenes.create)
+	const deleteScenes = useMutation(api.scenes.remove)
+	const duplicateScenes = useMutation(api.scenes.duplicate)
 
 	const sections: ResourceSection[] = [
 		{

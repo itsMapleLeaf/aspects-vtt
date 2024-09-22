@@ -6,7 +6,7 @@ import { api } from "~/convex/_generated/api.js"
 import { useAuthActions } from "./useAuthActions.ts"
 
 export function UserButton() {
-	const user = useQuery(api.entities.users.me)
+	const user = useQuery(api.users.me)
 	const { signOut } = useAuthActions()
 	return (
 		<Menu
