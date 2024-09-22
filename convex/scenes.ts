@@ -208,6 +208,6 @@ export function normalizeScene(scene: Doc<"scenes">) {
 	return {
 		...scene,
 		mode: scene.mode ?? "battlemap",
-		cellSize: scene.cellSize ?? 70,
+		cellSize: scene.cellSize ?? 140,
 	}
 }
