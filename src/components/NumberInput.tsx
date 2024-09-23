@@ -98,7 +98,7 @@ export function NumberInput({
 				setEditingValue(event.target.value)
 			}}
 			onBlur={() => {
-				if (valueProp) {
+				if (valueProp != null) {
 					startTransition(() => {
 						submit()
 					})

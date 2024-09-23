@@ -1,8 +1,12 @@
 import type { WithoutSystemFields } from "convex/server"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
-import { clamp, compact } from "lodash-es"
+import { compact } from "lodash-es"
 import { DEFAULT_WEALTH_TIER } from "~/features/characters/constants.ts"
+import {
+	getAttributeDie,
+	normalizeCharacterAttributes,
+} from "~/features/characters/helpers.ts"
 import { Doc, type Id } from "./_generated/dataModel"
 import { InaccessibleError, getAuthUserId } from "./auth.ts"
 import {
@@ -187,22 +191,6 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 	return normalized satisfies Doc<"characters">
 }
 
-export function normalizeCharacterAttributes(
-	attributes: Doc<"characters">["attributes"],
-) {
-	return {
-		strength: normalizeAttribute(attributes?.strength),
-		sense: normalizeAttribute(attributes?.sense),
-		mobility: normalizeAttribute(attributes?.mobility),
-		intellect: normalizeAttribute(attributes?.intellect),
-		wit: normalizeAttribute(attributes?.wit),
-	}
-}
-
-function normalizeAttribute(attribute: number | undefined): number {
-	return clamp(attribute ?? 1, 1, 5)
-}
-
 export type ProtectedCharacter = NonNullable<
 	ReturnType<typeof protectCharacter>
 >
@@ -259,22 +247,18 @@ function protectCharacter(
 			race: character.race,
 		},
 
-		...(character.nameVisible && {
+		...((character.nameVisible || isCharacterAdmin) && {
 			identity: {
 				name: character.name,
 				pronouns: character.pronouns,
 			},
 		}),
 
-		...(character.tokenVisible && {
+		...((character.tokenVisible || isCharacterAdmin) && {
 			token: {
 				battlemapPosition: character.battlemapPosition,
 				updatedAt: character.updatedAt,
 			},
 		}),
 	}
-}
-
-export function getAttributeDie(attribute: number) {
-	return [4, 6, 8, 10, 12][normalizeAttribute(attribute) - 1] as number
 }

@@ -43,13 +43,13 @@ function MessageCard({
 }) {
 	return (
 		<div className="flex flex-col p-2 gap-2">
-			{message.blocks.map((block, index) => (
+			{message.content.map((entry, index) => (
 				<Fragment key={index}>
-					{block.type === "text" ?
-						<p>{block.text}</p>
+					{entry.type === "text" ?
+						<p>{entry.text}</p>
 					:	<aside className="flex flex-wrap items-center gap-1">
 							<ul className="contents">
-								{block.rolledDice.map((die, index) => (
+								{entry.dice.map((die, index) => (
 									<li key={index}>
 										<DieIcon {...die} />
 									</li>
@@ -57,7 +57,7 @@ function MessageCard({
 							</ul>
 							<Lucide.Equal aria-hidden />
 							<p className="text-xl font-medium">
-								{block.rolledDice.reduce(
+								{entry.dice.reduce(
 									(total, die) =>
 										total +
 										(die.operation === "subtract" ? -die.result : die.result),

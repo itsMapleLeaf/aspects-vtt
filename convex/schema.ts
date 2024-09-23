@@ -84,7 +84,7 @@ const entSchema = defineEntSchema({
 		}),
 
 	messages: defineEnt({
-		blocks: v.array(
+		content: v.array(
 			v.union(
 				v.object({
 					type: v.literal("text"),
@@ -92,11 +92,12 @@ const entSchema = defineEntSchema({
 				}),
 				v.object({
 					type: v.literal("diceRoll"),
-					rolledDice: v.array(
+					dice: v.array(
 						v.object({
 							faces: v.number(),
-							result: v.number(),
+							color: v.optional(v.string()),
 							operation: v.optional(v.literal("subtract")),
+							result: v.number(),
 						}),
 					),
 				}),

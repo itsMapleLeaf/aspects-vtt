@@ -1,12 +1,8 @@
-import { literals } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Effect } from "effect"
-import { random, startCase } from "lodash"
-import { typedKeys } from "~/shared/object.ts"
+import { random } from "lodash"
 import { getAuthUserId } from "./auth.ts"
-import { getAttributeDie, normalizeCharacterAttributes } from "./characters.ts"
 import { effectMutation, effectQuery, queryEnt } from "./lib/effects.ts"
-import { tableFields } from "./lib/validators.ts"
 
 export const list = effectQuery({
 	args: {
@@ -37,44 +33,54 @@ export const list = effectQuery({
 	},
 })
 
-export const createAttributeRollMessage = effectMutation({
+export const create = effectMutation({
 	args: {
 		characterId: v.id("characters"),
-		attribute: literals(
-			...typedKeys(tableFields("characters").attributes.fields),
+		content: v.array(
+			v.union(
+				v.object({
+					type: v.literal("text"),
+					text: v.string(),
+				}),
+				v.object({
+					type: v.literal("diceRoll"),
+					dice: v.array(
+						v.object({
+							faces: v.number(),
+							color: v.optional(v.string()),
+							operation: v.optional(v.union(v.literal("subtract"))),
+						}),
+					),
+				}),
+			),
 		),
 	},
 	handler(ctx, args) {
 		return Effect.gen(function* () {
 			const userId = yield* getAuthUserId(ctx)
+
 			const character = yield* queryEnt(
 				ctx.table("characters").get(args.characterId),
 			)
-			const attributes = normalizeCharacterAttributes(character.attributes)
-			const attributeDieFaceCount = getAttributeDie(attributes[args.attribute])
 
-			const results = [
-				random(1, attributeDieFaceCount, false),
-				random(1, attributeDieFaceCount, false),
-			]
+			const content = args.content.map((entry) => {
+				if (entry.type !== "diceRoll") {
+					return entry
+				}
+				return {
+					...entry,
+					dice: entry.dice.map((die) => ({
+						...die,
+						result: random(1, die.faces),
+					})),
+				}
+			})
 
-			return yield* Effect.promise(() =>
+			yield* Effect.promise(() =>
 				ctx.table("messages").insert({
-					authorId: userId,
 					roomId: character.roomId,
-					blocks: [
-						{
-							type: "text",
-							text: `${character.name} rolled ${startCase(args.attribute)}`,
-						},
-						{
-							type: "diceRoll",
-							rolledDice: results.map((result) => ({
-								faces: attributeDieFaceCount,
-								result,
-							})),
-						},
-					],
+					authorId: userId,
+					content,
 				}),
 			)
 		}).pipe(Effect.orDie)

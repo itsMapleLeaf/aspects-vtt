@@ -5,3 +5,9 @@ export const primaryHeading = (...classes: ClassNameValue[]) =>
 
 export const secondaryHeading = (...classes: ClassNameValue[]) =>
 	twMerge("text-xl font-light", ...classes)
+
+export const subText = (...classes: ClassNameValue[]) =>
+	twMerge(
+		"text-sm font-semibold leading-5 tracking-wide text-primary-200",
+		...classes,
+	)
