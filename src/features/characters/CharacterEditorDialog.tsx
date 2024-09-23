@@ -39,7 +39,8 @@ import {
 } from "~/ui/table.tsx"
 import { Form } from "../forms/Form.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
-import { RACES, WEALTH_TIERS } from "./constants.ts"
+import { WEALTH_TIERS } from "./constants.ts"
+import { RACE_NAMES } from "./races.ts"
 import { wealthTier } from "./validators.ts"
 
 export { Button as CharacterEditorDialogButton } from "~/components/Dialog.tsx"
@@ -188,7 +189,7 @@ function CharacterProfileEditor({
 			<ComboboxField
 				label="Race"
 				field={fields.race as FieldAccessor<string>}
-				options={RACES.map((race) => ({ value: race.name }))}
+				options={RACE_NAMES.map((value) => ({ value }))}
 			/>
 
 			<div className="grid grid-cols-[1fr,1fr,2fr] gap">

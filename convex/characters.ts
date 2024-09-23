@@ -7,6 +7,7 @@ import {
 	getAttributeDie,
 	normalizeCharacterAttributes,
 } from "~/features/characters/helpers.ts"
+import { RACE_NAMES } from "~/features/characters/races.ts"
 import { Doc, type Id } from "./_generated/dataModel"
 import { InaccessibleError, getAuthUserId } from "./auth.ts"
 import {
@@ -174,7 +175,11 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 	const normalized = {
 		...doc,
 
+		race: RACE_NAMES.includes(doc.race) ? doc.race : undefined,
+
 		attributes,
+
+		movementSpeed: getAttributeDie(attributes.mobility),
 
 		health: doc.health ?? healthMax,
 		healthMax,
@@ -185,8 +190,6 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 		wealth: doc.wealth ?? DEFAULT_WEALTH_TIER,
 
 		battlemapPosition: doc.battlemapPosition ?? { x: 0, y: 0 },
-
-		protected: false as const,
 	}
 	return normalized satisfies Doc<"characters">
 }

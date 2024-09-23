@@ -1,18 +1,3 @@
-export const RACES = [
-	{ name: "Aquilian" },
-	{ name: "Arctana" },
-	{ name: "Cetacian" },
-	{ name: "Felirian" },
-	{ name: "Lagorei" },
-	{ name: "Macridian" },
-	{ name: "Marenti" },
-	{ name: "Myrmadon" },
-	{ name: "Pyra" },
-	{ name: "Renari" },
-	{ name: "Sylvanix" },
-	{ name: "Umbraleth" },
-]
-
 export const DEFAULT_WEALTH_TIER = 3
 export const WEALTH_TIERS = [
 	{
