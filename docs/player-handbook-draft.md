@@ -236,20 +236,22 @@ TODO: list basic actions, which are example presets of common actions characters
 # Races of Eisenkind
 
 Along with one or more common features of their race, Eisenkind will often exhibit pointed elf-like ears, and in rare cases, eyes with a subtle glow that brighten with the intensity of their emotions.
-| Name | Features | Abilities |
-|:----------|:-----------------------------------------------------------------------------------------|:----------|
-| Aquilian | Bird-like: feathered wings and tail, additional feathers elsewhere | |
-| Arctana | Bear-like: round fuzzy ears, small round tail | |
-| Cetacian | Fish-like: webbed head fins, tail like a dolphin or whale, dorsal fin, patches of scales | |
-| Renari | Fox, dog, and other canines: pointed fuzzy or floppy ears, long fluffy tail | |
-| Umbraleth | Demonic: horns, long thin spaded tail, bat wings, pointed ears | |
-| Pyra | Draconic: large wings, long thick tail with scales, horns | |
-| Felirian | Like cats and other felines: small pointed ears, slender fuzzy tail, claws | |
-| Sylvanix | Deer-like: appleseed shaped fuzzy ears, antlers (even on females), small stubby tail | |
-| Macridian | Kangaroo-like: talk pointed ears, long fuzzed tail that's thicker at the base, a pouch | |
-| Mendix | Bug-like: clear glassy wings like a butterfly, antennas coming out their head | |
-| Marenti | Rabbit-like: VERY tall ears, stubby tail | |
-| Myrmadon | Pangolin-like: covered in patches of hard scales on their back, arms, and shoulders | |
+
+| Name      | Traits                                                                                   | Abilities                                                                                                                                                                                                                                          |
+| --------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Aquilian  | Bird-like: feathered wings and tail, additional feathers elsewhere                       | Flight - Double your movement when using Fly.<br>One with the Wind - You are immune to damage from wind.                                                                                                                                           |
+| Arctana   | Bear-like: round fuzzy ears, small round tail                                            | Natural Intellect - Your Intellect rolls have +1 boost die.<br>Resourceful - You have one extra action point.                                                                                                                                      |
+| Cetacian  | Fish-like: webbed head fins, tail like a dolphin or whale, dorsal fin, patches of scales | Aquatic Affinity - Double your movement when using Swim.<br>Sensory Superiority - Your Sense rolls have +1 boost die.                                                                                                                              |
+| Felirian  | Like cats and other felines: small pointed ears, slender fuzzy tail, claws               | Slippery - You have 3 extra evasion when attacked.<br>Restful - You gain an extra 1d4 resolve when resting.                                                                                                                                        |
+| Lagorei   | Rabbit-like: VERY tall ears, stubby tail                                                 | Unwavering Kick - You can only use your feet for Strike actions, and you roll with +1 boost die.<br>Leap of Confidence - Spend 1 resolve to leap: double your movement, you are in the air while moving, and you can only move in a straight line. |
+| Macridian | Kangaroo-like: talk pointed ears, long fuzzed tail that's thicker at the base, a pouch   | Natural Roamer - You don't take travel fatigue.<br>Fury from Down Under - When pushing yourself, add one extra boost die.                                                                                                                          |
+| Marenti   | Mouse-like: large round flat ears, a long thin tail                                      | Quiet as a Mouse - Sneak rolls have +1 boost die.<br>Naturally Swift - You have 5 extra meters of movement.                                                                                                                                        |
+| Mendix    | Bug-like: clear glassy wings like a butterfly, antennas coming out their head            |                                                                                                                                                                                                                                                    |
+| Myrmadon  | Pangolin-like: covered in patches of hard scales on their back, arms, and shoulders      | Natural Strength - All strike rolls have +1 boost dice.<br>Protective Scales - Your max health is increased by 10.                                                                                                                                 |
+| Pyra      | Draconic: large wings, long thick tail with scales, horns                                | Tail Whip - Use your tail to knock nearby characters prone.<br>Descendant of the Caldera - You are immune to damage from fire and heat.                                                                                                            |
+| Renari    | Like foxes, dogs, and other canines: pointed fuzzy or floppy ears, long fluffy tail      | Sneak Attack - Spend one resolve to double your attack roll.<br>Adaptable - Before the start of combat, you may swap two of your attribute dice until the end of combat.                                                                           |
+| Sylvanix  | Deer-like: appleseed shaped fuzzy ears, antlers (even on females), small stubby tail     | Resolute - Your max resolve is increased by 5.<br>Nimble - Your Mobility rolls have +1 boost die.                                                                                                                                                  |
+| Umbraleth | Demonic: horns, long thin spaded tail, bat wings, pointed ears                           | Devilish Charm - Your Wit rolls have +1 boost die.<br>Descendant of Darkness - All of your attribute rolls have +1 boost die at night.                                                                                                             |
 
 # Aspects
 
