@@ -2,6 +2,7 @@ import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import { startCase } from "lodash-es"
 import { LucideDices } from "lucide-react"
+import { match, P } from "ts-pattern"
 import * as v from "valibot"
 import { Button } from "~/components/Button.tsx"
 import { Heading } from "~/components/Heading.tsx"
@@ -39,31 +40,17 @@ export function CharacterAttributeButton({
 				snag: v.pipe(v.number(), v.integer(), v.minValue(0)),
 				pushYourself: v.boolean(),
 			}),
-			async (values) => {
+			async () => {
 				await createMessage({
 					characterId: character._id,
 					content: [
 						{
 							type: "text",
-							text: `${character.name} rolled ${startCase(attribute)}`,
+							text: `${character.name} rolled ${startCase(attribute)}:`,
 						},
 						{
 							type: "dice",
-							dice: [
-								{ faces: attributeDieFaces },
-								{ faces: attributeDieFaces },
-								...Iterator.range(
-									values.boost + (values.pushYourself ? 1 : 0),
-								).map(() => ({
-									faces: 6,
-									color: "green",
-								})),
-								...Iterator.range(values.snag).map(() => ({
-									faces: 6,
-									color: "red",
-									operation: "subtract",
-								})),
-							],
+							dice: modifiedDice,
 						},
 					],
 				})
@@ -72,6 +59,40 @@ export function CharacterAttributeButton({
 	})
 
 	const fields = useFields(form)
+
+	const dice = [
+		{ faces: attributeDieFaces },
+		{ faces: attributeDieFaces },
+		...Iterator.range(
+			form.values.boost + (form.values.pushYourself ? 1 : 0),
+		).map(() => ({
+			faces: 6,
+			color: "green",
+		})),
+		...Iterator.range(form.values.snag).map(() => ({
+			faces: 6,
+			color: "red",
+			operation: "subtract",
+		})),
+	]
+
+	const modifiedDice = match({
+		race: character.race,
+		attribute,
+		pushYourself: form.values.pushYourself,
+	})
+		.with(
+			P.union(
+				{ race: "Arctana", attribute: "intellect" },
+				{ race: "Cetacian", attribute: "sense" },
+				{ race: "Macridian", pushYourself: true },
+				{ race: "Myrmadon", attribute: "strength" },
+				{ race: "Sylvanix", attribute: "mobility" },
+				{ race: "Umbraleth", attribute: "wit" },
+			),
+			() => [...dice, { faces: 6, color: "green" }],
+		)
+		.otherwise(() => dice)
 
 	return (
 		<Popover.Root placement="bottom-start">
@@ -103,6 +124,7 @@ export function CharacterAttributeButton({
 							</p>
 						</div>
 					</label>
+					{/* TODO: show preview of dice that will be rolled */}
 					<Button type="submit" icon={<LucideDices />}>
 						Roll
 					</Button>
