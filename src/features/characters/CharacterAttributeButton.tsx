@@ -25,6 +25,7 @@ export function CharacterAttributeButton({
 	icon: React.ReactNode
 }) {
 	const createMessage = useMutation(api.messages.create)
+	const attributeDieFaces = getAttributeDie(character.attributes[attribute])
 
 	const form = useForm({
 		initialValues: {
@@ -49,8 +50,8 @@ export function CharacterAttributeButton({
 						{
 							type: "diceRoll",
 							dice: [
-								{ faces: getAttributeDie(character.attributes[attribute]) },
-								{ faces: getAttributeDie(character.attributes[attribute]) },
+								{ faces: attributeDieFaces },
+								{ faces: attributeDieFaces },
 								...Iterator.range(
 									values.boost + (values.pushYourself ? 1 : 0),
 								).map(() => ({
@@ -74,9 +75,16 @@ export function CharacterAttributeButton({
 
 	return (
 		<Popover.Root placement="bottom-start">
-			<Popover.Button
-				render={<Button appearance="clear" square icon={icon} type="button" />}
-			/>
+			<div className="flex flex-col items-center gap-0.5">
+				<Popover.Button
+					render={
+						<Button appearance="clear" square icon={icon} type="button" />
+					}
+				/>
+				<p className="text-[12px] font-semibold leading-3 text-primary-200">
+					d{attributeDieFaces}
+				</p>
+			</div>
 			<Popover.Content>
 				<Form form={form} className="flex flex-col p-gap gap">
 					<Heading className={secondaryHeading()}>
