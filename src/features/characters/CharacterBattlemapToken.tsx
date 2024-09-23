@@ -8,6 +8,7 @@ import { roundTo } from "~/common/math.ts"
 import { useImage } from "~/common/react/dom.ts"
 import { StatusBar } from "~/components/StatusBar.tsx"
 import { api } from "~/convex/_generated/api.js"
+import type { ProtectedCharacter } from "~/convex/characters.ts"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -20,29 +21,29 @@ import { ApiScene } from "../scenes/types.ts"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
 import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
-import { ApiCharacter } from "./types.ts"
 
 export function CharacterBattlemapToken({
 	character,
+	token,
 	scene,
 }: {
-	character: Extract<
-		ApiCharacter,
-		{ battlemapPosition: { x: number; y: number } }
-	>
+	character: ProtectedCharacter
+	token: NonNullable<ProtectedCharacter["token"]>
 	scene: ApiScene
 }) {
 	const updateCharacter = useMutation(api.characters.update)
 
-	const [image] = useImage(character.imageId && getImageUrl(character.imageId))
+	const [image] = useImage(
+		character.public.imageId && getImageUrl(character.public.imageId),
+	)
 	const [dragging, setDragging] = useState(false)
 	const [over, setOver] = useState(false)
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [editorOpen, setEditorOpen] = useState(false)
 	const ref = useRef<Konva.Group>(null)
 
-	const roundedX = roundTo(character.battlemapPosition.x, scene.cellSize / 4)
-	const roundedY = roundTo(character.battlemapPosition.y, scene.cellSize / 4)
+	const roundedX = roundTo(token.battlemapPosition.x, scene.cellSize / 4)
+	const roundedY = roundTo(token.battlemapPosition.y, scene.cellSize / 4)
 
 	const position = { x: roundedX, y: roundedY }
 
@@ -89,7 +90,7 @@ export function CharacterBattlemapToken({
 
 					// update updatedAt so the character appears on top of others
 					updateCharacter({
-						characterId: character._id,
+						characterId: character.public._id,
 						updatedAt: Date.now(),
 					})
 				}}
@@ -98,7 +99,7 @@ export function CharacterBattlemapToken({
 					setDragging(false)
 
 					updateCharacter({
-						characterId: character._id,
+						characterId: character.public._id,
 						battlemapPosition: event.target.position(),
 					})
 				}}
@@ -141,9 +142,13 @@ export function CharacterBattlemapToken({
 						flip={false}
 						getAnchorRect={getAnchorRect}
 					>
-						<p className="leading-none empty:hidden">{character.name}</p>
+						<p className="leading-none empty:hidden">
+							{character.identity?.name}
+						</p>
 						<p className="text-sm leading-none text-primary-100/80 empty:hidden">
-							{[character.race, character.pronouns].filter(Boolean).join(" • ")}
+							{[character.public.race, character.identity?.pronouns]
+								.filter(Boolean)
+								.join(" • ")}
 						</p>
 					</TooltipContent>
 				</Tooltip>
@@ -167,17 +172,17 @@ export function CharacterBattlemapToken({
 						<div className="self-center rounded border-2 border-red-700 bg-red-700/75 px-1.5 py-1 leading-none text-white shadow">
 							Exploding
 						</div>
-						{character.protected ? null : (
+						{character.full && (
 							<StatusBar
-								value={character.health}
-								max={character.healthMax}
+								value={character.full.health}
+								max={character.full.healthMax}
 								className="text-green-500"
 							/>
 						)}
-						{character.protected ? null : (
+						{character.full && (
 							<StatusBar
-								value={character.resolve}
-								max={character.resolveMax}
+								value={character.full.resolve}
+								max={character.full.resolveMax}
 								className="text-blue-500"
 							/>
 						)}
@@ -189,11 +194,11 @@ export function CharacterBattlemapToken({
 						getAnchorRect={getAnchorRect}
 						className="rounded-lg"
 					>
-						{character.protected ? null : (
-							<CharacterAttributeButtonRow character={character} />
+						{character.full && (
+							<CharacterAttributeButtonRow character={character.full} />
 						)}
 						<DropdownMenuSeparator />
-						{character.protected ? null : (
+						{character.full && (
 							<DropdownMenuItem onClick={() => setEditorOpen(true)}>
 								<LucideEdit /> Edit
 							</DropdownMenuItem>
@@ -202,18 +207,18 @@ export function CharacterBattlemapToken({
 							<LucideSwords /> Attack
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						{character.protected ? null : (
+						{character.full && (
 							<CharacterVitalFields
 								className="w-[220px] p-1 gap-2"
-								character={character}
+								character={character.full}
 							/>
 						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-				{character.protected ? null : (
+				{character.full && (
 					<CharacterEditorDialog
-						character={character}
+						character={character.full}
 						open={editorOpen}
 						setOpen={setEditorOpen}
 					/>

@@ -4,14 +4,14 @@ import { twMerge } from "tailwind-merge"
 import { Field } from "~/components/Field.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
 import { api } from "~/convex/_generated/api.js"
+import type { NormalizedCharacter } from "~/convex/characters.ts"
 import { textInput } from "~/styles/input.ts"
-import type { ApiCharacter } from "./types.ts"
 
 export function CharacterVitalFields({
 	character,
 	className,
 }: {
-	character: Extract<ApiCharacter, { health: number }>
+	character: NormalizedCharacter
 	className?: string
 }) {
 	const updateCharacter = useMutation(api.characters.update)

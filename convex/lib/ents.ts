@@ -1,4 +1,9 @@
-import { entsTableFactory, GenericEnt, GenericEntWriter } from "convex-ents"
+import {
+	entsTableFactory,
+	GenericEnt,
+	GenericEntWriter,
+	type PromiseEnt,
+} from "convex-ents"
 import {
 	customCtx,
 	CustomCtx,
@@ -59,6 +64,11 @@ export type Ent<TableName extends EntTableNames> = GenericEnt<
 	TableName
 >
 export type EntWriter<TableName extends EntTableNames> = GenericEntWriter<
+	typeof entDefinitions,
+	TableName
+>
+
+export type LocalPromiseEnt<TableName extends EntTableNames> = PromiseEnt<
 	typeof entDefinitions,
 	TableName
 >

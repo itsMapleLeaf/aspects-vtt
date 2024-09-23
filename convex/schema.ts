@@ -19,11 +19,11 @@ const entSchema = defineEntSchema({
 		slug: v.string(),
 		activeSceneId: nullish(v.id("scenes")),
 	})
-		.index("slug", ["slug"])
 		.edge("owner", { to: "users", field: "ownerId" })
 		.edges("scenes", { ref: true })
 		.edges("characters", { ref: true })
-		.edges("messages", { ref: true }),
+		.edges("messages", { ref: true })
+		.index("slug", ["slug"]),
 
 	scenes: defineEnt({
 		name: v.string(),

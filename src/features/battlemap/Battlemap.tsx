@@ -23,13 +23,14 @@ export function Battlemap({
 		<BattlemapStage>
 			<BattlemapBackground backgroundUrl={backgroundUrl} />
 			{characters
-				.flatMap((c) => (c.tokenVisible || !c.protected ? [c] : []))
-				.toSorted((a, b) => a.updatedAt - b.updatedAt)
+				.flatMap((c) => (c.token ? [{ ...c, token: c.token }] : []))
+				.toSorted((a, b) => a.token.updatedAt - b.token.updatedAt)
 				.map((character) => (
 					<CharacterBattlemapToken
-						key={character._id}
+						key={character.public._id}
 						character={character}
 						scene={scene}
+						token={character.token}
 					/>
 				))}
 		</BattlemapStage>

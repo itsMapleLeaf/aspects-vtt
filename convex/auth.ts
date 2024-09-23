@@ -76,12 +76,12 @@ export class UnauthenticatedError extends ConvexError<string> {
 }
 
 export class InaccessibleError extends ConvexError<string> {
-	constructor(details: { id?: string; collection?: string }) {
+	constructor(details: { id?: string; table?: string }) {
 		super(
 			[
 				"Operation failed: either the requested entity does not exist, or you do not have access to it.",
 				`ID: ${details.id}`,
-				`Collection: ${details.collection}`,
+				`Collection: ${details.table}`,
 			].join("\n"),
 		)
 	}

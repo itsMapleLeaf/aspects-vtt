@@ -1,5 +1,5 @@
 import { Effect } from "effect"
-import { getAuthUser } from "./lib/auth.ts"
+import { getAuthUser } from "./auth.ts"
 import { runConvexEffect } from "./lib/effects.ts"
 import { query } from "./lib/ents.ts"
 

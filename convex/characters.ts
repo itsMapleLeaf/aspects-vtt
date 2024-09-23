@@ -1,168 +1,145 @@
 import { partial } from "convex-helpers/validators"
 import type { WithoutSystemFields } from "convex/server"
 import { v } from "convex/values"
-import { Effect } from "effect"
-import { clamp } from "lodash-es"
+import { Effect, pipe } from "effect"
+import { clamp, compact } from "lodash-es"
 import { DEFAULT_WEALTH_TIER } from "~/features/characters/constants.ts"
 import { Doc, type Id } from "./_generated/dataModel"
-import { InaccessibleError, getAuthUserId } from "./lib/auth.ts"
-import { queryEntOrFail, runConvexEffect } from "./lib/effects.ts"
+import { InaccessibleError, getAuthUserId } from "./auth.ts"
 import {
-	mutation,
-	query,
-	type EntMutationCtx,
-	type EntQueryCtx,
-} from "./lib/ents.ts"
+	effectMutation,
+	effectQuery,
+	getQueryCtx,
+	queryEnt,
+} from "./lib/effects.ts"
+import { type Ent, type EntMutationCtx } from "./lib/ents.ts"
 import { isRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
 
-export const get = query({
+export const get = effectQuery({
 	args: {
 		characterId: v.id("characters"),
 	},
-	async handler(ctx, args) {
-		return runConvexEffect(
+	handler(ctx, args) {
+		return pipe(
 			Effect.gen(function* () {
 				const userId = yield* getAuthUserId(ctx)
-				const character = yield* queryEntOrFail(() =>
+				const ent = yield* queryEnt(
 					ctx.table("characters").get(args.characterId),
 				)
-				const room = yield* queryEntOrFail(() => character.edge("room"))
-				return protectCharacter(normalizeCharacter(character), userId, room)
-			}).pipe(Effect.orElseSucceed(() => null)),
+				return yield* protectEnt(ent, userId)
+			}),
+			Effect.orElseSucceed(() => null),
 		)
 	},
 })
 
-export const list = query({
+export const list = effectQuery({
 	args: {
 		roomId: v.id("rooms"),
 		search: v.optional(v.string()),
 	},
-	async handler(ctx, args) {
-		return runConvexEffect(
-			listProtectedCharacters(ctx, args).pipe(Effect.orElseSucceed(() => [])),
-		)
+	handler(ctx, args) {
+		return Effect.gen(function* () {
+			const userId = yield* getAuthUserId(ctx)
+
+			let query
+			if (args.search) {
+				query = ctx
+					.table("characters")
+					.search("name", (q) =>
+						q.search("name", args.search!).eq("roomId", args.roomId),
+					)
+			} else {
+				query = ctx.table("characters", "roomId", (q) =>
+					q.eq("roomId", args.roomId),
+				)
+			}
+
+			return yield* pipe(
+				Effect.promise(() => query),
+				Effect.flatMap(Effect.forEach((ent) => protectEnt(ent, userId))),
+				Effect.map(compact),
+			)
+		}).pipe(Effect.orElseSucceed(() => []))
 	},
 })
 
-export const listUnprotected = query({
+export const create = effectMutation({
 	args: {
+		...partial(schema.tables.characters.validator.fields),
 		roomId: v.id("rooms"),
-		search: v.optional(v.string()),
 	},
-	async handler(ctx, args) {
-		return runConvexEffect(
-			listProtectedCharacters(ctx, args).pipe(
-				Effect.map((characters) => characters.filter((it) => !it.protected)),
-				Effect.orElseSucceed(() => []),
+	handler(ctx, args) {
+		return Effect.gen(function* () {
+			const userId = yield* getAuthUserId(ctx)
+			return yield* createCharacter(ctx, userId, args)
+		}).pipe(Effect.orDie)
+	},
+})
+
+export const update = effectMutation({
+	args: {
+		...partial(schema.tables.characters.validator.fields),
+		characterId: v.id("characters"),
+	},
+	handler(ctx, { characterId, ...args }) {
+		return pipe(
+			queryViewableCharacter(ctx.table("characters").get(characterId)),
+			Effect.flatMap(({ character }) =>
+				Effect.promise(() => character.patch(args)),
 			),
+			Effect.orDie,
 		)
 	},
 })
 
-export const create = mutation({
-	args: {
-		...partial(schema.tables.characters.validator.fields),
-		roomId: v.id("rooms"),
-	},
-	async handler(ctx, args) {
-		return runConvexEffect(
-			Effect.gen(function* () {
-				const userId = yield* getAuthUserId(ctx)
-				return yield* createCharacter(ctx, userId, args)
-			}),
-		)
-	},
-})
-
-export const update = mutation({
-	args: {
-		...partial(schema.tables.characters.validator.fields),
-		characterId: v.id("characters"),
-	},
-	async handler(ctx, args) {
-		return runConvexEffect(
-			Effect.gen(function* () {
-				const userId = yield* getAuthUserId(ctx)
-				const character = yield* queryEntOrFail(() =>
-					ctx.table("characters").get(args.characterId),
-				)
-				const room = yield* queryEntOrFail(() => character.edge("room"))
-
-				const authorized =
-					isRoomOwner(room, userId) || character.ownerId === userId
-
-				if (!authorized) {
-					yield* Effect.fail(
-						() =>
-							new InaccessibleError({
-								id: args.characterId,
-								collection: "characters",
-							}),
-					)
-				}
-
-				const { characterId, ...updateArgs } = args
-				yield* Effect.promise(() => character.patch(updateArgs))
-			}),
-		)
-	},
-})
-
-export const remove = mutation({
+export const remove = effectMutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 	},
-	async handler(ctx, args) {
-		return runConvexEffect(
-			Effect.gen(function* () {
-				const userId = yield* getAuthUserId(ctx)
-				for (const characterId of args.characterIds) {
-					const character = yield* queryEntOrFail(() =>
-						ctx.table("characters").get(characterId),
-					)
-					const room = yield* queryEntOrFail(() => character.edge("room"))
-
-					const authorized =
-						isRoomOwner(room, userId) || character.ownerId === userId
-
-					if (!authorized) {
-						yield* Effect.fail(
-							() =>
-								new InaccessibleError({
-									id: characterId,
-									collection: "characters",
-								}),
-						)
-					}
-
-					yield* Effect.promise(() => character.delete())
-				}
-			}),
+	handler(ctx, args) {
+		return pipe(
+			Effect.forEach(args.characterIds, (id) =>
+				pipe(
+					queryViewableCharacter(ctx.table("characters").get(id)),
+					Effect.flatMap(({ character }) =>
+						Effect.promise(() => character.delete()),
+					),
+				),
+			),
+			Effect.asVoid,
+			Effect.orDie,
 		)
 	},
 })
 
-export const duplicate = mutation({
+export const duplicate = effectMutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 	},
-	async handler(ctx, args) {
-		return runConvexEffect(
-			Effect.gen(function* () {
-				const userId = yield* getAuthUserId(ctx)
-				for (const characterId of args.characterIds) {
-					const character = yield* queryEntOrFail(() =>
-						ctx.table("characters").get(characterId),
-					)
-					const { _id, _creationTime, ...characterData } = character
-					yield* createCharacter(ctx, userId, characterData)
-				}
-			}),
+	handler(ctx, args) {
+		return pipe(
+			Effect.promise(() =>
+				ctx.table("characters").getManyX(args.characterIds).docs(),
+			),
+			Effect.flatMap(
+				Effect.forEach(({ _id, _creationTime, ...props }) =>
+					Effect.promise(() => ctx.table("characters").insert(props)),
+				),
+			),
+			Effect.orDie,
 		)
 	},
 })
+
+function protectEnt(ent: Ent<"characters">, userId: Id<"users">) {
+	return Effect.gen(function* () {
+		const room = yield* Effect.promise(() => ent.edge("room"))
+		const normalized = normalizeCharacter(ent.doc())
+		return protectCharacter(normalized, userId, room)
+	})
+}
 
 function createCharacter(
 	ctx: EntMutationCtx,
@@ -226,117 +203,78 @@ function normalizeAttribute(attribute: number | undefined): number {
 	return clamp(attribute ?? 1, 1, 5)
 }
 
-export type ProtectedCharacter = ReturnType<typeof protectCharacter>
+export type ProtectedCharacter = NonNullable<
+	ReturnType<typeof protectCharacter>
+>
+
+function queryViewableCharacter<EntType extends Ent<"characters">>(
+	query: PromiseLike<EntType | null>,
+) {
+	return Effect.gen(function* () {
+		const ctx = yield* getQueryCtx()
+		const userId = yield* getAuthUserId(ctx)
+
+		const character = yield* Effect.filterOrFail(
+			Effect.promise(() => query),
+			(ent) => ent != null,
+			() => new InaccessibleError({ table: "characters" }),
+		)
+
+		const room = yield* Effect.promise(() => character.edge("room"))
+		const authorized = isRoomOwner(room, userId) || character.ownerId === userId
+
+		if (!authorized) {
+			return yield* Effect.fail(
+				() => new InaccessibleError({ table: "characters" }),
+			)
+		}
+
+		return { character, room, userId }
+	})
+}
 
 function protectCharacter(
 	character: NormalizedCharacter,
 	userId: Id<"users">,
 	room: Doc<"rooms">,
 ) {
-	if (isRoomOwner(room, userId) || character.playerId === userId) {
-		return character
-	}
+	const isCharacterAdmin =
+		isRoomOwner(room, userId) || character.playerId === userId
 
-	if (!character.visible && !character.tokenVisible) {
+	const visible =
+		isCharacterAdmin || character.visible || character.tokenVisible
+
+	if (!visible) {
 		return null
 	}
 
-	if (character.tokenVisible && character.nameVisible) {
-		return {
-			protected: true as const,
-			visible: false as const,
-			nameVisible: true as const,
-			tokenVisible: true as const,
+	return {
+		...(isCharacterAdmin && {
+			full: character,
+		}),
 
+		public: {
 			_id: character._id,
 			imageId: character.imageId,
 			race: character.race,
+		},
 
-			name: character.name,
-			pronouns: character.pronouns,
+		...(character.nameVisible && {
+			identity: {
+				name: character.name,
+				pronouns: character.pronouns,
+			},
+		}),
 
-			battlemapPosition: character.battlemapPosition,
-			updatedAt: character.updatedAt,
-		}
-	}
-
-	if (character.tokenVisible) {
-		return {
-			protected: true as const,
-			visible: false as const,
-			nameVisible: false as const,
-			tokenVisible: true as const,
-
-			_id: character._id,
-			imageId: character.imageId,
-			race: character.race,
-
-			battlemapPosition: character.battlemapPosition,
-			updatedAt: character.updatedAt,
-		}
-	}
-
-	if (character.visible && character.nameVisible) {
-		return {
-			protected: true as const,
-			visible: true as const,
-			nameVisible: true as const,
-			tokenVisible: false as const,
-
-			_id: character._id,
-			imageId: character.imageId,
-			race: character.race,
-
-			name: character.name,
-			pronouns: character.pronouns,
-		}
-	}
-
-	if (character.visible) {
-		return {
-			protected: true as const,
-			visible: true as const,
-			nameVisible: false as const,
-			tokenVisible: false as const,
-
-			_id: character._id,
-			imageId: character.imageId,
-			race: character.race,
-		}
+		...(character.tokenVisible && {
+			token: {
+				battlemapPosition: character.battlemapPosition,
+				updatedAt: character.updatedAt,
+			},
+		}),
 	}
 }
 
 export function getAttributeDie(attribute: number) {
 	return [4, 6, 8, 10, 12][normalizeAttribute(attribute) - 1] as number
-}
-
-function listProtectedCharacters(
-	ctx: EntQueryCtx,
-	args: { roomId: Id<"rooms">; search?: string },
-) {
-	return Effect.gen(function* () {
-		const userId = yield* getAuthUserId(ctx)
-		let charactersQuery
-		if (args.search) {
-			charactersQuery = ctx
-				.table("characters")
-				.search("name", (q) =>
-					q.search("name", args.search!).eq("roomId", args.roomId),
-				)
-		} else {
-			charactersQuery = ctx.table("characters", "roomId", (q) =>
-				q.eq("roomId", args.roomId),
-			)
-		}
-		const characters = yield* Effect.promise(() => charactersQuery)
-		const protectedCharacters = yield* Effect.forEach(characters, (character) =>
-			Effect.gen(function* () {
-				const room = yield* queryEntOrFail(() => character.edge("room"))
-				return protectCharacter(normalizeCharacter(character), userId, room)
-			}),
-		)
-		return protectedCharacters.filter(
-			(it): it is NonNullable<typeof it> => it != null,
-		)
-	})
 }
