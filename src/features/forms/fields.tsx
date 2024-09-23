@@ -88,7 +88,12 @@ export function ComboboxField({
 }: ComboboxFieldProps) {
 	return (
 		<Field label={label} htmlFor={field.input.id} errors={field.errors}>
-			<Combobox {...field.input} {...props} className={textInput()} />
+			<Combobox
+				{...field.input}
+				onChangeValue={field.set}
+				{...props}
+				className={textInput()}
+			/>
 		</Field>
 	)
 }
