@@ -58,7 +58,7 @@ export function effectQuery<
 	) => Effect.Effect<Result, never, QueryCtxService>
 }) {
 	return query({
-		args: options.args,
+		...(options.args && { args: options.args }),
 		handler: (ctx, ...args: ArgsArray) =>
 			pipe(
 				options.handler(ctx, ...args),
@@ -80,7 +80,7 @@ export function internalEffectQuery<
 	) => Effect.Effect<Result, never, QueryCtxService>
 }) {
 	return internalQuery({
-		args: options.args,
+		...(options.args && { args: options.args }),
 		handler: (ctx, ...args: ArgsArray) =>
 			pipe(
 				options.handler(ctx, ...args),
@@ -102,7 +102,7 @@ export function effectMutation<
 	) => Effect.Effect<Result, never, MutationCtxService | QueryCtxService>
 }) {
 	return mutation({
-		args: options.args,
+		...(options.args && { args: options.args }),
 		handler: (ctx, ...args: ArgsArray) =>
 			pipe(
 				options.handler(ctx, ...args),
@@ -125,7 +125,7 @@ export function internalEffectMutation<
 	) => Effect.Effect<Result, never, MutationCtxService | QueryCtxService>
 }) {
 	return mutation({
-		args: options.args,
+		...(options.args && { args: options.args }),
 		handler: (ctx, ...args: ArgsArray) =>
 			pipe(
 				options.handler(ctx, ...args),
