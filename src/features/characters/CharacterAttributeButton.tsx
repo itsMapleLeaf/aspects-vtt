@@ -48,7 +48,7 @@ export function CharacterAttributeButton({
 							text: `${character.name} rolled ${startCase(attribute)}`,
 						},
 						{
-							type: "diceRoll",
+							type: "dice",
 							dice: [
 								{ faces: attributeDieFaces },
 								{ faces: attributeDieFaces },

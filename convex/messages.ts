@@ -3,6 +3,7 @@ import { Effect } from "effect"
 import { random } from "lodash"
 import { getAuthUserId } from "./auth.ts"
 import { effectMutation, effectQuery, queryEnt } from "./lib/effects.ts"
+import { diceRollInputValidator } from "./validators/dice.ts"
 
 export const list = effectQuery({
 	args: {
@@ -43,14 +44,8 @@ export const create = effectMutation({
 					text: v.string(),
 				}),
 				v.object({
-					type: v.literal("diceRoll"),
-					dice: v.array(
-						v.object({
-							faces: v.number(),
-							color: v.optional(v.string()),
-							operation: v.optional(v.union(v.literal("subtract"))),
-						}),
-					),
+					type: v.literal("dice"),
+					dice: v.array(diceRollInputValidator),
 				}),
 			),
 		),
@@ -64,7 +59,7 @@ export const create = effectMutation({
 			)
 
 			const content = args.content.map((entry) => {
-				if (entry.type !== "diceRoll") {
+				if (entry.type !== "dice") {
 					return entry
 				}
 				return {

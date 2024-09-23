@@ -3,6 +3,7 @@ import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { nullish } from "./lib/validators.ts"
+import { diceRollResultValidator } from "./validators/dice.ts"
 
 const entSchema = defineEntSchema({
 	users: defineEnt({
@@ -91,15 +92,8 @@ const entSchema = defineEntSchema({
 					text: v.string(),
 				}),
 				v.object({
-					type: v.literal("diceRoll"),
-					dice: v.array(
-						v.object({
-							faces: v.number(),
-							color: v.optional(v.string()),
-							operation: v.optional(v.literal("subtract")),
-							result: v.number(),
-						}),
-					),
+					type: v.literal("dice"),
+					dice: v.array(diceRollResultValidator),
 				}),
 			),
 		),
