@@ -2,7 +2,6 @@
 	"semi": false,
 	"quoteProps": "consistent",
 	"useTabs": true,
-	"experimentalTernaries": true,
 	"plugins": ["prettier-plugin-jsdoc", "prettier-plugin-tailwindcss"],
 	"tailwindFunctions": ["cva", "twMerge", "mergeClassProp"],
 	"overrides": [
