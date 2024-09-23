@@ -10,7 +10,15 @@ export function UserButton() {
 	const { signOut } = useAuthActions()
 	return (
 		<Menu
-			render={<Avatar src={user?.image} className="size-10" />}
+			render={
+				<button
+					type="button"
+					className="flex items-center rounded-md bg-primary-100 bg-opacity-0 px-3 py-2 transition gap-2 hover:bg-opacity-10 active:bg-opacity-20 active:duration-0"
+				>
+					<span>{user?.name}</span>
+					<Avatar src={user?.image} className="size-10" />
+				</button>
+			}
 			options={[
 				{
 					label: "Sign out",
