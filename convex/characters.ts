@@ -1,4 +1,3 @@
-import { partial } from "convex-helpers/validators"
 import type { WithoutSystemFields } from "convex/server"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
@@ -13,6 +12,7 @@ import {
 	queryEnt,
 } from "./lib/effects.ts"
 import { type Ent, type EntMutationCtx } from "./lib/ents.ts"
+import { partial } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
 

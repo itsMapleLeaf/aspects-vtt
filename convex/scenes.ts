@@ -1,10 +1,9 @@
-import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Effect } from "effect"
 import type { Doc } from "./_generated/dataModel"
 import { InaccessibleError, getAuthUserId } from "./auth.ts"
 import { effectMutation, effectQuery, queryEnt } from "./lib/effects.ts"
-import { tableFields } from "./lib/validators.ts"
+import { partial, tableFields } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
 

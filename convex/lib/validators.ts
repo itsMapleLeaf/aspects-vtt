@@ -1,5 +1,31 @@
-import { Validator, v } from "convex/values"
+import {
+	Validator,
+	v,
+	type OptionalProperty,
+	type VOptional,
+} from "convex/values"
 import schema from "~/convex/schema.ts"
+
+export function partial<
+	Fields extends Record<string, Validator<unknown, OptionalProperty, string>>,
+>(fields: Fields) {
+	const result: Record<string, unknown> = {}
+
+	for (const key in fields) {
+		const field = fields[key]!
+		if (field.isOptional === "required") {
+			result[key] = v.optional(field)
+		} else {
+			result[key] = field
+		}
+	}
+
+	return result as {
+		[K in keyof Fields]: Fields[K]["isOptional"] extends "required" ?
+			VOptional<Fields[K]>
+		:	Fields[K]
+	}
+}
 
 export function nullish<InputValidator extends Validator<unknown>>(
 	validator: InputValidator,
