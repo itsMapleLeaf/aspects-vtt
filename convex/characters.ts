@@ -2,6 +2,7 @@ import type { WithoutSystemFields } from "convex/server"
 import { v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { compact } from "lodash-es"
+import { match } from "ts-pattern"
 import { DEFAULT_WEALTH_TIER } from "~/features/characters/constants.ts"
 import {
 	getAttributeDie,
@@ -168,14 +169,25 @@ export type NormalizedCharacter = ReturnType<typeof normalizeCharacter>
 export function normalizeCharacter(doc: Doc<"characters">) {
 	const attributes = normalizeCharacterAttributes(doc.attributes)
 
+	const race = RACE_NAMES.includes(doc.race) ? doc.race : undefined
+
+	const bonuses = match(race)
+		.with("Myrmadon", () => ({ health: 10, resolve: 0 }))
+		.with("Sylvanix", () => ({ health: 0, resolve: 5 }))
+		.otherwise(() => ({ health: 0, resolve: 0 }))
+
 	const healthMax =
-		getAttributeDie(attributes.strength) + getAttributeDie(attributes.mobility)
-	const resolveMax = attributes.sense + attributes.intellect + attributes.wit
+		getAttributeDie(attributes.strength) +
+		getAttributeDie(attributes.mobility) +
+		bonuses.health
+
+	const resolveMax =
+		attributes.sense + attributes.intellect + attributes.wit + bonuses.resolve
 
 	const normalized = {
 		...doc,
 
-		race: RACE_NAMES.includes(doc.race) ? doc.race : undefined,
+		race,
 
 		attributes,
 
