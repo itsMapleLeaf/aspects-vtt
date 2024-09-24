@@ -7,6 +7,7 @@ import { Iterator } from "iterator-helpers-polyfill"
 import {
 	LucideFileText,
 	LucideMessageCircle,
+	LucidePackage,
 	LucideShield,
 	LucideUsers2,
 } from "lucide-react"
@@ -16,6 +17,7 @@ import { useLocalStorage } from "~/common/react/dom.ts"
 import { Button } from "~/components/Button.tsx"
 import { panel } from "~/styles/panel.ts"
 import { CharacterList } from "../characters/CharacterList.tsx"
+import { RoomItemList } from "../inventory/RoomItemList.tsx"
 import { MessageList } from "../messages/MessageList.tsx"
 
 interface ModuleDefinition {
@@ -33,25 +35,31 @@ interface ModuleLocation {
 const MODULES: Record<string, ModuleDefinition> = {
 	characters: {
 		name: "Characters",
-		icon: <LucideUsers2 className="size-4" />,
+		icon: <LucideUsers2 />,
 		defaultLocation: { sidebar: 0, panel: 0 },
 		content: () => <CharacterList />,
 	},
 	messages: {
 		name: "Messages",
-		icon: <LucideMessageCircle className="size-4" />,
+		icon: <LucideMessageCircle />,
 		defaultLocation: { sidebar: 1, panel: 1 },
 		content: () => <MessageList />,
 	},
+	items: {
+		name: "Items",
+		icon: <LucidePackage />,
+		defaultLocation: { sidebar: 0, panel: 1 },
+		content: () => <RoomItemList />,
+	},
 	combat: {
 		name: "Combat",
-		icon: <LucideShield className="size-4" />,
+		icon: <LucideShield />,
 		defaultLocation: { sidebar: 1, panel: 0 },
 		content: () => <p>combat</p>,
 	},
 	notes: {
 		name: "Notes",
-		icon: <LucideFileText className="size-4" />,
+		icon: <LucideFileText />,
 		defaultLocation: { sidebar: 0, panel: 0 },
 		content: () => <p>notes</p>,
 	},
@@ -161,13 +169,13 @@ function Sidebar({
 		.filter(({ location }) => location.sidebar === sidebarIndex)
 
 	const lowestPanelIndex =
-		presentModules.length > 0 ?
-			Math.min(...presentModules.map(({ location }) => location.panel))
-		:	0
+		presentModules.length > 0
+			? Math.min(...presentModules.map(({ location }) => location.panel))
+			: 0
 	const highestPanelIndex =
-		presentModules.length > 0 ?
-			Math.max(...presentModules.map(({ location }) => location.panel))
-		:	0
+		presentModules.length > 0
+			? Math.max(...presentModules.map(({ location }) => location.panel))
+			: 0
 
 	return (
 		<div className="flex h-full flex-col gap-1" {...props}>
@@ -255,7 +263,7 @@ function SidebarPanel({
 				selectedId={selectedModule?.id}
 				setSelectedId={setSelectedId}
 			>
-				<div className="flex flex-wrap justify-center p-2 gap">
+				<div className="flex flex-wrap justify-center p-2 gap-2">
 					{modules.map((module) => (
 						<ModuleHandle
 							key={module.id}

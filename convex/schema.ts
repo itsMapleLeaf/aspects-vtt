@@ -1,9 +1,17 @@
 import { authTables } from "@convex-dev/auth/server"
 import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
+import {} from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
-import { nullish } from "./lib/validators.ts"
+import { nullish, partial } from "./lib/validators.ts"
 import { diceRollResultValidator } from "./validators/dice.ts"
+
+export const roomItemValidator = v.object({
+	name: v.string(),
+	effect: v.string(),
+	flavor: v.optional(v.string()),
+	wealthTier: v.number(),
+})
 
 const entSchema = defineEntSchema({
 	users: defineEnt({
@@ -19,6 +27,7 @@ const entSchema = defineEntSchema({
 		name: v.string(),
 		slug: v.string(),
 		activeSceneId: nullish(v.id("scenes")),
+		items: v.optional(v.record(v.string(), roomItemValidator)),
 	})
 		.edge("owner", { to: "users", field: "ownerId" })
 		.edges("scenes", { ref: true })
@@ -59,6 +68,16 @@ const entSchema = defineEntSchema({
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),
 		wealth: v.optional(v.number()),
+
+		inventory: v.optional(
+			v.record(
+				v.string(),
+				v.object({
+					...partial(roomItemValidator.fields),
+					itemId: v.string(),
+				}),
+			),
+		),
 
 		// token info
 		battlemapPosition: v.optional(v.object({ x: v.number(), y: v.number() })),

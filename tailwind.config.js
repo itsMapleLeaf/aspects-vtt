@@ -62,10 +62,6 @@ export default {
 				"control-icon-md": defaultTheme.spacing[1],
 				"control-icon-lg": defaultTheme.spacing[1.5],
 			},
-
-			gap: {
-				DEFAULT: defaultTheme.spacing[3],
-			},
 		},
 	},
 
@@ -122,7 +118,7 @@ export default {
 		plugin(function gap(api) {
 			api.addBase({
 				":root": {
-					"--gap": api.theme("gap.DEFAULT", "1rem"),
+					"--gap": defaultTheme.spacing[3],
 					"--gap-x": "var(--gap)",
 					"--gap-y": "var(--gap)",
 				},

@@ -1,3 +1,4 @@
-import type { Doc } from "~/convex/_generated/dataModel.js"
+import type { FunctionReturnType } from "convex/server"
+import type { api } from "~/convex/_generated/api.js"
 
-export type ApiRoom = Doc<"rooms">
+export type ApiRoom = NonNullable<FunctionReturnType<typeof api.rooms.get>>

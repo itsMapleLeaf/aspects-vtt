@@ -1,8 +1,8 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs"
 import { LucideTrash2, Table } from "lucide-react"
 import { ComponentProps, useRef } from "react"
 import { Button } from "~/components/Button.tsx"
 import { Dialog } from "~/components/Dialog.tsx"
+import { Tabs } from "~/components/Tabs.tsx"
 import type { NormalizedCharacter } from "~/convex/characters.ts"
 import { textInput } from "~/styles/input.ts"
 import {
@@ -34,42 +34,44 @@ export function CharacterEditorDialog({
 
 			<Dialog.Content
 				title="Edit Character"
-				className="h-screen"
+				className="h-[800px]"
 				onClose={() => {
 					// profileEditorRef.current?.submit()
 				}}
 			>
-				<Tabs className="flex h-full min-h-0 flex-col" defaultValue="profile">
-					<TabsList>
-						<TabsTrigger value="profile">Profile</TabsTrigger>
-						<TabsTrigger value="skills">Skills</TabsTrigger>
-						<TabsTrigger value="inventory">Inventory</TabsTrigger>
-					</TabsList>
+				<div className="flex h-full min-h-0 flex-col gap-2">
+					<Tabs.Root defaultActiveId="profile">
+						<Tabs.List>
+							<Tabs.Tab value="profile">Profile</Tabs.Tab>
+							<Tabs.Tab value="inventory">Inventory</Tabs.Tab>
+							<Tabs.Tab value="skills">Skills</Tabs.Tab>
+						</Tabs.List>
 
-					<TabsContent
-						value="profile"
-						className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
-					>
-						<CharacterProfileEditor
-							character={character}
-							ref={profileEditorRef}
-						/>
-					</TabsContent>
+						<Tabs.Panel
+							id="profile"
+							className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
+						>
+							<CharacterProfileEditor
+								character={character}
+								ref={profileEditorRef}
+							/>
+						</Tabs.Panel>
 
-					<TabsContent
-						value="skills"
-						className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
-					>
-						<CharacterSkillsEditor />
-					</TabsContent>
+						<Tabs.Panel
+							id="inventory"
+							className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
+						>
+							<CharacterInventoryEditor />
+						</Tabs.Panel>
 
-					<TabsContent
-						value="inventory"
-						className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
-					>
-						<CharacterInventoryEditor />
-					</TabsContent>
-				</Tabs>
+						<Tabs.Panel
+							id="skills"
+							className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
+						>
+							<CharacterSkillsEditor />
+						</Tabs.Panel>
+					</Tabs.Root>
+				</div>
 			</Dialog.Content>
 		</Dialog.Root>
 	)

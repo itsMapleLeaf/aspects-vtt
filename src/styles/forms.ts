@@ -8,3 +8,6 @@ export const labelText = (...classes: ClassNameValue[]) =>
 
 export const errorText = (...classes: ClassNameValue[]) =>
 	twMerge("text-sm font-semibold text-red-400", ...classes)
+
+export const formRow = (...classes: ClassNameValue[]) =>
+	twMerge("grid auto-cols-fr gap md:grid-flow-col", classes)

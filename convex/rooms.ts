@@ -1,11 +1,18 @@
 import type { PromiseEntOrNull } from "convex-ents"
 import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
+import { mapValues, merge, pickBy } from "lodash-es"
+import { DEFAULT_INVENTORY_ITEMS } from "~/features/inventory/items.ts"
 import type { Doc, Id } from "./_generated/dataModel"
 import { getAuthUser, getAuthUserId, InaccessibleError } from "./auth.ts"
-import { effectMutation, effectQuery, getQueryCtx } from "./lib/effects.ts"
-import { nullish } from "./lib/validators.ts"
-import type { entDefinitions } from "./schema.ts"
+import {
+	effectMutation,
+	effectQuery,
+	getQueryCtx,
+	queryEnt,
+} from "./lib/effects.ts"
+import { partial, tableFields } from "./lib/validators.ts"
+import { roomItemValidator, type entDefinitions } from "./schema.ts"
 
 export const list = effectQuery({
 	handler(ctx) {
@@ -25,13 +32,17 @@ export const get = effectQuery({
 	},
 	handler(ctx, args) {
 		const id = ctx.table("rooms").normalizeId(args.id)
+
+		let ent
+		if (id) {
+			ent = queryEnt(ctx.table("rooms").get(id))
+		} else {
+			ent = queryEnt(ctx.table("rooms").get("slug", args.id))
+		}
+
 		return pipe(
-			Effect.promise(() => {
-				if (id) {
-					return ctx.table("rooms").get(id).doc()
-				}
-				return ctx.table("rooms").get("slug", args.id).doc()
-			}),
+			ent,
+			Effect.map((ent) => normalizeRoom(ent.doc())),
 			Effect.orElseSucceed(() => null),
 		)
 	},
@@ -57,7 +68,10 @@ export const create = effectMutation({
 					),
 					Effect.flatMap(() =>
 						Effect.promise(() =>
-							ctx.table("rooms").insert({ ...args, ownerId: userId }),
+							ctx.table("rooms").insert({
+								...args,
+								ownerId: userId,
+							}),
 						),
 					),
 				),
@@ -69,13 +83,24 @@ export const create = effectMutation({
 
 export const update = effectMutation({
 	args: {
+		...partial(tableFields("rooms")),
 		roomId: v.id("rooms"),
-		activeSceneId: nullish(v.id("scenes")),
+		items: v.record(v.string(), v.union(roomItemValidator, v.null())),
 	},
 	handler(ctx, { roomId, ...props }) {
 		return pipe(
 			queryViewerOwnedRoom(ctx.table("rooms").get(roomId)),
-			Effect.flatMap(({ room }) => Effect.promise(() => room.patch(props))),
+			Effect.flatMap(({ room }) =>
+				Effect.promise(() =>
+					room.patch({
+						...props,
+						items: pickBy(
+							{ ...room.items, ...props.items },
+							(it) => it !== null,
+						),
+					}),
+				),
+			),
 			Effect.orDie,
 		)
 	},
@@ -93,6 +118,19 @@ export const remove = effectMutation({
 		)
 	},
 })
+
+export function normalizeRoom(room: Doc<"rooms">) {
+	return {
+		...room,
+		items: mapValues(
+			merge({}, DEFAULT_INVENTORY_ITEMS, room.items),
+			(item, _id) => ({
+				...item,
+				_id,
+			}),
+		),
+	}
+}
 
 export function isRoomOwner(room: Doc<"rooms">, userId: Id<"users">) {
 	return room.ownerId === userId

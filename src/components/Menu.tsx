@@ -4,6 +4,7 @@ import { menuItem, menuPanel } from "~/styles/menu.ts"
 
 export interface MenuProps extends Ariakit.MenuButtonProps {
 	options: MenuOption[]
+	providerProps?: Ariakit.MenuProviderProps
 }
 
 export interface MenuOption {
@@ -12,9 +13,9 @@ export interface MenuOption {
 	onClick: () => void
 }
 
-export function Menu({ options, ...props }: MenuProps) {
+export function Menu({ options, providerProps, ...props }: MenuProps) {
 	return (
-		<Ariakit.MenuProvider>
+		<Ariakit.MenuProvider {...providerProps}>
 			<Ariakit.MenuButton {...props} />
 			<Ariakit.Menu
 				className={menuPanel("w-fit min-w-32")}

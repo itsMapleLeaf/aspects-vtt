@@ -94,25 +94,10 @@ export function useForm<Values extends FormValues>(
 		},
 	)
 
-	return {
-		values,
-		setValues,
-		submit: () => submit(),
-		pending,
-		errors,
-		formErrors: errors?.flatMap((e) => (e.field == null ? [e.message] : [])),
-	}
-}
-
-export function useFields<Values extends FormValues>({
-	values,
-	setValues,
-	errors,
-}: FormStore<Values>) {
 	const fieldIdPrefix = useId()
 	const fieldId = (name: string) => `${fieldIdPrefix}:${name}`
 
-	return new Proxy({} as FieldCollection<Values>, {
+	const fields = new Proxy({} as FieldCollection<Values>, {
 		get(_target, name: string) {
 			const id = fieldId(name)
 			const value = values[name] ?? undefined
@@ -157,6 +142,23 @@ export function useFields<Values extends FormValues>({
 			} satisfies FieldAccessor
 		},
 	})
+
+	return {
+		values,
+		setValues,
+		submit: () => submit(),
+		pending,
+		errors,
+		formErrors: errors?.flatMap((e) => (e.field == null ? [e.message] : [])),
+		fields,
+	}
+}
+
+/** @deprecated Use `fields` from {@link useForm} */
+export function useFields<Values extends FormValues>({
+	fields,
+}: FormStore<Values>) {
+	return fields
 }
 
 export function valibotAction<Values, ActionArgs>(
