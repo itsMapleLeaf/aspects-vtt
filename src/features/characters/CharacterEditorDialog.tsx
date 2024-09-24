@@ -60,7 +60,7 @@ export function CharacterEditorDialog({
 
 			<Dialog.Content
 				title="Edit Character"
-				className="h-screen max-h-[800px]"
+				className="h-screen"
 				onClose={() => {
 					// profileEditorRef.current?.submit()
 				}}
