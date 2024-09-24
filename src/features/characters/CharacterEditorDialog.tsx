@@ -1,4 +1,6 @@
 import { ComponentProps, useRef } from "react"
+import * as v from "valibot"
+import { useLocalStorage } from "~/common/react/dom.ts"
 import { Dialog } from "~/components/Dialog.tsx"
 import { Tabs } from "~/components/Tabs.tsx"
 import type { NormalizedCharacter } from "~/convex/characters.ts"
@@ -19,6 +21,12 @@ export function CharacterEditorDialog({
 }) {
 	const profileEditorRef = useRef<ProfileEditorRef>(null)
 
+	const [activeId, setActiveId] = useLocalStorage(
+		"characterEditorDialog:activeId",
+		"profile",
+		v.parser(v.string()),
+	)
+
 	return (
 		<Dialog.Root {...props}>
 			{children}
@@ -31,11 +39,14 @@ export function CharacterEditorDialog({
 				}}
 			>
 				<div className="flex h-full min-h-0 flex-col gap-2">
-					<Tabs.Root defaultActiveId="profile">
+					<Tabs.Root
+						selectedId={activeId}
+						setSelectedId={(id) => setActiveId((current) => id ?? current)}
+					>
 						<Tabs.List>
-							<Tabs.Tab value="profile">Profile</Tabs.Tab>
-							<Tabs.Tab value="inventory">Inventory</Tabs.Tab>
-							<Tabs.Tab value="skills">Skills</Tabs.Tab>
+							<Tabs.Tab id="profile">Profile</Tabs.Tab>
+							<Tabs.Tab id="inventory">Inventory</Tabs.Tab>
+							<Tabs.Tab id="skills">Skills</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel
