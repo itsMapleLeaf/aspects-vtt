@@ -1,6 +1,11 @@
 import { useMutation } from "convex/react"
 import { omit } from "lodash-es"
-import { LucideCheck, LucidePackagePlus, LucidePlus } from "lucide-react"
+import {
+	LucideCheck,
+	LucidePackagePlus,
+	LucidePlus,
+	LucideTrash,
+} from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
 import { Button } from "~/components/Button.tsx"
@@ -42,7 +47,7 @@ export function CharacterInventoryEditor({
 		return (
 			<ToastActionForm
 				action={async () => {
-					update({
+					await update({
 						characterId: character._id,
 						inventory: added
 							? omit(character.inventory, item._id)
@@ -67,27 +72,45 @@ export function CharacterInventoryEditor({
 
 	return (
 		<SearchListLayout
+			className="p-3 pt-0"
 			items={filteredItems}
 			renderItem={(item) => (
-				<div className="flex items-stretch gap-2">
-					<InventoryItemCard key={item._id} item={item} />
-					<NumberInput
-						className={textInput("h-full w-16")}
-						value={item.quantity ?? 1}
-						min={1}
-						onSubmitValue={async (quantity) => {
-							await update({
-								characterId: character._id,
-								inventory: {
-									...character.inventory,
-									[item._id]: {
-										...character.inventory?.[item._id],
-										quantity,
-									},
-								},
-							})
-						}}
+				<div className="flex items-stretch gap">
+					<InventoryItemCard
+						className="justify-center"
+						key={item._id}
+						item={item}
 					/>
+					<div className="grid w-16 auto-rows-fr gap">
+						<NumberInput
+							className={textInput("h-full min-h-10")}
+							value={item.quantity ?? 1}
+							min={1}
+							onSubmitValue={async (quantity) => {
+								await update({
+									characterId: character._id,
+									inventory: {
+										...character.inventory,
+										[item._id]: {
+											...character.inventory?.[item._id],
+											quantity,
+										},
+									},
+								})
+							}}
+						/>
+						<Button
+							icon={<LucideTrash />}
+							appearance="solid"
+							className="h-full min-h-10"
+							onClick={() => {
+								update({
+									characterId: character._id,
+									inventory: omit(character.inventory, item._id),
+								})
+							}}
+						/>
+					</div>
 				</div>
 			)}
 			onSearch={setSearch}
