@@ -141,6 +141,8 @@ export default {
 				{
 					"gap": (value) => ({
 						"--gap": value,
+						"--gap-x": "var(--gap)",
+						"--gap-y": "var(--gap)",
 						"column-gap": value,
 						"row-gap": value,
 					}),
