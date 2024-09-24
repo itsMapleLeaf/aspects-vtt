@@ -37,7 +37,12 @@ export function FileField({
 	...props
 }: FileFieldProps) {
 	return (
-		<Field label={label} htmlFor={field.input.id} errors={field.errors}>
+		<Field
+			label={label}
+			htmlFor={field.input.id}
+			errors={field.errors}
+			className={className}
+		>
 			<input
 				{...props}
 				type="file"

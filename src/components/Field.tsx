@@ -1,8 +1,8 @@
-import { type ComponentProps } from "react"
+import { type ComponentProps, type ReactNode } from "react"
 import { errorText, formField, labelText } from "~/styles/forms.ts"
 
 export interface FieldProps extends ComponentProps<"div"> {
-	label?: string
+	label?: ReactNode
 	htmlFor?: string
 	errors?: string[]
 }
