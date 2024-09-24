@@ -4,6 +4,7 @@ import { LucideCheck, LucidePackagePlus, LucidePlus } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
 import { Button } from "~/components/Button.tsx"
+import { NumberInput } from "~/components/NumberInput.tsx"
 import { Popover } from "~/components/Popover.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
@@ -12,6 +13,7 @@ import { InventoryItemCard } from "~/features/inventory/InventoryItemCard.tsx"
 import { RoomItemList } from "~/features/inventory/RoomItemList"
 import { SearchListLayout } from "~/features/inventory/SearchListLayout.tsx"
 import { useRoomContext } from "~/features/rooms/context.tsx"
+import { textInput } from "~/styles/input.ts"
 import type { ApiItem } from "../inventory/items.ts"
 
 export function CharacterInventoryEditor({
@@ -26,15 +28,7 @@ export function CharacterInventoryEditor({
 
 	const items = Object.entries(character.inventory ?? {}).flatMap(
 		([itemId, overrides]) =>
-			room.items[itemId]
-				? [
-						{
-							...room.items[itemId],
-							...overrides,
-							quantity: overrides.quantity ?? 1,
-						},
-					]
-				: [],
+			room.items[itemId] ? [{ ...room.items[itemId], ...overrides }] : [],
 	)
 
 	const filteredItems = matchSorter(items, search, {
@@ -74,7 +68,28 @@ export function CharacterInventoryEditor({
 	return (
 		<SearchListLayout
 			items={filteredItems}
-			renderItem={(item) => <InventoryItemCard key={item._id} item={item} />}
+			renderItem={(item) => (
+				<div className="flex items-stretch gap-2">
+					<InventoryItemCard key={item._id} item={item} />
+					<NumberInput
+						className={textInput("h-full w-16")}
+						value={item.quantity ?? 1}
+						min={1}
+						onSubmitValue={async (quantity) => {
+							await update({
+								characterId: character._id,
+								inventory: {
+									...character.inventory,
+									[item._id]: {
+										...character.inventory?.[item._id],
+										quantity,
+									},
+								},
+							})
+						}}
+					/>
+				</div>
+			)}
 			onSearch={setSearch}
 			actions={
 				<Popover.Root placement="right-start">

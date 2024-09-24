@@ -5,6 +5,7 @@ import {
 	useState,
 	type ComponentProps,
 } from "react"
+import { toast } from "react-toastify"
 import { twMerge } from "tailwind-merge"
 
 export interface NumberInputProps extends ComponentProps<"input"> {
@@ -66,6 +67,7 @@ export function NumberInput({
 				})
 			} catch (error) {
 				console.error(error)
+				toast.error("Something went wrong. Check the console for details.")
 				return false
 			}
 
