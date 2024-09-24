@@ -1,3 +1,4 @@
+import { ApiRoom } from "~/features/rooms/types.ts"
 export interface InventoryItemInfo {
 	name: string
 	effect: string
@@ -199,3 +200,5 @@ export const DEFAULT_INVENTORY_ITEMS: Record<string, InventoryItemInfo> = {
 		wealthTier: 3,
 	},
 }
+
+export type ApiItem = ApiRoom["items"][number]

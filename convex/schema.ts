@@ -13,6 +13,11 @@ export const roomItemValidator = v.object({
 	wealthTier: v.number(),
 })
 
+export const characterItemValidator = v.object({
+	...partial(roomItemValidator.fields),
+	quantity: v.optional(v.number()),
+})
+
 const entSchema = defineEntSchema({
 	users: defineEnt({
 		...authTables.users.validator.fields,
@@ -69,15 +74,7 @@ const entSchema = defineEntSchema({
 		resolve: v.optional(v.number()),
 		wealth: v.optional(v.number()),
 
-		inventory: v.optional(
-			v.record(
-				v.string(),
-				v.object({
-					...partial(roomItemValidator.fields),
-					itemId: v.string(),
-				}),
-			),
-		),
+		inventory: v.optional(v.record(v.string(), characterItemValidator)),
 
 		// token info
 		battlemapPosition: v.optional(v.object({ x: v.number(), y: v.number() })),

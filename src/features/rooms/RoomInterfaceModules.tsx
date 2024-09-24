@@ -49,7 +49,11 @@ const MODULES: Record<string, ModuleDefinition> = {
 		name: "Items",
 		icon: <LucidePackage />,
 		defaultLocation: { sidebar: 0, panel: 1 },
-		content: () => <RoomItemList />,
+		content: () => (
+			<div className="*:pt-0">
+				<RoomItemList />
+			</div>
+		),
 	},
 	combat: {
 		name: "Combat",

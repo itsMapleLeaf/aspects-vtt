@@ -1,8 +1,8 @@
 import * as Ariakit from "@ariakit/react"
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
-import { menuPanel } from "~/styles/menu.ts"
-import { fadeTransition } from "~/styles/transitions.ts"
+import { panel } from "~/styles/panel.ts"
+import { fadeTransition, fadeZoomTransition } from "~/styles/transitions.ts"
 
 export * as Popover from "./Popover.tsx"
 
@@ -26,11 +26,15 @@ export function Content({ children, className, ...props }: ContentProps) {
 			backdrop={
 				<div className={fadeTransition("fixed inset-0 bg-primary-900/25")} />
 			}
-			{...props}
-			className={menuPanel("bg-primary-800")}
 			unmountOnHide
 			gutter={8}
 			portal
+			{...props}
+			className={panel(
+				fadeZoomTransition(),
+				"w-fit bg-primary-800 p-0 shadow-md",
+				className,
+			)}
 		>
 			{children}
 		</Ariakit.Popover>

@@ -55,9 +55,11 @@ export function Button({
 				}
 			}}
 		>
-			{pending ?
-				<LoadingIcon data-button-icon />
-			:	icon}
+			{pending ? (
+				<LoadingIcon data-button-icon className="size-control-icon-md" />
+			) : (
+				icon
+			)}
 			<Slottable>{children}</Slottable>
 		</Tag>
 	)
