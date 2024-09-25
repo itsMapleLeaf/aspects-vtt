@@ -1,4 +1,8 @@
 export class List<T> extends Array<T> {
+	static override from<T>(input: ArrayLike<T>): List<T> {
+		return new List(...Array.from(input))
+	}
+
 	static override of<T>(...items: T[]): List<T> {
 		return new List(...items)
 	}
@@ -7,8 +11,16 @@ export class List<T> extends Array<T> {
 		return new List(...items)
 	}
 
+	static keys<const T extends PropertyKey>(record: Record<T, unknown>) {
+		return List.of(...Object.keys(record)) as List<T>
+	}
+
 	static values<const T>(record: Record<PropertyKey, T>) {
 		return List.of(...Object.values(record))
+	}
+
+	override map<U>(fn: (value: T, index: number, list: List<T>) => U) {
+		return List.of(...super.map((value, index) => fn(value, index, this)))
 	}
 
 	override includes<Others>(value: T | Others): value is T {
