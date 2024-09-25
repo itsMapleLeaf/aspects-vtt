@@ -69,11 +69,13 @@ const entSchema = defineEntSchema({
 			}),
 		),
 
+		// skills
+		aspectSkills: v.optional(v.record(v.string(), v.string())),
+
 		// status
 		health: v.optional(v.number()),
 		resolve: v.optional(v.number()),
 		wealth: v.optional(v.number()),
-
 		inventory: v.optional(v.record(v.string(), characterItemValidator)),
 
 		// token info

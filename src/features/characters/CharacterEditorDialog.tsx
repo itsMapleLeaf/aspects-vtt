@@ -66,9 +66,9 @@ export function CharacterEditorDialog({
 
 						<Tabs.Panel
 							id="skills"
-							className="-mx-3 -mb-3 min-h-0 flex-1 overflow-y-auto p-3"
+							className="-m-3 min-h-0 flex-1 overflow-y-auto"
 						>
-							<CharacterSkillsEditor />
+							<CharacterSkillsEditor character={character} />
 						</Tabs.Panel>
 					</Tabs.Root>
 				</div>

@@ -1,17 +1,12 @@
 import { useMutation } from "convex/react"
 import { omit } from "lodash-es"
-import {
-	LucideCheck,
-	LucidePackagePlus,
-	LucidePlus,
-	LucideTrash,
-} from "lucide-react"
+import { LucidePackagePlus, LucideTrash } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
+import { AddButton } from "~/components/AddButton.tsx"
 import { Button } from "~/components/Button.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
 import { Popover } from "~/components/Popover.tsx"
-import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { NormalizedCharacter } from "~/convex/characters.ts"
 import { InventoryItemCard } from "~/features/inventory/InventoryItemCard.tsx"
@@ -42,33 +37,21 @@ export function CharacterInventoryEditor({
 
 	const itemIds = new Set(items.map((it) => it._id))
 
-	const itemListAction = (item: ApiItem) => {
-		const added = itemIds.has(item._id)
-		return (
-			<ToastActionForm
-				action={async () => {
-					await update({
-						characterId: character._id,
-						inventory: added
-							? omit(character.inventory, item._id)
-							: { ...character.inventory, [item._id]: added ? null : {} },
-					})
-				}}
-			>
-				<Button
-					type="submit"
-					appearance="clear"
-					icon={added ? <LucideCheck /> : <LucidePlus />}
-				>
-					{added ? (
-						<span className="sr-only">Remove {item.name} from inventory</span>
-					) : (
-						<span className="sr-only">Add {item.name} to inventory</span>
-					)}
-				</Button>
-			</ToastActionForm>
-		)
-	}
+	const itemListAction = (item: ApiItem) => (
+		<AddButton
+			active={itemIds.has(item._id)}
+			activeLabel={`Remove ${item.name} from inventory`}
+			inactiveLabel={`Add ${item.name} to inventory`}
+			action={async (active) => {
+				await update({
+					characterId: character._id,
+					inventory: active
+						? { ...character.inventory, [item._id]: {} }
+						: omit(character.inventory, item._id),
+				})
+			}}
+		/>
+	)
 
 	return (
 		<SearchListLayout

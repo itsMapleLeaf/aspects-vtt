@@ -1,10 +1,15 @@
 export class List<T> extends Array<T> {
 	static override from<T>(input: ArrayLike<T>): List<T> {
-		return new List(...Array.from(input))
+		const list = new List<T>()
+		for (let i = 0; i < input.length; i++) {
+			// @ts-expect-error
+			list[i] = input[i]
+		}
+		return list
 	}
 
 	static override of<T>(...items: T[]): List<T> {
-		return new List(...items)
+		return List.from(Array.of(...items))
 	}
 
 	static const<const T>(...items: T[]): List<T> {
@@ -25,6 +30,10 @@ export class List<T> extends Array<T> {
 
 	override includes<Others>(value: T | Others): value is T {
 		return super.includes(value as T)
+	}
+
+	array(): readonly T[] {
+		return this
 	}
 
 	mapToObject<K extends PropertyKey, V>(

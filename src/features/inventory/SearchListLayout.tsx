@@ -1,11 +1,13 @@
+import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { LucidePackageOpen } from "lucide-react"
 import React, { startTransition, useState, type ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
+import type { List } from "~/shared/list.ts"
 import { textInput } from "~/styles/input.ts"
 import { secondaryHeading } from "~/styles/text.ts"
 
 export interface SearchListLayoutProps<T> {
-	items: T[]
+	items: T[] | List<T>
 	renderItem: (item: T) => React.ReactNode
 	onSearch: (search: string) => void
 	actions?: ReactNode
@@ -33,6 +35,8 @@ export function SearchListLayout<T>({
 		})
 	}
 
+	const [animateRef] = useAutoAnimate()
+
 	return (
 		<div className={twMerge("flex h-full flex-col p-[--gap] gap-2", className)}>
 			<div className="flex gap">
@@ -45,7 +49,10 @@ export function SearchListLayout<T>({
 				{actions}
 			</div>
 			{items.length > 0 ? (
-				<ul className="flex min-h-0 flex-1 flex-col overflow-y-auto gap">
+				<ul
+					className="-m-[--gap] mt-0 flex min-h-0 flex-1 flex-col overflow-y-auto p-gap pt-0 gap"
+					ref={animateRef}
+				>
 					{items.map(renderItem)}
 				</ul>
 			) : (

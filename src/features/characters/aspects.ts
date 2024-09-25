@@ -1,4 +1,5 @@
 import { startCase } from "lodash-es"
+import { raise } from "~/shared/errors.ts"
 import { List } from "~/shared/list.ts"
 import { formatTitle } from "~/shared/string.ts"
 
@@ -36,7 +37,7 @@ export class AspectSkill {
 	readonly aspectId: Aspect["id"]
 	readonly category: string
 	readonly price: number
-	readonly requirementIds: AspectSkill["id"][]
+	readonly requirementIds: List<string>
 
 	constructor(readonly id: keyof typeof AspectSkill.DATA) {
 		const data = AspectSkill.DATA[id]
@@ -45,11 +46,27 @@ export class AspectSkill {
 		this.aspectId = data.aspectId
 		this.category = data.category
 		this.price = data.price
-		this.requirementIds = []
+		this.requirementIds = List.from(data.requires)
 	}
 
 	static all() {
 		return List.keys(AspectSkill.DATA).map((id) => new AspectSkill(id))
+	}
+
+	static get(id: string) {
+		if (id in AspectSkill.DATA) {
+			return new AspectSkill(id as keyof typeof AspectSkill.DATA)
+		}
+	}
+
+	get aspect() {
+		return new Aspect(this.aspectId)
+	}
+
+	get requirements(): List<AspectSkill> {
+		return this.requirementIds.map(
+			(id) => AspectSkill.get(id) ?? raise(`Invalid aspect skill ID ${id}`),
+		)
 	}
 
 	private static readonly DATA = {
@@ -437,6 +454,86 @@ export class AspectSkill {
 			category: "acrobatics",
 			price: 20,
 			requires: ["gust"],
+		},
+
+		// Light Track
+		dancingLights: {
+			description: "Create and control small, floating lights.",
+			aspectId: "light",
+			category: "light",
+			price: 10,
+			requires: [],
+		},
+
+		// Heals Track
+		restoration: {
+			description: "Spend X resolve to heal Xd6 health.",
+			aspectId: "light",
+			category: "heals",
+			price: 10,
+			requires: [],
+		},
+
+		// Buffs Track
+		strengthen: {
+			description: "Add +1 boost die to next strength roll.",
+			aspectId: "light",
+			category: "buffs",
+			price: 10,
+			requires: [],
+		},
+		stimulate: {
+			description: "Add +1 boost die to next sense roll.",
+			aspectId: "light",
+			category: "buffs",
+			price: 10,
+			requires: [],
+		},
+		hasten: {
+			description: "Add +1 boost die to next mobility roll.",
+			aspectId: "light",
+			category: "buffs",
+			price: 10,
+			requires: [],
+		},
+		enlighten: {
+			description: "Add +1 boost die to next intellect roll.",
+			aspectId: "light",
+			category: "buffs",
+			price: 10,
+			requires: [],
+		},
+		embolden: {
+			description: "Add +1 boost die to next wit roll.",
+			aspectId: "light",
+			category: "buffs",
+			price: 10,
+			requires: [],
+		},
+
+		// Application Track
+		touchApplication: {
+			description: "Apply light effects through direct contact.",
+			aspectId: "light",
+			category: "application",
+			price: 0,
+			requires: [],
+		},
+		areaOfEffect: {
+			description:
+				"Spend 1 resolve to add 5 meters of AoE to any light effect, repeatable.",
+			aspectId: "light",
+			category: "application",
+			price: 10,
+			requires: ["touchApplication"],
+		},
+		additionalTarget: {
+			description:
+				"Spend 1 resolve to add an additional visible target, repeatable.",
+			aspectId: "light",
+			category: "application",
+			price: 10,
+			requires: ["touchApplication"],
 		},
 
 		// Darkness Track
