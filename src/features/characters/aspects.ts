@@ -91,7 +91,7 @@ export class AspectSkill {
 			description: "Generate a small, controlled flame equivalent to a candle.",
 			aspectId: "fire",
 			category: "flame",
-			price: 0,
+			price: 5,
 			requires: ["burning"],
 		},
 		torchlight: {
@@ -462,6 +462,20 @@ export class AspectSkill {
 			aspectId: "light",
 			category: "light",
 			price: 10,
+			requires: [],
+		},
+		raysOfProtection: {
+			description: "Create a protective shield of solid light.",
+			aspectId: "light",
+			category: "light",
+			price: 10,
+			requires: [],
+		},
+		raysOfJudgment: {
+			description: "Attack targets by summoning columns of burning light.",
+			aspectId: "light",
+			category: "light",
+			price: 25,
 			requires: [],
 		},
 
