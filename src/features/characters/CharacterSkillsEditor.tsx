@@ -66,19 +66,12 @@ export function CharacterSkillsEditor({
 
 	const remainingExperience = totalExperience - usedExperience
 
-	const visibleSkills = skills.filter(
-		(skill) =>
-			aspectSkillIds.has(skill.id) ||
-			(skill.price <= remainingExperience &&
-				skill.requirementIds.every((id) => aspectSkillIds.has(id))),
-	)
-
 	const filteredItems = List.from(
 		search.trim()
-			? matchSorter(visibleSkills, search, {
-					keys: ["name", "description", "category"],
+			? matchSorter(skills.array(), search, {
+					keys: ["name", "description", "category", "aspectId"],
 				})
-			: visibleSkills,
+			: skills,
 	)
 
 	const skillAddAction = async (skill: AspectSkill, active: boolean) => {
@@ -99,75 +92,92 @@ export function CharacterSkillsEditor({
 				className="min-h-0 flex-1 p-0"
 				items={filteredItems}
 				onSearch={setSearch}
-				renderItem={(skill) => (
-					<li key={skill.id} className="flex items-center gap">
-						<div className="relative flex-1">
-							<ListCard
-								title={skill.name}
-								description={skill.description}
-								aside={
-									<>
-										{[skill.aspect.name, skill.category, skill.price + " exp"]
-											.filter(Boolean)
-											.join(" • ")}
-										<br />
-										{skill.requirements.length > 0 &&
-											`requires ${new Intl.ListFormat(undefined, {
-												type: "conjunction",
-											}).format(skill.requirements.map((it) => it.name))}`}
-									</>
-								}
-								className={twMerge(
-									// prettier-ignore
-									skill.aspectId === "fire" ? 'bg-red-950/50 border-red-900/50' :
-									skill.aspectId === "water" ? 'bg-blue-950/50 border-blue-900/50' :
-									skill.aspectId === "wind" ? 'bg-green-950/50 border-green-900/50' :
-									skill.aspectId === "light" ? 'bg-yellow-950/50 border-yellow-900/50' :
-									skill.aspectId === "darkness" ? 'bg-violet-950/50 border-violet-900/50 backdrop-grayscale-[50%]' :
-									'',
-								)}
-							/>
+				renderItem={(skill) => {
+					const added = aspectSkillIds.has(skill.id)
+
+					const hasExp = skill.price <= remainingExperience
+
+					const hasRequired = skill.requirementIds.every((id) =>
+						aspectSkillIds.has(id),
+					)
+
+					const available = hasExp && hasRequired
+
+					return (
+						<li key={skill.id} className="flex items-center gap">
 							<div
 								className={twMerge(
-									"absolute inset-y-0 right-0 flex w-24 items-center justify-center px-3 opacity-5",
+									"relative flex-1 transition",
+									(added || !available) && "opacity-50",
 								)}
 							>
-								{skill.aspectId === "fire" ? (
-									<LucideFlame className="size-full" />
-								) : skill.aspectId === "water" ? (
-									<LucideDroplets className="size-full" />
-								) : skill.aspectId === "wind" ? (
-									<LucideWind className="size-full" />
-								) : skill.aspectId === "light" ? (
-									<LucideSun className="size-full" />
-								) : skill.aspectId === "darkness" ? (
-									<LucideMoon className="size-full" />
-								) : null}
-							</div>
-						</div>
-						{skill.price === 0 ? (
-							<Tooltip>
-								<TooltipTrigger
-									render={
-										<Button
-											type="button"
-											icon={<LucideCheck />}
-											appearance="clear"
-										/>
+								<ListCard
+									title={skill.name}
+									description={skill.description}
+									aside={
+										<>
+											{[skill.aspect.name, skill.category, skill.price + " exp"]
+												.filter(Boolean)
+												.join(" • ")}
+											<br />
+											{skill.requirements.length > 0 &&
+												`requires ${new Intl.ListFormat(undefined, {
+													type: "conjunction",
+												}).format(skill.requirements.map((it) => it.name))}`}
+										</>
 									}
+									className={twMerge(
+										// prettier-ignore
+										skill.aspectId === "fire" ? 'bg-red-950/50 border-red-900/50' :
+											skill.aspectId === "water" ? 'bg-blue-950/50 border-blue-900/50' :
+												skill.aspectId === "wind" ? 'bg-green-950/50 border-green-900/50' :
+													skill.aspectId === "light" ? 'bg-yellow-950/50 border-yellow-900/50' :
+														skill.aspectId === "darkness" ? 'bg-violet-950/25 border-violet-900/25' :
+															'',
+									)}
 								/>
-								<TooltipContent>This skill cannot be removed.</TooltipContent>
-							</Tooltip>
-						) : (
-							<AddButton
-								active={skill.price === 0 || aspectSkillIds.has(skill.id)}
-								activeLabel={`Add ${skill.name}`}
-								inactiveLabel={`Remove ${skill.name}`}
-								action={(active) => skillAddAction(skill, active)}
-							/>
-						)}
-					</li>
-				)}
+								<div
+									className={twMerge(
+										"absolute inset-y-0 right-0 flex w-24 items-center justify-center px-3 opacity-5",
+									)}
+								>
+									{skill.aspectId === "fire" ? (
+										<LucideFlame className="size-full" />
+									) : skill.aspectId === "water" ? (
+										<LucideDroplets className="size-full" />
+									) : skill.aspectId === "wind" ? (
+										<LucideWind className="size-full" />
+									) : skill.aspectId === "light" ? (
+										<LucideSun className="size-full" />
+									) : skill.aspectId === "darkness" ? (
+										<LucideMoon className="size-full" />
+									) : null}
+								</div>
+							</div>
+							{skill.price === 0 ? (
+								<Tooltip>
+									<TooltipTrigger
+										render={
+											<Button
+												type="button"
+												icon={<LucideCheck />}
+												appearance="clear"
+											/>
+										}
+									/>
+									<TooltipContent>This skill cannot be removed.</TooltipContent>
+								</Tooltip>
+							) : (
+								<AddButton
+									active={skill.price === 0 || aspectSkillIds.has(skill.id)}
+									activeLabel={`Add ${skill.name}`}
+									inactiveLabel={`Remove ${skill.name}`}
+									action={(active) => skillAddAction(skill, active)}
+								/>
+							)}
+						</li>
+					)
+				}}
 			/>
 		</div>
 	)
