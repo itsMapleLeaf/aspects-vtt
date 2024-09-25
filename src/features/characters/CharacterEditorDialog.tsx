@@ -9,6 +9,7 @@ import {
 	type ProfileEditorRef,
 	CharacterProfileEditor,
 } from "./CharacterProfileEditor.tsx"
+import { CharacterSkillsEditor } from "./CharacterSkillsEditor.tsx"
 
 export { Button as CharacterEditorDialogButton } from "~/components/Dialog.tsx"
 
@@ -74,8 +75,4 @@ export function CharacterEditorDialog({
 			</Dialog.Content>
 		</Dialog.Root>
 	)
-}
-
-function CharacterSkillsEditor() {
-	return <p>skills</p>
 }
