@@ -6,7 +6,7 @@ if (existsSync(".env")) config({ path: ".env" })
 if (existsSync(".env.local")) config({ path: ".env.local" })
 
 import { defineConfig, devices } from "@playwright/test"
-import { BASE_URL } from "./tests/constants.ts"
+import { BASE_URL } from "./e2e/constants.ts"
 
 /** Read environment variables from file. https://github.com/motdotla/dotenv */
 // import dotenv from 'dotenv';
@@ -14,6 +14,7 @@ import { BASE_URL } from "./tests/constants.ts"
 
 /** See https://playwright.dev/docs/test-configuration. */
 export default defineConfig({
+	testDir: "e2e",
 	/* Run tests in files in parallel */
 	fullyParallel: true,
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
