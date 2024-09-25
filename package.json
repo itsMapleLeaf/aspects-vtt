@@ -12,7 +12,8 @@
     "build": "remix vite:build",
     "format": "prettier . --write --list-different",
     "preview": "remix-serve ./build/server/index.js",
-    "test": "playwright test",
+    "test": "bun test",
+    "e2e": "playwright test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

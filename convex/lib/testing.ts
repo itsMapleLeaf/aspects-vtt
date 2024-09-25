@@ -50,6 +50,7 @@ export function createMockMutationCtx() {
 				})
 				return Promise.resolve(id)
 			},
+			normalizeId: (table: string, id: string) => id,
 		},
 		auth: {
 			getUserIdentity: () => Promise.resolve({ subject: "user1" }),

@@ -1,7 +1,7 @@
-import { expect, test } from "@playwright/test"
+import { describe, expect, test } from "bun:test"
 import { ByteUnit, convertBytes } from "./math.ts"
 
-test.describe("convertBytes", () => {
+describe("convertBytes", () => {
 	test("converts from B to KB", () => {
 		expect(convertBytes(1024, ByteUnit.B, ByteUnit.KB)).toBe(1)
 	})
