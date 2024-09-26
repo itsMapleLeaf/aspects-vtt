@@ -98,6 +98,7 @@ export function RoomItemList({
 		<>
 			<SearchListLayout
 				items={items}
+				itemKey="_id"
 				renderItem={renderItem}
 				onSearch={handleSearch}
 				actions={

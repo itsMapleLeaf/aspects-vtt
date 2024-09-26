@@ -91,6 +91,7 @@ export function CharacterSkillsEditor({
 			<SearchListLayout
 				className="min-h-0 flex-1 p-0"
 				items={filteredItems}
+				itemKey="id"
 				onSearch={setSearch}
 				renderItem={(skill) => {
 					const added = aspectSkillIds.has(skill.id)

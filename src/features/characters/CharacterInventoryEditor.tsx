@@ -57,6 +57,7 @@ export function CharacterInventoryEditor({
 		<SearchListLayout
 			className="p-3 pt-0"
 			items={filteredItems}
+			itemKey="_id"
 			renderItem={(item) => (
 				<div className="flex items-stretch gap">
 					<InventoryItemCard

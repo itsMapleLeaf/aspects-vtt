@@ -1,13 +1,20 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { LucidePackageOpen } from "lucide-react"
-import React, { startTransition, useState, type ReactNode } from "react"
+import React, {
+	startTransition,
+	useState,
+	type Key,
+	type ReactNode,
+} from "react"
 import { twMerge } from "tailwind-merge"
+import { ConditionalKeys } from "type-fest"
 import type { List } from "~/shared/list.ts"
 import { textInput } from "~/styles/input.ts"
 import { secondaryHeading } from "~/styles/text.ts"
 
 export interface SearchListLayoutProps<T> {
 	items: T[] | List<T>
+	itemKey: ConditionalKeys<T, Key> | ((item: T) => Key)
 	renderItem: (item: T) => React.ReactNode
 	onSearch: (search: string) => void
 	actions?: ReactNode
@@ -18,6 +25,7 @@ export interface SearchListLayoutProps<T> {
 
 export function SearchListLayout<T>({
 	items,
+	itemKey,
 	renderItem,
 	onSearch,
 	actions,
@@ -37,6 +45,17 @@ export function SearchListLayout<T>({
 
 	const [animateRef] = useAutoAnimate()
 
+	function getItemKey(item: T): React.Key {
+		if (typeof itemKey === "function") {
+			return itemKey(item)
+		}
+		const keyValue = item[itemKey]
+		if (typeof keyValue === "string" || typeof keyValue === "number") {
+			return keyValue
+		}
+		throw new Error(`unexpected: item key is not valid: ${keyValue}`)
+	}
+
 	return (
 		<div className={twMerge("flex h-full flex-col p-[--gap] gap-2", className)}>
 			<div className="flex gap">
@@ -53,7 +72,11 @@ export function SearchListLayout<T>({
 					className="-m-[--gap] mt-0 flex min-h-0 flex-1 flex-col overflow-y-auto p-gap pt-0 gap"
 					ref={animateRef}
 				>
-					{items.map(renderItem)}
+					{items.map((item) => (
+						<li key={getItemKey(item)} className="contents">
+							{renderItem(item)}
+						</li>
+					))}
 				</ul>
 			) : (
 				<div className="flex flex-1 flex-col items-center justify-center gap">
