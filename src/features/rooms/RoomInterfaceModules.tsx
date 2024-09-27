@@ -6,7 +6,6 @@ import {
 import { Iterator } from "iterator-helpers-polyfill"
 import {
 	LucideMessageCircle,
-	LucideNotebookPen,
 	LucidePackage,
 	LucideShield,
 	LucideUsers2,
@@ -58,12 +57,12 @@ const MODULES: Record<string, ModuleDefinition> = {
 		defaultLocation: { sidebar: 1, panel: 0 },
 		content: () => <CombatTracker />,
 	},
-	notes: {
-		name: "Notes",
-		icon: <LucideNotebookPen />,
-		defaultLocation: { sidebar: 0, panel: 0 },
-		content: () => <p>notes</p>,
-	},
+	// notes: {
+	// 	name: "Notes",
+	// 	icon: <LucideNotebookPen />,
+	// 	defaultLocation: { sidebar: 0, panel: 0 },
+	// 	content: () => <p>notes</p>,
+	// },
 }
 
 const moduleLocationsParser = v.parser(
