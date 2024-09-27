@@ -164,7 +164,7 @@ export function useImage(src: string | undefined | null) {
 		"loading",
 	)
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!src) {
 			setImage(undefined)
 			setStatus("error")
@@ -173,6 +173,12 @@ export function useImage(src: string | undefined | null) {
 
 		const img = new Image()
 		img.src = src
+
+		if (img.complete) {
+			setImage(img)
+			setStatus("loaded")
+			return
+		}
 
 		const controller = new AbortController()
 

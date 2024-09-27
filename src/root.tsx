@@ -1,3 +1,5 @@
+import "./konva"
+
 import { ConvexAuthProvider } from "@convex-dev/auth/react"
 import nunito from "@fontsource-variable/nunito?url"
 import {

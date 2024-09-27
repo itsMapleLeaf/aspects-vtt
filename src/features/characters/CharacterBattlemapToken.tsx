@@ -1,15 +1,14 @@
-import { useMutation } from "convex/react"
 import Konva from "konva"
-import { LucideEdit, LucideSwords } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
-import { Circle, Group, Image } from "react-konva"
+import { LucideEdit, LucideSwords, VenetianMask } from "lucide-react"
+import { useRef, useState } from "react"
+import { Group, Image, Rect } from "react-konva"
 import { Html } from "react-konva-utils"
 import { roundTo } from "~/common/math.ts"
+import { useMergedRefs } from "~/common/react/core.ts"
 import { useImage } from "~/common/react/dom.ts"
 import { Button } from "~/components/Button.tsx"
 import { Popover } from "~/components/Popover.tsx"
 import { StatusBar } from "~/components/StatusBar.tsx"
-import { api } from "~/convex/_generated/api.js"
 import type { ProtectedCharacter } from "~/convex/characters.ts"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
@@ -23,29 +22,33 @@ export function CharacterBattlemapToken({
 	character,
 	token,
 	scene,
+	selected,
+	tooltipsDisabled,
+	shapeRef,
 }: {
 	character: ProtectedCharacter
 	token: NonNullable<ProtectedCharacter["token"]>
 	scene: ApiScene
+	selected: boolean
+	tooltipsDisabled: boolean
+	shapeRef: React.Ref<Konva.Shape>
 }) {
-	const updateCharacter = useMutation(api.characters.update)
-
 	const [image] = useImage(
 		character.public.imageId && getImageUrl(character.public.imageId),
 	)
-	const [dragging, setDragging] = useState(false)
 	const [over, setOver] = useState(false)
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [editorOpen, setEditorOpen] = useState(false)
-	const ref = useRef<Konva.Group>(null)
 
 	const roundedX = roundTo(token.battlemapPosition.x, scene.cellSize / 4)
 	const roundedY = roundTo(token.battlemapPosition.y, scene.cellSize / 4)
 
 	const position = { x: roundedX, y: roundedY }
 
+	const internalRef = useRef<Konva.Group>(null)
+
 	const getAnchorRect = () => {
-		const node = ref.current
+		const node = internalRef.current
 		if (!node) return null
 		const { x, y, scaleX, scaleY } = node.getAbsoluteTransform().decompose()
 		return {
@@ -56,12 +59,7 @@ export function CharacterBattlemapToken({
 		}
 	}
 
-	useEffect(() => {
-		ref.current?.offset({
-			x: ref.current.width() / 2,
-			y: ref.current.height() / 2,
-		})
-	})
+	const ref = useMergedRefs(shapeRef, internalRef)
 
 	return (
 		<>
@@ -71,67 +69,66 @@ export function CharacterBattlemapToken({
 				height={scene.cellSize}
 				onPointerEnter={() => setOver(true)}
 				onPointerLeave={() => setOver(false)}
-				draggable
-				onPointerDown={(event) => {
-					if (event.evt.button === 0) {
-						event.cancelBubble = true
-					} else {
-						event.evt.preventDefault()
-					}
-				}}
 				onPointerClick={(event) => {
 					setMenuOpen(true)
 				}}
-				onDragStart={() => {
-					setDragging(true)
-
-					// update updatedAt so the character appears on top of others
-					updateCharacter({
-						characterId: character.public._id,
-						updatedAt: Date.now(),
-					})
-				}}
-				onDragEnd={(event) => {
-					event.cancelBubble = true
-					setDragging(false)
-
-					updateCharacter({
-						characterId: character.public._id,
-						battlemapPosition: event.target.position(),
-					})
-				}}
 				ref={ref}
 			>
-				<Circle
+				<Rect
 					fill="black"
+					stroke="black"
+					strokeWidth={8}
 					opacity={0.3}
-					radius={scene.cellSize / 2 + 4}
-					offset={{
-						x: -scene.cellSize / 2,
-						y: -scene.cellSize / 2,
-					}}
-				/>
-				<Circle
-					fill="black"
-					opacity={0.3}
-					radius={scene.cellSize / 2 + 2}
-					offset={{
-						x: -scene.cellSize / 2,
-						y: -scene.cellSize / 2,
-					}}
-				/>
-				<Image
-					image={image}
 					width={scene.cellSize}
 					height={scene.cellSize}
-					{...(image &&
-						getCrop(image, { width: 70, height: 70 }, "center-top"))}
 					cornerRadius={999999}
 				/>
+				<Rect
+					fill="black"
+					stroke="black"
+					strokeWidth={4}
+					opacity={0.3}
+					width={scene.cellSize}
+					height={scene.cellSize}
+					cornerRadius={999999}
+				/>
+				{image ? (
+					<Image
+						image={image}
+						width={scene.cellSize}
+						height={scene.cellSize}
+						{...(image &&
+							getCrop(image, { width: 70, height: 70 }, "center-top"))}
+						cornerRadius={999999}
+					/>
+				) : (
+					<Html divProps={{ className: "pointer-events-none" }}>
+						<div
+							{...{
+								className: "flex items-center justify-center",
+								style: {
+									width: scene.cellSize,
+									height: scene.cellSize,
+								},
+							}}
+						>
+							<VenetianMask className="size-1/2" />
+						</div>
+					</Html>
+				)}
+				{selected && (
+					<Rect
+						fill="skyblue"
+						opacity={0.5}
+						width={scene.cellSize}
+						height={scene.cellSize}
+						cornerRadius={999999}
+					/>
+				)}
 			</Group>
 
 			<Html transform={false}>
-				<Tooltip open={over && !dragging} placement="bottom">
+				<Tooltip open={over && !tooltipsDisabled} placement="bottom">
 					<TooltipContent
 						className="pointer-events-none flex scale-90 flex-col items-center rounded bg-black/75 p-2 text-center font-bold text-white opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
 						unmountOnHide
@@ -150,7 +147,7 @@ export function CharacterBattlemapToken({
 					</TooltipContent>
 				</Tooltip>
 
-				<Tooltip open={over && !dragging} placement="top">
+				<Tooltip open={over && !tooltipsDisabled} placement="top">
 					<TooltipContent
 						className="pointer-events-none flex w-24 scale-90 flex-col bg-transparent opacity-0 shadow-none transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
 						flip={false}

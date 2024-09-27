@@ -1,4 +1,12 @@
+import type { IterableElement } from "type-fest"
+
 export class List<T> extends Array<T> {
+	static override from<Items extends Iterable<unknown>>(
+		input?: Items | null | undefined,
+	): List<IterableElement<Items>>
+	static override from<T>(
+		input?: ArrayLike<T> | Iterable<T> | null | undefined,
+	): List<T>
 	static override from<T>(
 		input?: ArrayLike<T> | Iterable<T> | null | undefined,
 	): List<T> {

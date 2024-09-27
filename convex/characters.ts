@@ -87,16 +87,30 @@ export const create = effectMutation({
 export const update = effectMutation({
 	args: {
 		...partial(schema.tables.characters.validator.fields),
-		characterId: v.id("characters"),
-	},
-	handler(ctx, { characterId, ...args }) {
-		return pipe(
-			queryViewableCharacter(ctx.table("characters").get(characterId)),
-			Effect.flatMap(({ character }) =>
-				Effect.promise(() => character.patch(args)),
+		characterId: v.optional(v.id("characters")),
+		updates: v.optional(
+			v.array(
+				v.object({
+					characterId: v.id("characters"),
+					...partial(schema.tables.characters.validator.fields),
+				}),
 			),
-			Effect.orDie,
-		)
+		),
+	},
+	handler(ctx, { updates = [], ...args }) {
+		return Effect.gen(function* () {
+			if (args.characterId) {
+				updates.push({ ...args, characterId: args.characterId })
+			}
+			const results = []
+			for (const { characterId, ...props } of updates) {
+				const { character } = yield* queryViewableCharacter(
+					ctx.table("characters").get(characterId),
+				)
+				results.push(yield* Effect.promise(() => character.patch(props).get()))
+			}
+			return results
+		}).pipe(Effect.orDie)
 	},
 })
 
