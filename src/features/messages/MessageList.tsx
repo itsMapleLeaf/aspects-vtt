@@ -163,10 +163,10 @@ function MessageCard({
 				<Fragment key={index}>
 					{entry.type === "text" ? (
 						<p>
-							{entry.text.replaceAll(/<@([a-z0-9]+?)>/gi, (_, id) => {
-								console.log(id, namesById.get(id))
-								return namesById.get(id) ?? "(unknown)"
-							})}
+							{entry.text.replaceAll(
+								/<@([a-z0-9]+?)>/gi,
+								(_, id) => namesById.get(id) ?? "(unknown)",
+							)}
 						</p>
 					) : (
 						<aside className="flex flex-wrap items-center gap-1">
