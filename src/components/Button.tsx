@@ -38,13 +38,7 @@ export function Button({
 		<Tag
 			type={Tag === "button" ? "button" : undefined}
 			{...buttonProps}
-			className={twMerge(
-				button({
-					...variantProps,
-					disabled,
-				}),
-				className,
-			)}
+			className={twMerge(button({ ...variantProps, disabled }), className)}
 			onClick={(event) => {
 				if (disabled) {
 					event.preventDefault()
@@ -55,11 +49,7 @@ export function Button({
 				}
 			}}
 		>
-			{pending ? (
-				<LoadingIcon data-button-icon className="size-control-icon-md" />
-			) : (
-				icon
-			)}
+			{pending ? <LoadingIcon data-control-icon /> : icon}
 			<Slottable>{children}</Slottable>
 		</Tag>
 	)
