@@ -48,7 +48,10 @@ export const get = effectQuery({
 			const scene = yield* queryEnt(ctx.table("scenes").get(args.sceneId))
 			const room = yield* queryEnt(scene.edge("room"))
 
-			if (!isRoomOwner(room, userId)) {
+			const isAuthorized =
+				room.activeSceneId === args.sceneId || isRoomOwner(room, userId)
+
+			if (!isAuthorized) {
 				return null
 			}
 
