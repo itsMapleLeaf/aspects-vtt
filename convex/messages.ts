@@ -36,7 +36,7 @@ export const list = effectQuery({
 
 export const create = effectMutation({
 	args: {
-		characterId: v.id("characters"),
+		roomId: v.id("rooms"),
 		content: v.array(
 			v.union(
 				v.object({
@@ -54,10 +54,6 @@ export const create = effectMutation({
 		return Effect.gen(function* () {
 			const userId = yield* getAuthUserId(ctx)
 
-			const character = yield* queryEnt(
-				ctx.table("characters").get(args.characterId),
-			)
-
 			const content = args.content.map((entry) => {
 				if (entry.type !== "dice") {
 					return entry
@@ -73,7 +69,7 @@ export const create = effectMutation({
 
 			yield* Effect.promise(() =>
 				ctx.table("messages").insert({
-					roomId: character.roomId,
+					roomId: args.roomId,
 					authorId: userId,
 					content,
 				}),

@@ -10,7 +10,9 @@ export class List<T> extends Array<T> {
 		return list
 	}
 
-	static override of<T>(...items: T[]): List<T> {
+	static override of<Items extends unknown[]>(
+		...items: Items
+	): List<Items[number]> {
 		return List.from(Array.of(...items))
 	}
 
@@ -87,5 +89,9 @@ export class List<T> extends Array<T> {
 		const removed = result.splice(index, 1)
 		result.splice(toIndex, 0, ...removed)
 		return result
+	}
+
+	count(value: T) {
+		return this.filter((it) => it === value).length
 	}
 }

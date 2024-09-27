@@ -14,6 +14,7 @@ import { secondaryHeading, subText } from "~/styles/text.ts"
 import { NumberInputField } from "../forms/fields.tsx"
 import { Form } from "../forms/Form.tsx"
 import { useFields, useForm, valibotAction } from "../forms/useForm.ts"
+import { useRoomContext } from "../rooms/context.tsx"
 import { getAttributeDie } from "./helpers.ts"
 
 export function CharacterAttributeButton({
@@ -25,6 +26,7 @@ export function CharacterAttributeButton({
 	attribute: CharacterAttributeName
 	icon: React.ReactNode
 }) {
+	const roomId = useRoomContext()._id
 	const createMessage = useMutation(api.messages.create)
 	const attributeDieFaces = getAttributeDie(character.attributes[attribute])
 
@@ -42,7 +44,7 @@ export function CharacterAttributeButton({
 			}),
 			async () => {
 				await createMessage({
-					characterId: character._id,
+					roomId,
 					content: [
 						{
 							type: "text",
