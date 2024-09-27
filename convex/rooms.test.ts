@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import { ConvexError } from "convex/values"
 import type { Id } from "./_generated/dataModel"
 import { createMockMutationCtx } from "./lib/testing.ts"
 import { updateCombat } from "./rooms.ts"
@@ -34,7 +35,7 @@ async function setupTestRoom() {
 	return { mutationCtx, roomId, character1Id, character2Id }
 }
 
-test("updateCombat starts combat correctly", async () => {
+test("start", async () => {
 	const { mutationCtx, roomId } = await setupTestRoom()
 
 	await updateCombat(mutationCtx, {
@@ -49,9 +50,14 @@ test("updateCombat starts combat correctly", async () => {
 	})
 })
 
-test("updateCombat adds members correctly", async () => {
+test("addMembers", async () => {
 	const { mutationCtx, roomId, character1Id, character2Id } =
 		await setupTestRoom()
+
+	await updateCombat(mutationCtx, {
+		roomId,
+		action: { type: "start" },
+	})
 
 	await updateCombat(mutationCtx, {
 		roomId,
@@ -62,9 +68,14 @@ test("updateCombat adds members correctly", async () => {
 	expect(updatedRoom?.combat?.memberIds).toEqual([character1Id, character2Id])
 })
 
-test("updateCombat sets current member correctly", async () => {
+test("setCurrentMember", async () => {
 	const { mutationCtx, roomId, character1Id, character2Id } =
 		await setupTestRoom()
+
+	await updateCombat(mutationCtx, {
+		roomId,
+		action: { type: "start" },
+	})
 
 	await updateCombat(mutationCtx, {
 		roomId,
@@ -80,7 +91,7 @@ test("updateCombat sets current member correctly", async () => {
 	expect(updatedRoom?.combat?.currentMemberId).toBe(character1Id)
 })
 
-test("updateCombat advances turn correctly", async () => {
+test("advance", async () => {
 	const { mutationCtx, roomId, character1Id, character2Id } =
 		await setupTestRoom()
 
@@ -108,9 +119,14 @@ test("updateCombat advances turn correctly", async () => {
 	expect(updatedRoom?.combat?.currentMemberId).toBe(character2Id)
 })
 
-test("updateCombat removes members correctly", async () => {
+test("removeMembers", async () => {
 	const { mutationCtx, roomId, character1Id, character2Id } =
 		await setupTestRoom()
+
+	await updateCombat(mutationCtx, {
+		roomId,
+		action: { type: "start" },
+	})
 
 	await updateCombat(mutationCtx, {
 		roomId,
@@ -126,9 +142,14 @@ test("updateCombat removes members correctly", async () => {
 	expect(updatedRoom?.combat?.memberIds).toEqual([character1Id])
 })
 
-test("updateCombat stops combat correctly", async () => {
+test("stop", async () => {
 	const { mutationCtx, roomId, character1Id, character2Id } =
 		await setupTestRoom()
+
+	await updateCombat(mutationCtx, {
+		roomId,
+		action: { type: "start" },
+	})
 
 	await updateCombat(mutationCtx, {
 		roomId,
@@ -142,4 +163,22 @@ test("updateCombat stops combat correctly", async () => {
 
 	const updatedRoom = await mutationCtx.db.get(roomId)
 	expect(updatedRoom?.combat).toBeNull()
+})
+
+test.each([
+	{ type: "addMembers" as const, memberIds: [] },
+	{ type: "setCurrentMember" as const, memberId: "" },
+	{ type: "advance" as const, memberIds: [] },
+	{ type: "removeMembers" as const, memberIds: [] },
+	{ type: "stop" as const },
+])("throws on invalid state", async () => {
+	const { mutationCtx, roomId, character1Id, character2Id } =
+		await setupTestRoom()
+
+	await expect(
+		updateCombat(mutationCtx, {
+			roomId,
+			action: { type: "addMembers", memberIds: [character1Id, character2Id] },
+		}),
+	).rejects.toBeInstanceOf(ConvexError)
 })
