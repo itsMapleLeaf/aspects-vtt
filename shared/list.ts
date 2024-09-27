@@ -12,6 +12,10 @@ export class List<T> extends Array<T> {
 
 	static override of<Items extends unknown[]>(
 		...items: Items
+	): List<Items[number]>
+	static override of<T>(...items: T[]): List<T>
+	static override of<Items extends unknown[]>(
+		...items: Items
 	): List<Items[number]> {
 		return List.from(Array.of(...items))
 	}
