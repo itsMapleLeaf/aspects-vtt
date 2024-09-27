@@ -1,0 +1,56 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"setup": {
+			"outputs": ["convex/**", ".env", ".env.local"]
+		},
+		"dev": {
+			"dependsOn": ["setup"],
+			"cache": false,
+			"persistent": true
+		},
+		"dev:app": {
+			"cache": false,
+			"persistent": true
+		},
+		"dev:convex": {
+			"cache": false,
+			"persistent": true
+		},
+		"codegen": {
+			"outputs": ["convex/_generated/**"]
+		},
+		"build": {
+			"dependsOn": ["codegen"],
+			"inputs": [
+				"src/**",
+				"public/**",
+				"docs/handbook.md",
+				"package.json",
+				"bun.lock*",
+				"vite.config.*",
+				"tailwind.config.*",
+				"postcss.config.*",
+				"tsconfig.json"
+			],
+			"outputs": ["build/**"]
+		},
+		"preview": {
+			"dependsOn": ["build"],
+			"persistent": true
+		},
+		"deploy": {},
+		"format": {},
+		"typecheck": {
+			"dependsOn": ["codegen"],
+			"inputs": ["**/*.{ts,tsx}"]
+		},
+		"test": {
+			"inputs": ["**/*.test.{ts,tsx}"]
+		},
+		"e2e": {},
+		"checks": {
+			"dependsOn": ["typecheck", "test"]
+		}
+	}
+}
