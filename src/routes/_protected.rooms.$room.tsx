@@ -16,6 +16,11 @@ export default function RoomRoute() {
 	const room = useQuery(api.rooms.get, { id })
 	return (
 		<>
+			<style>{`
+				:root {
+					overflow: clip;
+				}
+			`}</style>
 			{room && (
 				<RoomContext value={room}>
 					<RoomBackground />
@@ -36,10 +41,11 @@ function RoomInterface() {
 				<header className="pointer-events-children flex items-center justify-between">
 					<Heading className={heading()}>AspectsVTT</Heading>
 					<UserButton />
-					{room.activeSceneId && (
-						<ActiveSceneHeading sceneId={room.activeSceneId} />
-					)}
 				</header>
+
+				{room.activeSceneId && (
+					<ActiveSceneHeading sceneId={room.activeSceneId} />
+				)}
 
 				<main className="pointer-events-children flex min-h-0 flex-1 items-stretch justify-between *:w-72">
 					<RoomInterfaceModules />
@@ -51,15 +57,15 @@ function RoomInterface() {
 
 function ActiveSceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
 	const activeScene = useQuery(api.scenes.get, { sceneId })
-	return activeScene ?
-			<HeadingLevel>
-				<div className="pointer-events-children absolute inset-x-0 top-6 flex flex-col items-center animate-in fade-in">
-					<Heading className="text-3xl font-light">{activeScene.name}</Heading>
-					<p className="text-xl font-light">Harvest 24th, 365 &bull; Evening</p>
-					<p className="text-xl font-light">(weather)</p>
-				</div>
-			</HeadingLevel>
-		:	null
+	return activeScene ? (
+		<HeadingLevel>
+			<div className="pointer-events-children absolute inset-x-0 top-6 flex flex-col items-center animate-in fade-in">
+				<Heading className="text-3xl font-light">{activeScene.name}</Heading>
+				<p className="text-xl font-light">Harvest 24th, 365 &bull; Evening</p>
+				<p className="text-xl font-light">(weather)</p>
+			</div>
+		</HeadingLevel>
+	) : null
 }
 
 function RoomBackground() {

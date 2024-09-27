@@ -1,4 +1,6 @@
+import mdx from "@mdx-js/rollup"
 import { vitePlugin as remix } from "@remix-run/dev"
+import remarkGfm from "remark-gfm"
 import { defineConfig } from "vite"
 import tsconfigPaths from "vite-tsconfig-paths"
 
@@ -6,6 +8,9 @@ import tsconfigPaths from "vite-tsconfig-paths"
 export default defineConfig({
 	plugins: [
 		tsconfigPaths(),
+		mdx({
+			remarkPlugins: [remarkGfm],
+		}),
 		remix({
 			appDirectory: "src",
 			future: {

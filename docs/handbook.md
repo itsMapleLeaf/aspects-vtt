@@ -1,4 +1,4 @@
-# Gameplay
+# Aspects of Nature
 
 Aspects of Nature is a tabletop roleplaying game. One player plays as the the Game Master (GM for short, also known as the Dungeon Master, or DM), and everyone else plays as a Player Character (PC).
 
@@ -14,51 +14,49 @@ This game system was designed with a focus on **narrative** (1) and **flexibilit
 
 # Character Sheet
 
-> Name:
-> Gender:
-> Pronouns:
-> Race:
-> Alignment:
-> Faction:
-> Homeland:
-> Bio:
+```
+Name:
+Gender:
+Pronouns:
+Race:
+Alignment:
+Faction:
+Homeland:
+Bio:
 
-## Attributes
+Strength:
+Mobility:
+Sense:
+Intellect:
+Wit:
 
-> Strength:
-> Mobility:
-> Sense:
-> Intellect:
-> Wit:
-
-## Status
-
-> Health: x/x
-
-> Resolve: x/x
-
-> Wealth:
+Health: x/x
+Resolve: x/x
+Wealth:
+```
 
 ## Example Character
 
-> Name: Luna
-> Gender: Female
-> Pronouns: she/her
-> Race: Renari
-> Alignment: Chaotic Good
-> Faction: Protection, leaning Singular
-> Homeland: Rosenfeld
-> Bio: angsty gay fox girl who does parkour
+```
+Name: Luna
+Gender: Female
+Pronouns: she/her
+Race: Renari
+Alignment: Chaotic Good
+Faction: Protection, leaning Singular
+Homeland: Rosenfeld
+Bio: angsty gay fox girl who does parkour
 
-> Strength: 3 (d8)
-> Mobility: 5 (d12)
-> Sense: 4 (d10)
-> Intellect: 1 (d4)
-> Wit: 2 (d6)
+Strength: 3 (d8)
+Mobility: 5 (d12)
+Sense: 4 (d10)
+Intellect: 1 (d4)
+Wit: 2 (d6)
 
-> Health: 20/20
-> Resolve: 7/7
-> Wealth: Lower Middle Class
+Health: 20/20
+Resolve: 7/7
+Wealth: Lower Middle Class
+```
 
 # Attributes
 

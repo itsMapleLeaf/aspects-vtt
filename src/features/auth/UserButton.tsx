@@ -1,6 +1,7 @@
 import { useQuery } from "convex/react"
 import { LogOut } from "lucide-react"
 import { Avatar } from "~/components/Avatar.tsx"
+import { Button } from "~/components/Button.tsx"
 import { Menu } from "~/components/Menu.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { useAuthActions } from "./useAuthActions.ts"
@@ -11,13 +12,10 @@ export function UserButton() {
 	return (
 		<Menu
 			render={
-				<button
-					type="button"
-					className="flex items-center rounded-md bg-primary-100 bg-opacity-0 px-3 py-2 transition gap-2 hover:bg-opacity-10 active:bg-opacity-20 active:duration-0"
-				>
+				<Button appearance="clear" className="h-14">
 					<span>{user?.name}</span>
 					<Avatar src={user?.image} className="size-10" />
-				</button>
+				</Button>
 			}
 			options={[
 				{

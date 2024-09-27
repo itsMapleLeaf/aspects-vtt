@@ -1,5 +1,6 @@
 // @ts-check
 import containerQueries from "@tailwindcss/container-queries"
+import typography from "@tailwindcss/typography"
 import { Iterator } from "iterator-helpers-polyfill"
 import animate from "tailwindcss-animate"
 import colors from "tailwindcss/colors.js"
@@ -72,6 +73,7 @@ export default {
 	plugins: [
 		containerQueries,
 		animate,
+		typography({ target: "modern" }),
 
 		plugin(function control(api) {
 			api.addVariant("control-icon", ["& > svg", "& > [data-control-icon]"])

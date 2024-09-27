@@ -28,7 +28,7 @@ export const buttonVariantNames = [
 	...uniqueButtonVariantNames,
 ] as const
 
-export const buttonVariants = cva("cursor-default", {
+export const buttonVariants = cva("", {
 	variants: {
 		appearance: {
 			solid: `border-primary-600 bg-primary-700 hover:border-primary-500 hover:bg-primary-600 active:bg-primary-500`,
