@@ -1,9 +1,11 @@
 export class List<T> extends Array<T> {
-	static override from<T>(input: ArrayLike<T>): List<T> {
+	static override from<T>(
+		input?: ArrayLike<T> | Iterable<T> | null | undefined,
+	): List<T> {
 		const list = new List<T>()
-		for (let i = 0; i < input.length; i++) {
-			// @ts-expect-error
-			list[i] = input[i]
+		if (input == null) return list
+		for (const [index, value] of Array.from(input).entries()) {
+			list[index] = value
 		}
 		return list
 	}
@@ -13,27 +15,47 @@ export class List<T> extends Array<T> {
 	}
 
 	static const<const T>(...items: T[]): List<T> {
-		return new List(...items)
+		return List.from(items)
 	}
 
 	static keys<const T extends PropertyKey>(record: Record<T, unknown>) {
-		return List.of(...Object.keys(record)) as List<T>
+		return List.from(Object.keys(record)) as List<T>
 	}
 
 	static values<const T>(record: Record<PropertyKey, T>) {
-		return List.of(...Object.values(record))
+		return List.from(Object.values(record))
 	}
 
 	override map<U>(fn: (value: T, index: number, list: List<T>) => U) {
-		return List.of(...super.map((value, index) => fn(value, index, this)))
+		return List.from(super.map((value, index) => fn(value, index, this)))
 	}
 
 	override includes<Others>(value: T | Others): value is T {
 		return super.includes(value as T)
 	}
 
+	override indexOf<Others>(value: T | Others, fromIndex?: number) {
+		return super.indexOf(value as T, fromIndex)
+	}
+
 	array(): readonly T[] {
 		return this
+	}
+
+	select<U extends T>(
+		fn: (value: T, index: number, list: List<T>) => value is U,
+	): List<U>
+	select(fn: (value: T, index: number, list: List<T>) => unknown): List<T>
+	select(fn: (value: T, index: number, list: List<T>) => unknown) {
+		return List.from(super.filter((value, index) => fn(value, index, this)))
+	}
+
+	compact() {
+		return this.select((it) => it != null)
+	}
+
+	unique() {
+		return List.from(new Set(this))
 	}
 
 	mapToObject<K extends PropertyKey, V>(
@@ -50,5 +72,20 @@ export class List<T> extends Array<T> {
 			total += typeof item === "number" ? item : 0
 		}
 		return total
+	}
+
+	without(...values: T[]) {
+		const valueSet = new Set(values)
+		return List.from(this.filter((it) => !valueSet.has(it)))
+	}
+
+	moveValue(value: T, toIndex: number) {
+		const index = this.indexOf(value)
+		if (index === -1) return this
+
+		const result = List.from(this)
+		const removed = result.splice(index, 1)
+		result.splice(toIndex, 0, ...removed)
+		return result
 	}
 }

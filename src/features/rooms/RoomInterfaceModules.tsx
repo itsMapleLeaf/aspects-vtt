@@ -5,8 +5,8 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter"
 import { Iterator } from "iterator-helpers-polyfill"
 import {
-	LucideFileText,
 	LucideMessageCircle,
+	LucideNotebookPen,
 	LucidePackage,
 	LucideShield,
 	LucideUsers2,
@@ -17,6 +17,7 @@ import { useLocalStorage } from "~/common/react/dom.ts"
 import { Button } from "~/components/Button.tsx"
 import { panel } from "~/styles/panel.ts"
 import { CharacterList } from "../characters/CharacterList.tsx"
+import { CombatTracker } from "../combat/CombatTracker.tsx"
 import { RoomItemList } from "../inventory/RoomItemList.tsx"
 import { MessageList } from "../messages/MessageList.tsx"
 
@@ -49,21 +50,17 @@ const MODULES: Record<string, ModuleDefinition> = {
 		name: "Items",
 		icon: <LucidePackage />,
 		defaultLocation: { sidebar: 0, panel: 1 },
-		content: () => (
-			<div className="h-full *:pt-0">
-				<RoomItemList />
-			</div>
-		),
+		content: () => <RoomItemList />,
 	},
 	combat: {
 		name: "Combat",
 		icon: <LucideShield />,
 		defaultLocation: { sidebar: 1, panel: 0 },
-		content: () => <p>combat</p>,
+		content: () => <CombatTracker />,
 	},
 	notes: {
 		name: "Notes",
-		icon: <LucideFileText />,
+		icon: <LucideNotebookPen />,
 		defaultLocation: { sidebar: 0, panel: 0 },
 		content: () => <p>notes</p>,
 	},
@@ -258,7 +255,7 @@ function SidebarPanel({
 	return (
 		<div
 			className={panel(
-				"flex min-h-0 flex-1 flex-col shadow shadow-primary-900/75 transition",
+				"flex min-h-0 flex-1 flex-col p-2 shadow shadow-primary-900/75 transition gap-2",
 				over && "border-accent-500",
 			)}
 			ref={ref}
@@ -267,7 +264,7 @@ function SidebarPanel({
 				selectedId={selectedModule?.id}
 				setSelectedId={setSelectedId}
 			>
-				<div className="flex flex-wrap justify-center p-2 gap-2">
+				<div className="flex flex-wrap justify-center gap">
 					{modules.map((module) => (
 						<ModuleHandle
 							key={module.id}

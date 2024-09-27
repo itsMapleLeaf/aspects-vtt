@@ -236,7 +236,7 @@ function queryViewableCharacter<EntType extends Ent<"characters">>(
 	})
 }
 
-function protectCharacter(
+export function protectCharacter(
 	character: NormalizedCharacter,
 	userId: Id<"users">,
 	room: Doc<"rooms">,

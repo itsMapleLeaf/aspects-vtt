@@ -10,6 +10,7 @@ import {
 	CharacterEditorDialog,
 	CharacterEditorDialogButton,
 } from "./CharacterEditorDialog.tsx"
+import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 
 export function CharacterCard({
@@ -22,9 +23,9 @@ export function CharacterCard({
 			<div className="flex items-center gap">
 				<Avatar
 					src={
-						character.public.imageId ?
-							getImageUrl(character.public.imageId)
-						:	undefined
+						character.public.imageId
+							? getImageUrl(character.public.imageId)
+							: undefined
 					}
 					className="size-14"
 				/>
@@ -57,6 +58,7 @@ export function CharacterCard({
 				<CharacterAttributeButtonRow character={character.full} />
 			)}
 			{character.full && <CharacterVitalFields character={character.full} />}
+			<CharacterToggleCombatMemberButton characterId={character.public._id} />
 		</div>
 	)
 }

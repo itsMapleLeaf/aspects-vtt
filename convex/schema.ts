@@ -33,6 +33,15 @@ const entSchema = defineEntSchema({
 		slug: v.string(),
 		activeSceneId: nullish(v.id("scenes")),
 		items: v.optional(v.record(v.string(), roomItemValidator)),
+		combat: v.optional(
+			v.union(
+				v.null(),
+				v.object({
+					memberIds: v.array(v.id("characters")),
+					currentMemberId: v.optional(v.id("characters")),
+				}),
+			),
+		),
 	})
 		.edge("owner", { to: "users", field: "ownerId" })
 		.edges("scenes", { ref: true })

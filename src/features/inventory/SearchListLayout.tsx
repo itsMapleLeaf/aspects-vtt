@@ -57,7 +57,7 @@ export function SearchListLayout<T>({
 	}
 
 	return (
-		<div className={twMerge("flex h-full flex-col p-[--gap] gap-2", className)}>
+		<div className={twMerge("flex h-full flex-col gap-2", className)}>
 			<div className="flex gap">
 				<input
 					className={textInput("flex-1")}

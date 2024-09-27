@@ -6,20 +6,17 @@ import { Circle, Group, Image } from "react-konva"
 import { Html } from "react-konva-utils"
 import { roundTo } from "~/common/math.ts"
 import { useImage } from "~/common/react/dom.ts"
+import { Button } from "~/components/Button.tsx"
+import { Popover } from "~/components/Popover.tsx"
 import { StatusBar } from "~/components/StatusBar.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { ProtectedCharacter } from "~/convex/characters.ts"
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-} from "~/ui/dropdown-menu.tsx"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
 import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
+import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 
 export function CharacterBattlemapToken({
@@ -189,32 +186,36 @@ export function CharacterBattlemapToken({
 					</TooltipContent>
 				</Tooltip>
 
-				<DropdownMenu open={menuOpen} setOpen={setMenuOpen} placement="bottom">
-					<DropdownMenuContent
+				<Popover.Root open={menuOpen} setOpen={setMenuOpen} placement="bottom">
+					<Popover.Content
 						getAnchorRect={getAnchorRect}
-						className="rounded-lg"
+						className="flex flex-col p-gap gap-2"
 					>
 						{character.full && (
 							<CharacterAttributeButtonRow character={character.full} />
 						)}
-						<DropdownMenuSeparator />
-						{character.full && (
-							<DropdownMenuItem onClick={() => setEditorOpen(true)}>
-								<LucideEdit /> Edit
-							</DropdownMenuItem>
-						)}
-						<DropdownMenuItem>
-							<LucideSwords /> Attack
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
 						{character.full && (
 							<CharacterVitalFields
-								className="w-[220px] p-1 gap-2"
+								className="w-[220px] gap"
 								character={character.full}
 							/>
 						)}
-					</DropdownMenuContent>
-				</DropdownMenu>
+						<Button asChild icon={<LucideSwords />} align="start">
+							<Popover.Close>Attack</Popover.Close>
+						</Button>
+						{character.full && (
+							<Button asChild icon={<LucideEdit />} align="start">
+								<Popover.Close onClick={() => setEditorOpen(true)}>
+									Edit
+								</Popover.Close>
+							</Button>
+						)}
+						<CharacterToggleCombatMemberButton
+							characterId={character.public._id}
+							align="start"
+						/>
+					</Popover.Content>
+				</Popover.Root>
 
 				{character.full && (
 					<CharacterEditorDialog

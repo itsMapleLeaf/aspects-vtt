@@ -216,21 +216,23 @@ function AttributeInput(props: AttributeInputProps) {
 	return (
 		<Field label={props.label}>
 			<div className="flex gap-2">
-				{Iterator.range(1, 5, 1, true).map((n) => (
-					<button
-						key={n}
-						type="button"
-						className={twMerge(
-							"size-6 rounded-full border-2 border-primary-100 bg-primary-100 bg-opacity-0 transition active:border-primary-300 active:bg-primary-300 active:duration-0",
-							n <= value ? "bg-opacity-100" : "hover:bg-opacity-50",
-						)}
-						onClick={() => setValue(n)}
-					>
-						<span className="sr-only">
-							Set {props.label} to {n}
-						</span>
-					</button>
-				))}
+				{Iterator.range(1, 5, 1, true)
+					.map((n) => (
+						<button
+							key={n}
+							type="button"
+							className={twMerge(
+								"size-6 rounded-full border-2 border-primary-100 bg-primary-100 bg-opacity-0 transition active:border-primary-300 active:bg-primary-300 active:duration-0",
+								n <= value ? "bg-opacity-100" : "hover:bg-opacity-50",
+							)}
+							onClick={() => setValue(n)}
+						>
+							<span className="sr-only">
+								Set {props.label} to {n}
+							</span>
+						</button>
+					))
+					.toArray()}
 			</div>
 		</Field>
 	)
