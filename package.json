@@ -10,7 +10,7 @@
     "dev:app": "remix vite:dev",
     "dev:convex": "convex dev --tail-logs",
     "build": "convex codegen --typecheck disable && remix vite:build",
-    "deploy": "convex deploy --cmd 'bun run build'",
+    "deploy": "convex deploy --cmd 'bun run build' --cmd-url-env-var-name VITE_CONVEX_URL --typecheck disable",
     "format": "prettier . --write --list-different",
     "preview": "remix-serve ./build/server/index.js",
     "test": "bun test",
