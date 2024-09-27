@@ -14,7 +14,8 @@ import { BASE_URL } from "./e2e/constants.ts"
 
 /** See https://playwright.dev/docs/test-configuration. */
 export default defineConfig({
-	testDir: "e2e",
+	testDir: "./e2e",
+	testMatch: "**/*.@(spec|test|e2e).?(c|m)[jt]s?(x)",
 	/* Run tests in files in parallel */
 	fullyParallel: true,
 	/* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -39,30 +40,18 @@ export default defineConfig({
 
 	/* Configure projects for major browsers */
 	projects: [
-		// Unit tests project
-		{
-			name: "unit",
-			testMatch: /.*\.test\.ts/,
-			use: {
-				// Use a dummy browser for unit tests
-				browserName: "chromium",
-			},
-		},
 		// E2E tests projects
 		{
 			name: "chromium",
 			use: { ...devices["Desktop Chrome"] },
-			testMatch: /tests\/.*\.e2e\.ts/,
 		},
 		{
 			name: "firefox",
 			use: { ...devices["Desktop Firefox"] },
-			testMatch: /tests\/.*\.e2e\.ts/,
 		},
 		{
 			name: "webkit",
 			use: { ...devices["Desktop Safari"] },
-			testMatch: /tests\/.*\.e2e\.ts/,
 		},
 	],
 
