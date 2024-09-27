@@ -1,5 +1,6 @@
 import mdx from "@mdx-js/rollup"
 import { vitePlugin as remix } from "@remix-run/dev"
+import { vercelPreset } from "@vercel/remix/vite"
 import remarkGfm from "remark-gfm"
 import { defineConfig } from "vite"
 import tsconfigPaths from "vite-tsconfig-paths"
@@ -21,6 +22,7 @@ export default defineConfig({
 				unstable_lazyRouteDiscovery: true,
 				unstable_optimizeDeps: true,
 			},
+			presets: process.env.VERCEL ? [vercelPreset()] : [],
 		}),
 	],
 	ssr: {
