@@ -151,12 +151,23 @@ function MessageCard({
 }: {
 	message: FunctionReturnType<typeof api.messages.list>[number]
 }) {
+	const characters = useQuery(api.characters.list, {
+		roomId: message.roomId,
+	})
+	const namesById = new Map(
+		characters?.map((it) => [it.public._id, it.identity?.name]),
+	)
 	return (
 		<div className={lightPanel("flex flex-col p-2 gap-2")}>
 			{message.content.map((entry, index) => (
 				<Fragment key={index}>
 					{entry.type === "text" ? (
-						<p>{entry.text}</p>
+						<p>
+							{entry.text.replaceAll(/<@([a-z0-9]+?)>/gi, (_, id) => {
+								console.log(id, namesById.get(id))
+								return namesById.get(id) ?? "(unknown)"
+							})}
+						</p>
 					) : (
 						<aside className="flex flex-wrap items-center gap-1">
 							<ul className="contents">

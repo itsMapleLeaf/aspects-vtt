@@ -48,7 +48,7 @@ export function CharacterAttributeButton({
 					content: [
 						{
 							type: "text",
-							text: `${character.name} rolled ${startCase(attribute)}:`,
+							text: `<@${character._id}> rolled ${startCase(attribute)}:`,
 						},
 						{
 							type: "dice",
