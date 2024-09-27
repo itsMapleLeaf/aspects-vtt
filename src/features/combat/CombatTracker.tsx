@@ -24,14 +24,24 @@ export function CombatTracker() {
 	return (
 		<div className="flex h-full flex-col gap-2">
 			{combat === undefined ? null : combat === null ? (
-				<ToastActionForm
-					action={() => update({ roomId, action: { type: "start" } })}
-					className="flex flex-col items-center"
-				>
-					<Button type="submit" icon={<LucideSwords />} size="large">
-						Start combat
-					</Button>
-				</ToastActionForm>
+				room.isOwner ? (
+					<ToastActionForm
+						action={() => update({ roomId, action: { type: "start" } })}
+						className="flex flex-col items-center"
+					>
+						<Button type="submit" icon={<LucideSwords />} size="large">
+							Start combat
+						</Button>
+					</ToastActionForm>
+				) : (
+					<p
+						className={secondaryHeading(
+							"text-balance px-4 py-8 text-center opacity-50",
+						)}
+					>
+						Combat is currently inactive.
+					</p>
+				)
 			) : (
 				<>
 					<ul className="min-h-0 flex-1 overflow-y-auto">
@@ -78,6 +88,7 @@ export function CombatTracker() {
 							</li>
 						))}
 					</ul>
+
 					{room.isOwner && (
 						<div className="flex justify-center gap">
 							<ToastActionForm
