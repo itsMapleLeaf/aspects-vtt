@@ -157,7 +157,7 @@ export function CharacterBattlemapToken({
 						portal={false}
 						getAnchorRect={getAnchorRect}
 					>
-						<div className="self-center rounded border-2 border-pink-700 bg-pink-700/75 px-1.5 py-1 leading-none text-white shadow">
+						{/* <div className="self-center rounded border-2 border-pink-700 bg-pink-700/75 px-1.5 py-1 leading-none text-white shadow">
 							Gay
 						</div>
 						<div className="self-center rounded border-2 border-orange-700 bg-orange-700/75 px-1.5 py-1 leading-none text-white shadow">
@@ -168,7 +168,7 @@ export function CharacterBattlemapToken({
 						</div>
 						<div className="self-center rounded border-2 border-red-700 bg-red-700/75 px-1.5 py-1 leading-none text-white shadow">
 							Exploding
-						</div>
+						</div> */}
 						{character.full && (
 							<StatusBar
 								value={character.full.health}
