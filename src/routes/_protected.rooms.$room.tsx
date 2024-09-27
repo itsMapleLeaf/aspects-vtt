@@ -23,6 +23,7 @@ export default function RoomRoute() {
 			`}</style>
 			{room && (
 				<RoomContext value={room}>
+					<title>{`${room.name} | Aspects VTT`}</title>
 					<RoomBackground />
 					<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
 					<RoomInterface />
