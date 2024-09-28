@@ -3,22 +3,21 @@
 	"envMode": "loose",
 	"tasks": {
 		"setup": {
+			"inputs": ["convex/**/*", "!convex/_generated"],
 			"outputs": ["convex/**", ".env", ".env.local"]
 		},
-		"dev": {
+		"dev:app": {
 			"dependsOn": ["setup"],
 			"cache": false,
 			"persistent": true
 		},
-		"dev:app": {
-			"cache": false,
-			"persistent": true
-		},
 		"dev:convex": {
+			"dependsOn": ["setup"],
 			"cache": false,
 			"persistent": true
 		},
 		"codegen": {
+			"inputs": ["convex/**/*", "!convex/_generated"],
 			"outputs": ["convex/_generated/**"]
 		},
 		"build": {
