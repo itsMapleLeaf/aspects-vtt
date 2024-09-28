@@ -18,9 +18,11 @@ export function Close(props: Ariakit.PopoverDismissProps) {
 	return <Ariakit.PopoverDismiss {...props} />
 }
 
-export interface ContentProps extends Ariakit.PopoverProps {}
-
-export function Content({ children, className, ...props }: ContentProps) {
+export function Content({
+	children,
+	className,
+	...props
+}: Ariakit.PopoverProps) {
 	return (
 		<Ariakit.Popover
 			backdrop={
