@@ -58,7 +58,9 @@ export function CharacterCard({
 				<CharacterAttributeButtonRow character={character.full} />
 			)}
 			{character.full && <CharacterVitalFields character={character.full} />}
-			<CharacterToggleCombatMemberButton characterId={character.public._id} />
+			<CharacterToggleCombatMemberButton
+				characterIds={[character.public._id]}
+			/>
 		</div>
 	)
 }

@@ -1,44 +1,38 @@
 import Konva from "konva"
-import { LucideEdit, LucideSwords, VenetianMask } from "lucide-react"
+import { VenetianMask } from "lucide-react"
 import { useRef, useState } from "react"
 import { Group, Image, Rect } from "react-konva"
 import { Html } from "react-konva-utils"
 import { roundTo } from "~/common/math.ts"
 import { useMergedRefs } from "~/common/react/core.ts"
 import { useImage } from "~/common/react/dom.ts"
-import { Button } from "~/components/Button.tsx"
-import { Popover } from "~/components/Popover.tsx"
 import { StatusBar } from "~/components/StatusBar.tsx"
 import type { ProtectedCharacter } from "~/convex/characters.ts"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
-import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
-import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
-import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
-import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 
 export function CharacterBattlemapToken({
 	character,
 	token,
 	scene,
 	selected,
-	tooltipsDisabled,
 	shapeRef,
+	tooltipsDisabled,
+	onContextMenu,
 }: {
 	character: ProtectedCharacter
 	token: NonNullable<ProtectedCharacter["token"]>
 	scene: ApiScene
 	selected: boolean
-	tooltipsDisabled: boolean
 	shapeRef: React.Ref<Konva.Shape>
+	tooltipsDisabled: boolean
+	onContextMenu: (event: Konva.KonvaEventObject<PointerEvent>) => void
 }) {
 	const [image] = useImage(
 		character.public.imageId && getImageUrl(character.public.imageId),
 	)
 	const [over, setOver] = useState(false)
-	const [menuOpen, setMenuOpen] = useState(false)
-	const [editorOpen, setEditorOpen] = useState(false)
 
 	const roundedX = roundTo(token.battlemapPosition.x, scene.cellSize / 4)
 	const roundedY = roundTo(token.battlemapPosition.y, scene.cellSize / 4)
@@ -69,8 +63,22 @@ export function CharacterBattlemapToken({
 				height={scene.cellSize}
 				onPointerEnter={() => setOver(true)}
 				onPointerLeave={() => setOver(false)}
+				onPointerDown={(event) => {
+					if (event.evt.button === 2) {
+						event.evt.preventDefault()
+						event.cancelBubble = true
+					}
+
+					// hack: when clicked, the menu opens, so we know we won't be over this token
+					setOver(false)
+				}}
 				onPointerClick={(event) => {
-					setMenuOpen(true)
+					if (event.evt.button === 2) return
+					onContextMenu(event)
+				}}
+				onContextMenu={(event) => {
+					event.evt.preventDefault()
+					onContextMenu(event)
 				}}
 				ref={ref}
 			>
@@ -130,7 +138,7 @@ export function CharacterBattlemapToken({
 			<Html transform={false}>
 				<Tooltip open={over && !tooltipsDisabled} placement="bottom">
 					<TooltipContent
-						className="pointer-events-none flex scale-90 flex-col items-center rounded bg-black/75 p-2 text-center font-bold text-white opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
+						className="flex scale-90 flex-col items-center rounded bg-black/75 p-2 text-center font-bold text-white opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
 						unmountOnHide
 						portal={false}
 						flip={false}
@@ -149,7 +157,7 @@ export function CharacterBattlemapToken({
 
 				<Tooltip open={over && !tooltipsDisabled} placement="top">
 					<TooltipContent
-						className="pointer-events-none flex w-24 scale-90 flex-col bg-transparent opacity-0 shadow-none transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
+						className="flex w-24 scale-90 flex-col bg-transparent opacity-0 shadow-none transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
 						flip={false}
 						portal={false}
 						getAnchorRect={getAnchorRect}
@@ -182,45 +190,6 @@ export function CharacterBattlemapToken({
 						)}
 					</TooltipContent>
 				</Tooltip>
-
-				<Popover.Root open={menuOpen} setOpen={setMenuOpen} placement="bottom">
-					<Popover.Content
-						getAnchorRect={getAnchorRect}
-						className="flex flex-col p-gap gap-2"
-					>
-						{character.full && (
-							<CharacterAttributeButtonRow character={character.full} />
-						)}
-						{character.full && (
-							<CharacterVitalFields
-								className="w-[220px] gap"
-								character={character.full}
-							/>
-						)}
-						<Button asChild icon={<LucideSwords />} align="start">
-							<Popover.Close>Attack</Popover.Close>
-						</Button>
-						{character.full && (
-							<Button asChild icon={<LucideEdit />} align="start">
-								<Popover.Close onClick={() => setEditorOpen(true)}>
-									Edit
-								</Popover.Close>
-							</Button>
-						)}
-						<CharacterToggleCombatMemberButton
-							characterId={character.public._id}
-							align="start"
-						/>
-					</Popover.Content>
-				</Popover.Root>
-
-				{character.full && (
-					<CharacterEditorDialog
-						character={character.full}
-						open={editorOpen}
-						setOpen={setEditorOpen}
-					/>
-				)}
 			</Html>
 		</>
 	)

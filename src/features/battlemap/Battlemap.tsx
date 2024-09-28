@@ -11,6 +11,10 @@ import { List } from "~/shared/list.ts"
 import { Region } from "~/shared/region.ts"
 import { Vec } from "~/shared/vec.ts"
 import { CharacterBattlemapToken } from "../characters/CharacterBattlemapToken.tsx"
+import {
+	CharacterMenu,
+	useCharacterMenuController,
+} from "../characters/CharacterMenu.tsx"
 import type { ApiCharacter } from "../characters/types.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import type { ApiScene } from "../scenes/types.ts"
@@ -31,82 +35,107 @@ export function Battlemap({
 		.flatMap((c) => (c.token ? [{ ...c, token: c.token }] : []))
 		.toSorted((a, b) => a.token.updatedAt - b.token.updatedAt)
 
-	const selected = []
-	const deselected = []
-
-	for (const token of tokens) {
-		if (selectedIds.has(token.public._id)) {
-			selected.push(token)
-		} else {
-			deselected.push(token)
-		}
-	}
+	const selected = tokens.filter((it) => selectedIds.has(it.public._id))
+	const deselected = tokens.filter((it) => !selectedIds.has(it.public._id))
 
 	const tokenShapesRef = useRef(new Map<string, Konva.Shape>())
 
-	const tokenGroupRef = (info: { id: string; shape: Konva.Shape } | null) => {
-		if (!info) return
-		tokenShapesRef.current.set(info.id, info.shape)
+	const registerShape = (id: string, shape: Konva.Shape) => {
+		tokenShapesRef.current.set(id, shape)
 		return () => {
-			tokenShapesRef.current.delete(info.id)
+			tokenShapesRef.current.delete(id)
 		}
 	}
 
+	const characterMenuController = useCharacterMenuController()
+
 	return (
-		<BattlemapStage
-			onSelectRegionStart={() => setSelecting(true)}
-			onSelectRegion={(region) => {
-				setSelecting(false)
-				const matching = List.of(...tokenShapesRef.current)
-					.select(([, shape]) =>
-						Region.from(region).intersects(
-							new Region(
-								Vec.from(shape.position()),
-								Vec.from({
-									x: shape.width(),
-									y: shape.height(),
-								}),
+		<>
+			<BattlemapStage
+				onSelectRegionStart={() => {
+					setSelecting(true)
+				}}
+				onSelectRegion={(region) => {
+					setSelecting(false)
+					const matching = List.of(...tokenShapesRef.current)
+						.select(([, shape]) =>
+							Region.from(region).intersects(
+								new Region(
+									Vec.from(shape.position()),
+									Vec.from({
+										x: shape.width(),
+										y: shape.height(),
+									}),
+								),
 							),
-						),
-					)
-					.map(([id]) => id)
-				setSelectedIds(new Set(matching))
-			}}
-		>
-			<BattlemapBackground backgroundUrl={backgroundUrl} />
+						)
+						.map(([id]) => id)
+					setSelectedIds(new Set(matching))
+				}}
+			>
+				<BattlemapBackground backgroundUrl={backgroundUrl} />
 
-			{deselected.map((character) => (
-				<DraggableTokenGroup
-					key={character.public._id}
-					characters={[character]}
-					scene={scene}
-					ref={tokenGroupRef}
-					selected={false}
-				/>
-			))}
+				{deselected.map((character) => (
+					<DraggableTokenGroup
+						key={character.public._id}
+						characters={[character]}
+						scene={scene}
+					>
+						<CharacterBattlemapToken
+							key={character.public._id}
+							character={character}
+							scene={scene}
+							token={character.token}
+							shapeRef={(shape) => {
+								if (!shape) return
+								registerShape(character.public._id, shape)
+							}}
+							selected={false}
+							tooltipsDisabled={characterMenuController.open || selecting}
+							onContextMenu={(event) =>
+								characterMenuController.show(event.evt, [character])
+							}
+						/>
+					</DraggableTokenGroup>
+				))}
 
-			<DraggableTokenGroup
-				characters={selected}
-				scene={scene}
-				ref={tokenGroupRef}
-				selected
-			/>
-		</BattlemapStage>
+				<DraggableTokenGroup characters={selected} scene={scene}>
+					{selected.map((character) => (
+						<CharacterBattlemapToken
+							key={character.public._id}
+							character={character}
+							scene={scene}
+							token={character.token}
+							selected
+							tooltipsDisabled={characterMenuController.open || selecting}
+							onContextMenu={(event) =>
+								characterMenuController.show(event.evt, selected)
+							}
+							shapeRef={(shape) => {
+								if (!shape) return
+								registerShape(character.public._id, shape)
+							}}
+						/>
+					))}
+				</DraggableTokenGroup>
+			</BattlemapStage>
+
+			<CharacterMenu controller={characterMenuController} />
+		</>
 	)
 }
 
 function DraggableTokenGroup({
 	characters,
 	scene,
-	ref,
-	selected,
+	children,
 }: {
 	characters: SetRequired<ApiCharacter, "token">[]
 	scene: ApiScene
-	ref: React.RefCallback<{ shape: Konva.Shape; id: string }>
-	selected: boolean
+	children: ReactNode
 }) {
 	const roomId = useRoomContext()._id
+	const [dragStart, setDragStart] = useState<Vec>()
 
 	const updateCharacter = useMutation(
 		api.characters.update,
@@ -129,7 +158,6 @@ function DraggableTokenGroup({
 			...charactersById.values(),
 		])
 	})
-	const [dragStart, setDragStart] = useState<Vec>()
 
 	return (
 		<Group
@@ -180,23 +208,7 @@ function DraggableTokenGroup({
 				})
 			}}
 		>
-			{characters
-				.flatMap((c) => (c.token ? [{ ...c, token: c.token }] : []))
-				.toSorted((a, b) => a.token.updatedAt - b.token.updatedAt)
-				.map((character) => (
-					<CharacterBattlemapToken
-						key={character.public._id}
-						character={character}
-						scene={scene}
-						token={character.token}
-						shapeRef={(shape) => {
-							if (!shape) return
-							ref({ shape, id: character.public._id })
-						}}
-						selected={selected}
-						tooltipsDisabled={!!dragStart}
-					/>
-				))}
+			{children}
 		</Group>
 	)
 }
