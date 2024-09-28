@@ -2,6 +2,7 @@ import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import { startCase } from "lodash-es"
 import { LucideDices } from "lucide-react"
+import { useState } from "react"
 import { match, P } from "ts-pattern"
 import * as v from "valibot"
 import { Button } from "~/components/Button.tsx"
@@ -28,7 +29,9 @@ export function CharacterAttributeButton({
 }) {
 	const roomId = useRoomContext()._id
 	const createMessage = useMutation(api.messages.create)
+	const updateCharacter = useMutation(api.characters.update)
 	const attributeDieFaces = getAttributeDie(character.attributes[attribute])
+	const [open, setOpen] = useState(false)
 
 	const form = useForm({
 		initialValues: {
@@ -42,7 +45,13 @@ export function CharacterAttributeButton({
 				snag: v.pipe(v.number(), v.integer(), v.minValue(0)),
 				pushYourself: v.boolean(),
 			}),
-			async () => {
+			async (values) => {
+				if (values.pushYourself) {
+					await updateCharacter({
+						characterId: character._id,
+						resolve: character.resolve - 2,
+					})
+				}
 				await createMessage({
 					roomId,
 					content: [
@@ -56,6 +65,7 @@ export function CharacterAttributeButton({
 						},
 					],
 				})
+				setOpen(false)
 			},
 		),
 	})
@@ -97,7 +107,7 @@ export function CharacterAttributeButton({
 		.otherwise(() => dice)
 
 	return (
-		<Popover.Root placement="bottom-start">
+		<Popover.Root placement="bottom-start" open={open} setOpen={setOpen}>
 			<div className="flex flex-col items-center gap-0.5">
 				<Popover.Button
 					render={
