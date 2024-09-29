@@ -66,11 +66,7 @@ export function CombatTracker() {
 										)}
 									>
 										<Avatar
-											src={
-												member.character?.public.imageId
-													? getImageUrl(member.character?.public.imageId)
-													: null
-											}
+											src={member.imageId ? getImageUrl(member.imageId) : null}
 											className="size-8"
 										/>
 										<div>

@@ -258,6 +258,7 @@ function normalizeRoomCombat(room: Ent<"rooms">, userId: Id<"users">) {
 			...combat,
 			members: orderedMembers.map((character, index) => ({
 				id: character._id,
+				imageId: character.imageId,
 				character: protectCharacter(character, userId, room),
 				isCurrent: index === currentMemberIndex,
 			})),
