@@ -88,7 +88,9 @@ export const update = effectMutation({
 	args: {
 		...partial(tableFields("rooms")),
 		roomId: v.id("rooms"),
-		items: v.record(v.string(), v.union(roomItemValidator, v.null())),
+		items: v.optional(
+			v.record(v.string(), v.union(roomItemValidator, v.null())),
+		),
 	},
 	handler(ctx, { roomId, ...props }) {
 		return pipe(

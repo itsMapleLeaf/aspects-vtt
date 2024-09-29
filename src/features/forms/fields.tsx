@@ -128,11 +128,15 @@ export function NumberInputField({
 	)
 }
 
-export interface SelectFieldProps extends SelectProps {
-	field: FieldAccessor<string>
+export interface SelectFieldProps<Value extends string>
+	extends SelectProps<Value> {
+	field: FieldAccessor<Value>
 }
 
-export function SelectField({ field, ...props }: SelectFieldProps) {
+export function SelectField<Value extends string>({
+	field,
+	...props
+}: SelectFieldProps<Value>) {
 	return (
 		<Select
 			{...field.input}

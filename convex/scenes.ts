@@ -1,5 +1,6 @@
 import { v } from "convex/values"
 import { Effect } from "effect"
+import { omit } from "lodash-es"
 import type { Doc } from "./_generated/dataModel"
 import { InaccessibleError, getAuthUserId } from "./auth.ts"
 import { effectMutation, effectQuery, queryEnt } from "./lib/effects.ts"
@@ -62,7 +63,7 @@ export const get = effectQuery({
 
 export const create = effectMutation({
 	args: {
-		...schema.tables.scenes.validator.fields,
+		...omit(schema.tables.scenes.validator.fields, "FieldName"),
 		name: v.optional(v.string()),
 		mode: v.optional(v.union(v.literal("scenery"), v.literal("battlemap"))),
 		roomId: v.id("rooms"),

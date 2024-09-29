@@ -5,6 +5,7 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter"
 import { Iterator } from "iterator-helpers-polyfill"
 import {
+	LucideImage,
 	LucideMessageCircle,
 	LucidePackage,
 	LucideShield,
@@ -19,6 +20,8 @@ import { CharacterList } from "../characters/CharacterList.tsx"
 import { CombatTracker } from "../combat/CombatTracker.tsx"
 import { RoomItemList } from "../inventory/RoomItemList.tsx"
 import { MessageList } from "../messages/MessageList.tsx"
+import { SceneList } from "../scenes/SceneList.tsx"
+import { useRoomContext } from "./context.tsx"
 
 interface ModuleDefinition {
 	name: string
@@ -65,6 +68,15 @@ const MODULES: Record<string, ModuleDefinition> = {
 	// },
 }
 
+const OWNER_MODULES: Record<string, ModuleDefinition> = {
+	scenes: {
+		name: "Scenes",
+		icon: <LucideImage />,
+		defaultLocation: { sidebar: 0, panel: 0 },
+		content: () => <SceneList />,
+	},
+}
+
 const moduleLocationsParser = v.parser(
 	v.record(
 		v.string(),
@@ -76,9 +88,15 @@ const moduleLocationsParser = v.parser(
 )
 
 export function RoomInterfaceModules() {
+	const room = useRoomContext()
 	const [moduleLocations, setModuleLocations] = useLocalStorage<
 		Record<string, ModuleLocation>
 	>("room:moduleLocations", {}, moduleLocationsParser)
+
+	const availableModules = {
+		...MODULES,
+		...(room.isOwner ? OWNER_MODULES : {}),
+	}
 
 	const handleModuleDrop = (event: {
 		moduleId: string
@@ -136,12 +154,14 @@ export function RoomInterfaceModules() {
 				index={0}
 				moduleLocations={moduleLocations}
 				onModuleDrop={handleModuleDrop}
+				availableModules={availableModules}
 			/>
 			<Sidebar
 				aria-label="Right sidebar"
 				index={1}
 				moduleLocations={moduleLocations}
 				onModuleDrop={handleModuleDrop}
+				availableModules={availableModules}
 			/>
 		</>
 	)
@@ -151,6 +171,7 @@ function Sidebar({
 	index: sidebarIndex,
 	moduleLocations,
 	onModuleDrop,
+	availableModules,
 	...props
 }: {
 	index: number
@@ -160,8 +181,9 @@ function Sidebar({
 		sidebarIndex: number
 		panelIndex: number
 	}) => void
+	availableModules: Record<string, ModuleDefinition>
 }) {
-	const presentModules = Object.entries(MODULES)
+	const presentModules = Object.entries(availableModules)
 		.map(([id, module]) => ({
 			id,
 			location: moduleLocations[id] ?? module.defaultLocation,
@@ -192,6 +214,7 @@ function Sidebar({
 				.map((panelIndex) => (
 					<Fragment key={panelIndex}>
 						<SidebarPanel
+							availableModules={availableModules}
 							onModuleDrop={({ moduleId }) => {
 								onModuleDrop({
 									moduleId,
@@ -222,12 +245,14 @@ function Sidebar({
 function SidebarPanel({
 	moduleIds,
 	onModuleDrop,
+	availableModules,
 }: {
 	moduleIds: string[]
 	onModuleDrop: (event: { moduleId: string }) => void
+	availableModules: Record<string, ModuleDefinition>
 }) {
 	const modules = moduleIds.flatMap((id) =>
-		MODULES[id] ? [{ ...MODULES[id], id }] : [],
+		availableModules[id] ? [{ ...availableModules[id], id }] : [],
 	)
 
 	const [selectedId, setSelectedId] = useState<string | null>()

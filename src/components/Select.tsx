@@ -5,13 +5,13 @@ import { formField, labelText } from "~/styles/forms.ts"
 import { textInput } from "~/styles/input.ts"
 import { menuItem, menuPanel } from "~/styles/menu.ts"
 
-export interface SelectProps
+export interface SelectProps<Value extends string>
 	extends Omit<Ariakit.SelectProps, "value" | "defaultValue"> {
 	label: string
 	options: SelectOption[]
-	value?: string
-	defaultValue?: string
-	onChangeValue?: (value: string) => void
+	value?: Value
+	defaultValue?: Value
+	onChangeValue?: (value: Value) => void
 }
 
 export interface SelectOption {
@@ -21,14 +21,14 @@ export interface SelectOption {
 	value: string
 }
 
-export function Select({
+export function Select<Value extends string>({
 	label,
 	options,
 	value: valueProp,
 	defaultValue,
 	onChangeValue,
 	...props
-}: SelectProps) {
+}: SelectProps<Value>) {
 	const store = Ariakit.useSelectStore({
 		value: valueProp,
 		defaultValue: defaultValue,

@@ -21,18 +21,16 @@ export function Close(props: Ariakit.DialogDismissProps) {
 	return <Ariakit.DialogDismiss {...props} />
 }
 
-export interface ContentProps extends Ariakit.DialogProps {
-	title: string
-	description?: string
-}
-
 export function Content({
 	children,
 	className,
 	title,
 	description,
 	...props
-}: ContentProps) {
+}: Ariakit.DialogProps & {
+	title: string
+	description?: string
+}) {
 	return (
 		<Ariakit.Dialog
 			backdrop={
