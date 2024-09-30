@@ -1,4 +1,5 @@
 import { type ComponentPropsWithoutRef } from "react"
+import { List } from "~/shared/list.ts"
 import { errorText } from "~/styles/forms.ts"
 import type { FormStore } from "./useForm.ts"
 
@@ -12,11 +13,13 @@ export function Form({
 	return (
 		<form {...props} action={form.submit}>
 			{children}
-			{[...new Set(form.formErrors)].map((error) => (
-				<p key={error} className={errorText()}>
-					{error}
-				</p>
-			))}
+			{List.from(form.formErrors)
+				.unique()
+				.map((error) => (
+					<p key={error} className={errorText()}>
+						{error}
+					</p>
+				))}
 		</form>
 	)
 }
