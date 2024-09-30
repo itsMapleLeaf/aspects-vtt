@@ -164,17 +164,19 @@ export function CharacterProfileEditor({
 					>
 						<Heading
 							className={secondaryHeading(
-								"text-center tabular-nums",
+								"mb-3 text-center tabular-nums transition",
 								attributePointsRemaining < 0 && "text-red-300",
 								attributePointsRemaining > 0 && "text-green-300",
 							)}
 						>
-							{attributePointsRemaining}/{ATTRIBUTE_POINTS_AVAILABLE}
-							<br />
-							points remaining
+							<div className="text-2xl">
+								{attributePointsRemaining} / {ATTRIBUTE_POINTS_AVAILABLE}
+							</div>
+							<div className="-mt-2 text-lg">points remaining</div>
 						</Heading>
 						{ATTRIBUTE_NAMES.map((name) => (
 							<AttributeInput
+								key={name}
 								label={startCase(name)}
 								value={form.values.attributes[name]}
 								onChange={(value) => {
