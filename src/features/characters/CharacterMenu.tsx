@@ -100,7 +100,7 @@ export function CharacterMenu({
 				align="start"
 			/>,
 		])
-		.filter((it) => it.length > 0)
+		.filter(Boolean)
 
 	if (items.length === 0) {
 		return null
