@@ -1,9 +1,13 @@
-import { useQuery } from "convex/react"
-import { LucideUserX2 } from "lucide-react"
+import { useMutation, useQuery } from "convex/react"
+import { LucideUserRoundPlus, LucideUserX2 } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
+import { Button } from "~/components/Button.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
+import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
+import type { Id } from "~/convex/_generated/dataModel.js"
+import { CharacterEditorDialog } from "~/features/characters/CharacterEditorDialog.tsx"
 import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterCard } from "./CharacterCard.tsx"
@@ -14,6 +18,14 @@ export function CharacterList() {
 		roomId: room._id,
 	})
 	const [search, setSearch] = useState("")
+	const [editorOpen, setEditorOpen] = useState(false)
+	const createCharacter = useMutation(api.characters.create)
+	const [editingCharacterId, setEditingCharacterId] =
+		useState<Id<"characters">>()
+	const editingCharacter = useQuery(
+		api.characters.get,
+		editingCharacterId ? { characterId: editingCharacterId } : "skip",
+	)
 
 	if (characters === undefined) {
 		return (
@@ -28,14 +40,41 @@ export function CharacterList() {
 	})
 
 	return (
-		<SearchListLayout
-			items={filteredCharacters}
-			itemKey={(character) => character.public._id}
-			renderItem={(character) => <CharacterCard character={character} />}
-			onSearch={setSearch}
-			emptyStateIcon={<LucideUserX2 />}
-			emptyStateText="No characters found"
-			className="h-full border-t border-primary-700"
-		/>
+		<>
+			<SearchListLayout
+				items={filteredCharacters}
+				itemKey={(character) => character.public._id}
+				renderItem={(character) => <CharacterCard character={character} />}
+				onSearch={setSearch}
+				emptyStateIcon={<LucideUserX2 />}
+				emptyStateText="No characters found"
+				actions={
+					<ToastActionForm
+						action={async () => {
+							const character = await createCharacter({
+								roomId: room._id,
+							})
+							setEditingCharacterId(character)
+							setEditorOpen(true)
+						}}
+					>
+						<Button
+							type="submit"
+							appearance="clear"
+							icon={<LucideUserRoundPlus />}
+						>
+							<span className="sr-only">Create Character</span>
+						</Button>
+					</ToastActionForm>
+				}
+			/>
+			{editingCharacter?.full && (
+				<CharacterEditorDialog
+					character={editingCharacter.full}
+					open={editorOpen}
+					setOpen={setEditorOpen}
+				/>
+			)}
+		</>
 	)
 }
