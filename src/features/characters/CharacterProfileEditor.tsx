@@ -26,7 +26,6 @@ import {
 } from "~/features/forms/fields.tsx"
 import {
 	FieldAccessor,
-	useFields,
 	useForm,
 	valibotAction,
 } from "~/features/forms/useForm.ts"
@@ -51,7 +50,7 @@ export function CharacterProfileEditor({
 }) {
 	const update = useMutation(api.characters.update)
 
-	const form = useForm({
+	const { fields, ...form } = useForm({
 		initialValues: {
 			...pick(character, [
 				"name",
@@ -61,6 +60,7 @@ export function CharacterProfileEditor({
 				"resolve",
 				"notes",
 				"attributes",
+				"wealth",
 			]),
 			image: typed<File | undefined>(undefined),
 		},
@@ -74,7 +74,7 @@ export function CharacterProfileEditor({
 				race: v.optional(shortText),
 				health: v.optional(positiveInteger),
 				resolve: v.optional(positiveInteger),
-				wealth: wealthTier,
+				wealth: v.optional(wealthTier),
 				notes: v.optional(longText),
 				image: v.optional(
 					v.pipe(v.file(), v.maxSize(8_000_000, "File cannot exceed 8MB")),
@@ -97,8 +97,6 @@ export function CharacterProfileEditor({
 	useImperativeHandle(ref, () => ({
 		submit: form.submit,
 	}))
-
-	const fields = useFields(form)
 
 	const attributePointsRemaining =
 		ATTRIBUTE_POINTS_AVAILABLE - List.values(form.values.attributes).sum()
