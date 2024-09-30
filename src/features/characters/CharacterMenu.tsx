@@ -67,7 +67,7 @@ export function CharacterMenu({
             <Popover.Close>Attack</Popover.Close>
         </Button>, */
 			character.full && (
-				<Button key="edit" asChild icon={<LucideEdit />} align="start">
+				<Button key="edit" asChild icon={<LucideEdit />}>
 					<Popover.Close
 						onClick={() => {
 							setEditingCharacter(character.full)
@@ -97,7 +97,6 @@ export function CharacterMenu({
 			<CharacterToggleCombatMemberButton
 				key="combat"
 				characterIds={characters.map((it) => it.public._id)}
-				align="start"
 			/>,
 		])
 		.filter(Boolean)

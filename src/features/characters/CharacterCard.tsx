@@ -10,11 +10,13 @@ import { type ProtectedCharacter } from "~/convex/characters.ts"
 import { interactivePanel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
+import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
 import {
 	CharacterEditorDialog,
 	CharacterEditorDialogButton,
 } from "./CharacterEditorDialog.tsx"
+import { CharacterPlayerSelect } from "./CharacterPlayerSelect.tsx"
 import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 
@@ -23,6 +25,7 @@ export function CharacterCard({
 }: {
 	character: ProtectedCharacter
 }) {
+	const room = useRoomContext()
 	const removeCharacter = useMutation(api.characters.remove)
 	return (
 		<div>
@@ -62,6 +65,9 @@ export function CharacterCard({
 							<CharacterVitalFields character={character.full} />
 						)}
 						{character.full && (
+							<CharacterPlayerSelect character={character.full} />
+						)}
+						{character.full && (
 							<div className="grid auto-cols-fr grid-flow-col gap">
 								<CharacterEditorDialog character={character.full}>
 									<CharacterEditorDialogButton
@@ -72,21 +78,23 @@ export function CharacterCard({
 										}
 									></CharacterEditorDialogButton>
 								</CharacterEditorDialog>
-								<ToastActionForm
-									className="contents"
-									action={() =>
-										removeCharacter({
-											characterIds: [character.public._id],
-										})
-									}
-								>
-									<Button
-										type="submit"
-										icon={<Lucide.Trash className="size-5" />}
+								{room.isOwner && (
+									<ToastActionForm
+										className="contents"
+										action={() =>
+											removeCharacter({
+												characterIds: [character.public._id],
+											})
+										}
 									>
-										Delete
-									</Button>
-								</ToastActionForm>
+										<Button
+											type="submit"
+											icon={<Lucide.Trash className="size-5" />}
+										>
+											Delete
+										</Button>
+									</ToastActionForm>
+								)}
 							</div>
 						)}
 						<CharacterToggleCombatMemberButton

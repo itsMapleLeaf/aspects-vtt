@@ -36,6 +36,7 @@ import { secondaryHeading } from "~/styles/text.ts"
 import { EditorFormLayout } from "../forms/EditorFormLayout.tsx"
 import { FormField } from "../forms/FormField.tsx"
 import { ATTRIBUTE_NAMES, ATTRIBUTE_POINTS_AVAILABLE } from "./attributes.ts"
+import { CharacterPlayerSelect } from "./CharacterPlayerSelect.tsx"
 
 export type ProfileEditorRef = {
 	submit: () => unknown
@@ -120,6 +121,8 @@ export function CharacterProfileEditor({
 				/>
 			</div>
 
+			<CharacterPlayerSelect character={character} />
+
 			<div className="grid gap @md:grid-cols-2">
 				<div className="flex flex-col justify-between gap">
 					<FormField label="Image" field={fields.image}>
@@ -141,17 +144,18 @@ export function CharacterProfileEditor({
 						options={RACE_NAMES.map((value) => ({ value }))}
 					/>
 
-					<NumberInputField
-						label="Health"
-						field={fields.health}
-						max={character.healthMax}
-					/>
-
-					<NumberInputField
-						label="Resolve"
-						field={fields.resolve}
-						max={character.resolveMax}
-					/>
+					<div className="grid grid-cols-2 gap">
+						<NumberInputField
+							label={`Health / ${character.healthMax}`}
+							field={fields.health}
+							max={character.healthMax}
+						/>
+						<NumberInputField
+							label={`Resolve / ${character.resolveMax}`}
+							field={fields.resolve}
+							max={character.resolveMax}
+						/>
+					</div>
 
 					<WealthTierSelectField field={fields.wealth} />
 				</div>

@@ -19,13 +19,16 @@ import { roomItemValidator, type entDefinitions } from "./schema.ts"
 
 export const list = effectQuery({
 	handler(ctx) {
-		return pipe(
-			getAuthUser(ctx),
-			Effect.flatMap((ent) =>
-				Effect.promise(() => ent.edge("rooms").map((ent) => ent.doc())),
-			),
-			Effect.orElseSucceed(() => []),
-		)
+		return Effect.gen(function* () {
+			const user = yield* getAuthUser(ctx)
+			const ownedRooms = yield* Effect.promise(() =>
+				user.edge("ownedRooms").map((ent) => ent.doc()),
+			)
+			const joinedRooms = yield* Effect.promise(() =>
+				user.edge("joinedRooms").map((ent) => ent.doc()),
+			)
+			return [...ownedRooms, ...joinedRooms]
+		}).pipe(Effect.orElseSucceed(() => []))
 	},
 })
 
@@ -45,7 +48,7 @@ export const get = effectQuery({
 
 		return pipe(
 			Effect.all([ent, getAuthUserId(ctx)]),
-			Effect.map(([ent, userId]) => normalizeRoom(ent.doc(), userId)),
+			Effect.map(([ent, userId]) => normalizeRoom(ent, userId)),
 			Effect.orElseSucceed(() => null),
 		)
 	},
@@ -124,6 +127,61 @@ export const remove = effectMutation({
 	},
 })
 
+export const getJoined = effectQuery({
+	args: {
+		roomId: v.id("rooms"),
+	},
+	handler(ctx, { roomId }) {
+		return Effect.gen(function* () {
+			const userId = yield* getAuthUserId(ctx)
+			const room = yield* queryEnt(ctx.table("rooms").get(roomId))
+
+			if (room.ownerId === userId) {
+				return true
+			}
+
+			const players = yield* Effect.promise(() => room.edge("players").docs())
+			return players.some((it) => it._id === userId)
+		}).pipe(Effect.orElseSucceed(() => false))
+	},
+})
+
+export const join = effectMutation({
+	args: {
+		roomId: v.id("rooms"),
+	},
+	handler(ctx, { roomId }) {
+		return Effect.gen(function* () {
+			const userId = yield* getAuthUserId(ctx)
+
+			yield* Effect.promise(() =>
+				ctx
+					.table("users")
+					.getX(userId)
+					.patch({
+						joinedRooms: {
+							add: [roomId],
+						},
+					}),
+			)
+		}).pipe(Effect.orDie)
+	},
+})
+
+export const getPlayers = effectQuery({
+	args: {
+		roomId: v.id("rooms"),
+	},
+	handler(ctx, { roomId }) {
+		return Effect.gen(function* () {
+			const { room } = yield* queryViewerOwnedRoom(
+				ctx.table("rooms").get(roomId),
+			)
+			return yield* Effect.promise(() => room.edge("players").docs())
+		}).pipe(Effect.orElseSucceed(() => []))
+	},
+})
+
 export const getCombat = effectQuery({
 	args: {
 		roomId: v.id("rooms"),
@@ -190,9 +248,9 @@ export const updateCombat = effectMutation({
 	},
 })
 
-export function normalizeRoom(room: Doc<"rooms">, userId: Id<"users">) {
+export function normalizeRoom(room: Ent<"rooms">, userId: Id<"users">) {
 	return {
-		...room,
+		...room.doc(),
 		isOwner: room.ownerId === userId,
 		items: mapValues(
 			merge({}, DEFAULT_INVENTORY_ITEMS, room.items),

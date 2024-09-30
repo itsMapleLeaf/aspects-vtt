@@ -24,7 +24,8 @@ const entSchema = defineEntSchema({
 		email: v.optional(v.string()),
 	})
 		.index("email", ["email"])
-		.edges("rooms", { ref: true })
+		.edges("ownedRooms", { to: "rooms", ref: "ownerId" })
+		.edges("joinedRooms", { to: "rooms", table: "rooms_to_players" })
 		.edges("messages", { ref: true })
 		.edges("ownedCharacters", { to: "characters", ref: "ownerId" }),
 
@@ -44,6 +45,7 @@ const entSchema = defineEntSchema({
 		),
 	})
 		.edge("owner", { to: "users", field: "ownerId" })
+		.edges("players", { to: "users", table: "rooms_to_players" })
 		.edges("scenes", { ref: true })
 		.edges("characters", { ref: true })
 		.edges("messages", { ref: true })

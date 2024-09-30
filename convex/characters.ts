@@ -33,7 +33,7 @@ export const get = effectQuery({
 				const ent = yield* queryEnt(
 					ctx.table("characters").get(args.characterId),
 				)
-				return yield* protectEnt(ent, userId)
+				return yield* protectCharacterEnt(ent, userId)
 			}),
 			Effect.orElseSucceed(() => null),
 		)
@@ -64,7 +64,9 @@ export const list = effectQuery({
 
 			return yield* pipe(
 				Effect.promise(() => query),
-				Effect.flatMap(Effect.forEach((ent) => protectEnt(ent, userId))),
+				Effect.flatMap(
+					Effect.forEach((ent) => protectCharacterEnt(ent, userId)),
+				),
 				Effect.map(compact),
 			)
 		}).pipe(Effect.orElseSucceed(() => []))
@@ -153,7 +155,7 @@ export const duplicate = effectMutation({
 	},
 })
 
-function protectEnt(ent: Ent<"characters">, userId: Id<"users">) {
+function protectCharacterEnt(ent: Ent<"characters">, userId: Id<"users">) {
 	return Effect.gen(function* () {
 		const room = yield* Effect.promise(() => ent.edge("room"))
 		const normalized = normalizeCharacter(ent.doc())

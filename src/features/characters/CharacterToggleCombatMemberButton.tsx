@@ -16,7 +16,7 @@ export function CharacterToggleCombatMemberButton({
 	const room = useRoomContext()
 	const updateCombat = useMutation(api.rooms.updateCombat)
 
-	if (room.combat == null) {
+	if (!room.isOwner || room.combat == null) {
 		return null
 	}
 

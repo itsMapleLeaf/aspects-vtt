@@ -21,7 +21,7 @@ export interface SelectOption {
 	value: string
 }
 
-export function Select<Value extends string>({
+export function Select<const Value extends string>({
 	label,
 	options,
 	value: valueProp,

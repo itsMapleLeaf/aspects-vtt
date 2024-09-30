@@ -1,7 +1,11 @@
 import { useParams } from "@remix-run/react"
-import { useQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
+import { LucideDoorOpen } from "lucide-react"
+import { match, P } from "ts-pattern"
 import { Heading, HeadingLevel } from "~/common/react/heading"
+import { Button } from "~/components/Button.tsx"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
+import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
 import { UserButton } from "~/features/auth/UserButton.tsx"
@@ -9,11 +13,32 @@ import { Battlemap } from "~/features/battlemap/Battlemap.tsx"
 import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
 import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
-import { heading } from "~/ui/styles.ts"
+import { ApiRoom } from "~/features/rooms/types.ts"
+import { primaryHeading, subText } from "~/styles/text.ts"
 
 export default function RoomRoute() {
 	const id = useParams().room as string
 	const room = useQuery(api.rooms.get, { id })
+	const joined = useQuery(
+		api.rooms.getJoined,
+		room ? { roomId: room._id } : "skip",
+	)
+
+	const content = match({ room, joined })
+		.with({ room: P.nonNullable, joined: true }, ({ room }) => (
+			<RoomContext value={room}>
+				<title>{`${room.name} | Aspects VTT`}</title>
+				<RoomBackground />
+				<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
+				<RoomInterface />
+			</RoomContext>
+		))
+		.with({ room: P.nonNullable, joined: false }, ({ room }) => (
+			<JoinRoomMessage room={room} />
+		))
+		.with({ room: null }, () => <p>Room not found</p>)
+		.otherwise(() => null)
+
 	return (
 		<>
 			<style>{`
@@ -21,16 +46,29 @@ export default function RoomRoute() {
 					overflow: clip;
 				}
 			`}</style>
-			{room && (
-				<RoomContext value={room}>
-					<title>{`${room.name} | Aspects VTT`}</title>
-					<RoomBackground />
-					<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
-					<RoomInterface />
-				</RoomContext>
-			)}
-			<LoadingCover visible={room === undefined} />
+			{content}
+			<LoadingCover visible={!content} />
 		</>
+	)
+}
+
+function JoinRoomMessage({ room }: { room: ApiRoom }) {
+	const joinRoom = useMutation(api.rooms.join)
+	return (
+		<div className="absolute inset-0 flex flex-col *:m-auto">
+			<main className="flex flex-col items-center text-balance p-4 text-center">
+				<p className="mb-4 text-xl">You have been invited to</p>
+				<h1 className={primaryHeading("mb-5 text-3xl")}>{room.name}</h1>
+				<ToastActionForm
+					action={async () => joinRoom({ roomId: room._id })}
+					className="contents"
+				>
+					<Button type="submit" icon={<LucideDoorOpen />}>
+						Join room
+					</Button>
+				</ToastActionForm>
+			</main>
+		</div>
 	)
 }
 
@@ -40,7 +78,10 @@ function RoomInterface() {
 		<div className="pointer-events-children absolute inset-0 flex h-screen w-screen flex-col p-3 gap-3">
 			<HeadingLevel>
 				<header className="pointer-events-children flex items-center justify-between">
-					<Heading className={heading()}>AspectsVTT</Heading>
+					<Heading>
+						<div className={subText()}>AspectsVTT</div>
+						<div className={primaryHeading("-mt-1")}>{room.name}</div>
+					</Heading>
 					<UserButton />
 				</header>
 

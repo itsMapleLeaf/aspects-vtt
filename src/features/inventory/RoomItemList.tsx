@@ -48,7 +48,7 @@ export function RoomItemList({
 	}
 
 	const renderItem = (item: ApiItem) => (
-		<li key={item._id} className="flex items-center gap-2">
+		<div className="flex items-center gap-2">
 			<Menu
 				render={<InventoryItemCard item={item} />}
 				className={"flex-1"}
@@ -76,7 +76,7 @@ export function RoomItemList({
 							setEditorOpen(true)
 						},
 					},
-					{
+					room.isOwner && {
 						icon: <LucideTrash />,
 						label: "Delete",
 						onClick: () => {
@@ -88,10 +88,10 @@ export function RoomItemList({
 							})
 						},
 					},
-				]}
+				].filter(Boolean)}
 			/>
 			{renderItemAction?.(item)}
-		</li>
+		</div>
 	)
 
 	return (
