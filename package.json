@@ -6,7 +6,6 @@
   "packageManager": "bun@1.1.26",
   "scripts": {
     "preinstall": "npx only-allow bun",
-    "setup": "convex dev --once",
     "dev": "turbo --ui=tui run dev:app dev:convex",
     "dev:app": "remix vite:dev",
     "dev:convex": "convex dev --tail-logs",
