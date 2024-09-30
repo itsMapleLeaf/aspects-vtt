@@ -1,8 +1,11 @@
+import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Avatar } from "~/components/Avatar.tsx"
 import { Button } from "~/components/Button.tsx"
 import { Collapse } from "~/components/Collapse.tsx"
 import { Heading } from "~/components/Heading.tsx"
+import { ToastActionForm } from "~/components/ToastActionForm.tsx"
+import { api } from "~/convex/_generated/api.js"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
 import { interactivePanel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
@@ -20,6 +23,7 @@ export function CharacterCard({
 }: {
 	character: ProtectedCharacter
 }) {
+	const removeCharacter = useMutation(api.characters.remove)
 	return (
 		<div>
 			<Collapse>
@@ -50,15 +54,15 @@ export function CharacterCard({
 				</Collapse.Button>
 
 				<Collapse.Content>
-					<div className="min-h-0">
-						<div className="flex flex-col py-2 gap-2">
-							{character.full && (
-								<CharacterAttributeButtonRow character={character.full} />
-							)}
-							{character.full && (
-								<CharacterVitalFields character={character.full} />
-							)}
-							{character.full && (
+					<div className="flex flex-col py-2 gap-2">
+						{character.full && (
+							<CharacterAttributeButtonRow character={character.full} />
+						)}
+						{character.full && (
+							<CharacterVitalFields character={character.full} />
+						)}
+						{character.full && (
+							<div className="grid auto-cols-fr grid-flow-col gap">
 								<CharacterEditorDialog character={character.full}>
 									<CharacterEditorDialogButton
 										render={
@@ -68,11 +72,26 @@ export function CharacterCard({
 										}
 									></CharacterEditorDialogButton>
 								</CharacterEditorDialog>
-							)}
-							<CharacterToggleCombatMemberButton
-								characterIds={[character.public._id]}
-							/>
-						</div>
+								<ToastActionForm
+									className="contents"
+									action={() =>
+										removeCharacter({
+											characterIds: [character.public._id],
+										})
+									}
+								>
+									<Button
+										type="submit"
+										icon={<Lucide.Trash className="size-5" />}
+									>
+										Delete
+									</Button>
+								</ToastActionForm>
+							</div>
+						)}
+						<CharacterToggleCombatMemberButton
+							characterIds={[character.public._id]}
+						/>
 					</div>
 				</Collapse.Content>
 			</Collapse>
