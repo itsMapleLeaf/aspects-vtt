@@ -23,6 +23,16 @@ import { ActiveSceneContext } from "~/features/scenes/context.ts"
 import { primaryHeading, subText } from "~/styles/text.ts"
 
 export default function RoomRoute() {
+	return (
+		<RoomRoot>
+			<RoomBackground />
+			<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
+			<RoomInterface />
+		</RoomRoot>
+	)
+}
+
+function RoomRoot({ children }: { children: React.ReactNode }) {
 	const id = useParams().room as string
 	const room = useQuery(api.rooms.get, { id })
 	const joined = useQuery(
@@ -42,9 +52,7 @@ export default function RoomRoute() {
 				<ActiveSceneContext value={activeScene}>
 					<BattleMapStageInfoContext value={stageInfoRef}>
 						<title>{`${room.name} | Aspects VTT`}</title>
-						<RoomBackground />
-						<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
-						<RoomInterface />
+						{children}
 					</BattleMapStageInfoContext>
 				</ActiveSceneContext>
 			</RoomContext>
