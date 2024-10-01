@@ -6,6 +6,7 @@ import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { useActiveSceneContext } from "~/features/scenes/context.ts"
+import { useBattleMapStageInfo } from "../battlemap/context.ts"
 
 export function CharacterToggleTokenButton({
 	characterIds,
@@ -29,11 +30,14 @@ export function CharacterToggleTokenButton({
 	const inScene = characterIds.filter((id) => sceneCharacterIds.has(id))
 	const outOfScene = characterIds.filter((id) => !sceneCharacterIds.has(id))
 
+	const stageInfo = useBattleMapStageInfo()
+
 	const addTokensAction = async () => {
 		await addTokens({
 			inputs: outOfScene.map((characterId) => ({
 				sceneId: scene._id,
 				characterId,
+				position: stageInfo.current.getViewportCenter().toJSON(),
 			})),
 		})
 	}

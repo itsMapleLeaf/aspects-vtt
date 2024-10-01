@@ -1,6 +1,7 @@
 import { useParams } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import { LucideDoorOpen } from "lucide-react"
+import { useRef } from "react"
 import { match, P } from "ts-pattern"
 import { Heading, HeadingLevel } from "~/common/react/heading"
 import { Button } from "~/components/Button.tsx"
@@ -10,6 +11,10 @@ import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
 import { UserButton } from "~/features/auth/UserButton.tsx"
 import { Battlemap } from "~/features/battlemap/Battlemap.tsx"
+import {
+	BattleMapStageInfoContext,
+	defaultStageInfo,
+} from "~/features/battlemap/context.ts"
 import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
 import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
@@ -29,14 +34,18 @@ export default function RoomRoute() {
 		room?.activeSceneId ? { sceneId: room.activeSceneId } : "skip",
 	)
 
+	const stageInfoRef = useRef(defaultStageInfo)
+
 	const content = match({ room, joined })
 		.with({ room: P.nonNullable, joined: true }, ({ room }) => (
 			<RoomContext value={room}>
 				<ActiveSceneContext value={activeScene}>
-					<title>{`${room.name} | Aspects VTT`}</title>
-					<RoomBackground />
-					<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
-					<RoomInterface />
+					<BattleMapStageInfoContext value={stageInfoRef}>
+						<title>{`${room.name} | Aspects VTT`}</title>
+						<RoomBackground />
+						<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
+						<RoomInterface />
+					</BattleMapStageInfoContext>
 				</ActiveSceneContext>
 			</RoomContext>
 		))

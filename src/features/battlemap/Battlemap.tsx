@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "convex/react"
 import Konva from "konva"
 import { clamp } from "lodash-es"
-import { ReactNode, useRef, useState } from "react"
+import { ReactNode, useImperativeHandle, useRef, useState } from "react"
 import { Group, Image, Layer, Rect, Stage, StageProps } from "react-konva"
 import * as v from "valibot"
 import { useImage, useLocalStorage, useWindowSize } from "~/common/react/dom.ts"
@@ -15,6 +15,7 @@ import {
 	useCharacterMenuController,
 } from "../characters/CharacterMenu.tsx"
 import type { ApiScene } from "../scenes/types.ts"
+import { useBattleMapStageInfo } from "./context.ts"
 import { ApiToken } from "./types.ts"
 
 export function Battlemap({
@@ -269,7 +270,23 @@ function BattlemapStage({
 		setTranslate(newPos)
 	}
 
-	const stageRef = useRef<Konva.Stage>(null)
+	const stageRef = useRef<Konva.Stage | null>(null)
+	const stageInfoRef = useBattleMapStageInfo()
+
+	useImperativeHandle(stageInfoRef, () => ({
+		getViewportCenter: () => {
+			const windowCenter = Vec.from([
+				window.innerWidth,
+				window.innerHeight,
+			]).divide(2)
+
+			const stage = stageRef.current
+			if (!stage) return windowCenter
+
+			// translates the window center to a local stage coordinate
+			return Vec.from(stage.getTransform().invert().point(windowCenter))
+		},
+	}))
 
 	return (
 		<Stage
