@@ -59,6 +59,7 @@ const entSchema = defineEntSchema({
 		cellSize: v.optional(v.number()),
 	})
 		.edge("room")
+		.edges("characterTokens", { ref: true })
 		.searchIndex("name", { searchField: "name", filterFields: ["roomId"] }),
 
 	characters: defineEnt({
@@ -89,13 +90,9 @@ const entSchema = defineEntSchema({
 		wealth: v.optional(v.number()),
 		inventory: v.optional(v.record(v.string(), characterItemValidator)),
 
-		// token info
-		battlemapPosition: v.optional(v.object({ x: v.number(), y: v.number() })),
-
 		// permissions
 		visible: v.optional(v.boolean()),
 		nameVisible: v.optional(v.boolean()),
-		tokenVisible: v.optional(v.boolean()),
 
 		// metadata
 		updatedAt: v.number(),
@@ -108,10 +105,20 @@ const entSchema = defineEntSchema({
 		.index("playerId", ["playerId"])
 		.edge("room")
 		.edge("owner", { to: "users", field: "ownerId" })
+		.edges("characterTokens", { ref: true })
 		.searchIndex("name", {
 			searchField: "name",
 			filterFields: ["roomId", "sceneId", "playerId", "ownerId"],
 		}),
+
+	characterTokens: defineEnt({
+		position: v.optional(v.object({ x: v.number(), y: v.number() })),
+		visible: v.optional(v.boolean()),
+		updatedAt: v.optional(v.number()),
+	})
+		.edge("character")
+		.edge("scene")
+		.index("characterId_sceneId", ["characterId", "sceneId"]),
 
 	messages: defineEnt({
 		content: v.array(

@@ -1,9 +1,8 @@
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import Konva from "konva"
-import { clamp, merge } from "lodash-es"
+import { clamp } from "lodash-es"
 import { ReactNode, useRef, useState } from "react"
 import { Group, Image, Layer, Rect, Stage, StageProps } from "react-konva"
-import type { SetRequired } from "type-fest"
 import * as v from "valibot"
 import { useImage, useLocalStorage, useWindowSize } from "~/common/react/dom.ts"
 import { api } from "~/convex/_generated/api.js"
@@ -15,32 +14,27 @@ import {
 	CharacterMenu,
 	useCharacterMenuController,
 } from "../characters/CharacterMenu.tsx"
-import type { ApiCharacter } from "../characters/types.ts"
-import { useRoomContext } from "../rooms/context.tsx"
 import type { ApiScene } from "../scenes/types.ts"
+import { ApiToken } from "./types.ts"
 
 export function Battlemap({
 	scene,
-	characters,
 	backgroundUrl,
 }: {
 	scene: ApiScene
-	characters: ApiCharacter[]
 	backgroundUrl: string
 }) {
+	const tokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
+
 	const [selecting, setSelecting] = useState(false)
-	const [selectedIds, setSelectedIds] = useState(new Set<string>())
+	const [selectedIds, setSelectedIds] = useState(new Set<ApiToken["_id"]>())
 
-	const tokens = characters
-		.flatMap((c) => (c.token ? [{ ...c, token: c.token }] : []))
-		.toSorted((a, b) => a.token.updatedAt - b.token.updatedAt)
+	const selected = tokens.filter((it) => selectedIds.has(it._id))
+	const deselected = tokens.filter((it) => !selectedIds.has(it._id))
 
-	const selected = tokens.filter((it) => selectedIds.has(it.public._id))
-	const deselected = tokens.filter((it) => !selectedIds.has(it.public._id))
+	const tokenShapesRef = useRef(new Map<ApiToken["_id"], Konva.Shape>())
 
-	const tokenShapesRef = useRef(new Map<string, Konva.Shape>())
-
-	const registerShape = (id: string, shape: Konva.Shape) => {
+	const registerShape = (id: ApiToken["_id"], shape: Konva.Shape) => {
 		tokenShapesRef.current.set(id, shape)
 		return () => {
 			tokenShapesRef.current.delete(id)
@@ -75,45 +69,41 @@ export function Battlemap({
 			>
 				<BattlemapBackground backgroundUrl={backgroundUrl} />
 
-				{deselected.map((character) => (
-					<DraggableTokenGroup
-						key={character.public._id}
-						characters={[character]}
-						scene={scene}
-					>
+				{deselected.map((token) => (
+					<DraggableTokenGroup key={token._id} tokens={[token]} scene={scene}>
 						<CharacterBattlemapToken
-							key={character.public._id}
-							character={character}
+							token={token}
 							scene={scene}
-							token={character.token}
 							shapeRef={(shape) => {
 								if (!shape) return
-								registerShape(character.public._id, shape)
+								registerShape(token._id, shape)
 							}}
 							selected={false}
 							tooltipsDisabled={characterMenuController.open || selecting}
 							onContextMenu={(event) =>
-								characterMenuController.show(event.evt, [character])
+								characterMenuController.show(event.evt, [token.character])
 							}
 						/>
 					</DraggableTokenGroup>
 				))}
 
-				<DraggableTokenGroup characters={selected} scene={scene}>
-					{selected.map((character) => (
+				<DraggableTokenGroup tokens={selected} scene={scene}>
+					{selected.map((token) => (
 						<CharacterBattlemapToken
-							key={character.public._id}
-							character={character}
+							key={token._id}
+							token={token}
 							scene={scene}
-							token={character.token}
 							selected
 							tooltipsDisabled={characterMenuController.open || selecting}
 							onContextMenu={(event) =>
-								characterMenuController.show(event.evt, selected)
+								characterMenuController.show(
+									event.evt,
+									selected.map((token) => token.character),
+								)
 							}
 							shapeRef={(shape) => {
 								if (!shape) return
-								registerShape(character.public._id, shape)
+								registerShape(token._id, shape)
 							}}
 						/>
 					))}
@@ -126,38 +116,33 @@ export function Battlemap({
 }
 
 function DraggableTokenGroup({
-	characters,
+	tokens,
 	scene,
 	children,
 }: {
-	characters: SetRequired<ApiCharacter, "token">[]
+	tokens: ApiToken[]
 	scene: ApiScene
 	children: ReactNode
 }) {
-	const roomId = useRoomContext()._id
 	const [dragStart, setDragStart] = useState<Vec>()
 
-	const updateCharacter = useMutation(
-		api.characters.update,
-	).withOptimisticUpdate((store, args) => {
-		const characters = store.getQuery(api.characters.list, { roomId })
-		const charactersById = new Map(characters?.map((it) => [it.public._id, it]))
-		for (const { characterId, ...updates } of args.updates ?? []) {
-			const char = charactersById.get(characterId)
-			if (char) {
-				charactersById.set(
-					characterId,
-					merge({}, char, {
-						full: updates,
-						token: updates,
-					}),
-				)
-			}
-		}
-		store.setQuery(api.characters.list, { roomId }, [
-			...charactersById.values(),
-		])
-	})
+	const updateTokens = useMutation(api.tokens.update).withOptimisticUpdate(
+		(store, args) => {
+			const updatesById = new Map(args.updates.map((it) => [it.tokenId, it]))
+
+			const tokens = store.getQuery(api.tokens.list, { sceneId: scene._id })
+			if (!tokens) return
+
+			store.setQuery(
+				api.tokens.list,
+				{ sceneId: scene._id },
+				tokens.map((token) => {
+					const update = updatesById.get(token._id)
+					return update ? { ...token, ...update } : token
+				}),
+			)
+		},
+	)
 
 	return (
 		<Group
@@ -173,9 +158,9 @@ function DraggableTokenGroup({
 				setDragStart(Vec.from(event.currentTarget.position()))
 
 				// update updatedAt so the characters appear on top of others
-				updateCharacter({
-					updates: characters.map((it) => ({
-						characterId: it.public._id,
+				updateTokens({
+					updates: tokens.map((it) => ({
+						tokenId: it._id,
 						updatedAt: Date.now(),
 					})),
 				}).catch(console.error)
@@ -190,10 +175,10 @@ function DraggableTokenGroup({
 
 				setDragStart(undefined)
 
-				updateCharacter({
-					updates: characters.map((it) => ({
-						characterId: it.public._id,
-						battlemapPosition: Vec.from(it.token.battlemapPosition)
+				updateTokens({
+					updates: tokens.map((it) => ({
+						tokenId: it._id,
+						position: Vec.from(it.position)
 							.add(difference)
 							.roundTo(scene.cellSize / 4)
 							.toJSON(),

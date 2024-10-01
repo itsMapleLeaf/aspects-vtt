@@ -18,6 +18,7 @@ import {
 } from "./CharacterEditorDialog.tsx"
 import { CharacterPlayerSelect } from "./CharacterPlayerSelect.tsx"
 import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
+import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
 
 export function CharacterCard({
@@ -36,11 +37,7 @@ export function CharacterCard({
 					)}
 				>
 					<Avatar
-						src={
-							character.public.imageId
-								? getImageUrl(character.public.imageId)
-								: undefined
-						}
+						src={character.imageId && getImageUrl(character.imageId)}
 						className="size-12"
 					/>
 					<div>
@@ -48,7 +45,7 @@ export function CharacterCard({
 							{character.identity?.name}
 						</Heading>
 						<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
-							{[character.public.race, character.identity?.pronouns]
+							{[character.race, character.identity?.pronouns]
 								.filter(Boolean)
 								.join(" • ")}
 						</p>
@@ -83,7 +80,7 @@ export function CharacterCard({
 										className="contents"
 										action={() =>
 											removeCharacter({
-												characterIds: [character.public._id],
+												characterIds: [character._id],
 											})
 										}
 									>
@@ -97,9 +94,8 @@ export function CharacterCard({
 								)}
 							</div>
 						)}
-						<CharacterToggleCombatMemberButton
-							characterIds={[character.public._id]}
-						/>
+						<CharacterToggleTokenButton characterIds={[character._id]} />
+						<CharacterToggleCombatMemberButton characterIds={[character._id]} />
 					</div>
 				</Collapse.Content>
 			</Collapse>

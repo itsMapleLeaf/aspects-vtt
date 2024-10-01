@@ -14,6 +14,7 @@ import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
 import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
 import { ApiRoom } from "~/features/rooms/types.ts"
+import { ActiveSceneContext } from "~/features/scenes/context.ts"
 import { primaryHeading, subText } from "~/styles/text.ts"
 
 export default function RoomRoute() {
@@ -23,14 +24,20 @@ export default function RoomRoute() {
 		api.rooms.getJoined,
 		room ? { roomId: room._id } : "skip",
 	)
+	const activeScene = useQuery(
+		api.scenes.get,
+		room?.activeSceneId ? { sceneId: room.activeSceneId } : "skip",
+	)
 
 	const content = match({ room, joined })
 		.with({ room: P.nonNullable, joined: true }, ({ room }) => (
 			<RoomContext value={room}>
-				<title>{`${room.name} | Aspects VTT`}</title>
-				<RoomBackground />
-				<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
-				<RoomInterface />
+				<ActiveSceneContext value={activeScene}>
+					<title>{`${room.name} | Aspects VTT`}</title>
+					<RoomBackground />
+					<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
+					<RoomInterface />
+				</ActiveSceneContext>
 			</RoomContext>
 		))
 		.with({ room: P.nonNullable, joined: false }, ({ room }) => (
@@ -85,9 +92,7 @@ function RoomInterface() {
 					<UserButton />
 				</header>
 
-				{room.activeSceneId && (
-					<ActiveSceneHeading sceneId={room.activeSceneId} />
-				)}
+				{room.activeSceneId && <SceneHeading sceneId={room.activeSceneId} />}
 
 				<main className="pointer-events-children flex min-h-0 flex-1 items-stretch justify-between *:w-72">
 					<RoomInterfaceModules />
@@ -97,7 +102,7 @@ function RoomInterface() {
 	)
 }
 
-function ActiveSceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
+function SceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
 	const activeScene = useQuery(api.scenes.get, { sceneId })
 	return activeScene ? (
 		<HeadingLevel>
@@ -112,7 +117,6 @@ function ActiveSceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
 
 function RoomBackground() {
 	const room = useRoomContext()
-	const characters = useQuery(api.characters.list, { roomId: room._id })
 
 	const activeScene = useQuery(
 		api.scenes.get,
@@ -140,7 +144,6 @@ function RoomBackground() {
 		return (
 			<Battlemap
 				scene={activeScene}
-				characters={characters ?? []}
 				backgroundUrl={getImageUrl(activeScene.battlemapBackgroundId)}
 			/>
 		)

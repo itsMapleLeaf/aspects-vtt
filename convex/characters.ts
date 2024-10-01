@@ -17,7 +17,7 @@ import {
 	getQueryCtx,
 	queryEnt,
 } from "./lib/effects.ts"
-import { type Ent, type EntMutationCtx } from "./lib/ents.ts"
+import { EntQueryCtx, type Ent, type EntMutationCtx } from "./lib/ents.ts"
 import { partial } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
@@ -155,7 +155,10 @@ export const duplicate = effectMutation({
 	},
 })
 
-function protectCharacterEnt(ent: Ent<"characters">, userId: Id<"users">) {
+export function protectCharacterEnt(
+	ent: Ent<"characters">,
+	userId: Id<"users">,
+) {
 	return Effect.gen(function* () {
 		const room = yield* Effect.promise(() => ent.edge("room"))
 		const normalized = normalizeCharacter(ent.doc())
@@ -216,8 +219,6 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 		resolveMax,
 
 		wealth: doc.wealth ?? DEFAULT_WEALTH_TIER,
-
-		battlemapPosition: doc.battlemapPosition ?? { x: 0, y: 0 },
 	}
 	return normalized satisfies Doc<"characters">
 }
@@ -257,39 +258,63 @@ export function protectCharacter(
 	userId: Id<"users">,
 	room: Doc<"rooms">,
 ) {
-	const isCharacterAdmin =
-		isRoomOwner(room, userId) || character.playerId === userId
+	const isAdmin = isCharacterAdmin(character, room, userId)
 
-	const visible =
-		isCharacterAdmin || character.visible || character.tokenVisible
+	const visible = isAdmin || character.visible
 
 	if (!visible) {
 		return null
 	}
 
 	return {
-		...(isCharacterAdmin && {
+		_id: character._id,
+		imageId: character.imageId,
+		race: character.race,
+
+		...(isAdmin && {
 			full: character,
 		}),
 
-		public: {
-			_id: character._id,
-			imageId: character.imageId,
-			race: character.race,
-		},
-
-		...((character.nameVisible || isCharacterAdmin) && {
+		...((character.nameVisible || isAdmin) && {
 			identity: {
 				name: character.name,
 				pronouns: character.pronouns,
 			},
 		}),
 
-		...((character.tokenVisible || isCharacterAdmin) && {
-			token: {
-				battlemapPosition: character.battlemapPosition,
-				updatedAt: character.updatedAt,
-			},
-		}),
+		/** @deprecated Access the public properties directly */
+		public: {
+			_id: character._id,
+			imageId: character.imageId,
+			race: character.race,
+		},
 	}
+}
+
+export function isCharacterAdmin(
+	character: Doc<"characters">,
+	room: Doc<"rooms">,
+	userId: Id<"users">,
+) {
+	return (
+		isRoomOwner(room, userId) ||
+		character.ownerId === userId ||
+		character.playerId === userId
+	)
+}
+
+export function ensureCharacterEntAdmin(
+	ctx: EntQueryCtx,
+	character: Ent<"characters">,
+) {
+	return Effect.gen(function* () {
+		const userId = yield* getAuthUserId(ctx)
+		const room = yield* queryEnt(character.edge("room"))
+		if (isCharacterAdmin(character, room, userId)) {
+			return character
+		}
+		return yield* Effect.fail(
+			new InaccessibleError({ id: character._id, table: "characters" }),
+		)
+	})
 }

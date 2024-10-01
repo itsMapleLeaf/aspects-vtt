@@ -7,13 +7,12 @@ import { roundTo } from "~/common/math.ts"
 import { useMergedRefs } from "~/common/react/core.ts"
 import { useImage } from "~/common/react/dom.ts"
 import { StatusBar } from "~/components/StatusBar.tsx"
-import type { ProtectedCharacter } from "~/convex/characters.ts"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
+import { ApiToken } from "../battlemap/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
 
 export function CharacterBattlemapToken({
-	character,
 	token,
 	scene,
 	selected,
@@ -21,8 +20,7 @@ export function CharacterBattlemapToken({
 	tooltipsDisabled,
 	onContextMenu,
 }: {
-	character: ProtectedCharacter
-	token: NonNullable<ProtectedCharacter["token"]>
+	token: ApiToken
 	scene: ApiScene
 	selected: boolean
 	shapeRef: React.Ref<Konva.Shape>
@@ -30,12 +28,12 @@ export function CharacterBattlemapToken({
 	onContextMenu: (event: Konva.KonvaEventObject<PointerEvent>) => void
 }) {
 	const [image] = useImage(
-		character.public.imageId && getImageUrl(character.public.imageId),
+		token.character.imageId && getImageUrl(token.character.imageId),
 	)
 	const [over, setOver] = useState(false)
 
-	const roundedX = roundTo(token.battlemapPosition.x, scene.cellSize / 4)
-	const roundedY = roundTo(token.battlemapPosition.y, scene.cellSize / 4)
+	const roundedX = roundTo(token.position.x, scene.cellSize / 4)
+	const roundedY = roundTo(token.position.y, scene.cellSize / 4)
 
 	const position = { x: roundedX, y: roundedY }
 
@@ -145,10 +143,10 @@ export function CharacterBattlemapToken({
 						getAnchorRect={getAnchorRect}
 					>
 						<p className="leading-none empty:hidden">
-							{character.identity?.name}
+							{token.character.identity?.name}
 						</p>
 						<p className="text-sm leading-none text-primary-100/80 empty:hidden">
-							{[character.public.race, character.identity?.pronouns]
+							{[token.character.race, token.character.identity?.pronouns]
 								.filter(Boolean)
 								.join(" • ")}
 						</p>
@@ -174,17 +172,17 @@ export function CharacterBattlemapToken({
 						<div className="self-center rounded border-2 border-red-700 bg-red-700/75 px-1.5 py-1 leading-none text-white shadow">
 							Exploding
 						</div> */}
-						{character.full && (
+						{token.character.full && (
 							<StatusBar
-								value={character.full.health}
-								max={character.full.healthMax}
+								value={token.character.full.health}
+								max={token.character.full.healthMax}
 								className="text-green-500"
 							/>
 						)}
-						{character.full && (
+						{token.character.full && (
 							<StatusBar
-								value={character.full.resolve}
-								max={character.full.resolveMax}
+								value={token.character.full.resolve}
+								max={token.character.full.resolveMax}
 								className="text-blue-500"
 							/>
 						)}

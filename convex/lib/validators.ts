@@ -4,6 +4,7 @@ import {
 	type OptionalProperty,
 	type VOptional,
 } from "convex/values"
+import { omit } from "lodash-es"
 import schema from "~/convex/schema.ts"
 
 export function partial<
@@ -21,9 +22,9 @@ export function partial<
 	}
 
 	return result as {
-		[K in keyof Fields]: Fields[K]["isOptional"] extends "required" ?
-			VOptional<Fields[K]>
-		:	Fields[K]
+		[K in keyof Fields]: Fields[K]["isOptional"] extends "required"
+			? VOptional<Fields[K]>
+			: Fields[K]
 	}
 }
 
@@ -37,6 +38,9 @@ type Tables = typeof schema.tables
 
 export function tableFields<T extends keyof Tables>(
 	table: T,
-): Tables[T]["validator"]["fields"] {
-	return schema.tables[table].validator.fields
+): Omit<Tables[T]["validator"]["fields"], "FieldName"> {
+	return omit<Tables[T]["validator"]["fields"], ["FieldName"]>(
+		schema.tables[table].validator.fields,
+		"FieldName",
+	)
 }

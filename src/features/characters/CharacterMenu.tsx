@@ -11,6 +11,7 @@ import { CharacterVitalFields } from "~/features/characters/CharacterVitalFields
 import { ApiCharacter } from "~/features/characters/types.ts"
 import { List } from "~/shared/list.ts"
 import { useRoomContext } from "../rooms/context.tsx"
+import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 
 export type CharacterMenuController = ReturnType<
 	typeof useCharacterMenuController
@@ -82,11 +83,14 @@ export function CharacterMenu({
 				<Popover.Close
 					key="combat"
 					render={
-						<CharacterToggleCombatMemberButton
-							characterIds={[character.public._id]}
-							align="start"
-						/>
+						<CharacterToggleCombatMemberButton characterIds={[character._id]} />
 					}
+				/>
+			),
+			room.isOwner && (
+				<Popover.Close
+					key="token"
+					render={<CharacterToggleTokenButton characterIds={[character._id]} />}
 				/>
 			),
 		])
@@ -96,8 +100,18 @@ export function CharacterMenu({
 				</Button>, */
 			<CharacterToggleCombatMemberButton
 				key="combat"
-				characterIds={characters.map((it) => it.public._id)}
+				characterIds={characters.map((it) => it._id)}
 			/>,
+			room.isOwner && (
+				<Popover.Close
+					key="token"
+					render={
+						<CharacterToggleTokenButton
+							characterIds={characters.map((it) => it._id)}
+						/>
+					}
+				/>
+			),
 		])
 		.filter(Boolean)
 
