@@ -1,5 +1,6 @@
 ## Authentication
 
+- [ ] Discord login
 - [x] (mvp) Login / Signup
 
 ## Battlemap
@@ -12,7 +13,7 @@
 ## Character Card
 
 - [ ] Order alphabetically (?)
-- [ ] Show conditions (?)
+- [ ] Manage conditions
 - [x] (mvp) Edit button should open character editor
 - [x] (mvp) Use health/resolve from DB
 - [x] (mvp) Click attribute button to roll die, creates a chat message
