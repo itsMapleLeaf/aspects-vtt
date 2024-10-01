@@ -20,7 +20,7 @@ export function ToastActionForm({
 	return <form {...props} action={formAction} />
 }
 
-export function useToastAction<State, Payload = void>(
+export function useToastAction<State, Payload>(
 	action: (
 		state: Awaited<State> | undefined,
 		payload: Payload,

@@ -1,9 +1,10 @@
 import { ComponentProps, type ReactNode } from "react"
+import { StrictOmit } from "~/common/types.ts"
 import { lightPanel } from "~/styles/panel.ts"
 import { secondaryHeading, subText } from "../styles/text"
 import { Heading } from "./Heading"
 
-interface ListCardProps {
+interface ListCardProps extends StrictOmit<ComponentProps<"article">, "title"> {
 	title?: ReactNode
 	description?: ReactNode
 	aside?: ReactNode
@@ -14,7 +15,7 @@ export function ListCard({
 	description,
 	aside,
 	...props
-}: ListCardProps & ComponentProps<"article">) {
+}: ListCardProps) {
 	return (
 		<article
 			{...props}

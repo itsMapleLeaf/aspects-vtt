@@ -1,25 +1,32 @@
 import { useMutation } from "convex/react"
-import { omit } from "lodash-es"
+import { sum } from "lodash-es"
 import {
-	LucideCheck,
+	LucideCheckCircle2,
 	LucideDroplets,
 	LucideFlame,
+	LucideGraduationCap,
 	LucideMoon,
+	LucideSparkles,
 	LucideSun,
 	LucideWind,
 } from "lucide-react"
 import { matchSorter } from "match-sorter"
-import { useState } from "react"
+import { startTransition, useState } from "react"
 import { twMerge } from "tailwind-merge"
-import { AddButton } from "~/components/AddButton.tsx"
+import * as v from "valibot"
+import { useLocalStorage } from "~/common/react/dom.ts"
 import { Button } from "~/components/Button.tsx"
+import { EmptyState } from "~/components/EmptyState.tsx"
+import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { ListCard } from "~/components/ListCard.tsx"
+import { LoadingIcon } from "~/components/LoadingIcon.tsx"
+import { useToastAction } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { NormalizedCharacter } from "~/convex/characters.ts"
 import { List } from "~/shared/list.ts"
-import { secondaryHeading } from "~/styles/text.ts"
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/ui/tooltip.tsx"
-import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
+import { formatTitle } from "~/shared/string.ts"
+import { textInput } from "~/styles/input.ts"
+import { primaryHeading, secondaryHeading } from "~/styles/text.ts"
 import { AspectSkill, type Aspect } from "./aspects.ts"
 
 const aspectOrder = List.of<Aspect["id"]>(
@@ -30,13 +37,7 @@ const aspectOrder = List.of<Aspect["id"]>(
 	"darkness",
 )
 
-const skills = AspectSkill.all()
-	.sort((a, b) => a.name.localeCompare(b.name))
-	.sort((a, b) => a.price - b.price)
-	.sort((a, b) => a.category.localeCompare(b.category))
-	.sort(
-		(a, b) => aspectOrder.indexOf(a.aspectId) - aspectOrder.indexOf(b.aspectId),
-	)
+const allSkills = AspectSkill.all()
 
 const totalExperience = 100
 
@@ -51,35 +52,100 @@ export function CharacterSkillsEditor({
 	character: NormalizedCharacter
 }) {
 	const update = useMutation(api.characters.update)
+	const [searchInput, setSearchInput] = useState("")
 	const [search, setSearch] = useState("")
 
 	const freeSkills = AspectSkill.all().filter((it) => it.price === 0)
 
-	const aspectSkillIds = new Set([
+	const addedSkillIds = new Set([
 		...freeSkills.map((it) => it.id),
 		...Object.keys(character.aspectSkills ?? {}),
 	])
 
-	const usedExperience = List.of(...aspectSkillIds)
-		.map((id) => AspectSkill.get(id)?.price ?? 0)
-		.sum()
+	const isAdded = (skill: AspectSkill): boolean =>
+		addedSkillIds.has(skill.id) &&
+		// since players can remove other skills, we need to check the requirements again,
+		// and only truly consider it added if it's met
+		// TODO: add recursion safeguard, somehow
+		skill.requirements.every(isAdded)
+
+	const usedExperience = sum(
+		List.of(...addedSkillIds)
+			.map((id) => AspectSkill.get(id))
+			.filter(Boolean)
+			.filter(isAdded)
+			.map((skill) => skill.price),
+	)
 
 	const remainingExperience = totalExperience - usedExperience
 
-	const filteredItems = List.from(
-		search.trim()
-			? matchSorter(skills.array(), search, {
-					keys: ["name", "description", "category", "aspectId"],
-				})
-			: skills,
+	const isAvailable = (skill: AspectSkill) =>
+		skill.price !== 0 &&
+		skill.price <= remainingExperience &&
+		skill.requirements.every(isAdded)
+
+	const sections = new Map<
+		string,
+		{ title: string; items: List<AspectSkill> }
+	>()
+
+	const [statusFilter, setStatusFilter] = useLocalStorage(
+		"characterSkills:statusFilter",
+		"all",
+		v.parser(
+			v.union([v.literal("all"), v.literal("learned"), v.literal("available")]),
+		),
 	)
 
-	const skillAddAction = async (skill: AspectSkill, active: boolean) => {
+	const [aspectFilter, setAspectFilter] = useLocalStorage<Aspect["id"][]>(
+		"characterSkills:aspectFilter",
+		[],
+		v.parser(v.array(v.union(aspectOrder.map((it) => v.literal(it))))),
+	)
+
+	for (const skill of allSkills) {
+		if (statusFilter === "learned" && !isAdded(skill)) continue
+		if (statusFilter === "available" && !isAvailable(skill)) continue
+
+		const sectionId = `${skill.aspectId}-${skill.category}`
+		let section = sections.get(sectionId)
+		if (!section) {
+			section = {
+				title: formatTitle(skill.category),
+				items: List.of(),
+			}
+			sections.set(sectionId, section)
+		}
+		section.items.push(skill)
+	}
+
+	const filteredSections = [...sections.entries()]
+		.map(([id, section]) => ({
+			...section,
+			id,
+			items: search.trim()
+				? matchSorter(section.items.array(), search, {
+						keys: ["name", "description", "category", "aspectId", "price"],
+					})
+				: [...section.items]
+						.sort((a, b) => a.name.localeCompare(b.name))
+						.sort((a, b) => a.price - b.price)
+						.sort((a, b) => a.requirements.length - b.requirements.length)
+						.sort(
+							(a, b) =>
+								aspectOrder.indexOf(a.aspectId) -
+								aspectOrder.indexOf(b.aspectId),
+						),
+		}))
+		.filter((section) => section.items.length > 0)
+
+	const skillAddAction = async (
+		skill: AspectSkill,
+		action: "add" | "remove",
+	) => {
 		await update({
 			characterId: character._id,
-			aspectSkills: active
-				? { ...character.aspectSkills, [skill.id]: skill.id }
-				: omit(character.aspectSkills, skill.id),
+			aspectSkills: { [action]: skill.id },
 		})
 	}
 
@@ -88,98 +154,183 @@ export function CharacterSkillsEditor({
 			<p className={secondaryHeading("text-center")}>
 				Experience: {remainingExperience} / {totalExperience}
 			</p>
-			<SearchListLayout
-				className="min-h-0 flex-1 p-0"
-				items={filteredItems}
-				itemKey="id"
-				onSearch={setSearch}
-				renderItem={(skill) => {
-					const added = aspectSkillIds.has(skill.id)
 
-					const hasExp = skill.price <= remainingExperience
+			<div className="flex gap-2">
+				<input
+					className={textInput("flex-1")}
+					placeholder="Search..."
+					value={searchInput}
+					onChange={(event) => {
+						setSearchInput(event.currentTarget.value)
+						startTransition(() => {
+							setSearch(event.currentTarget.value)
+						})
+					}}
+				/>
+				<Button
+					appearance={statusFilter === "learned" ? "solid" : "clear"}
+					onClick={() =>
+						setStatusFilter((f) => (f === "learned" ? "all" : "learned"))
+					}
+					icon={<LucideGraduationCap />}
+					aria-role="checkbox"
+					aria-checked={statusFilter === "learned"}
+				>
+					<span className="sr-only">Only show learned skills</span>
+				</Button>
+				<Button
+					appearance={statusFilter === "available" ? "solid" : "clear"}
+					onClick={() =>
+						setStatusFilter((f) => (f === "available" ? "all" : "available"))
+					}
+					icon={<LucideSparkles />}
+					aria-role="checkbox"
+					aria-checked={statusFilter === "available"}
+				>
+					<span className="sr-only">Only show available skills</span>
+				</Button>
+			</div>
 
-					const hasRequired = skill.requirementIds.every((id) =>
-						aspectSkillIds.has(id),
-					)
-
-					const available = hasExp && hasRequired
-
-					return (
-						<li key={skill.id} className="flex items-center gap">
-							<div
-								className={twMerge(
-									"relative flex-1 transition",
-									(added || !available) && "opacity-50",
-								)}
-							>
-								<ListCard
-									title={skill.name}
-									description={skill.description}
-									aside={
-										<>
-											{[skill.aspect.name, skill.category, skill.price + " exp"]
-												.filter(Boolean)
-												.join(" • ")}
-											<br />
-											{skill.requirements.length > 0 &&
-												`requires ${new Intl.ListFormat(undefined, {
-													type: "conjunction",
-												}).format(skill.requirements.map((it) => it.name))}`}
-										</>
+			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto gap-6">
+				{filteredSections.length === 0 ? (
+					<EmptyState
+						text="No skills found."
+						icon={<LucideFlame />}
+						className="py-24"
+					/>
+				) : (
+					filteredSections.map((section) => (
+						<SkillCategorySection key={section.id} title={section.title}>
+							{section.items.map((skill) => (
+								<SkillCard
+									key={skill.id}
+									skill={skill}
+									added={isAdded(skill)}
+									disabled={!isAdded(skill) && !isAvailable(skill)}
+									action={() =>
+										skillAddAction(skill, isAdded(skill) ? "remove" : "add")
 									}
-									className={twMerge(
-										// prettier-ignore
-										skill.aspectId === "fire" ? 'bg-red-950/50 border-red-900/50' :
-											skill.aspectId === "water" ? 'bg-blue-950/50 border-blue-900/50' :
-												skill.aspectId === "wind" ? 'bg-green-950/50 border-green-900/50' :
-													skill.aspectId === "light" ? 'bg-yellow-950/50 border-yellow-900/50' :
-														skill.aspectId === "darkness" ? 'bg-violet-950/25 border-violet-900/25' :
-															'',
-									)}
 								/>
-								<div
-									className={twMerge(
-										"absolute inset-y-0 right-0 flex w-24 items-center justify-center px-3 opacity-5",
-									)}
-								>
-									{skill.aspectId === "fire" ? (
-										<LucideFlame className="size-full" />
-									) : skill.aspectId === "water" ? (
-										<LucideDroplets className="size-full" />
-									) : skill.aspectId === "wind" ? (
-										<LucideWind className="size-full" />
-									) : skill.aspectId === "light" ? (
-										<LucideSun className="size-full" />
-									) : skill.aspectId === "darkness" ? (
-										<LucideMoon className="size-full" />
-									) : null}
-								</div>
-							</div>
-							{skill.price === 0 ? (
-								<Tooltip>
-									<TooltipTrigger
-										render={
-											<Button
-												type="button"
-												icon={<LucideCheck />}
-												appearance="clear"
-											/>
-										}
-									/>
-									<TooltipContent>This skill cannot be removed.</TooltipContent>
-								</Tooltip>
-							) : (
-								<AddButton
-									active={skill.price === 0 || aspectSkillIds.has(skill.id)}
-									activeLabel={`Add ${skill.name}`}
-									inactiveLabel={`Remove ${skill.name}`}
-									action={(active) => skillAddAction(skill, active)}
-								/>
-							)}
-						</li>
-					)
-				}}
-			/>
+							))}
+						</SkillCategorySection>
+					))
+				)}
+			</div>
 		</div>
+	)
+}
+
+function SkillCategorySection({
+	title,
+	children,
+}: {
+	title: React.ReactNode
+	children: React.ReactNode
+}) {
+	return (
+		<section className="flex flex-col gap-2">
+			<HeadingLevel>
+				<Heading className={primaryHeading()}>{title}</Heading>
+				{children}
+			</HeadingLevel>
+		</section>
+	)
+}
+
+function SkillCard({
+	skill,
+	added,
+	disabled,
+	action,
+}: {
+	skill: AspectSkill
+	added: boolean
+	disabled: boolean
+	action: () => unknown
+}) {
+	const [, submit, pending] = useToastAction(async () => {
+		await action()
+	})
+
+	const classes = {
+		fire: {
+			card: twMerge("border-red-900/50 bg-red-950/50 text-red-100"),
+			aside: twMerge("text-red-200"),
+		},
+		water: {
+			card: twMerge("border-blue-900/50 bg-blue-950/50 text-blue-100"),
+			aside: twMerge("text-blue-200"),
+		},
+		wind: {
+			card: twMerge("border-green-900/50 bg-green-950/50 text-green-100"),
+			aside: twMerge("text-green-200"),
+		},
+		light: {
+			card: twMerge("border-yellow-900/50 bg-yellow-950/50 text-yellow-100"),
+			aside: twMerge("text-yellow-200"),
+		},
+		darkness: {
+			card: twMerge("border-violet-900/25 bg-violet-950/25 text-violet-100"),
+			aside: twMerge("text-violet-200"),
+		},
+	}[skill.aspectId]
+
+	return (
+		<form action={submit} className="contents">
+			<button
+				type="submit"
+				className="relative flex w-full items-center transition gap disabled:cursor-not-allowed disabled:opacity-60 data-[pending]:opacity-50"
+				data-pending={pending || undefined}
+				disabled={disabled}
+			>
+				<ListCard
+					title={
+						<div className="flex items-center gap-2">
+							<span>{skill.name}</span>
+							{added && <LucideCheckCircle2 />}
+						</div>
+					}
+					description={skill.description}
+					aside={
+						<span className={classes.aside}>
+							{[
+								skill.aspect.name,
+								skill.price + " exp",
+								skill.requirements.length > 0 &&
+									`requires ${new Intl.ListFormat(undefined, {
+										type: "conjunction",
+									}).format(skill.requirements.map((it) => it.name))}`,
+							]
+								.filter(Boolean)
+								.join(" • ")}
+						</span>
+					}
+					className={twMerge(classes.card, "transition hover:brightness-110")}
+				/>
+				<div
+					className={twMerge(
+						"absolute inset-y-0 right-0 flex w-24 items-center justify-center px-3 opacity-5",
+					)}
+				>
+					{skill.aspectId === "fire" ? (
+						<LucideFlame className="size-full" />
+					) : skill.aspectId === "water" ? (
+						<LucideDroplets className="size-full" />
+					) : skill.aspectId === "wind" ? (
+						<LucideWind className="size-full" />
+					) : skill.aspectId === "light" ? (
+						<LucideSun className="size-full" />
+					) : skill.aspectId === "darkness" ? (
+						<LucideMoon className="size-full" />
+					) : null}
+				</div>
+				<div
+					className="pointer-events-none invisible absolute inset-0 grid place-content-center opacity-0 transition-all data-[visible]:visible data-[visible]:opacity-100"
+					data-visible={pending || undefined}
+				>
+					<LoadingIcon className="size-12" />
+				</div>
+			</button>
+		</form>
 	)
 }

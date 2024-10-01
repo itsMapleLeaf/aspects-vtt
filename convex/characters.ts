@@ -90,11 +90,23 @@ export const update = effectMutation({
 	args: {
 		...partial(schema.tables.characters.validator.fields),
 		characterId: v.optional(v.id("characters")),
+		aspectSkills: v.optional(
+			v.object({
+				add: v.optional(v.string()),
+				remove: v.optional(v.string()),
+			}),
+		),
 		updates: v.optional(
 			v.array(
 				v.object({
-					characterId: v.id("characters"),
 					...partial(schema.tables.characters.validator.fields),
+					characterId: v.id("characters"),
+					aspectSkills: v.optional(
+						v.object({
+							add: v.optional(v.string()),
+							remove: v.optional(v.string()),
+						}),
+					),
 				}),
 			),
 		),
@@ -105,11 +117,24 @@ export const update = effectMutation({
 				updates.push({ ...args, characterId: args.characterId })
 			}
 			const results = []
-			for (const { characterId, ...props } of updates) {
+			for (const { characterId, aspectSkills, ...props } of updates) {
 				const { character } = yield* queryViewableCharacter(
 					ctx.table("characters").get(characterId),
 				)
-				results.push(yield* Effect.promise(() => character.patch(props).get()))
+
+				const newAspectSkills = { ...character.aspectSkills }
+				if (aspectSkills?.add) {
+					newAspectSkills[aspectSkills.add] = aspectSkills.add
+				}
+				if (aspectSkills?.remove) {
+					delete newAspectSkills[aspectSkills.remove]
+				}
+
+				results.push(
+					yield* Effect.promise(() =>
+						character.patch({ ...props, aspectSkills: newAspectSkills }).get(),
+					),
+				)
 			}
 			return results
 		}).pipe(Effect.orDie)

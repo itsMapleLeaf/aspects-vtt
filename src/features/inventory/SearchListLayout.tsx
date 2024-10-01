@@ -8,9 +8,9 @@ import React, {
 } from "react"
 import { twMerge } from "tailwind-merge"
 import { ConditionalKeys } from "type-fest"
+import { EmptyState } from "~/components/EmptyState.tsx"
 import type { List } from "~/shared/list.ts"
 import { textInput } from "~/styles/input.ts"
-import { secondaryHeading } from "~/styles/text.ts"
 
 export interface SearchListLayoutProps<T> {
 	items: T[] | List<T>
@@ -79,12 +79,7 @@ export function SearchListLayout<T>({
 					))}
 				</ul>
 			) : (
-				<div className="flex flex-1 flex-col items-center justify-center gap">
-					<div className="text-primary-500 *:size-16 *:stroke-1">
-						{emptyStateIcon}
-					</div>
-					<p className={secondaryHeading("opacity-60")}>{emptyStateText}</p>
-				</div>
+				<EmptyState text={emptyStateText} icon={emptyStateIcon} />
 			)}
 		</div>
 	)
