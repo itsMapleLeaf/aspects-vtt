@@ -5,6 +5,7 @@
 ## Battlemap
 
 - [ ] Distance measurement on token drag
+- [ ] Grid lines
 - [x] (mvp) Multi-select
 - [x] (mvp) Multi-select drag
 
