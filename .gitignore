@@ -15,6 +15,7 @@ dist
 dist-ssr
 /build
 **/convex/_generated
+.vercel
 
 # config
 *.local

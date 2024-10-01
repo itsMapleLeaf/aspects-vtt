@@ -16,18 +16,8 @@
 		},
 		"build": {
 			"dependsOn": ["codegen"],
-			"inputs": [
-				"src/**",
-				"public/**",
-				"docs/handbook.md",
-				"package.json",
-				"bun.lock*",
-				"vite.config.*",
-				"tailwind.config.*",
-				"postcss.config.*",
-				"tsconfig.json"
-			],
-			"outputs": ["build/**"]
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["build/**", ".vercel/**"]
 		},
 		"preview": {
 			"dependsOn": ["build"],
