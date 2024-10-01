@@ -32,7 +32,7 @@ export function SceneList() {
 	const updateRoom = useMutation(api.rooms.update)
 
 	const renderScene = (scene: ApiScene) => (
-		<li key={scene._id} className="flex items-center gap-2">
+		<div key={scene._id} className="flex items-center gap-2">
 			<Menu
 				render={
 					<button
@@ -86,7 +86,7 @@ export function SceneList() {
 					},
 				]}
 			/>
-		</li>
+		</div>
 	)
 
 	return (
