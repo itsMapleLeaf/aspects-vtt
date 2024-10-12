@@ -1,6 +1,54 @@
 {
 	"tasks": [
 		{
+			"id": "fa33c7cf-b08a-412f-8266-4ed8c817a0ee",
+			"text": "room experience",
+			"tags": [
+				"rooms",
+				"experience",
+				"skills"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T08:22:10.028Z"
+		},
+		{
+			"id": "4ae4053b-e07c-4117-bfc5-3950d6d05ca7",
+			"text": "add tooltips on glossary keywords on skill cards",
+			"tags": [
+				"character skill editor",
+				"character editor",
+				"characters",
+				"skills"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T07:22:13.705Z"
+		},
+		{
+			"id": "28baf12c-502b-4cd7-ba36-4619b16a0c59",
+			"text": "rule clarifications:\n- areas are always centered on yourself unless otherwise specified",
+			"tags": [],
+			"complete": false,
+			"createdAt": "2024-10-12T07:11:22.583Z"
+		},
+		{
+			"id": "b4207ae7-f61f-42cc-91c4-2601769208c5",
+			"text": "glossary - a page or dialog that just lists various terms and what they mean\n\nexamples:\n- power (face count of an attribute die)\n- defense / evasion (corresponding reaction stats against an attack)\n- repeatable (you can do this as many times as you want, does not require an action)\n- passive (always applies; if triggered, does not cost a resolve)",
+			"tags": [
+				"ui"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T06:53:27.257Z"
+		},
+		{
+			"id": "060a5123-f3a9-416f-87ef-9efb5fd574b7",
+			"text": "update to react router v7",
+			"tags": [
+				"internal"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T05:04:31.936Z"
+		},
+		{
 			"id": "8498f239-8112-44b2-adf8-baaa56be7efa",
 			"text": "item editor: update on type",
 			"tags": [
@@ -194,7 +242,13 @@
 		{
 			"id": "cb14c018-83d0-4c3c-8f5e-ae6639dc7501",
 			"text": "Click required skill to highlight(?) and scroll to it in the list",
-			"tags": [],
+			"tags": [
+				"character skills editor",
+				"skills",
+				"characters",
+				"ui",
+				"nontrivial"
+			],
 			"complete": false,
 			"createdAt": "2024-10-12T04:52:51.744Z"
 		},
@@ -222,8 +276,11 @@
 		{
 			"id": "e3016c26-c946-4509-adf6-6da98501e0e9",
 			"text": "Rename \"Sense\" skills to \"Whispers of ...\" and rename the category to \"Whispers\"",
-			"tags": [],
-			"complete": false,
+			"tags": [
+				"skills",
+				"session mvp"
+			],
+			"complete": true,
 			"createdAt": "2024-10-12T04:52:30.515Z"
 		},
 		{
@@ -271,7 +328,7 @@
 		},
 		{
 			"id": "80bed3b9-90bc-432c-b83b-0b5b4230fb48",
-			"text": "list race skills on character profile",
+			"text": "list race abilities character profile",
 			"tags": [
 				"session mvp",
 				"character editor"
@@ -307,7 +364,7 @@
 				"character editor",
 				"skills"
 			],
-			"complete": false,
+			"complete": true,
 			"createdAt": "2024-10-12T04:48:21.295Z"
 		},
 		{
@@ -317,17 +374,17 @@
 				"session mvp",
 				"skills"
 			],
-			"complete": false,
+			"complete": true,
 			"createdAt": "2024-10-12T04:46:51.378Z"
 		},
 		{
 			"id": "217e718c-3ce1-4c60-9723-b4902b9a4d32",
-			"text": "add \"form of feather\" under wind",
+			"text": "add \"feather fall\" under wind",
 			"tags": [
 				"session mvp",
 				"skills"
 			],
-			"complete": false,
+			"complete": true,
 			"createdAt": "2024-10-12T04:46:40.921Z"
 		},
 		{

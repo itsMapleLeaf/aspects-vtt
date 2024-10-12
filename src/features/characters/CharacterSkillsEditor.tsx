@@ -27,7 +27,8 @@ import { List } from "~/shared/list.ts"
 import { formatTitle } from "~/shared/string.ts"
 import { textInput } from "~/styles/input.ts"
 import { primaryHeading, secondaryHeading } from "~/styles/text.ts"
-import { AspectSkill, type Aspect } from "./aspects.ts"
+import { type Aspect } from "./aspects.ts"
+import { ASPECT_SKILLS, AspectSkill } from "./aspectSkills.ts"
 
 const aspectOrder = List.of<Aspect["id"]>(
 	"fire",
@@ -37,7 +38,7 @@ const aspectOrder = List.of<Aspect["id"]>(
 	"darkness",
 )
 
-const allSkills = AspectSkill.all()
+const allSkills = List.values(ASPECT_SKILLS).compact()
 
 const totalExperience = 100
 
@@ -55,23 +56,18 @@ export function CharacterSkillsEditor({
 	const [searchInput, setSearchInput] = useState("")
 	const [search, setSearch] = useState("")
 
-	const freeSkills = AspectSkill.all().filter((it) => it.price === 0)
-
-	const addedSkillIds = new Set([
-		...freeSkills.map((it) => it.id),
-		...Object.keys(character.aspectSkills ?? {}),
-	])
+	const addedSkillIds = new Set(Object.keys(character.aspectSkills ?? {}))
 
 	const isAdded = (skill: AspectSkill): boolean =>
 		addedSkillIds.has(skill.id) &&
 		// since players can remove other skills, we need to check the requirements again,
 		// and only truly consider it added if it's met
 		// TODO: add recursion safeguard, somehow
-		skill.requirements.every(isAdded)
+		skill.requires.every(isAdded)
 
 	const usedExperience = sum(
 		List.of(...addedSkillIds)
-			.map((id) => AspectSkill.get(id))
+			.map((id) => ASPECT_SKILLS[id])
 			.filter(Boolean)
 			.filter(isAdded)
 			.map((skill) => skill.price),
@@ -80,9 +76,7 @@ export function CharacterSkillsEditor({
 	const remainingExperience = totalExperience - usedExperience
 
 	const isAvailable = (skill: AspectSkill) =>
-		skill.price !== 0 &&
-		skill.price <= remainingExperience &&
-		skill.requirements.every(isAdded)
+		skill.price <= remainingExperience && skill.requires.every(isAdded)
 
 	const sections = new Map<
 		string,
@@ -130,7 +124,7 @@ export function CharacterSkillsEditor({
 				: [...section.items]
 						.sort((a, b) => a.name.localeCompare(b.name))
 						.sort((a, b) => a.price - b.price)
-						.sort((a, b) => a.requirements.length - b.requirements.length)
+						.sort((a, b) => a.requires.length - b.requires.length)
 						.sort(
 							(a, b) =>
 								aspectOrder.indexOf(a.aspectId) -
@@ -290,16 +284,24 @@ function SkillCard({
 							{added && <LucideCheckCircle2 />}
 						</div>
 					}
-					description={skill.description}
+					description={
+						<div className="-my-1">
+							{skill.description.split("\n").map((line, index) => (
+								<div key={index} className="my-2">
+									{line}
+								</div>
+							))}
+						</div>
+					}
 					aside={
 						<span className={classes.aside}>
 							{[
 								skill.aspect.name,
 								skill.price + " exp",
-								skill.requirements.length > 0 &&
+								skill.requires.length > 0 &&
 									`requires ${new Intl.ListFormat(undefined, {
 										type: "conjunction",
-									}).format(skill.requirements.map((it) => it.name))}`,
+									}).format(skill.requires.map((it) => it.name))}`,
 							]
 								.filter(Boolean)
 								.join(" • ")}

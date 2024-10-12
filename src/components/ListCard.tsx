@@ -16,6 +16,7 @@ export function ListCard({
 	aside,
 	...props
 }: ListCardProps) {
+	const DescriptionTag = typeof description === "string" ? "p" : "div"
 	return (
 		<article
 			{...props}
@@ -25,8 +26,12 @@ export function ListCard({
 			)}
 		>
 			<Heading className={secondaryHeading()}>{title}</Heading>
-			<p className="-mb-0.5 -mt-1 leading-snug empty:hidden">{description}</p>
-			<aside className={subText("italic empty:hidden")}>{aside}</aside>
+			<DescriptionTag className="-mb-0.5 -mt-1 whitespace-pre-line leading-snug empty:hidden">
+				{description}
+			</DescriptionTag>
+			<aside className={subText("whitespace-pre-line italic empty:hidden")}>
+				{aside}
+			</aside>
 		</article>
 	)
 }
