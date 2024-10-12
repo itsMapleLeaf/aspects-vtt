@@ -1,6 +1,48 @@
 {
 	"tasks": [
 		{
+			"id": "3e682f72-cdb5-47bf-a28b-2f3863f02c38",
+			"text": "character list filter: current scene only",
+			"tags": [
+				"character list"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T08:31:22.627Z"
+		},
+		{
+			"id": "4fa8b2e0-a4df-4f90-a553-b9982f6fea14",
+			"text": "persist character card collapse state",
+			"tags": [
+				"character cards",
+				"smol"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T08:29:32.079Z"
+		},
+		{
+			"id": "1717032e-8855-41cf-a6f3-6d15054101b5",
+			"text": "character token visibility",
+			"tags": [
+				"characters",
+				"character tokens",
+				"admin",
+				"session mvp"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T08:28:32.567Z"
+		},
+		{
+			"id": "069f3ffd-1a3e-46d9-a9a0-b1db8c7dda12",
+			"text": "character profile visibility",
+			"tags": [
+				"characters",
+				"character editor",
+				"admin"
+			],
+			"complete": false,
+			"createdAt": "2024-10-12T08:28:04.313Z"
+		},
+		{
 			"id": "fa33c7cf-b08a-412f-8266-4ed8c817a0ee",
 			"text": "room experience",
 			"tags": [
@@ -440,7 +482,8 @@
 			"id": "552f389b-8d49-4e4f-b226-4c0ac807b1b8",
 			"text": "discord login",
 			"tags": [
-				"auth"
+				"auth",
+				"session mvp"
 			],
 			"complete": false,
 			"createdAt": "2024-10-12T04:44:41.809Z"
