@@ -41,7 +41,10 @@ export function RoomItemForm({
 		<EditorFormLayout form={form} className="flex flex-col gap">
 			<fieldset className={formRow()}>
 				<InputField label="Name" field={form.fields.name} />
-				<WealthTierSelect field={form.fields.wealthTier} />
+				<WealthTierSelect
+					value={form.fields.wealthTier.value}
+					onChange={form.fields.wealthTier.set}
+				/>
 			</fieldset>
 			<TextAreaField label="Effect" field={form.fields.effect} />
 			<TextAreaField label="Flavor text" field={form.fields.flavor} />

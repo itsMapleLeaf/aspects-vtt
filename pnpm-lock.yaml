@@ -262,6 +262,9 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
+      jose:
+        specifier: ^5.9.4
+        version: 5.9.4
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
