@@ -1,6 +1,6 @@
 import { v } from "convex/values"
 import { Effect } from "effect"
-import { random } from "lodash"
+import { random } from "lodash-es"
 import { getAuthUserId } from "./auth.ts"
 import { effectMutation, effectQuery, queryEnt } from "./lib/effects.ts"
 import { diceRollInputValidator } from "./validators/dice.ts"
