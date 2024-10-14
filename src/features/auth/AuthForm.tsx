@@ -1,3 +1,4 @@
+import { SiDiscord } from "@icons-pack/react-simple-icons"
 import { Link, useSearchParams } from "@remix-run/react"
 import { LucideLogIn, LucideUserPlus } from "lucide-react"
 import * as v from "valibot"
@@ -60,6 +61,22 @@ export function AuthForm() {
 			<Heading className={primaryHeading()}>
 				{action === "login" ? "Sign in" : "Sign up"}
 			</Heading>
+
+			<Button
+				type="button"
+				appearance="outline"
+				icon={<SiDiscord />}
+				onClick={actions.signInWithDiscord}
+			>
+				Sign in with Discord
+			</Button>
+
+			<div className="my-2 flex items-center gap-2">
+				<div className="h-px flex-1 bg-primary-700" />
+				<span className="text-sm text-primary-200/75">or</span>
+				<div className="h-px flex-1 bg-primary-700" />
+			</div>
+
 			<InputField label="Username" field={fields.username} />
 			<InputField label="Password" type="password" field={fields.password} />
 			{action === "register" && (
@@ -87,7 +104,7 @@ export function AuthForm() {
 					className="self-center text-sm font-semibold text-primary-200 underline"
 					to="?action=login"
 				>
-					Already have an account?
+					Sign in with existing account
 				</Link>
 			)}
 		</Form>
