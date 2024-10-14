@@ -43,7 +43,7 @@ export function CharacterList() {
 		<>
 			<SearchListLayout
 				items={filteredCharacters}
-				itemKey={(character) => character.public._id}
+				itemKey={(character) => character._id}
 				renderItem={(character) => <CharacterCard character={character} />}
 				onSearch={setSearch}
 				emptyStateIcon={<LucideUserX2 />}

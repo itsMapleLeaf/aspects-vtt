@@ -1,16 +1,17 @@
 import { Select } from "~/components/Select.tsx"
 import { WEALTH_TIERS } from "~/features/characters/constants.ts"
-import { FieldAccessor } from "~/features/forms/useForm.ts"
 
-interface WealthTierSelectFieldProps {
-	field: FieldAccessor<number>
+interface WealthTierSelectProps {
 	label?: string
+	value?: number
+	onChange?: (value: number) => void
 }
 
-export function WealthTierSelectField({
-	field,
+export function WealthTierSelect({
 	label = "Wealth",
-}: WealthTierSelectFieldProps) {
+	value,
+	onChange,
+}: WealthTierSelectProps) {
 	return (
 		<Select
 			label={label}
@@ -18,8 +19,8 @@ export function WealthTierSelectField({
 				value: String(index),
 				name: `${index + 1}. ${tier.name}`,
 			}))}
-			value={String(field.value ?? 0)}
-			onChangeValue={(value) => field.set(Number(value))}
+			value={String(value ?? 0)}
+			onChangeValue={(value) => onChange?.(Number(value))}
 		/>
 	)
 }

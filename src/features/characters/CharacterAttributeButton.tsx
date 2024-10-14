@@ -29,7 +29,7 @@ export function CharacterAttributeButton({
 }) {
 	const roomId = useRoomContext()._id
 	const createMessage = useMutation(api.messages.create)
-	const updateCharacter = useMutation(api.characters.update)
+	const updateCharacter = useMutation(api.characters.updateMany)
 	const attributeDieFaces = getAttributeDie(character.attributes[attribute])
 	const [open, setOpen] = useState(false)
 

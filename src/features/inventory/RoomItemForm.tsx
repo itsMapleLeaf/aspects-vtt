@@ -4,7 +4,7 @@ import type { StrictOmit } from "~/common/types.ts"
 import { longText, nonEmptyShortText } from "~/common/validators.ts"
 import { api } from "~/convex/_generated/api.js"
 import { wealthTier } from "~/features/characters/validators.ts"
-import { WealthTierSelectField } from "~/features/characters/WealthTierSelectField.tsx"
+import { WealthTierSelect } from "~/features/characters/WealthTierSelect.tsx"
 import { EditorFormLayout } from "~/features/forms/EditorFormLayout.tsx"
 import { InputField, TextAreaField } from "~/features/forms/fields.tsx"
 import { useForm, valibotAction } from "~/features/forms/useForm.ts"
@@ -41,7 +41,7 @@ export function RoomItemForm({
 		<EditorFormLayout form={form} className="flex flex-col gap">
 			<fieldset className={formRow()}>
 				<InputField label="Name" field={form.fields.name} />
-				<WealthTierSelectField field={form.fields.wealthTier} />
+				<WealthTierSelect field={form.fields.wealthTier} />
 			</fieldset>
 			<TextAreaField label="Effect" field={form.fields.effect} />
 			<TextAreaField label="Flavor text" field={form.fields.flavor} />

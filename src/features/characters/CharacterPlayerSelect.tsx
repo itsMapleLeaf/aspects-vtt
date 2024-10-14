@@ -14,7 +14,7 @@ export function CharacterPlayerSelect({
 }) {
 	const room = useRoomContext()
 	const players = useQuery(api.rooms.getPlayers, { roomId: room._id })
-	const update = useMutation(api.characters.update)
+	const update = useMutation(api.characters.updateMany)
 
 	const [_, updatePlayer, pending] = useToastAction(
 		async (_, playerId: Id<"users"> | "") => {

@@ -4,7 +4,7 @@ import { errorText, formField, labelText } from "~/styles/forms.ts"
 export interface FieldProps extends ComponentProps<"div"> {
 	label?: ReactNode
 	htmlFor?: string
-	errors?: string[]
+	errors?: string | string[]
 }
 
 export function Field({
@@ -12,16 +12,19 @@ export function Field({
 	htmlFor,
 	children,
 	className,
-	errors,
+	errors: errorsProp,
 	...props
 }: FieldProps) {
+	let errors
+	errors = [errorsProp].filter(Boolean).flat() // normalize to flat array
+	errors = [...new Set(errors)] // dedupe
 	return (
 		<div {...props} className={formField(className)}>
 			<label htmlFor={htmlFor} className={labelText()}>
 				{label}
 			</label>
 			{children}
-			{[...new Set(errors)]?.map((error) => (
+			{errors.map((error) => (
 				<p key={error} className={errorText()}>
 					{error}
 				</p>

@@ -22,7 +22,7 @@ export function CharacterInventoryEditor({
 	character: NormalizedCharacter
 }) {
 	const room = useRoomContext()
-	const update = useMutation(api.characters.update)
+	const update = useMutation(api.characters.updateMany)
 
 	const [search, setSearch] = useState("")
 

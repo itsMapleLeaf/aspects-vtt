@@ -52,7 +52,7 @@ export function CharacterSkillsEditor({
 }: {
 	character: NormalizedCharacter
 }) {
-	const update = useMutation(api.characters.update)
+	const update = useMutation(api.characters.updateMany)
 	const [searchInput, setSearchInput] = useState("")
 	const [search, setSearch] = useState("")
 

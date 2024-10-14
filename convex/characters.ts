@@ -1,5 +1,5 @@
 import type { WithoutSystemFields } from "convex/server"
-import { v } from "convex/values"
+import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { compact } from "lodash-es"
 import { match } from "ts-pattern"
@@ -8,16 +8,20 @@ import {
 	getAttributeDie,
 	normalizeCharacterAttributes,
 } from "~/features/characters/helpers.ts"
-import { RACE_NAMES } from "~/features/characters/races.ts"
 import { Doc, type Id } from "./_generated/dataModel"
-import { InaccessibleError, getAuthUserId } from "./auth.ts"
+import { InaccessibleError, ensureUserId, getAuthUserId } from "./auth.ts"
 import {
 	effectMutation,
 	effectQuery,
 	getQueryCtx,
 	queryEnt,
 } from "./lib/effects.ts"
-import { EntQueryCtx, type Ent, type EntMutationCtx } from "./lib/ents.ts"
+import {
+	EntQueryCtx,
+	mutation,
+	type Ent,
+	type EntMutationCtx,
+} from "./lib/ents.ts"
 import { partial } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
@@ -86,7 +90,49 @@ export const create = effectMutation({
 	},
 })
 
-export const update = effectMutation({
+export const update = mutation({
+	args: {
+		...partial(schema.tables.characters.validator.fields),
+		characterId: v.id("characters"),
+		aspectSkills: v.optional(
+			v.object({
+				add: v.optional(v.string()),
+				remove: v.optional(v.string()),
+			}),
+		),
+	},
+	async handler(ctx, { characterId, aspectSkills, ...props }) {
+		const userId = await ensureUserId(ctx)
+		const character = await ctx.table("characters").getX(characterId)
+		const room = await character.edgeX("room")
+
+		const isCharacterAdmin =
+			room.ownerId === userId ||
+			character.playerId === userId ||
+			character.ownerId === userId
+
+		if (!isCharacterAdmin) {
+			throw new ConvexError("Unauthorized")
+		}
+
+		const newAspectSkills = { ...character.aspectSkills }
+		if (aspectSkills?.add) {
+			newAspectSkills[aspectSkills.add] = aspectSkills.add
+		}
+		if (aspectSkills?.remove) {
+			delete newAspectSkills[aspectSkills.remove]
+		}
+
+		return normalizeCharacter(
+			await character
+				.patch({ ...props, aspectSkills: newAspectSkills })
+				.get()
+				.doc(),
+		)
+	},
+})
+
+export const updateMany = effectMutation({
 	args: {
 		...partial(schema.tables.characters.validator.fields),
 		characterId: v.optional(v.id("characters")),
@@ -213,9 +259,7 @@ export type NormalizedCharacter = ReturnType<typeof normalizeCharacter>
 export function normalizeCharacter(doc: Doc<"characters">) {
 	const attributes = normalizeCharacterAttributes(doc.attributes)
 
-	const race = RACE_NAMES.includes(doc.race) ? doc.race : undefined
-
-	const bonuses = match(race)
+	const bonuses = match(doc.race)
 		.with("Myrmadon", () => ({ health: 10, resolve: 0 }))
 		.with("Sylvanix", () => ({ health: 0, resolve: 5 }))
 		.otherwise(() => ({ health: 0, resolve: 0 }))
@@ -231,7 +275,7 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 	const normalized = {
 		...doc,
 
-		race,
+		race: doc.race,
 
 		attributes,
 

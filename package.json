@@ -44,6 +44,7 @@
     "@remix-run/router": "^1.19.2",
     "@remix-run/server-runtime": "2.12.1",
     "@vercel/remix": "^2.12.0",
+    "arktype": "2.0.0-rc.15",
     "canvas": "^3.0.0-rc2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -62,8 +63,8 @@
     "lucide-static": "^0.439.0",
     "match-sorter": "^6.3.4",
     "merge-refs": "^1.3.0",
-    "react": "^19.0.0-rc-fb9a90fa48-20240614",
-    "react-dom": "^19.0.0-rc-fb9a90fa48-20240614",
+    "react": "19.0.0-rc-cd22717c-20241013",
+    "react-dom": "19.0.0-rc-cd22717c-20241013",
     "react-dropzone": "^14.2.3",
     "react-error-boundary": "^4.0.13",
     "react-focus-on": "^3.9.3",
@@ -115,11 +116,13 @@
     "vite": "^5.4.3",
     "vite-tsconfig-paths": "^5.0.1"
   },
-  "overrides": {
-    "react": "19.0.0-rc-fb9a90fa48-20240614",
-    "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
-    "react-konva": "19.0.0-1",
-    "@types/react": "npm:types-react@^19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@^19.0.0-rc.1"
+  "pnpm": {
+    "overrides": {
+      "react": "19.0.0-rc-cd22717c-20241013",
+      "react-dom": "19.0.0-rc-cd22717c-20241013",
+      "react-konva": "19.0.0-1",
+      "@types/react": "npm:types-react@^19.0.0-rc.1",
+      "@types/react-dom": "npm:types-react-dom@^19.0.0-rc.1"
+    }
   }
 }

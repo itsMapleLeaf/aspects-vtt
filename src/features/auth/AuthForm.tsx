@@ -1,5 +1,5 @@
+import { Link, useSearchParams } from "@remix-run/react"
 import { LucideLogIn, LucideUserPlus } from "lucide-react"
-import { Link, useSearchParams } from "react-router-dom"
 import * as v from "valibot"
 import { nonEmptyShortText } from "~/common/validators.ts"
 import { Button } from "~/components/Button.tsx"
@@ -75,20 +75,21 @@ export function AuthForm() {
 			>
 				{action === "login" ? "Sign in" : "Sign up"}
 			</Button>
-			{action === "login" ?
+			{action === "login" ? (
 				<Link
 					className="self-center text-sm font-semibold text-primary-200 underline"
 					to="?action=register"
 				>
 					Create an account
 				</Link>
-			:	<Link
+			) : (
+				<Link
 					className="self-center text-sm font-semibold text-primary-200 underline"
 					to="?action=login"
 				>
 					Already have an account?
 				</Link>
-			}
+			)}
 		</Form>
 	)
 }

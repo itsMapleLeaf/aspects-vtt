@@ -14,7 +14,7 @@ export function CharacterVitalFields({
 	character: NormalizedCharacter
 	className?: string
 }) {
-	const updateCharacter = useMutation(api.characters.update)
+	const updateCharacter = useMutation(api.characters.updateMany)
 	const healthId = useId()
 	const resolveId = useId()
 	return (

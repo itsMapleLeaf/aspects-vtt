@@ -1,12 +1,10 @@
-import { List } from "~/shared/list.ts"
-
-export const ATTRIBUTE_NAMES = List.const(
+export const ATTRIBUTE_NAMES = [
 	"strength",
 	"sense",
 	"mobility",
 	"intellect",
 	"wit",
-)
+] as const
 
 export const ATTRIBUTE_MIN = 1
 export const ATTRIBUTE_MAX = 5
