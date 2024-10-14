@@ -31,6 +31,7 @@ export default defineConfig({
 			"react-use",
 			"react-dropzone",
 			"@atlaskit/pragmatic-drag-and-drop",
+			"@icons-pack/react-simple-icons",
 		],
 	},
 })
