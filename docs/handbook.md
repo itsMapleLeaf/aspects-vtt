@@ -29,10 +29,6 @@ Mobility:
 Sense:
 Intellect:
 Wit:
-
-Health: x/x
-Resolve: x/x
-Wealth:
 ```
 
 ## Example Character
@@ -52,10 +48,6 @@ Mobility: 5 (d12)
 Sense: 4 (d10)
 Intellect: 1 (d4)
 Wit: 2 (d6)
-
-Health: 20/20
-Resolve: 7/7
-Wealth: Lower Middle Class
 ```
 
 # Attributes
