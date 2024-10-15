@@ -227,21 +227,9 @@ TODO: list basic actions, which are example presets of common actions characters
 
 Along with one or more common features of their race, Eisenkind will often exhibit pointed elf-like ears, and in rare cases, eyes with a subtle glow that brighten with the intensity of their emotions.
 
-| Name      | Traits                                                                                   | Abilities                                                                                                                                                                                                                                          |
-| --------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Aquilian  | Bird-like: feathered wings and tail, additional feathers elsewhere                       | Flight - Double your movement when using Fly.<br>One with the Wind - You are immune to damage from wind.                                                                                                                                           |
-| Arctana   | Bear-like: round fuzzy ears, small round tail                                            | Natural Intellect - Your Intellect rolls have +1 boost die.<br>Resourceful - You have one extra action point.                                                                                                                                      |
-| Cetacian  | Fish-like: webbed head fins, tail like a dolphin or whale, dorsal fin, patches of scales | Aquatic Affinity - Double your movement when using Swim.<br>Sensory Superiority - Your Sense rolls have +1 boost die.                                                                                                                              |
-| Felirian  | Like cats and other felines: small pointed ears, slender fuzzy tail, claws               | Slippery - You have 3 extra evasion when attacked.<br>Restful - You gain an extra 1d4 resolve when resting.                                                                                                                                        |
-| Lagorei   | Rabbit-like: VERY tall ears, stubby tail                                                 | Unwavering Kick - You can only use your feet for Strike actions, and you roll with +1 boost die.<br>Leap of Confidence - Spend 1 resolve to leap: double your movement, you are in the air while moving, and you can only move in a straight line. |
-| Macridian | Kangaroo-like: talk pointed ears, long fuzzed tail that's thicker at the base, a pouch   | Natural Roamer - You don't take travel fatigue.<br>Fury from Down Under - When pushing yourself, add one extra boost die.                                                                                                                          |
-| Marenti   | Mouse-like: large round flat ears, a long thin tail                                      | Quiet as a Mouse - Sneak rolls have +1 boost die.<br>Naturally Swift - You have 5 extra meters of movement.                                                                                                                                        |
-| Mendix    | Bug-like: clear glassy wings like a butterfly, antennas coming out their head            |                                                                                                                                                                                                                                                    |
-| Myrmadon  | Pangolin-like: covered in patches of hard scales on their back, arms, and shoulders      | Natural Strength - All strike rolls have +1 boost dice.<br>Protective Scales - Your max health is increased by 10.                                                                                                                                 |
-| Pyra      | Draconic: large wings, long thick tail with scales, horns                                | Tail Whip - Use your tail to knock nearby characters prone.<br>Descendant of the Caldera - You are immune to damage from fire and heat.                                                                                                            |
-| Renari    | Like foxes, dogs, and other canines: pointed fuzzy or floppy ears, long fluffy tail      | Sneak Attack - Spend one resolve to double your attack roll.<br>Adaptable - Before the start of combat, you may swap two of your attribute dice until the end of combat.                                                                           |
-| Sylvanix  | Deer-like: appleseed shaped fuzzy ears, antlers (even on females), small stubby tail     | Resolute - Your max resolve is increased by 5.<br>Nimble - Your Mobility rolls have +1 boost die.                                                                                                                                                  |
-| Umbraleth | Demonic: horns, long thin spaded tail, bat wings, pointed ears                           | Devilish Charm - Your Wit rolls have +1 boost die.<br>Descendant of Darkness - All of your attribute rolls have +1 boost die at night.                                                                                                             |
+import { RacesTable } from "~/features/characters/RacesTable.tsx"
+
+<RacesTable />
 
 # Aspects
 
@@ -361,48 +349,47 @@ Along with one or more common features of their race, Eisenkind will often exhib
 > [!warning]
 > work in progress
 
-- Item properties: - Consumable X: can be used X times before the item extinguishes - Wearable: can be worn on a character for a persistent effect - Durability X: Has X ticks of durability. Whenever you use this item, roll a 1d12. On a 1, the item loses one tick, and becomes unusable at 0.
-  | Item | Categories | Properties | Wealth Tier | Effect |
-  |:----------------------------------|:------------|:---------------|:------------|:-----------------------------------------------------------------------------------------------------------|
-  | Filling Snack | | | 2 | Restore 3d4 health |
-  | Uncooked Snack | | | 1 | Restore 1d4 health, lose 1d4 resolveWhen cooked, becomes a filling snack |
-  | Haptonite | | | | |
-  | Glow | | | | |
-  | Handcuffs | | | | |
-  | Rope | | | | |
-  | Tinderbox | | | | |
-  | Gemstone (?) | | | | |
-  | Fishing Rod | | | | |
-  | Common Shield | | | | |
-  | Medicinal Herbs | | | | |
-  | Medkit | | | | |
-  | | | | | |
-  | Artifact of Teleportation | Accessory | Durability 20 | 8 | Squeeze and think of a location to teleport yourself and allies there, with a large margin for error. |
-  | Artifact of Outlandian Strength | Accessory | Wearable | | Increase your max health by 20. |
-  | Artifact of Immaculate Appearance | Accessory | Wearable | | Roll Wit with an extra die. |
-  | Artifact of Persistence | Accessory | Wearable | | Spend 1d4 to reroll any roll. |
-  | Artifact of Focus | Accessory | Wearable | | Increase your max resolve by 30. |
-  | Charming Violet Boutonnière | Accessory | Wearable | | Characters with wit lower than yours cannot damage you. |
-  | Quill of Evaporation | Accessory | Wearable | | Resist all water damage. |
-  | Aviator's Goggles | Accessory | Wearable | | +1 to Sense rolls while in the air. |
-  | Energy Drink | Beverage | Consumable 5 | 2 | +1 boost die to next Mobility roll |
-  | Protein Drink | Beverage | Consumable 5 | 2 | +1 boost die to next Strength roll |
-  | Calming Tea | Beverage | Consumable 5 | 2 | +1 boost die to next Sense roll |
-  | Stylish Outfit | Clothing | Wearable | 6 | +1 boost die to Wit rolls |
-  | Comfy Coat | Clothing | Wearable | 4 | Immune to negative effects from cold.When you take damage, you may reduce it by 1d4. |
-  | Igneous Vest | Clothing | Wearable | | When taking fire damage, divide it by two, rounded down. |
-  | Lightening Garb | Clothing | Wearable | | +1 boost die to Mobility rolls. |
-  | Spider Bat Egg | Collectible | | 6 | |
-  | Moonbeast Venison | Food | Consumable 1 | 3 | Uncooked: restore 1d4 health, lose 1d4 resolveCooked: restore 3d4 health |
-  | Crumpet | Food | Consumable 1 | 2 | +1 boost die to next Intellect roll |
-  | Spider Bat Silk | Material | Consumable 1 | 6 | |
-  | Spider Bat Hide | Material | Consumable 1 | 6 | |
-  | Spider Bat Venom | Material | Consumable 1 | 6 | |
-  | Moonbeast Horn | Material | Durability 3 | 4 | +1 boost die to attacks made with this item. |
-  | Binoculars | Tool | Wearable | 5 | +1 boost die to sighted actions |
-  | Sharp Instrument | Tool | Durability 20 | 4 | +2 boost die on attacks made with this weapon |
-  | Blunt Object | Tool | Durability 20 | 4 | +2 boost dice on attacks made with this weapon |
-  | Umbrella | Tool | Wearable | 4 | Avoid negative effects that would come from getting drenched by rain, or any other falling source of water |
-  | Enchanted Whisperwood Bow | Weapon | Durability 100 | | +3 boost dice to attacks made with this weapon. |
-  | Sword of Champions | Weapon | Durability 100 | | +3 boost dice to attacks made with this weapon. |
-  | Crossbow | Weapon | Durability 20 | | +1 boost die to attacks made with this item. |
+| Item                              | Categories  | Properties     | Wealth Tier | Effect                                                                                                     |
+| :-------------------------------- | :---------- | :------------- | :---------- | :--------------------------------------------------------------------------------------------------------- |
+| Filling Snack                     |             |                | 2           | Restore 3d4 health                                                                                         |
+| Uncooked Snack                    |             |                | 1           | Restore 1d4 health, lose 1d4 resolveWhen cooked, becomes a filling snack                                   |
+| Haptonite                         |             |                |             |                                                                                                            |
+| Glow                              |             |                |             |                                                                                                            |
+| Handcuffs                         |             |                |             |                                                                                                            |
+| Rope                              |             |                |             |                                                                                                            |
+| Tinderbox                         |             |                |             |                                                                                                            |
+| Gemstone (?)                      |             |                |             |                                                                                                            |
+| Fishing Rod                       |             |                |             |                                                                                                            |
+| Common Shield                     |             |                |             |                                                                                                            |
+| Medicinal Herbs                   |             |                |             |                                                                                                            |
+| Medkit                            |             |                |             |                                                                                                            |
+|                                   |             |                |             |                                                                                                            |
+| Artifact of Teleportation         | Accessory   | Durability 20  | 8           | Squeeze and think of a location to teleport yourself and allies there, with a large margin for error.      |
+| Artifact of Outlandian Strength   | Accessory   | Wearable       |             | Increase your max health by 20.                                                                            |
+| Artifact of Immaculate Appearance | Accessory   | Wearable       |             | Roll Wit with an extra die.                                                                                |
+| Artifact of Persistence           | Accessory   | Wearable       |             | Spend 1d4 to reroll any roll.                                                                              |
+| Artifact of Focus                 | Accessory   | Wearable       |             | Increase your max resolve by 30.                                                                           |
+| Charming Violet Boutonnière       | Accessory   | Wearable       |             | Characters with wit lower than yours cannot damage you.                                                    |
+| Quill of Evaporation              | Accessory   | Wearable       |             | Resist all water damage.                                                                                   |
+| Aviator's Goggles                 | Accessory   | Wearable       |             | +1 to Sense rolls while in the air.                                                                        |
+| Energy Drink                      | Beverage    | Consumable 5   | 2           | +1 boost die to next Mobility roll                                                                         |
+| Protein Drink                     | Beverage    | Consumable 5   | 2           | +1 boost die to next Strength roll                                                                         |
+| Calming Tea                       | Beverage    | Consumable 5   | 2           | +1 boost die to next Sense roll                                                                            |
+| Stylish Outfit                    | Clothing    | Wearable       | 6           | +1 boost die to Wit rolls                                                                                  |
+| Comfy Coat                        | Clothing    | Wearable       | 4           | Immune to negative effects from cold.When you take damage, you may reduce it by 1d4.                       |
+| Igneous Vest                      | Clothing    | Wearable       |             | When taking fire damage, divide it by two, rounded down.                                                   |
+| Lightening Garb                   | Clothing    | Wearable       |             | +1 boost die to Mobility rolls.                                                                            |
+| Spider Bat Egg                    | Collectible |                | 6           |                                                                                                            |
+| Moonbeast Venison                 | Food        | Consumable 1   | 3           | Uncooked: restore 1d4 health, lose 1d4 resolveCooked: restore 3d4 health                                   |
+| Crumpet                           | Food        | Consumable 1   | 2           | +1 boost die to next Intellect roll                                                                        |
+| Spider Bat Silk                   | Material    | Consumable 1   | 6           |                                                                                                            |
+| Spider Bat Hide                   | Material    | Consumable 1   | 6           |                                                                                                            |
+| Spider Bat Venom                  | Material    | Consumable 1   | 6           |                                                                                                            |
+| Moonbeast Horn                    | Material    | Durability 3   | 4           | +1 boost die to attacks made with this item.                                                               |
+| Binoculars                        | Tool        | Wearable       | 5           | +1 boost die to sighted actions                                                                            |
+| Sharp Instrument                  | Tool        | Durability 20  | 4           | +2 boost die on attacks made with this weapon                                                              |
+| Blunt Object                      | Tool        | Durability 20  | 4           | +2 boost dice on attacks made with this weapon                                                             |
+| Umbrella                          | Tool        | Wearable       | 4           | Avoid negative effects that would come from getting drenched by rain, or any other falling source of water |
+| Enchanted Whisperwood Bow         | Weapon      | Durability 100 |             | +3 boost dice to attacks made with this weapon.                                                            |
+| Sword of Champions                | Weapon      | Durability 100 |             | +3 boost dice to attacks made with this weapon.                                                            |
+| Crossbow                          | Weapon      | Durability 20  |             | +1 boost die to attacks made with this item.                                                               |
