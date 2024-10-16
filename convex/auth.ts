@@ -23,6 +23,7 @@ export const { auth, signIn, signOut, store } = convexAuth({
 			profile(profile): WithoutSystemFields<Doc<"users">> & { id: string } {
 				return {
 					id: profile.username,
+					name: profile.username,
 					email: profile.email,
 				}
 			},
