@@ -3,11 +3,11 @@ import { ConvexError, v } from "convex/values"
 import { Effect, pipe } from "effect"
 import { compact } from "lodash-es"
 import { match } from "ts-pattern"
-import { DEFAULT_WEALTH_TIER } from "~/features/characters/constants.ts"
 import {
 	getAttributeDie,
 	normalizeCharacterAttributes,
 } from "~/features/characters/helpers.ts"
+import { DEFAULT_WEALTH_TIER } from "~/features/characters/wealth.ts"
 import { Doc, type Id } from "./_generated/dataModel"
 import { InaccessibleError, ensureUserId, getAuthUserId } from "./auth.ts"
 import {

@@ -58,7 +58,7 @@ export function Select<const Value extends string>({
 					<LucideChevronDown />
 				</Ariakit.Select>
 				<Ariakit.SelectPopover
-					className={menuPanel()}
+					className={menuPanel("max-w-2xl")}
 					gutter={8}
 					portal
 					unmountOnHide
@@ -67,12 +67,14 @@ export function Select<const Value extends string>({
 						<Ariakit.SelectItem
 							key={item.value}
 							value={item.value}
-							className={menuItem()}
+							className={menuItem("flex !h-fit flex-col items-start py-1.5")}
 						>
-							{item.icon && <span className="mr-2">{item.icon}</span>}
-							<span>{item.name ?? item.value.toString()}</span>
+							<div className="flex gap-2">
+								{item.icon && <span className="mr-2">{item.icon}</span>}
+								<span>{item.name ?? item.value.toString()}</span>
+							</div>
 							{item.description && (
-								<span className="ml-2 text-sm font-medium tracking-wide text-primary-300">
+								<span className="text-sm font-medium tracking-wide text-primary-300">
 									{item.description}
 								</span>
 							)}
