@@ -1,6 +1,6 @@
 import { authTables } from "@convex-dev/auth/server"
 import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
-import {} from "convex-helpers/validators"
+import { literals } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { nullish, partial } from "./lib/validators.ts"
@@ -95,6 +95,7 @@ const entSchema = defineEntSchema({
 		nameVisible: v.optional(v.boolean()),
 
 		// metadata
+		type: v.optional(literals("player", "npc")),
 		updatedAt: v.number(),
 
 		// relations

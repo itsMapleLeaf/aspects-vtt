@@ -41,7 +41,7 @@ export function Select<const Value extends string>({
 	)
 
 	return (
-		<div className={formField()}>
+		<div className={formField(props.className)}>
 			<Ariakit.SelectProvider store={store}>
 				<Ariakit.SelectLabel className={labelText()}>
 					{label}
@@ -49,10 +49,7 @@ export function Select<const Value extends string>({
 				<Ariakit.Select
 					{...props}
 					value={selectedItem?.value}
-					className={textInput(
-						"!flex items-center text-start gap-1.5",
-						props.className,
-					)}
+					className={textInput("!flex items-center text-start gap-1.5")}
 				>
 					<span className="flex-1">{selectedItem?.name ?? "Choose one"}</span>
 					<LucideChevronDown />

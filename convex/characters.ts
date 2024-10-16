@@ -275,6 +275,8 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 	const normalized = {
 		...doc,
 
+		type: doc.type ?? "npc",
+
 		race: doc.race,
 
 		attributes,

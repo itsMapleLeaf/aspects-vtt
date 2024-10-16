@@ -1,10 +1,8 @@
-import { type } from "arktype"
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
-import { pick, startCase } from "lodash-es"
-import { useCallback, useId, useRef, useState, type ReactNode } from "react"
+import { startCase } from "lodash-es"
+import { useId, useState, type ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
-import { useLatestRef } from "~/common/react/core.ts"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Field } from "~/components/Field.tsx"
 import { Heading } from "~/components/Heading.tsx"
@@ -17,21 +15,14 @@ import { List } from "~/shared/list.ts"
 import { textArea, textInput } from "~/styles/input.ts"
 import { panel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
+import { useDebouncedCallback } from "../../common/react/state.ts"
+import { Checkbox } from "../../components/Checkbox.tsx"
+import { Select } from "../../components/Select.tsx"
+import { getImageUrl } from "../images/getImageUrl.ts"
+import { ImageUploader } from "../images/ImageUploader.tsx"
+import { uploadImage } from "../images/uploadImage.ts"
 import { ATTRIBUTE_NAMES, ATTRIBUTE_POINTS_AVAILABLE } from "./attributes.ts"
 import { CharacterPlayerSelect } from "./CharacterPlayerSelect.tsx"
-
-const Payload = type({
-	// name: "0 < string.trim <= 100",
-	// pronouns: "string.trim <= 100",
-	// race: "string.trim <= 100",
-	// health: "number.integer >= 0",
-	// resolve: "number.integer >= 0",
-	// wealth: `number.integer < ${WEALTH_TIERS.length}`,
-	// notes: "string.trim <= 50000",
-	// attributes: Object.fromEntries(
-	// 	ATTRIBUTE_NAMES.map((name) => [name, "number"] as const),
-	// ) as Record<CharacterAttributeName, "number">,
-})
 
 export function CharacterProfileEditor({
 	character: characterProp,
@@ -43,12 +34,16 @@ export function CharacterProfileEditor({
 			NormalizedCharacter,
 			| "name"
 			| "pronouns"
+			| "imageId"
 			| "race"
 			| "health"
 			| "resolve"
 			| "notes"
 			| "attributes"
 			| "wealth"
+			| "type"
+			| "visible"
+			| "nameVisible"
 		>
 	>
 
@@ -58,25 +53,15 @@ export function CharacterProfileEditor({
 
 	const update = useMutation(api.characters.update)
 
-	const submit = useDebouncedCallback(() => {
+	const submitDebounced = useDebouncedCallback(() => {
 		update({ ...patch, characterId: character._id }).then((response) => {
-			pick(response, [
-				"name",
-				"pronouns",
-				"race",
-				"health",
-				"resolve",
-				"notes",
-				"attributes",
-				"wealth",
-			])
 			setPatch({})
 		})
 	}, 300)
 
 	const handleChange = (patch: PatchPayload) => {
 		setPatch((current) => ({ ...current, ...patch }))
-		submit()
+		submitDebounced()
 	}
 
 	const attributePointsRemaining =
@@ -86,6 +71,40 @@ export function CharacterProfileEditor({
 
 	return (
 		<div className="flex flex-col @container gap">
+			<div className="flex flex-wrap gap">
+				<Checkbox
+					label="Public"
+					checked={character.visible ?? false}
+					onChange={(checked) => handleChange({ visible: checked })}
+				/>
+				<Checkbox
+					label="Show name"
+					checked={character.nameVisible ?? false}
+					onChange={(checked) => handleChange({ nameVisible: checked })}
+				/>
+			</div>
+
+			<div className="grid gap @md:grid-cols-2">
+				<CharacterPlayerSelect character={character} />
+				<Select
+					label="Type"
+					options={[
+						{
+							name: "Player",
+							description: "Enforces EXP and attribute limits",
+							value: "player",
+						},
+						{
+							name: "NPC",
+							value: "npc",
+							description: "Removes limits",
+						},
+					]}
+					value={character.type}
+					onChangeValue={(value) => handleChange({ type: value })}
+				/>
+			</div>
+
 			<div className="grid gap @md:grid-cols-2">
 				<Field
 					label="Name"
@@ -115,20 +134,14 @@ export function CharacterProfileEditor({
 				</Field>
 			</div>
 
-			<CharacterPlayerSelect character={character} />
-
 			<div className="grid gap @md:grid-cols-2">
 				<div className="flex flex-col justify-between gap">
 					<Field label="Image">
-						<input
-							type="file"
-							className={panel(
-								"aspect-square w-full border-primary-600 bg-primary-700",
-							)}
-							onChange={(event) => {
-								// todo
-								// const file = event.currentTarget.files?.[0]
-								// if (file) fields.image.set(file)
+						<ImageUploader
+							imageUrl={character.imageId && getImageUrl(character.imageId)}
+							onUpload={async ([file]) => {
+								const imageId = await uploadImage(file)
+								handleChange({ imageId })
 							}}
 						/>
 					</Field>
@@ -254,24 +267,5 @@ function AttributeInput(props: AttributeInputProps) {
 					.toArray()}
 			</div>
 		</Field>
-	)
-}
-
-function useDebouncedCallback<Args extends unknown[]>(
-	callback: (...args: Args) => void,
-	period: number,
-) {
-	const callbackRef = useLatestRef(callback)
-	const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-		undefined,
-	)
-	return useCallback(
-		(...args: Args) => {
-			clearTimeout(timeoutRef.current)
-			timeoutRef.current = setTimeout(() => {
-				callbackRef.current(...args)
-			}, period)
-		},
-		[period],
 	)
 }

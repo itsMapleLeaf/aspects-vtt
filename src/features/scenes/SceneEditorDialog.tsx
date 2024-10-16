@@ -1,114 +1,121 @@
 import { useMutation } from "convex/react"
-import type { ComponentProps } from "react"
-import * as v from "valibot"
-import { nonEmptyShortText } from "~/common/validators.ts"
+import { startTransition, useState, type ComponentProps } from "react"
 import { Dialog } from "~/components/Dialog.tsx"
 import { api } from "~/convex/_generated/api.js"
-import type { Id } from "~/convex/_generated/dataModel.js"
-import { EditorFormLayout } from "~/features/forms/EditorFormLayout.tsx"
-import { FileField, InputField, SelectField } from "~/features/forms/fields.tsx"
-import { useForm, valibotAction } from "~/features/forms/useForm.ts"
+import { useDebouncedCallback } from "../../common/react/state.ts"
+import { Field } from "../../components/Field.tsx"
+import { NumberInput } from "../../components/NumberInput.tsx"
+import { Select } from "../../components/Select.tsx"
+import { useToastAction } from "../../components/ToastActionForm.tsx"
+import { textInput } from "../../styles/input.ts"
+import { ImageUploader } from "../images/ImageUploader.tsx"
+import { getImageUrl } from "../images/getImageUrl.ts"
 import { uploadImage } from "../images/uploadImage.ts"
-import { useRoomContext } from "../rooms/context.tsx"
+import { ApiScene } from "./types.ts"
 
 export { Button as SceneEditorDialogButton } from "~/components/Dialog.tsx"
-
-// Define EditorScene type within this file
-export interface EditorScene {
-	_id?: Id<"scenes">
-	name: string
-	mode: "scenery" | "battlemap"
-	backgroundId?: Id<"_storage">
-}
 
 export function SceneEditorDialog({
 	children,
 	scene,
-	onSubmitSuccess,
 	...props
 }: ComponentProps<typeof Dialog.Root> & {
-	scene: EditorScene
-	onSubmitSuccess: () => void
+	scene: ApiScene
 }) {
 	return (
 		<Dialog.Root {...props}>
 			{children}
 
-			<Dialog.Content
-				title={scene._id ? "Edit Scene" : "Create Scene"}
-				className="h-[400px]"
-			>
-				<SceneEditorForm scene={scene} onSubmitSuccess={onSubmitSuccess} />
+			<Dialog.Content title={scene._id ? "Edit Scene" : "Create Scene"}>
+				<SceneEditorForm scene={scene} />
 			</Dialog.Content>
 		</Dialog.Root>
 	)
 }
 
-function SceneEditorForm({
-	scene,
-	onSubmitSuccess,
-}: {
-	scene: EditorScene
-	onSubmitSuccess: () => void
-}) {
-	const room = useRoomContext()
-	const createScene = useMutation(api.scenes.create)
+function SceneEditorForm({ scene: sceneProp }: { scene: ApiScene }) {
 	const updateScene = useMutation(api.scenes.update)
+	const [patch, setPatch] = useState<Partial<ApiScene>>({})
+	const scene: ApiScene = { ...sceneProp, ...patch }
 
-	const form = useForm({
-		initialValues: {
-			name: scene.name,
-			mode: scene.mode,
-			background: null as File | null,
-		},
-		pendingMessage: "Saving scene...",
-		successMessage: "Scene saved successfully",
-		action: valibotAction(
-			v.object({
-				name: nonEmptyShortText,
-				mode: v.union([v.literal("scenery"), v.literal("battlemap")]),
-				background: v.optional(v.instance(File)),
-			}),
-			async ({ background, ...input }) => {
-				let backgroundId
-				if (background) {
-					backgroundId = await uploadImage(background)
-				}
+	const [, submit] = useToastAction(async (_state: unknown, _payload: void) => {
+		await updateScene({ ...patch, sceneId: scene._id })
 
-				if (scene._id == null) {
-					await createScene({
-						roomId: room._id,
-						...input,
-						backgroundIds: backgroundId ? [backgroundId] : [],
-					})
-				} else {
-					await updateScene({
-						sceneId: scene._id,
-						...input,
-						battlemapBackgroundId: backgroundId,
-					})
-				}
-				onSubmitSuccess()
-			},
-		),
+		// there's a weird stale state issue I can't figure out,
+		// but it doesn't matter much anyway, because this view won't have
+		// multiple simultaneous editors at the moment
+		// but we do want to try to reset the patch later
+		// setPatch({})
 	})
 
+	const submitDebounced = useDebouncedCallback(() => {
+		startTransition(() => {
+			submit()
+		})
+	}, 300)
+
+	const handleChange = (patch: Partial<ApiScene>) => {
+		setPatch((current) => ({ ...current, ...patch }))
+		submitDebounced()
+	}
+
 	return (
-		<EditorFormLayout form={form}>
-			<InputField label="Name" field={form.fields.name} required />
-			<SelectField
-				label="Mode"
-				field={form.fields.mode}
-				options={[
-					{ name: "Scenery", value: "scenery" },
-					{ name: "Battlemap", value: "battlemap" },
-				]}
-			/>
-			<FileField
-				label="Background"
-				field={form.fields.background}
-				accept="image/*"
-			/>
-		</EditorFormLayout>
+		<form className="flex flex-col @container gap">
+			<Field label="Name">
+				<input
+					required
+					className={textInput()}
+					value={scene.name}
+					onChange={(event) => handleChange({ name: event.target.value })}
+				/>
+			</Field>
+			<div className="flex gap @md:grid-flow-col">
+				<Select
+					className="flex-1"
+					label="Mode"
+					options={[
+						{ name: "Scenery", value: "scenery" },
+						{ name: "Battlemap", value: "battlemap" },
+					]}
+					value={scene.mode}
+					onChangeValue={(value) => handleChange({ mode: value })}
+				/>
+				{scene.mode === "battlemap" && (
+					<Field label="Cell size" className="w-24">
+						<NumberInput
+							required
+							className={textInput()}
+							value={scene.cellSize}
+							onSubmitValue={(value) => handleChange({ cellSize: value })}
+						/>
+					</Field>
+				)}
+			</div>
+			<Field label="Background">
+				{scene.mode === "battlemap" ? (
+					<ImageUploader
+						imageUrl={
+							scene.battlemapBackgroundId &&
+							getImageUrl(scene.battlemapBackgroundId)
+						}
+						onUpload={async ([file]) => {
+							const imageId = await uploadImage(file)
+							handleChange({ battlemapBackgroundId: imageId })
+						}}
+					/>
+				) : scene.mode === "scenery" ? (
+					<ImageUploader
+						imageUrl={
+							scene.sceneryBackgroundId &&
+							getImageUrl(scene.sceneryBackgroundId)
+						}
+						onUpload={async ([file]) => {
+							const imageId = await uploadImage(file)
+							handleChange({ sceneryBackgroundId: imageId })
+						}}
+					/>
+				) : null}
+			</Field>
+		</form>
 	)
 }

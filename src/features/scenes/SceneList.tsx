@@ -13,21 +13,24 @@ import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
 import { interactivePanel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
+import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
-import { EditorScene, SceneEditorDialog } from "./SceneEditorDialog.tsx"
+import { SceneEditorDialog } from "./SceneEditorDialog.tsx"
 import { ApiScene } from "./types.ts"
 
 export function SceneList() {
 	const room = useRoomContext()
-	const scenesQuery = useQuery(api.scenes.list, { roomId: room._id })
+	const scenes = useQuery(api.scenes.list, { roomId: room._id })
 	const [search, setSearch] = useState("")
-	const scenes = matchSorter(scenesQuery ?? [], search, {
+	const filteredScenes = matchSorter(scenes ?? [], search, {
 		keys: ["name", "mode"],
 	})
-	const [editingScene, setEditingScene] = useState<EditorScene>()
 	const [editorOpen, setEditorOpen] = useState(false)
+	const [editingSceneId, setEditingSceneId] = useState<ApiScene["_id"]>()
+	const editingScene = scenes?.find((it) => it._id === editingSceneId)
+	const createScene = useMutation(api.scenes.create)
 	const deleteScene = useMutation(api.scenes.remove)
 	const updateRoom = useMutation(api.rooms.update)
 
@@ -72,7 +75,7 @@ export function SceneList() {
 						icon: <LucideEdit />,
 						label: "Edit",
 						onClick: () => {
-							setEditingScene(scene)
+							setEditingSceneId(scene._id)
 							setEditorOpen(true)
 						},
 					},
@@ -92,27 +95,18 @@ export function SceneList() {
 	return (
 		<>
 			<SearchListLayout
-				items={scenes}
+				items={filteredScenes}
 				itemKey="_id"
 				renderItem={renderScene}
 				onSearch={(search: string) => {
 					setSearch(search)
 				}}
 				actions={
-					<Button
-						type="submit"
-						icon={<LucideImagePlus />}
-						appearance="clear"
-						onClick={() => {
-							setEditingScene({
-								name: "New Scene",
-								mode: "scenery",
-							})
-							setEditorOpen(true)
-						}}
-					>
-						<span className="sr-only">Create scene</span>
-					</Button>
+					<ToastActionForm action={() => createScene({ roomId: room._id })}>
+						<Button type="submit" icon={<LucideImagePlus />} appearance="clear">
+							<span className="sr-only">Create scene</span>
+						</Button>
+					</ToastActionForm>
 				}
 			/>
 			{editingScene && (
@@ -120,10 +114,6 @@ export function SceneList() {
 					open={editorOpen}
 					setOpen={setEditorOpen}
 					scene={editingScene}
-					onSubmitSuccess={() => {
-						setEditorOpen(false)
-						setEditingScene(undefined)
-					}}
 				/>
 			)}
 		</>
