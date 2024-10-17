@@ -1,6 +1,6 @@
 import { authTables } from "@convex-dev/auth/server"
 import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
-import { literals } from "convex-helpers/validators"
+import { literals, nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 import { nullish, partial } from "./lib/validators.ts"
@@ -86,7 +86,9 @@ const entSchema = defineEntSchema({
 
 		// status
 		health: v.optional(v.number()),
+		healthMaxOverride: v.optional(nullable(v.number())),
 		resolve: v.optional(v.number()),
+		resolveMaxOverride: v.optional(nullable(v.number())),
 		wealth: v.optional(v.number()),
 		inventory: v.optional(v.record(v.string(), characterItemValidator)),
 

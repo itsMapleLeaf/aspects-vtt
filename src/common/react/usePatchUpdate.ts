@@ -2,12 +2,12 @@ import { startTransition, useState } from "react"
 import { useToastAction } from "../../components/ToastActionForm.tsx"
 import { useDebouncedCallback } from "./state.ts"
 
-export function usePatchUpdate<T>(
-	base: T,
-	save: (patch: Partial<T>) => Promise<unknown>,
+export function usePatchUpdate<Entity, Patch = Entity>(
+	base: Entity,
+	save: (patch: Partial<Patch>) => Promise<unknown>,
 ) {
-	const [patch, setPatch] = useState<Partial<T>>({})
-	const patched: T = { ...base, ...patch }
+	const [patch, setPatch] = useState<Partial<Patch>>({})
+	const patched: Entity = { ...base, ...patch }
 
 	const [, action] = useToastAction(async (_state: unknown, _payload: void) => {
 		await save(patch)
@@ -22,7 +22,7 @@ export function usePatchUpdate<T>(
 
 	const submitDebounced = useDebouncedCallback(submit, 300)
 
-	const update = (patch: Partial<T>) => {
+	const update = (patch: Partial<Patch>) => {
 		setPatch((current) => ({ ...current, ...patch }))
 		submitDebounced()
 	}

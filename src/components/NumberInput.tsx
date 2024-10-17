@@ -8,13 +8,17 @@ import {
 import { toast } from "react-toastify"
 import { twMerge } from "tailwind-merge"
 
-export interface NumberInputProps extends ComponentProps<"input"> {
+export interface NumberInputProps
+	extends Omit<ComponentProps<"input">, "value" | "placeholder"> {
 	min?: number
 	max?: number
 	step?: number
-	value?: number
+	value?: number | null
 	defaultValue?: number
+	required?: boolean
+	placeholder?: string | number
 	onSubmitValue?: (value: number) => unknown
+	onSubmitEmpty?: () => unknown
 }
 
 export function NumberInput({
@@ -22,20 +26,24 @@ export function NumberInput({
 	max = Number.POSITIVE_INFINITY,
 	step = 1,
 	value: valueProp,
+	required = true,
 	onSubmitValue,
+	onSubmitEmpty,
 	...props
 }: NumberInputProps) {
 	const [editingValue, setEditingValue] = useState<string>()
 
 	const [success, submit, pending] = useActionState(
-		async (_state: boolean | undefined, _payload: void) => {
+		async (_success: boolean | undefined, _payload: void) => {
 			if (editingValue === undefined) return true
 
 			const input = editingValue.trim()
 			if (input === String(valueProp)) return true
 
 			if (!input) {
-				return false
+				if (required) return false
+				onSubmitEmpty?.()
+				return true
 			}
 
 			let value = parseInt(String(valueProp))
@@ -89,11 +97,11 @@ export function NumberInput({
 		// we're specifically avoiding the number type because it's finicky and bad
 		<input
 			inputMode="numeric"
-			placeholder="0"
 			disabled={pending}
 			{...props}
+			placeholder={String(props.placeholder ?? 0)}
 			className={twMerge("text-center tabular-nums", props.className)}
-			value={editingValue ?? valueProp}
+			value={editingValue ?? valueProp ?? ""}
 			data-success={success || undefined}
 			data-error={success === false || undefined}
 			onChange={(event) => {

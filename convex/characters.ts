@@ -265,11 +265,13 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 		.otherwise(() => ({ health: 0, resolve: 0 }))
 
 	const healthMax =
+		doc.healthMaxOverride ??
 		getAttributeDie(attributes.strength) +
-		getAttributeDie(attributes.mobility) +
-		bonuses.health
+			getAttributeDie(attributes.mobility) +
+			bonuses.health
 
 	const resolveMax =
+		doc.resolveMaxOverride ??
 		attributes.sense + attributes.intellect + attributes.wit + bonuses.resolve
 
 	const normalized = {

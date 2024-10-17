@@ -3,6 +3,7 @@ import { Iterator } from "iterator-helpers-polyfill"
 import { startCase } from "lodash-es"
 import { useId, useState, type ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
+import { OverrideProperties } from "type-fest"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Field } from "~/components/Field.tsx"
 import { Heading } from "~/components/Heading.tsx"
@@ -34,7 +35,15 @@ export function CharacterProfileEditor({
 	const update = useMutation(api.characters.update)
 	const { patched: character, update: handleChange } = usePatchUpdate(
 		characterProp,
-		(patch) => update({ ...patch, characterId: characterProp._id }),
+		(
+			patch: OverrideProperties<
+				Partial<NormalizedCharacter>,
+				{
+					healthMax?: number | null
+					resolveMax?: number | null
+				}
+			>,
+		) => update({ ...patch, characterId: characterProp._id }),
 	)
 
 	const attributePointsUsed = List.values(character.attributes).sum()
@@ -111,9 +120,10 @@ export function CharacterProfileEditor({
 				</Field>
 			</div>
 			<div className="grid gap @md:grid-cols-2">
-				<div className="flex flex-col justify-between gap">
-					<Field label="Image">
+				<div className="flex flex-col justify-between @container gap">
+					<Field label="Image" className="flex-1">
 						<ImageUploader
+							className="aspect-auto h-full min-h-[100cqw]"
 							imageUrl={character.imageId && getImageUrl(character.imageId)}
 							onUpload={async ([file]) => {
 								const imageId = await uploadImage(file)
@@ -129,30 +139,6 @@ export function CharacterProfileEditor({
 							options={RACE_NAMES.map((value) => ({ value }))}
 						/>
 					</Field>
-
-					<div className="grid grid-cols-2 gap">
-						<Field label={`Health / ${character.healthMax}`}>
-							<NumberInput
-								className={textInput()}
-								max={character.healthMax}
-								value={character.health}
-								onSubmitValue={(value) => handleChange({ health: value })}
-							/>
-						</Field>
-						<Field label={`Resolve / ${character.resolveMax}`}>
-							<NumberInput
-								className={textInput()}
-								max={character.resolveMax}
-								value={character.resolve}
-								onSubmitValue={(value) => handleChange({ resolve: value })}
-							/>
-						</Field>
-					</div>
-
-					<WealthTierSelect
-						value={character.wealth}
-						onChange={(value) => handleChange({ wealth: value })}
-					/>
 				</div>
 
 				<Field label="Attributes">
@@ -198,6 +184,55 @@ export function CharacterProfileEditor({
 					</div>
 				</Field>
 			</div>
+
+			<div className="grid auto-cols-fr grid-flow-col gap">
+				<Field label={`Health`}>
+					<NumberInput
+						className={textInput()}
+						max={character.healthMax}
+						value={character.health}
+						onSubmitValue={(value) => handleChange({ health: value })}
+					/>
+				</Field>
+				<Field label={`Max health`}>
+					<NumberInput
+						className={textInput()}
+						placeholder={character.healthMax}
+						required={false}
+						value={character.healthMaxOverride}
+						onSubmitValue={(value) =>
+							handleChange({ healthMaxOverride: value })
+						}
+						onSubmitEmpty={() => handleChange({ healthMaxOverride: null })}
+					/>
+				</Field>
+				<Field label={`Resolve`}>
+					<NumberInput
+						className={textInput()}
+						max={character.resolveMax}
+						value={character.resolve}
+						onSubmitValue={(value) => handleChange({ resolveMax: value })}
+						onSubmitEmpty={() => handleChange({ resolveMax: null })}
+					/>
+				</Field>
+				<Field label={`Max resolve`}>
+					<NumberInput
+						className={textInput()}
+						placeholder={character.resolveMax}
+						required={false}
+						value={character.resolveMaxOverride}
+						onSubmitValue={(value) =>
+							handleChange({ resolveMaxOverride: value })
+						}
+						onSubmitEmpty={() => handleChange({ resolveMaxOverride: null })}
+					/>
+				</Field>
+			</div>
+
+			<WealthTierSelect
+				value={character.wealth}
+				onChange={(value) => handleChange({ wealth: value })}
+			/>
 
 			{character.race && (
 				<Field label="Abilities">
