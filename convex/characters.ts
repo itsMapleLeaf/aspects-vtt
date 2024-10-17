@@ -8,6 +8,7 @@ import {
 	normalizeCharacterAttributes,
 } from "~/features/characters/helpers.ts"
 import { DEFAULT_WEALTH_TIER } from "~/features/characters/wealth.ts"
+import { rollDice } from "../shared/random.ts"
 import { Doc, type Id } from "./_generated/dataModel"
 import { InaccessibleError, ensureUserId, getAuthUserId } from "./auth.ts"
 import {
@@ -396,3 +397,123 @@ export function ensureCharacterEntAdmin(
 		)
 	})
 }
+
+export const attack = effectMutation({
+	args: {
+		characterIds: v.array(v.id("characters")),
+		attackerId: v.id("characters"),
+		attribute: v.union(
+			v.literal("strength"),
+			v.literal("sense"),
+			v.literal("mobility"),
+			v.literal("intellect"),
+			v.literal("wit"),
+		),
+		pushYourself: v.boolean(),
+	},
+	handler(ctx, args) {
+		return Effect.gen(function* () {
+			const userId = yield* getAuthUserId(ctx)
+			const { characterIds, attackerId, attribute, pushYourself } = args
+
+			// Get the attacker
+			const { character: attackerEnt } = yield* queryViewableCharacter(
+				ctx.table("characters").get(attackerId),
+			)
+			const attackerNormalized = normalizeCharacter(attackerEnt.doc())
+
+			// Calculate attack damage
+			const attackerDie = getAttributeDie(
+				attackerNormalized.attributes[attribute],
+			)
+			const attackRoll = rollDice(attackerDie, 2) // Roll two dice
+			let damage = attackRoll.total
+
+			let boostRoll: ReturnType<typeof rollDice> | undefined
+			if (pushYourself) {
+				boostRoll = rollDice(6, 1) // Roll one d6 as boost die
+				damage += boostRoll.total
+
+				// Reduce attacker's resolve by 2 for pushing
+				yield* Effect.promise(() =>
+					attackerEnt.patch({
+						resolve: Math.max(0, attackerNormalized.resolve - 2),
+					}),
+				)
+			}
+
+			const defenders = yield* Effect.forEach(characterIds, (id) =>
+				Effect.promise(() =>
+					ctx
+						.table("characters")
+						.getX(id)
+						.then((ent) => normalizeCharacter(ent.doc())),
+				),
+			)
+
+			const defenderText =
+				defenders.length === 1
+					? `<@${defenders[0]!._id}>.`
+					: `${defenders.length} targets`
+
+			const messageContent: Doc<"messages">["content"] = [
+				{
+					type: "text",
+					text: `${attackerEnt.name} made a(n)${pushYourself ? " pushed" : ""} ${attribute} attack against ${
+						defenderText
+					} for ${damage} damage.`,
+				},
+				{
+					type: "dice",
+					dice: [
+						...attackRoll.results.map((result) => ({
+							faces: attackerDie,
+							result: result,
+						})),
+						...(boostRoll
+							? [{ faces: 6, result: boostRoll.total, color: "green" }]
+							: []),
+					],
+				},
+			]
+
+			// Process defenders
+			for (const defender of defenders) {
+				const evasion = getAttributeDie(defender.attributes.mobility)
+				if (evasion > damage) {
+					messageContent.push({
+						type: "text",
+						text: `${defender.name} evaded with ${evasion} evasion.`,
+					})
+					return
+				}
+
+				const defense = getAttributeDie(defender.attributes.strength)
+				const damageTaken = Math.max(1, damage - defense)
+				const health = Math.max(0, defender.health - damageTaken)
+
+				yield* Effect.promise(() =>
+					ctx.table("characters").getX(defender._id).patch({ health: health }),
+				)
+
+				messageContent.push({
+					type: "text",
+					text: `${defender.name} reduced the damage by ${defense} and lost ${damageTaken} health. ${
+						health === 0 ? " They are down." : ""
+					}`,
+				})
+			}
+
+			// Create a message about the attack
+			yield* Effect.promise(() =>
+				ctx.table("messages").insert({
+					roomId: attackerEnt.roomId,
+					authorId: userId,
+					content: messageContent,
+				}),
+			)
+
+			return { success: true }
+		}).pipe(Effect.orDie)
+	},
+})

@@ -108,7 +108,7 @@ export function CharacterCard({
 
 				<Collapse.Content>
 					<div className="flex flex-col py-2 gap-2">
-						<CharacterAttributeButtonRow character={character.full} />
+						<CharacterAttributeButtonRow characters={[character.full]} />
 						<CharacterVitalFields character={character.full} />
 
 						{character.race && (

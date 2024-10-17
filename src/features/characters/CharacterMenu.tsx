@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "convex/react"
-import { LucideEdit } from "lucide-react"
+import { LucideEdit, LucideSwords, LucideVenetianMask } from "lucide-react"
 import { ComponentProps, useState } from "react"
 import { match, P } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
 import { Popover } from "~/components/Popover.tsx"
 import { api } from "~/convex/_generated/api.js"
-import { NormalizedCharacter } from "~/convex/characters.ts"
+import { NormalizedCharacter, ProtectedCharacter } from "~/convex/characters.ts"
 import { CharacterAttributeButtonRow } from "~/features/characters/CharacterAttributeButtonRow.tsx"
 import { CharacterEditorDialog } from "~/features/characters/CharacterEditorDialog.tsx"
 import { CharacterToggleCombatMemberButton } from "~/features/characters/CharacterToggleCombatMemberButton.tsx"
@@ -13,7 +13,12 @@ import { CharacterVitalFields } from "~/features/characters/CharacterVitalFields
 import { ApiCharacter } from "~/features/characters/types.ts"
 import { List } from "~/shared/list.ts"
 import { Checkbox } from "../../components/Checkbox.tsx"
-import { panel } from "../../styles/panel.ts"
+import { Dialog } from "../../components/Dialog.tsx"
+import { Field } from "../../components/Field.tsx"
+import { Select } from "../../components/Select.tsx"
+import { useToastAction } from "../../components/ToastActionForm.tsx"
+import { lightPanel, panel } from "../../styles/panel.ts"
+import { getImageUrl } from "../images/getImageUrl.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
@@ -62,16 +67,6 @@ export function CharacterMenu({
 	controller: CharacterMenuController
 }) {
 	const room = useRoomContext()
-	const [editorOpen, setEditorOpen] = useState(false)
-
-	const [editingCharacterId, setEditingCharacterId] =
-		useState<NormalizedCharacter["_id"]>()
-
-	const editingCharacter = controller.characterTokens
-		.map((it) => it.character.full)
-		.find((it) => it?._id === editingCharacterId)
-
-	const updateToken = useMutation(api.tokens.update)
 
 	const items = match([...controller.characterTokens])
 		.with(
@@ -91,16 +86,23 @@ export function CharacterMenu({
 				),
 				<CharacterAttributeButtonRow
 					key="attributes"
-					character={character.full}
+					characters={[character.full]}
 				/>,
 				<CharacterVitalFields
 					key="vitals"
 					className="w-[220px] gap"
 					character={character.full}
 				/>,
-				/* <Button asChild icon={<LucideSwords />} align="start">
-            <Popover.Close>Attack</Popover.Close>
-        </Button>, */
+				<Popover.Close
+					key="attack"
+					render={<Button icon={<LucideSwords />} />}
+					onClick={() => {
+						setAttackingCharacterIds(new Set([character._id]))
+						setAttackOpen(true)
+					}}
+				>
+					Attack
+				</Popover.Close>,
 				<Button key="edit" asChild icon={<LucideEdit />}>
 					<Popover.Close
 						onClick={() => {
@@ -132,29 +134,61 @@ export function CharacterMenu({
 			],
 		)
 		.otherwise((tokens) => {
-			const characters = tokens.map((it) => it.character.full).filter(Boolean)
-			if (characters.length === 0) {
-				return []
-			}
+			const characters = tokens.map((it) => it.character)
+			const fullCharacters = characters.map((it) => it.full).filter(Boolean)
+
 			return [
-				/* <Button asChild icon={<LucideSwords />} align="start">
-								<Popover.Close>Attack</Popover.Close>
-						  </Button>, */
-				room.isOwner && (
-					<CharacterToggleCombatMemberButton
-						key="combat"
-						characters={characters}
+				fullCharacters.length > 0 && (
+					<CharacterAttributeButtonRow
+						key="attributes"
+						characters={fullCharacters}
 					/>
 				),
-				room.isOwner && (
+				<Popover.Close
+					key="attack"
+					render={<Button icon={<LucideSwords />} />}
+					onClick={() => {
+						setAttackingCharacterIds(new Set(characters.map((it) => it._id)))
+						setAttackOpen(true)
+					}}
+				>
+					Attack
+				</Popover.Close>,
+				fullCharacters.length > 0 && room.isOwner && (
+					<CharacterToggleCombatMemberButton
+						key="combat"
+						characters={fullCharacters}
+					/>
+				),
+				fullCharacters.length > 0 && room.isOwner && (
 					<Popover.Close
 						key="token"
-						render={<CharacterToggleTokenButton characters={characters} />}
+						render={<CharacterToggleTokenButton characters={fullCharacters} />}
 					/>
 				),
 			]
 		})
 		.filter(Boolean)
+
+	const [editorOpen, setEditorOpen] = useState(false)
+	const [editingCharacterId, setEditingCharacterId] =
+		useState<NormalizedCharacter["_id"]>()
+
+	const editingCharacter = controller.characterTokens
+		.map((it) => it.character.full)
+		.find((it) => it?._id === editingCharacterId)
+
+	const [attackOpen, setAttackOpen] = useState(false)
+	const [attackingCharacterIds, setAttackingCharacterIds] =
+		useState<Set<NormalizedCharacter["_id"]>>()
+
+	const attackingCharacters =
+		attackingCharacterIds &&
+		controller.characterTokens
+			.filter((it) => attackingCharacterIds?.has(it.characterId))
+			.map((it) => it.character)
+
+	const updateToken = useMutation(api.tokens.update)
 
 	if (items.length === 0) {
 		return null
@@ -176,6 +210,144 @@ export function CharacterMenu({
 					setOpen={setEditorOpen}
 				/>
 			)}
+			{attackingCharacters?.length ? (
+				<CharacterAttackDialog
+					characters={attackingCharacters}
+					open={attackOpen}
+					setOpen={setAttackOpen}
+				/>
+			) : null}
 		</Popover.Root>
+	)
+}
+
+function CharacterAttackDialog({
+	characters,
+	...props
+}: {
+	characters: ProtectedCharacter[]
+} & ComponentProps<typeof Dialog.Root>) {
+	const room = useRoomContext()
+	const user = useQuery(api.users.me)
+	const allCharacters = useQuery(api.characters.list, { roomId: room._id })
+
+	const attackerOptions = allCharacters
+		?.map((it) => it.full)
+		.filter(Boolean)
+		.filter((attacker) =>
+			characters.every((defender) => defender._id !== attacker._id),
+		)
+
+	const [attackerId, setAttackerId] = useState<NormalizedCharacter["_id"]>()
+	const attacker =
+		attackerOptions?.find((it) => it._id === attackerId) ??
+		attackerOptions?.find((it) => it.playerId === user?._id) ??
+		attackerOptions?.[0]
+
+	const [attributeSelected, setAttributeSelected] =
+		useState<keyof NormalizedCharacter["attributes"]>()
+
+	const attribute =
+		attributeSelected ??
+		(attacker
+			? // lol
+				(Object.entries(attacker.attributes).toSorted(
+					(a, b) => b[1] - a[1],
+				)[0]?.[0] as keyof NormalizedCharacter["attributes"])
+			: "strength")
+
+	const [pushYourself, setPushYourself] = useState(false)
+
+	const attack = useMutation(api.characters.attack)
+
+	const [, action] = useToastAction(async () => {
+		if (!attacker) {
+			throw new Error("Unexpected: no attacker")
+		}
+		await attack({
+			characterIds: characters.map((it) => it._id),
+			attackerId: attacker._id,
+			attribute,
+			pushYourself,
+		})
+		props.setOpen?.(false)
+	})
+
+	return (
+		<Dialog.Root {...props}>
+			<Dialog.Content
+				title="Attack"
+				description="I hope you know what you're doing."
+			>
+				<form action={action} className="contents">
+					<Field label="Targets">
+						<div className="mt-1 flex flex-wrap gap-4">
+							{characters.map((it) => (
+								<div key={it._id} className="flex items-center gap-2">
+									{it.imageId ? (
+										<img
+											src={getImageUrl(it.imageId)}
+											alt=""
+											className={lightPanel("size-8 rounded-full")}
+										/>
+									) : (
+										<div
+											className={lightPanel(
+												"flex size-8 items-center justify-center rounded-full",
+											)}
+										>
+											<LucideVenetianMask className="size-5" />
+										</div>
+									)}
+									{it.identity?.name ?? "(unknown)"}
+								</div>
+							))}
+						</div>
+					</Field>
+					<div className="flex gap *:flex-1">
+						<Select
+							label="Attacker"
+							value={attacker?._id ?? ""}
+							options={[
+								{ name: "Choose one", value: "" },
+								...(attackerOptions ?? [])?.map((it) => ({
+									name: it.name,
+									value: it._id,
+								})),
+							]}
+							onChangeValue={(value) => {
+								if (value !== "") setAttackerId(value)
+							}}
+						/>
+						<Select
+							label="Attribute / Aspect"
+							value={attribute}
+							options={[
+								{ name: "Strength", value: "strength" },
+								{ name: "Sense", value: "sense" },
+								{ name: "Mobility", value: "mobility" },
+								{ name: "Intellect", value: "intellect" },
+								{ name: "Wit", value: "wit" },
+							]}
+							onChangeValue={setAttributeSelected}
+						/>
+					</div>
+					<Checkbox
+						label="Push yourself"
+						checked={pushYourself}
+						onChange={setPushYourself}
+					/>
+					{attacker ? (
+						<Button type="submit" icon={<LucideSwords />}>
+							Attack
+						</Button>
+					) : (
+						<p className="flex h-10 items-center text-center">
+							No valid attackers found.
+						</p>
+					)}
+				</form>
+			</Dialog.Content>
+		</Dialog.Root>
 	)
 }

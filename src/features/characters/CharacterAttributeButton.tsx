@@ -19,19 +19,57 @@ import { useRoomContext } from "../rooms/context.tsx"
 import { getAttributeDie } from "./helpers.ts"
 
 export function CharacterAttributeButton({
-	character,
+	characters,
 	attribute,
 	icon,
 }: {
-	character: NormalizedCharacter
+	characters: NormalizedCharacter[]
 	attribute: CharacterAttributeName
 	icon: React.ReactNode
 }) {
 	const roomId = useRoomContext()._id
 	const createMessage = useMutation(api.messages.create)
-	const updateCharacter = useMutation(api.characters.updateMany)
-	const attributeDieFaces = getAttributeDie(character.attributes[attribute])
+	const updateCharacters = useMutation(api.characters.updateMany)
+
 	const [open, setOpen] = useState(false)
+
+	const getCharacterDice = (character: NormalizedCharacter) => {
+		const attributeDieFaces = getAttributeDie(character.attributes[attribute])
+
+		const dice = [
+			{ faces: attributeDieFaces },
+			{ faces: attributeDieFaces },
+			...Iterator.range(
+				form.values.boost + (form.values.pushYourself ? 1 : 0),
+			).map(() => ({
+				faces: 6,
+				color: "green",
+			})),
+			...Iterator.range(form.values.snag).map(() => ({
+				faces: 6,
+				color: "red",
+				operation: "subtract",
+			})),
+		]
+
+		return match({
+			race: character.race,
+			attribute,
+			pushYourself: form.values.pushYourself,
+		})
+			.with(
+				P.union(
+					{ race: "Arctana", attribute: "intellect" },
+					{ race: "Cetacian", attribute: "sense" },
+					{ race: "Macridian", pushYourself: true },
+					{ race: "Myrmadon", attribute: "strength" },
+					{ race: "Sylvanix", attribute: "mobility" },
+					{ race: "Umbraleth", attribute: "wit" },
+				),
+				() => [...dice, { faces: 6, color: "green" }],
+			)
+			.otherwise(() => dice)
+	}
 
 	const form = useForm({
 		initialValues: {
@@ -47,23 +85,25 @@ export function CharacterAttributeButton({
 			}),
 			async (values) => {
 				if (values.pushYourself) {
-					await updateCharacter({
-						characterId: character._id,
-						resolve: character.resolve - 2,
+					await updateCharacters({
+						updates: characters.map((it) => ({
+							characterId: it._id,
+							resolve: it.resolve - 2,
+						})),
 					})
 				}
 				await createMessage({
 					roomId,
-					content: [
+					content: characters.flatMap((it) => [
 						{
 							type: "text",
-							text: `<@${character._id}> rolled ${startCase(attribute)}:`,
+							text: `<@${it._id}> rolled ${startCase(attribute)}:`,
 						},
 						{
 							type: "dice",
-							dice: modifiedDice,
+							dice: getCharacterDice(it),
 						},
-					],
+					]),
 				})
 				setOpen(false)
 			},
@@ -72,39 +112,9 @@ export function CharacterAttributeButton({
 
 	const fields = useFields(form)
 
-	const dice = [
-		{ faces: attributeDieFaces },
-		{ faces: attributeDieFaces },
-		...Iterator.range(
-			form.values.boost + (form.values.pushYourself ? 1 : 0),
-		).map(() => ({
-			faces: 6,
-			color: "green",
-		})),
-		...Iterator.range(form.values.snag).map(() => ({
-			faces: 6,
-			color: "red",
-			operation: "subtract",
-		})),
-	]
-
-	const modifiedDice = match({
-		race: character.race,
-		attribute,
-		pushYourself: form.values.pushYourself,
-	})
-		.with(
-			P.union(
-				{ race: "Arctana", attribute: "intellect" },
-				{ race: "Cetacian", attribute: "sense" },
-				{ race: "Macridian", pushYourself: true },
-				{ race: "Myrmadon", attribute: "strength" },
-				{ race: "Sylvanix", attribute: "mobility" },
-				{ race: "Umbraleth", attribute: "wit" },
-			),
-			() => [...dice, { faces: 6, color: "green" }],
-		)
-		.otherwise(() => dice)
+	const dicePowerValues = new Set(
+		characters.map((it) => getAttributeDie(it.attributes[attribute])),
+	)
 
 	return (
 		<Popover.Root placement="bottom-start" open={open} setOpen={setOpen}>
@@ -114,9 +124,14 @@ export function CharacterAttributeButton({
 						<Button appearance="clear" square icon={icon} type="button" />
 					}
 				/>
-				<p className="text-[12px] font-semibold leading-3 text-primary-200">
-					d{attributeDieFaces}
-				</p>
+
+				{dicePowerValues.size > 0 && (
+					<p className="text-[12px] font-semibold leading-3 text-primary-200">
+						{dicePowerValues.size === 1
+							? `d${[...dicePowerValues][0]}`
+							: `mixed`}
+					</p>
+				)}
 			</div>
 			<Popover.Content>
 				<Form form={form} className="flex flex-col p-gap gap">

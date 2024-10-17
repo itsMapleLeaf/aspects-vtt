@@ -3,34 +3,34 @@ import type { NormalizedCharacter } from "~/convex/characters.ts"
 import { CharacterAttributeButton } from "./CharacterAttributeButton.tsx"
 
 export function CharacterAttributeButtonRow({
-	character,
+	characters,
 }: {
-	character: NormalizedCharacter
+	characters: NormalizedCharacter[]
 }) {
 	return (
 		<div className="flex w-full items-center justify-between gap-1">
 			<CharacterAttributeButton
-				character={character}
+				characters={characters}
 				attribute="strength"
 				icon={<Lucide.BicepsFlexed />}
 			/>
 			<CharacterAttributeButton
-				character={character}
+				characters={characters}
 				attribute="sense"
 				icon={<Lucide.Eye />}
 			/>
 			<CharacterAttributeButton
-				character={character}
+				characters={characters}
 				attribute="mobility"
 				icon={<Lucide.Wind />}
 			/>
 			<CharacterAttributeButton
-				character={character}
+				characters={characters}
 				attribute="intellect"
 				icon={<Lucide.Lightbulb />}
 			/>
 			<CharacterAttributeButton
-				character={character}
+				characters={characters}
 				attribute="wit"
 				icon={<Lucide.Sparkle />}
 			/>
