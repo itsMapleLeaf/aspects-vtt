@@ -30,7 +30,7 @@ export function CharacterEditorDialog({
 			<Dialog.Content
 				title={character.name}
 				description="Edit character details"
-				className="h-[800px]"
+				className="h-[1000px] max-w-xl"
 			>
 				<div className="flex h-full min-h-0 flex-col gap-2">
 					<Tabs.Root

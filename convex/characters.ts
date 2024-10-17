@@ -464,15 +464,18 @@ export const attack = effectMutation({
 				),
 			)
 
+			const mention = (character: { _id: Id<"characters"> }) =>
+				`<@${character._id}>`
+
 			const defenderText =
 				defenders.length === 1
-					? `<@${defenders[0]!._id}>`
+					? mention(defenders[0]!)
 					: `${defenders.length} targets`
 
 			const messageContent: Doc<"messages">["content"] = [
 				{
 					type: "text",
-					text: `${attackerEnt.name} made an attack against ${
+					text: `${mention(attackerEnt)} made an attack against ${
 						defenderText
 					} for ${damage} damage.`,
 				},
@@ -496,7 +499,7 @@ export const attack = effectMutation({
 				if (evasion > damage) {
 					messageContent.push({
 						type: "text",
-						text: `${defender.name} evaded with ${evasion} evasion.`,
+						text: `${mention(defender)} evaded with ${evasion} evasion.`,
 					})
 					return
 				}
@@ -511,7 +514,7 @@ export const attack = effectMutation({
 
 				messageContent.push({
 					type: "text",
-					text: `${defender.name} reduced the damage by ${defense} and lost ${damageTaken} health. ${
+					text: `${mention(defender)} reduced the damage by ${defense} and lost ${damageTaken} health. ${
 						health === 0 ? " They are down." : ""
 					}`,
 				})

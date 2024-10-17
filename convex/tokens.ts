@@ -27,19 +27,10 @@ export const list = effectQuery({
 				scene
 					.edge("characterTokens")
 					.map(async (token) => {
-						const characterDoc = await token.edge("character")
-						const character = protectCharacter(
-							normalizeCharacter(characterDoc),
-							userId,
-							room,
-						)
-
-						if (character == null) {
-							return
-						}
+						const character = normalizeCharacter(await token.edge("character"))
 
 						const hasAccess =
-							isCharacterAdmin(characterDoc, room, userId) || token.visible
+							isCharacterAdmin(character, room, userId) || token.visible
 						if (!hasAccess) {
 							return
 						}
@@ -50,7 +41,18 @@ export const list = effectQuery({
 								visible: false,
 								updatedAt: 0,
 							}),
-							character,
+							character: {
+								...protectCharacter(
+									{
+										...character,
+										// if the token is visible, also treat this character as being public
+										// for the sake of this function
+										visible: token.visible,
+									},
+									userId,
+									room,
+								),
+							},
 						}
 					})
 					.filter((result) => result != null),

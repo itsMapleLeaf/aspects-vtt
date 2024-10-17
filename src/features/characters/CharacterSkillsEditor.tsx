@@ -77,8 +77,8 @@ export function CharacterSkillsEditor({
 	const remainingExperience = totalExperience - usedExperience
 
 	const isAvailable = (skill: AspectSkill) =>
-		character.type === "npc" ||
-		(skill.price <= remainingExperience && skill.requires.every(isAdded))
+		(character.type === "npc" || skill.price <= remainingExperience) &&
+		skill.requires.every(isAdded)
 
 	const [statusFilter, setStatusFilter] = useLocalStorage(
 		`characterSkills:statusFilter:${character._id}`,

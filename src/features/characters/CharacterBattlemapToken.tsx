@@ -169,8 +169,8 @@ export function CharacterBattlemapToken({
 						flip={false}
 						getAnchorRect={getAnchorRect}
 					>
-						<p className="leading-none empty:hidden">
-							{token.character.identity?.name}
+						<p className="leading-none">
+							{token.character.identity?.name ?? "(unknown)"}
 						</p>
 						<p className="text-sm leading-none text-primary-100/80 empty:hidden">
 							{[token.character.race, token.character.identity?.pronouns]
