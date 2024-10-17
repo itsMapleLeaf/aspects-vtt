@@ -37,8 +37,9 @@ export function CharacterProfileEditor({
 		(patch) => update({ ...patch, characterId: characterProp._id }),
 	)
 
+	const attributePointsUsed = List.values(character.attributes).sum()
 	const attributePointsRemaining =
-		ATTRIBUTE_POINTS_AVAILABLE - List.values(character.attributes).sum()
+		ATTRIBUTE_POINTS_AVAILABLE - attributePointsUsed
 
 	const id = useId()
 	const room = useRoomContext()
@@ -160,18 +161,25 @@ export function CharacterProfileEditor({
 							"flex h-full flex-col items-center justify-center border-primary-600 bg-primary-700 px-4 py-8 gap",
 						)}
 					>
-						<Heading
-							className={secondaryHeading(
-								"mb-3 text-center tabular-nums transition",
-								attributePointsRemaining < 0 && "text-red-300",
-								attributePointsRemaining > 0 && "text-green-300",
-							)}
-						>
-							<div className="text-2xl">
-								{attributePointsRemaining} / {ATTRIBUTE_POINTS_AVAILABLE}
-							</div>
-							<div className="-mt-2 text-lg">points remaining</div>
-						</Heading>
+						{character.type === "npc" ? (
+							<Heading className="mb-3 text-center tabular-nums transition">
+								<div className="text-2xl">{attributePointsUsed}</div>
+								<div className="-mt-2 text-lg">points used</div>
+							</Heading>
+						) : (
+							<Heading
+								className={secondaryHeading(
+									"mb-3 text-center tabular-nums transition",
+									attributePointsRemaining < 0 && "text-red-300",
+									attributePointsRemaining > 0 && "text-green-300",
+								)}
+							>
+								<div className="text-2xl">
+									{attributePointsRemaining} / {ATTRIBUTE_POINTS_AVAILABLE}
+								</div>
+								<div className="-mt-2 text-lg">points remaining</div>
+							</Heading>
+						)}
 						{ATTRIBUTE_NAMES.map((name) => (
 							<AttributeInput
 								key={name}

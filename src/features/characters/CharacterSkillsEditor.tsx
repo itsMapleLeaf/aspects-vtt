@@ -76,7 +76,8 @@ export function CharacterSkillsEditor({
 	const remainingExperience = totalExperience - usedExperience
 
 	const isAvailable = (skill: AspectSkill) =>
-		skill.price <= remainingExperience && skill.requires.every(isAdded)
+		character.type === "npc" ||
+		(skill.price <= remainingExperience && skill.requires.every(isAdded))
 
 	const sections = new Map<
 		string,
@@ -145,9 +146,15 @@ export function CharacterSkillsEditor({
 
 	return (
 		<div className="flex h-full flex-col p-3 gap-3">
-			<p className={secondaryHeading("text-center")}>
-				Experience: {remainingExperience} / {totalExperience}
-			</p>
+			{character.type === "npc" ? (
+				<p className={secondaryHeading("text-center")}>
+					Character power: {usedExperience} / {totalExperience}
+				</p>
+			) : (
+				<p className={secondaryHeading("text-center")}>
+					Experience: {remainingExperience} / {totalExperience}
+				</p>
+			)}
 
 			<div className="flex gap-2">
 				<input
