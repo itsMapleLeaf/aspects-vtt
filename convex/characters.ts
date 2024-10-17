@@ -466,13 +466,13 @@ export const attack = effectMutation({
 
 			const defenderText =
 				defenders.length === 1
-					? `<@${defenders[0]!._id}>.`
+					? `<@${defenders[0]!._id}>`
 					: `${defenders.length} targets`
 
 			const messageContent: Doc<"messages">["content"] = [
 				{
 					type: "text",
-					text: `${attackerEnt.name} made a${pushYourself ? " pushed" : ""}${sneakAttack ? " sneak" : ""} ${attribute} attack against ${
+					text: `${attackerEnt.name} made an attack against ${
 						defenderText
 					} for ${damage} damage.`,
 				},

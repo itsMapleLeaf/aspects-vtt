@@ -325,11 +325,11 @@ function CharacterAttackDialog({
 							label="Attribute / Aspect"
 							value={attribute}
 							options={[
-								{ name: "Strength", value: "strength" },
-								{ name: "Sense", value: "sense" },
-								{ name: "Mobility", value: "mobility" },
-								{ name: "Intellect", value: "intellect" },
-								{ name: "Wit", value: "wit" },
+								{ name: "Strength / Fire", value: "strength" },
+								{ name: "Sense / Water", value: "sense" },
+								{ name: "Mobility / Wind", value: "mobility" },
+								{ name: "Intellect / Light", value: "intellect" },
+								{ name: "Wit / Darkness", value: "wit" },
 							]}
 							onChangeValue={setAttributeSelected}
 						/>
@@ -342,13 +342,15 @@ function CharacterAttackDialog({
 								onChange={setPushYourself}
 							/>
 						)}
-						{attacker && attacker.resolve >= 3 && (
-							<Checkbox
-								label="Sneak Attack"
-								checked={sneakAttack}
-								onChange={setSneakAttack}
-							/>
-						)}
+						{attacker &&
+							attacker.resolve >= 3 &&
+							attacker.race === "Renari" && (
+								<Checkbox
+									label="Sneak Attack"
+									checked={sneakAttack}
+									onChange={setSneakAttack}
+								/>
+							)}
 					</div>
 					{attacker ? (
 						<Button type="submit" icon={<LucideSwords />}>
