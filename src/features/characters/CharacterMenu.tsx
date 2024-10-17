@@ -13,6 +13,7 @@ import { CharacterVitalFields } from "~/features/characters/CharacterVitalFields
 import { ApiCharacter } from "~/features/characters/types.ts"
 import { List } from "~/shared/list.ts"
 import { Checkbox } from "../../components/Checkbox.tsx"
+import { panel } from "../../styles/panel.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
@@ -69,36 +70,33 @@ export function CharacterMenu({
 	const updateToken = useMutation(api.tokens.update)
 
 	const items = match([...controller.characterTokens])
-		.with([], () => [])
-		.with([P._], ([{ character, ...token }]) => [
-			character.full && (
-				<Checkbox
-					label="Token visible"
-					checked={token.visible}
-					onChange={async (visible) => {
-						await updateToken({
-							updates: [{ tokenId: token._id, visible }],
-						})
-					}}
-				/>
-			),
-			character.full && (
+		.with(
+			[{ character: { full: P.nonNullable } }],
+			([{ character, ...token }]) => [
+				room.isOwner && (
+					<Checkbox
+						key="tokenVisible"
+						label="Token visible"
+						checked={token.visible}
+						onChange={async (visible) => {
+							await updateToken({
+								updates: [{ tokenId: token._id, visible }],
+							})
+						}}
+					/>
+				),
 				<CharacterAttributeButtonRow
 					key="attributes"
 					character={character.full}
-				/>
-			),
-			character.full && (
+				/>,
 				<CharacterVitalFields
 					key="vitals"
 					className="w-[220px] gap"
 					character={character.full}
-				/>
-			),
-			/* <Button asChild icon={<LucideSwords />} align="start">
+				/>,
+				/* <Button asChild icon={<LucideSwords />} align="start">
             <Popover.Close>Attack</Popover.Close>
         </Button>, */
-			character.full && (
 				<Button key="edit" asChild icon={<LucideEdit />}>
 					<Popover.Close
 						onClick={() => {
@@ -108,42 +106,50 @@ export function CharacterMenu({
 					>
 						Edit
 					</Popover.Close>
-				</Button>
-			),
-			room.isOwner && (
-				<Popover.Close
-					key="combat"
-					render={
-						<CharacterToggleCombatMemberButton characters={[character._id]} />
-					}
-				/>
-			),
-			room.isOwner && (
-				<Popover.Close
-					key="token"
-					render={<CharacterToggleTokenButton characters={[character._id]} />}
-				/>
-			),
-		])
-		.otherwise((tokens) => [
-			/* <Button asChild icon={<LucideSwords />} align="start">
-					<Popover.Close>Attack</Popover.Close>
-				</Button>, */
-			<CharacterToggleCombatMemberButton
-				key="combat"
-				characters={tokens.map((it) => it.characterId)}
-			/>,
-			room.isOwner && (
-				<Popover.Close
-					key="token"
-					render={
-						<CharacterToggleTokenButton
-							characters={tokens.map((it) => it.characterId)}
-						/>
-					}
-				/>
-			),
-		])
+				</Button>,
+				room.isOwner && (
+					<Popover.Close
+						key="combat"
+						render={
+							<CharacterToggleCombatMemberButton
+								characters={[character.full]}
+							/>
+						}
+					/>
+				),
+				room.isOwner && (
+					<Popover.Close
+						key="token"
+						render={
+							<CharacterToggleTokenButton characters={[character.full]} />
+						}
+					/>
+				),
+			],
+		)
+		.otherwise((tokens) => {
+			const characters = tokens.map((it) => it.character.full).filter(Boolean)
+			if (characters.length === 0) {
+				return []
+			}
+			return [
+				/* <Button asChild icon={<LucideSwords />} align="start">
+								<Popover.Close>Attack</Popover.Close>
+						  </Button>, */
+				room.isOwner && (
+					<CharacterToggleCombatMemberButton
+						key="combat"
+						characters={characters}
+					/>
+				),
+				room.isOwner && (
+					<Popover.Close
+						key="token"
+						render={<CharacterToggleTokenButton characters={characters} />}
+					/>
+				),
+			]
+		})
 		.filter(Boolean)
 
 	if (items.length === 0) {
@@ -154,7 +160,7 @@ export function CharacterMenu({
 		<Popover.Root placement="bottom-start" open={controller.open} {...props}>
 			<Popover.Content
 				getAnchorRect={() => controller.position ?? null}
-				className="flex flex-col p-gap gap-2"
+				className={panel("grid rounded-xl p-2 gap-2")}
 				onClose={controller.hide}
 			>
 				{items}
