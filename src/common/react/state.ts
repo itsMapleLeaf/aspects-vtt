@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useCallback, useRef } from "react"
+import { useRef } from "react"
 import { useLatestRef } from "~/common/react/core.ts"
 
 export function useSwitch(initialOn: boolean) {
@@ -32,13 +32,14 @@ export function useDebouncedCallback<Args extends unknown[]>(
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
 		undefined,
 	)
-	return useCallback(
-		(...args: Args) => {
+	return React.useMemo(() => {
+		function debounced(...args: Args) {
 			clearTimeout(timeoutRef.current)
 			timeoutRef.current = setTimeout(() => {
 				callbackRef.current(...args)
 			}, period)
-		},
-		[period],
-	)
+		}
+		debounced.cancel = () => clearTimeout(timeoutRef.current)
+		return debounced
+	}, [period])
 }

@@ -341,6 +341,8 @@ export function protectCharacter(
 		_id: character._id,
 		imageId: character.imageId,
 		race: character.race,
+		isAdmin,
+		isPlayer: character.playerId === userId,
 
 		...(isAdmin && {
 			full: character,

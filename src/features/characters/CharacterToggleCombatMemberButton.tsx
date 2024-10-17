@@ -4,14 +4,14 @@ import type { StrictOmit } from "~/common/types.ts"
 import { Button, type ButtonProps } from "~/components/Button.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
-import type { Id } from "~/convex/_generated/dataModel.js"
+import { NormalizedCharacter } from "../../../convex/characters.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 
 export function CharacterToggleCombatMemberButton({
-	characterIds,
+	characters,
 	...props
 }: {
-	characterIds: Id<"characters">[]
+	characters: NormalizedCharacter[]
 } & StrictOmit<ButtonProps, "children">) {
 	const room = useRoomContext()
 	const updateCombat = useMutation(api.rooms.updateCombat)
@@ -21,7 +21,7 @@ export function CharacterToggleCombatMemberButton({
 	}
 
 	const combatMemberIds = new Set(room.combat.memberIds)
-
+	const characterIds = characters.map((it) => it._id)
 	const inCombat = characterIds.filter((id) => combatMemberIds.has(id))
 	const outOfCombat = characterIds.filter((id) => !combatMemberIds.has(id))
 

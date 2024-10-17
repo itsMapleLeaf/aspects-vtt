@@ -82,7 +82,7 @@ export function Battlemap({
 							selected={false}
 							tooltipsDisabled={characterMenuController.open || selecting}
 							onContextMenu={(event) =>
-								characterMenuController.show(event.evt, [token.character])
+								characterMenuController.show(event.evt, [token.characterId])
 							}
 						/>
 					</DraggableTokenGroup>
@@ -99,7 +99,7 @@ export function Battlemap({
 							onContextMenu={(event) =>
 								characterMenuController.show(
 									event.evt,
-									selected.map((token) => token.character),
+									selected.map((token) => token.characterId),
 								)
 							}
 							shapeRef={(shape) => {

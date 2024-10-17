@@ -4,16 +4,19 @@ import { ComponentProps } from "react"
 import { Button } from "~/components/Button.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
-import { Id } from "~/convex/_generated/dataModel.js"
 import { useActiveSceneContext } from "~/features/scenes/context.ts"
+import { NormalizedCharacter } from "../../../convex/characters.ts"
 import { useBattleMapStageInfo } from "../battlemap/context.ts"
+import { useRoomContext } from "../rooms/context.tsx"
 
 export function CharacterToggleTokenButton({
-	characterIds,
+	characters,
 	...props
 }: {
-	characterIds: Id<"characters">[]
+	characters: NormalizedCharacter[]
 } & ComponentProps<typeof Button>) {
+	const room = useRoomContext()
+
 	const scene = useActiveSceneContext()
 	const sceneTokens =
 		useQuery(api.tokens.list, scene ? { sceneId: scene._id } : "skip") ?? []
@@ -21,12 +24,13 @@ export function CharacterToggleTokenButton({
 	const addTokens = useMutation(api.tokens.create)
 	const removeTokens = useMutation(api.tokens.remove)
 
-	if (!scene) {
+	if (!scene || !room.isOwner) {
 		return null
 	}
 
 	const sceneCharacterIds = new Set(sceneTokens?.map((it) => it.characterId))
 
+	const characterIds = characters.map((it) => it._id)
 	const inScene = characterIds.filter((id) => sceneCharacterIds.has(id))
 	const outOfScene = characterIds.filter((id) => !sceneCharacterIds.has(id))
 

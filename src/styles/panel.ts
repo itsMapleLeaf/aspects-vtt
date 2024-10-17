@@ -9,6 +9,6 @@ export const lightPanel = (...classes: ClassNameValue[]) =>
 export const interactivePanel = (...classes: ClassNameValue[]) =>
 	twMerge(
 		lightPanel(),
-		"transition hover:border-primary-500 active:duration-0",
+		"transition hover:border-primary-500 active:border-primary-400 active:duration-0",
 		classes,
 	)

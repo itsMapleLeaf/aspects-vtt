@@ -7,8 +7,10 @@ import { Heading } from "~/components/Heading.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
-import { interactivePanel } from "~/styles/panel.ts"
+import { interactivePanel, panel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
+import { Dialog } from "../../components/Dialog.tsx"
+import { Field } from "../../components/Field.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
@@ -16,10 +18,10 @@ import {
 	CharacterEditorDialog,
 	CharacterEditorDialogButton,
 } from "./CharacterEditorDialog.tsx"
-import { CharacterPlayerSelect } from "./CharacterPlayerSelect.tsx"
 import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
+import { RaceAbilityList } from "./RaceAbilityList.tsx"
 
 export function CharacterCard({
 	character,
@@ -28,74 +30,120 @@ export function CharacterCard({
 }) {
 	const room = useRoomContext()
 	const removeCharacter = useMutation(api.characters.remove)
+
+	const buttonContent = (
+		<>
+			<Avatar
+				src={character.imageId && getImageUrl(character.imageId)}
+				className="size-12"
+			/>
+			<div>
+				<div className="flex items-center gap-1.5">
+					<Heading className={secondaryHeading("leading-none empty:hidden")}>
+						{character.identity?.name ?? (
+							<span className="opacity-70">(unknown)</span>
+						)}
+					</Heading>
+					{character.isPlayer && (
+						<Lucide.LucideUser2 className="size-4 opacity-70" />
+					)}
+				</div>
+				<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
+					{[character.race, character.identity?.pronouns]
+						.filter(Boolean)
+						.join(" • ")}
+				</p>
+			</div>
+		</>
+	)
+
+	const buttonClass = interactivePanel(
+		"group flex w-full items-center p-2 text-start gap-2",
+	)
+
+	if (!character.full) {
+		return (
+			<Dialog.Root>
+				<Dialog.Button type="button" className={buttonClass}>
+					{buttonContent}
+				</Dialog.Button>
+				<Dialog.Content
+					title={character.identity?.name ?? "(unknown)"}
+					description="Character details"
+				>
+					{character.imageId && (
+						<img
+							src={getImageUrl(character.imageId)}
+							alt=""
+							className={panel("min-h-0 flex-1 bg-primary-900 object-contain")}
+						/>
+					)}
+					<div className="grid auto-cols-fr grid-flow-col gap empty:hidden">
+						{character.race && <Field label="Race">{character.race}</Field>}
+						{character.identity && (
+							<Field label="Pronouns">{character.identity.pronouns}</Field>
+						)}
+						{character.race && (
+							<Field label="Abilities">
+								<RaceAbilityList race={character.race} />
+							</Field>
+						)}
+					</div>
+				</Dialog.Content>
+			</Dialog.Root>
+		)
+	}
+
 	return (
 		<div>
 			<Collapse>
-				<Collapse.Button
-					className={interactivePanel(
-						"group flex w-full items-center p-2 text-start gap-2",
-					)}
-				>
-					<Avatar
-						src={character.imageId && getImageUrl(character.imageId)}
-						className="size-12"
-					/>
-					<div>
-						<Heading className={secondaryHeading("leading-none empty:hidden")}>
-							{character.identity?.name}
-						</Heading>
-						<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
-							{[character.race, character.identity?.pronouns]
-								.filter(Boolean)
-								.join(" • ")}
-						</p>
-					</div>
+				<Collapse.Button className={buttonClass}>
+					{buttonContent}
 					<Lucide.ChevronLeft className="ml-auto transition-transform group-aria-expanded:-rotate-90" />
 				</Collapse.Button>
 
 				<Collapse.Content>
 					<div className="flex flex-col py-2 gap-2">
-						{character.full && (
-							<CharacterAttributeButtonRow character={character.full} />
+						<CharacterAttributeButtonRow character={character.full} />
+						<CharacterVitalFields character={character.full} />
+
+						{character.race && (
+							<Field label="Abilities">
+								<RaceAbilityList race={character.race} />
+							</Field>
 						)}
-						{character.full && (
-							<CharacterVitalFields character={character.full} />
-						)}
-						{character.full && (
-							<CharacterPlayerSelect character={character.full} />
-						)}
-						{character.full && (
-							<div className="grid auto-cols-fr grid-flow-col gap">
-								<CharacterEditorDialog character={character.full}>
-									<CharacterEditorDialogButton
-										render={
-											<Button icon={<Lucide.Edit className="size-5" />}>
-												Edit
-											</Button>
-										}
-									></CharacterEditorDialogButton>
-								</CharacterEditorDialog>
-								{room.isOwner && (
-									<ToastActionForm
-										className="contents"
-										action={() =>
-											removeCharacter({
-												characterIds: [character._id],
-											})
-										}
-									>
-										<Button
-											type="submit"
-											icon={<Lucide.Trash className="size-5" />}
-										>
-											Delete
+
+						<div className="grid auto-cols-fr grid-flow-col gap">
+							<CharacterEditorDialog character={character.full}>
+								<CharacterEditorDialogButton
+									render={
+										<Button icon={<Lucide.Edit className="size-5" />}>
+											Edit
 										</Button>
-									</ToastActionForm>
-								)}
-							</div>
-						)}
-						<CharacterToggleTokenButton characterIds={[character._id]} />
-						<CharacterToggleCombatMemberButton characterIds={[character._id]} />
+									}
+								></CharacterEditorDialogButton>
+							</CharacterEditorDialog>
+							{room.isOwner && (
+								<ToastActionForm
+									className="contents"
+									action={() =>
+										removeCharacter({
+											characterIds: [character._id],
+										})
+									}
+								>
+									<Button
+										type="submit"
+										icon={<Lucide.Trash className="size-5" />}
+									>
+										Delete
+									</Button>
+								</ToastActionForm>
+							)}
+						</div>
+
+						<CharacterToggleTokenButton characters={[character.full]} />
+						<CharacterToggleCombatMemberButton characters={[character.full]} />
 					</div>
 				</Collapse.Content>
 			</Collapse>

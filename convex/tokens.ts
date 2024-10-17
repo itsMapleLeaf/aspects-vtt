@@ -5,6 +5,7 @@ import { defaults } from "lodash-es"
 import { getAuthUserId } from "~/convex/auth.ts"
 import {
 	ensureCharacterEntAdmin,
+	isCharacterAdmin,
 	normalizeCharacter,
 	protectCharacter,
 } from "~/convex/characters.ts"
@@ -26,14 +27,21 @@ export const list = effectQuery({
 				scene
 					.edge("characterTokens")
 					.map(async (token) => {
+						const characterDoc = await token.edge("character")
 						const character = protectCharacter(
-							normalizeCharacter(await token.edge("character")),
+							normalizeCharacter(characterDoc),
 							userId,
 							room,
 						)
 
 						if (character == null) {
-							return null
+							return
+						}
+
+						const hasAccess =
+							isCharacterAdmin(characterDoc, room, userId) || token.visible
+						if (!hasAccess) {
+							return
 						}
 
 						return {

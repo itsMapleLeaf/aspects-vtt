@@ -4,7 +4,7 @@ import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
 import { button } from "~/styles/button.ts"
 import { panel } from "~/styles/panel.ts"
-import { primaryHeading } from "~/styles/text.ts"
+import { primaryHeading, subText } from "~/styles/text.ts"
 import { fadeTransition, fadeZoomTransition } from "~/styles/transitions.ts"
 
 export * as Dialog from "./Dialog.tsx"
@@ -53,9 +53,16 @@ export function Content({
 				)}
 			>
 				<header className="-mx-3 -mt-3 flex items-center rounded-t-[inherit] bg-primary-900 px-3 py-2 gap">
-					<Ariakit.DialogHeading className={primaryHeading("flex-1")}>
-						{title}
-					</Ariakit.DialogHeading>
+					<div className="flex-1">
+						<Ariakit.DialogHeading className={primaryHeading()}>
+							{title}
+						</Ariakit.DialogHeading>
+						{description && (
+							<Ariakit.DialogDescription className={subText()}>
+								{description}
+							</Ariakit.DialogDescription>
+						)}
+					</div>
 					<Ariakit.DialogDismiss
 						className={button({
 							appearance: "clear",
@@ -67,9 +74,7 @@ export function Content({
 						<LucideX />
 					</Ariakit.DialogDismiss>
 				</header>
-				{description && (
-					<Ariakit.DialogDescription>{description}</Ariakit.DialogDescription>
-				)}
+
 				{children}
 			</div>
 		</Ariakit.Dialog>

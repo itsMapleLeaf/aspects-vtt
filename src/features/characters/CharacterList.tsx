@@ -37,7 +37,7 @@ export function CharacterList() {
 
 	const filteredCharacters = matchSorter(characters, search, {
 		keys: ["identity.name", "public.race"],
-	})
+	}).sort((a, b) => Number(b.isPlayer) - Number(a.isPlayer))
 
 	return (
 		<>
@@ -49,23 +49,25 @@ export function CharacterList() {
 				emptyStateIcon={<LucideUserX2 />}
 				emptyStateText="No characters found"
 				actions={
-					<ToastActionForm
-						action={async () => {
-							const character = await createCharacter({
-								roomId: room._id,
-							})
-							setEditingCharacterId(character)
-							setEditorOpen(true)
-						}}
-					>
-						<Button
-							type="submit"
-							appearance="clear"
-							icon={<LucideUserRoundPlus />}
+					room.isOwner && (
+						<ToastActionForm
+							action={async () => {
+								const character = await createCharacter({
+									roomId: room._id,
+								})
+								setEditingCharacterId(character)
+								setEditorOpen(true)
+							}}
 						>
-							<span className="sr-only">Create Character</span>
-						</Button>
-					</ToastActionForm>
+							<Button
+								type="submit"
+								appearance="clear"
+								icon={<LucideUserRoundPlus />}
+							>
+								<span className="sr-only">Create Character</span>
+							</Button>
+						</ToastActionForm>
+					)
 				}
 			/>
 			{editingCharacter?.full && (
