@@ -257,6 +257,7 @@ function CharacterAttackDialog({
 			: "strength")
 
 	const [pushYourself, setPushYourself] = useState(false)
+	const [sneakAttack, setSneakAttack] = useState(false)
 
 	const attack = useMutation(api.characters.attack)
 
@@ -269,6 +270,7 @@ function CharacterAttackDialog({
 			attackerId: attacker._id,
 			attribute,
 			pushYourself,
+			sneakAttack,
 		})
 		props.setOpen?.(false)
 	})
@@ -332,11 +334,22 @@ function CharacterAttackDialog({
 							onChangeValue={setAttributeSelected}
 						/>
 					</div>
-					<Checkbox
-						label="Push yourself"
-						checked={pushYourself}
-						onChange={setPushYourself}
-					/>
+					<div className="flex gap-2 empty:hidden">
+						{attacker && attacker.resolve >= 2 && (
+							<Checkbox
+								label="Push yourself"
+								checked={pushYourself}
+								onChange={setPushYourself}
+							/>
+						)}
+						{attacker && attacker.resolve >= 3 && (
+							<Checkbox
+								label="Sneak Attack"
+								checked={sneakAttack}
+								onChange={setSneakAttack}
+							/>
+						)}
+					</div>
 					{attacker ? (
 						<Button type="submit" icon={<LucideSwords />}>
 							Attack

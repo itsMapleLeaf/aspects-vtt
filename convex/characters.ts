@@ -410,11 +410,13 @@ export const attack = effectMutation({
 			v.literal("wit"),
 		),
 		pushYourself: v.boolean(),
+		sneakAttack: v.boolean(),
 	},
 	handler(ctx, args) {
 		return Effect.gen(function* () {
 			const userId = yield* getAuthUserId(ctx)
-			const { characterIds, attackerId, attribute, pushYourself } = args
+			const { characterIds, attackerId, attribute, pushYourself, sneakAttack } =
+				args
 
 			// Get the attacker
 			const { character: attackerEnt } = yield* queryViewableCharacter(
@@ -428,16 +430,27 @@ export const attack = effectMutation({
 			)
 			const attackRoll = rollDice(attackerDie, 2) // Roll two dice
 			let damage = attackRoll.total
+			let newResolve = attackerNormalized.resolve
+
+			if (sneakAttack) {
+				damage *= 2 // Double the damage for sneak attack
+				// Reduce attacker's resolve for sneak attack
+				newResolve -= 3
+			}
 
 			let boostRoll: ReturnType<typeof rollDice> | undefined
 			if (pushYourself) {
 				boostRoll = rollDice(6, 1) // Roll one d6 as boost die
 				damage += boostRoll.total
 
-				// Reduce attacker's resolve by 2 for pushing
+				// Reduce attacker's resolve for pushing
+				newResolve -= 2
+			}
+
+			if (newResolve !== attackerNormalized.resolve) {
 				yield* Effect.promise(() =>
 					attackerEnt.patch({
-						resolve: Math.max(0, attackerNormalized.resolve - 2),
+						resolve: Math.max(0, newResolve),
 					}),
 				)
 			}
@@ -459,7 +472,7 @@ export const attack = effectMutation({
 			const messageContent: Doc<"messages">["content"] = [
 				{
 					type: "text",
-					text: `${attackerEnt.name} made a(n)${pushYourself ? " pushed" : ""} ${attribute} attack against ${
+					text: `${attackerEnt.name} made a${pushYourself ? " pushed" : ""}${sneakAttack ? " sneak" : ""} ${attribute} attack against ${
 						defenderText
 					} for ${damage} damage.`,
 				},
