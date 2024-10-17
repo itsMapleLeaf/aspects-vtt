@@ -12,10 +12,12 @@ import {
 	LucideUsers2,
 } from "lucide-react"
 import { Fragment, useEffect, useRef, useState } from "react"
+import { twMerge } from "tailwind-merge"
 import * as v from "valibot"
 import { useLocalStorage } from "~/common/react/dom.ts"
 import { Button } from "~/components/Button.tsx"
 import { panel } from "~/styles/panel.ts"
+import { fadeTransition } from "../../styles/transitions.ts"
 import { CharacterList } from "../characters/CharacterList.tsx"
 import { CombatTracker } from "../combat/CombatTracker.tsx"
 import { RoomItemList } from "../inventory/RoomItemList.tsx"
@@ -87,7 +89,13 @@ const moduleLocationsParser = v.parser(
 	),
 )
 
-export function RoomInterfaceModules() {
+export function RoomInterfaceModules({
+	leftSidebarOpen,
+	rightSidebarOpen,
+}: {
+	leftSidebarOpen: boolean
+	rightSidebarOpen: boolean
+}) {
 	const room = useRoomContext()
 	const [moduleLocations, setModuleLocations] = useLocalStorage<
 		Record<string, ModuleLocation>
@@ -149,20 +157,38 @@ export function RoomInterfaceModules() {
 
 	return (
 		<>
-			<Sidebar
-				aria-label="Left sidebar"
-				index={0}
-				moduleLocations={moduleLocations}
-				onModuleDrop={handleModuleDrop}
-				availableModules={availableModules}
-			/>
-			<Sidebar
-				aria-label="Right sidebar"
-				index={1}
-				moduleLocations={moduleLocations}
-				onModuleDrop={handleModuleDrop}
-				availableModules={availableModules}
-			/>
+			<Ariakit.DisclosureProvider open={leftSidebarOpen}>
+				<Ariakit.DisclosureContent
+					className={twMerge(
+						"mr-auto h-full -translate-x-4 data-[enter]:translate-x-0",
+						fadeTransition(),
+					)}
+				>
+					<Sidebar
+						aria-label="Left sidebar"
+						index={0}
+						moduleLocations={moduleLocations}
+						onModuleDrop={handleModuleDrop}
+						availableModules={availableModules}
+					/>
+				</Ariakit.DisclosureContent>
+			</Ariakit.DisclosureProvider>
+			<Ariakit.DisclosureProvider open={rightSidebarOpen}>
+				<Ariakit.DisclosureContent
+					className={twMerge(
+						"ml-auto h-full translate-x-4 data-[enter]:translate-x-0",
+						fadeTransition(),
+					)}
+				>
+					<Sidebar
+						aria-label="Right sidebar"
+						index={1}
+						moduleLocations={moduleLocations}
+						onModuleDrop={handleModuleDrop}
+						availableModules={availableModules}
+					/>
+				</Ariakit.DisclosureContent>
+			</Ariakit.DisclosureProvider>
 		</>
 	)
 }

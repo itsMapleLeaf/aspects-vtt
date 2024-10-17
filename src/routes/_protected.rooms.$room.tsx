@@ -1,6 +1,10 @@
 import { useParams } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
-import { LucideDoorOpen } from "lucide-react"
+import {
+	LucideDoorOpen,
+	LucideSidebarClose,
+	LucideSidebarOpen,
+} from "lucide-react"
 import { useRef } from "react"
 import { match, P } from "ts-pattern"
 import { Heading, HeadingLevel } from "~/common/react/heading"
@@ -21,6 +25,7 @@ import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
 import { ApiRoom } from "~/features/rooms/types.ts"
 import { ActiveSceneContext } from "~/features/scenes/context.ts"
 import { primaryHeading, subText } from "~/styles/text.ts"
+import { useLocalStorageSwitch } from "../common/react/dom.ts"
 
 export default function RoomRoute() {
 	return (
@@ -98,21 +103,62 @@ function JoinRoomMessage({ room }: { room: ApiRoom }) {
 
 function RoomInterface() {
 	const room = useRoomContext()
+
+	const [leftSidebarOpen, leftSidebarActions] = useLocalStorageSwitch(
+		"leftSidebarOpen",
+		true,
+	)
+	const [rightSidebarOpen, rightSidebarActions] = useLocalStorageSwitch(
+		"rightSidebarOpen",
+		true,
+	)
+
 	return (
 		<div className="pointer-events-children absolute inset-0 flex h-screen w-screen flex-col p-3 gap-3">
 			<HeadingLevel>
 				<header className="pointer-events-children flex items-center justify-between">
-					<Heading>
-						<div className={subText()}>AspectsVTT</div>
-						<div className={primaryHeading("-mt-1")}>{room.name}</div>
-					</Heading>
-					<UserButton />
+					<div className="flex gap">
+						<Button
+							appearance="clear"
+							icon={
+								leftSidebarOpen ? <LucideSidebarClose /> : <LucideSidebarOpen />
+							}
+							tooltip={
+								leftSidebarOpen ? "Hide left sidebar" : "Show left sidebar"
+							}
+							onClick={leftSidebarActions.toggle}
+						/>
+						<Heading>
+							<div className={subText()}>AspectsVTT</div>
+							<div className={primaryHeading("-mt-1")}>{room.name}</div>
+						</Heading>
+					</div>
+					<div className="flex gap">
+						<UserButton />
+						<Button
+							appearance="clear"
+							icon={
+								rightSidebarOpen ? (
+									<LucideSidebarClose className="-scale-x-100" />
+								) : (
+									<LucideSidebarOpen className="-scale-x-100" />
+								)
+							}
+							tooltip={
+								rightSidebarOpen ? "Hide right sidebar" : "Show right sidebar"
+							}
+							onClick={rightSidebarActions.toggle}
+						/>
+					</div>
 				</header>
 
 				{room.activeSceneId && <SceneHeading sceneId={room.activeSceneId} />}
 
 				<main className="pointer-events-children flex min-h-0 flex-1 items-stretch justify-between *:w-72">
-					<RoomInterfaceModules />
+					<RoomInterfaceModules
+						leftSidebarOpen={leftSidebarOpen}
+						rightSidebarOpen={rightSidebarOpen}
+					/>
 				</main>
 			</HeadingLevel>
 		</div>
