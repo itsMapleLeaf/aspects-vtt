@@ -40,7 +40,7 @@ const aspectOrder = List.of<Aspect["id"]>(
 
 const allSkills = List.values(ASPECT_SKILLS).compact()
 
-const totalExperience = 100
+const totalExperience = 150
 
 const trace = <T,>(it: T) => {
 	console.log(it)
