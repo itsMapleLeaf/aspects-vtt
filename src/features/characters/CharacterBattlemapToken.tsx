@@ -1,5 +1,5 @@
 import Konva from "konva"
-import { VenetianMask } from "lucide-react"
+import { LucideEyeOff, VenetianMask } from "lucide-react"
 import { useRef, useState } from "react"
 import { Group, Image, Rect } from "react-konva"
 import { Html } from "react-konva-utils"
@@ -8,8 +8,10 @@ import { useMergedRefs } from "~/common/react/core.ts"
 import { useImage } from "~/common/react/dom.ts"
 import { StatusBar } from "~/components/StatusBar.tsx"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
+import { lightPanel } from "../../styles/panel.ts"
 import { ApiToken } from "../battlemap/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
+import { useRoomContext } from "../rooms/context.tsx"
 import { ApiScene } from "../scenes/types.ts"
 
 export function CharacterBattlemapToken({
@@ -27,6 +29,7 @@ export function CharacterBattlemapToken({
 	tooltipsDisabled: boolean
 	onContextMenu: (event: Konva.KonvaEventObject<PointerEvent>) => void
 }) {
+	const room = useRoomContext()
 	const [image] = useImage(
 		token.character.imageId && getImageUrl(token.character.imageId),
 	)
@@ -119,6 +122,24 @@ export function CharacterBattlemapToken({
 							}}
 						>
 							<VenetianMask className="size-1/2" />
+						</div>
+					</Html>
+				)}
+				{token.visible ? null : (
+					<Html divProps={{ className: "pointer-events-none" }}>
+						<div
+							{...{
+								className: "relative",
+								style: { width: scene.cellSize, height: scene.cellSize },
+							}}
+						>
+							<div
+								className={lightPanel(
+									"absolute bottom-0 right-0 translate-x-2 translate-y-2 rounded-full p-2.5",
+								)}
+							>
+								<LucideEyeOff className="size-8" />
+							</div>
 						</div>
 					</Html>
 				)}
