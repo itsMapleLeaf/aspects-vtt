@@ -262,7 +262,7 @@ export const ASPECT_SKILLS = defineSkills({
 
 	whispersOfFrost: {
 		description:
-			"Sense the presence of other objects and characters through solid ice.",
+			"Sense the presence of other objects and characters through solid ice or frost.",
 		aspectId: "water",
 		category: "whispers",
 		price: 10,
