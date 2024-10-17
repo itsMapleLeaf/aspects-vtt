@@ -312,7 +312,10 @@ function queryViewableCharacter<EntType extends Ent<"characters">>(
 		)
 
 		const room = yield* Effect.promise(() => character.edge("room"))
-		const authorized = isRoomOwner(room, userId) || character.ownerId === userId
+		const authorized =
+			isRoomOwner(room, userId) ||
+			character.playerId === userId ||
+			character.ownerId === userId
 
 		if (!authorized) {
 			return yield* Effect.fail(
