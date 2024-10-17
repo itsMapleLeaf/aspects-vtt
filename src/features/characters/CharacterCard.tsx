@@ -1,4 +1,4 @@
-import { useMutation } from "convex/react"
+import { useConvex } from "convex/react"
 import * as Lucide from "lucide-react"
 import { Avatar } from "~/components/Avatar.tsx"
 import { Button } from "~/components/Button.tsx"
@@ -9,6 +9,8 @@ import { api } from "~/convex/_generated/api.js"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
 import { interactivePanel, panel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
+import { Id } from "../../../convex/_generated/dataModel"
+import { ensureSomething } from "../../../shared/errors.ts"
 import { Dialog } from "../../components/Dialog.tsx"
 import { Field } from "../../components/Field.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
@@ -25,11 +27,13 @@ import { RaceAbilityList } from "./RaceAbilityList.tsx"
 
 export function CharacterCard({
 	character,
+	afterClone,
 }: {
 	character: ProtectedCharacter
+	afterClone: (characterId: Id<"characters">) => void
 }) {
 	const room = useRoomContext()
-	const removeCharacter = useMutation(api.characters.remove)
+	const convex = useConvex()
 
 	const buttonContent = (
 		<>
@@ -114,31 +118,69 @@ export function CharacterCard({
 						)}
 
 						<div className="grid auto-cols-fr grid-flow-col gap">
-							<CharacterEditorDialog character={character.full}>
-								<CharacterEditorDialogButton
-									render={
-										<Button icon={<Lucide.Edit className="size-5" />}>
-											Edit
-										</Button>
-									}
-								></CharacterEditorDialogButton>
-							</CharacterEditorDialog>
-							{room.isOwner && (
-								<ToastActionForm
-									className="contents"
-									action={() =>
-										removeCharacter({
-											characterIds: [character._id],
-										})
-									}
-								>
-									<Button
-										type="submit"
-										icon={<Lucide.Trash className="size-5" />}
+							{room.isOwner ? (
+								<>
+									<CharacterEditorDialog character={character.full}>
+										<CharacterEditorDialogButton
+											render={
+												<Button
+													icon={<Lucide.Edit className="size-5" />}
+													tooltip="Edit"
+												>
+													<span className="sr-only">Edit</span>
+												</Button>
+											}
+										></CharacterEditorDialogButton>
+									</CharacterEditorDialog>
+									<ToastActionForm
+										className="contents"
+										action={() =>
+											convex.mutation(api.characters.remove, {
+												characterIds: [character._id],
+											})
+										}
 									>
-										Delete
-									</Button>
-								</ToastActionForm>
+										<Button
+											type="submit"
+											icon={<Lucide.Trash className="size-5" />}
+											tooltip="Delete"
+										>
+											<span className="sr-only">Delete</span>
+										</Button>
+									</ToastActionForm>
+									<ToastActionForm
+										className="contents"
+										action={async () => {
+											const [id] = await convex.mutation(
+												api.characters.duplicate,
+												{
+													characterIds: [character._id],
+												},
+											)
+											afterClone(
+												ensureSomething(id, "no character ID after duplicate"),
+											)
+										}}
+									>
+										<Button
+											type="submit"
+											icon={<Lucide.Copy className="size-5" />}
+											tooltip="Clone"
+										>
+											<span className="sr-only">Clone</span>
+										</Button>
+									</ToastActionForm>
+								</>
+							) : (
+								<CharacterEditorDialog character={character.full}>
+									<CharacterEditorDialogButton
+										render={
+											<Button icon={<Lucide.Edit className="size-5" />}>
+												Edit
+											</Button>
+										}
+									></CharacterEditorDialogButton>
+								</CharacterEditorDialog>
 							)}
 						</div>
 

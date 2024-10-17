@@ -22,9 +22,8 @@ export function CharacterList() {
 	const createCharacter = useMutation(api.characters.create)
 	const [editingCharacterId, setEditingCharacterId] =
 		useState<Id<"characters">>()
-	const editingCharacter = useQuery(
-		api.characters.get,
-		editingCharacterId ? { characterId: editingCharacterId } : "skip",
+	const editingCharacter = characters?.find(
+		(it) => it._id === editingCharacterId,
 	)
 
 	if (characters === undefined) {
@@ -44,7 +43,15 @@ export function CharacterList() {
 			<SearchListLayout
 				items={filteredCharacters}
 				itemKey={(character) => character._id}
-				renderItem={(character) => <CharacterCard character={character} />}
+				renderItem={(character) => (
+					<CharacterCard
+						character={character}
+						afterClone={(id) => {
+							setEditingCharacterId(id)
+							setEditorOpen(true)
+						}}
+					/>
+				)}
 				onSearch={setSearch}
 				emptyStateIcon={<LucideUserX2 />}
 				emptyStateText="No characters found"
