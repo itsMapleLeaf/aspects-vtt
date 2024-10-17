@@ -64,8 +64,12 @@ export function CharacterMenu({
 	const room = useRoomContext()
 	const [editorOpen, setEditorOpen] = useState(false)
 
-	const [editingCharacter, setEditingCharacter] =
-		useState<NormalizedCharacter>()
+	const [editingCharacterId, setEditingCharacterId] =
+		useState<NormalizedCharacter["_id"]>()
+
+	const editingCharacter = controller.characterTokens
+		.map((it) => it.character.full)
+		.find((it) => it?._id === editingCharacterId)
 
 	const updateToken = useMutation(api.tokens.update)
 
@@ -100,7 +104,7 @@ export function CharacterMenu({
 				<Button key="edit" asChild icon={<LucideEdit />}>
 					<Popover.Close
 						onClick={() => {
-							setEditingCharacter(character.full)
+							setEditingCharacterId(character._id)
 							setEditorOpen(true)
 						}}
 					>
