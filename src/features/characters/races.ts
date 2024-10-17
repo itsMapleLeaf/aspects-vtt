@@ -90,7 +90,7 @@ export const RACES = Object.fromEntries(
 			traits:
 				"Like foxes, dogs, and other canines: pointed fuzzy or floppy ears, long fluffy tail",
 			abilities: [
-				"Sneak Attack - Spend one resolve to double your attack roll.",
+				"Sneak Attack - Spend 3 resolve to double your attack roll.",
 				"Adaptable - Before the start of combat, you may swap two of your attribute dice until the end of combat.",
 			],
 		},
