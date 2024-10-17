@@ -47,6 +47,7 @@ export function Battlemap({
 	return (
 		<>
 			<BattlemapStage
+				className="isolate"
 				onSelectRegionStart={() => {
 					setSelecting(true)
 				}}
@@ -110,7 +111,6 @@ export function Battlemap({
 					))}
 				</DraggableTokenGroup>
 			</BattlemapStage>
-
 			<CharacterMenu controller={characterMenuController} />
 		</>
 	)
