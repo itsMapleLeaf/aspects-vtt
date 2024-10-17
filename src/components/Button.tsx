@@ -61,7 +61,10 @@ export function Button({
 			}}
 		>
 			{pending ? <LoadingIcon data-control-icon /> : icon}
-			<Slottable>{children}</Slottable>
+			<Slottable>
+				{children ??
+					(tooltip ? <span className="sr-only">{tooltip}</span> : null)}
+			</Slottable>
 		</Tag>
 	)
 

@@ -18,7 +18,7 @@ export function CharacterEditorDialog({
 	character: NormalizedCharacter
 }) {
 	const [activeId, setActiveId] = useLocalStorage(
-		"characterEditorDialog:activeId",
+		`characterEditorDialog:activeId:${character._id}`,
 		"profile",
 		v.parser(v.string()),
 	)
@@ -27,7 +27,11 @@ export function CharacterEditorDialog({
 		<Dialog.Root {...props}>
 			{children}
 
-			<Dialog.Content title="Edit Character" className="h-[800px]">
+			<Dialog.Content
+				title={character.name}
+				description="Edit character details"
+				className="h-[800px]"
+			>
 				<div className="flex h-full min-h-0 flex-col gap-2">
 					<Tabs.Root
 						selectedId={activeId}

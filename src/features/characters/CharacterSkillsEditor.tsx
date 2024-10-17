@@ -1,5 +1,5 @@
 import { useMutation } from "convex/react"
-import { sum } from "lodash-es"
+import { sum, without } from "lodash-es"
 import {
 	LucideCheckCircle2,
 	LucideDroplets,
@@ -9,6 +9,7 @@ import {
 	LucideSparkles,
 	LucideSun,
 	LucideWind,
+	LucideX,
 } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { startTransition, useState } from "react"
@@ -79,13 +80,8 @@ export function CharacterSkillsEditor({
 		character.type === "npc" ||
 		(skill.price <= remainingExperience && skill.requires.every(isAdded))
 
-	const sections = new Map<
-		string,
-		{ title: string; items: List<AspectSkill> }
-	>()
-
 	const [statusFilter, setStatusFilter] = useLocalStorage(
-		"characterSkills:statusFilter",
+		`characterSkills:statusFilter:${character._id}`,
 		"all",
 		v.parser(
 			v.union([v.literal("all"), v.literal("learned"), v.literal("available")]),
@@ -93,14 +89,21 @@ export function CharacterSkillsEditor({
 	)
 
 	const [aspectFilter, setAspectFilter] = useLocalStorage<Aspect["id"][]>(
-		"characterSkills:aspectFilter",
+		`characterSkills:aspectFilter:${character._id}`,
 		[],
 		v.parser(v.array(v.union(aspectOrder.map((it) => v.literal(it))))),
 	)
+	const aspectFilterSet = new Set(aspectFilter)
 
+	const sections = new Map<
+		string,
+		{ title: string; items: List<AspectSkill> }
+	>()
 	for (const skill of allSkills) {
 		if (statusFilter === "learned" && !isAdded(skill)) continue
 		if (statusFilter === "available" && !isAvailable(skill)) continue
+		if (aspectFilterSet.size !== 0 && !aspectFilterSet.has(skill.aspectId))
+			continue
 
 		const sectionId = `${skill.aspectId}-${skill.category}`
 		let section = sections.get(sectionId)
@@ -190,6 +193,31 @@ export function CharacterSkillsEditor({
 				>
 					<span className="sr-only">Only show available skills</span>
 				</Button>
+			</div>
+
+			<div className="flex gap [&>*:not(:last-child)]:flex-1">
+				{aspectOrder.map((aspect) => (
+					<Button
+						icon={<AspectIcon aspectId={aspect} />}
+						tooltip={`Show ${aspect} skills`}
+						tooltipPlacement="bottom"
+						appearance={aspectFilterSet.has(aspect) ? "solid" : "clear"}
+						onClick={() =>
+							setAspectFilter((filter) =>
+								aspectFilterSet.has(aspect)
+									? without(filter, aspect)
+									: [...filter, aspect],
+							)
+						}
+					/>
+				))}
+				<Button
+					icon={<LucideX />}
+					tooltip={`Clear aspect filter`}
+					tooltipPlacement="bottom"
+					appearance="clear"
+					onClick={() => setAspectFilter([])}
+				/>
 			</div>
 
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto gap-6">
@@ -321,17 +349,7 @@ function SkillCard({
 						"absolute inset-y-0 right-0 flex w-24 items-center justify-center px-3 opacity-5",
 					)}
 				>
-					{skill.aspectId === "fire" ? (
-						<LucideFlame className="size-full" />
-					) : skill.aspectId === "water" ? (
-						<LucideDroplets className="size-full" />
-					) : skill.aspectId === "wind" ? (
-						<LucideWind className="size-full" />
-					) : skill.aspectId === "light" ? (
-						<LucideSun className="size-full" />
-					) : skill.aspectId === "darkness" ? (
-						<LucideMoon className="size-full" />
-					) : null}
+					<AspectIcon aspectId={skill.aspectId} />
 				</div>
 				<div
 					className="pointer-events-none invisible absolute inset-0 grid place-content-center opacity-0 transition-all data-[visible]:visible data-[visible]:opacity-100"
@@ -342,4 +360,18 @@ function SkillCard({
 			</button>
 		</form>
 	)
+}
+
+function AspectIcon({ aspectId }: { aspectId: Aspect["id"] }) {
+	return aspectId === "fire" ? (
+		<LucideFlame className="size-full" />
+	) : aspectId === "water" ? (
+		<LucideDroplets className="size-full" />
+	) : aspectId === "wind" ? (
+		<LucideWind className="size-full" />
+	) : aspectId === "light" ? (
+		<LucideSun className="size-full" />
+	) : aspectId === "darkness" ? (
+		<LucideMoon className="size-full" />
+	) : null
 }
