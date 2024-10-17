@@ -11,8 +11,8 @@ import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
 import { lightPanel } from "../../styles/panel.ts"
 import { ApiToken } from "../battlemap/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
-import { useRoomContext } from "../rooms/context.tsx"
 import { ApiScene } from "../scenes/types.ts"
+import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
 
 export function CharacterBattlemapToken({
 	token,
@@ -21,15 +21,16 @@ export function CharacterBattlemapToken({
 	shapeRef,
 	tooltipsDisabled,
 	onContextMenu,
+	onSelect,
 }: {
 	token: ApiToken
 	scene: ApiScene
 	selected: boolean
 	shapeRef: React.Ref<Konva.Shape>
 	tooltipsDisabled: boolean
+	onSelect: () => void
 	onContextMenu: (event: Konva.KonvaEventObject<PointerEvent>) => void
 }) {
-	const room = useRoomContext()
 	const [image] = useImage(
 		token.character.imageId && getImageUrl(token.character.imageId),
 	)
@@ -56,6 +57,8 @@ export function CharacterBattlemapToken({
 
 	const ref = useMergedRefs(shapeRef, internalRef)
 
+	const [editorOpen, setEditorOpen] = useState(false)
+
 	return (
 		<>
 			<Group
@@ -75,11 +78,14 @@ export function CharacterBattlemapToken({
 				}}
 				onPointerClick={(event) => {
 					if (event.evt.button === 2) return
-					onContextMenu(event)
+					// onSelect()
 				}}
 				onContextMenu={(event) => {
 					event.evt.preventDefault()
 					onContextMenu(event)
+				}}
+				onPointerDblClick={() => {
+					setEditorOpen(true)
 				}}
 				ref={ref}
 			>
@@ -209,6 +215,14 @@ export function CharacterBattlemapToken({
 						)}
 					</TooltipContent>
 				</Tooltip>
+
+				{token.character.full && (
+					<CharacterEditorDialog
+						character={token.character.full}
+						open={editorOpen}
+						setOpen={setEditorOpen}
+					></CharacterEditorDialog>
+				)}
 			</Html>
 		</>
 	)

@@ -198,6 +198,7 @@ export function CharacterSkillsEditor({
 			<div className="flex gap [&>*:not(:last-child)]:flex-1">
 				{aspectOrder.map((aspect) => (
 					<Button
+						key={aspect}
 						icon={<AspectIcon aspectId={aspect} />}
 						tooltip={`Show ${aspect} skills`}
 						tooltipPlacement="bottom"

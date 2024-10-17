@@ -71,44 +71,50 @@ export function Battlemap({
 			>
 				<BattlemapBackground backgroundUrl={backgroundUrl} />
 
-				{deselected.map((token) => (
-					<DraggableTokenGroup key={token._id} tokens={[token]} scene={scene}>
-						<CharacterBattlemapToken
-							token={token}
-							scene={scene}
-							shapeRef={(shape) => {
-								if (!shape) return
-								registerShape(token._id, shape)
-							}}
-							selected={false}
-							tooltipsDisabled={characterMenuController.open || selecting}
-							onContextMenu={(event) =>
-								characterMenuController.show(event.evt, [token.characterId])
-							}
-						/>
-					</DraggableTokenGroup>
-				))}
+				{deselected
+					.toSorted((a, b) => b.updatedAt - a.updatedAt)
+					.map((token) => (
+						<DraggableTokenGroup key={token._id} tokens={[token]} scene={scene}>
+							<CharacterBattlemapToken
+								token={token}
+								scene={scene}
+								shapeRef={(shape) => {
+									if (!shape) return
+									registerShape(token._id, shape)
+								}}
+								selected={false}
+								tooltipsDisabled={characterMenuController.open || selecting}
+								onContextMenu={(event) =>
+									characterMenuController.show(event.evt, [token.characterId])
+								}
+								onSelect={() => setSelectedIds(new Set([token._id]))}
+							/>
+						</DraggableTokenGroup>
+					))}
 
 				<DraggableTokenGroup tokens={selected} scene={scene}>
-					{selected.map((token) => (
-						<CharacterBattlemapToken
-							key={token._id}
-							token={token}
-							scene={scene}
-							selected
-							tooltipsDisabled={characterMenuController.open || selecting}
-							onContextMenu={(event) =>
-								characterMenuController.show(
-									event.evt,
-									selected.map((token) => token.characterId),
-								)
-							}
-							shapeRef={(shape) => {
-								if (!shape) return
-								registerShape(token._id, shape)
-							}}
-						/>
-					))}
+					{selected
+						.toSorted((a, b) => b.updatedAt - a.updatedAt)
+						.map((token) => (
+							<CharacterBattlemapToken
+								key={token._id}
+								token={token}
+								scene={scene}
+								selected
+								tooltipsDisabled={characterMenuController.open || selecting}
+								onContextMenu={(event) =>
+									characterMenuController.show(
+										event.evt,
+										selected.map((token) => token.characterId),
+									)
+								}
+								onSelect={() => setSelectedIds(new Set([token._id]))}
+								shapeRef={(shape) => {
+									if (!shape) return
+									registerShape(token._id, shape)
+								}}
+							/>
+						))}
 				</DraggableTokenGroup>
 			</BattlemapStage>
 			<CharacterMenu controller={characterMenuController} />
