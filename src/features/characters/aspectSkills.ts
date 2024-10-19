@@ -641,7 +641,7 @@ export const ASPECT_SKILLS = defineSkills({
 		requires: [],
 	},
 	grievousWhispers: {
-		description: `Whisper dark thoughts into a target's mind. They cannot use abilities requiring resolve until your next turn.
+		description: `Whisper dark thoughts into a target's mind. Until your next turn, they must roll higher than your wit's power to attack you.
 		Repeatable: Spend 1 resolve for an additional target.`,
 		aspectId: "darkness",
 		category: "weakness",
