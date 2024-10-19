@@ -293,6 +293,8 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 		resolveMax,
 
 		wealth: doc.wealth ?? DEFAULT_WEALTH_TIER,
+
+		conditions: doc.conditions ?? [],
 	}
 	return normalized satisfies Doc<"characters">
 }
@@ -347,6 +349,7 @@ export function protectCharacter(
 		_id: character._id,
 		imageId: character.imageId,
 		race: character.race,
+		conditions: character.conditions,
 		isAdmin,
 		isPlayer: character.playerId === userId,
 

@@ -4,6 +4,7 @@ import { Effect, pipe } from "effect"
 import { mapValues, merge, pickBy } from "lodash-es"
 import { DEFAULT_INVENTORY_ITEMS } from "~/features/inventory/items.ts"
 import { List } from "~/shared/list.ts"
+import { mod } from "../src/common/math.ts"
 import type { Doc, Id } from "./_generated/dataModel"
 import { getAuthUser, getAuthUserId, InaccessibleError } from "./auth.ts"
 import { normalizeCharacter, protectCharacter } from "./characters.ts"
@@ -372,8 +373,4 @@ function getNextCombatState(
 
 		return { memberIds, currentMemberId }
 	})
-}
-
-function mod(n: number, m: number) {
-	return ((n % m) + m) % m
 }

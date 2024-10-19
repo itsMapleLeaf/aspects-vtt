@@ -17,6 +17,7 @@ import { panel } from "../../styles/panel.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
 import { CharacterAttackDialog } from "./CharacterAttackDialog.tsx"
+import { CharacterConditionsInput } from "./CharacterConditionsInput.tsx"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 
 export type CharacterMenuController = ReturnType<
@@ -84,10 +85,10 @@ export function CharacterMenu({
 					key="attributes"
 					characters={[character.full]}
 				/>,
-				<CharacterVitalFields
-					key="vitals"
-					className="w-[220px] gap"
-					character={character.full}
+				<CharacterVitalFields key="vitals" character={character.full} />,
+				<CharacterConditionsInput
+					key="conditions"
+					characterIds={[character.full._id]}
 				/>,
 				<Popover.Close
 					key="attack"
@@ -140,6 +141,7 @@ export function CharacterMenu({
 						characters={fullCharacters}
 					/>
 				),
+
 				<Popover.Close
 					key="attack"
 					render={<Button icon={<LucideSwords />} />}
@@ -162,6 +164,10 @@ export function CharacterMenu({
 						render={<CharacterToggleTokenButton characters={fullCharacters} />}
 					/>
 				),
+				<CharacterConditionsInput
+					key="conditions"
+					characterIds={fullCharacters.map((char) => char._id)}
+				/>,
 			]
 		})
 		.filter(Boolean)
@@ -194,7 +200,7 @@ export function CharacterMenu({
 		<Popover.Root placement="bottom-start" open={controller.open} {...props}>
 			<Popover.Content
 				getAnchorRect={() => controller.position ?? null}
-				className={panel("grid rounded-xl p-2 gap-2")}
+				className={panel("grid w-[240px] rounded-xl p-2 gap-2")}
 				onClose={controller.hide}
 			>
 				{items}

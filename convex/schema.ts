@@ -91,6 +91,7 @@ const entSchema = defineEntSchema({
 		resolveMaxOverride: v.optional(nullable(v.number())),
 		wealth: v.optional(v.number()),
 		inventory: v.optional(v.record(v.string(), characterItemValidator)),
+		conditions: v.optional(v.array(v.string())),
 
 		// permissions
 		visible: v.optional(v.boolean()),

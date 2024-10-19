@@ -48,3 +48,8 @@ export function convertBytes(
 
 	return Number(result.toFixed(2))
 }
+
+/** Like the `%` modulus operator, but loops on negative numbers */
+export function mod(n: number, m: number) {
+	return ((n % m) + m) % m
+}

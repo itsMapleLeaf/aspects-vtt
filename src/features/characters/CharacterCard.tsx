@@ -16,6 +16,7 @@ import { Field } from "../../components/Field.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterAttributeButtonRow } from "./CharacterAttributeButtonRow.tsx"
+import { CharacterConditionsInput } from "./CharacterConditionsInput.tsx"
 import {
 	CharacterEditorDialog,
 	CharacterEditorDialogButton,
@@ -110,6 +111,7 @@ export function CharacterCard({
 					<div className="flex flex-col py-2 gap-2">
 						<CharacterAttributeButtonRow characters={[character.full]} />
 						<CharacterVitalFields character={character.full} />
+						<CharacterConditionsInput characterIds={[character.full._id]} />
 
 						{character.race && (
 							<Field label="Abilities">

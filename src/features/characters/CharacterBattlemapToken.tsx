@@ -3,6 +3,7 @@ import { LucideEyeOff, VenetianMask } from "lucide-react"
 import { useRef, useState } from "react"
 import { Group, Image, Rect } from "react-konva"
 import { Html } from "react-konva-utils"
+import { twMerge } from "tailwind-merge"
 import { roundTo } from "~/common/math.ts"
 import { useMergedRefs } from "~/common/react/core.ts"
 import { useImage } from "~/common/react/dom.ts"
@@ -13,6 +14,7 @@ import { ApiToken } from "../battlemap/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
+import { getConditionColorClasses } from "./conditions.ts"
 
 export function CharacterBattlemapToken({
 	token,
@@ -187,18 +189,17 @@ export function CharacterBattlemapToken({
 						portal={false}
 						getAnchorRect={getAnchorRect}
 					>
-						{/* <div className="self-center rounded border-2 border-pink-700 bg-pink-700/75 px-1.5 py-1 leading-none text-white shadow">
-							Gay
-						</div>
-						<div className="self-center rounded border-2 border-orange-700 bg-orange-700/75 px-1.5 py-1 leading-none text-white shadow">
-							Angery
-						</div>
-						<div className="self-center rounded border-2 border-purple-700 bg-purple-700/75 px-1.5 py-1 leading-none text-white shadow">
-							Sexy
-						</div>
-						<div className="self-center rounded border-2 border-red-700 bg-red-700/75 px-1.5 py-1 leading-none text-white shadow">
-							Exploding
-						</div> */}
+						{[...new Set(token.character.conditions)].map((condition) => (
+							<div
+								key={condition}
+								className={twMerge(
+									"self-center rounded border-2 px-1.5 py-1 leading-none text-white shadow",
+									getConditionColorClasses(condition),
+								)}
+							>
+								{condition}
+							</div>
+						))}
 						{token.character.full && (
 							<StatusBar
 								value={token.character.full.health}
