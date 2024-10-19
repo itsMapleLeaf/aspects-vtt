@@ -1,5 +1,5 @@
 import Konva from "konva"
-import { LucideEyeOff, VenetianMask } from "lucide-react"
+import { LucideEyeOff } from "lucide-react"
 import { useRef, useState } from "react"
 import { Group, Image, Rect } from "react-konva"
 import { Html } from "react-konva-utils"
@@ -109,7 +109,20 @@ export function CharacterBattlemapToken({
 					height={scene.cellSize}
 					cornerRadius={999999}
 				/>
-				{image ? (
+				{/* <Html divProps={{ className: "pointer-events-none" }}>
+					<div
+						{...{
+							className: "flex items-center justify-center",
+							style: {
+								width: scene.cellSize,
+								height: scene.cellSize,
+							},
+						}}
+					>
+						<VenetianMask className="size-1/2" />
+					</div>
+				</Html> */}
+				{image && (
 					<Image
 						image={image}
 						width={scene.cellSize}
@@ -118,20 +131,6 @@ export function CharacterBattlemapToken({
 							getCrop(image, { width: 70, height: 70 }, "center-top"))}
 						cornerRadius={999999}
 					/>
-				) : (
-					<Html divProps={{ className: "pointer-events-none" }}>
-						<div
-							{...{
-								className: "flex items-center justify-center",
-								style: {
-									width: scene.cellSize,
-									height: scene.cellSize,
-								},
-							}}
-						>
-							<VenetianMask className="size-1/2" />
-						</div>
-					</Html>
 				)}
 				{token.visible ? null : (
 					<Html divProps={{ className: "pointer-events-none" }}>
