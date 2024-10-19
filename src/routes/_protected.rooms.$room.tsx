@@ -171,8 +171,8 @@ function SceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
 		<HeadingLevel>
 			<div className="pointer-events-children absolute inset-x-0 top-6 flex flex-col items-center animate-in fade-in">
 				<Heading className="text-3xl font-light">{activeScene.name}</Heading>
-				<p className="text-xl font-light">Harvest 24th, 365 &bull; Evening</p>
-				<p className="text-xl font-light">(weather)</p>
+				{/* <p className="text-xl font-light">Harvest 24th, 365 &bull; Evening</p>
+				<p className="text-xl font-light">(weather)</p> */}
 			</div>
 		</HeadingLevel>
 	) : null
