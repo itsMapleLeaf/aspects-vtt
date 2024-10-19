@@ -10,6 +10,9 @@ export function useAuthActions() {
 		signInWithCredentials: (
 			payload: InferInput<typeof credentialsPayloadValidator>,
 		) => actions.signIn("credentials", payload),
-		signInWithDiscord: () => actions.signIn("discord"),
+		signInWithDiscord: () =>
+			actions.signIn("discord", {
+				redirectTo: window.location.pathname,
+			}),
 	}
 }
