@@ -88,12 +88,12 @@ export function CharacterCard({
 						{character.identity && (
 							<Field label="Pronouns">{character.identity.pronouns}</Field>
 						)}
-						{character.race && (
-							<Field label="Abilities">
-								<RaceAbilityList race={character.race} />
-							</Field>
-						)}
 					</div>
+					{character.race && (
+						<Field label="Abilities">
+							<RaceAbilityList race={character.race} />
+						</Field>
+					)}
 				</Dialog.Content>
 			</Dialog.Root>
 		)
