@@ -30,5 +30,13 @@
 		"noEmit": true,
 		"incremental": true
 	},
-	"exclude": ["node_modules", "dist", "src.old"]
+	"exclude": [
+		"node_modules",
+		"dist",
+		"build",
+		".turbo",
+		".vercel",
+		"test-results",
+		"src.old"
+	]
 }
