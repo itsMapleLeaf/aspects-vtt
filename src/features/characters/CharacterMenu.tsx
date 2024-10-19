@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react"
-import { LucideEdit, LucideSwords } from "lucide-react"
+import { LucideEdit, LucideEye, LucideEyeOff, LucideSwords } from "lucide-react"
 import { ComponentProps, useState } from "react"
 import { match, P } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
@@ -13,6 +13,7 @@ import { CharacterVitalFields } from "~/features/characters/CharacterVitalFields
 import { ApiCharacter } from "~/features/characters/types.ts"
 import { List } from "~/shared/list.ts"
 import { Checkbox } from "../../components/Checkbox.tsx"
+import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { panel } from "../../styles/panel.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
@@ -64,6 +65,7 @@ export function CharacterMenu({
 	controller: CharacterMenuController
 }) {
 	const room = useRoomContext()
+	const update = useMutation(api.tokens.update)
 
 	const items = match([...controller.characterTokens])
 		.with(
@@ -133,6 +135,8 @@ export function CharacterMenu({
 		.otherwise((tokens) => {
 			const characters = tokens.map((it) => it.character)
 			const fullCharacters = characters.map((it) => it.full).filter(Boolean)
+			const visibleTokens = tokens.filter((it) => it.visible)
+			const hiddenTokens = tokens.filter((it) => !it.visible)
 
 			return [
 				fullCharacters.length > 0 && (
@@ -140,6 +144,47 @@ export function CharacterMenu({
 						key="attributes"
 						characters={fullCharacters}
 					/>
+				),
+
+				room.isOwner && (
+					<div className="flex w-full gap *:flex-1">
+						{hiddenTokens.length > 0 && (
+							<ToastActionForm
+								action={() =>
+									update({
+										updates: hiddenTokens.map((it) => ({
+											tokenId: it._id,
+											visible: true,
+										})),
+									})
+								}
+							>
+								<Button type="submit" icon={<LucideEye />} className="w-full">
+									Show
+								</Button>
+							</ToastActionForm>
+						)}
+						{visibleTokens.length > 0 && (
+							<ToastActionForm
+								action={() =>
+									update({
+										updates: visibleTokens.map((it) => ({
+											tokenId: it._id,
+											visible: false,
+										})),
+									})
+								}
+							>
+								<Button
+									type="submit"
+									icon={<LucideEyeOff />}
+									className="w-full"
+								>
+									Hide
+								</Button>
+							</ToastActionForm>
+						)}
+					</div>
 				),
 
 				<Popover.Close
