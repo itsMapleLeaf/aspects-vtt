@@ -1,7 +1,7 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { Effect } from "effect"
-import { defaults } from "lodash-es"
+import { defaults, pick } from "lodash-es"
 import { getAuthUserId } from "~/convex/auth.ts"
 import {
 	ensureCharacterEntAdmin,
@@ -116,11 +116,18 @@ export const update = effectMutation({
 	},
 	handler(ctx, { updates }) {
 		return Effect.gen(function* () {
+			const userId = yield* getAuthUserId(ctx)
 			for (const { tokenId, ...props } of updates) {
 				const token = yield* queryEnt(ctx.table("characterTokens").get(tokenId))
 				const character = yield* queryEnt(token.edge("character"))
-				yield* ensureCharacterEntAdmin(ctx, character)
-				yield* Effect.promise(() => token.patch(props))
+				const room = yield* queryEnt(character.edge("room"))
+				if (!isCharacterAdmin(character, room, userId)) {
+					yield* Effect.promise(() =>
+						token.patch(pick(props, ["updatedAt", "position"])),
+					)
+				} else {
+					yield* Effect.promise(() => token.patch(props))
+				}
 			}
 		}).pipe(Effect.orDie)
 	},
