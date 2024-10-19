@@ -211,8 +211,7 @@ export function CharacterProfileEditor({
 						className={textInput()}
 						max={character.resolveMax}
 						value={character.resolve}
-						onSubmitValue={(value) => handleChange({ resolveMax: value })}
-						onSubmitEmpty={() => handleChange({ resolveMax: null })}
+						onSubmitValue={(value) => handleChange({ resolve: value })}
 					/>
 				</Field>
 				<Field label={`Max resolve`}>
