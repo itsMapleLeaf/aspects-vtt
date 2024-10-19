@@ -1,4 +1,4 @@
-import { useParams } from "@remix-run/react"
+import { useParams, useSearchParams } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import {
 	LucideDoorOpen,
@@ -23,7 +23,10 @@ import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
 import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
 import { ApiRoom } from "~/features/rooms/types.ts"
-import { ActiveSceneContext } from "~/features/scenes/context.ts"
+import {
+	ActiveSceneContext,
+	useActiveSceneContext,
+} from "~/features/scenes/context.ts"
 import { primaryHeading, subText } from "~/styles/text.ts"
 import { useLocalStorageSwitch } from "../common/react/dom.ts"
 
@@ -44,9 +47,15 @@ function RoomRoot({ children }: { children: React.ReactNode }) {
 		api.rooms.getJoined,
 		room ? { roomId: room._id } : "skip",
 	)
+	const [searchParams] = useSearchParams()
+
+	const activeSceneId =
+		(room?.isOwner && (searchParams.get("scene") as Id<"scenes"> | null)) ||
+		room?.activeSceneId
+
 	const activeScene = useQuery(
 		api.scenes.get,
-		room?.activeSceneId ? { sceneId: room.activeSceneId } : "skip",
+		activeSceneId ? { sceneId: activeSceneId } : "skip",
 	)
 
 	const stageInfoRef = useRef(defaultStageInfo)
@@ -152,7 +161,7 @@ function RoomInterface() {
 					</div>
 				</header>
 
-				{room.activeSceneId && <SceneHeading sceneId={room.activeSceneId} />}
+				<SceneHeading />
 
 				<main className="pointer-events-children flex min-h-0 flex-1 items-stretch justify-between *:w-72">
 					<RoomInterfaceModules
@@ -165,12 +174,12 @@ function RoomInterface() {
 	)
 }
 
-function SceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
-	const activeScene = useQuery(api.scenes.get, { sceneId })
-	return activeScene ? (
+function SceneHeading() {
+	const scene = useActiveSceneContext()
+	return scene ? (
 		<HeadingLevel>
 			<div className="pointer-events-children absolute inset-x-0 top-6 flex flex-col items-center animate-in fade-in">
-				<Heading className="text-3xl font-light">{activeScene.name}</Heading>
+				<Heading className="text-3xl font-light">{scene.name}</Heading>
 				{/* <p className="text-xl font-light">Harvest 24th, 365 &bull; Evening</p>
 				<p className="text-xl font-light">(weather)</p> */}
 			</div>
@@ -180,11 +189,7 @@ function SceneHeading({ sceneId }: { sceneId: Id<"scenes"> }) {
 
 function RoomBackground() {
 	const room = useRoomContext()
-
-	const activeScene = useQuery(
-		api.scenes.get,
-		room.activeSceneId ? { sceneId: room.activeSceneId } : "skip",
-	)
+	const activeScene = useActiveSceneContext()
 
 	if (
 		activeScene?.sceneryBackgroundId &&

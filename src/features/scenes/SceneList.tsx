@@ -1,6 +1,8 @@
+import { useSearchParams } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import {
 	LucideEdit,
+	LucideEye,
 	LucideImagePlus,
 	LucidePlay,
 	LucideTrash,
@@ -10,9 +12,8 @@ import { useState } from "react"
 import { Button } from "~/components/Button.tsx"
 import { Menu } from "~/components/Menu.tsx"
 import { api } from "~/convex/_generated/api.js"
-import type { Id } from "~/convex/_generated/dataModel.js"
 import { interactivePanel } from "~/styles/panel.ts"
-import { secondaryHeading } from "~/styles/text.ts"
+import { secondaryHeading, subText } from "~/styles/text.ts"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
@@ -33,64 +34,90 @@ export function SceneList() {
 	const createScene = useMutation(api.scenes.create)
 	const deleteScene = useMutation(api.scenes.remove)
 	const updateRoom = useMutation(api.rooms.update)
+	const [searchParams, setSearchParams] = useSearchParams()
 
-	const renderScene = (scene: ApiScene) => (
-		<div key={scene._id} className="flex items-center gap-2">
-			<Menu
-				render={
-					<button
-						type="button"
-						className={interactivePanel("relative grid h-20")}
-					>
-						{scene.battlemapBackgroundId && (
-							<img
-								src={getImageUrl(scene.battlemapBackgroundId)}
-								alt=""
-								className="absolute inset-0 size-full rounded-[inherit] object-cover brightness-50"
-							/>
-						)}
-						<span
-							className={secondaryHeading(
-								"absolute line-clamp-2 place-self-center text-balance px-2 drop-shadow",
+	const renderScene = (scene: ApiScene) => {
+		const isActive = room.activeSceneId === scene._id
+		const isPreviewing = searchParams.get("scene") === scene._id
+		return (
+			<div key={scene._id} className="flex items-center gap-2">
+				<Menu
+					render={
+						<button
+							type="button"
+							className={interactivePanel(
+								"relative flex h-24 flex-col items-center justify-center",
 							)}
 						>
-							{scene.name}
-						</span>
-					</button>
-				}
-				className="flex-1"
-				providerProps={{
-					placement: "right",
-				}}
-				options={[
-					{
-						icon: <LucidePlay />,
-						label: "Set Active",
-						onClick: () =>
-							((sceneId: Id<"scenes">) => {
-								updateRoom({ roomId: room._id, activeSceneId: sceneId })
-							})(scene._id),
-					},
-					{
-						icon: <LucideEdit />,
-						label: "Edit",
-						onClick: () => {
-							setEditingSceneId(scene._id)
-							setEditorOpen(true)
+							{scene.battlemapBackgroundId && (
+								<img
+									src={getImageUrl(scene.battlemapBackgroundId)}
+									alt=""
+									className="absolute inset-0 size-full rounded-[inherit] object-cover brightness-50"
+								/>
+							)}
+							<span
+								className={secondaryHeading(
+									"line-clamp-2 text-balance px-2 drop-shadow",
+								)}
+							>
+								{scene.name}
+							</span>
+							{isActive ? (
+								<span className={subText("relative flex items-center gap-1")}>
+									<LucidePlay className="size-4" /> Active
+								</span>
+							) : isPreviewing ? (
+								<span className={subText("relative flex items-center gap-1")}>
+									<LucideEye className="size-4" /> Previewing
+								</span>
+							) : null}
+						</button>
+					}
+					className="flex-1"
+					providerProps={{
+						placement: "right",
+					}}
+					options={[
+						!isActive && {
+							icon: <LucidePlay />,
+							label: "Set Active",
+							onClick: async () => {
+								await updateRoom({ roomId: room._id, activeSceneId: scene._id })
+								setSearchParams((params) => {
+									params.delete("scene")
+									return params
+								})
+							},
 						},
-					},
-					{
-						icon: <LucideTrash />,
-						label: "Delete",
-						onClick: () =>
-							((sceneId: Id<"scenes">) => {
-								deleteScene({ sceneIds: [sceneId] })
-							})(scene._id),
-					},
-				]}
-			/>
-		</div>
-	)
+						!isPreviewing && {
+							icon: <LucideEye />,
+							label: "Preview",
+							onClick: () => {
+								setSearchParams((params) => {
+									params.set("scene", scene._id)
+									return params
+								})
+							},
+						},
+						{
+							icon: <LucideEdit />,
+							label: "Edit",
+							onClick: () => {
+								setEditingSceneId(scene._id)
+								setEditorOpen(true)
+							},
+						},
+						{
+							icon: <LucideTrash />,
+							label: "Delete",
+							onClick: () => deleteScene({ sceneIds: [scene._id] }),
+						},
+					].filter(Boolean)}
+				/>
+			</div>
+		)
+	}
 
 	return (
 		<>
