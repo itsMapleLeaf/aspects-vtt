@@ -143,10 +143,11 @@ export function CharacterBattlemapToken({
 						>
 							<div
 								className={lightPanel(
-									"absolute bottom-0 right-0 translate-x-2 translate-y-2 rounded-full p-2.5",
+									"absolute bottom-0 right-0 size-1/3 translate-x-0.5 translate-y-0.5 rounded-full opacity-70",
 								)}
+								style={{ padding: scene.cellSize * 0.08 }}
 							>
-								<LucideEyeOff className="size-8" />
+								<LucideEyeOff className="size-full" />
 							</div>
 						</div>
 					</Html>
