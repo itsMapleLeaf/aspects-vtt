@@ -74,7 +74,7 @@ export function CharacterConditionsInput({
 					placeholder="Add condition..."
 				/>
 			</Field>
-			<div className="flex flex-wrap gap-1">
+			<div className="flex flex-wrap gap-1 empty:hidden">
 				{[...allConditions].map((condition) => (
 					<form
 						key={condition}
