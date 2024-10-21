@@ -19,18 +19,22 @@ export default defineConfig({
 				[rehypeAutolinkHeadings, { behavior: "wrap" }],
 			],
 		}),
-		remix({
-			appDirectory: "src",
-			future: {
-				v3_fetcherPersist: true,
-				v3_relativeSplatPath: true,
-				v3_throwAbortReason: true,
-				v3_singleFetch: true,
-				v3_lazyRouteDiscovery: true,
-				unstable_optimizeDeps: true,
-			},
-			presets: process.env.VERCEL ? [vercelPreset()] : [],
-		}),
+		// the remix plugin can't run under the Vite testing env at the moment
+		// https://github.com/remix-run/remix/issues/8982
+		process.env.NODE_ENV === "test"
+			? []
+			: remix({
+					appDirectory: "src",
+					future: {
+						v3_fetcherPersist: true,
+						v3_relativeSplatPath: true,
+						v3_throwAbortReason: true,
+						v3_singleFetch: true,
+						v3_lazyRouteDiscovery: true,
+						unstable_optimizeDeps: true,
+					},
+					presets: process.env.VERCEL ? [vercelPreset()] : [],
+				}),
 	],
 	ssr: {
 		noExternal: [
@@ -42,7 +46,14 @@ export default defineConfig({
 		],
 	},
 	test: {
+		open: false,
 		setupFiles: ["vitest.setup.ts"],
+		environmentMatchGlobs: [
+			["{convex,shared}/**/*", "edge-runtime"],
+			["src/**/*", "happy-dom"],
+		],
+		environment: "edge-runtime",
+		server: { deps: { inline: ["convex-test"] } },
 	},
 })
 

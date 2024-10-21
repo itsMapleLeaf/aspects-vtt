@@ -1,44 +1,36 @@
 import { expect, test } from "vitest"
-import type { Id } from "./_generated/dataModel"
-import { createMockMutationCtx } from "./lib/testing.ts"
-import { list } from "./scenes.ts"
+import { api } from "./_generated/api"
+import { createConvexTestWithIdentity } from "./testing/helpers"
 
 test("list returns scenes only for the given room", async () => {
-	const queryCtx = createMockMutationCtx()
+	const convex = await createConvexTestWithIdentity()
 
-	const room1Id = await queryCtx.db.insert("rooms", {
-		name: "room1",
-		slug: "room1",
-		ownerId: "user1" as Id<"users">,
+	const firstRoom = await convex.mutation(api.rooms.create, {
+		name: "first",
+		slug: "first",
 	})
 
-	const room2Id = await queryCtx.db.insert("rooms", {
-		name: "room2",
-		slug: "room2",
-		ownerId: "user1" as Id<"users">,
+	const secondRoom = await convex.mutation(api.rooms.create, {
+		name: "second",
+		slug: "second",
 	})
 
-	await queryCtx.db.insert("scenes", {
-		name: "scene1",
-		roomId: room1Id,
-		mode: "battlemap",
+	const firstScene = await convex.mutation(api.scenes.create, {
+		roomId: firstRoom,
 	})
 
-	await queryCtx.db.insert("scenes", {
-		name: "scene2",
-		roomId: room1Id,
-		mode: "battlemap",
+	const secondScene = await convex.mutation(api.scenes.create, {
+		roomId: firstRoom,
 	})
 
-	await queryCtx.db.insert("scenes", {
-		name: "scene3",
-		roomId: room2Id,
-		mode: "scenery",
+	const thirdScene = await convex.mutation(api.scenes.create, {
+		roomId: secondRoom,
 	})
 
-	const scenes = await list(queryCtx, {
-		roomId: room1Id,
-	})
-
-	expect(scenes).toHaveLength(2)
+	expect(
+		await convex.query(api.scenes.list, { roomId: firstRoom }),
+	).toHaveLength(2)
+	expect(
+		await convex.query(api.scenes.list, { roomId: secondRoom }),
+	).toHaveLength(1)
 })

@@ -38,6 +38,7 @@ package-lock.json
 /playwright/.cache/
 *.tsbuildinfo
 .turbo
+convex-backend
 
 # test output
 /test-results/
