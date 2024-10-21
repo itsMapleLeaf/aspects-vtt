@@ -1,0 +1,17 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"project": [
+		"./*.{js,ts}",
+		"{src,docs,scripts,shared,convex}/**/*.{js,ts,ts,tsx,md,mdx}"
+	],
+	"entry": [
+		"convex/**/*.ts",
+		"scripts/**",
+		"src/root.tsx",
+		"src/entry.{client,server}.tsx",
+		"src/routes/**/*.{ts,tsx}",
+		"src/common/testing/convex-backend.ts"
+	],
+	"ignoreDependencies": ["isbot", "@mdx-js/mdx"],
+	"exclude": ["exports", "types"]
+}

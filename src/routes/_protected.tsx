@@ -7,14 +7,13 @@ export default function ProtectedLayout() {
 	const auth = useConvexAuth()
 	return (
 		<>
-			{auth.isLoading ?
-				null
-			: auth.isAuthenticated ?
+			{auth.isLoading ? null : auth.isAuthenticated ? (
 				<Outlet />
-			:	<main className="absolute inset-0 flex size-full flex-col *:m-auto">
+			) : (
+				<main className="absolute inset-0 flex size-full flex-col *:m-auto">
 					<AuthForm />
 				</main>
-			}
+			)}
 			<LoadingCover visible={auth.isLoading} />
 		</>
 	)

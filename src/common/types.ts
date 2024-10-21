@@ -16,8 +16,9 @@ export type MaybeFunction<Args extends unknown[], Result> =
  * 	type Bad = Omit<A, "a"> // {}
  * 	type Good = StrictOmit<A, "a"> // {} | { b: number }
  */
-export type StrictOmit<T, K extends AllKeys<T>> =
-	T extends unknown ? Simplify<Omit<T, K>> : never
+export type StrictOmit<T, K extends AllKeys<T>> = T extends unknown
+	? Simplify<Omit<T, K>>
+	: never
 
 /**
  * Gets all the keys of every object type in a union.
@@ -47,9 +48,8 @@ export type Anything = Something | Nil
 /* Alias for `undefined | null` */
 export type Nil = undefined | null
 
-export type PickUnion<T, K extends AllKeys<T>> =
-	T extends object ?
-		K extends keyof T ?
-			T[K]
-		:	never
-	:	never
+export type PickUnion<T, K extends AllKeys<T>> = T extends object
+	? K extends keyof T
+		? T[K]
+		: never
+	: never
