@@ -1,4 +1,0 @@
-[test]
-preload = ["./test/preload/happydom.ts","./test/preload/testing-library.ts"]
-coverage = true
-coverageSkipTestFiles = true

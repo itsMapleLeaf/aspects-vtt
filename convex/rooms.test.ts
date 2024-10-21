@@ -1,5 +1,5 @@
-import { expect, test } from "bun:test"
 import { ConvexError } from "convex/values"
+import { expect, test } from "vitest"
 import type { Id } from "./_generated/dataModel"
 import { createMockMutationCtx } from "./lib/testing.ts"
 import { updateCombat } from "./rooms.ts"

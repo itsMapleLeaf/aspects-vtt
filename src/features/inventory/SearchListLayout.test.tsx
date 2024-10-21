@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react"
 import fireEvent from "@testing-library/user-event"
-import { expect, mock, test } from "bun:test"
+import { expect, test, vi } from "vitest"
 import { SearchListLayout } from "./SearchListLayout.tsx"
 
-mock.module("@formkit/auto-animate/react", () => ({
+vi.mock("@formkit/auto-animate/react", () => ({
 	useAutoAnimate: () => [null],
 }))
 

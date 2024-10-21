@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, test } from "vitest"
 import { ByteUnit, convertBytes } from "./math.ts"
 
 describe("convertBytes", () => {

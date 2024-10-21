@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test"
+import { expect, test } from "vitest"
 import type { Id } from "./_generated/dataModel"
 import { createMockMutationCtx } from "./lib/testing.ts"
 import { list } from "./scenes.ts"
