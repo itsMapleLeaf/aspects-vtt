@@ -1,26 +1,24 @@
 import { v } from "convex/values"
-import { Effect } from "effect"
 import { random } from "lodash-es"
-import { getAuthUserId } from "./auth.ts"
-import { effectMutation, effectQuery, queryEnt } from "./lib/effects.ts"
-import { diceRollInputValidator } from "./validators/dice.ts"
+import { ensureUserId } from "./auth.new.ts"
+import { diceRollInputValidator } from "./dice.ts"
+import { mutation, query } from "./lib/ents.ts"
 
-export const list = effectQuery({
+export const list = query({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			yield* getAuthUserId(ctx)
-			const messages = yield* Effect.promise(() =>
-				ctx
-					.table("messages", "roomId", (q) => q.eq("roomId", args.roomId))
-					.order("desc")
-					.take(50),
-			)
-			return yield* Effect.forEach(messages, (message) =>
-				Effect.gen(function* () {
-					const author = yield* queryEnt(message.edge("author"))
+	async handler(ctx, args) {
+		try {
+			await ensureUserId(ctx)
+			const messages = await ctx
+				.table("messages", "roomId", (q) => q.eq("roomId", args.roomId))
+				.order("desc")
+				.take(50)
+
+			return await Promise.all(
+				messages.map(async (message) => {
+					const author = await message.edgeX("author")
 					return {
 						...message.doc(),
 						author: {
@@ -30,11 +28,13 @@ export const list = effectQuery({
 					}
 				}),
 			)
-		}).pipe(Effect.orElseSucceed(() => []))
+		} catch (error) {
+			return []
+		}
 	},
 })
 
-export const create = effectMutation({
+export const create = mutation({
 	args: {
 		roomId: v.id("rooms"),
 		content: v.array(
@@ -50,30 +50,26 @@ export const create = effectMutation({
 			),
 		),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
 
-			const content = args.content.map((entry) => {
-				if (entry.type !== "dice") {
-					return entry
-				}
-				return {
-					...entry,
-					dice: entry.dice.map((die) => ({
-						...die,
-						result: random(1, die.faces),
-					})),
-				}
-			})
+		const content = args.content.map((entry) => {
+			if (entry.type !== "dice") {
+				return entry
+			}
+			return {
+				...entry,
+				dice: entry.dice.map((die) => ({
+					...die,
+					result: random(1, die.faces),
+				})),
+			}
+		})
 
-			yield* Effect.promise(() =>
-				ctx.table("messages").insert({
-					roomId: args.roomId,
-					authorId: userId,
-					content,
-				}),
-			)
-		}).pipe(Effect.orDie)
+		await ctx.table("messages").insert({
+			roomId: args.roomId,
+			authorId: userId,
+			content,
+		})
 	},
 })

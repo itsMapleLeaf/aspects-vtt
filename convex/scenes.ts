@@ -1,22 +1,21 @@
 import { v } from "convex/values"
-import { Effect } from "effect"
 import { omit } from "lodash-es"
 import type { Doc } from "./_generated/dataModel"
-import { InaccessibleError, getAuthUserId } from "./auth.ts"
-import { effectMutation, effectQuery, queryEnt } from "./lib/effects.ts"
+import { InaccessibleError, ensureUserId } from "./auth.new.ts"
+import { mutation, query } from "./lib/ents.ts"
 import { partial, tableFields } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
 
-export const list = effectQuery({
+export const list = query({
 	args: {
 		roomId: v.id("rooms"),
 		search: v.optional(v.string()),
 	},
-	handler(ctx, { roomId, search }) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const room = yield* queryEnt(ctx.table("rooms").get(roomId))
+	async handler(ctx, { roomId, search }) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const room = await ctx.table("rooms").getX(roomId)
 
 			if (!isRoomOwner(room, userId)) {
 				return []
@@ -33,21 +32,23 @@ export const list = effectQuery({
 				)
 			}
 
-			const scenes = yield* Effect.promise(() => scenesQuery)
+			const scenes = await scenesQuery
 			return scenes.map(normalizeScene)
-		}).pipe(Effect.orElseSucceed(() => []))
+		} catch (error) {
+			return []
+		}
 	},
 })
 
-export const get = effectQuery({
+export const get = query({
 	args: {
 		sceneId: v.id("scenes"),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const scene = yield* queryEnt(ctx.table("scenes").get(args.sceneId))
-			const room = yield* queryEnt(scene.edge("room"))
+	async handler(ctx, args) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const scene = await ctx.table("scenes").getX(args.sceneId)
+			const room = await scene.edgeX("room")
 
 			const isAuthorized =
 				room.activeSceneId === args.sceneId || isRoomOwner(room, userId)
@@ -57,11 +58,13 @@ export const get = effectQuery({
 			}
 
 			return normalizeScene(scene)
-		}).pipe(Effect.orElseSucceed(() => null))
+		} catch (error) {
+			return null
+		}
 	},
 })
 
-export const create = effectMutation({
+export const create = mutation({
 	args: {
 		...omit(schema.tables.scenes.validator.fields, "FieldName"),
 		name: v.optional(v.string()),
@@ -69,112 +72,92 @@ export const create = effectMutation({
 		roomId: v.id("rooms"),
 		backgroundIds: v.optional(v.array(v.id("_storage"))),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const room = yield* queryEnt(ctx.table("rooms").get(args.roomId))
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
+		const room = await ctx.table("rooms").getX(args.roomId)
 
-			if (!isRoomOwner(room, userId)) {
-				yield* Effect.fail(
-					new InaccessibleError({
-						id: args.roomId,
-						table: "rooms",
-					}),
-				)
-			}
+		if (!isRoomOwner(room, userId)) {
+			throw new InaccessibleError({
+				id: args.roomId,
+				table: "rooms",
+			})
+		}
 
-			const { backgroundIds = [], ...sceneArgs } = args
-			return yield* Effect.promise(() =>
-				ctx.table("scenes").insert({
-					...sceneArgs,
-					name: args.name ?? "New Scene",
-					mode: args.mode ?? "battlemap",
-				}),
-			)
-		}).pipe(Effect.orDie)
+		const { backgroundIds = [], ...sceneArgs } = args
+		return await ctx.table("scenes").insert({
+			...sceneArgs,
+			name: args.name ?? "New Scene",
+			mode: args.mode ?? "battlemap",
+		})
 	},
 })
 
-export const update = effectMutation({
+export const update = mutation({
 	args: {
 		...partial(tableFields("scenes")),
 		sceneId: v.id("scenes"),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const scene = yield* queryEnt(ctx.table("scenes").get(args.sceneId))
-			const room = yield* queryEnt(scene.edge("room"))
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
+		const scene = await ctx.table("scenes").getX(args.sceneId)
+		const room = await scene.edgeX("room")
+
+		if (!isRoomOwner(room, userId)) {
+			throw new InaccessibleError({
+				id: room._id,
+				table: "rooms",
+			})
+		}
+
+		const { sceneId, ...updateArgs } = args
+		await scene.patch(updateArgs)
+	},
+})
+
+export const remove = mutation({
+	args: {
+		sceneIds: v.array(v.id("scenes")),
+	},
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
+		for (const sceneId of args.sceneIds) {
+			const scene = await ctx.table("scenes").getX(sceneId)
+			const room = await scene.edgeX("room")
 
 			if (!isRoomOwner(room, userId)) {
-				yield* Effect.fail(
-					new InaccessibleError({
-						id: room._id,
-						table: "rooms",
-					}),
-				)
+				throw new InaccessibleError({
+					id: room._id,
+					table: "rooms",
+				})
 			}
-
-			const { sceneId, ...updateArgs } = args
-			yield* Effect.promise(() => scene.patch(updateArgs))
-		}).pipe(Effect.orDie)
+			await scene.delete()
+		}
 	},
 })
 
-export const remove = effectMutation({
+export const duplicate = mutation({
 	args: {
 		sceneIds: v.array(v.id("scenes")),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			for (const sceneId of args.sceneIds) {
-				const scene = yield* queryEnt(ctx.table("scenes").get(sceneId))
-				const room = yield* queryEnt(scene.edge("room"))
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
+		for (const sceneId of args.sceneIds) {
+			const scene = await ctx.table("scenes").getX(sceneId)
+			const room = await scene.edgeX("room")
 
-				if (!isRoomOwner(room, userId)) {
-					yield* Effect.fail(
-						new InaccessibleError({
-							id: room._id,
-							table: "rooms",
-						}),
-					)
-				}
-				yield* Effect.promise(() => scene.delete())
+			if (!isRoomOwner(room, userId)) {
+				throw new InaccessibleError({
+					id: room._id,
+					table: "rooms",
+				})
 			}
-		}).pipe(Effect.orDie)
-	},
-})
 
-export const duplicate = effectMutation({
-	args: {
-		sceneIds: v.array(v.id("scenes")),
-	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			for (const sceneId of args.sceneIds) {
-				const scene = yield* queryEnt(ctx.table("scenes").get(sceneId))
-				const room = yield* queryEnt(scene.edge("room"))
-
-				if (!isRoomOwner(room, userId)) {
-					yield* Effect.fail(
-						new InaccessibleError({
-							id: room._id,
-							table: "rooms",
-						}),
-					)
-				}
-
-				const { _id, _creationTime, ...properties } = scene
-				yield* Effect.promise(() =>
-					ctx.table("scenes").insert({
-						...properties,
-						name: `Copy of ${scene.name}`,
-					}),
-				)
-			}
-		}).pipe(Effect.orDie)
+			const { _id, _creationTime, ...properties } = scene
+			await ctx.table("scenes").insert({
+				...properties,
+				name: `Copy of ${scene.name}`,
+			})
+		}
 	},
 })
 

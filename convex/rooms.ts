@@ -1,94 +1,74 @@
 import type { PromiseEntOrNull } from "convex-ents"
 import { ConvexError, v, type Infer } from "convex/values"
-import { Effect, pipe } from "effect"
 import { mapValues, merge, pickBy } from "lodash-es"
 import { DEFAULT_INVENTORY_ITEMS } from "~/features/inventory/items.ts"
 import { List } from "~/shared/list.ts"
 import { mod } from "../src/common/math.ts"
 import type { Doc, Id } from "./_generated/dataModel"
-import { getAuthUser, getAuthUserId, InaccessibleError } from "./auth.ts"
+import { ensureUserId, InaccessibleError } from "./auth.new.ts"
 import { normalizeCharacter, protectCharacter } from "./characters.ts"
-import {
-	effectMutation,
-	effectQuery,
-	getQueryCtx,
-	queryEnt,
-} from "./lib/effects.ts"
-import type { Ent } from "./lib/ents.ts"
+import { mutation, query, type Ent, type EntQueryCtx } from "./lib/ents.ts"
 import { partial, tableFields } from "./lib/validators.ts"
 import { roomItemValidator, type entDefinitions } from "./schema.ts"
 
-export const list = effectQuery({
-	handler(ctx) {
-		return Effect.gen(function* () {
-			const user = yield* getAuthUser(ctx)
-			const ownedRooms = yield* Effect.promise(() =>
-				user.edge("ownedRooms").map((ent) => ent.doc()),
-			)
-			const joinedRooms = yield* Effect.promise(() =>
-				user.edge("joinedRooms").map((ent) => ent.doc()),
-			)
+export const list = query({
+	async handler(ctx) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const user = await ctx.table("users").getX(userId)
+			const ownedRooms = await user.edge("ownedRooms").map((ent) => ent.doc())
+			const joinedRooms = await user.edge("joinedRooms").map((ent) => ent.doc())
 			return [...ownedRooms, ...joinedRooms]
-		}).pipe(Effect.orElseSucceed(() => []))
+		} catch (error) {
+			return []
+		}
 	},
 })
 
-export const get = effectQuery({
+export const get = query({
 	args: {
 		id: v.string(),
 	},
-	handler(ctx, args) {
-		const id = ctx.table("rooms").normalizeId(args.id)
+	async handler(ctx, args) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const id = ctx.table("rooms").normalizeId(args.id)
 
-		let ent
-		if (id) {
-			ent = queryEnt(ctx.table("rooms").get(id))
-		} else {
-			ent = queryEnt(ctx.table("rooms").get("slug", args.id))
+			let ent
+			if (id) {
+				ent = await ctx.table("rooms").getX(id)
+			} else {
+				ent = await ctx.table("rooms").getX("slug", args.id)
+			}
+
+			return normalizeRoom(ent, userId)
+		} catch (error) {
+			return null
 		}
-
-		return pipe(
-			Effect.all([ent, getAuthUserId(ctx)]),
-			Effect.map(([ent, userId]) => normalizeRoom(ent, userId)),
-			Effect.orElseSucceed(() => null),
-		)
 	},
 })
 
-export const create = effectMutation({
+export const create = mutation({
 	args: {
 		name: v.string(),
 		slug: v.string(),
 	},
-	handler(ctx, args) {
-		return pipe(
-			getAuthUserId(ctx),
-			Effect.flatMap((userId) =>
-				pipe(
-					Effect.promise(() => ctx.table("rooms").get("slug", args.slug)),
-					Effect.filterOrDie(
-						(ent) => ent == null,
-						() =>
-							new ConvexError(
-								`The URL "${args.slug}" is already taken. Choose another one.`,
-							),
-					),
-					Effect.flatMap(() =>
-						Effect.promise(() =>
-							ctx.table("rooms").insert({
-								...args,
-								ownerId: userId,
-							}),
-						),
-					),
-				),
-			),
-			Effect.orDie,
-		)
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
+		const existingRoom = await ctx.table("rooms").get("slug", args.slug)
+		if (existingRoom) {
+			throw new ConvexError(
+				`The URL "${args.slug}" is already taken. Choose another one.`,
+			)
+		}
+		return await ctx.table("rooms").insert({
+			...args,
+			ownerId: userId,
+		})
 	},
 })
 
-export const update = effectMutation({
+export const update = mutation({
 	args: {
 		...partial(tableFields("rooms")),
 		roomId: v.id("rooms"),
@@ -96,107 +76,100 @@ export const update = effectMutation({
 			v.record(v.string(), v.union(roomItemValidator, v.null())),
 		),
 	},
-	handler(ctx, { roomId, ...props }) {
-		return pipe(
-			queryViewerOwnedRoom(ctx.table("rooms").get(roomId)),
-			Effect.flatMap(({ room }) =>
-				Effect.promise(() =>
-					room.patch({
-						...props,
-						items: pickBy(
-							{ ...room.items, ...props.items },
-							(it) => it !== null,
-						),
-					}),
-				),
-			),
-			Effect.orDie,
+	async handler(ctx, { roomId, ...props }) {
+		const { room } = await queryViewerOwnedRoom(
+			ctx,
+			ctx.table("rooms").get(roomId),
 		)
+		return await room.patch({
+			...props,
+			items: pickBy({ ...room.items, ...props.items }, (it) => it !== null),
+		})
 	},
 })
 
-export const remove = effectMutation({
+export const remove = mutation({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, args) {
-		return pipe(
-			queryViewerOwnedRoom(ctx.table("rooms").get(args.roomId)),
-			Effect.flatMap(({ room }) => Effect.promise(() => room.delete())),
-			Effect.orDie,
+	async handler(ctx, args) {
+		const { room } = await queryViewerOwnedRoom(
+			ctx,
+			ctx.table("rooms").get(args.roomId),
 		)
+		await room.delete()
 	},
 })
 
-export const getJoined = effectQuery({
+export const getJoined = query({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, { roomId }) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const room = yield* queryEnt(ctx.table("rooms").get(roomId))
+	async handler(ctx, { roomId }) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const room = await ctx.table("rooms").getX(roomId)
 
 			if (room.ownerId === userId) {
 				return true
 			}
 
-			const players = yield* Effect.promise(() => room.edge("players").docs())
+			const players = await room.edge("players").docs()
 			return players.some((it) => it._id === userId)
-		}).pipe(Effect.orElseSucceed(() => false))
+		} catch (error) {
+			return false
+		}
 	},
 })
 
-export const join = effectMutation({
+export const join = mutation({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, { roomId }) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-
-			yield* Effect.promise(() =>
-				ctx
-					.table("users")
-					.getX(userId)
-					.patch({
-						joinedRooms: {
-							add: [roomId],
-						},
-					}),
-			)
-		}).pipe(Effect.orDie)
+	async handler(ctx, { roomId }) {
+		const userId = await ensureUserId(ctx)
+		await ctx
+			.table("users")
+			.getX(userId)
+			.patch({
+				joinedRooms: {
+					add: [roomId],
+				},
+			})
 	},
 })
 
-export const getPlayers = effectQuery({
+export const getPlayers = query({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, { roomId }) {
-		return Effect.gen(function* () {
-			const { room } = yield* queryViewerOwnedRoom(
+	async handler(ctx, { roomId }) {
+		try {
+			const { room } = await queryViewerOwnedRoom(
+				ctx,
 				ctx.table("rooms").get(roomId),
 			)
-			return yield* Effect.promise(() => room.edge("players").docs())
-		}).pipe(Effect.orElseSucceed(() => []))
+			return await room.edge("players").docs()
+		} catch (error) {
+			return []
+		}
 	},
 })
 
-export const getCombat = effectQuery({
+export const getCombat = query({
 	args: {
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, { roomId }) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-
-			const room = yield* queryEnt(ctx.table("rooms").get(roomId))
+	async handler(ctx, { roomId }) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const room = await ctx.table("rooms").getX(roomId)
 			const { combat } = room
 			if (combat == null) return null
-
-			return yield* normalizeRoomCombat(room, userId)
-		}).pipe(Effect.orElseSucceed(() => null))
+			return await normalizeRoomCombat(room, userId)
+		} catch (error) {
+			return null
+		}
 	},
 })
 
@@ -233,19 +206,17 @@ const updateCombatActionValidator = v.union(
 	}),
 )
 
-export const updateCombat = effectMutation({
+export const updateCombat = mutation({
 	args: {
 		roomId: v.id("rooms"),
 		action: updateCombatActionValidator,
 	},
-	handler(ctx, { roomId, action }) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const room = yield* queryEnt(ctx.table("rooms").get(roomId))
-			const combat = yield* normalizeRoomCombat(room, userId)
-			const updated = yield* getNextCombatState(combat, action)
-			yield* Effect.promise(() => room.patch({ combat: updated }))
-		}).pipe(Effect.orDie)
+	async handler(ctx, { roomId, action }) {
+		const userId = await ensureUserId(ctx)
+		const room = await ctx.table("rooms").getX(roomId)
+		const combat = await normalizeRoomCombat(room, userId)
+		const updated = getNextCombatState(combat, action)
+		await room.patch({ combat: updated })
 	},
 })
 
@@ -267,110 +238,92 @@ export function isRoomOwner(room: Doc<"rooms">, userId: Id<"users">) {
 	return room.ownerId === userId
 }
 
-export function queryViewerOwnedRoom<
+export async function queryViewerOwnedRoom<
 	Query extends PromiseEntOrNull<typeof entDefinitions, "rooms">,
->(query: Query) {
-	return pipe(
-		Effect.Do,
-		Effect.bind("ctx", () => getQueryCtx()),
-		Effect.bind("userId", ({ ctx }) => getAuthUserId(ctx)),
-		Effect.bind("room", () => Effect.promise(() => query)),
-		Effect.filterOrFail(
-			({ room, userId }) => room != null && room.ownerId === userId,
-			() => new InaccessibleError({ table: "rooms" }),
-		),
-		Effect.map(({ room, userId }) => ({
-			userId,
-			room: room as NonNullable<Awaited<Query>>,
-		})),
-	)
+>(ctx: EntQueryCtx, query: Query) {
+	const userId = await ensureUserId(ctx)
+	const room = await query
+	if (!room || room.ownerId !== userId) {
+		throw new InaccessibleError({ table: "rooms" })
+	}
+	return { userId, room: room as NonNullable<Awaited<Query>> }
 }
 
 type NormalizedRoomCombat = NonNullable<
-	Effect.Effect.Success<ReturnType<typeof normalizeRoomCombat>>
+	Awaited<ReturnType<typeof normalizeRoomCombat>>
 >
 
-function normalizeRoomCombat(room: Ent<"rooms">, userId: Id<"users">) {
-	return Effect.gen(function* () {
-		const { combat } = room
-		if (combat == null) return null
+async function normalizeRoomCombat(room: Ent<"rooms">, userId: Id<"users">) {
+	const { combat } = room
+	if (combat == null) return null
 
-		const memberDocs = yield* Effect.promise(() =>
-			room
-				.edge("characters")
-				.filter((q) =>
-					q.or(...combat.memberIds.map((id) => q.eq(q.field("_id"), id))),
-				),
+	const memberDocs = await room
+		.edge("characters")
+		.filter((q) =>
+			q.or(...combat.memberIds.map((id) => q.eq(q.field("_id"), id))),
 		)
 
-		const orderedMembers = memberDocs
-			.map(normalizeCharacter)
-			.sort((a, b) => b.resolveMax - a.resolveMax)
-			.sort((a, b) => b.attributes.mobility - a.attributes.mobility)
+	const orderedMembers = memberDocs
+		.map(normalizeCharacter)
+		.sort((a, b) => b.resolveMax - a.resolveMax)
+		.sort((a, b) => b.attributes.mobility - a.attributes.mobility)
 
-		const currentMemberIndex = Math.max(
-			orderedMembers.findIndex((it) => it._id === combat.currentMemberId),
-			0,
-		)
+	const currentMemberIndex = Math.max(
+		orderedMembers.findIndex((it) => it._id === combat.currentMemberId),
+		0,
+	)
 
-		return {
-			...combat,
-			members: orderedMembers.map((character, index) => ({
-				id: character._id,
-				imageId: character.imageId,
-				character: protectCharacter(character, userId, room),
-				isCurrent: index === currentMemberIndex,
-			})),
-			currentMemberIndex,
-		}
-	})
+	return {
+		...combat,
+		members: orderedMembers.map((character, index) => ({
+			id: character._id,
+			imageId: character.imageId,
+			character: protectCharacter(character, userId, room),
+			isCurrent: index === currentMemberIndex,
+		})),
+		currentMemberIndex,
+	}
 }
 
 function getNextCombatState(
 	combat: NormalizedRoomCombat | null,
 	action: UpdateCombatAction,
-): Effect.Effect<Doc<"rooms">["combat"], ConvexError<string>> {
-	return Effect.gen(function* () {
-		if (action.type === "start") {
-			return { memberIds: [] }
-		}
+): Doc<"rooms">["combat"] {
+	if (action.type === "start") {
+		return { memberIds: [] }
+	}
 
-		if (combat == null) {
-			return yield* Effect.fail(
-				new ConvexError("Invalid state: combat must be started first"),
-			)
-		}
+	if (combat == null) {
+		throw new ConvexError("Invalid state: combat must be started first")
+	}
 
-		let memberIds = List.from(combat.members)
-			.map((it) => it.id)
-			.compact()
+	let memberIds = List.from(combat.members)
+		.map((it) => it.id)
+		.compact()
 
-		let currentMemberId = combat.currentMemberId
+	let currentMemberId = combat.currentMemberId
 
-		if (action.type === "addMembers") {
-			memberIds.push(...action.memberIds)
-		} else if (action.type === "removeMembers") {
-			memberIds = memberIds.without(...action.memberIds)
-		} else if (action.type === "setCurrentMember") {
-			currentMemberId = action.memberId
-		} else if (action.type === "moveMember") {
-			// this one doesn't make sense lol
-		} else if (action.type === "advance") {
-			currentMemberId =
-				memberIds[mod(combat.currentMemberIndex + 1, memberIds.length)]
-		} else if (action.type === "rewind") {
-			currentMemberId =
-				memberIds[mod(combat.currentMemberIndex - 1, memberIds.length)]
-		} else if (action.type === "stop") {
-			return null
-		} else {
-			return yield* Effect.fail(
-				new ConvexError(
-					`Unexpected action: ${JSON.stringify(action, null, 2)}`,
-				),
-			)
-		}
+	if (action.type === "addMembers") {
+		memberIds.push(...action.memberIds)
+	} else if (action.type === "removeMembers") {
+		memberIds = memberIds.without(...action.memberIds)
+	} else if (action.type === "setCurrentMember") {
+		currentMemberId = action.memberId
+	} else if (action.type === "moveMember") {
+		// this one doesn't make sense lol
+	} else if (action.type === "advance") {
+		currentMemberId =
+			memberIds[mod(combat.currentMemberIndex + 1, memberIds.length)]
+	} else if (action.type === "rewind") {
+		currentMemberId =
+			memberIds[mod(combat.currentMemberIndex - 1, memberIds.length)]
+	} else if (action.type === "stop") {
+		return null
+	} else {
+		throw new ConvexError(
+			`Unexpected action: ${JSON.stringify(action, null, 2)}`,
+		)
+	}
 
-		return { memberIds, currentMemberId }
-	})
+	return { memberIds, currentMemberId }
 }

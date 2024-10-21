@@ -3,8 +3,8 @@ import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
 import { literals, nullable } from "convex-helpers/validators"
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
+import { diceRollResultValidator } from "./dice.ts"
 import { nullish, partial } from "./lib/validators.ts"
-import { diceRollResultValidator } from "./validators/dice.ts"
 
 export const roomItemValidator = v.object({
 	name: v.string(),

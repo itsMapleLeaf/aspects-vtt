@@ -1,79 +1,81 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { Effect } from "effect"
 import { defaults, pick } from "lodash-es"
-import { getAuthUserId } from "~/convex/auth.ts"
+import { ensureUserId } from "~/convex/auth.new.ts"
 import {
 	ensureCharacterEntAdmin,
 	isCharacterAdmin,
 	normalizeCharacter,
 	protectCharacter,
 } from "~/convex/characters.ts"
-import { effectMutation, effectQuery, queryEnt } from "~/convex/lib/effects.ts"
+import { mutation, query } from "./lib/ents.ts"
 import { tableFields } from "./lib/validators.ts"
 import { queryViewerOwnedRoom } from "./rooms.ts"
 
-export const list = effectQuery({
+export const list = query({
 	args: {
 		sceneId: v.id("scenes"),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const scene = yield* queryEnt(ctx.table("scenes").get(args.sceneId))
-			const room = yield* queryEnt(scene.edge("room"))
+	async handler(ctx, args) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const scene = await ctx.table("scenes").getX(args.sceneId)
+			const room = await scene.edgeX("room")
 
-			return yield* Effect.promise(() =>
-				scene
-					.edge("characterTokens")
-					.map(async (token) => {
-						const character = protectCharacter(
-							{
-								...normalizeCharacter(await token.edge("character")),
-								// if the token is visible, also treat this character as being public
-								// for the sake of this function
-								visible: token.visible,
-							},
-							userId,
-							room,
-						)
+			const tokens = await scene.edge("characterTokens")
+			const protectedTokens = await Promise.all(
+				tokens.map(async (token) => {
+					const characterEnt = await token.edge("character")
+					const character = protectCharacter(
+						{
+							...normalizeCharacter(characterEnt),
+							// if the token is visible, also treat this character as being public
+							// for the sake of this function
+							visible: token.visible,
+						},
+						userId,
+						room,
+					)
 
-						if (!character) {
-							return
-						}
+					if (!character) {
+						return null
+					}
 
-						return {
-							...defaults(token.doc(), {
-								position: { x: 0, y: 0 },
-								visible: false,
-								updatedAt: 0,
-							}),
-							character,
-						}
-					})
-					.filter((result) => result != null),
+					return {
+						...defaults(token.doc(), {
+							position: { x: 0, y: 0 },
+							visible: false,
+							updatedAt: 0,
+						}),
+						character,
+					}
+				}),
 			)
-		}).pipe(Effect.orElseSucceed(() => []))
+
+			return protectedTokens.filter((token) => token !== null)
+		} catch (error) {
+			return []
+		}
 	},
 })
 
-export const get = effectQuery({
+export const get = query({
 	args: {
 		characterId: v.id("characters"),
 		sceneId: v.id("scenes"),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			return yield* queryEnt(
-				ctx
-					.table("characterTokens")
-					.get("characterId_sceneId", args.characterId, args.sceneId),
-			)
-		}).pipe(Effect.orElseSucceed(() => null))
+	async handler(ctx, args) {
+		try {
+			return await ctx
+				.table("characterTokens")
+				.getX("characterId_sceneId", args.characterId, args.sceneId)
+		} catch (error) {
+			return null
+		}
 	},
 })
 
-export const create = effectMutation({
+export const create = mutation({
 	args: {
 		inputs: v.array(
 			v.object({
@@ -84,24 +86,20 @@ export const create = effectMutation({
 			}),
 		),
 	},
-	handler(ctx, { inputs }) {
-		return Effect.gen(function* () {
-			for (const args of inputs) {
-				const scene = yield* queryEnt(ctx.table("scenes").get(args.sceneId))
-				yield* queryViewerOwnedRoom(scene.edge("room"))
+	async handler(ctx, { inputs }) {
+		for (const args of inputs) {
+			const scene = await ctx.table("scenes").getX(args.sceneId)
+			await queryViewerOwnedRoom(ctx, scene.edgeX("room"))
 
-				yield* Effect.promise(() =>
-					ctx.table("characterTokens").insert({
-						...args,
-						updatedAt: Date.now(),
-					}),
-				)
-			}
-		}).pipe(Effect.orDie)
+			await ctx.table("characterTokens").insert({
+				...args,
+				updatedAt: Date.now(),
+			})
+		}
 	},
 })
 
-export const update = effectMutation({
+export const update = mutation({
 	args: {
 		updates: v.array(
 			v.object({
@@ -110,37 +108,31 @@ export const update = effectMutation({
 			}),
 		),
 	},
-	handler(ctx, { updates }) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			for (const { tokenId, ...props } of updates) {
-				const token = yield* queryEnt(ctx.table("characterTokens").get(tokenId))
-				const character = yield* queryEnt(token.edge("character"))
-				const room = yield* queryEnt(character.edge("room"))
-				if (!isCharacterAdmin(character, room, userId)) {
-					yield* Effect.promise(() =>
-						token.patch(pick(props, ["updatedAt", "position"])),
-					)
-				} else {
-					yield* Effect.promise(() => token.patch(props))
-				}
+	async handler(ctx, { updates }) {
+		const userId = await ensureUserId(ctx)
+		for (const { tokenId, ...props } of updates) {
+			const token = await ctx.table("characterTokens").getX(tokenId)
+			const character = await token.edgeX("character")
+			const room = await character.edgeX("room")
+			if (!isCharacterAdmin(character, room, userId)) {
+				await token.patch(pick(props, ["updatedAt", "position"]))
+			} else {
+				await token.patch(props)
 			}
-		}).pipe(Effect.orDie)
+		}
 	},
 })
 
-export const remove = effectMutation({
+export const remove = mutation({
 	args: {
 		tokenIds: v.array(v.id("characterTokens")),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			for (const tokenId of args.tokenIds) {
-				const token = yield* queryEnt(ctx.table("characterTokens").get(tokenId))
-				const character = yield* queryEnt(token.edge("character"))
-				yield* Effect.promise(() => ensureCharacterEntAdmin(ctx, character))
-				yield* Effect.promise(() => token.delete())
-			}
-		}).pipe(Effect.orDie)
+	async handler(ctx, args) {
+		for (const tokenId of args.tokenIds) {
+			const token = await ctx.table("characterTokens").getX(tokenId)
+			const character = await token.edgeX("character")
+			await ensureCharacterEntAdmin(ctx, character)
+			await token.delete()
+		}
 	},
 })

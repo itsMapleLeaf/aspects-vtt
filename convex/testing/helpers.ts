@@ -6,15 +6,17 @@ export function createConvexTest() {
 	return convexTest(schema, import.meta.glob("../**/*.ts"))
 }
 
+let nextId = 0
 export async function createConvexTestWithIdentity(
 	convex = createConvexTest(),
+	{ name = `maple_${nextId++}` } = {},
 ): Promise<TestConvexForDataModel<DataModel>> {
 	const userId = await convex.run(async (ctx) => {
 		return await ctx.db.insert("users", {})
 	})
 
 	return convex.withIdentity({
-		name: "testUser",
+		name,
 		subject: userId as Id<"users">,
 	})
 }
