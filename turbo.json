@@ -15,7 +15,7 @@
 			"persistent": true
 		},
 		"codegen": {
-			"inputs": ["convex/**/*", "!convex/_generated"],
+			"inputs": ["convex/**/*.ts"],
 			"outputs": ["convex/_generated/**"]
 		},
 		"build": {
@@ -27,7 +27,6 @@
 			"dependsOn": ["build"],
 			"persistent": true
 		},
-		"deploy": {},
 		"format": {},
 		"typecheck": {
 			"dependsOn": ["codegen"],
