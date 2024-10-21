@@ -1,6 +1,5 @@
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError, v } from "convex/values"
-import { Effect, pipe } from "effect"
 import { compact } from "lodash-es"
 import { match } from "ts-pattern"
 import {
@@ -10,16 +9,11 @@ import {
 import { DEFAULT_WEALTH_TIER } from "~/features/characters/wealth.ts"
 import { rollDice } from "../shared/random.ts"
 import { Doc, type Id } from "./_generated/dataModel"
-import { InaccessibleError, ensureUserId, getAuthUserId } from "./auth.ts"
-import {
-	effectMutation,
-	effectQuery,
-	getQueryCtx,
-	queryEnt,
-} from "./lib/effects.ts"
+import { InaccessibleError, ensureUserId } from "./auth.new.ts"
 import {
 	EntQueryCtx,
 	mutation,
+	query,
 	type Ent,
 	type EntMutationCtx,
 } from "./lib/ents.ts"
@@ -27,32 +21,29 @@ import { partial } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"
 import schema from "./schema.ts"
 
-export const get = effectQuery({
+export const get = query({
 	args: {
 		characterId: v.id("characters"),
 	},
-	handler(ctx, args) {
-		return pipe(
-			Effect.gen(function* () {
-				const userId = yield* getAuthUserId(ctx)
-				const ent = yield* queryEnt(
-					ctx.table("characters").get(args.characterId),
-				)
-				return yield* protectCharacterEnt(ent, userId)
-			}),
-			Effect.orElseSucceed(() => null),
-		)
+	async handler(ctx, args) {
+		try {
+			const userId = await ensureUserId(ctx)
+			const ent = await ctx.table("characters").getX(args.characterId)
+			return await protectCharacterEnt(ent, userId)
+		} catch (error) {
+			return null
+		}
 	},
 })
 
-export const list = effectQuery({
+export const list = query({
 	args: {
 		roomId: v.id("rooms"),
 		search: v.optional(v.string()),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
+	async handler(ctx, args) {
+		try {
+			const userId = await ensureUserId(ctx)
 
 			let query
 			if (args.search) {
@@ -67,27 +58,25 @@ export const list = effectQuery({
 				)
 			}
 
-			return yield* pipe(
-				Effect.promise(() => query),
-				Effect.flatMap(
-					Effect.forEach((ent) => protectCharacterEnt(ent, userId)),
-				),
-				Effect.map(compact),
+			const characters = await query
+			const protectedCharacters = await Promise.all(
+				characters.map((ent) => protectCharacterEnt(ent, userId)),
 			)
-		}).pipe(Effect.orElseSucceed(() => []))
+			return compact(protectedCharacters)
+		} catch (error) {
+			return []
+		}
 	},
 })
 
-export const create = effectMutation({
+export const create = mutation({
 	args: {
 		...partial(schema.tables.characters.validator.fields),
 		roomId: v.id("rooms"),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			return yield* createCharacter(ctx, userId, args)
-		}).pipe(Effect.orDie)
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
+		return await createCharacter(ctx, userId, args)
 	},
 })
 
@@ -133,7 +122,7 @@ export const update = mutation({
 	},
 })
 
-export const updateMany = effectMutation({
+export const updateMany = mutation({
 	args: {
 		...partial(schema.tables.characters.validator.fields),
 		characterId: v.optional(v.id("characters")),
@@ -158,84 +147,74 @@ export const updateMany = effectMutation({
 			),
 		),
 	},
-	handler(ctx, { updates = [], ...args }) {
-		return Effect.gen(function* () {
-			if (args.characterId) {
-				updates.push({ ...args, characterId: args.characterId })
-			}
-			const results = []
-			for (const { characterId, aspectSkills, ...props } of updates) {
-				const { character } = yield* queryViewableCharacter(
-					ctx.table("characters").get(characterId),
-				)
+	async handler(ctx, { updates = [], ...args }) {
+		if (args.characterId) {
+			updates.push({ ...args, characterId: args.characterId })
+		}
+		const results = []
+		for (const { characterId, aspectSkills, ...props } of updates) {
+			const { character } = await queryViewableCharacter(
+				ctx,
+				ctx.table("characters").get(characterId),
+			)
 
-				const newAspectSkills = { ...character.aspectSkills }
-				if (aspectSkills?.add) {
-					newAspectSkills[aspectSkills.add] = aspectSkills.add
-				}
-				if (aspectSkills?.remove) {
-					delete newAspectSkills[aspectSkills.remove]
-				}
-
-				results.push(
-					yield* Effect.promise(() =>
-						character.patch({ ...props, aspectSkills: newAspectSkills }).get(),
-					),
-				)
+			const newAspectSkills = { ...character.aspectSkills }
+			if (aspectSkills?.add) {
+				newAspectSkills[aspectSkills.add] = aspectSkills.add
 			}
-			return results
-		}).pipe(Effect.orDie)
+			if (aspectSkills?.remove) {
+				delete newAspectSkills[aspectSkills.remove]
+			}
+
+			results.push(
+				await character
+					.patch({ ...props, aspectSkills: newAspectSkills })
+					.get(),
+			)
+		}
+		return results
 	},
 })
 
-export const remove = effectMutation({
+export const remove = mutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 	},
-	handler(ctx, args) {
-		return pipe(
-			Effect.forEach(args.characterIds, (id) =>
-				pipe(
-					queryViewableCharacter(ctx.table("characters").get(id)),
-					Effect.flatMap(({ character }) =>
-						Effect.promise(() => character.delete()),
-					),
-				),
+	async handler(ctx, args) {
+		for (const id of args.characterIds) {
+			const { character } = await queryViewableCharacter(
+				ctx,
+				ctx.table("characters").get(id),
+			)
+			await character.delete()
+		}
+	},
+})
+
+export const duplicate = mutation({
+	args: {
+		characterIds: v.array(v.id("characters")),
+	},
+	async handler(ctx, args) {
+		const characters = await ctx
+			.table("characters")
+			.getManyX(args.characterIds)
+			.docs()
+		return await Promise.all(
+			characters.map(({ _id, _creationTime, ...props }) =>
+				ctx.table("characters").insert(props),
 			),
-			Effect.asVoid,
-			Effect.orDie,
 		)
 	},
 })
 
-export const duplicate = effectMutation({
-	args: {
-		characterIds: v.array(v.id("characters")),
-	},
-	handler(ctx, args) {
-		return pipe(
-			Effect.promise(() =>
-				ctx.table("characters").getManyX(args.characterIds).docs(),
-			),
-			Effect.flatMap(
-				Effect.forEach(({ _id, _creationTime, ...props }) =>
-					Effect.promise(() => ctx.table("characters").insert(props)),
-				),
-			),
-			Effect.orDie,
-		)
-	},
-})
-
-export function protectCharacterEnt(
+export async function protectCharacterEnt(
 	ent: Ent<"characters">,
 	userId: Id<"users">,
 ) {
-	return Effect.gen(function* () {
-		const room = yield* Effect.promise(() => ent.edge("room"))
-		const normalized = normalizeCharacter(ent.doc())
-		return protectCharacter(normalized, userId, room)
-	})
+	const room = await ent.edgeX("room")
+	const normalized = normalizeCharacter(ent.doc())
+	return protectCharacter(normalized, userId, room)
 }
 
 function createCharacter(
@@ -245,14 +224,12 @@ function createCharacter(
 		roomId: Id<"rooms">
 	},
 ) {
-	return Effect.promise(() =>
-		ctx.table("characters").insert({
-			name: "New Character",
-			...args,
-			ownerId: userId,
-			updatedAt: Date.now(),
-		}),
-	)
+	return ctx.table("characters").insert({
+		name: "New Character",
+		...args,
+		ownerId: userId,
+		updatedAt: Date.now(),
+	})
 }
 
 export type NormalizedCharacter = ReturnType<typeof normalizeCharacter>
@@ -303,33 +280,27 @@ export type ProtectedCharacter = NonNullable<
 	ReturnType<typeof protectCharacter>
 >
 
-function queryViewableCharacter<EntType extends Ent<"characters">>(
+async function queryViewableCharacter<EntType extends Ent<"characters">>(
+	ctx: EntQueryCtx,
 	query: PromiseLike<EntType | null>,
 ) {
-	return Effect.gen(function* () {
-		const ctx = yield* getQueryCtx()
-		const userId = yield* getAuthUserId(ctx)
+	const character = await query
+	if (!character) {
+		throw new InaccessibleError({ table: "characters" })
+	}
 
-		const character = yield* Effect.filterOrFail(
-			Effect.promise(() => query),
-			(ent) => ent != null,
-			() => new InaccessibleError({ table: "characters" }),
-		)
+	const room = await character.edgeX("room")
+	const userId = await ensureUserId(ctx)
+	const authorized =
+		isRoomOwner(room, userId) ||
+		character.playerId === userId ||
+		character.ownerId === userId
 
-		const room = yield* Effect.promise(() => character.edge("room"))
-		const authorized =
-			isRoomOwner(room, userId) ||
-			character.playerId === userId ||
-			character.ownerId === userId
+	if (!authorized) {
+		throw new InaccessibleError({ table: "characters" })
+	}
 
-		if (!authorized) {
-			return yield* Effect.fail(
-				() => new InaccessibleError({ table: "characters" }),
-			)
-		}
-
-		return { character, room, userId }
-	})
+	return { character, room, userId }
 }
 
 export function protectCharacter(
@@ -385,23 +356,19 @@ export function isCharacterAdmin(
 	)
 }
 
-export function ensureCharacterEntAdmin(
+export async function ensureCharacterEntAdmin(
 	ctx: EntQueryCtx,
 	character: Ent<"characters">,
 ) {
-	return Effect.gen(function* () {
-		const userId = yield* getAuthUserId(ctx)
-		const room = yield* queryEnt(character.edge("room"))
-		if (isCharacterAdmin(character, room, userId)) {
-			return character
-		}
-		return yield* Effect.fail(
-			new InaccessibleError({ id: character._id, table: "characters" }),
-		)
-	})
+	const userId = await ensureUserId(ctx)
+	const room = await character.edgeX("room")
+	if (isCharacterAdmin(character, room, userId)) {
+		return character
+	}
+	throw new InaccessibleError({ id: character._id, table: "characters" })
 }
 
-export const attack = effectMutation({
+export const attack = mutation({
 	args: {
 		characterIds: v.array(v.id("characters")),
 		attackerId: v.id("characters"),
@@ -415,124 +382,108 @@ export const attack = effectMutation({
 		pushYourself: v.boolean(),
 		sneakAttack: v.boolean(),
 	},
-	handler(ctx, args) {
-		return Effect.gen(function* () {
-			const userId = yield* getAuthUserId(ctx)
-			const { characterIds, attackerId, attribute, pushYourself, sneakAttack } =
-				args
+	async handler(ctx, args) {
+		const userId = await ensureUserId(ctx)
+		const { characterIds, attackerId, attribute, pushYourself, sneakAttack } =
+			args
 
-			// Get the attacker
-			const { character: attackerEnt } = yield* queryViewableCharacter(
-				ctx.table("characters").get(attackerId),
-			)
-			const attackerNormalized = normalizeCharacter(attackerEnt.doc())
+		const { character: attackerEnt } = await queryViewableCharacter(
+			ctx,
+			ctx.table("characters").get(attackerId),
+		)
+		const attackerNormalized = normalizeCharacter(attackerEnt.doc())
 
-			// Calculate attack damage
-			const attackerDie = getAttributeDie(
-				attackerNormalized.attributes[attribute],
-			)
-			const attackRoll = rollDice(attackerDie, 2) // Roll two dice
-			let damage = attackRoll.total
-			let newResolve = attackerNormalized.resolve
+		const attackerDie = getAttributeDie(
+			attackerNormalized.attributes[attribute],
+		)
+		const attackRoll = rollDice(attackerDie, 2)
+		let damage = attackRoll.total
+		let newResolve = attackerNormalized.resolve
 
-			if (sneakAttack) {
-				damage *= 2 // Double the damage for sneak attack
-				// Reduce attacker's resolve for sneak attack
-				newResolve -= 3
-			}
+		if (sneakAttack) {
+			damage *= 2
+			newResolve -= 3
+		}
 
-			let boostRoll: ReturnType<typeof rollDice> | undefined
-			if (pushYourself) {
-				boostRoll = rollDice(6, 1) // Roll one d6 as boost die
-				damage += boostRoll.total
+		let boostRoll: ReturnType<typeof rollDice> | undefined
+		if (pushYourself) {
+			boostRoll = rollDice(6, 1)
+			damage += boostRoll.total
+			newResolve -= 2
+		}
 
-				// Reduce attacker's resolve for pushing
-				newResolve -= 2
-			}
+		if (newResolve !== attackerNormalized.resolve) {
+			await attackerEnt.patch({
+				resolve: Math.max(0, newResolve),
+			})
+		}
 
-			if (newResolve !== attackerNormalized.resolve) {
-				yield* Effect.promise(() =>
-					attackerEnt.patch({
-						resolve: Math.max(0, newResolve),
-					}),
-				)
-			}
+		const defenders = await Promise.all(
+			characterIds.map(async (id) => {
+				const ent = await ctx.table("characters").getX(id)
+				return normalizeCharacter(ent.doc())
+			}),
+		)
 
-			const defenders = yield* Effect.forEach(characterIds, (id) =>
-				Effect.promise(() =>
-					ctx
-						.table("characters")
-						.getX(id)
-						.then((ent) => normalizeCharacter(ent.doc())),
-				),
-			)
+		const mention = (character: { _id: Id<"characters"> }) =>
+			`<@${character._id}>`
 
-			const mention = (character: { _id: Id<"characters"> }) =>
-				`<@${character._id}>`
+		const defenderText =
+			defenders.length === 1
+				? mention(defenders[0]!)
+				: `${defenders.length} targets`
 
-			const defenderText =
-				defenders.length === 1
-					? mention(defenders[0]!)
-					: `${defenders.length} targets`
+		const messageContent: Doc<"messages">["content"] = [
+			{
+				type: "text",
+				text: `${mention(attackerEnt)} made an attack against ${
+					defenderText
+				} for ${damage} damage.`,
+			},
+			{
+				type: "dice",
+				dice: [
+					...attackRoll.results.map((result) => ({
+						faces: attackerDie,
+						result: result,
+					})),
+					...(boostRoll
+						? [{ faces: 6, result: boostRoll.total, color: "green" }]
+						: []),
+				],
+			},
+		]
 
-			const messageContent: Doc<"messages">["content"] = [
-				{
-					type: "text",
-					text: `${mention(attackerEnt)} made an attack against ${
-						defenderText
-					} for ${damage} damage.`,
-				},
-				{
-					type: "dice",
-					dice: [
-						...attackRoll.results.map((result) => ({
-							faces: attackerDie,
-							result: result,
-						})),
-						...(boostRoll
-							? [{ faces: 6, result: boostRoll.total, color: "green" }]
-							: []),
-					],
-				},
-			]
-
-			// Process defenders
-			for (const defender of defenders) {
-				const evasion = getAttributeDie(defender.attributes.mobility)
-				if (evasion > damage) {
-					messageContent.push({
-						type: "text",
-						text: `${mention(defender)} evaded with ${evasion} evasion.`,
-					})
-					return
-				}
-
-				const defense = getAttributeDie(defender.attributes.strength)
-				const damageTaken = Math.max(1, damage - defense)
-				const health = Math.max(0, defender.health - damageTaken)
-
-				yield* Effect.promise(() =>
-					ctx.table("characters").getX(defender._id).patch({ health: health }),
-				)
-
+		for (const defender of defenders) {
+			const evasion = getAttributeDie(defender.attributes.mobility)
+			if (evasion > damage) {
 				messageContent.push({
 					type: "text",
-					text: `${mention(defender)} reduced the damage by ${defense} and lost ${damageTaken} health. ${
-						health === 0 ? " They are down." : ""
-					}`,
+					text: `${mention(defender)} evaded with ${evasion} evasion.`,
 				})
+				return
 			}
 
-			// Create a message about the attack
-			yield* Effect.promise(() =>
-				ctx.table("messages").insert({
-					roomId: attackerEnt.roomId,
-					authorId: userId,
-					content: messageContent,
-				}),
-			)
+			const defense = getAttributeDie(defender.attributes.strength)
+			const damageTaken = Math.max(1, damage - defense)
+			const health = Math.max(0, defender.health - damageTaken)
 
-			return { success: true }
-		}).pipe(Effect.orDie)
+			await ctx.table("characters").getX(defender._id).patch({ health: health })
+
+			messageContent.push({
+				type: "text",
+				text: `${mention(defender)} reduced the damage by ${defense} and lost ${damageTaken} health. ${
+					health === 0 ? " They are down." : ""
+				}`,
+			})
+		}
+
+		await ctx.table("messages").insert({
+			roomId: attackerEnt.roomId,
+			authorId: userId,
+			content: messageContent,
+		})
+
+		return { success: true }
 	},
 })

@@ -138,7 +138,7 @@ export const remove = effectMutation({
 			for (const tokenId of args.tokenIds) {
 				const token = yield* queryEnt(ctx.table("characterTokens").get(tokenId))
 				const character = yield* queryEnt(token.edge("character"))
-				yield* ensureCharacterEntAdmin(ctx, character)
+				yield* Effect.promise(() => ensureCharacterEntAdmin(ctx, character))
 				yield* Effect.promise(() => token.delete())
 			}
 		}).pipe(Effect.orDie)
