@@ -1,15 +1,14 @@
-import { convexTest, TestConvexForDataModel } from "convex-test"
-import { DataModel, Id } from "../_generated/dataModel"
-import schema from "../schema"
+import { convexTest, type TestConvexForDataModel } from "convex-test"
+import type { DataModel, Id } from "../../convex/_generated/dataModel"
+import schema from "../../convex/schema.ts"
 
 export function createConvexTest() {
 	return convexTest(schema, import.meta.glob("../**/*.ts"))
 }
 
-let nextId = 0
 export async function createConvexTestWithIdentity(
 	convex = createConvexTest(),
-	{ name = `maple_${nextId++}` } = {},
+	{ name = `maple_${crypto.randomUUID()}` } = {},
 ): Promise<TestConvexForDataModel<DataModel>> {
 	const userId = await convex.run(async (ctx) => {
 		return await ctx.db.insert("users", {})

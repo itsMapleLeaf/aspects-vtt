@@ -1,11 +1,11 @@
 import { ConvexError } from "convex/values"
 import { expect, test } from "vitest"
 import { ensure } from "../shared/errors.ts"
-import { api } from "./_generated/api"
 import {
 	createConvexTest,
 	createConvexTestWithIdentity,
-} from "./testing/helpers"
+} from "../src/common/convex-test.ts"
+import { api } from "./_generated/api"
 
 async function setupTestEnvironment() {
 	const convex = createConvexTest()
