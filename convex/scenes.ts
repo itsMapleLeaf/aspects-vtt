@@ -1,7 +1,7 @@
 import { v } from "convex/values"
 import { omit } from "lodash-es"
 import type { Doc } from "./_generated/dataModel"
-import { InaccessibleError, ensureUserId } from "./auth.new.ts"
+import { InaccessibleError, ensureUserId } from "./auth.ts"
 import { mutation, query } from "./lib/ents.ts"
 import { partial, tableFields } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"

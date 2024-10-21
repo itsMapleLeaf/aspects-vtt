@@ -1,7 +1,7 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { defaults, pick } from "lodash-es"
-import { ensureUserId } from "~/convex/auth.new.ts"
+import { ensureUserId } from "~/convex/auth.ts"
 import {
 	ensureCharacterEntAdmin,
 	isCharacterAdmin,

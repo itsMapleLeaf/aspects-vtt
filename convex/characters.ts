@@ -9,7 +9,7 @@ import {
 import { DEFAULT_WEALTH_TIER } from "~/features/characters/wealth.ts"
 import { rollDice } from "../shared/random.ts"
 import { Doc, type Id } from "./_generated/dataModel"
-import { InaccessibleError, ensureUserId } from "./auth.new.ts"
+import { InaccessibleError, ensureUserId } from "./auth.ts"
 import {
 	EntQueryCtx,
 	mutation,

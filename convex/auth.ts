@@ -4,18 +4,19 @@ import { Password } from "@convex-dev/auth/providers/Password"
 import {
 	convexAuth,
 	createAccount,
-	getAuthUserId as getAuthUserIdBase,
+	getAuthUserId,
 	retrieveAccount,
 } from "@convex-dev/auth/server"
 import type { Auth } from "convex/server"
 import { WithoutSystemFields } from "convex/server"
 import { ConvexError } from "convex/values"
-import { Effect, pipe } from "effect"
 import { parse } from "valibot"
-import { raise } from "~/shared/errors.ts"
-import { credentialsPayloadValidator } from "../shared/auth/validators"
+import { ensureSomething } from "~/shared/errors.ts"
+import { credentialsPayloadValidator } from "../shared/auth/validators.ts"
 import { Doc, Id } from "./_generated/dataModel"
 import type { EntQueryCtx } from "./lib/ents.ts"
+
+export { getAuthUserId } from "@convex-dev/auth/server"
 
 export const { auth, signIn, signOut, store } = convexAuth({
 	providers: [
@@ -89,30 +90,14 @@ export class InaccessibleError extends ConvexError<string> {
 	}
 }
 
-export function getAuthUserId(ctx: { auth: Auth }) {
-	return pipe(
-		Effect.promise(() => getAuthUserIdBase(ctx)),
-		Effect.filterOrFail(
-			(id) => id != null,
-			() => new UnauthenticatedError(),
-		),
-	)
-}
-
-export function getAuthUser(ctx: EntQueryCtx) {
-	return pipe(
-		getAuthUserId(ctx),
-		Effect.flatMap((userId) =>
-			Effect.filterOrDieMessage(
-				Effect.promise(() => ctx.table("users").get(userId)),
-				(user) => user != null,
-				`User with ID "${userId}" not found.`,
-			),
-		),
-	)
+export async function getAuthUser(ctx: EntQueryCtx) {
+	const userId = await getAuthUserId(ctx)
+	return userId && (await ctx.table("users").get(userId))
 }
 
 export async function ensureUserId(ctx: { auth: Auth }) {
-	const id = await getAuthUserIdBase(ctx)
-	return id ?? raise(new ConvexError("Not logged in"))
+	return ensureSomething(
+		await getAuthUserId(ctx),
+		new ConvexError("Not logged in"),
+	)
 }

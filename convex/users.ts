@@ -1,4 +1,4 @@
-import { getAuthUser } from "./auth.new.ts"
+import { getAuthUser } from "./auth.ts"
 import { query } from "./lib/ents.ts"
 
 export const me = query({
