@@ -1,0 +1,21 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"project": [
+		"./*.{js,ts}",
+		"{src,docs,scripts,shared,convex}/**/*.{js,ts,ts,tsx,md,mdx}",
+	],
+	"entry": [
+		"convex/**/*.ts",
+		"scripts/**",
+		"src/root.tsx",
+		"src/entry.{client,server}.tsx",
+		"src/routes/**/*.{ts,tsx}",
+		"src/common/testing/convex-backend.ts",
+	],
+	"ignoreDependencies": [
+		"isbot", // needed by remix default entry files
+		"@mdx-js/mdx", // needed for knip to parse mdx files
+		"canvas", // depended on by konva for SSR
+	],
+	"exclude": ["exports", "types"],
+}
