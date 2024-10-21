@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge"
-import { ensureSomething } from "~/shared/errors.ts"
+import { ensure } from "~/shared/errors.ts"
 import { List } from "~/shared/list.ts"
 import { mod } from "../../common/math.ts"
 
@@ -45,7 +45,7 @@ export function getConditionColorClasses(condition: string): string {
 	const hash = List.from(condition)
 		.map((c) => c.codePointAt(0))
 		.sum()
-	result = ensureSomething(conditionColors[mod(hash, conditionColors.length)])
+	result = ensure(conditionColors[mod(hash, conditionColors.length)])
 	cache.set(condition, result)
 	return result
 }

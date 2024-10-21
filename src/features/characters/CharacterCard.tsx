@@ -10,7 +10,7 @@ import { type ProtectedCharacter } from "~/convex/characters.ts"
 import { interactivePanel, panel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
 import { Id } from "../../../convex/_generated/dataModel"
-import { ensureSomething } from "../../../shared/errors.ts"
+import { ensure } from "../../../shared/errors.ts"
 import { Dialog } from "../../components/Dialog.tsx"
 import { Field } from "../../components/Field.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
@@ -159,9 +159,7 @@ export function CharacterCard({
 													characterIds: [character._id],
 												},
 											)
-											afterClone(
-												ensureSomething(id, "no character ID after duplicate"),
-											)
+											afterClone(ensure(id, "no character ID after duplicate"))
 										}}
 									>
 										<Button
