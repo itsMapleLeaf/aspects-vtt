@@ -11,7 +11,7 @@ import type { Auth } from "convex/server"
 import { WithoutSystemFields } from "convex/server"
 import { ConvexError } from "convex/values"
 import { parse } from "valibot"
-import { ensureSomething } from "~/shared/errors.ts"
+import { ensure } from "~/shared/errors.ts"
 import { credentialsPayloadValidator } from "../shared/auth/validators.ts"
 import { Doc, Id } from "./_generated/dataModel"
 import type { EntQueryCtx } from "./lib/ents.ts"
@@ -96,8 +96,5 @@ export async function getAuthUser(ctx: EntQueryCtx) {
 }
 
 export async function ensureUserId(ctx: { auth: Auth }) {
-	return ensureSomething(
-		await getAuthUserId(ctx),
-		new ConvexError("Not logged in"),
-	)
+	return ensure(await getAuthUserId(ctx), new ConvexError("Not logged in"))
 }

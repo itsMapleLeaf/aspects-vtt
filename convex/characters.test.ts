@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values"
 import { expect, test } from "vitest"
-import { ensureSomething } from "../shared/errors.ts"
+import { ensure } from "../shared/errors.ts"
 import { api } from "./_generated/api"
 import {
 	createConvexTest,
@@ -126,7 +126,7 @@ test("duplicate character", async () => {
 	)
 
 	const duplicatedCharacter = await ownerConvex.query(api.characters.get, {
-		characterId: ensureSomething(duplicatedCharacterId),
+		characterId: ensure(duplicatedCharacterId),
 	})
 
 	expect(duplicatedCharacter?.full).toMatchObject({
