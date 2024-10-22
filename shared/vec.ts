@@ -59,4 +59,9 @@ export class Vec {
 	roundTo(input: Vec.Input): Vec {
 		return this.zip(input, (a, b) => Math.round(a / b) * b)
 	}
+
+	equals(input: Vec.Input) {
+		const other = Vec.from(input)
+		return this.x === other.x && this.y === other.y
+	}
 }

@@ -18,6 +18,11 @@ export const characterItemValidator = v.object({
 	quantity: v.optional(v.number()),
 })
 
+export const vectorValidator = v.object({
+	x: v.number(),
+	y: v.number(),
+})
+
 const entSchema = defineEntSchema({
 	users: defineEnt({
 		...authTables.users.validator.fields,
@@ -27,7 +32,8 @@ const entSchema = defineEntSchema({
 		.edges("ownedRooms", { to: "rooms", ref: "ownerId" })
 		.edges("joinedRooms", { to: "rooms", table: "rooms_to_players" })
 		.edges("messages", { ref: true })
-		.edges("ownedCharacters", { to: "characters", ref: "ownerId" }),
+		.edges("ownedCharacters", { to: "characters", ref: "ownerId" })
+		.edges("pings", { ref: true }),
 
 	rooms: defineEnt({
 		name: v.string(),
@@ -44,12 +50,23 @@ const entSchema = defineEntSchema({
 			),
 		),
 	})
+		.index("slug", ["slug"])
 		.edge("owner", { to: "users", field: "ownerId" })
 		.edges("players", { to: "users", table: "rooms_to_players" })
 		.edges("scenes", { ref: true })
 		.edges("characters", { ref: true })
 		.edges("messages", { ref: true })
-		.index("slug", ["slug"]),
+		.edges("pings", { ref: true }),
+
+	pings: defineEnt({
+		position: vectorValidator,
+
+		// we use a manually generated key so that we can match a client optimistic ping
+		// with the one that later gets created on the server
+		key: v.string(),
+	})
+		.edge("room")
+		.edge("user"),
 
 	scenes: defineEnt({
 		name: v.string(),
@@ -116,7 +133,7 @@ const entSchema = defineEntSchema({
 		}),
 
 	characterTokens: defineEnt({
-		position: v.optional(v.object({ x: v.number(), y: v.number() })),
+		position: v.optional(vectorValidator),
 		visible: v.optional(v.boolean()),
 		updatedAt: v.optional(v.number()),
 	})

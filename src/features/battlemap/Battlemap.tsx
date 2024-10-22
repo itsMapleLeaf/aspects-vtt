@@ -9,10 +9,13 @@ import { api } from "~/convex/_generated/api.js"
 import { List } from "~/shared/list.ts"
 import { Region } from "~/shared/region.ts"
 import { Vec } from "~/shared/vec.ts"
+import { Id } from "../../../convex/_generated/dataModel"
 import { CharacterBattlemapToken } from "../characters/CharacterBattlemapToken.tsx"
 import { useCharacterMenu } from "../characters/CharacterMenu.tsx"
+import { useRoomContext } from "../rooms/context.tsx"
 import type { ApiScene } from "../scenes/types.ts"
 import { useBattleMapStageInfo } from "./context.ts"
+import { PingGroup } from "./PingGroup.tsx"
 import { ApiToken } from "./types.ts"
 
 export function Battlemap({
@@ -40,66 +43,65 @@ export function Battlemap({
 	}
 
 	return (
-		<>
-			<BattlemapStage
-				className="isolate"
-				onSelectRegionStart={() => {
-					setSelecting(true)
-				}}
-				onSelectRegion={(region) => {
-					setSelecting(false)
-					const matching = List.of(...tokenShapesRef.current)
-						.select(([, shape]) =>
-							Region.from(region).intersects(
-								new Region(
-									Vec.from(shape.position()),
-									Vec.from({
-										x: shape.width(),
-										y: shape.height(),
-									}),
-								),
+		<BattlemapStage
+			className="isolate overflow-clip"
+			onSelectRegionStart={() => {
+				setSelecting(true)
+			}}
+			onSelectRegion={(region) => {
+				setSelecting(false)
+				const matching = List.of(...tokenShapesRef.current)
+					.select(([, shape]) =>
+						Region.from(region).intersects(
+							new Region(
+								Vec.from(shape.position()),
+								Vec.from({
+									x: shape.width(),
+									y: shape.height(),
+								}),
 							),
-						)
-						.map(([id]) => id)
-					setSelectedIds(new Set(matching))
-				}}
-			>
-				<BattlemapBackground backgroundUrl={backgroundUrl} />
+						),
+					)
+					.map(([id]) => id)
+				setSelectedIds(new Set(matching))
+			}}
+		>
+			<BattlemapBackground backgroundUrl={backgroundUrl} />
 
-				{deselected
+			{deselected
+				.toSorted((a, b) => b.updatedAt - a.updatedAt)
+				.map((token) => (
+					<DraggableTokenGroup key={token._id} tokens={[token]} scene={scene}>
+						<CharacterBattlemapToken
+							token={token}
+							scene={scene}
+							shapeRef={(shape) => {
+								if (!shape) return
+								registerShape(token._id, shape)
+							}}
+							selected={false}
+						/>
+					</DraggableTokenGroup>
+				))}
+
+			<DraggableTokenGroup tokens={selected} scene={scene}>
+				{selected
 					.toSorted((a, b) => b.updatedAt - a.updatedAt)
 					.map((token) => (
-						<DraggableTokenGroup key={token._id} tokens={[token]} scene={scene}>
-							<CharacterBattlemapToken
-								token={token}
-								scene={scene}
-								shapeRef={(shape) => {
-									if (!shape) return
-									registerShape(token._id, shape)
-								}}
-								selected={false}
-							/>
-						</DraggableTokenGroup>
+						<CharacterBattlemapToken
+							key={token._id}
+							token={token}
+							scene={scene}
+							selected
+							shapeRef={(shape) => {
+								if (!shape) return
+								registerShape(token._id, shape)
+							}}
+						/>
 					))}
-
-				<DraggableTokenGroup tokens={selected} scene={scene}>
-					{selected
-						.toSorted((a, b) => b.updatedAt - a.updatedAt)
-						.map((token) => (
-							<CharacterBattlemapToken
-								key={token._id}
-								token={token}
-								scene={scene}
-								selected
-								shapeRef={(shape) => {
-									if (!shape) return
-									registerShape(token._id, shape)
-								}}
-							/>
-						))}
-				</DraggableTokenGroup>
-			</BattlemapStage>
-		</>
+			</DraggableTokenGroup>
+			<PingGroup />
+		</BattlemapStage>
 	)
 }
 
@@ -208,6 +210,7 @@ function BattlemapStage({
 	}) => void
 }) {
 	const [windowWidth, windowHeight] = useWindowSize()
+	const room = useRoomContext()
 
 	const [translate, setTranslate] = useLocalStorage(
 		"viewportTranslate",
@@ -281,6 +284,26 @@ function BattlemapStage({
 		},
 	}))
 
+	const me = useQuery(api.users.me)
+
+	const createPing = useMutation(api.pings.create).withOptimisticUpdate(
+		(store, { roomId, position, key }) => {
+			if (!me) return
+			store.setQuery(api.pings.list, { roomId }, [
+				...(store.getQuery(api.pings.list, { roomId }) ?? []),
+				{
+					_id: crypto.randomUUID() as Id<"pings">,
+					_creationTime: Date.now(),
+					user: { _id: me._id, name: me.name },
+					userId: me._id,
+					roomId,
+					position,
+					key,
+				},
+			])
+		},
+	)
+
 	return (
 		<Stage
 			ref={stageRef}
@@ -299,6 +322,17 @@ function BattlemapStage({
 					const pointer = event.currentTarget.getRelativePointerPosition()
 					if (pointer) {
 						setSelectionStart(Vec.from(pointer))
+					}
+				}
+				if (event.evt.button === 1) {
+					event.evt.preventDefault()
+					const position = event.currentTarget.getRelativePointerPosition()
+					if (position) {
+						createPing({
+							roomId: room._id,
+							position,
+							key: crypto.randomUUID(),
+						})
 					}
 				}
 			}}
@@ -348,6 +382,19 @@ function BattlemapStage({
 				event.evt.preventDefault()
 			}}
 			onWheel={handleWheel}
+			onPointerDblClick={(event) => {
+				if (event.evt.button === 0) {
+					event.evt.preventDefault()
+					const position = event.currentTarget.getRelativePointerPosition()
+					if (position) {
+						createPing({
+							roomId: room._id,
+							position,
+							key: crypto.randomUUID(),
+						})
+					}
+				}
+			}}
 		>
 			<Layer>
 				{children}

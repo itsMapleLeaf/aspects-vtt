@@ -75,7 +75,9 @@ export function CharacterBattlemapToken({
 					// hack: when clicked, the menu opens, so we know we won't be over this token
 					setOver(false)
 				}}
-				onPointerDblClick={() => {
+				onPointerDblClick={(event) => {
+					event.evt.preventDefault()
+					event.cancelBubble = true
 					setEditorOpen(true)
 				}}
 				ref={ref}
