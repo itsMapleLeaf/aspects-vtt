@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "convex/react"
 import { LucideEdit, LucideEye, LucideEyeOff, LucideSwords } from "lucide-react"
-import { ComponentProps, useState } from "react"
+import { ComponentProps, createContext, use, useState } from "react"
 import { match, P } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
 import { Popover } from "~/components/Popover.tsx"
@@ -10,8 +10,9 @@ import { CharacterAttributeButtonRow } from "~/features/characters/CharacterAttr
 import { CharacterEditorDialog } from "~/features/characters/CharacterEditorDialog.tsx"
 import { CharacterToggleCombatMemberButton } from "~/features/characters/CharacterToggleCombatMemberButton.tsx"
 import { CharacterVitalFields } from "~/features/characters/CharacterVitalFields.tsx"
-import { ApiCharacter } from "~/features/characters/types.ts"
 import { List } from "~/shared/list.ts"
+import { Id } from "../../../convex/_generated/dataModel"
+import { raise } from "../../../shared/errors.ts"
 import { Checkbox } from "../../components/Checkbox.tsx"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { panel } from "../../styles/panel.ts"
@@ -21,53 +22,78 @@ import { CharacterAttackDialog } from "./CharacterAttackDialog.tsx"
 import { CharacterConditionsInput } from "./CharacterConditionsInput.tsx"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 
-export type CharacterMenuController = ReturnType<
-	typeof useCharacterMenuController
->
+function useCharacterMenuController() {
+	const [state, setState] = useState({
+		open: false,
+		position: { x: 0, y: 0 },
+		characterIds: new Set<Id<"characters">>(),
+	})
 
-export function useCharacterMenuController() {
-	const [open, setOpen] = useState(false)
-	const [characterIds, setCharacterIds] = useState(
-		List.of<ApiCharacter["_id"]>(),
+	const handleTrigger = (
+		event: { clientX: number; clientY: number },
+		characterIds: Iterable<Id<"characters">>,
+	) => {
+		setState({
+			open: true,
+			position: { x: event.clientX, y: event.clientY },
+			characterIds: new Set(characterIds),
+		})
+	}
+
+	const close = () => {
+		setState((s) => ({ ...s, open: false }))
+	}
+
+	return { ...state, handleTrigger, close }
+}
+
+const Context = createContext<
+	ReturnType<typeof useCharacterMenuController> | undefined
+>(undefined)
+
+export function useCharacterMenu() {
+	return use(Context) ?? raise("bad")
+}
+
+export function CharacterMenuTrigger({
+	characterIds,
+	...props
+}: ComponentProps<"div"> & {
+	characterIds: Iterable<Id<"characters">>
+}) {
+	const context = useCharacterMenu()
+	return (
+		<div
+			{...props}
+			onContextMenu={(event) => {
+				props.onContextMenu?.(event)
+				if (event.defaultPrevented) return
+				event.preventDefault()
+				context.handleTrigger(event, characterIds)
+			}}
+		/>
 	)
-	const [position, setPosition] = useState<{ x: number; y: number }>()
+}
 
+export function CharacterMenu({
+	children,
+	...props
+}: ComponentProps<typeof Popover.Root>) {
+	const context = useCharacterMenuController()
+	const room = useRoomContext()
 	const scene = useActiveSceneContext()
+	const update = useMutation(api.tokens.update)
+
 	const tokens =
 		useQuery(api.tokens.list, scene ? { sceneId: scene._id } : "skip") ?? []
 
 	const tokensByCharacterId = new Map(tokens.map((it) => [it.characterId, it]))
 
-	return {
-		position,
-		open,
-		characterTokens: characterIds
-			.map((id) => tokensByCharacterId.get(id))
-			.compact(),
-		show(
-			event: { x: number; y: number },
-			characterIds: Iterable<ApiCharacter["_id"]>,
-		) {
-			setCharacterIds(List.from(characterIds))
-			setPosition({ x: event.x, y: event.y })
-			setOpen(true)
-		},
-		hide() {
-			setOpen(false)
-		},
-	}
-}
+	const characterTokens = List.from(context.characterIds)
+		.map((id) => tokensByCharacterId.get(id))
+		.compact()
 
-export function CharacterMenu({
-	controller,
-	...props
-}: ComponentProps<typeof Popover.Root> & {
-	controller: CharacterMenuController
-}) {
-	const room = useRoomContext()
-	const update = useMutation(api.tokens.update)
-
-	const items = match([...controller.characterTokens])
+	const items = match(characterTokens.array())
 		.with(
 			[{ character: { full: P.nonNullable } }],
 			([{ character, ...token }]) => [
@@ -221,7 +247,7 @@ export function CharacterMenu({
 	const [editingCharacterId, setEditingCharacterId] =
 		useState<NormalizedCharacter["_id"]>()
 
-	const editingCharacter = controller.characterTokens
+	const editingCharacter = characterTokens
 		.map((it) => it.character.full)
 		.find((it) => it?._id === editingCharacterId)
 
@@ -231,7 +257,7 @@ export function CharacterMenu({
 
 	const attackingCharacters =
 		attackingCharacterIds &&
-		controller.characterTokens
+		characterTokens
 			.filter((it) => attackingCharacterIds?.has(it.characterId))
 			.map((it) => it.character)
 
@@ -242,28 +268,31 @@ export function CharacterMenu({
 	}
 
 	return (
-		<Popover.Root placement="bottom-start" open={controller.open} {...props}>
-			<Popover.Content
-				getAnchorRect={() => controller.position ?? null}
-				className={panel("grid w-[240px] rounded-xl p-2 gap-2")}
-				onClose={controller.hide}
-			>
-				{items}
-			</Popover.Content>
-			{editingCharacter && (
-				<CharacterEditorDialog
-					character={editingCharacter}
-					open={editorOpen}
-					setOpen={setEditorOpen}
-				/>
-			)}
-			{attackingCharacters?.length ? (
-				<CharacterAttackDialog
-					characters={attackingCharacters}
-					open={attackOpen}
-					setOpen={setAttackOpen}
-				/>
-			) : null}
-		</Popover.Root>
+		<>
+			<Context value={context}>{children}</Context>
+			<Popover.Root placement="bottom-start" open={context.open} {...props}>
+				<Popover.Content
+					getAnchorRect={() => context.position ?? null}
+					className={panel("grid w-[240px] rounded-xl p-2 gap-2")}
+					onClose={context.close}
+				>
+					{items}
+				</Popover.Content>
+				{editingCharacter && (
+					<CharacterEditorDialog
+						character={editingCharacter}
+						open={editorOpen}
+						setOpen={setEditorOpen}
+					/>
+				)}
+				{attackingCharacters?.length ? (
+					<CharacterAttackDialog
+						characters={attackingCharacters}
+						open={attackOpen}
+						setOpen={setAttackOpen}
+					/>
+				) : null}
+			</Popover.Root>
+		</>
 	)
 }

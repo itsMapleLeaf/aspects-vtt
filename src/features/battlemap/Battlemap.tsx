@@ -10,10 +10,7 @@ import { List } from "~/shared/list.ts"
 import { Region } from "~/shared/region.ts"
 import { Vec } from "~/shared/vec.ts"
 import { CharacterBattlemapToken } from "../characters/CharacterBattlemapToken.tsx"
-import {
-	CharacterMenu,
-	useCharacterMenuController,
-} from "../characters/CharacterMenu.tsx"
+import { useCharacterMenu } from "../characters/CharacterMenu.tsx"
 import type { ApiScene } from "../scenes/types.ts"
 import { useBattleMapStageInfo } from "./context.ts"
 import { ApiToken } from "./types.ts"
@@ -41,8 +38,6 @@ export function Battlemap({
 			tokenShapesRef.current.delete(id)
 		}
 	}
-
-	const characterMenuController = useCharacterMenuController()
 
 	return (
 		<>
@@ -83,11 +78,6 @@ export function Battlemap({
 									registerShape(token._id, shape)
 								}}
 								selected={false}
-								tooltipsDisabled={characterMenuController.open || selecting}
-								onContextMenu={(event) =>
-									characterMenuController.show(event.evt, [token.characterId])
-								}
-								onSelect={() => setSelectedIds(new Set([token._id]))}
 							/>
 						</DraggableTokenGroup>
 					))}
@@ -101,14 +91,6 @@ export function Battlemap({
 								token={token}
 								scene={scene}
 								selected
-								tooltipsDisabled={characterMenuController.open || selecting}
-								onContextMenu={(event) =>
-									characterMenuController.show(
-										event.evt,
-										selected.map((token) => token.characterId),
-									)
-								}
-								onSelect={() => setSelectedIds(new Set([token._id]))}
 								shapeRef={(shape) => {
 									if (!shape) return
 									registerShape(token._id, shape)
@@ -117,7 +99,6 @@ export function Battlemap({
 						))}
 				</DraggableTokenGroup>
 			</BattlemapStage>
-			<CharacterMenu controller={characterMenuController} />
 		</>
 	)
 }
@@ -132,7 +113,7 @@ function DraggableTokenGroup({
 	children: ReactNode
 }) {
 	const [dragStart, setDragStart] = useState<Vec>()
-
+	const menu = useCharacterMenu()
 	const updateTokens = useMutation(api.tokens.update).withOptimisticUpdate(
 		(store, args) => {
 			const updatesById = new Map(args.updates.map((it) => [it.tokenId, it]))
@@ -160,6 +141,12 @@ function DraggableTokenGroup({
 				if (event.evt.button === 0) {
 					event.cancelBubble = true
 				}
+			}}
+			onContextMenu={(event) => {
+				menu.handleTrigger(
+					event.evt,
+					tokens.map((it) => it.characterId),
+				)
 			}}
 			onDragStart={(event) => {
 				setDragStart(Vec.from(event.currentTarget.position()))

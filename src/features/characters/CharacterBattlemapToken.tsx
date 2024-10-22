@@ -14,6 +14,7 @@ import { ApiToken } from "../battlemap/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
+import { useCharacterMenu } from "./CharacterMenu.tsx"
 import { getConditionColorClasses } from "./conditions.ts"
 
 export function CharacterBattlemapToken({
@@ -21,17 +22,11 @@ export function CharacterBattlemapToken({
 	scene,
 	selected,
 	shapeRef,
-	tooltipsDisabled,
-	onContextMenu,
-	onSelect,
 }: {
 	token: ApiToken
 	scene: ApiScene
 	selected: boolean
 	shapeRef: React.Ref<Konva.Shape>
-	tooltipsDisabled: boolean
-	onSelect: () => void
-	onContextMenu: (event: Konva.KonvaEventObject<PointerEvent>) => void
 }) {
 	const [image] = useImage(
 		token.character.imageId && getImageUrl(token.character.imageId),
@@ -61,6 +56,8 @@ export function CharacterBattlemapToken({
 
 	const [editorOpen, setEditorOpen] = useState(false)
 
+	const characterMenu = useCharacterMenu()
+
 	return (
 		<>
 			<Group
@@ -77,14 +74,6 @@ export function CharacterBattlemapToken({
 
 					// hack: when clicked, the menu opens, so we know we won't be over this token
 					setOver(false)
-				}}
-				onPointerClick={(event) => {
-					if (event.evt.button === 2) return
-					// onSelect()
-				}}
-				onContextMenu={(event) => {
-					event.evt.preventDefault()
-					onContextMenu(event)
 				}}
 				onPointerDblClick={() => {
 					setEditorOpen(true)
@@ -163,7 +152,7 @@ export function CharacterBattlemapToken({
 			</Group>
 
 			<Html transform={false}>
-				<Tooltip open={over && !tooltipsDisabled} placement="bottom">
+				<Tooltip open={over && !characterMenu.open} placement="bottom">
 					<TooltipContent
 						className="flex scale-90 flex-col items-center rounded bg-black/75 p-2 text-center font-bold text-white opacity-0 shadow transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
 						unmountOnHide
@@ -182,7 +171,7 @@ export function CharacterBattlemapToken({
 					</TooltipContent>
 				</Tooltip>
 
-				<Tooltip open={over && !tooltipsDisabled} placement="top">
+				<Tooltip open={over && !characterMenu.open} placement="top">
 					<TooltipContent
 						className="flex w-24 scale-90 flex-col bg-transparent opacity-0 shadow-none transition gap-1 data-[enter]:scale-100 data-[enter]:opacity-100"
 						flip={false}
