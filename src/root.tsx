@@ -12,6 +12,9 @@ import {
 } from "@remix-run/react"
 import type { LinksFunction } from "@remix-run/server-runtime"
 import { ConvexReactClient } from "convex/react"
+import { ConvexError } from "convex/values"
+import { useEffect } from "react"
+import { toast } from "react-toastify"
 import toastify from "react-toastify/ReactToastify.css?url"
 import { CustomToastContainer } from "./components/CustomToastContainer.tsx"
 import styles from "./root.css?url"
@@ -23,6 +26,28 @@ export const links: LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	useEffect(() => {
+		const controller = new AbortController()
+
+		window.addEventListener(
+			"unhandledrejection",
+			(error) => {
+				if (
+					error.reason instanceof ConvexError &&
+					typeof error.reason.data === "string"
+				) {
+					toast.error(error.reason.data)
+				} else {
+					toast.error("Something went wrong. Check the console for details.")
+				}
+				console.error(error.reason)
+			},
+			{ signal: controller.signal },
+		)
+
+		return () => controller.abort()
+	})
+
 	return (
 		<html
 			lang="en"

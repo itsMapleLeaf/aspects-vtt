@@ -4,7 +4,6 @@ import { matchSorter } from "match-sorter"
 import { useState } from "react"
 import { Button } from "~/components/Button.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
-import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
 import { CharacterEditorDialog } from "~/features/characters/CharacterEditorDialog.tsx"
@@ -28,7 +27,6 @@ export function CharacterList() {
 	)
 
 	const [openCharacterId, setOpenCharacterId] = useState<Id<"characters">>()
-	console.log({ openCharacterId })
 
 	if (characters === undefined) {
 		return (
@@ -41,6 +39,13 @@ export function CharacterList() {
 	const filteredCharacters = matchSorter(characters, search, {
 		keys: ["identity.name", "public.race"],
 	}).sort((a, b) => Number(b.isPlayer) - Number(a.isPlayer))
+
+	const handleCreate = () => {
+		createCharacter({ roomId: room._id }).then((id) => {
+			setEditingCharacterId(id)
+			setEditorOpen(true)
+		})
+	}
 
 	return (
 		<>
@@ -68,15 +73,7 @@ export function CharacterList() {
 				emptyStateText="No characters found"
 				actions={
 					room.isOwner && (
-						<ToastActionForm
-							action={async () => {
-								const character = await createCharacter({
-									roomId: room._id,
-								})
-								setEditingCharacterId(character)
-								setEditorOpen(true)
-							}}
-						>
+						<form action={handleCreate} className="contents">
 							<Button
 								type="submit"
 								appearance="clear"
@@ -84,7 +81,7 @@ export function CharacterList() {
 							>
 								<span className="sr-only">Create Character</span>
 							</Button>
-						</ToastActionForm>
+						</form>
 					)
 				}
 			/>
