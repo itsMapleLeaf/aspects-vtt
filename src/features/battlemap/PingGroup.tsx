@@ -71,7 +71,12 @@ function PingCircle({ ping }: { ping: Ping }) {
 	}
 
 	return (
-		<Group x={ping.position.x} y={ping.position.y} ref={groupRef}>
+		<Group
+			x={ping.position.x}
+			y={ping.position.y}
+			ref={groupRef}
+			listening={false}
+		>
 			<Group ref={circleRef} fill="skyblue">
 				<Circle
 					radius={70}
