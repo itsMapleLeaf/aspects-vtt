@@ -45,7 +45,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL)
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL, {
+	verbose: true,
+	reportDebugInfoToConvex: true,
+})
+
 export default function Root() {
 	const navigate = useNavigate()
 	return (
