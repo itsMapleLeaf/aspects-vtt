@@ -21,6 +21,7 @@ import {
 	CharacterEditorDialog,
 	CharacterEditorDialogButton,
 } from "./CharacterEditorDialog.tsx"
+import { CharacterMenuTrigger } from "./CharacterMenu.tsx"
 import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 import { CharacterVitalFields } from "./CharacterVitalFields.tsx"
@@ -38,27 +39,32 @@ export function CharacterCard({
 
 	const buttonContent = (
 		<>
-			<Avatar
-				src={character.imageId && getImageUrl(character.imageId)}
-				className="size-12"
-			/>
-			<div>
-				<div className="flex items-center gap-1.5">
-					<Heading className={secondaryHeading("leading-none empty:hidden")}>
-						{character.identity?.name ?? (
-							<span className="opacity-70">(unknown)</span>
+			<CharacterMenuTrigger
+				characterIds={[character._id]}
+				className="flex w-full items-center gap-2"
+			>
+				<Avatar
+					src={character.imageId && getImageUrl(character.imageId)}
+					className="size-12"
+				/>
+				<div>
+					<div className="flex items-center gap-1.5">
+						<Heading className={secondaryHeading("leading-none empty:hidden")}>
+							{character.identity?.name ?? (
+								<span className="opacity-70">(unknown)</span>
+							)}
+						</Heading>
+						{character.isPlayer && (
+							<Lucide.LucideUser2 className="size-4 opacity-70" />
 						)}
-					</Heading>
-					{character.isPlayer && (
-						<Lucide.LucideUser2 className="size-4 opacity-70" />
-					)}
+					</div>
+					<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
+						{[character.race, character.identity?.pronouns]
+							.filter(Boolean)
+							.join(" • ")}
+					</p>
 				</div>
-				<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
-					{[character.race, character.identity?.pronouns]
-						.filter(Boolean)
-						.join(" • ")}
-				</p>
-			</div>
+			</CharacterMenuTrigger>
 		</>
 	)
 
