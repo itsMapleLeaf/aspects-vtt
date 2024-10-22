@@ -29,9 +29,15 @@ import { RaceAbilityList } from "./RaceAbilityList.tsx"
 
 export function CharacterCard({
 	character,
+	open,
+	onOpen,
+	onClose,
 	afterClone,
 }: {
 	character: ProtectedCharacter
+	open: boolean
+	onOpen: () => void
+	onClose: () => void
 	afterClone: (characterId: Id<"characters">) => void
 }) {
 	const room = useRoomContext()
@@ -41,7 +47,7 @@ export function CharacterCard({
 		<>
 			<CharacterMenuTrigger
 				characterIds={[character._id]}
-				className="flex w-full items-center gap-2"
+				className="flex min-w-0 flex-1 items-center gap-2"
 			>
 				<Avatar
 					src={character.imageId && getImageUrl(character.imageId)}
@@ -112,10 +118,10 @@ export function CharacterCard({
 
 	return (
 		<div>
-			<Collapse>
+			<Collapse open={open} setOpen={(open) => (open ? onOpen() : onClose())}>
 				<Collapse.Button className={buttonClass}>
 					{buttonContent}
-					<Lucide.ChevronLeft className="ml-auto transition-transform group-aria-expanded:-rotate-90" />
+					<Lucide.ChevronLeft className="ml-auto shrink-0 transition-transform group-aria-expanded:-rotate-90" />
 				</Collapse.Button>
 
 				<Collapse.Content>

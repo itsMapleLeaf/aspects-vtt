@@ -14,17 +14,21 @@ import { CharacterCard } from "./CharacterCard.tsx"
 
 export function CharacterList() {
 	const room = useRoomContext()
-	const characters = useQuery(api.characters.list, {
-		roomId: room._id,
-	})
-	const [search, setSearch] = useState("")
-	const [editorOpen, setEditorOpen] = useState(false)
+
+	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const createCharacter = useMutation(api.characters.create)
+
+	const [search, setSearch] = useState("")
+
+	const [editorOpen, setEditorOpen] = useState(false)
 	const [editingCharacterId, setEditingCharacterId] =
 		useState<Id<"characters">>()
 	const editingCharacter = characters?.find(
 		(it) => it._id === editingCharacterId,
 	)
+
+	const [openCharacterId, setOpenCharacterId] = useState<Id<"characters">>()
+	console.log({ openCharacterId })
 
 	if (characters === undefined) {
 		return (
@@ -46,6 +50,13 @@ export function CharacterList() {
 				renderItem={(character) => (
 					<CharacterCard
 						character={character}
+						open={openCharacterId === character._id}
+						onOpen={() => {
+							setOpenCharacterId((id) =>
+								id === character._id ? undefined : character._id,
+							)
+						}}
+						onClose={() => setOpenCharacterId(undefined)}
 						afterClone={(id) => {
 							setEditingCharacterId(id)
 							setEditorOpen(true)
