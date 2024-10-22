@@ -6,27 +6,18 @@ import { Button } from "~/components/Button.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
-import { CharacterEditorDialog } from "~/features/characters/CharacterEditorDialog.tsx"
+import { useCharacterEditorDialog } from "~/features/characters/CharacterEditorDialog"
 import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterCard } from "./CharacterCard.tsx"
 
 export function CharacterList() {
 	const room = useRoomContext()
-
 	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const createCharacter = useMutation(api.characters.create)
-
 	const [search, setSearch] = useState("")
-
-	const [editorOpen, setEditorOpen] = useState(false)
-	const [editingCharacterId, setEditingCharacterId] =
-		useState<Id<"characters">>()
-	const editingCharacter = characters?.find(
-		(it) => it._id === editingCharacterId,
-	)
-
 	const [openCharacterId, setOpenCharacterId] = useState<Id<"characters">>()
+	const editor = useCharacterEditorDialog()
 
 	if (characters === undefined) {
 		return (
@@ -41,14 +32,12 @@ export function CharacterList() {
 	}).sort((a, b) => Number(b.isPlayer) - Number(a.isPlayer))
 
 	const handleCreate = () => {
-		createCharacter({ roomId: room._id }).then((id) => {
-			setEditingCharacterId(id)
-			setEditorOpen(true)
-		})
+		createCharacter({ roomId: room._id }).then(editor.show)
 	}
 
 	return (
 		<>
+			{editor.element}
 			<SearchListLayout
 				items={filteredCharacters}
 				itemKey={(character) => character._id}
@@ -62,10 +51,7 @@ export function CharacterList() {
 							)
 						}}
 						onClose={() => setOpenCharacterId(undefined)}
-						afterClone={(id) => {
-							setEditingCharacterId(id)
-							setEditorOpen(true)
-						}}
+						afterClone={editor.show}
 					/>
 				)}
 				onSearch={setSearch}
@@ -85,13 +71,6 @@ export function CharacterList() {
 					)
 				}
 			/>
-			{editingCharacter?.full && (
-				<CharacterEditorDialog
-					character={editingCharacter.full}
-					open={editorOpen}
-					setOpen={setEditorOpen}
-				/>
-			)}
 		</>
 	)
 }
