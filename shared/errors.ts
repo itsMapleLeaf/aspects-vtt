@@ -1,7 +1,9 @@
 export function raise(input: string | object): never {
 	if (typeof input === "string") {
 		const error = new Error(input)
-		Error.captureStackTrace(error, raise)
+		if ("captureStackTrace" in Error) {
+			Error.captureStackTrace(error, raise)
+		}
 		throw error
 	}
 	throw input
