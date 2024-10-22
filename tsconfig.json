@@ -15,8 +15,8 @@
 		},
 
 		/* Type Checking */
-		"target": "es2022",
-		"lib": ["es2022", "dom", "dom.iterable"],
+		"target": "es2023",
+		"lib": ["es2023", "dom", "dom.iterable"],
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
