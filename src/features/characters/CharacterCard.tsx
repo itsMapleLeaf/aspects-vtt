@@ -47,15 +47,20 @@ export function CharacterCard({
 					src={character.imageId && getImageUrl(character.imageId)}
 					className="size-12"
 				/>
-				<div>
+				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-1.5">
-						<Heading className={secondaryHeading("leading-none empty:hidden")}>
+						<Heading
+							className={secondaryHeading("shrink truncate empty:hidden")}
+						>
 							{character.identity?.name ?? (
 								<span className="opacity-70">(unknown)</span>
 							)}
 						</Heading>
+						{character.full && !character.full.nameVisible && (
+							<Lucide.EyeOff className="size-4 shrink-0 opacity-50" />
+						)}
 						{character.isPlayer && (
-							<Lucide.LucideUser2 className="size-4 opacity-70" />
+							<Lucide.User2 className="size-4 shrink-0 opacity-70" />
 						)}
 					</div>
 					<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
