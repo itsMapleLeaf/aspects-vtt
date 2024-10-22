@@ -1,9 +1,9 @@
 import type { PromiseEntOrNull } from "convex-ents"
 import { ConvexError, v, type Infer } from "convex/values"
 import { mapValues, merge, pickBy } from "lodash-es"
+import { mod } from "~/common/math.ts"
 import { DEFAULT_INVENTORY_ITEMS } from "~/features/inventory/items.ts"
 import { List } from "~/shared/list.ts"
-import { mod } from "../src/common/math.ts"
 import type { Doc, Id } from "./_generated/dataModel"
 import { ensureUserId, InaccessibleError } from "./auth.ts"
 import { normalizeCharacter, protectCharacter } from "./characters.ts"
@@ -166,7 +166,7 @@ export const getCombat = query({
 			const room = await ctx.table("rooms").getX(roomId)
 			const { combat } = room
 			if (combat == null) return null
-			return await normalizeRoomCombat(room, userId)
+			return await normalizeRoomCombat(ctx, room, userId)
 		} catch (error) {
 			return null
 		}
@@ -214,7 +214,7 @@ export const updateCombat = mutation({
 	async handler(ctx, { roomId, action }) {
 		const userId = await ensureUserId(ctx)
 		const room = await ctx.table("rooms").getX(roomId)
-		const combat = await normalizeRoomCombat(room, userId)
+		const combat = await normalizeRoomCombat(ctx, room, userId)
 		const updated = getNextCombatState(combat, action)
 		await room.patch({ combat: updated })
 	},
@@ -253,29 +253,34 @@ type NormalizedRoomCombat = NonNullable<
 	Awaited<ReturnType<typeof normalizeRoomCombat>>
 >
 
-async function normalizeRoomCombat(room: Ent<"rooms">, userId: Id<"users">) {
+async function normalizeRoomCombat(
+	ctx: EntQueryCtx,
+	room: Ent<"rooms">,
+	userId: Id<"users">,
+) {
 	const { combat } = room
 	if (combat == null) return null
 
-	const memberDocs = await room
-		.edge("characters")
-		.filter((q) =>
-			q.or(...combat.memberIds.map((id) => q.eq(q.field("_id"), id))),
+	const memberDocs = await ctx
+		.table("characters")
+		.getMany(combat.memberIds)
+		.then((ents) =>
+			ents
+				.filter(Boolean)
+				.filter((it) => it.roomId === room._id)
+				.map((it) => it.doc()),
 		)
 
-	const orderedMembers = memberDocs
-		.map(normalizeCharacter)
-		.sort((a, b) => b.resolveMax - a.resolveMax)
-		.sort((a, b) => b.attributes.mobility - a.attributes.mobility)
+	const members = memberDocs.map(normalizeCharacter)
 
 	const currentMemberIndex = Math.max(
-		orderedMembers.findIndex((it) => it._id === combat.currentMemberId),
+		members.findIndex((it) => it._id === combat.currentMemberId),
 		0,
 	)
 
 	return {
 		...combat,
-		members: orderedMembers.map((character, index) => ({
+		members: members.map((character, index) => ({
 			id: character._id,
 			imageId: character.imageId,
 			character: protectCharacter(character, userId, room),
@@ -310,7 +315,10 @@ function getNextCombatState(
 	} else if (action.type === "setCurrentMember") {
 		currentMemberId = action.memberId
 	} else if (action.type === "moveMember") {
-		// this one doesn't make sense lol
+		const fromIndex = memberIds.indexOf(action.memberId)
+		if (fromIndex > -1) {
+			memberIds.splice(action.toIndex, 0, ...memberIds.splice(fromIndex, 1))
+		}
 	} else if (action.type === "advance") {
 		currentMemberId =
 			memberIds[mod(combat.currentMemberIndex + 1, memberIds.length)]
