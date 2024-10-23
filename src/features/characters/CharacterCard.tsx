@@ -66,7 +66,7 @@ export function CharacterCard({
 							<Lucide.EyeOff className="size-4 shrink-0 opacity-50" />
 						)}
 						{character.isPlayer && (
-							<Lucide.User2 className="size-4 shrink-0 opacity-70" />
+							<Lucide.User2 className="size-4 shrink-0 opacity-50" />
 						)}
 					</div>
 					<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
