@@ -10,6 +10,7 @@ import { useCharacterEditorDialog } from "~/features/characters/CharacterEditorD
 import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterCard } from "./CharacterCard.tsx"
+import { ApiCharacter } from "./types.ts"
 
 export function CharacterList() {
 	const room = useRoomContext()
@@ -27,9 +28,26 @@ export function CharacterList() {
 		)
 	}
 
+	// prettier-ignore
+	const getRank = (character:ApiCharacter) =>
+		character.isPlayer ? 0 :
+		character.type === 'player' ? 1 :
+		character.type === 'npc' ? 2 :
+		99999
+
 	const filteredCharacters = matchSorter(characters, search, {
 		keys: ["identity.name", "public.race"],
-	}).sort((a, b) => Number(b.isPlayer) - Number(a.isPlayer))
+		sorter: (items) => {
+			return items
+				.sort((a, b) => b.rank - a.rank)
+				.sort((a, b) =>
+					(a.item.identity?.name ?? "")
+						.toLowerCase()
+						.localeCompare((b.item.identity?.name ?? "").toLowerCase()),
+				)
+				.sort((a, b) => getRank(a.item) - getRank(b.item))
+		},
+	})
 
 	const handleCreate = () => {
 		createCharacter({ roomId: room._id }).then(editor.show)

@@ -323,6 +323,7 @@ export function protectCharacter(
 		conditions: character.conditions,
 		isAdmin,
 		isPlayer: character.playerId === userId,
+		type: character.type,
 
 		...(isAdmin && {
 			full: character,
