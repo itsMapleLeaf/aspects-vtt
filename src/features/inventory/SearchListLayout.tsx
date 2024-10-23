@@ -9,11 +9,10 @@ import React, {
 import { twMerge } from "tailwind-merge"
 import { ConditionalKeys } from "type-fest"
 import { EmptyState } from "~/components/EmptyState.tsx"
-import type { List } from "~/shared/list.ts"
 import { textInput } from "~/styles/input.ts"
 
 export interface SearchListLayoutProps<T> {
-	items: T[] | List<T>
+	items: T[]
 	itemKey: ConditionalKeys<T, Key> | ((item: T) => Key)
 	renderItem: (item: T) => React.ReactNode
 	onSearch: (search: string) => void
