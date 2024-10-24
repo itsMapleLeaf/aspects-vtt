@@ -6,7 +6,6 @@ import { Button } from "~/components/Button.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
-import { useCharacterEditorDialog } from "~/features/characters/CharacterEditorDialog"
 import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterCard } from "./CharacterCard.tsx"
@@ -17,8 +16,7 @@ export function CharacterList() {
 	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const createCharacter = useMutation(api.characters.create)
 	const [search, setSearch] = useState("")
-	const [openCharacterId, setOpenCharacterId] = useState<Id<"characters">>()
-	const editor = useCharacterEditorDialog()
+	const [editingId, setEditingId] = useState<Id<"characters">>()
 
 	if (characters === undefined) {
 		return (
@@ -50,26 +48,22 @@ export function CharacterList() {
 	})
 
 	const handleCreate = () => {
-		createCharacter({ roomId: room._id }).then(editor.show)
+		createCharacter({ roomId: room._id }).then(setEditingId)
 	}
 
 	return (
 		<>
-			{editor.element}
 			<SearchListLayout
 				items={filteredCharacters}
 				itemKey={(character) => character._id}
 				renderItem={(character) => (
 					<CharacterCard
 						character={character}
-						open={openCharacterId === character._id}
-						onOpen={() => {
-							setOpenCharacterId((id) =>
-								id === character._id ? undefined : character._id,
-							)
+						open={editingId === character._id}
+						setOpen={(newOpen) => {
+							setEditingId(newOpen ? character._id : undefined)
 						}}
-						onClose={() => setOpenCharacterId(undefined)}
-						afterClone={editor.show}
+						afterClone={setEditingId}
 					/>
 				)}
 				onSearch={setSearch}

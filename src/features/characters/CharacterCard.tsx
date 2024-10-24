@@ -1,7 +1,6 @@
 import * as Ariakit from "@ariakit/react"
-import { useConvex } from "convex/react"
 import * as Lucide from "lucide-react"
-import { startTransition, useState } from "react"
+import { startTransition } from "react"
 import { Avatar } from "~/components/Avatar.tsx"
 import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
@@ -11,27 +10,20 @@ import { Id } from "../../../convex/_generated/dataModel"
 import { Field } from "../../components/Field.tsx"
 import { fadeTransition, fadeZoomTransition } from "../../styles/transitions.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
-import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterEditor } from "./CharacterEditor.tsx"
 import { RaceAbilityList } from "./RaceAbilityList.tsx"
 
 export function CharacterCard({
 	character,
-	// open,
-	// onOpen,
-	// onClose,
+	open,
+	setOpen,
 	afterClone,
 }: {
 	character: ProtectedCharacter
 	open: boolean
-	onOpen: () => void
-	onClose: () => void
+	setOpen: (value: boolean) => void
 	afterClone: (characterId: Id<"characters">) => void
 }) {
-	const room = useRoomContext()
-	const convex = useConvex()
-	const [open, setOpen] = useState(false)
-
 	return (
 		<Ariakit.PopoverProvider
 			placement="right"
@@ -76,7 +68,7 @@ export function CharacterCard({
 			</Ariakit.PopoverDisclosure>
 
 			<Ariakit.Popover
-				className={panel("w-screen max-w-[540px]", fadeZoomTransition())}
+				className={panel("w-screen max-w-[600px]", fadeZoomTransition())}
 				backdrop={
 					<div className={fadeTransition("fixed inset-0 bg-black/25")} />
 				}
@@ -86,7 +78,10 @@ export function CharacterCard({
 			>
 				{character.full ? (
 					<div className="h-screen max-h-[960px]">
-						<CharacterEditor character={character.full} />
+						<CharacterEditor
+							character={character.full}
+							afterClone={afterClone}
+						/>
 					</div>
 				) : (
 					<div className="flex h-fit max-h-screen flex-col p-gap gap">

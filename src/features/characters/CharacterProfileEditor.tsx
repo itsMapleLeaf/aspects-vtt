@@ -15,14 +15,10 @@ import { panel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
 import { api } from "../../../convex/_generated/api"
 import { usePatchUpdate } from "../../common/react/usePatchUpdate.ts"
-import { Checkbox } from "../../components/Checkbox.tsx"
-import { Select } from "../../components/Select.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ImageUploader } from "../images/ImageUploader.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
-import { useRoomContext } from "../rooms/context.tsx"
 import { ATTRIBUTE_NAMES, ATTRIBUTE_POINTS_AVAILABLE } from "./attributes.ts"
-import { CharacterPlayerSelect } from "./CharacterPlayerSelect.tsx"
 
 export function CharacterProfileEditor({
 	character: characterProp,
@@ -40,46 +36,9 @@ export function CharacterProfileEditor({
 		ATTRIBUTE_POINTS_AVAILABLE - attributePointsUsed
 
 	const id = useId()
-	const room = useRoomContext()
 
 	return (
 		<div className="flex flex-col @container gap">
-			{room.isOwner && (
-				<div className="flex flex-wrap gap">
-					<Checkbox
-						label="Public"
-						checked={character.visible ?? false}
-						onChange={(checked) => handleChange({ visible: checked })}
-					/>
-					<Checkbox
-						label="Show name"
-						checked={character.nameVisible ?? false}
-						onChange={(checked) => handleChange({ nameVisible: checked })}
-					/>
-				</div>
-			)}
-			{room.isOwner && (
-				<div className="grid gap @md:grid-cols-2">
-					<CharacterPlayerSelect character={character} />
-					<Select
-						label="Type"
-						options={[
-							{
-								name: "Player",
-								description: "Enforces EXP and attribute limits",
-								value: "player",
-							},
-							{
-								name: "NPC",
-								value: "npc",
-								description: "Removes limits",
-							},
-						]}
-						value={character.type}
-						onChangeValue={(value) => handleChange({ type: value })}
-					/>
-				</div>
-			)}
 			<div className="grid gap @md:grid-cols-2">
 				<Field
 					label="Name"
