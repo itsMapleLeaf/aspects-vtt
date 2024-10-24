@@ -3,7 +3,6 @@ import { Iterator } from "iterator-helpers-polyfill"
 import { startCase } from "lodash-es"
 import { useId, useState, type ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
-import { OverrideProperties } from "type-fest"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Field } from "~/components/Field.tsx"
 import { Heading } from "~/components/Heading.tsx"
@@ -33,15 +32,7 @@ export function CharacterProfileEditor({
 	const update = useMutation(api.characters.update)
 	const { patched: character, update: handleChange } = usePatchUpdate(
 		characterProp,
-		(
-			patch: OverrideProperties<
-				Partial<NormalizedCharacter>,
-				{
-					healthMax?: number | null
-					resolveMax?: number | null
-				}
-			>,
-		) => update({ ...patch, characterId: characterProp._id }),
+		(patch) => update({ ...patch, characterId: characterProp._id }),
 	)
 
 	const attributePointsUsed = List.values(character.attributes).sum()

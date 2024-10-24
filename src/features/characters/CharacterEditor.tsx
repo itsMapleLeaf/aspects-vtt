@@ -1,5 +1,10 @@
 import { useMutation } from "convex/react"
-import { OverrideProperties } from "type-fest"
+import {
+	LucideHeartPulse,
+	LucidePackage,
+	LucideSparkles,
+	LucideUserRound,
+} from "lucide-react"
 import * as v from "valibot"
 import { useLocalStorage } from "~/common/react/dom.ts"
 import { usePatchUpdate } from "~/common/react/usePatchUpdate.ts"
@@ -38,10 +43,18 @@ export function CharacterEditor({
 					<div className="sticky -top-2 z-10 -m-2 flex shrink-0 flex-col bg-primary-800 p-2 gap">
 						<Heading className={primaryHeading()}>{character.name}</Heading>
 						<Tabs.List>
-							<Tabs.Tab id="profile">Profile</Tabs.Tab>
-							<Tabs.Tab id="status">Status</Tabs.Tab>
-							<Tabs.Tab id="inventory">Inventory</Tabs.Tab>
-							<Tabs.Tab id="skills">Skills</Tabs.Tab>
+							<Tabs.Tab id="profile">
+								<LucideUserRound /> Profile
+							</Tabs.Tab>
+							<Tabs.Tab id="status">
+								<LucideHeartPulse /> Status
+							</Tabs.Tab>
+							<Tabs.Tab id="inventory">
+								<LucidePackage /> Inventory
+							</Tabs.Tab>
+							<Tabs.Tab id="skills">
+								<LucideSparkles /> Skills
+							</Tabs.Tab>
 						</Tabs.List>
 					</div>
 
@@ -74,15 +87,7 @@ function CharacterStatusEditor({
 	const update = useMutation(api.characters.update)
 	const { patched: character, update: handleChange } = usePatchUpdate(
 		characterProp,
-		(
-			patch: OverrideProperties<
-				Partial<NormalizedCharacter>,
-				{
-					healthMax?: number | null
-					resolveMax?: number | null
-				}
-			>,
-		) => update({ ...patch, characterId: characterProp._id }),
+		(patch) => update({ ...patch, characterId: characterProp._id }),
 	)
 
 	return (

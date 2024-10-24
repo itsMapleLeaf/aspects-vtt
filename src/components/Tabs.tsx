@@ -12,7 +12,7 @@ export function Tab(props: Ariakit.TabProps) {
 		<Ariakit.Tab
 			{...props}
 			className={twMerge(
-				"rounded-md px-2 opacity-50 transition hover:bg-primary-700 hover:opacity-75 data-[active-item]:bg-primary-700 data-[active-item]:opacity-100",
+				"flex items-center justify-center rounded-md px-2 opacity-50 transition gap-3 hover:bg-primary-700 hover:opacity-75 data-[active-item]:bg-primary-700 data-[active-item]:opacity-100 [&>svg]:-mx-1 [&>svg]:size-5",
 				props.className,
 			)}
 		/>
