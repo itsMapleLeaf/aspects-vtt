@@ -5,6 +5,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
 import { defineConfig } from "vite"
+import babel from "vite-plugin-babel"
 import tsconfigPaths from "vite-tsconfig-paths"
 import type {} from "vitest" // for vitest config types
 
@@ -18,6 +19,14 @@ export default defineConfig({
 				rehypeSlug,
 				[rehypeAutolinkHeadings, { behavior: "wrap" }],
 			],
+		}),
+		babel({
+			filter: /\.[jt]sx?$/,
+			include: ["src/**/*"],
+			babelConfig: {
+				presets: ["@babel/preset-typescript"],
+				plugins: [["babel-plugin-react-compiler", {}]],
+			},
 		}),
 		// the remix plugin can't run under the Vite testing env at the moment
 		// https://github.com/remix-run/remix/issues/8982
