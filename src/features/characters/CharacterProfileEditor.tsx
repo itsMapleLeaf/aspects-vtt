@@ -7,11 +7,9 @@ import { OverrideProperties } from "type-fest"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Field } from "~/components/Field.tsx"
 import { Heading } from "~/components/Heading.tsx"
-import { NumberInput } from "~/components/NumberInput.tsx"
 import { NormalizedCharacter } from "~/convex/characters.ts"
 import { RaceAbilityList } from "~/features/characters/RaceAbilityList.tsx"
 import { RACE_NAMES } from "~/features/characters/races.ts"
-import { WealthTierSelect } from "~/features/characters/WealthTierSelect.tsx"
 import { List } from "~/shared/list.ts"
 import { textArea, textInput } from "~/styles/input.ts"
 import { panel } from "~/styles/panel.ts"
@@ -184,54 +182,6 @@ export function CharacterProfileEditor({
 					</div>
 				</Field>
 			</div>
-
-			<div className="grid auto-cols-fr grid-flow-col gap">
-				<Field label={`Health`}>
-					<NumberInput
-						className={textInput()}
-						max={character.healthMax}
-						value={character.health}
-						onSubmitValue={(value) => handleChange({ health: value })}
-					/>
-				</Field>
-				<Field label={`Max health`}>
-					<NumberInput
-						className={textInput()}
-						placeholder={character.healthMax}
-						required={false}
-						value={character.healthMaxOverride}
-						onSubmitValue={(value) =>
-							handleChange({ healthMaxOverride: value })
-						}
-						onSubmitEmpty={() => handleChange({ healthMaxOverride: null })}
-					/>
-				</Field>
-				<Field label={`Resolve`}>
-					<NumberInput
-						className={textInput()}
-						max={character.resolveMax}
-						value={character.resolve}
-						onSubmitValue={(value) => handleChange({ resolve: value })}
-					/>
-				</Field>
-				<Field label={`Max resolve`}>
-					<NumberInput
-						className={textInput()}
-						placeholder={character.resolveMax}
-						required={false}
-						value={character.resolveMaxOverride}
-						onSubmitValue={(value) =>
-							handleChange({ resolveMaxOverride: value })
-						}
-						onSubmitEmpty={() => handleChange({ resolveMaxOverride: null })}
-					/>
-				</Field>
-			</div>
-
-			<WealthTierSelect
-				value={character.wealth}
-				onChange={(value) => handleChange({ wealth: value })}
-			/>
 
 			{character.race && (
 				<Field label="Abilities">

@@ -3,10 +3,10 @@ import { useConvex } from "convex/react"
 import * as Lucide from "lucide-react"
 import { startTransition, useState } from "react"
 import { Avatar } from "~/components/Avatar.tsx"
-import { Heading } from "~/components/Heading.tsx"
+import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
 import { interactivePanel, panel } from "~/styles/panel.ts"
-import { secondaryHeading } from "~/styles/text.ts"
+import { primaryHeading, secondaryHeading } from "~/styles/text.ts"
 import { Id } from "../../../convex/_generated/dataModel"
 import { Field } from "../../components/Field.tsx"
 import { fadeTransition, fadeZoomTransition } from "../../styles/transitions.ts"
@@ -76,10 +76,7 @@ export function CharacterCard({
 			</Ariakit.PopoverDisclosure>
 
 			<Ariakit.Popover
-				className={panel(
-					"h-screen max-h-[1000px] w-screen max-w-[540px]",
-					fadeZoomTransition(),
-				)}
+				className={panel("w-screen max-w-[540px]", fadeZoomTransition())}
 				backdrop={
 					<div className={fadeTransition("fixed inset-0 bg-black/25")} />
 				}
@@ -88,30 +85,36 @@ export function CharacterCard({
 				unmountOnHide
 			>
 				{character.full ? (
-					<CharacterEditor character={character.full} />
+					<div className="h-screen max-h-[960px]">
+						<CharacterEditor character={character.full} />
+					</div>
 				) : (
-					<div>
-						<h2>{character.identity?.name ?? "(unknown)"}</h2>
-						{character.imageId && (
-							<img
-								src={getImageUrl(character.imageId)}
-								alt=""
-								className={panel(
-									"min-h-0 flex-1 bg-primary-900 object-contain",
-								)}
-							/>
-						)}
-						<div className="grid auto-cols-fr grid-flow-col gap empty:hidden">
-							{character.race && <Field label="Race">{character.race}</Field>}
-							{character.identity && (
-								<Field label="Pronouns">{character.identity.pronouns}</Field>
+					<div className="flex h-fit max-h-screen flex-col p-gap gap">
+						<HeadingLevel>
+							<Heading className={primaryHeading()}>
+								{character.identity?.name ?? "(unknown)"}
+							</Heading>
+							{character.imageId && (
+								<img
+									src={getImageUrl(character.imageId)}
+									alt=""
+									className={panel(
+										"min-h-0 flex-1 bg-primary-900 object-contain",
+									)}
+								/>
 							)}
-						</div>
-						{character.race && (
-							<Field label="Abilities">
-								<RaceAbilityList race={character.race} />
-							</Field>
-						)}
+							<div className="grid auto-cols-fr grid-flow-col gap empty:hidden">
+								{character.race && <Field label="Race">{character.race}</Field>}
+								{character.identity && (
+									<Field label="Pronouns">{character.identity.pronouns}</Field>
+								)}
+							</div>
+							{character.race && (
+								<Field label="Abilities">
+									<RaceAbilityList race={character.race} />
+								</Field>
+							)}
+						</HeadingLevel>
 					</div>
 				)}
 			</Ariakit.Popover>
