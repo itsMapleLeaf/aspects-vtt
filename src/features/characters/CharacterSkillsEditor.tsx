@@ -43,11 +43,6 @@ const allSkills = List.values(ASPECT_SKILLS).compact()
 
 const totalExperience = 150
 
-const trace = <T,>(it: T) => {
-	console.log(it)
-	return it
-}
-
 export function CharacterSkillsEditor({
 	character,
 }: {

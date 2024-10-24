@@ -5,6 +5,7 @@ import {
 	createConvexTestWithIdentity,
 } from "../src/common/convex-test"
 import { api } from "./_generated/api"
+import { Id } from "./_generated/dataModel"
 
 test("create and get scene", async () => {
 	const convex = await createConvexTestWithIdentity()
@@ -252,7 +253,7 @@ test("create scene with background", async () => {
 		name: "Scene with Background",
 		roomId,
 		mode: "scenery",
-		sceneryBackgroundId: "test_background_id" as any,
+		sceneryBackgroundId: "test_background_id" as Id<"_storage">,
 	})
 
 	const scene = await convex.query(api.scenes.get, { sceneId })

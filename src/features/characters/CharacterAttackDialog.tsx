@@ -104,7 +104,7 @@ export function CharacterAttackDialog({
 							value={attacker?._id ?? ""}
 							options={[
 								{ name: "Choose one", value: "" },
-								...(attackerOptions ?? [])?.map((it) => ({
+								...(attackerOptions ?? []).map((it) => ({
 									name: it.name,
 									value: it._id,
 								})),

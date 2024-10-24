@@ -18,7 +18,12 @@ export function InputField({
 	...props
 }: InputFieldProps) {
 	return (
-		<Field label={label} htmlFor={field.input.id} errors={field.errors}>
+		<Field
+			label={label}
+			htmlFor={field.input.id}
+			errors={field.errors}
+			className={className}
+		>
 			<input {...field.input} {...props} className={textInput()} />
 		</Field>
 	)
@@ -69,7 +74,12 @@ export function TextAreaField({
 	...props
 }: TextAreaFieldProps) {
 	return (
-		<Field label={label} htmlFor={field.input.id} errors={field.errors}>
+		<Field
+			label={label}
+			htmlFor={field.input.id}
+			errors={field.errors}
+			className={className}
+		>
 			<textarea
 				{...field.input}
 				{...props}
@@ -92,7 +102,12 @@ export function ComboboxField({
 	...props
 }: ComboboxFieldProps) {
 	return (
-		<Field label={label} htmlFor={field.input.id} errors={field.errors}>
+		<Field
+			label={label}
+			htmlFor={field.input.id}
+			errors={field.errors}
+			className={className}
+		>
 			<Combobox
 				{...field.input}
 				onChangeValue={field.set}
@@ -116,7 +131,12 @@ export function NumberInputField({
 	...props
 }: NumberInputFieldProps) {
 	return (
-		<Field label={label} htmlFor={field.numeric.id} errors={field.errors}>
+		<Field
+			label={label}
+			htmlFor={field.numeric.id}
+			errors={field.errors}
+			className={className}
+		>
 			<NumberInput
 				{...field.numeric}
 				onChange={undefined}

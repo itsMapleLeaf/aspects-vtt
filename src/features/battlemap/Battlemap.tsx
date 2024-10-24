@@ -370,8 +370,8 @@ function BattlemapStage({
 			}}
 			onDragStart={(event) => {
 				props.onDragStart?.(event)
-				if (event.evt.button === 0) {
-				}
+				// if (event.evt.button === 0) {
+				// }
 			}}
 			onDragEnd={(event) => {
 				props.onDragEnd?.(event)

@@ -28,6 +28,7 @@ export function useMergedRefs<
 				ref.current = node
 			}
 		}
+		// eslint-disable-next-line react-compiler/react-compiler
 	}, refs)
 }
 

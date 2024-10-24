@@ -39,7 +39,10 @@ export function useDebouncedCallback<Args extends unknown[]>(
 				callbackRef.current(...args)
 			}, period)
 		}
-		debounced.cancel = () => clearTimeout(timeoutRef.current)
+		// eslint-disable-next-line react-compiler/react-compiler
+		debounced.cancel = () => {
+			clearTimeout(timeoutRef.current)
+		}
 		return debounced
 	}, [period])
 }

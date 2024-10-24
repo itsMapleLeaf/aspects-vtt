@@ -24,6 +24,8 @@ export function CharacterToggleTokenButton({
 	const addTokens = useMutation(api.tokens.create)
 	const removeTokens = useMutation(api.tokens.remove)
 
+	const stageInfo = useBattleMapStageInfo()
+
 	if (!scene || !room.isOwner) {
 		return null
 	}
@@ -33,8 +35,6 @@ export function CharacterToggleTokenButton({
 	const characterIds = characters.map((it) => it._id)
 	const inScene = characterIds.filter((id) => sceneCharacterIds.has(id))
 	const outOfScene = characterIds.filter((id) => !sceneCharacterIds.has(id))
-
-	const stageInfo = useBattleMapStageInfo()
 
 	const addTokensAction = async () => {
 		await addTokens({
