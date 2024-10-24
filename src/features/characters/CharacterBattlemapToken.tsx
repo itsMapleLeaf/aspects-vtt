@@ -13,7 +13,7 @@ import { lightPanel } from "../../styles/panel.ts"
 import { ApiToken } from "../battlemap/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
-import { CharacterEditorDialog } from "./CharacterEditorDialog.tsx"
+import { useCharacterEditorDialog } from "./CharacterEditorDialog.tsx"
 import { useCharacterMenu } from "./CharacterMenu.tsx"
 import { getConditionColorClasses } from "./conditions.ts"
 
@@ -54,9 +54,8 @@ export function CharacterBattlemapToken({
 
 	const ref = useMergedRefs(shapeRef, internalRef)
 
-	const [editorOpen, setEditorOpen] = useState(false)
-
 	const characterMenu = useCharacterMenu()
+	const editor = useCharacterEditorDialog()
 
 	return (
 		<>
@@ -78,7 +77,7 @@ export function CharacterBattlemapToken({
 				onPointerDblClick={(event) => {
 					event.evt.preventDefault()
 					event.cancelBubble = true
-					setEditorOpen(true)
+					editor.show(token.characterId)
 				}}
 				ref={ref}
 			>
@@ -208,13 +207,7 @@ export function CharacterBattlemapToken({
 					</TooltipContent>
 				</Tooltip>
 
-				{token.character.full && (
-					<CharacterEditorDialog
-						character={token.character.full}
-						open={editorOpen}
-						setOpen={setEditorOpen}
-					></CharacterEditorDialog>
-				)}
+				{editor.element}
 			</Html>
 		</>
 	)

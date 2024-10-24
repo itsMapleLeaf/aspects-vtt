@@ -12,21 +12,22 @@ export { Button as CharacterEditorDialogButton } from "~/components/Dialog.tsx"
 export function CharacterEditorDialog({
 	children,
 	character,
+	afterClone,
 	...props
 }: ComponentProps<typeof Dialog.Root> & {
 	character: NormalizedCharacter
+	afterClone: (characterId: Id<"characters">) => void
 }) {
 	return (
 		<Dialog.Root {...props}>
 			{children}
-
 			<Dialog.Content
 				title={character.name}
-				description="Edit character details"
-				className="h-[1000px] max-w-xl"
+				description="Editing character"
+				className="max-w-[600px]"
 			>
-				<div className="min-h-0 flex-1">
-					<CharacterEditor character={character} />
+				<div className="-m-3 h-[960px] max-h-[calc(100vh-4rem)] overflow-y-auto px-2 pb-2">
+					<CharacterEditor character={character} afterClone={afterClone} />
 				</div>
 			</Dialog.Content>
 		</Dialog.Root>
@@ -58,6 +59,7 @@ export function useCharacterEditorDialog() {
 			character={editingCharacter.full}
 			open={editorOpen}
 			setOpen={setEditorOpen}
+			afterClone={setEditingCharacterId}
 		/>
 	)
 

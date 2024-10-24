@@ -13,14 +13,13 @@ import { List } from "~/shared/list.ts"
 import { Id } from "../../../convex/_generated/dataModel"
 import { raise } from "../../../shared/errors.ts"
 import { Checkbox } from "../../components/Checkbox.tsx"
-import { Dialog } from "../../components/Dialog.tsx"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { panel } from "../../styles/panel.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
 import { CharacterAttackDialog } from "./CharacterAttackDialog.tsx"
 import { CharacterConditionsInput } from "./CharacterConditionsInput.tsx"
-import { CharacterEditor } from "./CharacterEditor.tsx"
+import { useCharacterEditorDialog } from "./CharacterEditorDialog.tsx"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 
 function useCharacterMenuController() {
@@ -94,13 +93,7 @@ export function CharacterMenu({
 		.map((id) => tokensByCharacterId.get(id))
 		.compact()
 
-	const [editorOpen, setEditorOpen] = useState(false)
-	const [editingCharacterId, setEditingCharacterId] =
-		useState<NormalizedCharacter["_id"]>()
-
-	const editingCharacter = characterTokens
-		.map((it) => it.character.full)
-		.find((it) => it?._id === editingCharacterId)
+	const editor = useCharacterEditorDialog()
 
 	const [attackOpen, setAttackOpen] = useState(false)
 	const [attackingCharacterIds, setAttackingCharacterIds] =
@@ -152,8 +145,7 @@ export function CharacterMenu({
 				<Button key="edit" asChild icon={<LucideEdit />}>
 					<Popover.Close
 						onClick={() => {
-							setEditingCharacterId(character._id)
-							setEditorOpen(true)
+							editor.show(character._id)
 						}}
 					>
 						Edit
@@ -282,22 +274,7 @@ export function CharacterMenu({
 				</Popover.Content>
 			</Popover.Root>
 
-			{editingCharacter && (
-				<Dialog.Root open={editorOpen} setOpen={setEditorOpen}>
-					<Dialog.Content
-						title={editingCharacter.name}
-						description="Editing character"
-						className="max-w-[600px]"
-					>
-						<div className="-m-3 h-[960px] max-h-[calc(100vh-4rem)] overflow-y-auto px-2 pb-2">
-							<CharacterEditor
-								character={editingCharacter}
-								afterClone={setEditingCharacterId}
-							/>
-						</div>
-					</Dialog.Content>
-				</Dialog.Root>
-			)}
+			{editor.element}
 
 			{attackingCharacters?.length ? (
 				<CharacterAttackDialog
