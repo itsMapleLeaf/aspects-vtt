@@ -7,19 +7,20 @@ import { Popover } from "~/components/Popover.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { NormalizedCharacter } from "~/convex/characters.ts"
 import { CharacterAttributeButtonRow } from "~/features/characters/CharacterAttributeButtonRow.tsx"
-import { CharacterEditorDialog } from "~/features/characters/CharacterEditorDialog.tsx"
 import { CharacterToggleCombatMemberButton } from "~/features/characters/CharacterToggleCombatMemberButton.tsx"
 import { CharacterVitalFields } from "~/features/characters/CharacterVitalFields.tsx"
 import { List } from "~/shared/list.ts"
 import { Id } from "../../../convex/_generated/dataModel"
 import { raise } from "../../../shared/errors.ts"
 import { Checkbox } from "../../components/Checkbox.tsx"
+import { Dialog } from "../../components/Dialog.tsx"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { panel } from "../../styles/panel.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
 import { CharacterAttackDialog } from "./CharacterAttackDialog.tsx"
 import { CharacterConditionsInput } from "./CharacterConditionsInput.tsx"
+import { CharacterEditor } from "./CharacterEditor.tsx"
 import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 
 function useCharacterMenuController() {
@@ -92,6 +93,26 @@ export function CharacterMenu({
 	const characterTokens = List.from(context.characterIds)
 		.map((id) => tokensByCharacterId.get(id))
 		.compact()
+
+	const [editorOpen, setEditorOpen] = useState(false)
+	const [editingCharacterId, setEditingCharacterId] =
+		useState<NormalizedCharacter["_id"]>()
+
+	const editingCharacter = characterTokens
+		.map((it) => it.character.full)
+		.find((it) => it?._id === editingCharacterId)
+
+	const [attackOpen, setAttackOpen] = useState(false)
+	const [attackingCharacterIds, setAttackingCharacterIds] =
+		useState<Set<NormalizedCharacter["_id"]>>()
+
+	const attackingCharacters =
+		attackingCharacterIds &&
+		characterTokens
+			.filter((it) => attackingCharacterIds?.has(it.characterId))
+			.map((it) => it.character)
+
+	const updateToken = useMutation(api.tokens.update)
 
 	const items = match(characterTokens.array())
 		.with(
@@ -243,26 +264,6 @@ export function CharacterMenu({
 		})
 		.filter(Boolean)
 
-	const [editorOpen, setEditorOpen] = useState(false)
-	const [editingCharacterId, setEditingCharacterId] =
-		useState<NormalizedCharacter["_id"]>()
-
-	const editingCharacter = characterTokens
-		.map((it) => it.character.full)
-		.find((it) => it?._id === editingCharacterId)
-
-	const [attackOpen, setAttackOpen] = useState(false)
-	const [attackingCharacterIds, setAttackingCharacterIds] =
-		useState<Set<NormalizedCharacter["_id"]>>()
-
-	const attackingCharacters =
-		attackingCharacterIds &&
-		characterTokens
-			.filter((it) => attackingCharacterIds?.has(it.characterId))
-			.map((it) => it.character)
-
-	const updateToken = useMutation(api.tokens.update)
-
 	if (items.length === 0) {
 		return null
 	}
@@ -270,6 +271,7 @@ export function CharacterMenu({
 	return (
 		<>
 			<Context value={context}>{children}</Context>
+
 			<Popover.Root placement="bottom-start" open={context.open} {...props}>
 				<Popover.Content
 					getAnchorRect={() => context.position ?? null}
@@ -278,21 +280,32 @@ export function CharacterMenu({
 				>
 					{items}
 				</Popover.Content>
-				{editingCharacter && (
-					<CharacterEditorDialog
-						character={editingCharacter}
-						open={editorOpen}
-						setOpen={setEditorOpen}
-					/>
-				)}
-				{attackingCharacters?.length ? (
-					<CharacterAttackDialog
-						characters={attackingCharacters}
-						open={attackOpen}
-						setOpen={setAttackOpen}
-					/>
-				) : null}
 			</Popover.Root>
+
+			{editingCharacter && (
+				<Dialog.Root open={editorOpen} setOpen={setEditorOpen}>
+					<Dialog.Content
+						title={editingCharacter.name}
+						description="Editing character"
+						className="max-w-[600px]"
+					>
+						<div className="-m-3 h-[960px] max-h-[calc(100vh-4rem)] overflow-y-auto px-2 pb-2">
+							<CharacterEditor
+								character={editingCharacter}
+								afterClone={setEditingCharacterId}
+							/>
+						</div>
+					</Dialog.Content>
+				</Dialog.Root>
+			)}
+
+			{attackingCharacters?.length ? (
+				<CharacterAttackDialog
+					characters={attackingCharacters}
+					open={attackOpen}
+					setOpen={setAttackOpen}
+				/>
+			) : null}
 		</>
 	)
 }

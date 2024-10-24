@@ -13,7 +13,7 @@ import { useLocalStorage } from "~/common/react/dom.ts"
 import { usePatchUpdate } from "~/common/react/usePatchUpdate.ts"
 import { Checkbox } from "~/components/Checkbox.tsx"
 import { Field } from "~/components/Field.tsx"
-import { Heading, HeadingLevel } from "~/components/Heading.tsx"
+import { HeadingLevel } from "~/components/Heading.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
 import { Select } from "~/components/Select.tsx"
 import { Tabs } from "~/components/Tabs.tsx"
@@ -26,7 +26,6 @@ import { CharacterProfileEditor } from "~/features/characters/CharacterProfileEd
 import { CharacterSkillsEditor } from "~/features/characters/CharacterSkillsEditor.tsx"
 import { WealthTierSelect } from "~/features/characters/WealthTierSelect.tsx"
 import { textInput } from "~/styles/input.ts"
-import { primaryHeading } from "~/styles/text.ts"
 import { ensure } from "../../../shared/errors.ts"
 import { Button } from "../../components/Button.tsx"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
@@ -51,14 +50,13 @@ export function CharacterEditor({
 	)
 
 	return (
-		<div className="isolate flex max-h-full min-h-0 flex-1 flex-col overflow-y-auto p-2 gap-2">
+		<div className="isolate flex min-h-0 flex-1 flex-col gap-2">
 			<Tabs.Root
 				selectedId={activeId}
 				setSelectedId={(id) => setActiveId((current) => id ?? current)}
 			>
 				<HeadingLevel>
-					<div className="sticky -top-2 z-10 -m-2 flex shrink-0 flex-col bg-primary-800 p-2 gap">
-						<Heading className={primaryHeading()}>{character.name}</Heading>
+					<div className="sticky top-0 z-10 flex shrink-0 flex-col bg-primary-800 py-2 gap">
 						<Tabs.List>
 							<Tabs.Tab id="profile">
 								<LucideUserRound /> Profile

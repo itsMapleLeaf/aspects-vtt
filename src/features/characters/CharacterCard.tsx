@@ -68,7 +68,10 @@ export function CharacterCard({
 			</Ariakit.PopoverDisclosure>
 
 			<Ariakit.Popover
-				className={panel("w-screen max-w-[600px]", fadeZoomTransition())}
+				className={panel(
+					"h-screen max-h-[1000px] w-screen max-w-[600px] overflow-y-auto px-2",
+					fadeZoomTransition(),
+				)}
 				backdrop={
 					<div className={fadeTransition("fixed inset-0 bg-black/25")} />
 				}
@@ -77,12 +80,15 @@ export function CharacterCard({
 				unmountOnHide
 			>
 				{character.full ? (
-					<div className="h-screen max-h-[960px]">
+					<>
+						<Heading className={primaryHeading("mt-3 px-2")}>
+							{character.full.name}
+						</Heading>
 						<CharacterEditor
 							character={character.full}
 							afterClone={afterClone}
 						/>
-					</div>
+					</>
 				) : (
 					<div className="flex h-fit max-h-screen flex-col p-gap gap">
 						<HeadingLevel>

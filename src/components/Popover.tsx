@@ -14,6 +14,10 @@ export function Button(props: Ariakit.PopoverDisclosureProps) {
 	return <Ariakit.PopoverDisclosure {...props} />
 }
 
+export function Anchor(props: Ariakit.PopoverAnchorProps) {
+	return <Ariakit.PopoverAnchor {...props} />
+}
+
 export function Close(props: Ariakit.PopoverDismissProps) {
 	return <Ariakit.PopoverDismiss {...props} />
 }
