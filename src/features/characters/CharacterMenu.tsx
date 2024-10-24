@@ -173,7 +173,7 @@ export function CharacterMenu({
 				),
 
 				room.isOwner && (
-					<div className="flex w-full gap *:flex-1">
+					<div className="flex w-full gap *:flex-1" key="tokenVisible">
 						{hiddenTokens.length > 0 && (
 							<ToastActionForm
 								action={() =>
