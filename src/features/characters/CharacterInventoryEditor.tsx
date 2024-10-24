@@ -55,7 +55,7 @@ export function CharacterInventoryEditor({
 
 	return (
 		<SearchListLayout
-			className="p-3 pt-0"
+			className=""
 			items={filteredItems}
 			itemKey="_id"
 			renderItem={(item) => (

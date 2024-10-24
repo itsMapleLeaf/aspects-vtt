@@ -68,7 +68,7 @@ export function SearchListLayout<T>({
 			</div>
 			{items.length > 0 ? (
 				<ul
-					className="-m-[--gap] mt-0 flex min-h-0 flex-1 flex-col overflow-y-auto p-gap pt-0 gap"
+					className="mt-0 flex min-h-0 flex-1 flex-col overflow-y-auto gap"
 					ref={animateRef}
 				>
 					{items.map((item) => (
