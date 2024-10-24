@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import { startCase } from "lodash-es"
-import { useId, useState, type ReactNode } from "react"
+import { Fragment, useId, useState, type ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 import { Combobox } from "~/components/Combobox.tsx"
 import { Field } from "~/components/Field.tsx"
@@ -15,10 +15,13 @@ import { panel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
 import { api } from "../../../convex/_generated/api"
 import { usePatchUpdate } from "../../common/react/usePatchUpdate.ts"
+import { DieIcon } from "../dice/DieIcon.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ImageUploader } from "../images/ImageUploader.tsx"
 import { uploadImage } from "../images/uploadImage.ts"
 import { ATTRIBUTE_NAMES, ATTRIBUTE_POINTS_AVAILABLE } from "./attributes.ts"
+import { CharacterAttributeButton } from "./CharacterAttributeButton.tsx"
+import { getAttributeDie } from "./helpers.ts"
 
 export function CharacterProfileEditor({
 	character: characterProp,
@@ -92,7 +95,7 @@ export function CharacterProfileEditor({
 				<Field label="Attributes">
 					<div
 						className={panel(
-							"flex h-full flex-col items-center justify-center border-primary-600 bg-primary-700 px-4 py-8 gap",
+							"flex h-full flex-col items-center justify-center border-primary-600 bg-primary-700 px-4 py-8 gap-4",
 						)}
 					>
 						{character.type === "npc" ? (
@@ -114,20 +117,36 @@ export function CharacterProfileEditor({
 								<div className="-mt-2 text-lg">points remaining</div>
 							</Heading>
 						)}
+
 						{ATTRIBUTE_NAMES.map((name) => (
-							<AttributeInput
-								key={name}
-								label={startCase(name)}
-								value={character.attributes[name]}
-								onChange={(value) => {
-									handleChange({
-										attributes: {
-											...character.attributes,
-											[name]: value,
-										},
-									})
-								}}
-							/>
+							<Fragment key={name}>
+								<div className="flex items-center gap-4">
+									<Field label={startCase(name)}>
+										<AttributeInput
+											label={startCase(name)}
+											value={character.attributes[name]}
+											onChange={(value) => {
+												handleChange({
+													attributes: {
+														...character.attributes,
+														[name]: value,
+													},
+												})
+											}}
+										/>
+									</Field>
+									<CharacterAttributeButton
+										characters={[character]}
+										attribute={name}
+										icon={
+											<DieIcon
+												faces={getAttributeDie(character.attributes[name])}
+												label={null}
+											/>
+										}
+									/>
+								</div>
+							</Fragment>
 						))}
 					</div>
 				</Field>
@@ -156,6 +175,7 @@ interface AttributeInputProps {
 	value?: number
 	defaultValue?: number
 	onChange?: (value: number) => void
+	right?: ReactNode
 }
 
 function AttributeInput(props: AttributeInputProps) {
@@ -169,26 +189,24 @@ function AttributeInput(props: AttributeInputProps) {
 	}
 
 	return (
-		<Field label={props.label}>
-			<div className="flex gap-2">
-				{Iterator.range(1, 5, 1, true)
-					.map((n) => (
-						<button
-							key={n}
-							type="button"
-							className={twMerge(
-								"size-6 rounded-full border-2 border-primary-100 bg-primary-100 bg-opacity-0 transition active:border-primary-300 active:bg-primary-300 active:duration-0",
-								n <= value ? "bg-opacity-100" : "hover:bg-opacity-50",
-							)}
-							onClick={() => setValue(n)}
-						>
-							<span className="sr-only">
-								Set {props.label} to {n}
-							</span>
-						</button>
-					))
-					.toArray()}
-			</div>
-		</Field>
+		<div className="flex gap-2">
+			{Iterator.range(1, 5, 1, true)
+				.map((n) => (
+					<button
+						key={n}
+						type="button"
+						className={twMerge(
+							"size-6 rounded-full border-2 border-primary-100 bg-primary-100 bg-opacity-0 transition active:border-primary-300 active:bg-primary-300 active:duration-0",
+							n <= value ? "bg-opacity-100" : "hover:bg-opacity-50",
+						)}
+						onClick={() => setValue(n)}
+					>
+						<span className="sr-only">
+							Set {props.label} to {n}
+						</span>
+					</button>
+				))
+				.toArray()}
+		</div>
 	)
 }

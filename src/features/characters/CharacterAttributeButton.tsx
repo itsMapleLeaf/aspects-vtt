@@ -1,6 +1,7 @@
 import { useMutation } from "convex/react"
 import { Iterator } from "iterator-helpers-polyfill"
 import { startCase } from "lodash-es"
+import * as Lucide from "lucide-react"
 import { LucideDices } from "lucide-react"
 import { useState } from "react"
 import { match, P } from "ts-pattern"
@@ -21,11 +22,11 @@ import { getAttributeDie } from "./helpers.ts"
 export function CharacterAttributeButton({
 	characters,
 	attribute,
-	icon,
+	icon: iconOverride,
 }: {
 	characters: NormalizedCharacter[]
 	attribute: CharacterAttributeName
-	icon: React.ReactNode
+	icon?: React.ReactNode
 }) {
 	const roomId = useRoomContext()._id
 	const createMessage = useMutation(api.messages.create)
@@ -115,6 +116,16 @@ export function CharacterAttributeButton({
 	const dicePowerValues = new Set(
 		characters.map((it) => getAttributeDie(it.attributes[attribute])),
 	)
+
+	const icon =
+		iconOverride ??
+		{
+			strength: <Lucide.BicepsFlexed />,
+			sense: <Lucide.Eye />,
+			mobility: <Lucide.Wind />,
+			intellect: <Lucide.Lightbulb />,
+			wit: <Lucide.Sparkle />,
+		}[attribute]
 
 	return (
 		<Popover.Root placement="bottom-start" open={open} setOpen={setOpen}>
