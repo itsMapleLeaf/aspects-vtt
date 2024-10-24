@@ -143,7 +143,7 @@ export function CharacterSkillsEditor({
 	}
 
 	return (
-		<div className="flex h-full flex-col p-3 gap-3">
+		<div className="flex h-full flex-col gap-3">
 			{character.type === "npc" ? (
 				<p className={secondaryHeading("text-center")}>
 					Character power: {usedExperience} / {totalExperience}

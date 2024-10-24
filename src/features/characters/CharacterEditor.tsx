@@ -18,30 +18,30 @@ export function CharacterEditor({
 	)
 
 	return (
-		<div className="flex max-h-full flex-col gap-2">
+		<div className="isolate flex max-h-full min-h-0 flex-1 flex-col overflow-y-auto p-2 gap-2">
 			<Tabs.Root
 				selectedId={activeId}
 				setSelectedId={(id) => setActiveId((current) => id ?? current)}
 			>
-				<Tabs.List className="shrink-0">
-					<Tabs.Tab id="profile">Profile</Tabs.Tab>
-					<Tabs.Tab id="inventory">Inventory</Tabs.Tab>
-					<Tabs.Tab id="skills">Skills</Tabs.Tab>
-				</Tabs.List>
-
-				<div className="min-h-0 flex-1 overflow-y-auto">
-					<Tabs.Panel id="profile">
-						<CharacterProfileEditor character={character} />
-					</Tabs.Panel>
-
-					<Tabs.Panel id="inventory">
-						<CharacterInventoryEditor character={character} />
-					</Tabs.Panel>
-
-					<Tabs.Panel id="skills">
-						<CharacterSkillsEditor character={character} />
-					</Tabs.Panel>
+				<div className="sticky -top-2 z-10 -m-2 shrink-0 bg-primary-800 p-2">
+					<Tabs.List>
+						<Tabs.Tab id="profile">Profile</Tabs.Tab>
+						<Tabs.Tab id="inventory">Inventory</Tabs.Tab>
+						<Tabs.Tab id="skills">Skills</Tabs.Tab>
+					</Tabs.List>
 				</div>
+
+				<Tabs.Panel id="profile" unmountOnHide>
+					<CharacterProfileEditor character={character} />
+				</Tabs.Panel>
+
+				<Tabs.Panel id="inventory" unmountOnHide>
+					<CharacterInventoryEditor character={character} />
+				</Tabs.Panel>
+
+				<Tabs.Panel id="skills" unmountOnHide>
+					<CharacterSkillsEditor character={character} />
+				</Tabs.Panel>
 			</Tabs.Root>
 		</div>
 	)
