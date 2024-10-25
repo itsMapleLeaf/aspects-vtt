@@ -1,14 +1,9 @@
 import { useMutation, useQuery } from "convex/react"
 import { startCase } from "lodash-es"
-import {
-	LucideCheckSquare,
-	LucideImage,
-	LucideSquare,
-	LucideUserRoundPlus,
-	LucideUserX2,
-} from "lucide-react"
+import { LucideImage, LucideUserRoundPlus, LucideUserX2 } from "lucide-react"
 import { matchSorter } from "match-sorter"
-import { Fragment, Key, ReactNode, useState } from "react"
+import { Key, ReactNode, useState } from "react"
+import { twMerge } from "tailwind-merge"
 import { Button } from "~/components/Button.tsx"
 import { EmptyState } from "~/components/EmptyState.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
@@ -19,11 +14,11 @@ import { NormalizedCharacter } from "../../../convex/characters.ts"
 import { ensure } from "../../../shared/errors.ts"
 import { Heading, HeadingLevel } from "../../components/Heading.tsx"
 import { ScrollArea } from "../../components/ScrollArea.tsx"
-import { ToastActionForm } from "../../components/ToastActionForm.tsx"
+import { useToastAction } from "../../components/ToastActionForm.tsx"
 import { groupBy } from "../../lib/object.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
-import { CharacterEditorPopoverCard } from "./CharacterCard.tsx"
+import { CharacterCard, CharacterEditorPopoverCard } from "./CharacterCard.tsx"
 import { ApiCharacter } from "./types.ts"
 
 export function CharacterList() {
@@ -42,13 +37,15 @@ export function CharacterList() {
 	const toggleListEditor = (next: ListEditor) =>
 		setListEditor((current) => (current !== next ? next : undefined))
 
-	const toggleInScene = async (character: NormalizedCharacter) => {
-		if (!scene) return
-		await updateCharacter({
-			characterId: character._id,
-			sceneId: character.sceneId !== scene._id ? scene._id : null,
-		})
-	}
+	const [, toggleInScene, toggleInScenePending] = useToastAction(
+		async (_state, character: NormalizedCharacter) => {
+			if (!scene) return
+			await updateCharacter({
+				characterId: character._id,
+				sceneId: character.sceneId !== scene._id ? scene._id : null,
+			})
+		},
+	)
 
 	if (characters === undefined) {
 		return (
@@ -109,6 +106,52 @@ export function CharacterList() {
 		createCharacter({ roomId: room._id }).then(setEditingId)
 	}
 
+	const renderListItem = (entry: ListItem) => {
+		if (entry.type === "heading") {
+			return (
+				<Heading key={entry.key} className="-mb-1.5 text-primary-100/70">
+					{entry.text}
+				</Heading>
+			)
+		}
+
+		if (
+			listEditor === "sceneCharacters" &&
+			scene &&
+			entry.item.full &&
+			room.isOwner
+		) {
+			return (
+				<form
+					key={entry.key}
+					action={() => toggleInScene(ensure(entry.item.full))}
+				>
+					<button
+						type="submit"
+						className={twMerge(
+							"w-full transition-opacity",
+							toggleInScenePending ? "opacity-75" : "opacity-100",
+						)}
+					>
+						<CharacterCard character={entry.item} />
+					</button>
+				</form>
+			)
+		}
+
+		return (
+			<CharacterEditorPopoverCard
+				key={entry.key}
+				character={entry.item}
+				open={editingId === entry.item._id}
+				setOpen={(newOpen) => {
+					setEditingId(newOpen ? entry.item._id : undefined)
+				}}
+				afterClone={setEditingId}
+			/>
+		)
+	}
+
 	return (
 		<div className="flex h-full min-h-0 flex-col gap-2">
 			<div className="flex gap">
@@ -147,51 +190,7 @@ export function CharacterList() {
 				<ScrollArea>
 					<HeadingLevel>
 						<ul className="flex w-full min-w-0 flex-col gap">
-							{listItems.map((entry) => (
-								<Fragment key={entry.key}>
-									{entry.type === "heading" ? (
-										<Heading className="-mb-1 text-primary-100/70">
-											{entry.text}
-										</Heading>
-									) : (
-										<li key={entry.item._id} className="flex items-center gap">
-											<CharacterEditorPopoverCard
-												character={entry.item}
-												open={editingId === entry.item._id}
-												setOpen={(newOpen) => {
-													setEditingId(newOpen ? entry.item._id : undefined)
-												}}
-												afterClone={setEditingId}
-											/>
-
-											{listEditor === "sceneCharacters" &&
-												room.isOwner &&
-												entry.item.full &&
-												scene && (
-													<ToastActionForm
-														action={() =>
-															toggleInScene(ensure(entry.item.full))
-														}
-													>
-														<Button
-															type="submit"
-															appearance="clear"
-															size="small"
-															square
-															icon={
-																entry.item.full.sceneId === scene._id ? (
-																	<LucideCheckSquare />
-																) : (
-																	<LucideSquare />
-																)
-															}
-														></Button>
-													</ToastActionForm>
-												)}
-										</li>
-									)}
-								</Fragment>
-							))}
+							{listItems.map(renderListItem)}
 						</ul>
 					</HeadingLevel>
 				</ScrollArea>
