@@ -1,24 +1,54 @@
 import { useMutation, useQuery } from "convex/react"
-import { LucideUserRoundPlus, LucideUserX2 } from "lucide-react"
+import { startCase } from "lodash-es"
+import {
+	LucideCheckSquare,
+	LucideImage,
+	LucideSquare,
+	LucideUserRoundPlus,
+	LucideUserX2,
+} from "lucide-react"
 import { matchSorter } from "match-sorter"
-import { useState } from "react"
+import { Fragment, Key, ReactNode, useState } from "react"
 import { Button } from "~/components/Button.tsx"
 import { EmptyState } from "~/components/EmptyState.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
 import { textInput } from "~/styles/input.ts"
+import { NormalizedCharacter } from "../../../convex/characters.ts"
+import { ensure } from "../../../shared/errors.ts"
+import { Heading, HeadingLevel } from "../../components/Heading.tsx"
 import { ScrollArea } from "../../components/ScrollArea.tsx"
+import { ToastActionForm } from "../../components/ToastActionForm.tsx"
+import { groupBy } from "../../lib/object.ts"
 import { useRoomContext } from "../rooms/context.tsx"
-import { CharacterCard } from "./CharacterCard.tsx"
+import { useActiveSceneContext } from "../scenes/context.ts"
+import { CharacterEditorPopoverCard } from "./CharacterCard.tsx"
 import { ApiCharacter } from "./types.ts"
 
 export function CharacterList() {
 	const room = useRoomContext()
+	const scene = useActiveSceneContext()
 	const characters = useQuery(api.characters.list, { roomId: room._id })
 	const createCharacter = useMutation(api.characters.create)
+	const updateCharacter = useMutation(api.characters.update)
 	const [search, setSearch] = useState("")
 	const [editingId, setEditingId] = useState<Id<"characters">>()
+
+	type ListEditor = "sceneCharacters"
+
+	const [listEditor, setListEditor] = useState<ListEditor>()
+
+	const toggleListEditor = (next: ListEditor) =>
+		setListEditor((current) => (current !== next ? next : undefined))
+
+	const toggleInScene = async (character: NormalizedCharacter) => {
+		if (!scene) return
+		await updateCharacter({
+			characterId: character._id,
+			sceneId: character.sceneId !== scene._id ? scene._id : null,
+		})
+	}
 
 	if (characters === undefined) {
 		return (
@@ -28,26 +58,52 @@ export function CharacterList() {
 		)
 	}
 
-	// prettier-ignore
-	const getRank = (character: ApiCharacter) =>
-		character.isPlayer ? 0 :
-		character.type === 'player' ? 1 :
-		character.type === 'npc' ? 2 :
-		99999
-
-	const filteredCharacters = matchSorter(characters, search, {
-		keys: ["identity.name", "public.race"],
-		sorter: (items) => {
-			return items
-				.sort((a, b) => b.rank - a.rank)
-				.sort((a, b) =>
-					(a.item.identity?.name ?? "")
-						.toLowerCase()
-						.localeCompare((b.item.identity?.name ?? "").toLowerCase()),
-				)
-				.sort((a, b) => getRank(a.item) - getRank(b.item))
+	const groups = groupBy(
+		characters.filter((it) => it.sceneId == null || it.sceneId === scene?._id),
+		(it) => {
+			if (it.isPlayer) return "yourCharacters"
+			if (it.sceneId == null) return "global"
+			if (it.sceneId === scene?._id) return "currentScene"
+			return "otherScenes"
 		},
-	})
+	)
+
+	type ListItem = { key: Key } & (
+		| { type: "heading"; text: ReactNode }
+		| { type: "item"; item: ApiCharacter }
+	)
+
+	const sectionItems = (
+		groupName: "yourCharacters" | "global" | "currentScene" | "otherScenes",
+	): ListItem[] => {
+		const group = groups.get(groupName)
+		if (!group) return []
+
+		const filteredItems = matchSorter(group, search, {
+			keys: [(item) => item.identity?.name ?? "", (item) => item.race ?? ""],
+		})
+		if (filteredItems.length === 0) return []
+
+		return [
+			{
+				key: groupName,
+				type: "heading",
+				text: startCase(groupName),
+			},
+			...filteredItems.map<ListItem>((item) => ({
+				type: "item",
+				item,
+				key: item._id,
+			})),
+		]
+	}
+
+	const listItems: ListItem[] = [
+		...sectionItems("yourCharacters"),
+		...sectionItems("global"),
+		...sectionItems("currentScene"),
+		...sectionItems("otherScenes"),
+	]
 
 	const handleCreate = () => {
 		createCharacter({ roomId: room._id }).then(setEditingId)
@@ -74,22 +130,70 @@ export function CharacterList() {
 					</form>
 				)}
 			</div>
-			{filteredCharacters.length > 0 ? (
+
+			<div className="flex gap empty:hidden">
+				{room.isOwner && (
+					<Button
+						icon={<LucideImage />}
+						appearance={listEditor === "sceneCharacters" ? "solid" : "clear"}
+						onClick={() => toggleListEditor("sceneCharacters")}
+					>
+						Manage scene characters
+					</Button>
+				)}
+			</div>
+
+			{listItems.length > 0 ? (
 				<ScrollArea>
-					<ul className="flex w-full min-w-0 flex-col gap-2">
-						{filteredCharacters.map((character) => (
-							<li key={character._id} className="contents">
-								<CharacterCard
-									character={character}
-									open={editingId === character._id}
-									setOpen={(newOpen) => {
-										setEditingId(newOpen ? character._id : undefined)
-									}}
-									afterClone={setEditingId}
-								/>
-							</li>
-						))}
-					</ul>
+					<HeadingLevel>
+						<ul className="flex w-full min-w-0 flex-col gap">
+							{listItems.map((entry) => (
+								<Fragment key={entry.key}>
+									{entry.type === "heading" ? (
+										<Heading className="-mb-1 text-primary-100/70">
+											{entry.text}
+										</Heading>
+									) : (
+										<li key={entry.item._id} className="flex items-center gap">
+											<CharacterEditorPopoverCard
+												character={entry.item}
+												open={editingId === entry.item._id}
+												setOpen={(newOpen) => {
+													setEditingId(newOpen ? entry.item._id : undefined)
+												}}
+												afterClone={setEditingId}
+											/>
+
+											{listEditor === "sceneCharacters" &&
+												room.isOwner &&
+												entry.item.full &&
+												scene && (
+													<ToastActionForm
+														action={() =>
+															toggleInScene(ensure(entry.item.full))
+														}
+													>
+														<Button
+															type="submit"
+															appearance="clear"
+															size="small"
+															square
+															icon={
+																entry.item.full.sceneId === scene._id ? (
+																	<LucideCheckSquare />
+																) : (
+																	<LucideSquare />
+																)
+															}
+														></Button>
+													</ToastActionForm>
+												)}
+										</li>
+									)}
+								</Fragment>
+							))}
+						</ul>
+					</HeadingLevel>
 				</ScrollArea>
 			) : (
 				<EmptyState text="No characters found" icon={<LucideUserX2 />} />

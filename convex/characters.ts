@@ -30,7 +30,7 @@ export const get = query({
 			const userId = await ensureUserId(ctx)
 			const ent = await ctx.table("characters").getX(args.characterId)
 			return await protectCharacterEnt(ent, userId)
-		} catch (error) {
+		} catch {
 			return null
 		}
 	},
@@ -63,7 +63,7 @@ export const list = query({
 				characters.map((ent) => protectCharacterEnt(ent, userId)),
 			)
 			return compact(protectedCharacters)
-		} catch (error) {
+		} catch {
 			return []
 		}
 	},
@@ -310,7 +310,13 @@ export function protectCharacter(
 ) {
 	const isAdmin = isCharacterAdmin(character, room, userId)
 
-	const visible = isAdmin || character.visible
+	const visible = (() => {
+		if (isAdmin) return true
+		if (!character.visible) return false
+		if (character.sceneId == null) return true
+		if (character.sceneId === room.activeSceneId) return true
+		return false
+	})()
 
 	if (!visible) {
 		return null
@@ -319,6 +325,7 @@ export function protectCharacter(
 	return {
 		_id: character._id,
 		imageId: character.imageId,
+		sceneId: character.sceneId,
 		race: character.race,
 		conditions: character.conditions,
 		isAdmin,
