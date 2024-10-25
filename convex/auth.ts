@@ -47,7 +47,7 @@ export const { auth, signIn, signOut, store } = convexAuth({
 							},
 						})
 						userId = result.user._id
-					} catch (error) {
+					} catch {
 						throw new ConvexError("Invalid username or password")
 					}
 				} else {
@@ -97,4 +97,8 @@ export async function getAuthUser(ctx: EntQueryCtx) {
 
 export async function ensureUserId(ctx: { auth: Auth }) {
 	return ensure(await getAuthUserId(ctx), new ConvexError("Not logged in"))
+}
+
+export async function ensureAuthUser(ctx: EntQueryCtx) {
+	return ensure(await getAuthUser(ctx), new ConvexError("Not logged in"))
 }

@@ -77,7 +77,7 @@ export function CharacterList() {
 		if (!group) return []
 
 		const filteredItems = matchSorter(group, search, {
-			keys: [(item) => item.identity?.name ?? "", (item) => item.race ?? ""],
+			keys: [(item) => item.identity?.name ?? [], (item) => item.race ?? ""],
 		})
 		if (filteredItems.length === 0) return []
 
@@ -189,7 +189,10 @@ export function CharacterList() {
 			{listItems.length > 0 ? (
 				<ScrollArea>
 					<HeadingLevel>
-						<ul className="flex w-full min-w-0 flex-col gap">
+						<ul
+							className="flex w-full min-w-0 flex-col gap data-[editing=true]:animate-pulse"
+							data-editing={listEditor != null}
+						>
 							{listItems.map(renderListItem)}
 						</ul>
 					</HeadingLevel>

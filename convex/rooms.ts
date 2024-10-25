@@ -1,11 +1,11 @@
 import type { PromiseEntOrNull } from "convex-ents"
 import { ConvexError, v, type Infer } from "convex/values"
-import { mapValues, merge, pickBy } from "lodash-es"
+import { mapValues, merge, pickBy, uniqBy } from "lodash-es"
 import { mod } from "~/common/math.ts"
 import { DEFAULT_INVENTORY_ITEMS } from "~/features/inventory/items.ts"
 import { List } from "~/shared/list.ts"
 import type { Doc, Id } from "./_generated/dataModel"
-import { ensureUserId, InaccessibleError } from "./auth.ts"
+import { ensureAuthUser, ensureUserId, InaccessibleError } from "./auth.ts"
 import { normalizeCharacter, protectCharacter } from "./characters.ts"
 import { mutation, query, type Ent, type EntQueryCtx } from "./lib/ents.ts"
 import { partial, tableFields } from "./lib/validators.ts"
@@ -19,7 +19,7 @@ export const list = query({
 			const ownedRooms = await user.edge("ownedRooms").map((ent) => ent.doc())
 			const joinedRooms = await user.edge("joinedRooms").map((ent) => ent.doc())
 			return [...ownedRooms, ...joinedRooms]
-		} catch (error) {
+		} catch {
 			return []
 		}
 	},
@@ -42,7 +42,7 @@ export const get = query({
 			}
 
 			return normalizeRoom(ent, userId)
-		} catch (error) {
+		} catch {
 			return null
 		}
 	},
@@ -116,7 +116,7 @@ export const getJoined = query({
 
 			const players = await room.edge("players").docs()
 			return players.some((it) => it._id === userId)
-		} catch (error) {
+		} catch {
 			return false
 		}
 	},
@@ -145,12 +145,21 @@ export const getPlayers = query({
 	},
 	async handler(ctx, { roomId }) {
 		try {
-			const { room } = await queryViewerOwnedRoom(
-				ctx,
-				ctx.table("rooms").get(roomId),
-			)
-			return await room.edge("players").docs()
-		} catch (error) {
+			const user = await ensureAuthUser(ctx)
+
+			const room = await ctx
+				.table("rooms", "ownerId")
+				.filter((q) =>
+					q.and(
+						q.eq(q.field("_id"), roomId),
+						q.eq(q.field("ownerId"), user._id),
+					),
+				)
+				.uniqueX()
+
+			const players = await room.edge("players").docs()
+			return uniqBy([...players, user], "_id")
+		} catch {
 			return []
 		}
 	},
@@ -167,7 +176,7 @@ export const getCombat = query({
 			const { combat } = room
 			if (combat == null) return null
 			return await normalizeRoomCombat(ctx, room, userId)
-		} catch (error) {
+		} catch {
 			return null
 		}
 	},

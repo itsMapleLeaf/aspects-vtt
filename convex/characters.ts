@@ -332,16 +332,12 @@ export function protectCharacter(
 		isPlayer: character.playerId === userId,
 		type: character.type,
 
-		...(isAdmin && {
-			full: character,
-		}),
+		full: isAdmin ? character : null,
 
-		...((character.nameVisible || isAdmin) && {
-			identity: {
-				name: character.name,
-				pronouns: character.pronouns,
-			},
-		}),
+		identity:
+			character.nameVisible || isAdmin
+				? { name: character.name, pronouns: character.pronouns }
+				: null,
 
 		/** @deprecated Access the public properties directly */
 		public: {

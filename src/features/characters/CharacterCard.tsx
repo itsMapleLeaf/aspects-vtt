@@ -35,7 +35,7 @@ export function CharacterCard({
 				className="size-12"
 			/>
 			<div className="min-w-0 flex-1">
-				<div className="flex items-center gap-1.5">
+				<div className="flex items-center gap-2">
 					<Heading className={secondaryHeading("shrink truncate empty:hidden")}>
 						{character.identity?.name ?? (
 							<span className="opacity-70">(unknown)</span>
@@ -69,8 +69,8 @@ function CharacterVisibilityIcon({ character }: { character: ApiCharacter }) {
 			// public (players can see name and profile)
 			.with(
 				P.union(
+					{ full: P.nullish, identity: P.nonNullable },
 					{ full: { visible: true, nameVisible: true } },
-					{ identity: P._ },
 				),
 				() => (
 					<Tooltip>
@@ -81,13 +81,21 @@ function CharacterVisibilityIcon({ character }: { character: ApiCharacter }) {
 					</Tooltip>
 				),
 			)
-			// anonymous (players can see profile)
-			.with(P._, () => (
-				<Tooltip>
-					<TooltipTrigger render={<Lucide.VenetianMask />} />
-					<TooltipContent>This character&apos;s name is hidden.</TooltipContent>
-				</Tooltip>
-			))
+			// anonymous (players can see profile, but not the name)
+			.with(
+				P.union(
+					{ full: P.nullish, identity: P.nullish },
+					{ full: { visible: true, nameVisible: false } },
+				),
+				() => (
+					<Tooltip>
+						<TooltipTrigger render={<Lucide.VenetianMask />} />
+						<TooltipContent>
+							This character&apos;s name is hidden.
+						</TooltipContent>
+					</Tooltip>
+				),
+			)
 			// private (not accessible to players)
 			// we always show this if the viewer can see this
 			// despite all other options not matching
