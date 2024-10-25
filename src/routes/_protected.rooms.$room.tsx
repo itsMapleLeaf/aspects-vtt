@@ -21,7 +21,7 @@ import {
 } from "~/features/battlemap/context.ts"
 import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
-import { RoomInterfaceModules } from "~/features/rooms/RoomInterfaceModules.tsx"
+import { RoomPanels } from "~/features/rooms/RoomPanels.tsx"
 import { ApiRoom } from "~/features/rooms/types.ts"
 import {
 	ActiveSceneContext,
@@ -165,7 +165,7 @@ function RoomInterface() {
 				<SceneHeading />
 
 				<main className="pointer-events-children flex min-h-0 flex-1 items-stretch justify-between *:w-72">
-					<RoomInterfaceModules
+					<RoomPanels
 						leftSidebarOpen={leftSidebarOpen}
 						rightSidebarOpen={rightSidebarOpen}
 					/>

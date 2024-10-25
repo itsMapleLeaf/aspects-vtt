@@ -3,10 +3,12 @@ import { LucideUserRoundPlus, LucideUserX2 } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
 import { Button } from "~/components/Button.tsx"
+import { EmptyState } from "~/components/EmptyState.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
-import { SearchListLayout } from "../inventory/SearchListLayout.tsx"
+import { textInput } from "~/styles/input.ts"
+import { ScrollArea } from "../../components/ScrollArea.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterCard } from "./CharacterCard.tsx"
 import { ApiCharacter } from "./types.ts"
@@ -27,7 +29,7 @@ export function CharacterList() {
 	}
 
 	// prettier-ignore
-	const getRank = (character:ApiCharacter) =>
+	const getRank = (character: ApiCharacter) =>
 		character.isPlayer ? 0 :
 		character.type === 'player' ? 1 :
 		character.type === 'npc' ? 2 :
@@ -52,37 +54,46 @@ export function CharacterList() {
 	}
 
 	return (
-		<>
-			<SearchListLayout
-				items={filteredCharacters}
-				itemKey={(character) => character._id}
-				renderItem={(character) => (
-					<CharacterCard
-						character={character}
-						open={editingId === character._id}
-						setOpen={(newOpen) => {
-							setEditingId(newOpen ? character._id : undefined)
-						}}
-						afterClone={setEditingId}
-					/>
+		<div className="flex h-full min-h-0 flex-col gap-2">
+			<div className="flex gap">
+				<input
+					className={textInput("flex-1")}
+					placeholder="Search..."
+					value={search}
+					onChange={(event) => setSearch(event.target.value)}
+				/>
+				{room.isOwner && (
+					<form action={handleCreate} className="contents">
+						<Button
+							type="submit"
+							appearance="clear"
+							icon={<LucideUserRoundPlus />}
+						>
+							<span className="sr-only">Create Character</span>
+						</Button>
+					</form>
 				)}
-				onSearch={setSearch}
-				emptyStateIcon={<LucideUserX2 />}
-				emptyStateText="No characters found"
-				actions={
-					room.isOwner && (
-						<form action={handleCreate} className="contents">
-							<Button
-								type="submit"
-								appearance="clear"
-								icon={<LucideUserRoundPlus />}
-							>
-								<span className="sr-only">Create Character</span>
-							</Button>
-						</form>
-					)
-				}
-			/>
-		</>
+			</div>
+			{filteredCharacters.length > 0 ? (
+				<ScrollArea>
+					<ul className="flex w-full min-w-0 flex-col gap-2">
+						{filteredCharacters.map((character) => (
+							<li key={character._id} className="contents">
+								<CharacterCard
+									character={character}
+									open={editingId === character._id}
+									setOpen={(newOpen) => {
+										setEditingId(newOpen ? character._id : undefined)
+									}}
+									afterClone={setEditingId}
+								/>
+							</li>
+						))}
+					</ul>
+				</ScrollArea>
+			) : (
+				<EmptyState text="No characters found" icon={<LucideUserX2 />} />
+			)}
+		</div>
 	)
 }

@@ -27,6 +27,7 @@
     "@fontsource-variable/nunito": "^5.0.21",
     "@formkit/auto-animate": "^0.8.2",
     "@icons-pack/react-simple-icons": "^10.0.0",
+    "@radix-ui/react-scroll-area": "^1.2.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@remix-run/node": "2.13.1",
     "@remix-run/react": "2.13.1",
