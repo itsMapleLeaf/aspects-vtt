@@ -1,6 +1,7 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
 import { ComponentProps, startTransition } from "react"
+import { match, P } from "ts-pattern"
 import { Avatar } from "~/components/Avatar.tsx"
 import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
@@ -9,9 +10,11 @@ import { primaryHeading, secondaryHeading } from "~/styles/text.ts"
 import { Id } from "../../../convex/_generated/dataModel"
 import { Field } from "../../components/Field.tsx"
 import { fadeTransition, fadeZoomTransition } from "../../styles/transitions.ts"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { CharacterEditor } from "./CharacterEditor.tsx"
 import { RaceAbilityList } from "./RaceAbilityList.tsx"
+import { ApiCharacter } from "./types.ts"
 
 export function CharacterCard({
 	character,
@@ -38,12 +41,10 @@ export function CharacterCard({
 							<span className="opacity-70">(unknown)</span>
 						)}
 					</Heading>
-					{character.full && !character.full.nameVisible && (
-						<Lucide.EyeOff className="size-4 shrink-0 opacity-50" />
-					)}
-					{character.isPlayer && (
-						<Lucide.User2 className="size-4 shrink-0 opacity-50" />
-					)}
+
+					<div className="shrink-0 opacity-50 transition-opacity *:size-4 hover:opacity-100">
+						<CharacterVisibilityIcon character={character} />
+					</div>
 				</div>
 				<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
 					{[character.race, character.identity?.pronouns]
@@ -52,6 +53,52 @@ export function CharacterCard({
 				</p>
 			</div>
 		</div>
+	)
+}
+
+function CharacterVisibilityIcon({ character }: { character: ApiCharacter }) {
+	return (
+		match(character)
+			// viewer is the player of this character
+			.with({ isPlayer: true }, () => (
+				<Tooltip>
+					<TooltipTrigger render={<Lucide.User2 />} />
+					<TooltipContent>You are the player of this character.</TooltipContent>
+				</Tooltip>
+			))
+			// public (players can see name and profile)
+			.with(
+				P.union(
+					{ full: { visible: true, nameVisible: true } },
+					{ identity: P._ },
+				),
+				() => (
+					<Tooltip>
+						<TooltipTrigger render={<Lucide.Globe />} />
+						<TooltipContent>
+							This character&apos;s name and basic profile are public.
+						</TooltipContent>
+					</Tooltip>
+				),
+			)
+			// anonymous (players can see profile)
+			.with(P._, () => (
+				<Tooltip>
+					<TooltipTrigger render={<Lucide.VenetianMask />} />
+					<TooltipContent>This character&apos;s name is hidden.</TooltipContent>
+				</Tooltip>
+			))
+			// private (not accessible to players)
+			// we always show this if the viewer can see this
+			// despite all other options not matching
+			.otherwise(() => (
+				<Tooltip>
+					<TooltipTrigger render={<Lucide.Lock />} />
+					<TooltipContent>
+						This character is private, and can only be seen by room owners.
+					</TooltipContent>
+				</Tooltip>
+			))
 	)
 }
 
