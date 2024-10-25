@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import { startTransition } from "react"
+import { ComponentProps, startTransition } from "react"
 import { Avatar } from "~/components/Avatar.tsx"
 import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
@@ -14,6 +14,48 @@ import { CharacterEditor } from "./CharacterEditor.tsx"
 import { RaceAbilityList } from "./RaceAbilityList.tsx"
 
 export function CharacterCard({
+	character,
+	...props
+}: {
+	character: ProtectedCharacter
+} & ComponentProps<"div">) {
+	return (
+		<div
+			{...props}
+			className={interactivePanel(
+				"group flex w-full min-w-0 items-center p-2 text-start gap-2",
+				props.className,
+			)}
+		>
+			<Avatar
+				src={character.imageId && getImageUrl(character.imageId)}
+				className="size-12"
+			/>
+			<div className="min-w-0 flex-1">
+				<div className="flex items-center gap-1.5">
+					<Heading className={secondaryHeading("shrink truncate empty:hidden")}>
+						{character.identity?.name ?? (
+							<span className="opacity-70">(unknown)</span>
+						)}
+					</Heading>
+					{character.full && !character.full.nameVisible && (
+						<Lucide.EyeOff className="size-4 shrink-0 opacity-50" />
+					)}
+					{character.isPlayer && (
+						<Lucide.User2 className="size-4 shrink-0 opacity-50" />
+					)}
+				</div>
+				<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
+					{[character.race, character.identity?.pronouns]
+						.filter(Boolean)
+						.join(" • ")}
+				</p>
+			</div>
+		</div>
+	)
+}
+
+export function CharacterEditorPopoverCard({
 	character,
 	open,
 	setOpen,
@@ -35,37 +77,8 @@ export function CharacterCard({
 			}}
 		>
 			<Ariakit.PopoverDisclosure
-				className={interactivePanel(
-					"group flex w-full items-center p-2 text-start gap-2",
-				)}
-			>
-				<Avatar
-					src={character.imageId && getImageUrl(character.imageId)}
-					className="size-12"
-				/>
-				<div className="min-w-0 flex-1">
-					<div className="flex items-center gap-1.5">
-						<Heading
-							className={secondaryHeading("shrink truncate empty:hidden")}
-						>
-							{character.identity?.name ?? (
-								<span className="opacity-70">(unknown)</span>
-							)}
-						</Heading>
-						{character.full && !character.full.nameVisible && (
-							<Lucide.EyeOff className="size-4 shrink-0 opacity-50" />
-						)}
-						{character.isPlayer && (
-							<Lucide.User2 className="size-4 shrink-0 opacity-50" />
-						)}
-					</div>
-					<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
-						{[character.race, character.identity?.pronouns]
-							.filter(Boolean)
-							.join(" • ")}
-					</p>
-				</div>
-			</Ariakit.PopoverDisclosure>
+				render={<CharacterCard character={character} />}
+			></Ariakit.PopoverDisclosure>
 
 			<Ariakit.Popover
 				className={panel(
