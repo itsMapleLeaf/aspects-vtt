@@ -297,7 +297,7 @@ async function queryViewableCharacter<EntType extends Ent<"characters">>(
 		character.ownerId === userId
 
 	if (!authorized) {
-		throw new InaccessibleError({ table: "characters" })
+		throw new InaccessibleError({ table: "characters", id: character._id })
 	}
 
 	return { character, room, userId }
