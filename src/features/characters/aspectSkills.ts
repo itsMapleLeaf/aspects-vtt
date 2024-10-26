@@ -430,7 +430,7 @@ export const ASPECT_SKILLS = defineSkills({
 		aspectId: "wind",
 		category: "acrobatics",
 		price: 20,
-		requires: ["breeze"],
+		requires: ["impulse"],
 	},
 	dodging: {
 		description: `Use wind to enhance reflexes and avoid attacks.
@@ -438,7 +438,7 @@ export const ASPECT_SKILLS = defineSkills({
 		aspectId: "wind",
 		category: "acrobatics",
 		price: 20,
-		requires: ["breeze"],
+		requires: ["impulse"],
 	},
 	//#endregion
 
