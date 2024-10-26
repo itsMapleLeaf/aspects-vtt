@@ -315,13 +315,6 @@ export function protectCharacter(
 			character.nameVisible || isAdmin
 				? { name: character.name, pronouns: character.pronouns }
 				: null,
-
-		/** @deprecated Access the public properties directly */
-		public: {
-			_id: character._id,
-			imageId: character.imageId,
-			race: character.race,
-		},
 	}
 }
 

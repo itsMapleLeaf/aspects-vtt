@@ -155,7 +155,7 @@ function MessageCard({
 		roomId: message.roomId,
 	})
 	const namesById = new Map(
-		characters?.map((it) => [it.public._id, it.identity?.name]),
+		characters?.map((it) => [it._id, it.identity?.name]),
 	)
 	return (
 		<div className={lightPanel("flex flex-col p-2 gap-2")}>
