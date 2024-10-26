@@ -332,7 +332,7 @@ export function protectCharacter(
 		isPlayer: character.playerId === userId,
 		type: character.type,
 
-		full: isAdmin ? character : null,
+		full: visible ? character : null,
 
 		identity:
 			character.nameVisible || isAdmin
