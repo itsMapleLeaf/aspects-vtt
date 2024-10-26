@@ -537,6 +537,21 @@ export const ASPECT_SKILLS = defineSkills({
 		price: 50,
 		requires: [],
 	},
+
+	trueSight: {
+		description: `See through any illusion.`,
+		aspectId: "light",
+		category: "discern",
+		price: 10,
+		requires: [],
+	},
+	demystify: {
+		description: `Break an illusion, such that others cannot be fooled by it.`,
+		aspectId: "light",
+		category: "discern",
+		price: 30,
+		requires: [],
+	},
 	//#endregion
 
 	//#region Darkness
@@ -641,7 +656,7 @@ export const ASPECT_SKILLS = defineSkills({
 		requires: [],
 	},
 	grievousWhispers: {
-		description: `Whisper dark thoughts into a target's mind. Until your next turn, they must roll higher than your wit's power to attack you.
+		description: `Whisper dark thoughts into a target's mind. Until your next turn, they must roll higher than your wit's power to attack you or your allies.
 		Repeatable: Spend 1 resolve for an additional target.`,
 		aspectId: "darkness",
 		category: "weakness",
@@ -649,7 +664,7 @@ export const ASPECT_SKILLS = defineSkills({
 		requires: [],
 	},
 	nightmares: {
-		description: `Induce terrifying visions in a target's mind. They lose 1 resolve.
+		description: `Induce terrifying visions in a target's mind. They lose 1d4 resolve.
 		Repeatable: Spend 1 resolve for an additional target.`,
 		aspectId: "darkness",
 		category: "weakness",
