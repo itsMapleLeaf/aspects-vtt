@@ -280,26 +280,6 @@ export type ProtectedCharacter = NonNullable<
 	ReturnType<typeof protectCharacter>
 >
 
-async function queryViewableCharacter<EntType extends Ent<"characters">>(
-	ctx: EntQueryCtx,
-	query: PromiseLike<EntType | null>,
-) {
-	const character = await query
-	if (!character) {
-		throw new InaccessibleError({ table: "characters" })
-	}
-
-	const room = await character.edgeX("room")
-	const userId = await ensureUserId(ctx)
-	const authorized = isCharacterAdmin(character, room, userId)
-
-	if (!authorized) {
-		throw new InaccessibleError({ table: "characters", id: character._id })
-	}
-
-	return { character, room, userId }
-}
-
 export function protectCharacter(
 	character: NormalizedCharacter,
 	userId: Id<"users">,
@@ -329,7 +309,7 @@ export function protectCharacter(
 		isPlayer: character.playerId === userId,
 		type: character.type,
 
-		full: visible ? character : null,
+		full: isAdmin ? character : null,
 
 		identity:
 			character.nameVisible || isAdmin
@@ -343,6 +323,26 @@ export function protectCharacter(
 			race: character.race,
 		},
 	}
+}
+
+async function queryViewableCharacter<EntType extends Ent<"characters">>(
+	ctx: EntQueryCtx,
+	query: PromiseLike<EntType | null>,
+) {
+	const character = await query
+	if (!character) {
+		throw new InaccessibleError({ table: "characters" })
+	}
+
+	const room = await character.edgeX("room")
+	const userId = await ensureUserId(ctx)
+	const authorized = isCharacterAdmin(character, room, userId)
+
+	if (!authorized) {
+		throw new InaccessibleError({ table: "characters", id: character._id })
+	}
+
+	return { character, room, userId }
 }
 
 export function isCharacterAdmin(
