@@ -1,5 +1,11 @@
 import { useMutation, useQuery } from "convex/react"
-import { LucideEdit, LucideEye, LucideEyeOff, LucideSwords } from "lucide-react"
+import {
+	LucideEdit,
+	LucideEye,
+	LucideEyeOff,
+	LucideSwords,
+	LucideTrash,
+} from "lucide-react"
 import { ComponentProps, createContext, use, useState } from "react"
 import { match, P } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
@@ -60,16 +66,17 @@ export function TokenMenu({
 	const room = useRoomContext()
 	const scene = useActiveSceneContext()
 	const update = useMutation(api.tokens.update)
+	const remove = useMutation(api.tokens.remove)
 
-	const tokens =
+	const selectedTokens =
 		useQuery(api.tokens.list, scene ? { sceneId: scene._id } : "skip")?.filter(
 			(token) => controller.tokenIds.has(token._id),
 		) ?? []
 
-	const visibleTokens = tokens.filter((it) => it.visible)
-	const hiddenTokens = tokens.filter((it) => !it.visible)
+	const visibleTokens = selectedTokens.filter((it) => it.visible)
+	const hiddenTokens = selectedTokens.filter((it) => !it.visible)
 
-	const characters = tokens.flatMap((it) =>
+	const characters = selectedTokens.flatMap((it) =>
 		it.characterId ? [it.character] : [],
 	)
 	const fullCharacters = characters.map((it) => it.full).filter(Boolean)
@@ -81,7 +88,7 @@ export function TokenMenu({
 
 	const attackingCharacters =
 		attackingCharacterIds &&
-		tokens
+		selectedTokens
 			.map((it) => it.characterId && it.character)
 			.filter(Boolean)
 			.filter((it) => attackingCharacterIds.has(it._id))
@@ -97,9 +104,7 @@ export function TokenMenu({
 					onClose={controller.close}
 				>
 					{fullCharacters.length > 0 && (
-						<CharacterAttributeButtonRow
-							characters={fullCharacters}
-						/>
+						<CharacterAttributeButtonRow characters={fullCharacters} />
 					)}
 
 					{room.isOwner && hiddenTokens.length > 0 && (
@@ -146,6 +151,29 @@ export function TokenMenu({
 						</ToastActionForm>
 					)}
 
+					{room.isOwner && (
+						<ToastActionForm
+							action={() =>
+								remove({
+									tokenIds: selectedTokens.map((it) => it._id),
+								})
+							}
+						>
+							<Popover.Close
+								render={
+									<Button
+										type="submit"
+										appearance="clear"
+										icon={<LucideTrash />}
+										className="w-full justify-start"
+									>
+										Remove
+									</Button>
+								}
+							/>
+						</ToastActionForm>
+					)}
+
 					{match(characters)
 						.with([{ full: P.nonNullable }], ([character]) => (
 							<>
@@ -189,7 +217,6 @@ export function TokenMenu({
 							(characters) => {
 								return (
 									<>
-
 										{fullCharacters.length > 0 && room.isOwner && (
 											<CharacterToggleCombatMemberButton
 												appearance="clear"
