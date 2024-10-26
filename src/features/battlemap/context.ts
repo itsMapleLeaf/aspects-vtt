@@ -2,12 +2,12 @@ import { createContext, RefObject, use } from "react"
 import { Vec } from "~/shared/vec.ts"
 
 export type BattleMapStageInfo = {
-	getViewportCenter: () => Vec
+	getViewportCenter: () => { x: number; y: number }
 }
 
 export const defaultStageInfo: BattleMapStageInfo = {
 	getViewportCenter: () =>
-		Vec.from([window.innerWidth, window.innerHeight]).divide(2),
+		Vec.from([window.innerWidth, window.innerHeight]).divide(2).toJSON(),
 }
 
 export const BattleMapStageInfoContext = createContext<

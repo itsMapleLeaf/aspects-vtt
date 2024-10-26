@@ -247,6 +247,16 @@ export function isRoomOwner(room: Doc<"rooms">, userId: Id<"users">) {
 	return room.ownerId === userId
 }
 
+export async function ensureViewerRoomOwner(
+	ctx: EntQueryCtx,
+	room: Doc<"rooms">,
+) {
+	const userId = await ensureUserId(ctx)
+	if (!isRoomOwner(room, userId)) {
+		throw new InaccessibleError({ table: "rooms", id: room._id })
+	}
+}
+
 export async function queryViewerOwnedRoom<
 	Query extends PromiseEntOrNull<typeof entDefinitions, "rooms">,
 >(ctx: EntQueryCtx, query: Query) {

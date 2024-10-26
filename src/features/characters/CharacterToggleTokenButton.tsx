@@ -41,7 +41,7 @@ export function CharacterToggleTokenButton({
 			inputs: outOfScene.map((characterId) => ({
 				sceneId: scene._id,
 				characterId,
-				position: stageInfo.current.getViewportCenter().toJSON(),
+				position: stageInfo.current.getViewportCenter(),
 			})),
 		})
 	}
@@ -50,7 +50,7 @@ export function CharacterToggleTokenButton({
 		const inSceneSet = new Set(inScene)
 		await removeTokens({
 			tokenIds: sceneTokens
-				.filter((it) => inSceneSet.has(it.characterId))
+				.filter((it) => it.characterId && inSceneSet.has(it.characterId))
 				.map((it) => it._id),
 		})
 	}

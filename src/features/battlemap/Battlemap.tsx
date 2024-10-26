@@ -1,8 +1,15 @@
-import { useMutation, useQuery } from "convex/react"
+import { useConvex, useMutation, useQuery } from "convex/react"
 import Konva from "konva"
 import { clamp } from "lodash-es"
-import { ReactNode, useImperativeHandle, useRef, useState } from "react"
-import { Group, Image, Layer, Rect, Stage, StageProps } from "react-konva"
+import { LucideInfo } from "lucide-react"
+import {
+	ReactNode,
+	startTransition,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from "react"
+import { Group, Image, Layer, Rect, Stage } from "react-konva"
 import * as v from "valibot"
 import { useImage, useLocalStorage, useWindowSize } from "~/common/react/dom.ts"
 import { api } from "~/convex/_generated/api.js"
@@ -10,12 +17,16 @@ import { List } from "~/shared/list.ts"
 import { Region } from "~/shared/region.ts"
 import { Vec } from "~/shared/vec.ts"
 import { Id } from "../../../convex/_generated/dataModel"
-import { CharacterBattlemapToken } from "../characters/CharacterBattlemapToken.tsx"
-import { useCharacterMenu } from "../characters/CharacterMenu.tsx"
+import { ensure } from "../../../shared/errors.ts"
+import { MenuPanel } from "../../components/Menu.tsx"
+import { useToastAction } from "../../components/ToastActionForm.tsx"
+import { CharacterBattlemapToken } from "../battlemap/BattlemapToken.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
+import { useActiveSceneContext } from "../scenes/context.ts"
 import type { ApiScene } from "../scenes/types.ts"
 import { useBattleMapStageInfo } from "./context.ts"
 import { PingGroup } from "./PingGroup.tsx"
+import { useTokenMenu } from "./TokenMenu.tsx"
 import { ApiToken } from "./types.ts"
 
 export function Battlemap({
@@ -27,7 +38,7 @@ export function Battlemap({
 }) {
 	const tokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
 
-	const [selecting, setSelecting] = useState(false)
+	const [_selecting, setSelecting] = useState(false)
 	const [selectedIds, setSelectedIds] = useState(new Set<ApiToken["_id"]>())
 
 	const selected = tokens.filter((it) => selectedIds.has(it._id))
@@ -42,9 +53,11 @@ export function Battlemap({
 		}
 	}
 
+	const getSortRank = (token: ApiToken) =>
+		[token.characterId == null, true].indexOf(true)
+
 	return (
 		<BattlemapStage
-			className="isolate overflow-clip"
 			onSelectRegionStart={() => {
 				setSelecting(true)
 			}}
@@ -70,6 +83,7 @@ export function Battlemap({
 
 			{deselected
 				.toSorted((a, b) => b.updatedAt - a.updatedAt)
+				.toSorted((a, b) => getSortRank(b) - getSortRank(a))
 				.map((token) => (
 					<DraggableTokenGroup key={token._id} tokens={[token]} scene={scene}>
 						<CharacterBattlemapToken
@@ -87,6 +101,7 @@ export function Battlemap({
 			<DraggableTokenGroup tokens={selected} scene={scene}>
 				{selected
 					.toSorted((a, b) => b.updatedAt - a.updatedAt)
+					.toSorted((a, b) => getSortRank(b) - getSortRank(a))
 					.map((token) => (
 						<CharacterBattlemapToken
 							key={token._id}
@@ -115,10 +130,12 @@ function DraggableTokenGroup({
 	children: ReactNode
 }) {
 	const [dragStart, setDragStart] = useState<Vec>()
-	const menu = useCharacterMenu()
+	const menu = useTokenMenu()
 	const updateTokens = useMutation(api.tokens.update).withOptimisticUpdate(
 		(store, args) => {
-			const updatesById = new Map(args.updates.map((it) => [it.tokenId, it]))
+			const updatesById = new Map(
+				args.updates.map(({ characterId: _, ...it }) => [it.tokenId, it]),
+			)
 
 			const tokens = store.getQuery(api.tokens.list, { sceneId: scene._id })
 			if (!tokens) return
@@ -147,7 +164,7 @@ function DraggableTokenGroup({
 			onContextMenu={(event) => {
 				menu.handleTrigger(
 					event.evt,
-					tokens.map((it) => it.characterId),
+					tokens.map((it) => it._id),
 				)
 			}}
 			onDragStart={(event) => {
@@ -198,8 +215,7 @@ function BattlemapStage({
 	children,
 	onSelectRegionStart,
 	onSelectRegion,
-	...props
-}: StageProps & {
+}: {
 	children: ReactNode
 	onSelectRegionStart: () => void
 	onSelectRegion: (region: {
@@ -245,8 +261,6 @@ function BattlemapStage({
 		clamp(Math.round(zoomTick), -10, 10)
 
 	const handleWheel = (event: Konva.KonvaEventObject<WheelEvent>) => {
-		props.onWheel?.(event)
-
 		const newZoomTick = normalizeZoomTick(
 			zoomTick - Math.sign(event.evt.deltaY),
 		)
@@ -280,7 +294,7 @@ function BattlemapStage({
 			if (!stage) return windowCenter
 
 			// translates the window center to a local stage coordinate
-			return Vec.from(stage.getTransform().invert().point(windowCenter))
+			return stage.getTransform().invert().point(windowCenter)
 		},
 	}))
 
@@ -304,115 +318,173 @@ function BattlemapStage({
 		},
 	)
 
+	const menu = useBattlemapMenu()
+
 	return (
-		<Stage
-			ref={stageRef}
-			width={windowWidth}
-			height={windowHeight}
-			x={translate.x}
-			y={translate.y}
-			scaleX={getZoom(zoomTick)}
-			scaleY={getZoom(zoomTick)}
-			draggable
-			{...props}
-			onPointerDown={(event) => {
-				props.onPointerDown?.(event)
-				if (event.evt.button === 0) {
+		<>
+			{menu.element}
+			<Stage
+				ref={stageRef}
+				width={windowWidth}
+				height={windowHeight}
+				x={translate.x}
+				y={translate.y}
+				scaleX={getZoom(zoomTick)}
+				scaleY={getZoom(zoomTick)}
+				draggable
+				className="isolate overflow-clip"
+				onPointerDown={(event) => {
+					if (event.evt.button === 0) {
+						event.evt.preventDefault()
+						const pointer = event.currentTarget.getRelativePointerPosition()
+						if (pointer) {
+							setSelectionStart(Vec.from(pointer))
+						}
+					}
+					if (event.evt.button === 1) {
+						event.evt.preventDefault()
+						const position = event.currentTarget.getRelativePointerPosition()
+						if (position) {
+							createPing({
+								roomId: room._id,
+								position,
+								key: crypto.randomUUID(),
+							})
+						}
+					}
+					menu.handlePointerDown(event.evt)
+				}}
+				onPointerMove={(event) => {
+					if (selectionStart) {
+						const pointer = event.currentTarget.getRelativePointerPosition()
+						if (pointer) {
+							setSelectionEnd(Vec.from(pointer))
+							onSelectRegionStart()
+						}
+					}
+				}}
+				onPointerUp={(event) => {
+					if (event.evt.button === 0) {
+						if (selectionStart && selectionEnd) {
+							const topLeft = selectionStart.zip(selectionEnd, Math.min)
+							const bottomRight = selectionStart.zip(selectionEnd, Math.max)
+							onSelectRegion({
+								x: topLeft.x,
+								y: topLeft.y,
+								width: bottomRight.x - topLeft.x,
+								height: bottomRight.y - topLeft.y,
+							})
+						} else if (selectionStart) {
+							onSelectRegion({
+								x: selectionStart.x,
+								y: selectionStart.y,
+								width: 0,
+								height: 0,
+							})
+						}
+						setSelectionStart(undefined)
+						setSelectionEnd(undefined)
+					}
+				}}
+				onDragEnd={(event) => {
+					setTranslate(event.target.position())
+				}}
+				onContextMenu={(event) => {
 					event.evt.preventDefault()
-					const pointer = event.currentTarget.getRelativePointerPosition()
-					if (pointer) {
-						setSelectionStart(Vec.from(pointer))
+					menu.handleContextMenu(event.evt)
+				}}
+				onWheel={handleWheel}
+				onPointerDblClick={(event) => {
+					if (event.evt.button === 0) {
+						event.evt.preventDefault()
+						const position = event.currentTarget.getRelativePointerPosition()
+						if (position) {
+							createPing({
+								roomId: room._id,
+								position,
+								key: crypto.randomUUID(),
+							})
+						}
 					}
-				}
-				if (event.evt.button === 1) {
-					event.evt.preventDefault()
-					const position = event.currentTarget.getRelativePointerPosition()
-					if (position) {
-						createPing({
-							roomId: room._id,
-							position,
-							key: crypto.randomUUID(),
-						})
-					}
-				}
-			}}
-			onPointerMove={(event) => {
-				if (selectionStart) {
-					const pointer = event.currentTarget.getRelativePointerPosition()
-					if (pointer) {
-						setSelectionEnd(Vec.from(pointer))
-						onSelectRegionStart()
-					}
-				}
-			}}
-			onPointerUp={(event) => {
-				if (event.evt.button === 0) {
-					if (selectionStart && selectionEnd) {
-						const topLeft = selectionStart.zip(selectionEnd, Math.min)
-						const bottomRight = selectionStart.zip(selectionEnd, Math.max)
-						onSelectRegion({
-							x: topLeft.x,
-							y: topLeft.y,
-							width: bottomRight.x - topLeft.x,
-							height: bottomRight.y - topLeft.y,
-						})
-					} else if (selectionStart) {
-						onSelectRegion({
-							x: selectionStart.x,
-							y: selectionStart.y,
-							width: 0,
-							height: 0,
-						})
-					}
-					setSelectionStart(undefined)
-					setSelectionEnd(undefined)
-				}
-			}}
-			onDragStart={(event) => {
-				props.onDragStart?.(event)
-				// if (event.evt.button === 0) {
-				// }
-			}}
-			onDragEnd={(event) => {
-				props.onDragEnd?.(event)
-				setTranslate(event.target.position())
-			}}
-			onContextMenu={(event) => {
-				props.onContextMenu?.(event)
-				event.evt.preventDefault()
-			}}
-			onWheel={handleWheel}
-			onPointerDblClick={(event) => {
-				if (event.evt.button === 0) {
-					event.evt.preventDefault()
-					const position = event.currentTarget.getRelativePointerPosition()
-					if (position) {
-						createPing({
-							roomId: room._id,
-							position,
-							key: crypto.randomUUID(),
-						})
-					}
-				}
-			}}
-		>
-			<Layer>
-				{children}
-				{selectionArea && (
-					<Rect
-						{...selectionArea}
-						fill="skyblue"
-						opacity={0.5}
-						stroke="skyblue"
-						strokeWidth={1}
-					/>
-				)}
-			</Layer>
-		</Stage>
+				}}
+			>
+				<Layer>
+					{children}
+					{selectionArea && (
+						<Rect
+							{...selectionArea}
+							fill="skyblue"
+							opacity={0.5}
+							stroke="skyblue"
+							strokeWidth={1}
+						/>
+					)}
+				</Layer>
+			</Stage>
+		</>
 	)
 }
 
 function BattlemapBackground({ backgroundUrl }: { backgroundUrl: string }) {
 	const [image] = useImage(backgroundUrl)
 	return <Image image={image} />
+}
+
+function useBattlemapMenu() {
+	const pointerDownPositionRef = useRef(Vec.from(0))
+	const [open, setOpen] = useState(false)
+	const [position, setPosition] = useState(Vec.from(0))
+	const convex = useConvex()
+	const scene = useActiveSceneContext()
+	const stageInfo = useBattleMapStageInfo()
+	const room = useRoomContext()
+
+	const [, createToken] = useToastAction(async (_state, _payload: void) => {
+		await convex.mutation(api.tokens.create, {
+			inputs: [
+				{
+					sceneId: ensure(scene, "where the scene at")._id,
+					position: stageInfo.current.getViewportCenter(),
+				},
+			],
+		})
+	})
+
+	const element = room.isOwner && (
+		<MenuPanel
+			open={open}
+			setOpen={setOpen}
+			menuProps={{
+				getAnchorRect: () => position,
+			}}
+			options={[
+				{
+					label: "Add activity token",
+					icon: <LucideInfo />,
+					onClick: () => {
+						startTransition(() => {
+							createToken()
+						})
+					},
+				},
+			]}
+		/>
+	)
+
+	return {
+		handlePointerDown: (event: PointerEvent) => {
+			if (event.button === 2) {
+				pointerDownPositionRef.current = Vec.from(event)
+			}
+		},
+		handleContextMenu: (event: PointerEvent) => {
+			// since there's no way to know if this is the end of a drag vs. a simple right click,
+			// we need to check that the cursor didn't move too far away since pointer down
+			if (pointerDownPositionRef.current.distanceTo(event) < 10) {
+				setOpen(true)
+				setPosition(Vec.from(event))
+			}
+		},
+		element,
+	}
 }

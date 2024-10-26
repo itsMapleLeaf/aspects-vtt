@@ -64,4 +64,11 @@ export class Vec {
 		const other = Vec.from(input)
 		return this.x === other.x && this.y === other.y
 	}
+
+	distanceTo(input: Vec.Input) {
+		const other = Vec.from(input)
+		const dx = this.x - other.x
+		const dy = this.y - other.y
+		return Math.sqrt(dx * dx + dy * dy)
+	}
 }

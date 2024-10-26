@@ -2,15 +2,14 @@ import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
 import { defaults, pick } from "lodash-es"
 import { ensureUserId } from "~/convex/auth.ts"
-import {
-	ensureCharacterEntAdmin,
-	isCharacterAdmin,
-	normalizeCharacter,
-	protectCharacter,
-} from "~/convex/characters.ts"
+import { normalizeCharacter, protectCharacter } from "~/convex/characters.ts"
 import { mutation, query } from "./lib/ents.ts"
 import { tableFields } from "./lib/validators.ts"
-import { queryViewerOwnedRoom } from "./rooms.ts"
+import {
+	ensureViewerRoomOwner,
+	isRoomOwner,
+	queryViewerOwnedRoom,
+} from "./rooms.ts"
 
 export const list = query({
 	args: {
@@ -25,35 +24,46 @@ export const list = query({
 			const tokens = await scene.edge("characterTokens")
 			const protectedTokens = await Promise.all(
 				tokens.map(async (token) => {
-					const characterEnt = await token.edge("character")
-					const character = protectCharacter(
-						{
-							...normalizeCharacter(characterEnt),
-							// if the token is visible, also treat this character as being public
-							// for the sake of this function
-							visible: token.visible,
-						},
-						userId,
-						room,
-					)
+					const normalizedToken = defaults(token.doc(), {
+						position: { x: 0, y: 0 },
+						visible: false,
+						updatedAt: 0,
+					})
 
-					if (!character) {
-						return null
+					if (token.characterId) {
+						const characterEnt = await ctx
+							.table("characters")
+							.get(token.characterId)
+						if (!characterEnt) return
+
+						const character = protectCharacter(
+							{
+								...normalizeCharacter(characterEnt),
+								// if the token is visible, also treat this character as being public
+								// for the sake of this function
+								visible: token.visible,
+							},
+							userId,
+							room,
+						)
+						if (!character) return
+
+						return {
+							...normalizedToken,
+							characterId: token.characterId,
+							character,
+						}
 					}
 
 					return {
-						...defaults(token.doc(), {
-							position: { x: 0, y: 0 },
-							visible: false,
-							updatedAt: 0,
-						}),
-						character,
+						...normalizedToken,
+						characterId: null,
 					}
 				}),
 			)
 
-			return protectedTokens.filter((token) => token !== null)
-		} catch (error) {
+			return protectedTokens.filter((token) => token != null)
+		} catch {
 			return []
 		}
 	},
@@ -69,7 +79,7 @@ export const get = query({
 			return await ctx
 				.table("characterTokens")
 				.getX("characterId_sceneId", args.characterId, args.sceneId)
-		} catch (error) {
+		} catch {
 			return null
 		}
 	},
@@ -79,10 +89,8 @@ export const create = mutation({
 	args: {
 		inputs: v.array(
 			v.object({
+				...tableFields("characterTokens"),
 				sceneId: v.id("scenes"),
-				characterId: v.id("characters"),
-				position: v.optional(v.object({ x: v.number(), y: v.number() })),
-				visible: v.optional(v.boolean()),
 			}),
 		),
 	},
@@ -112,12 +120,11 @@ export const update = mutation({
 		const userId = await ensureUserId(ctx)
 		for (const { tokenId, ...props } of updates) {
 			const token = await ctx.table("characterTokens").getX(tokenId)
-			const character = await token.edgeX("character")
-			const room = await character.edgeX("room")
-			if (!isCharacterAdmin(character, room, userId)) {
-				await token.patch(pick(props, ["updatedAt", "position"]))
-			} else {
+			const room = await token.edge("scene").edge("room")
+			if (isRoomOwner(room, userId)) {
 				await token.patch(props)
+			} else {
+				await token.patch(pick(props, ["updatedAt", "position"]))
 			}
 		}
 	},
@@ -130,8 +137,8 @@ export const remove = mutation({
 	async handler(ctx, args) {
 		for (const tokenId of args.tokenIds) {
 			const token = await ctx.table("characterTokens").getX(tokenId)
-			const character = await token.edgeX("character")
-			await ensureCharacterEntAdmin(ctx, character)
+			const room = await token.edge("scene").edge("room")
+			await ensureViewerRoomOwner(ctx, room)
 			await token.delete()
 		}
 	},

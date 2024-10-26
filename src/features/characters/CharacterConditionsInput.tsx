@@ -37,16 +37,18 @@ export function CharacterConditionsInput({
 			if (condition.trim() === "") return
 			if (action === "add") {
 				await updateCharacter({
-					updates: characterIds.map((characterId) => ({
-						characterId,
-						conditions: [...allConditions, condition],
+					updates: characters.map((character) => ({
+						characterId: character._id,
+						conditions: [...character.conditions, condition],
 					})),
 				})
 			} else {
 				await updateCharacter({
-					updates: characterIds.map((characterId) => ({
-						characterId,
-						conditions: [...allConditions].filter((c) => c !== condition),
+					updates: characters.map((character) => ({
+						characterId: character._id,
+						conditions: [...character.conditions].filter(
+							(c) => c !== condition,
+						),
 					})),
 				})
 			}

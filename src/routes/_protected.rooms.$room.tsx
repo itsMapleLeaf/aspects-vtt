@@ -29,7 +29,7 @@ import {
 } from "~/features/scenes/context.ts"
 import { primaryHeading, subText } from "~/styles/text.ts"
 import { useLocalStorageSwitch } from "../common/react/dom.ts"
-import { CharacterMenu } from "../features/characters/CharacterMenu.tsx"
+import { TokenMenu } from "../features/battlemap/TokenMenu.tsx"
 
 export default function RoomRoute() {
 	return (
@@ -67,7 +67,7 @@ function RoomRoot({ children }: { children: React.ReactNode }) {
 				<ActiveSceneContext value={activeScene}>
 					<BattleMapStageInfoContext value={stageInfoRef}>
 						<title>{`${room.name} | Aspects VTT`}</title>
-						<CharacterMenu>{children}</CharacterMenu>
+						<TokenMenu>{children}</TokenMenu>
 					</BattleMapStageInfoContext>
 				</ActiveSceneContext>
 			</RoomContext>
@@ -189,7 +189,6 @@ function SceneHeading() {
 }
 
 function RoomBackground() {
-	const room = useRoomContext()
 	const activeScene = useActiveSceneContext()
 
 	if (

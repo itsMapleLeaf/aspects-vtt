@@ -126,7 +126,6 @@ const entSchema = defineEntSchema({
 		.index("playerId", ["playerId"])
 		.edge("room")
 		.edge("owner", { to: "users", field: "ownerId" })
-		.edges("characterTokens", { ref: true })
 		.searchIndex("name", {
 			searchField: "name",
 			filterFields: ["roomId", "sceneId", "playerId", "ownerId"],
@@ -136,8 +135,8 @@ const entSchema = defineEntSchema({
 		position: v.optional(vectorValidator),
 		visible: v.optional(v.boolean()),
 		updatedAt: v.optional(v.number()),
+		characterId: nullish(v.id("characters")),
 	})
-		.edge("character")
 		.edge("scene")
 		.index("characterId_sceneId", ["characterId", "sceneId"]),
 
