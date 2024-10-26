@@ -291,10 +291,7 @@ async function queryViewableCharacter<EntType extends Ent<"characters">>(
 
 	const room = await character.edgeX("room")
 	const userId = await ensureUserId(ctx)
-	const authorized =
-		isRoomOwner(room, userId) ||
-		character.playerId === userId ||
-		character.ownerId === userId
+	const authorized = isCharacterAdmin(character, room, userId)
 
 	if (!authorized) {
 		throw new InaccessibleError({ table: "characters", id: character._id })
