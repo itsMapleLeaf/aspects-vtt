@@ -37,6 +37,9 @@ importers:
       '@icons-pack/react-simple-icons':
         specifier: ^10.0.0
         version: 10.0.0(react@19.0.0-rc-1631855f-20241023)
+      '@nanostores/react':
+        specifier: ^0.8.0
+        version: 0.8.0(nanostores@0.11.3)(react@19.0.0-rc-1631855f-20241023)
       '@radix-ui/react-scroll-area':
         specifier: ^1.2.0
         version: 1.2.0(react-dom@19.0.0-rc-1631855f-20241023(react@19.0.0-rc-1631855f-20241023))(react@19.0.0-rc-1631855f-20241023)(types-react-dom@19.0.0)(types-react@19.0.0-rc.1)
@@ -94,6 +97,9 @@ importers:
       match-sorter:
         specifier: ^6.3.4
         version: 6.3.4
+      nanostores:
+        specifier: ^0.11.3
+        version: 0.11.3
       react:
         specifier: 19.0.0-rc-1631855f-20241023
         version: 19.0.0-rc-1631855f-20241023
@@ -1025,6 +1031,13 @@ packages:
     resolution: {integrity: sha512-q4xOtUXpCzeouE8GaJ8StT4rDxm/U5j6lkMHL2srb2Q3Y7cobE0aXyPzXVVlbeIMBi+5R5MpbiaVE5/vJUdnHg==}
     peerDependencies:
       rollup: '>=2'
+
+  '@nanostores/react@0.8.0':
+    resolution: {integrity: sha512-MhbVB7NQLboq/Z9fRTDen9zib/YCffe6mn+3Xg5MOYByMX5Xx98SOZjk/Nd3yvOd/g7GjlQqwXj0KF2lPb6CEQ==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0
+      react: 19.0.0-rc-1631855f-20241023
 
   '@node-rs/argon2-android-arm-eabi@1.7.0':
     resolution: {integrity: sha512-udDqkr5P9E+wYX1SZwAVPdyfYvaF4ry9Tm+R9LkfSHbzWH0uhU6zjIwNRp7m+n4gx691rk+lqqDAIP8RLKwbhg==}
@@ -3760,6 +3773,10 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanostores@0.11.3:
+    resolution: {integrity: sha512-TUes3xKIX33re4QzdxwZ6tdbodjmn3tWXCEc1uokiEmo14sI1EaGYNs2k3bU2pyyGNmBqFGAVl6jAGWd06AVIg==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+
   napi-build-utils@1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
 
@@ -5933,6 +5950,11 @@ snapshots:
     transitivePeerDependencies:
       - acorn
       - supports-color
+
+  '@nanostores/react@0.8.0(nanostores@0.11.3)(react@19.0.0-rc-1631855f-20241023)':
+    dependencies:
+      nanostores: 0.11.3
+      react: 19.0.0-rc-1631855f-20241023
 
   '@node-rs/argon2-android-arm-eabi@1.7.0':
     optional: true
@@ -9410,6 +9432,8 @@ snapshots:
       thenify-all: 1.6.0
 
   nanoid@3.3.7: {}
+
+  nanostores@0.11.3: {}
 
   napi-build-utils@1.0.2: {}
 

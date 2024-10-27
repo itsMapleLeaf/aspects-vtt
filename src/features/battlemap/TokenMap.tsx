@@ -1,9 +1,41 @@
 import { clamp } from "lodash-es"
-import { useRef, useState } from "react"
-import { useEventListener } from "~/lib/react.ts"
+import { atom, computed } from "nanostores"
+import { useEffect, useState } from "react"
 import { Vec } from "~/shared/vec.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
+
+export function TokenMap({ scene }: { scene: ApiScene }) {
+	const [controller] = useState(() => createTokenMapController())
+	useEffect(() => controller.bindWindowListeners(), [controller])
+
+	return (
+		<div
+			className="absolute inset-0 overflow-clip"
+			ref={(element) => {
+				if (element) return controller.bindRootListeners(element)
+			}}
+		>
+			<div
+				className="absolute inset-0 origin-top-left"
+				ref={(element) => {
+					if (!element) return
+					return controller.viewportCSSTransform.subscribe((transform) => {
+						element.style.transform = transform
+					})
+				}}
+			>
+				{scene.battlemapBackgroundId && (
+					<img
+						src={getImageUrl(scene.battlemapBackgroundId)}
+						alt=""
+						className="max-w-none"
+					/>
+				)}
+			</div>
+		</div>
+	)
+}
 
 /** Corresponds to the `button` property on pointer events (**not** `buttons`) */
 type PointerButton = (typeof PointerButton)[keyof typeof PointerButton]
@@ -13,156 +45,174 @@ const PointerButton = {
 	right: 2,
 } as const
 
-export function TokenMap({ scene }: { scene: ApiScene }) {
-	type State = {
-		pointerButtonRight: "up" | "down" | "dragging"
-		pointerStart: Vec
-		pointerEnd: Vec
-		viewportOffset: Vec
-		viewportZoom: number
-	}
+function createTokenMapController() {
+	const pointerButtonRight = atom<"up" | "down" | "dragging">("up")
+	const pointerStart = atom(Vec.from(0))
+	const pointerEnd = atom(Vec.from(0))
+	const viewportOffsetBase = atom(Vec.from(0))
+	const viewportZoom = atom(0)
+	let shouldPreventContextMenu = false
 
-	const [state, setState] = useState<State>({
-		pointerButtonRight: "up",
-		pointerStart: Vec.from(0),
-		pointerEnd: Vec.from(0),
-		viewportOffset: Vec.from(0),
-		viewportZoom: 0,
-	})
+	const draggingOffset = computed(
+		[pointerButtonRight, pointerStart, pointerEnd],
+		(pointerButtonRight, pointerStart, pointerEnd) =>
+			pointerButtonRight === "dragging"
+				? pointerEnd.minus(pointerStart)
+				: Vec.from(0),
+	)
 
-	const draggingOffset =
-		state.pointerButtonRight === "dragging"
-			? state.pointerEnd.minus(state.pointerStart)
-			: Vec.from(0)
-
-	const viewportOffset = state.viewportOffset.plus(draggingOffset)
+	const viewportOffset = computed(
+		[viewportOffsetBase, draggingOffset],
+		(viewportOffsetBase, draggingOffset) =>
+			viewportOffsetBase.plus(draggingOffset),
+	)
 
 	const viewportScaleCoefficient = 1.3
-	const viewportScale = viewportScaleCoefficient ** state.viewportZoom
-
-	const rootRef = useRef<HTMLDivElement>(null)
-	const shouldPreventContextMenu = useRef(false)
-
-	useEventListener(rootRef, "pointerdown", (event) => {
-		if (event.button === PointerButton.right) {
-			event.preventDefault()
-			setState({
-				...state,
-				pointerButtonRight: "down",
-				pointerStart: Vec.from(event),
-				pointerEnd: Vec.from(event),
-			})
-		}
-	})
-
-	useEventListener(window, "pointermove", (event) => {
-		if (
-			state.pointerButtonRight === "down" ||
-			state.pointerButtonRight === "dragging"
-		) {
-			setState({
-				...state,
-				pointerButtonRight: "dragging",
-				pointerEnd: Vec.from(event),
-			})
-		}
-
-		shouldPreventContextMenu.current = false
-	})
-
-	useEventListener(window, "pointerup", (event) => {
-		if (
-			event.button === PointerButton.right &&
-			state.pointerButtonRight === "down"
-		) {
-			setState({
-				...state,
-				pointerButtonRight: "up",
-			})
-			shouldPreventContextMenu.current = true
-		}
-		if (
-			event.button === PointerButton.right &&
-			state.pointerButtonRight === "dragging"
-		) {
-			setState({
-				...state,
-				pointerButtonRight: "up",
-				viewportOffset: state.viewportOffset.plus(
-					state.pointerEnd.minus(state.pointerStart),
-				),
-			})
-			shouldPreventContextMenu.current = true
-		}
-	})
-
-	useEventListener(window, "blur", (event) => {
-		if (state.pointerButtonRight === "down") {
-			event.preventDefault()
-			setState({
-				...state,
-				pointerButtonRight: "up",
-			})
-		}
-		if (state.pointerButtonRight === "dragging") {
-			event.preventDefault()
-			setState({
-				...state,
-				pointerButtonRight: "up",
-				viewportOffset: state.viewportOffset.plus(
-					state.pointerEnd.minus(state.pointerStart),
-				),
-			})
-		}
-	})
-
-	useEventListener(window, "contextmenu", (event) => {
-		if (shouldPreventContextMenu.current) {
-			event.preventDefault()
-			shouldPreventContextMenu.current = false
-		}
-	})
-
-	useEventListener(rootRef, "wheel", (event) => {
-		if (event.deltaY === 0) return
-
-		const delta = Math.round(event.deltaY / 100)
-
-		setState((state) => {
-			const pointerOffset = Vec.from(event).minus(state.viewportOffset)
-
-			const nextViewportZoom = clamp(state.viewportZoom - delta, -10, 10)
-
-			const currentViewportScale =
-				viewportScaleCoefficient ** state.viewportZoom
-			const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
-			const scaleRatio = nextViewportScale / currentViewportScale
-
-			return {
-				...state,
-				viewportOffset: state.viewportOffset.plus(
-					pointerOffset.times(1 - scaleRatio),
-				),
-				viewportZoom: nextViewportZoom,
-			}
-		})
-	})
-
-	return (
-		<div ref={rootRef} className="absolute inset-0 overflow-clip">
-			{scene.battlemapBackgroundId && (
-				<img
-					src={getImageUrl(scene.battlemapBackgroundId)}
-					alt=""
-					className="size-auto max-w-none origin-top-left"
-					style={{
-						transform: [
-							`translate(${viewportOffset.toCSSPixels()})`,
-							`scale(${viewportScale})`,
-						].join(" "),
-					}}
-				/>
-			)}
-		</div>
+	const viewportScale = computed(
+		[viewportZoom],
+		(viewportZoom) => viewportScaleCoefficient ** viewportZoom,
 	)
+
+	const viewportCSSTransform = computed(
+		[viewportOffset, viewportScale],
+		(offset, scale) => `translate(${offset.toCSSPixels()}) scale(${scale})`,
+	)
+
+	function bindRootListeners(element: HTMLElement) {
+		const controller = new AbortController()
+
+		element.addEventListener(
+			"pointerdown",
+			(event) => {
+				if (event.button === PointerButton.right) {
+					event.preventDefault()
+					pointerButtonRight.set("down")
+					pointerStart.set(Vec.from(event))
+					pointerEnd.set(Vec.from(event))
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		element.addEventListener(
+			"wheel",
+			(event) => {
+				if (event.deltaY === 0) return
+
+				const delta = Math.round(event.deltaY / 100) * -1
+
+				const currentZoom = viewportZoom.get()
+				const currentOffset = viewportOffset.get()
+
+				const pointerOffset = Vec.from(event).minus(currentOffset)
+				const nextViewportZoom = clamp(currentZoom + delta, -10, 10)
+
+				const currentViewportScale = viewportScaleCoefficient ** currentZoom
+				const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
+				const scaleRatio = nextViewportScale / currentViewportScale
+
+				viewportOffsetBase.set(
+					viewportOffsetBase.get().plus(pointerOffset.times(1 - scaleRatio)),
+				)
+				viewportZoom.set(nextViewportZoom)
+			},
+			{ signal: controller.signal, passive: false },
+		)
+
+		return () => {
+			controller.abort()
+		}
+	}
+
+	function bindWindowListeners() {
+		const controller = new AbortController()
+
+		window.addEventListener(
+			"pointermove",
+			(event) => {
+				if (
+					pointerButtonRight.get() === "down" ||
+					pointerButtonRight.get() === "dragging"
+				) {
+					pointerButtonRight.set("dragging")
+					pointerEnd.set(Vec.from(event))
+				}
+
+				shouldPreventContextMenu = false
+			},
+			{ signal: controller.signal },
+		)
+
+		window.addEventListener(
+			"pointerup",
+			(event) => {
+				if (
+					event.button === PointerButton.right &&
+					pointerButtonRight.get() === "down"
+				) {
+					pointerButtonRight.set("up")
+					shouldPreventContextMenu = true
+				}
+				if (
+					event.button === PointerButton.right &&
+					pointerButtonRight.get() === "dragging"
+				) {
+					pointerButtonRight.set("up")
+					viewportOffsetBase.set(
+						viewportOffsetBase
+							.get()
+							.plus(pointerEnd.get().minus(pointerStart.get())),
+					)
+					shouldPreventContextMenu = true
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		window.addEventListener(
+			"blur",
+			(event) => {
+				if (pointerButtonRight.get() === "down") {
+					event.preventDefault()
+					pointerButtonRight.set("up")
+					viewportOffsetBase.set(
+						viewportOffsetBase
+							.get()
+							.plus(pointerEnd.get().minus(pointerStart.get())),
+					)
+				}
+				if (pointerButtonRight.get() === "dragging") {
+					event.preventDefault()
+					pointerButtonRight.set("up")
+					viewportOffsetBase.set(
+						viewportOffsetBase
+							.get()
+							.plus(pointerEnd.get().minus(pointerStart.get())),
+					)
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		window.addEventListener(
+			"contextmenu",
+			(event) => {
+				if (shouldPreventContextMenu) {
+					event.preventDefault()
+					shouldPreventContextMenu = false
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		return () => {
+			controller.abort()
+		}
+	}
+
+	return {
+		bindRootListeners,
+		bindWindowListeners,
+		viewportCSSTransform,
+	}
 }
