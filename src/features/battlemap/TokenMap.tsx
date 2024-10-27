@@ -21,9 +21,21 @@ const PointerButton = {
 export function TokenMap({ scene }: { scene: ApiScene }) {
 	const tokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
 
-	const [state, setState] = useState({
-		buttonLeft: "up" as "up" | "down" | "dragging",
-		buttonRight: "up" as "up" | "down" | "dragging",
+	type State = {
+		buttonLeft: "up" | "down" | "dragging"
+		buttonRight: "up" | "down" | "dragging"
+		dragStart: Vec
+		dragEnd: Vec
+		viewportOffset: Vec
+		viewportZoom: number
+		selectionStart: Vec
+		selectionEnd: Vec
+		selectedTokenIds: Set<Id<"characterTokens">>
+	}
+
+	const [state, setState] = useState<State>({
+		buttonLeft: "up",
+		buttonRight: "up",
 		dragStart: Vec.from(0),
 		dragEnd: Vec.from(0),
 		viewportOffset: Vec.from(0),
