@@ -316,7 +316,6 @@ function BaseTokenElement({
 }) {
 	return (
 		<div
-			key={token._id}
 			className="absolute left-0 top-0 origin-top-left drop-shadow-md"
 			style={{
 				transform: `translate(${Vec.from(token.position).toCSSPixels()})`,
