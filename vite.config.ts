@@ -54,6 +54,11 @@ export default defineConfig({
 			"@icons-pack/react-simple-icons",
 		],
 	},
+	server: {
+		watch: {
+			usePolling: true,
+		},
+	},
 	test: {
 		open: false,
 		setupFiles: ["vitest.setup.ts"],
