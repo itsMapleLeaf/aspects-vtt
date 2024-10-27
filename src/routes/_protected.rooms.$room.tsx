@@ -14,11 +14,11 @@ import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { Id } from "~/convex/_generated/dataModel.js"
 import { UserButton } from "~/features/auth/UserButton.tsx"
-import { Battlemap } from "~/features/battlemap/Battlemap.tsx"
 import {
 	BattleMapStageInfoContext,
 	defaultStageInfo,
 } from "~/features/battlemap/context.ts"
+import { TokenMap } from "~/features/battlemap/TokenMap.tsx"
 import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
 import { RoomPanels } from "~/features/rooms/RoomPanels.tsx"
@@ -209,12 +209,7 @@ function RoomBackground() {
 		activeScene?.battlemapBackgroundId &&
 		(activeScene.mode === "battlemap" || !activeScene.sceneryBackgroundId)
 	) {
-		return (
-			<Battlemap
-				scene={activeScene}
-				backgroundUrl={getImageUrl(activeScene.battlemapBackgroundId)}
-			/>
-		)
+		return <TokenMap scene={activeScene} />
 	}
 
 	return null
