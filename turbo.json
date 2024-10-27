@@ -14,12 +14,7 @@
 			"cache": false,
 			"persistent": true
 		},
-		"codegen": {
-			"inputs": ["convex/**/*.ts"],
-			"outputs": ["convex/_generated/**"]
-		},
 		"build": {
-			"dependsOn": ["codegen"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"outputs": ["build/**", ".vercel/**"]
 		},

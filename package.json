@@ -5,11 +5,11 @@
   "type": "module",
   "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228",
   "scripts": {
+    "prepare": "convex codegen --typecheck disable",
     "dev": "turbo run dev:app dev:convex dev:convex",
     "dev:app": "remix vite:dev",
     "dev:convex": "convex dev --tail-logs",
     "dev:test": "vitest --ui",
-    "codegen": "convex codegen --typecheck disable",
     "build": "remix vite:build",
     "deploy": "convex deploy --cmd 'turbo run build' --cmd-url-env-var-name VITE_CONVEX_URL --typecheck disable",
     "lint": "eslint .",
