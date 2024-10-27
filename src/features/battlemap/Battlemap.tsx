@@ -184,7 +184,7 @@ function DraggableTokenGroup({
 				if (!dragStart) return
 
 				const dragEnd = Vec.from(event.currentTarget.position())
-				const difference = dragEnd.subtract(dragStart)
+				const difference = dragEnd.minus(dragStart)
 
 				setDragStart(undefined)
 
@@ -192,7 +192,7 @@ function DraggableTokenGroup({
 					updates: tokens.map((it) => ({
 						tokenId: it._id,
 						position: Vec.from(it.position)
-							.add(difference)
+							.plus(difference)
 							.roundTo(scene.cellSize / 4)
 							.toJSON(),
 						updatedAt: Date.now(),
@@ -269,12 +269,12 @@ function BattlemapStage({
 		const newScale = getZoom(newZoomTick)
 
 		const mousePointTo = Vec.from(event.evt)
-			.divide(oldScale)
-			.subtract(Vec.from(translate).divide(oldScale))
+			.dividedBy(oldScale)
+			.minus(Vec.from(translate).dividedBy(oldScale))
 
 		const newPos = mousePointTo
-			.subtract(Vec.from(event.evt).divide(newScale))
-			.multiply(-newScale)
+			.minus(Vec.from(event.evt).dividedBy(newScale))
+			.times(-newScale)
 
 		setZoomTick(newZoomTick)
 		setTranslate(newPos)
@@ -288,7 +288,7 @@ function BattlemapStage({
 			const windowCenter = Vec.from([
 				window.innerWidth,
 				window.innerHeight,
-			]).divide(2)
+			]).dividedBy(2)
 
 			const stage = stageRef.current
 			if (!stage) return windowCenter

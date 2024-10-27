@@ -31,29 +31,33 @@ export class Vec {
 		return { x: this.x, y: this.y }
 	}
 
+	toCSSPixels() {
+		return `${this.x}px, ${this.y}px`
+	}
+
 	zip(input: Vec.Input, fn: (a: number, b: number) => number) {
 		const other = Vec.from(input)
 		return new Vec(fn(this.x, other.x), fn(this.y, other.y))
 	}
 
-	add(input: Vec.Input): Vec {
+	plus(input: Vec.Input): Vec {
 		return this.zip(input, (a, b) => a + b)
 	}
 
-	subtract(input: Vec.Input): Vec {
+	minus(input: Vec.Input): Vec {
 		return this.zip(input, (a, b) => a - b)
 	}
 
-	multiply(input: Vec.Input): Vec {
+	times(input: Vec.Input): Vec {
 		return this.zip(input, (a, b) => a * b)
 	}
 
-	divide(input: Vec.Input): Vec {
+	dividedBy(input: Vec.Input): Vec {
 		return this.zip(input, (a, b) => a / b)
 	}
 
-	neg(): Vec {
-		return this.multiply(-1)
+	invert(): Vec {
+		return this.times(-1)
 	}
 
 	roundTo(input: Vec.Input): Vec {

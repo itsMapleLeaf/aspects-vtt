@@ -38,7 +38,7 @@ function PingCircle({ ping }: { ping: Ping }) {
 			duration: 2,
 			easing: Konva.Easings.StrongEaseIn,
 			onUpdate: () => {
-				node.scale(Vec.from(1).divide(node.getStage()?.scale() ?? 1))
+				node.scale(Vec.from(1).dividedBy(node.getStage()?.scale() ?? 1))
 			},
 			onFinish: () => setVisible(false),
 		})

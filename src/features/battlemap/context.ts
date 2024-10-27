@@ -7,7 +7,7 @@ export type BattleMapStageInfo = {
 
 export const defaultStageInfo: BattleMapStageInfo = {
 	getViewportCenter: () =>
-		Vec.from([window.innerWidth, window.innerHeight]).divide(2).toJSON(),
+		Vec.from([window.innerWidth, window.innerHeight]).dividedBy(2).toJSON(),
 }
 
 export const BattleMapStageInfoContext = createContext<
