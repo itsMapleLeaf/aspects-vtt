@@ -5,26 +5,29 @@
 			"label": "dev",
 			"dependsOn": ["dev:app", "dev:convex", "tsc:watch"],
 			"dependsOrder": "parallel",
-			"group": "build"
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		},
 		{
 			"label": "dev:app",
 			"type": "shell",
-			"command": ["bun", "run", "dev:app"],
+			"command": ["pnpm", "run", "dev:app"],
 			"group": "build",
 			"isBackground": true
 		},
 		{
 			"label": "dev:convex",
 			"type": "shell",
-			"command": ["bun", "run", "dev:convex"],
+			"command": ["pnpm", "run", "dev:convex"],
 			"group": "build",
 			"isBackground": true
 		},
 		{
 			"label": "tsc:watch",
 			"type": "shell",
-			"command": ["bunx", "tsc", "--noEmit", "--watch"],
+			"command": ["pnpm", "tsc", "--noEmit", "--watch"],
 			"group": "build",
 			"isBackground": true,
 			"problemMatcher": "$tsc-watch"
