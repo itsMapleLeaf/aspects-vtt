@@ -1,13 +1,19 @@
+import { useQuery } from "convex/react"
 import { clamp } from "lodash-es"
 import { atom, computed } from "nanostores"
-import { useEffect, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
+import { api } from "~/convex/_generated/api.js"
 import { Vec } from "~/shared/vec.ts"
+import { ApiCharacter } from "../characters/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
+import { ApiToken } from "./types.ts"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
 	const [controller] = useState(() => createTokenMapController())
 	useEffect(() => controller.bindWindowListeners(), [controller])
+
+	const tokens = useQuery(api.tokens.list, { sceneId: scene._id })
 
 	return (
 		<div
@@ -30,8 +36,70 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						src={getImageUrl(scene.battlemapBackgroundId)}
 						alt=""
 						className="max-w-none"
+						draggable={false}
 					/>
 				)}
+
+				{tokens?.map((token) =>
+					token.characterId ? (
+						<CharacterTokenElement
+							key={token._id}
+							token={token}
+							character={token.character}
+							scene={scene}
+						/>
+					) : null,
+				)}
+			</div>
+		</div>
+	)
+}
+
+function CharacterTokenElement({
+	token,
+	character,
+	scene,
+}: {
+	token: ApiToken
+	character: ApiCharacter
+	scene: ApiScene
+}) {
+	return (
+		<BaseTokenElement token={token} scene={scene}>
+			{character.imageId ? (
+				<img
+					src={getImageUrl(character.imageId)}
+					alt=""
+					className="absolute inset-0 size-full rounded-full object-cover object-top"
+					draggable={false}
+				/>
+			) : null}
+		</BaseTokenElement>
+	)
+}
+
+function BaseTokenElement({
+	token,
+	scene,
+	children,
+}: {
+	token: ApiToken
+	scene: ApiScene
+	children: ReactNode
+}) {
+	return (
+		<div
+			key={token._id}
+			className="absolute left-0 top-0 origin-top-left"
+			style={{
+				transform: `translate(${Vec.from(token.position).toCSSPixels()})`,
+			}}
+		>
+			<div
+				className="relative"
+				style={{ width: scene.cellSize, height: scene.cellSize }}
+			>
+				{children}
 			</div>
 		</div>
 	)
@@ -45,6 +113,7 @@ const PointerButton = {
 	right: 2,
 } as const
 
+type TokenMapController = ReturnType<typeof createTokenMapController>
 function createTokenMapController() {
 	const pointerButtonRight = atom<"up" | "down" | "dragging">("up")
 	const pointerStart = atom(Vec.from(0))
