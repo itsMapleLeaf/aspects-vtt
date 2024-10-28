@@ -11,3 +11,11 @@ export function groupBy<Item, const Key>(
 	}
 	return groups
 }
+
+export function keyBy<T, K>(items: Iterable<T>, getKey: (item: T) => K) {
+	const map = new Map<K, T>()
+	for (const item of items) {
+		map.set(getKey(item), item)
+	}
+	return map
+}

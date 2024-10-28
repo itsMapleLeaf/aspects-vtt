@@ -1,10 +1,13 @@
 import { useMutation, useQuery } from "convex/react"
-import { clamp } from "lodash-es"
+import { clamp, omit } from "lodash-es"
 import { ComponentProps, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
+import { Simplify } from "type-fest"
+import { AllKeys } from "~/common/types.ts"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { readonly, typed } from "~/lib/common.ts"
+import { keyBy } from "~/lib/object.ts"
 import { useEventListener } from "~/lib/react.ts"
 import { Rect } from "~/lib/rect.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
@@ -28,9 +31,59 @@ function isAuxButton(event: { button: number }) {
 	return event.button === 1
 }
 
-export function TokenMap({ scene }: { scene: ApiScene }) {
-	const updateTokens = useMutation(api.tokens.update)
+type OptionalExclusiveProperties<
+	Type,
+	Keys extends PropertyKey = AllKeys<Type>,
+> = Simplify<
+	Type extends NonNullable<unknown>
+		? Type & Omit<{ [K in Keys]?: undefined }, keyof Type>
+		: Type
+>
 
+type AsyncState<Result, Args> = OptionalExclusiveProperties<
+	| { status: "initial" }
+	| { status: "pending"; args: Args; token: symbol }
+	| { status: "success"; result: Awaited<Result> }
+	| { status: "error"; error: unknown }
+>
+
+function useAsyncState<Result, Args>(callback: (args: Args) => Result) {
+	const [state, setState] = useState<AsyncState<Result, Args>>({
+		status: "initial",
+	})
+
+	function run(args: Args) {
+		const token = Symbol()
+		setState({ status: "pending", args, token })
+
+		void (async () => {
+			let newState
+			try {
+				newState = { status: "success", result: await callback(args) } as const
+			} catch (error) {
+				newState = { status: "error", error } as const
+			}
+			setState((state) => {
+				if (state.status === "pending" && state.token !== token) {
+					return state
+				}
+				return newState
+			})
+		})()
+	}
+
+	const derivedState = {
+		...state,
+		isInitial: state.status === "initial",
+		isPending: state.status === "pending",
+		isSuccess: state.status === "success",
+		isError: state.status === "error",
+	}
+
+	return [derivedState, run] as const
+}
+
+export function TokenMap({ scene }: { scene: ApiScene }) {
 	const initialState = {
 		status: typed<
 			"idle" | "draggingViewport" | "selectingArea" | "draggingTokens"
@@ -44,9 +97,6 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		viewportOffset: Vec.zero,
 		viewportZoom: 0,
 		selectedTokenIds: readonly(new Set<Id<"characterTokens">>()),
-		pendingTokens: readonly(
-			new Map<Id<"characterTokens">, ApiToken & { position: Vec }>(),
-		),
 	}
 	const [state, setState] = useState(initialState)
 
@@ -71,15 +121,33 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			: Vec.zero
 
 	const baseTokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
-	const tokens = baseTokens.map((token) => ({
-		...token,
-		position: Vec.sum(
-			state.pendingTokens.get(token._id)?.position ?? token.position,
-			state.selectedTokenIds.has(token._id) ? tokenDragOffset : 0,
-		),
-	}))
+	const [updateTokensState, updateTokens] = useAsyncState(
+		useMutation(api.tokens.update),
+	)
 
-	const tokensById = new Map(tokens.map((it) => [it._id, it]))
+	const pendingTokens = keyBy(
+		updateTokensState.args?.updates ?? [],
+		(update) => update.tokenId,
+	)
+
+	const tokens = baseTokens
+		.map((token) => ({
+			...token,
+			...omit(pendingTokens.get(token._id), ["tokenId", "characterId"]),
+		}))
+		.map((token) => ({
+			...token,
+			position: Vec.sum(
+				token.position,
+				state.selectedTokenIds.has(token._id) ? tokenDragOffset : 0,
+			),
+		}))
+		.sort((a, b) => b.updatedAt - a.updatedAt)
+
+	const tokensById = keyBy(tokens, (t) => t._id)
+	const selectedTokens = [...state.selectedTokenIds]
+		.map((id) => tokensById.get(id))
+		.filter(Boolean)
 
 	const shouldPreventContextMenu = useRef(false)
 
@@ -115,20 +183,23 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		event: React.PointerEvent,
 		token: ApiToken,
 	) => {
-		setState((state) => {
-			if (state.status === "idle" && isPrimaryButton(event)) {
-				return {
-					...state,
-					status: "draggingTokens",
-					tokenDragStart: Vec.from(event.nativeEvent),
-					tokenDragEnd: Vec.from(event.nativeEvent),
-					selectedTokenIds: state.selectedTokenIds.has(token._id)
-						? state.selectedTokenIds
-						: new Set([token._id]),
-				}
-			}
-			return state
-		})
+		if (state.status === "idle" && isPrimaryButton(event)) {
+			setState({
+				...state,
+				status: "draggingTokens",
+				tokenDragStart: Vec.from(event.nativeEvent),
+				tokenDragEnd: Vec.from(event.nativeEvent),
+				selectedTokenIds: state.selectedTokenIds.has(token._id)
+					? state.selectedTokenIds
+					: new Set([token._id]),
+			})
+			updateTokens({
+				updates: selectedTokens.map((token) => ({
+					tokenId: token._id,
+					updatedAt: Date.now(),
+				})),
+			})
+		}
 	}
 
 	const handleRootWheel = (event: React.WheelEvent) => {
@@ -206,34 +277,12 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		}
 
 		if (state.status === "draggingTokens") {
-			const pendingTokens = new Map(
-				[...state.selectedTokenIds]
-					.map((id) => tokensById.get(id))
-					.filter(Boolean)
-					.map((token) => [token._id, token]),
-			)
-
-			setState({
-				...state,
-				status: "idle",
-				pendingTokens,
-			})
-
+			setState({ ...state, status: "idle" })
 			updateTokens({
-				updates: [...pendingTokens.values()].map((token) => ({
+				updates: selectedTokens.map((token) => ({
 					tokenId: token._id,
 					position: token.position.toJSON(),
 				})),
-			}).finally(() => {
-				setState((state) => {
-					if (state.pendingTokens === pendingTokens) {
-						return {
-							...state,
-							pendingTokens: readonly(new Map()),
-						}
-					}
-					return state
-				})
 			})
 		}
 	})

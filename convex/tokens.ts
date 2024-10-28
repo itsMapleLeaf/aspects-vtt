@@ -51,6 +51,7 @@ export const list = query({
 						return {
 							...normalizedToken,
 							characterId: token.characterId,
+							/** @deprecated Fetch the character from another query instead */
 							character,
 						}
 					}
