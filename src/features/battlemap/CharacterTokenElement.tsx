@@ -1,4 +1,4 @@
-import { ComponentProps, useState } from "react"
+import { ComponentProps, useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { Vec } from "~/shared/vec.ts"
 import { ApiCharacter } from "../characters/types.ts"
@@ -19,6 +19,7 @@ export function CharacterTokenElement({
 	viewport: { scale: number }
 } & ComponentProps<typeof BaseTokenElement>) {
 	const [annotationsVisible, setAnnotationsVisible] = useState(false)
+	const altPressed = useKeyPressed("Alt")
 
 	return (
 		<>
@@ -44,8 +45,8 @@ export function CharacterTokenElement({
 						// using opacity-95 because the browser (just Firefox?)
 						// disables GPU rendering at 100,
 						// which causes weird artifacts like pixel shifting
-						className="absolute left-0 top-0 opacity-0 transition-opacity data-[visible=true]:opacity-95"
-						data-visible={annotationsVisible}
+						className="pointer-events-none absolute left-0 top-0 opacity-0 transition-opacity data-[visible=true]:opacity-95"
+						data-visible={annotationsVisible || altPressed}
 						style={{
 							transform: `translate(${Vec.from(props.token.position)
 								.times(viewport.scale)
@@ -60,7 +61,7 @@ export function CharacterTokenElement({
 							}}
 						>
 							<div className="absolute left-1/2 top-full -translate-x-1/2 p-2">
-								<div className="flex max-w-32 items-center rounded border border-black bg-black/75 px-2 py-1 text-center font-medium leading-5 backdrop-blur-sm">
+								<div className="flex items-center whitespace-nowrap rounded border border-black bg-black/75 px-2 py-1 text-center font-medium leading-5 backdrop-blur-sm">
 									{character.identity?.name}
 								</div>
 							</div>
@@ -70,4 +71,38 @@ export function CharacterTokenElement({
 				)}
 		</>
 	)
+}
+
+function useKeyPressed(targetKey: string) {
+	const [isPressed, setIsPressed] = useState(false)
+
+	useEffect(() => {
+		const controller = new AbortController()
+
+		window.addEventListener(
+			"keydown",
+			function handleKeyDown(event: KeyboardEvent) {
+				if (event.key === targetKey) {
+					event.preventDefault()
+					setIsPressed(true)
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		window.addEventListener(
+			"keyup",
+			function handleKeyUp(event: KeyboardEvent) {
+				if (event.key === targetKey) {
+					event.preventDefault()
+					setIsPressed(false)
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		return () => controller.abort()
+	}, [targetKey])
+
+	return isPressed
 }
