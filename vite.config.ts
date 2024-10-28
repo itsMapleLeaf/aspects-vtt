@@ -20,14 +20,6 @@ export default defineConfig({
 				[rehypeAutolinkHeadings, { behavior: "wrap" }],
 			],
 		}),
-		babel({
-			filter: /\.[jt]sx?$/,
-			include: ["src/**/*"],
-			babelConfig: {
-				presets: ["@babel/preset-typescript"],
-				plugins: [["babel-plugin-react-compiler", {}]],
-			},
-		}),
 		// the remix plugin can't run under the Vite testing env at the moment
 		// https://github.com/remix-run/remix/issues/8982
 		process.env.NODE_ENV === "test"
@@ -44,6 +36,14 @@ export default defineConfig({
 					},
 					presets: process.env.VERCEL ? [vercelPreset()] : [],
 				}),
+		babel({
+			filter: /\.[jt]sx?$/,
+			include: ["src/**/*"],
+			babelConfig: {
+				presets: ["@babel/preset-typescript"],
+				plugins: [["babel-plugin-react-compiler", {}]],
+			},
+		}),
 	],
 	ssr: {
 		noExternal: [
