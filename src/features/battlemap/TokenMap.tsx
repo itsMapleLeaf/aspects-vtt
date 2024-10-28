@@ -1,92 +1,169 @@
-import { useQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { clamp } from "lodash-es"
-import { ReactNode, useRef, useState } from "react"
+import { ComponentProps, useRef, useState } from "react"
+import { twMerge } from "tailwind-merge"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
+import { readonly, typed } from "~/lib/common.ts"
 import { useEventListener } from "~/lib/react.ts"
-import { Vec } from "~/shared/vec.ts"
+import { Rect } from "~/lib/rect.ts"
+import { Vec, VecInput } from "~/shared/vec.ts"
 import { ApiCharacter } from "../characters/types.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { ApiToken } from "./types.ts"
 
-/** Corresponds to the `button` property on pointer events (**not** `buttons`) */
-type PointerButton = (typeof PointerButton)[keyof typeof PointerButton]
-const PointerButton = {
-	left: 0,
-	middle: 1,
-	right: 2,
-} as const
+// left mouse
+function isPrimaryButton(event: { button: number }) {
+	return event.button === 0
+}
+
+// right mouse
+function isSecondaryButton(event: { button: number }) {
+	return event.button === 2
+}
+
+// mouse wheel
+function isAuxButton(event: { button: number }) {
+	return event.button === 1
+}
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
-	const tokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
+	const updateTokens = useMutation(api.tokens.update)
 
-	type State = {
-		buttonLeft: "up" | "down" | "dragging"
-		buttonRight: "up" | "down" | "dragging"
-		dragStart: Vec
-		dragEnd: Vec
-		viewportOffset: Vec
-		viewportZoom: number
-		selectionStart: Vec
-		selectionEnd: Vec
-		selectedTokenIds: Set<Id<"characterTokens">>
-	}
-
-	const [state, setState] = useState<State>({
-		buttonLeft: "up",
-		buttonRight: "up",
-		dragStart: Vec.from(0),
-		dragEnd: Vec.from(0),
-		viewportOffset: Vec.from(0),
+	const initialState = {
+		status: typed<
+			"idle" | "draggingViewport" | "selectingArea" | "draggingTokens"
+		>("idle"),
+		dragStart: Vec.zero,
+		dragEnd: Vec.zero,
+		selectionStart: Vec.zero,
+		selectionEnd: Vec.zero,
+		tokenDragStart: Vec.zero,
+		tokenDragEnd: Vec.zero,
+		viewportOffset: Vec.zero,
 		viewportZoom: 0,
-		selectionStart: Vec.from(0),
-		selectionEnd: Vec.from(0),
-		selectedTokenIds: new Set<Id<"characterTokens">>(),
-	})
+		selectedTokenIds: readonly(new Set<Id<"characterTokens">>()),
+		pendingTokens: readonly(
+			new Map<Id<"characterTokens">, ApiToken & { position: Vec }>(),
+		),
+	}
+	const [state, setState] = useState(initialState)
 
-	const shouldPreventContextMenu = useRef(false)
+	const viewportDragOffset =
+		// only apply offset while dragging
+		state.status === "draggingViewport"
+			? state.dragEnd.minus(state.dragStart)
+			: Vec.zero
 
 	const viewportScaleCoefficient = 1.3
 	const viewportScale = viewportScaleCoefficient ** state.viewportZoom
+	const viewportOffset = state.viewportOffset.plus(viewportDragOffset)
 
-	const draggingOffset =
-		state.buttonRight === "dragging"
-			? state.dragEnd.minus(state.dragStart)
-			: Vec.from(0)
+	const toMapPosition = (input: VecInput) =>
+		Vec.from(input).minus(viewportScale).dividedBy(viewportScale)
 
-	const viewportOffset = state.viewportOffset.plus(draggingOffset)
+	const selectionArea = Rect.bounds(state.selectionStart, state.selectionEnd)
 
-	const selectionTopLeft = Vec.from([
-		Math.min(state.selectionStart.x, state.selectionEnd.x),
-		Math.min(state.selectionStart.y, state.selectionEnd.y),
-	])
+	const tokenDragOffset =
+		state.status === "draggingTokens"
+			? toMapPosition(state.tokenDragEnd.minus(state.tokenDragStart))
+			: Vec.zero
 
-	const selectionBottomRight = Vec.from([
-		Math.max(state.selectionStart.x, state.selectionEnd.x),
-		Math.max(state.selectionStart.y, state.selectionEnd.y),
-	])
+	const baseTokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
+	const tokens = baseTokens.map((token) => ({
+		...token,
+		position: Vec.sum(
+			state.pendingTokens.get(token._id)?.position ?? token.position,
+			state.selectedTokenIds.has(token._id) ? tokenDragOffset : 0,
+		),
+	}))
 
-	const selectionSize = Vec.from([
-		selectionBottomRight.x - selectionTopLeft.x,
-		selectionBottomRight.y - selectionTopLeft.y,
-	])
+	const tokensById = new Map(tokens.map((it) => [it._id, it]))
+
+	const shouldPreventContextMenu = useRef(false)
+
+	const handleRootPointerDown = (event: React.PointerEvent) => {
+		setState((state) => {
+			if (state.status === "idle" && isSecondaryButton(event)) {
+				return {
+					...state,
+					status: "draggingViewport",
+					dragStart: Vec.from(event.nativeEvent),
+					dragEnd: Vec.from(event.nativeEvent),
+				}
+			}
+			return state
+		})
+	}
+
+	const handleSelectionInputPointerDown = (event: React.PointerEvent) => {
+		setState((state) => {
+			if (state.status === "idle" && isPrimaryButton(event)) {
+				return {
+					...state,
+					status: "selectingArea",
+					selectionStart: Vec.from(event.nativeEvent),
+					selectionEnd: Vec.from(event.nativeEvent),
+				}
+			}
+			return state
+		})
+	}
+
+	const handleTokenPointerDown = (
+		event: React.PointerEvent,
+		token: ApiToken,
+	) => {
+		setState((state) => {
+			if (state.status === "idle" && isPrimaryButton(event)) {
+				return {
+					...state,
+					status: "draggingTokens",
+					tokenDragStart: Vec.from(event.nativeEvent),
+					tokenDragEnd: Vec.from(event.nativeEvent),
+					selectedTokenIds: state.selectedTokenIds.has(token._id)
+						? state.selectedTokenIds
+						: new Set([token._id]),
+				}
+			}
+			return state
+		})
+	}
+
+	const handleRootWheel = (event: React.WheelEvent) => {
+		if (event.deltaY === 0) return
+		const delta = Math.round(event.deltaY / 100) * -1
+
+		setState((state) => {
+			const pointerOffset = Vec.from(event.nativeEvent).minus(viewportOffset)
+			const nextViewportZoom = clamp(state.viewportZoom + delta, -10, 10)
+
+			const currentViewportScale =
+				viewportScaleCoefficient ** state.viewportZoom
+			const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
+			const scaleRatio = nextViewportScale / currentViewportScale
+
+			return {
+				...state,
+				viewportZoom: nextViewportZoom,
+				viewportOffset: state.viewportOffset.plus(
+					pointerOffset.times(1 - scaleRatio),
+				),
+			}
+		})
+	}
 
 	useEventListener(window, "pointermove", (event) => {
 		setState((state) => {
-			if (state.buttonLeft === "down" || state.buttonLeft === "dragging") {
-				return {
-					...state,
-					buttonLeft: "dragging",
-					selectionEnd: Vec.from(event),
-				}
+			if (state.status === "selectingArea") {
+				return { ...state, selectionEnd: Vec.from(event) }
 			}
-			if (state.buttonRight === "down" || state.buttonRight === "dragging") {
-				return {
-					...state,
-					buttonRight: "dragging",
-					dragEnd: Vec.from(event),
-				}
+			if (state.status === "draggingViewport") {
+				return { ...state, dragEnd: Vec.from(event) }
+			}
+			if (state.status === "draggingTokens") {
+				return { ...state, tokenDragEnd: Vec.from(event) }
 			}
 			return state
 		})
@@ -95,56 +172,26 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 
 	useEventListener(window, "pointerup", (event) => {
 		setState((state) => {
-			if (
-				event.button === PointerButton.left &&
-				(state.buttonLeft === "down" || state.buttonLeft === "dragging")
-			) {
-				const width = selectionSize.x / viewportScale
-				const height = selectionSize.y / viewportScale
-
-				const rect = {
-					...selectionTopLeft
-						.minus(viewportOffset)
-						.dividedBy(viewportScale)
-						.toJSON(),
-					width,
-					height,
-				}
-
+			if (state.status === "selectingArea" && isPrimaryButton(event)) {
+				const mapArea = Rect.bounds(
+					state.selectionStart.minus(viewportOffset).dividedBy(viewportScale),
+					state.selectionEnd.minus(viewportOffset).dividedBy(viewportScale),
+				)
 				return {
 					...state,
-					buttonLeft: "up",
-					selectionEnd: Vec.from(event),
+					status: "idle",
 					selectedTokenIds: new Set(
 						tokens
-							.filter((it) => {
-								const center = Vec.from(it.position).plus(scene.cellSize / 2)
-								return (
-									center.x >= rect.x &&
-									center.x < rect.x + rect.width &&
-									center.y >= rect.y &&
-									center.y < rect.y + rect.height
-								)
-							})
+							.filter((it) => mapArea.intersects([it.position, scene.cellSize]))
 							.map((it) => it._id),
 					),
 				}
 			}
 
-			if (
-				event.button === PointerButton.right &&
-				state.buttonRight === "down"
-			) {
-				return { ...state, buttonRight: "up" }
-			}
-
-			if (
-				event.button === PointerButton.right &&
-				state.buttonRight === "dragging"
-			) {
+			if (state.status === "draggingViewport" && isSecondaryButton(event)) {
 				return {
 					...state,
-					buttonRight: "up",
+					status: "idle",
 					viewportOffset: state.viewportOffset.plus(
 						state.dragEnd.minus(state.dragStart),
 					),
@@ -154,25 +201,59 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			return state
 		})
 
-		if (
-			event.button === PointerButton.right &&
-			(state.buttonRight === "down" || state.buttonRight === "dragging")
-		) {
+		if (state.status === "draggingViewport" && isSecondaryButton(event)) {
 			shouldPreventContextMenu.current = true
+		}
+
+		if (state.status === "draggingTokens") {
+			const pendingTokens = new Map(
+				[...state.selectedTokenIds]
+					.map((id) => tokensById.get(id))
+					.filter(Boolean)
+					.map((token) => [token._id, token]),
+			)
+
+			setState({
+				...state,
+				status: "idle",
+				pendingTokens,
+			})
+
+			updateTokens({
+				updates: [...pendingTokens.values()].map((token) => ({
+					tokenId: token._id,
+					position: token.position.toJSON(),
+				})),
+			}).finally(() => {
+				setState((state) => {
+					if (state.pendingTokens === pendingTokens) {
+						return {
+							...state,
+							pendingTokens: readonly(new Map()),
+						}
+					}
+					return state
+				})
+			})
 		}
 	})
 
 	useEventListener(window, "blur", () => {
 		setState((state) => {
-			if (state.buttonRight === "down" || state.buttonRight === "dragging") {
+			if (state.status === "selectingArea") {
+				return { ...state, status: "idle" }
+			}
+
+			if (state.status === "draggingViewport") {
 				return {
 					...state,
-					buttonRight: "up",
+					status: "idle",
 					viewportOffset: state.viewportOffset.plus(
 						state.dragEnd.minus(state.dragStart),
 					),
 				}
 			}
+
 			return state
 		})
 	})
@@ -184,55 +265,11 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		}
 	})
 
-	const handleRootPointerDown = (event: React.PointerEvent) => {
-		if (event.button === PointerButton.right) {
-			event.preventDefault()
-			setState((state) => ({
-				...state,
-				buttonRight: "down",
-				dragStart: Vec.from(event.nativeEvent),
-				dragEnd: Vec.from(event.nativeEvent),
-			}))
-		}
-	}
-
-	const handleSelectionInputPointerDown = (event: React.PointerEvent) => {
-		if (event.button === PointerButton.left) {
-			event.preventDefault()
-			setState((state) => ({
-				...state,
-				buttonLeft: "down",
-				selectionStart: Vec.from(event.nativeEvent),
-				selectionEnd: Vec.from(event.nativeEvent),
-			}))
-		}
-	}
-
-	const handleWheel = (event: React.WheelEvent) => {
-		if (event.deltaY === 0) return
-
-		const delta = Math.round(event.deltaY / 100) * -1
-		const pointerOffset = Vec.from(event.nativeEvent).minus(viewportOffset)
-		const nextViewportZoom = clamp(state.viewportZoom + delta, -10, 10)
-
-		const currentViewportScale = viewportScaleCoefficient ** state.viewportZoom
-		const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
-		const scaleRatio = nextViewportScale / currentViewportScale
-
-		setState((state) => ({
-			...state,
-			viewportZoom: nextViewportZoom,
-			viewportOffset: state.viewportOffset.plus(
-				pointerOffset.times(1 - scaleRatio),
-			),
-		}))
-	}
-
 	return (
 		<div
-			className="absolute inset-0 overflow-clip"
+			className="absolute inset-0 touch-none select-none overflow-clip"
 			onPointerDown={handleRootPointerDown}
-			onWheel={handleWheel}
+			onWheel={handleRootWheel}
 		>
 			<div
 				className="pointer-events-none absolute inset-0 origin-top-left"
@@ -269,20 +306,24 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							character={token.character}
 							scene={scene}
 							selected={state.selectedTokenIds.has(token._id)}
+							onPointerDown={(event) => {
+								handleTokenPointerDown(event, token)
+							}}
 						/>
 					) : null,
 				)}
 			</div>
 
 			<div
-				className="pointer-events-none rounded-sm border-2 border-accent-900 bg-accent-600/50 transition-opacity"
+				className="pointer-events-none rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
 				style={{
-					width: `${selectionSize.x}px`,
-					height: `${selectionSize.y}px`,
-					transform: `translate(${selectionTopLeft.toCSSPixels()})`,
-					opacity: state.buttonLeft === "dragging" ? 1 : 0,
-					transitionDuration:
-						state.buttonLeft === "dragging" ? "0s" : undefined,
+					width: `${selectionArea.width}px`,
+					height: `${selectionArea.height}px`,
+					transform: `translate(${selectionArea.topLeft.toCSSPixels()})`,
+					...(state.status === "selectingArea" && {
+						opacity: 1,
+						transitionDuration: "0",
+					}),
 				}}
 			/>
 		</div>
@@ -290,18 +331,16 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 }
 
 function CharacterTokenElement({
-	token,
 	character,
-	scene,
 	selected,
+	children: _,
+	...props
 }: {
-	token: ApiToken
 	character: ApiCharacter
-	scene: ApiScene
 	selected: boolean
-}) {
+} & ComponentProps<typeof BaseTokenElement>) {
 	return (
-		<BaseTokenElement token={token} scene={scene}>
+		<BaseTokenElement {...props}>
 			{character.imageId && (
 				<img
 					src={getImageUrl(character.imageId)}
@@ -320,24 +359,28 @@ function CharacterTokenElement({
 function BaseTokenElement({
 	token,
 	scene,
-	children,
+	...props
 }: {
 	token: ApiToken
 	scene: ApiScene
-	children: ReactNode
-}) {
+} & ComponentProps<"div">) {
 	return (
 		<div
-			className="absolute left-0 top-0 origin-top-left drop-shadow-md"
+			{...props}
+			className={twMerge(
+				"absolute left-0 top-0 origin-top-left drop-shadow-md",
+				props.className,
+			)}
 			style={{
 				transform: `translate(${Vec.from(token.position).toCSSPixels()})`,
+				...props.style,
 			}}
 		>
 			<div
 				className="relative"
 				style={{ width: scene.cellSize, height: scene.cellSize }}
 			>
-				{children}
+				{props.children}
 			</div>
 		</div>
 	)
