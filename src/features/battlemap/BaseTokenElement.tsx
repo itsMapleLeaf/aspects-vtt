@@ -16,7 +16,7 @@ export function BaseTokenElement({
 		<div
 			{...props}
 			className={twMerge(
-				"absolute left-0 top-0 origin-top-left drop-shadow-md",
+				"absolute left-0 top-0 origin-top-left",
 				props.className,
 			)}
 			style={{

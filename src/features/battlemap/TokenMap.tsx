@@ -79,12 +79,13 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		}))
 		.map((token) => ({
 			...token,
-			position: Vec.sum(
-				token.position,
-				selectedTokenIds.has(token._id)
-					? tokenDrag.movedActive.dividedBy(viewport.scale)
-					: 0,
-			),
+			position: Vec.from(token.position)
+				.roundTo(scene.cellSize / 4)
+				.plus(
+					selectedTokenIds.has(token._id)
+						? tokenDrag.movedActive.dividedBy(viewport.scale)
+						: 0,
+				),
 		}))
 		.sort((a, b) => a.updatedAt - b.updatedAt)
 
@@ -110,6 +111,10 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 
 	const characterTokens = tokens.flatMap((token) =>
 		token.characterId ? [token] : [],
+	)
+
+	const [annotationLayer, annotationLayerRef] = useState<HTMLDivElement | null>(
+		null,
 	)
 
 	return (
@@ -149,6 +154,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						character={token.character}
 						scene={scene}
 						selected={selectedTokenIds.has(token._id)}
+						viewport={viewport}
+						annotationLayer={annotationLayer}
 						{...tokenDrag.handlers({ token })}
 					/>
 				))}
@@ -166,6 +173,12 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					}),
 				}}
 			/>
+
+			<div
+				className="pointer-events-none absolute inset-0 origin-top-left"
+				style={{ transform: `translate(${viewport.offset.toCSSPixels()})` }}
+				ref={annotationLayerRef}
+			></div>
 		</div>
 	)
 }
