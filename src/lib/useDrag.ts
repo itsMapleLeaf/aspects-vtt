@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { startTransition, useEffect, useRef, useState } from "react"
 import { useEventListener } from "~/lib/react.ts"
 import { Rect } from "~/lib/rect.ts"
 import { Vec } from "~/shared/vec.ts"
@@ -30,7 +30,9 @@ export function useDrag<StartInfo = void>(options: {
 		window.addEventListener(
 			"pointermove",
 			(event) => {
-				setEnd(Vec.from(event))
+				startTransition(() => {
+					setEnd(Vec.from(event))
+				})
 				shouldPreventContextMenu.current = false
 			},
 			{ signal: controller.signal },
