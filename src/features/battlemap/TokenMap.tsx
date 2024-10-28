@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "convex/react"
 import { clamp, omit } from "lodash-es"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { readonly } from "~/lib/common.ts"
@@ -113,9 +113,21 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		token.characterId ? [token] : [],
 	)
 
-	const [annotationLayer, annotationLayerRef] = useState<HTMLDivElement | null>(
-		null,
+	const [visibleAnnotations, setVisibleAnnotations] = useState(
+		new Map<Id<"characterTokens">, boolean>(),
 	)
+	const altPressed = useKeyPressed("Alt")
+
+	function updateVisibleAnnotations(
+		tokenId: Id<"characterTokens">,
+		visible: boolean,
+	) {
+		setVisibleAnnotations((prev) => {
+			const next = new Map(prev)
+			next.set(tokenId, visible)
+			return next
+		})
+	}
 
 	return (
 		<div
@@ -154,8 +166,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						character={token.character}
 						scene={scene}
 						selected={selectedTokenIds.has(token._id)}
-						viewport={viewport}
-						annotationLayer={annotationLayer}
+						onPointerEnter={() => updateVisibleAnnotations(token._id, true)}
+						onPointerLeave={() => updateVisibleAnnotations(token._id, false)}
 						{...tokenDrag.handlers({ token })}
 					/>
 				))}
@@ -177,8 +189,37 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			<div
 				className="pointer-events-none absolute inset-0 origin-top-left"
 				style={{ transform: `translate(${viewport.offset.toCSSPixels()})` }}
-				ref={annotationLayerRef}
-			></div>
+			>
+				{characterTokens.map((token) => (
+					<div
+						key={token._id}
+						// using opacity-95 because the browser (just Firefox?)
+						// disables GPU rendering at 100,
+						// which causes weird artifacts like pixel shifting
+						className="pointer-events-none absolute left-0 top-0 opacity-0 transition-opacity data-[visible=true]:opacity-95"
+						data-visible={visibleAnnotations.get(token._id) || altPressed}
+						style={{
+							transform: `translate(${Vec.from(token.position)
+								.times(viewport.scale)
+								.toCSSPixels()})`,
+						}}
+					>
+						<div
+							className="relative"
+							style={{
+								width: scene.cellSize * viewport.scale,
+								height: scene.cellSize * viewport.scale,
+							}}
+						>
+							<div className="absolute left-1/2 top-full -translate-x-1/2 p-2">
+								<div className="flex items-center whitespace-nowrap rounded border border-black bg-black/75 px-2 py-1 text-center font-medium leading-5 backdrop-blur-sm">
+									{token.character.identity?.name}
+								</div>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
 		</div>
 	)
 }
@@ -224,4 +265,38 @@ function useViewport() {
 	}
 
 	return { offset, scale, drag, handleWheel }
+}
+
+function useKeyPressed(targetKey: string) {
+	const [isPressed, setIsPressed] = useState(false)
+
+	useEffect(() => {
+		const controller = new AbortController()
+
+		window.addEventListener(
+			"keydown",
+			function handleKeyDown(event: KeyboardEvent) {
+				if (event.key === targetKey) {
+					event.preventDefault()
+					setIsPressed(true)
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		window.addEventListener(
+			"keyup",
+			function handleKeyUp(event: KeyboardEvent) {
+				if (event.key === targetKey) {
+					event.preventDefault()
+					setIsPressed(false)
+				}
+			},
+			{ signal: controller.signal },
+		)
+
+		return () => controller.abort()
+	}, [targetKey])
+
+	return isPressed
 }
