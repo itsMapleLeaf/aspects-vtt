@@ -1,35 +1,21 @@
-import { ComponentProps } from "react"
-import { twMerge } from "tailwind-merge"
 import { ApiToken } from "~/features/battlemap/types.ts"
 import { ApiScene } from "~/features/scenes/types.ts"
-import { Vec } from "~/shared/vec.ts"
+import { Sprite, SpriteProps } from "./Sprite.tsx"
 
 export function BaseTokenElement({
 	token,
 	scene,
 	...props
-}: {
+}: SpriteProps & {
 	token: ApiToken
 	scene: ApiScene
-} & ComponentProps<"div">) {
+}) {
 	return (
-		<div
+		<Sprite
+			position={token.position}
+			size={scene.cellSize}
+			pointerEvents
 			{...props}
-			className={twMerge(
-				"absolute left-0 top-0 origin-top-left",
-				props.className,
-			)}
-			style={{
-				transform: `translate(${Vec.from(token.position).toCSSPixels()})`,
-				...props.style,
-			}}
-		>
-			<div
-				className="relative"
-				style={{ width: scene.cellSize, height: scene.cellSize }}
-			>
-				{props.children}
-			</div>
-		</div>
+		/>
 	)
 }
