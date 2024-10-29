@@ -246,6 +246,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
 							data-visible={
 								!selectionDrag.active &&
+								!tokenDrag.active &&
 								(visibleAnnotations.get(token._id) ||
 									selectedTokenIds.has(token._id) ||
 									altPressed)
