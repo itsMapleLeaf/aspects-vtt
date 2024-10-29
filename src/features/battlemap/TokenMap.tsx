@@ -178,12 +178,10 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			onWheel={handleWheel}
 		>
 			<Sprite position={viewportOffset} scale={viewportScale}>
-				{scene.battlemapBackgroundId && (
-					<ApiImage
-						imageId={scene.battlemapBackgroundId}
-						className="max-w-none"
-					/>
-				)}
+				<ApiImage
+					imageId={scene.battlemapBackgroundId}
+					className="max-w-none"
+				/>
 			</Sprite>
 
 			<div className="absolute inset-0" {...selectionDrag.handlers()}></div>
