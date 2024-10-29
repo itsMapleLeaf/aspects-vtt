@@ -17,6 +17,7 @@
     "preview": "remix-serve ./build/server/index.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "checks": "turbo build lint format test typecheck",
     "download-convex-backend": "deno run --allow-env --allow-read --allow-run scripts/download-convex-backend.ts"
   },
   "dependencies": {
