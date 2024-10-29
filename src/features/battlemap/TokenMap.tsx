@@ -244,7 +244,11 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							// which causes weird artifacts like pixel shifting
 							// and also murders performance lol
 							className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
-							data-visible={visibleAnnotations.get(token._id) || altPressed}
+							data-visible={
+								visibleAnnotations.get(token._id) ||
+								selectedTokenIds.has(token._id) ||
+								altPressed
+							}
 						>
 							<Sprite.Attachment side="top" className="p-4">
 								<Sprite.Badge>
