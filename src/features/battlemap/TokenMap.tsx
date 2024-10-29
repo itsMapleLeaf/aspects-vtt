@@ -6,7 +6,6 @@ import { ApiImage } from "~/components/ApiImage.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { Sprite } from "~/features/battlemap/Sprite.tsx"
-import { readonly } from "~/lib/common.ts"
 import { groupBy, keyBy } from "~/lib/iterable.ts"
 import { useKeyPressed } from "~/lib/keyboard.ts"
 import { Rect } from "~/lib/rect.ts"
@@ -14,6 +13,7 @@ import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
 import { useDrag } from "../../lib/useDrag.ts"
 import { getConditionColorClasses } from "../characters/conditions.ts"
+import { useEntityStoreContext } from "../entities/context.tsx"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
@@ -62,12 +62,32 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 	const toTokenPosition = (input: VecInput) =>
 		Vec.from(input).minus(viewportOffset).dividedBy(viewportScale)
 
-	const [selectedTokenIds, setSelectedTokenIds] = useState(
-		readonly(new Set<Id<"characterTokens">>()),
-	)
+	const entityStore = useEntityStoreContext()
 
 	const baseTokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
 	const updateTokens = useAsyncQueue(useMutation(api.tokens.update))
+
+	const selectedTokenIds = new Set(
+		baseTokens
+			.filter((token) =>
+				entityStore.selected.some((entry) => entry.id === token.characterId),
+			)
+			.map((token) => token._id),
+	)
+
+	const setSelectedTokenIds = (ids: Set<Id<"characterTokens">>) => {
+		entityStore.setSelected(
+			baseTokens
+				.filter((token) => ids.has(token._id))
+				.flatMap((token) =>
+					token.characterId ? { type: "character", id: token.characterId } : [],
+				),
+		)
+	}
+
+	// const [selectedTokenIds, setSelectedTokenIds] = useState(
+	// 	readonly(new Set<Id<"characterTokens">>()),
+	// )
 
 	const pendingTokenUpdates = new Map<
 		Id<"characterTokens">,

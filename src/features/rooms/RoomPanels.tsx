@@ -6,6 +6,7 @@ import {
 import { Iterator } from "iterator-helpers-polyfill"
 import {
 	LucideImage,
+	LucideListTree,
 	LucideMessageCircle,
 	LucidePackage,
 	LucideShield,
@@ -20,6 +21,7 @@ import { panel } from "~/styles/panel.ts"
 import { fadeTransition } from "../../styles/transitions.ts"
 import { CharacterList } from "../characters/CharacterList.tsx"
 import { CombatTracker } from "../combat/CombatTracker.tsx"
+import { EntityPropertyEditor } from "../entities/EntityPropertyEditor.tsx"
 import { RoomItemList } from "../inventory/RoomItemList.tsx"
 import { MessageList } from "../messages/MessageList.tsx"
 import { SceneList } from "../scenes/SceneList.tsx"
@@ -44,16 +46,10 @@ const MODULES: Record<string, ModuleDefinition> = {
 		defaultLocation: { sidebar: 0, panel: 0 },
 		content: () => <CharacterList />,
 	},
-	messages: {
-		name: "Messages",
-		icon: <LucideMessageCircle />,
-		defaultLocation: { sidebar: 1, panel: 1 },
-		content: () => <MessageList />,
-	},
 	items: {
 		name: "Items",
 		icon: <LucidePackage />,
-		defaultLocation: { sidebar: 0, panel: 1 },
+		defaultLocation: { sidebar: 0, panel: 0 },
 		content: () => <RoomItemList />,
 	},
 	combat: {
@@ -61,6 +57,18 @@ const MODULES: Record<string, ModuleDefinition> = {
 		icon: <LucideShield />,
 		defaultLocation: { sidebar: 1, panel: 0 },
 		content: () => <CombatTracker />,
+	},
+	messages: {
+		name: "Messages",
+		icon: <LucideMessageCircle />,
+		defaultLocation: { sidebar: 1, panel: 1 },
+		content: () => <MessageList />,
+	},
+	properties: {
+		name: "Properties",
+		icon: <LucideListTree />,
+		defaultLocation: { sidebar: 1, panel: 0 },
+		content: () => <EntityPropertyEditor />,
 	},
 	// notes: {
 	// 	name: "Notes",
