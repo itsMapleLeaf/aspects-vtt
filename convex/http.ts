@@ -16,6 +16,7 @@ http.route({
 		const isValidOrigin =
 			origin &&
 			(origin?.startsWith("http://localhost") ||
+				origin?.startsWith("http://127.0.0.1") ||
 				origin?.endsWith("mapleleaf.dev"))
 
 		if (!isValidOrigin) {
