@@ -1,9 +1,10 @@
 // @ts-check
 // @ts-expect-error
 import pluginJs from "@eslint/js"
-import pluginReact from "eslint-plugin-react"
+import react from "eslint-plugin-react"
 // @ts-expect-error
 import reactCompiler from "eslint-plugin-react-compiler"
+import reactHooks from "eslint-plugin-react-hooks"
 import globals from "globals"
 import tseslint from "typescript-eslint"
 
@@ -41,14 +42,19 @@ export default [
 		},
 	},
 
-	pluginReact.configs.flat?.recommended,
-	pluginReact.configs.flat?.["jsx-runtime"],
+	react.configs.flat?.recommended,
+	react.configs.flat?.["jsx-runtime"],
 	{
 		settings: {
 			react: {
 				version: "detect",
 			},
 		},
+	},
+
+	{
+		plugins: { "react-hooks": reactHooks },
+		rules: reactHooks.configs.recommended.rules,
 	},
 
 	{
