@@ -21,7 +21,7 @@ export function Sprite({
 		<div
 			{...props}
 			className={twMerge(
-				"absolute left-0 top-0 origin-top-left",
+				"absolute left-0 top-0 origin-top-left will-change-[transform,opacity]",
 				pointerEvents ? "pointer-events-auto" : "pointer-events-none",
 				props.className,
 			)}
@@ -57,7 +57,7 @@ function SpriteAttachment({
 	return (
 		<div
 			className={twMerge(
-				"absolute left-1/2 -translate-x-1/2",
+				"absolute left-1/2 flex -translate-x-1/2 flex-col gap-2",
 				side === "top" && "bottom-full",
 				side === "bottom" && "top-full",
 				className,
@@ -69,17 +69,42 @@ function SpriteAttachment({
 }
 
 Sprite.Badge = SpriteBadge
-function SpriteBadge({
-	text,
-	subtext,
+function SpriteBadge(props: ComponentProps<"div">) {
+	return (
+		<div
+			{...props}
+			className={twMerge(
+				"flex flex-col items-center whitespace-nowrap rounded-sm border border-black bg-black/75 px-3 py-1 text-center font-medium backdrop-blur-sm empty:hidden",
+				props.className,
+			)}
+		/>
+	)
+}
+
+Sprite.Meter = SpriteMeter
+function SpriteMeter({
+	value,
+	max,
+	className,
 }: {
-	text: React.ReactNode
-	subtext: React.ReactNode
+	value: number
+	max: number
+	className?: { root?: string; fill?: string }
 }) {
 	return (
-		<div className="flex flex-col items-center whitespace-nowrap rounded border border-black bg-black/75 px-3 py-1.5 text-center font-medium backdrop-blur-sm empty:hidden">
-			<p className="text-lg/5 empty:hidden">{text}</p>
-			<p className="text-base/5 opacity-80 empty:hidden">{subtext}</p>
+		<div
+			className={twMerge(
+				"bg-opacity-500 h-4 w-20 rounded-sm border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-sm will-change-transform",
+				className?.root,
+			)}
+		>
+			<div
+				className={twMerge(
+					"size-full origin-left rounded-[inherit] bg-blue-400",
+					className?.fill,
+				)}
+				style={{ scale: `${value / max} 1` }}
+			></div>
 		</div>
 	)
 }

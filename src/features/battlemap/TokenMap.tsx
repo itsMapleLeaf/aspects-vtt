@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "convex/react"
 import { clamp, omit } from "lodash-es"
 import { useState } from "react"
+import { twMerge } from "tailwind-merge"
 import { ApiImage } from "~/components/ApiImage.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
@@ -12,6 +13,7 @@ import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
 import { useDrag } from "../../lib/useDrag.ts"
+import { getConditionColorClasses } from "../characters/conditions.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
 import { ApiToken } from "./types.ts"
@@ -171,7 +173,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 	return (
 		<div
 			{...viewportDrag.handlers()}
-			className="absolute inset-0 touch-none select-none overflow-clip"
+			className="absolute inset-0 touch-none select-none overflow-clip [&_*]:will-change-[transform,opacity]"
 			onWheel={handleWheel}
 		>
 			<Sprite position={viewportOffset} scale={viewportScale}>
@@ -222,19 +224,58 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						// using opacity-95 because the browser (just Firefox?)
 						// disables GPU rendering at 100,
 						// which causes weird artifacts like pixel shifting
-						className="opacity-0 transition-opacity data-[visible=true]:opacity-95"
+						// and also murders performance lol
+						className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
 						data-visible={visibleAnnotations.get(token._id) || altPressed}
 					>
 						<Sprite.Attachment side="top" className="p-4">
-							<Sprite.Badge
-								text={token.character.identity?.name}
-								subtext={[
-									token.character.race,
-									token.character.identity?.pronouns,
-								]
-									.filter(Boolean)
-									.join(" • ")}
-							/>
+							<Sprite.Badge>
+								<p className="text-base/5 empty:hidden">
+									{token.character.identity?.name ?? (
+										<span className="opacity-50">(unknown)</span>
+									)}
+								</p>
+								<p className="text-sm/5 opacity-80 empty:hidden">
+									{[token.character.race, token.character.identity?.pronouns]
+										.filter(Boolean)
+										.join(" • ")}
+								</p>
+							</Sprite.Badge>
+						</Sprite.Attachment>
+						<Sprite.Attachment side="bottom" className="items-center p-4 gap-1">
+							{token.character.full && (
+								<div className="flex gap-1">
+									<Sprite.Meter
+										value={token.character.full.health}
+										max={token.character.full.healthMax}
+										className={{
+											root: "border-green-700 bg-green-500/50",
+											fill: "bg-green-500",
+										}}
+									/>
+									<Sprite.Meter
+										value={token.character.full.resolve}
+										max={token.character.full.resolveMax}
+										className={{
+											root: "border-blue-700 bg-blue-500/50",
+											fill: "bg-blue-500",
+										}}
+									/>
+								</div>
+							)}
+							<div className="flex w-64 flex-wrap justify-center gap-1">
+								{[...new Set(token.character.conditions)].map((condition) => (
+									<Sprite.Badge
+										key={condition}
+										className={twMerge(
+											"px-2.5 py-1 text-sm leading-4",
+											getConditionColorClasses(condition),
+										)}
+									>
+										{condition}
+									</Sprite.Badge>
+								))}
+							</div>
 						</Sprite.Attachment>
 					</Sprite>
 				))}
