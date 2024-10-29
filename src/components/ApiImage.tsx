@@ -17,6 +17,7 @@ export function ApiImage({ imageId, className, ...props }: ApiImageProps) {
 				src={getImageUrl(imageId)}
 				alt=""
 				className={twMerge(className)}
+				draggable={false}
 				{...props}
 			/>
 		)
@@ -66,15 +67,30 @@ export function StatefulApiImage({
 		typeof className === "string" ? { root: className } : (className ?? {})
 
 	return (
-		<div {...props} className={twMerge("w-fit", classes.root)}>
-			{imageId == null ? (
-				<LucideImageOff className={twMerge(classes.icon)} />
-			) : status === "loading" ? (
-				<LoadingIcon className={twMerge(classes.icon)} />
-			) : status === "error" ? (
-				<LucideXCircle className={twMerge(classes.icon)} />
-			) : (
-				<ApiImage imageId={imageId} className={twMerge(classes.image)} />
+		<div
+			{...props}
+			className={twMerge(
+				"relative flex flex-col items-center justify-center",
+				classes.root,
+			)}
+		>
+			<div className="absolute m-auto aspect-square w-full max-w-32 p-[20%] text-primary-100 opacity-40 *:size-full">
+				{imageId == null ? (
+					<LucideImageOff className={twMerge(classes.icon)} />
+				) : status === "loading" ? (
+					<LoadingIcon className={twMerge(classes.icon)} />
+				) : status === "error" ? (
+					<LucideXCircle className={twMerge(classes.icon)} />
+				) : null}
+			</div>
+			{status === "loaded" && (
+				<ApiImage
+					imageId={imageId}
+					className={twMerge(
+						"absolute inset-0 size-full rounded-[inherit] object-cover object-top",
+						classes.image,
+					)}
+				/>
 			)}
 		</div>
 	)

@@ -43,3 +43,43 @@ export function Sprite({
 		</div>
 	)
 }
+
+Sprite.Attachment = SpriteAttachment
+function SpriteAttachment({
+	children,
+	side,
+	className,
+}: {
+	children: React.ReactNode
+	side: "top" | "bottom"
+	className?: string
+}) {
+	return (
+		<div
+			className={twMerge(
+				"absolute left-1/2 -translate-x-1/2",
+				side === "top" && "bottom-full",
+				side === "bottom" && "top-full",
+				className,
+			)}
+		>
+			{children}
+		</div>
+	)
+}
+
+Sprite.Badge = SpriteBadge
+function SpriteBadge({
+	text,
+	subtext,
+}: {
+	text: React.ReactNode
+	subtext: React.ReactNode
+}) {
+	return (
+		<div className="flex flex-col items-center whitespace-nowrap rounded border border-black bg-black/75 px-3 py-1.5 text-center font-medium backdrop-blur-sm empty:hidden">
+			<p className="text-lg/5 empty:hidden">{text}</p>
+			<p className="text-base/5 opacity-80 empty:hidden">{subtext}</p>
+		</div>
+	)
+}

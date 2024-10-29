@@ -225,11 +225,17 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						className="opacity-0 transition-opacity data-[visible=true]:opacity-95"
 						data-visible={visibleAnnotations.get(token._id) || altPressed}
 					>
-						<div className="absolute left-1/2 top-full -translate-x-1/2 p-2">
-							<div className="flex items-center whitespace-nowrap rounded border border-black bg-black/75 px-2 py-1 text-center font-medium leading-5 backdrop-blur-sm">
-								{token.character.identity?.name}
-							</div>
-						</div>
+						<Sprite.Attachment side="top" className="p-4">
+							<Sprite.Badge
+								text={token.character.identity?.name}
+								subtext={[
+									token.character.race,
+									token.character.identity?.pronouns,
+								]
+									.filter(Boolean)
+									.join(" • ")}
+							/>
+						</Sprite.Attachment>
 					</Sprite>
 				))}
 			</Sprite>
