@@ -7,7 +7,7 @@ import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { Sprite } from "~/features/battlemap/Sprite.tsx"
 import { readonly } from "~/lib/common.ts"
-import { keyBy } from "~/lib/iterable.ts"
+import { groupBy, keyBy } from "~/lib/iterable.ts"
 import { useKeyPressed } from "~/lib/keyboard.ts"
 import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
@@ -15,6 +15,7 @@ import { Vec, VecInput } from "~/shared/vec.ts"
 import { useDrag } from "../../lib/useDrag.ts"
 import { getConditionColorClasses } from "../characters/conditions.ts"
 import { ApiScene } from "../scenes/types.ts"
+import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
 import { ApiToken } from "./types.ts"
 
@@ -150,8 +151,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	})
 
-	const characterTokens = tokens.flatMap((token) =>
-		token.characterId ? [token] : [],
+	const tokenGroups = groupBy(tokens, (token) =>
+		token.characterId ? "characters" : "activities",
 	)
 
 	const [visibleAnnotations, setVisibleAnnotations] = useState(
@@ -188,19 +189,34 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			<div className="absolute inset-0" {...selectionDrag.handlers()}></div>
 
 			<Sprite position={viewportOffset} scale={viewportScale}>
-				{characterTokens.map((token) => (
-					<CharacterTokenElement
-						key={token._id}
-						token={token}
-						character={token.character}
-						scene={scene}
-						selected={selectedTokenIds.has(token._id)}
-						pointerEvents
-						onPointerEnter={() => updateVisibleAnnotations(token._id, true)}
-						onPointerLeave={() => updateVisibleAnnotations(token._id, false)}
-						{...tokenDrag.handlers({ token })}
-					/>
-				))}
+				{tokenGroups.get("characters")?.map((token) => {
+					if (!token.characterId) return
+					return (
+						<CharacterTokenElement
+							key={token._id}
+							token={token}
+							character={token.character}
+							scene={scene}
+							selected={selectedTokenIds.has(token._id)}
+							pointerEvents
+							onPointerEnter={() => updateVisibleAnnotations(token._id, true)}
+							onPointerLeave={() => updateVisibleAnnotations(token._id, false)}
+							{...tokenDrag.handlers({ token })}
+						/>
+					)
+				})}
+				{tokenGroups
+					.get("activities")
+					?.map((token) => (
+						<ActivityTokenElement
+							key={token._id}
+							token={token}
+							scene={scene}
+							selected={selectedTokenIds.has(token._id)}
+							pointerEvents
+							{...tokenDrag.handlers({ token })}
+						/>
+					))}
 			</Sprite>
 
 			<Sprite
@@ -216,69 +232,75 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			/>
 
 			<Sprite position={viewportOffset} pointerEvents={false}>
-				{characterTokens.map((token) => (
-					<Sprite
-						key={token._id}
-						position={Vec.from(token.position).times(viewportScale)}
-						size={Vec.from(scene.cellSize).times(viewportScale)}
-						// using opacity-95 because the browser (just Firefox?)
-						// disables GPU rendering at 100,
-						// which causes weird artifacts like pixel shifting
-						// and also murders performance lol
-						className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
-						data-visible={visibleAnnotations.get(token._id) || altPressed}
-					>
-						<Sprite.Attachment side="top" className="p-4">
-							<Sprite.Badge>
-								<p className="text-base/5 empty:hidden">
-									{token.character.identity?.name ?? (
-										<span className="opacity-50">(unknown)</span>
-									)}
-								</p>
-								<p className="text-sm/5 opacity-80 empty:hidden">
-									{[token.character.race, token.character.identity?.pronouns]
-										.filter(Boolean)
-										.join(" • ")}
-								</p>
-							</Sprite.Badge>
-						</Sprite.Attachment>
-						<Sprite.Attachment side="bottom" className="items-center p-4 gap-1">
-							{token.character.full && (
-								<div className="flex gap-1">
-									<Sprite.Meter
-										value={token.character.full.health}
-										max={token.character.full.healthMax}
-										className={{
-											root: "border-green-700 bg-green-500/50",
-											fill: "bg-green-500",
-										}}
-									/>
-									<Sprite.Meter
-										value={token.character.full.resolve}
-										max={token.character.full.resolveMax}
-										className={{
-											root: "border-blue-700 bg-blue-500/50",
-											fill: "bg-blue-500",
-										}}
-									/>
-								</div>
-							)}
-							<div className="flex w-64 flex-wrap justify-center gap-1">
-								{[...new Set(token.character.conditions)].map((condition) => (
-									<Sprite.Badge
-										key={condition}
-										className={twMerge(
-											"px-2.5 py-1 text-sm leading-4",
-											getConditionColorClasses(condition),
+				{tokenGroups.get("characters")?.map((token) => {
+					if (!token.characterId) return
+					return (
+						<Sprite
+							key={token._id}
+							position={Vec.from(token.position).times(viewportScale)}
+							size={Vec.from(scene.cellSize).times(viewportScale)}
+							// using opacity-95 because the browser (just Firefox?)
+							// disables GPU rendering at 100,
+							// which causes weird artifacts like pixel shifting
+							// and also murders performance lol
+							className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
+							data-visible={visibleAnnotations.get(token._id) || altPressed}
+						>
+							<Sprite.Attachment side="top" className="p-4">
+								<Sprite.Badge>
+									<p className="text-base/5 empty:hidden">
+										{token.character.identity?.name ?? (
+											<span className="opacity-50">(unknown)</span>
 										)}
-									>
-										{condition}
-									</Sprite.Badge>
-								))}
-							</div>
-						</Sprite.Attachment>
-					</Sprite>
-				))}
+									</p>
+									<p className="text-sm/5 opacity-80 empty:hidden">
+										{[token.character.race, token.character.identity?.pronouns]
+											.filter(Boolean)
+											.join(" • ")}
+									</p>
+								</Sprite.Badge>
+							</Sprite.Attachment>
+							<Sprite.Attachment
+								side="bottom"
+								className="items-center p-4 gap-1"
+							>
+								{token.character.full && (
+									<div className="flex gap-1">
+										<Sprite.Meter
+											value={token.character.full.health}
+											max={token.character.full.healthMax}
+											className={{
+												root: "border-green-700 bg-green-500/50",
+												fill: "bg-green-500",
+											}}
+										/>
+										<Sprite.Meter
+											value={token.character.full.resolve}
+											max={token.character.full.resolveMax}
+											className={{
+												root: "border-blue-700 bg-blue-500/50",
+												fill: "bg-blue-500",
+											}}
+										/>
+									</div>
+								)}
+								<div className="flex w-64 flex-wrap justify-center gap-1">
+									{[...new Set(token.character.conditions)].map((condition) => (
+										<Sprite.Badge
+											key={condition}
+											className={twMerge(
+												"px-2.5 py-1 text-sm leading-4",
+												getConditionColorClasses(condition),
+											)}
+										>
+											{condition}
+										</Sprite.Badge>
+									))}
+								</div>
+							</Sprite.Attachment>
+						</Sprite>
+					)
+				})}
 			</Sprite>
 		</div>
 	)
