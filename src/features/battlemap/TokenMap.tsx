@@ -245,9 +245,10 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							// and also murders performance lol
 							className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
 							data-visible={
-								visibleAnnotations.get(token._id) ||
-								selectedTokenIds.has(token._id) ||
-								altPressed
+								!selectionDrag.active &&
+								(visibleAnnotations.get(token._id) ||
+									selectedTokenIds.has(token._id) ||
+									altPressed)
 							}
 						>
 							<Sprite.Attachment side="top" className="p-4">
