@@ -1,4 +1,5 @@
 import { ComponentProps } from "react"
+import { twMerge } from "tailwind-merge"
 import { StatefulApiImage } from "~/components/ApiImage.tsx"
 import { ApiCharacter } from "../characters/types.ts"
 import { BaseTokenElement } from "./BaseTokenElement.tsx"
@@ -14,7 +15,13 @@ export function CharacterTokenElement({
 } & ComponentProps<typeof BaseTokenElement>) {
 	return (
 		<>
-			<BaseTokenElement {...props}>
+			<BaseTokenElement
+				{...props}
+				className={twMerge(
+					props.token.visible ? "" : "opacity-50",
+					props.className,
+				)}
+			>
 				<div className="absolute -inset-1 rounded-full bg-black/50" />
 				<div className="absolute -inset-2 rounded-full bg-black/50" />
 				<StatefulApiImage
