@@ -6,7 +6,13 @@ import {
 	LucideSwords,
 	LucideTrash,
 } from "lucide-react"
-import { ComponentProps, createContext, use, useState } from "react"
+import {
+	ComponentProps,
+	createContext,
+	startTransition,
+	use,
+	useState,
+} from "react"
 import { match, P } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
 import { Popover } from "~/components/Popover.tsx"
@@ -36,15 +42,19 @@ function useTokenMenuController() {
 		event: { clientX: number; clientY: number },
 		tokenIds: Iterable<Id<"characterTokens">>,
 	) => {
-		setState({
-			open: true,
-			position: { x: event.clientX, y: event.clientY },
-			tokenIds: new Set(tokenIds),
+		startTransition(() => {
+			setState({
+				open: true,
+				position: { x: event.clientX, y: event.clientY },
+				tokenIds: new Set(tokenIds),
+			})
 		})
 	}
 
 	const close = () => {
-		setState((s) => ({ ...s, open: false }))
+		startTransition(() => {
+			setState((s) => ({ ...s, open: false }))
+		})
 	}
 
 	return { ...state, handleTrigger, close }
@@ -101,7 +111,7 @@ export function TokenMenu({
 				<Popover.Content
 					getAnchorRect={() => controller.position ?? null}
 					className={panel("grid w-[240px] rounded-xl p-2 gap-2")}
-					onClose={controller.close}
+					backdrop={<Popover.Backdrop onPointerDown={controller.close} />}
 				>
 					{fullCharacters.length > 0 && (
 						<CharacterAttributeButtonRow characters={fullCharacters} />

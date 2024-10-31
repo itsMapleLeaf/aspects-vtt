@@ -12,11 +12,12 @@ import { useKeyPressed } from "~/lib/keyboard.ts"
 import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
-import { useDrag } from "../../lib/useDrag.ts"
+import { usePointer } from "../../lib/usePointer.ts"
 import { getConditionColorClasses } from "../characters/conditions.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
+import { useTokenMenu } from "./TokenMenu.tsx"
 import { ApiToken } from "./types.ts"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
@@ -25,9 +26,9 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		zoom: 0,
 	})
 
-	const viewportDrag = useDrag({
+	const viewportInput = usePointer({
 		button: "secondary",
-		onEnd: ({ moved }) => {
+		onDragFinish: ({ moved }) => {
 			setViewportState((state) => ({
 				...state,
 				offset: state.offset.plus(moved),
@@ -37,7 +38,9 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 
 	const viewportScaleCoefficient = 1.3
 	const viewportScale = viewportScaleCoefficient ** viewportState.zoom
-	const viewportOffset = viewportState.offset.plus(viewportDrag.movedActive)
+	const viewportOffset = viewportState.offset.plus(
+		viewportInput.distanceDragged,
+	)
 
 	const handleWheel = (event: React.WheelEvent) => {
 		if (event.deltaY === 0) return
@@ -88,9 +91,9 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		}
 	}
 
-	const tokenDrag = useDrag<{ token: ApiToken }>({
+	const tokenInput = usePointer<{ token: ApiToken }>({
 		button: "primary",
-		onStart: ({ info }) => {
+		onDown: ({ info }) => {
 			const newSelectedTokenIds = selectedTokenIds.has(info.token._id)
 				? selectedTokenIds
 				: new Set([info.token._id])
@@ -104,13 +107,28 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				})),
 			})
 		},
-		onEnd: () => {
+		onDragFinish: () => {
 			updateTokens({
 				updates: selectedTokens.map((token) => ({
 					tokenId: token._id,
 					position: token.position.toJSON(),
 				})),
 			})
+		},
+	})
+
+	const menu = useTokenMenu()
+	const tokenInputSecondary = usePointer<{ token: ApiToken }>({
+		button: "secondary",
+		onDown: ({ event, info }) => {
+			if (!event || !info) return
+			if (!selectedTokenIds.has(info.token._id)) {
+				setSelectedTokenIds(new Set([info.token._id]))
+			}
+		},
+		onPointerUp: ({ event }) => {
+			if (!event) return
+			menu.handleTrigger(event, selectedTokenIds)
 		},
 	})
 
@@ -125,7 +143,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				.roundTo(scene.cellSize / 4)
 				.plus(
 					selectedTokenIds.has(token._id)
-						? tokenDrag.movedActive.dividedBy(viewportScale)
+						? tokenInput.distanceDragged.dividedBy(viewportScale)
 						: 0,
 				),
 		}))
@@ -136,9 +154,12 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		.map((id) => tokensById.get(id))
 		.filter(Boolean)
 
-	const selectionDrag = useDrag({
+	const selectionInput = usePointer({
 		button: "primary",
-		onEnd: ({ start, end, cancelled }) => {
+		onDown: () => {
+			setSelectedTokenIds(readonly(new Set()))
+		},
+		onDragFinish: ({ start, end, cancelled }) => {
 			if (cancelled) return
 			const area = Rect.bounds(toTokenPosition(start), toTokenPosition(end))
 			setSelectedTokenIds(
@@ -173,7 +194,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 
 	return (
 		<div
-			{...viewportDrag.handlers()}
+			{...viewportInput.handlers()}
 			className="absolute inset-0 touch-none select-none overflow-clip [&_*]:will-change-[transform,opacity]"
 			onWheel={handleWheel}
 		>
@@ -184,7 +205,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				/>
 			</Sprite>
 
-			<div className="absolute inset-0" {...selectionDrag.handlers()}></div>
+			<div className="absolute inset-0" {...selectionInput.handlers()}></div>
 
 			<Sprite position={viewportOffset} scale={viewportScale}>
 				{tokenGroups.get("characters")?.map((token) => {
@@ -199,7 +220,10 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							pointerEvents
 							onPointerEnter={() => updateVisibleAnnotations(token._id, true)}
 							onPointerLeave={() => updateVisibleAnnotations(token._id, false)}
-							{...tokenDrag.handlers({ token })}
+							onPointerDown={(event) => {
+								tokenInput.handlers({ token }).onPointerDown(event)
+								tokenInputSecondary.handlers({ token }).onPointerDown(event)
+							}}
 						/>
 					)
 				})}
@@ -212,17 +236,17 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							scene={scene}
 							selected={selectedTokenIds.has(token._id)}
 							pointerEvents
-							{...tokenDrag.handlers({ token })}
+							{...tokenInput.handlers({ token })}
 						/>
 					))}
 			</Sprite>
 
 			<Sprite
-				position={selectionDrag.area.topLeft}
-				size={selectionDrag.area.size}
+				position={selectionInput.area.topLeft}
+				size={selectionInput.area.size}
 				className="rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
 				style={{
-					...(selectionDrag.active && {
+					...(selectionInput.dragging && {
 						opacity: 1,
 						transitionDuration: "0",
 					}),
@@ -243,8 +267,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							// and also murders performance lol
 							className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
 							data-visible={
-								selectionDrag.movedActive.equals(Vec.zero) &&
-								tokenDrag.movedActive.equals(Vec.zero) &&
+								selectionInput.distanceDragged.equals(Vec.zero) &&
+								tokenInput.distanceDragged.equals(Vec.zero) &&
 								(visibleAnnotations.get(token._id) ||
 									selectedTokenIds.has(token._id) ||
 									altPressed)

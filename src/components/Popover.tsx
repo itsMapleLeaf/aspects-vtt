@@ -29,9 +29,7 @@ export function Content({
 }: Ariakit.PopoverProps) {
 	return (
 		<Ariakit.Popover
-			backdrop={
-				<div className={fadeTransition("fixed inset-0 bg-primary-900/25")} />
-			}
+			backdrop={props.backdrop ?? <Backdrop />}
 			unmountOnHide
 			gutter={8}
 			portal
@@ -50,5 +48,17 @@ export function Content({
 export function Actions(props: ComponentProps<"footer">) {
 	return (
 		<footer {...props} className={twMerge("mt-auto flex justify-end gap")} />
+	)
+}
+
+export function Backdrop(props: ComponentProps<"div">) {
+	return (
+		<div
+			{...props}
+			className={fadeTransition(
+				"fixed inset-0 bg-primary-900/25",
+				props.className,
+			)}
+		/>
 	)
 }

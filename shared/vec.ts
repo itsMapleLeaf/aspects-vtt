@@ -51,6 +51,10 @@ export class Vec {
 		readonly y: number,
 	) {}
 
+	get length() {
+		return Math.sqrt(this.x * this.x + this.y * this.y)
+	}
+
 	toString() {
 		return `(${this.x}, ${this.y})`
 	}
