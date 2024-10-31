@@ -4,6 +4,7 @@ import pluginJs from "@eslint/js"
 import react from "eslint-plugin-react"
 // @ts-expect-error
 import reactCompiler from "eslint-plugin-react-compiler"
+// @ts-expect-error
 import reactHooks from "eslint-plugin-react-hooks"
 import globals from "globals"
 import tseslint from "typescript-eslint"
