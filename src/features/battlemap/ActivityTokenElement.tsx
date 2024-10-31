@@ -7,7 +7,10 @@ export function ActivityTokenElement({
 }: { selected: boolean } & ComponentProps<typeof BaseTokenElement>) {
 	return (
 		<BaseTokenElement {...props}>
-			<div className="absolute inset-0 size-full @container">
+			<div
+				className="absolute inset-0 size-full transition-opacity @container data-[visible=false]:opacity-50"
+				data-visible={props.token.visible}
+			>
 				<div className="absolute inset-[15%] rounded-full bg-white/50 duration-500 ease-in animate-in zoom-in-110 direction-alternate repeat-infinite" />
 				<div className="absolute inset-[20%] rounded-full bg-white/75" />
 				<div className="absolute inset-0 grid place-items-center text-[50cqw] font-bold text-gray-900">
