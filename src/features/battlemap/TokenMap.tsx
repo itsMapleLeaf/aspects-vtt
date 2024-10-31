@@ -196,7 +196,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				<Sprite position={viewportOffset} scale={viewportScale}>
 					<ApiImage
 						imageId={scene.battlemapBackgroundId}
-						className="max-w-none"
+						className="max-w-none brightness-75"
 					/>
 				</Sprite>
 
