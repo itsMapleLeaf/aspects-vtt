@@ -1,14 +1,7 @@
-import { useConvex, useMutation, useQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import Konva from "konva"
 import { clamp } from "lodash-es"
-import { LucideInfo } from "lucide-react"
-import {
-	ReactNode,
-	startTransition,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from "react"
+import { ReactNode, useImperativeHandle, useRef, useState } from "react"
 import { Group, Image, Layer, Rect, Stage } from "react-konva"
 import * as v from "valibot"
 import { useImage, useLocalStorage, useWindowSize } from "~/common/react/dom.ts"
@@ -17,17 +10,14 @@ import { List } from "~/shared/list.ts"
 import { Region } from "~/shared/region.ts"
 import { Vec } from "~/shared/vec.ts"
 import { Id } from "../../../convex/_generated/dataModel"
-import { ensure } from "../../../shared/errors.ts"
-import { MenuPanel } from "../../components/Menu.tsx"
-import { useToastAction } from "../../components/ToastActionForm.tsx"
 import { CharacterBattlemapToken } from "../battlemap/BattlemapToken.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
-import { useActiveSceneContext } from "../scenes/context.ts"
 import type { ApiScene } from "../scenes/types.ts"
 import { useBattleMapStageInfo } from "./context.ts"
 import { PingGroup } from "./PingGroup.tsx"
 import { useTokenMenu } from "./TokenMenu.tsx"
 import { ApiToken } from "./types.ts"
+import { useTokenMapMenu } from "./useTokenMapMenu.tsx"
 
 export function Battlemap({
 	scene,
@@ -318,7 +308,7 @@ function BattlemapStage({
 		},
 	)
 
-	const menu = useBattlemapMenu()
+	const menu = useTokenMapMenu()
 
 	return (
 		<>
@@ -428,63 +418,4 @@ function BattlemapStage({
 function BattlemapBackground({ backgroundUrl }: { backgroundUrl: string }) {
 	const [image] = useImage(backgroundUrl)
 	return <Image image={image} />
-}
-
-function useBattlemapMenu() {
-	const pointerDownPositionRef = useRef(Vec.from(0))
-	const [open, setOpen] = useState(false)
-	const [position, setPosition] = useState(Vec.from(0))
-	const convex = useConvex()
-	const scene = useActiveSceneContext()
-	const stageInfo = useBattleMapStageInfo()
-	const room = useRoomContext()
-
-	const [, createToken] = useToastAction(async (_state, _payload: void) => {
-		await convex.mutation(api.tokens.create, {
-			inputs: [
-				{
-					sceneId: ensure(scene, "where the scene at")._id,
-					position: stageInfo.current.getViewportCenter(),
-				},
-			],
-		})
-	})
-
-	const element = room.isOwner && (
-		<MenuPanel
-			open={open}
-			setOpen={setOpen}
-			menuProps={{
-				getAnchorRect: () => position,
-			}}
-			options={[
-				{
-					label: "Add activity token",
-					icon: <LucideInfo />,
-					onClick: () => {
-						startTransition(() => {
-							createToken()
-						})
-					},
-				},
-			]}
-		/>
-	)
-
-	return {
-		handlePointerDown: (event: PointerEvent) => {
-			if (event.button === 2) {
-				pointerDownPositionRef.current = Vec.from(event)
-			}
-		},
-		handleContextMenu: (event: PointerEvent) => {
-			// since there's no way to know if this is the end of a drag vs. a simple right click,
-			// we need to check that the cursor didn't move too far away since pointer down
-			if (pointerDownPositionRef.current.distanceTo(event) < 10) {
-				setOpen(true)
-				setPosition(Vec.from(event))
-			}
-		},
-		element,
-	}
 }
