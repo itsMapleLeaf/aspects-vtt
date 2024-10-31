@@ -48,8 +48,6 @@ export function usePointer<StartInfo = void>({
 	const handlers = (info: StartInfo) => ({
 		onPointerDown: (event: React.PointerEvent) => {
 			if (getButtonName(event.button) !== options.button) return
-			event.preventDefault()
-			event.stopPropagation()
 			setStart(Vec.from(event.nativeEvent))
 			setEnd(Vec.from(event.nativeEvent))
 			setStatus("down")

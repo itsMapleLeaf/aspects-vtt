@@ -117,21 +117,6 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	})
 
-	const menu = useTokenMenu()
-	const tokenInputSecondary = usePointer<{ token: ApiToken }>({
-		button: "secondary",
-		onDown: ({ event, info }) => {
-			if (!event || !info) return
-			if (!selectedTokenIds.has(info.token._id)) {
-				setSelectedTokenIds(new Set([info.token._id]))
-			}
-		},
-		onPointerUp: ({ event }) => {
-			if (!event) return
-			menu.handleTrigger(event, selectedTokenIds)
-		},
-	})
-
 	const tokens = baseTokens
 		.map((token) => ({
 			...token,
@@ -192,6 +177,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		})
 	}
 
+	const tokenMenu = useTokenMenu()
+
 	return (
 		<div
 			{...viewportInput.handlers()}
@@ -212,6 +199,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					if (!token.characterId) return
 					return (
 						<CharacterTokenElement
+							{...tokenInput.handlers({ token })}
 							key={token._id}
 							token={token}
 							character={token.character}
@@ -220,9 +208,13 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							pointerEvents
 							onPointerEnter={() => updateVisibleAnnotations(token._id, true)}
 							onPointerLeave={() => updateVisibleAnnotations(token._id, false)}
-							onPointerDown={(event) => {
-								tokenInput.handlers({ token }).onPointerDown(event)
-								tokenInputSecondary.handlers({ token }).onPointerDown(event)
+							onContextMenu={(event) => {
+								if (selectedTokenIds.has(token._id)) {
+									tokenMenu.handleTrigger(event, selectedTokenIds)
+								} else {
+									setSelectedTokenIds(new Set([token._id]))
+									tokenMenu.handleTrigger(event, new Set([token._id]))
+								}
 							}}
 						/>
 					)
