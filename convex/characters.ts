@@ -319,9 +319,10 @@ export function protectCharacter(
 		sceneId: character.sceneId,
 		race: character.race,
 		conditions: character.conditions,
+		type: character.type,
+		pronouns: character.pronouns,
 		isAdmin,
 		isPlayer: character.playerId === userId,
-		type: character.type,
 
 		full: isAdmin ? character : null,
 

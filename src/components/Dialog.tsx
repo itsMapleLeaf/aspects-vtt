@@ -1,7 +1,8 @@
 import * as Ariakit from "@ariakit/react"
 import { LucideX } from "lucide-react"
-import type { ComponentProps } from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
+import { Except } from "type-fest"
 import { button } from "~/styles/button.ts"
 import { panel } from "~/styles/panel.ts"
 import { primaryHeading, subText } from "~/styles/text.ts"
@@ -27,8 +28,8 @@ export function Content({
 	title,
 	description,
 	...props
-}: Ariakit.DialogProps & {
-	title: string
+}: Except<Ariakit.DialogProps, "title"> & {
+	title: ReactNode
 	description?: string
 }) {
 	return (

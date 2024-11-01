@@ -140,13 +140,15 @@ export function CharacterList() {
 		}
 
 		return (
-			<CharacterCard
-				key={entry.key}
-				character={entry.item}
+			<button
+				type="button"
+				className="contents"
 				onClick={() => {
 					editor.show(entry.item._id)
 				}}
-			/>
+			>
+				<CharacterCard key={entry.key} character={entry.item} />
+			</button>
 		)
 	}
 

@@ -1,11 +1,18 @@
 import { useQuery } from "convex/react"
 import { ComponentProps, useState } from "react"
 import { Dialog } from "~/components/Dialog.tsx"
+import { Field } from "~/components/Field.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
-import type { NormalizedCharacter } from "~/convex/characters.ts"
+import type {
+	NormalizedCharacter,
+	ProtectedCharacter,
+} from "~/convex/characters.ts"
 import { useRoomContext } from "~/features/rooms/context.tsx"
+import { panel } from "~/styles/panel.ts"
+import { getImageUrl } from "../images/getImageUrl.ts"
 import { CharacterEditor } from "./CharacterEditor.tsx"
+import { RaceAbilityList } from "./RaceAbilityList.tsx"
 
 export { Button as CharacterEditorDialogButton } from "~/components/Dialog.tsx"
 
@@ -54,14 +61,56 @@ export function useCharacterEditorDialog() {
 		setEditorOpen(false)
 	}
 
-	const element = editingCharacter?.full && (
+	const element = editingCharacter?.full ? (
 		<CharacterEditorDialog
 			character={editingCharacter.full}
 			open={editorOpen}
 			setOpen={setEditorOpen}
 			afterClone={setEditingCharacterId}
 		/>
-	)
+	) : editingCharacter ? (
+		<Dialog.Root open={editorOpen} setOpen={setEditorOpen}>
+			<Dialog.Content
+				title={
+					editingCharacter.identity?.name ?? (
+						<span className="opacity-70">(unknown)</span>
+					)
+				}
+				className="overflow-y-scroll"
+			>
+				<CharacterPublicProfile character={editingCharacter} />
+			</Dialog.Content>
+		</Dialog.Root>
+	) : null
 
 	return { show, hide, element }
+}
+
+function CharacterPublicProfile({
+	character,
+}: {
+	character: ProtectedCharacter
+}) {
+	return (
+		<div className="flex h-fit max-h-[calc(100vh-8rem)] flex-col gap">
+			{character.imageId && (
+				<img
+					src={getImageUrl(character.imageId)}
+					alt=""
+					className={panel("min-h-0 flex-1 bg-primary-900 object-contain")}
+				/>
+			)}
+			<div className="grid auto-cols-fr grid-flow-col gap empty:hidden">
+				{character.race && <Field label="Race">{character.race}</Field>}
+				{character.pronouns && (
+					<Field label="Pronouns">{character.pronouns}</Field>
+				)}
+			</div>
+			{character.race && (
+				<Field label="Abilities">
+					<RaceAbilityList race={character.race} />
+				</Field>
+			)}
+		</div>
+	)
 }
