@@ -26,7 +26,7 @@ export function Sprite({
 				props.className,
 			)}
 			style={{
-				transform: `translate(${Vec.from(position).toCSSPixels()}) scale(${scale})`,
+				transform: `translate(${Vec.from(position).roundTo(1).toCSSPixels()}) scale(${scale})`,
 				...props.style,
 			}}
 		>
@@ -34,7 +34,10 @@ export function Sprite({
 				className="relative"
 				style={
 					size != null
-						? { width: Vec.from(size).x, height: Vec.from(size).y }
+						? {
+								width: Math.floor(Vec.from(size).x),
+								height: Math.floor(Vec.from(size).y),
+							}
 						: undefined
 				}
 			>
@@ -94,9 +97,10 @@ function SpriteMeter({
 	return (
 		<div
 			className={twMerge(
-				"bg-opacity-500 h-4 w-20 rounded-sm border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-sm will-change-transform",
+				"bg-opacity-500 pointer-events-auto flex h-4 rounded-sm border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-sm will-change-transform gap-0.5",
 				className?.root,
 			)}
+			style={{ width: `${max * 16}px` }}
 		>
 			<div
 				className={twMerge(

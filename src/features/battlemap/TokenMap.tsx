@@ -404,9 +404,9 @@ function CharacterTokenAnnotations({
 					</p>
 				</Sprite.Badge>
 			</Sprite.Attachment>
-			<Sprite.Attachment side="bottom" className="items-center p-4 gap-1">
+			<Sprite.Attachment side="bottom" className="items-center p-4 gap-2">
 				{character.full && (
-					<div className="flex gap-1">
+					<div className="flex max-w-[180px] gap-1">
 						<Sprite.Meter
 							value={character.full.health}
 							max={character.full.healthMax}
@@ -463,10 +463,7 @@ function useViewport(scene: ApiScene) {
 
 	const viewportScaleCoefficient = 1.3
 	const viewportScale = viewportScaleCoefficient ** viewportState.zoom
-	const viewportOffset = viewportState.offset
-
-	const toMapPosition = (input: VecInput) =>
-		Vec.from(input).minus(viewportOffset).dividedBy(viewportScale)
+	const viewportOffset = viewportState.offset.roundTo(1)
 
 	const handleDrag = (info: FullGestureState<"drag">) => {
 		setViewportState((state) => ({
