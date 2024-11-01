@@ -163,24 +163,21 @@ export function TokenMenu({
 
 					{room.isOwner && (
 						<ToastActionForm
-							action={() =>
-								remove({
+							action={async () => {
+								await remove({
 									tokenIds: selectedTokens.map((it) => it._id),
 								})
-							}
+								controller.close()
+							}}
 						>
-							<Popover.Close
-								render={
-									<Button
-										type="submit"
-										appearance="clear"
-										icon={<LucideTrash />}
-										className="w-full justify-start"
-									>
-										Remove
-									</Button>
-								}
-							/>
+							<Button
+								type="submit"
+								appearance="clear"
+								icon={<LucideTrash />}
+								className="w-full justify-start"
+							>
+								Remove
+							</Button>
 						</ToastActionForm>
 					)}
 
