@@ -93,8 +93,9 @@ export const update = mutation({
 	},
 	async handler(ctx, { characterId, aspectSkills, ...props }) {
 		const userId = await ensureUserId(ctx)
-		const character = await ctx.table("characters").getX(characterId)
-		const room = await character.edgeX("room")
+		const ent = await ctx.table("characters").getX(characterId)
+		const character = normalizeCharacter(ent)
+		const room = await ctx.table("rooms").getX(character.roomId)
 
 		const isCharacterAdmin =
 			room.ownerId === userId ||
@@ -113,9 +114,39 @@ export const update = mutation({
 			delete newAspectSkills[aspectSkills.remove]
 		}
 
+		const nextCharacter = normalizeCharacter({
+			...ent.doc(),
+			...props,
+		})
+
+		// match the character's health and resolve to the next character's
+		// if it was previously equal
+		const health = props.health ?? character.health
+		const currentHealthMax = character.healthMax
+		const nextHealthMax = nextCharacter.healthMax
+		const nextHealth =
+			health === currentHealthMax
+				? nextHealthMax
+				: Math.min(health, nextHealthMax)
+
+		const resolve = props.resolve ?? character.resolve
+		const currentResolveMax = character.resolveMax
+		const nextResolveMax = nextCharacter.resolveMax
+		const nextResolve =
+			resolve === currentResolveMax
+				? nextResolveMax
+				: Math.min(resolve, nextResolveMax)
+
 		return normalizeCharacter(
-			await character
-				.patch({ ...props, aspectSkills: newAspectSkills })
+			await ctx
+				.table("characters")
+				.getX(characterId)
+				.patch({
+					...props,
+					aspectSkills: newAspectSkills,
+					health: nextHealth,
+					resolve: nextResolve,
+				})
 				.get()
 				.doc(),
 		)
@@ -152,25 +183,8 @@ export const updateMany = mutation({
 			updates.push({ ...args, characterId: args.characterId })
 		}
 		const results = []
-		for (const { characterId, aspectSkills, ...props } of updates) {
-			const { character } = await queryViewableCharacter(
-				ctx,
-				ctx.table("characters").get(characterId),
-			)
-
-			const newAspectSkills = { ...character.aspectSkills }
-			if (aspectSkills?.add) {
-				newAspectSkills[aspectSkills.add] = aspectSkills.add
-			}
-			if (aspectSkills?.remove) {
-				delete newAspectSkills[aspectSkills.remove]
-			}
-
-			results.push(
-				await character
-					.patch({ ...props, aspectSkills: newAspectSkills })
-					.get(),
-			)
+		for (const input of updates) {
+			results.push(await update(ctx.internal, input))
 		}
 		return results
 	},
@@ -263,10 +277,10 @@ export function normalizeCharacter(doc: Doc<"characters">) {
 
 		movementSpeed: getAttributeDie(attributes.mobility),
 
-		health: doc.health ?? healthMax,
+		health: Math.min(doc.health ?? healthMax, healthMax),
 		healthMax,
 
-		resolve: doc.resolve ?? resolveMax,
+		resolve: Math.min(doc.resolve ?? resolveMax, resolveMax),
 		resolveMax,
 
 		wealth: doc.wealth ?? DEFAULT_WEALTH_TIER,
