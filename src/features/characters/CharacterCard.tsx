@@ -1,19 +1,13 @@
-import * as Ariakit from "@ariakit/react"
 import * as Lucide from "lucide-react"
-import { ComponentProps, startTransition } from "react"
+import { ComponentProps } from "react"
 import { match, P } from "ts-pattern"
 import { Avatar } from "~/components/Avatar.tsx"
-import { Heading, HeadingLevel } from "~/components/Heading.tsx"
+import { Heading } from "~/components/Heading.tsx"
 import { type ProtectedCharacter } from "~/convex/characters.ts"
-import { interactivePanel, panel } from "~/styles/panel.ts"
-import { primaryHeading, secondaryHeading } from "~/styles/text.ts"
-import { Id } from "../../../convex/_generated/dataModel"
-import { Field } from "../../components/Field.tsx"
-import { fadeTransition, fadeZoomTransition } from "../../styles/transitions.ts"
+import { interactivePanel } from "~/styles/panel.ts"
+import { secondaryHeading } from "~/styles/text.ts"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
-import { CharacterEditor } from "./CharacterEditor.tsx"
-import { RaceAbilityList } from "./RaceAbilityList.tsx"
 import { ApiCharacter } from "./types.ts"
 
 export function CharacterCard({
@@ -107,86 +101,5 @@ function CharacterVisibilityIcon({ character }: { character: ApiCharacter }) {
 					</TooltipContent>
 				</Tooltip>
 			))
-	)
-}
-
-export function CharacterEditorPopoverCard({
-	character,
-	open,
-	setOpen,
-	afterClone,
-}: {
-	character: ProtectedCharacter
-	open: boolean
-	setOpen: (value: boolean) => void
-	afterClone: (characterId: Id<"characters">) => void
-}) {
-	return (
-		<Ariakit.PopoverProvider
-			placement="right"
-			open={open}
-			setOpen={(open) => {
-				startTransition(() => {
-					setOpen(open)
-				})
-			}}
-		>
-			<Ariakit.PopoverDisclosure
-				render={<CharacterCard character={character} />}
-			></Ariakit.PopoverDisclosure>
-
-			<Ariakit.Popover
-				className={panel(
-					"h-screen max-h-[1000px] w-screen max-w-[600px] overflow-y-auto px-2",
-					fadeZoomTransition(),
-				)}
-				backdrop={
-					<div className={fadeTransition("fixed inset-0 bg-black/25")} />
-				}
-				gutter={16}
-				portal
-				unmountOnHide
-			>
-				{character.full ? (
-					<>
-						<Heading className={primaryHeading("mt-3 px-2")}>
-							{character.full.name}
-						</Heading>
-						<CharacterEditor
-							character={character.full}
-							afterClone={afterClone}
-						/>
-					</>
-				) : (
-					<div className="flex h-fit max-h-screen flex-col p-gap gap">
-						<HeadingLevel>
-							<Heading className={primaryHeading()}>
-								{character.identity?.name ?? "(unknown)"}
-							</Heading>
-							{character.imageId && (
-								<img
-									src={getImageUrl(character.imageId)}
-									alt=""
-									className={panel(
-										"min-h-0 flex-1 bg-primary-900 object-contain",
-									)}
-								/>
-							)}
-							<div className="grid auto-cols-fr grid-flow-col gap empty:hidden">
-								{character.race && <Field label="Race">{character.race}</Field>}
-								{character.identity && (
-									<Field label="Pronouns">{character.identity.pronouns}</Field>
-								)}
-							</div>
-							{character.race && (
-								<Field label="Abilities">
-									<RaceAbilityList race={character.race} />
-								</Field>
-							)}
-						</HeadingLevel>
-					</div>
-				)}
-			</Ariakit.Popover>
-		</Ariakit.PopoverProvider>
 	)
 }

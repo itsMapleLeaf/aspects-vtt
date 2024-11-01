@@ -8,7 +8,6 @@ import { Button } from "~/components/Button.tsx"
 import { EmptyState } from "~/components/EmptyState.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
 import { api } from "~/convex/_generated/api.js"
-import type { Id } from "~/convex/_generated/dataModel.js"
 import { textInput } from "~/styles/input.ts"
 import { NormalizedCharacter } from "../../../convex/characters.ts"
 import { ensure } from "../../../shared/errors.ts"
@@ -18,7 +17,8 @@ import { useToastAction } from "../../components/ToastActionForm.tsx"
 import { groupBy } from "../../lib/iterable.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
-import { CharacterCard, CharacterEditorPopoverCard } from "./CharacterCard.tsx"
+import { CharacterCard } from "./CharacterCard.tsx"
+import { useCharacterEditorDialog } from "./CharacterEditorDialog.tsx"
 import { ApiCharacter } from "./types.ts"
 
 export function CharacterList() {
@@ -28,7 +28,7 @@ export function CharacterList() {
 	const createCharacter = useMutation(api.characters.create)
 	const updateCharacter = useMutation(api.characters.update)
 	const [search, setSearch] = useState("")
-	const [editingId, setEditingId] = useState<Id<"characters">>()
+	const editor = useCharacterEditorDialog()
 
 	type ListEditor = "sceneCharacters"
 
@@ -103,7 +103,7 @@ export function CharacterList() {
 	]
 
 	const handleCreate = () => {
-		createCharacter({ roomId: room._id }).then(setEditingId)
+		createCharacter({ roomId: room._id }).then(editor.show)
 	}
 
 	const renderListItem = (entry: ListItem) => {
@@ -140,20 +140,20 @@ export function CharacterList() {
 		}
 
 		return (
-			<CharacterEditorPopoverCard
+			<CharacterCard
 				key={entry.key}
 				character={entry.item}
-				open={editingId === entry.item._id}
-				setOpen={(newOpen) => {
-					setEditingId(newOpen ? entry.item._id : undefined)
+				onClick={() => {
+					editor.show(entry.item._id)
 				}}
-				afterClone={setEditingId}
 			/>
 		)
 	}
 
 	return (
 		<div className="flex h-full min-h-0 flex-col gap-2">
+			{editor.element}
+
 			<div className="flex gap">
 				<input
 					className={textInput("flex-1")}
