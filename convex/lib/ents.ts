@@ -20,6 +20,7 @@ export const query = customQuery(
 		return {
 			table: entsTableFactory(ctx, entDefinitions),
 			db: undefined,
+			internal: ctx,
 		}
 	}),
 )
@@ -30,6 +31,7 @@ export const internalQuery = customQuery(
 		return {
 			table: entsTableFactory(ctx, entDefinitions),
 			db: undefined,
+			internal: ctx,
 		}
 	}),
 )
@@ -40,6 +42,7 @@ export const mutation = customMutation(
 		return {
 			table: entsTableFactory(ctx, entDefinitions),
 			db: undefined,
+			internal: ctx,
 		}
 	}),
 )
@@ -50,6 +53,7 @@ export const internalMutation = customMutation(
 		return {
 			table: entsTableFactory(ctx, entDefinitions),
 			db: undefined,
+			internal: ctx,
 		}
 	}),
 )
