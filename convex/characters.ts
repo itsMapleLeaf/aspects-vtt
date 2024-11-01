@@ -449,7 +449,7 @@ export const attack = mutation({
 				dice: [
 					...attackRoll.results.map((result) => ({
 						faces: attackerDie,
-						result: result,
+						result,
 					})),
 					...(boostRoll
 						? [{ faces: 6, result: boostRoll.total, color: "green" }]
@@ -472,7 +472,7 @@ export const attack = mutation({
 			const damageTaken = Math.max(1, damage - defense)
 			const health = Math.max(0, defender.health - damageTaken)
 
-			await ctx.table("characters").getX(defender._id).patch({ health: health })
+			await ctx.table("characters").getX(defender._id).patch({ health })
 
 			messageContent.push({
 				type: "text",

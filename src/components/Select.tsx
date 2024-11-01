@@ -31,7 +31,7 @@ export function Select<const Value extends string>({
 }: SelectProps<Value>) {
 	const store = Ariakit.useSelectStore({
 		value: valueProp,
-		defaultValue: defaultValue,
+		defaultValue,
 		setValue: onChangeValue,
 	})
 

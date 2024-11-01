@@ -51,7 +51,7 @@ export function useToastMutation<FuncRef extends FunctionReference<"mutation">>(
 			try {
 				const data = await mutate(input.args)
 				input.onSuccess?.(data)
-				return { success: true, data: data } as const
+				return { success: true, data } as const
 			} catch (error) {
 				input.onError?.(error)
 				return { success: false, error } as const

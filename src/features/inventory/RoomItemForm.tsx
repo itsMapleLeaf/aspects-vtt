@@ -31,7 +31,7 @@ export function RoomItemForm({
 				name: nonEmptyShortText,
 				effect: longText,
 				flavor: v.optional(longText),
-				wealthTier: wealthTier,
+				wealthTier,
 			}),
 			action,
 		),

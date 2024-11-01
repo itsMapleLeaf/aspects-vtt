@@ -46,8 +46,8 @@ export function CharacterBattlemapToken({
 		if (!node) return null
 		const { x, y, scaleX, scaleY } = node.getAbsoluteTransform().decompose()
 		return {
-			x: x,
-			y: y,
+			x,
+			y,
 			width: node.width() * scaleX,
 			height: node.height() * scaleY,
 		}
