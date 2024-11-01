@@ -44,7 +44,7 @@ export function CharacterEditor({
 	const room = useRoomContext()
 
 	const [activeId, setActiveId] = useLocalStorage(
-		`characterEditorDialog:activeId:${character._id}`,
+		`characterEditorDialog:activeId`,
 		"profile",
 		v.parser(v.string()),
 	)
