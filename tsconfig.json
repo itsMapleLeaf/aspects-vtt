@@ -30,5 +30,5 @@
 		"noEmit": true,
 		"incremental": true
 	},
-	"include": ["./*.*", "src", "convex", "shared", "scripts"]
+	"include": ["./*.*", "src", "convex", "shared", "scripts", "docs"]
 }
