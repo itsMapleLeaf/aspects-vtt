@@ -9,8 +9,8 @@ import reactHooks from "eslint-plugin-react-hooks"
 import globals from "globals"
 import tseslint from "typescript-eslint"
 
-/** @type {import("eslint").Linter.Config[]} */
-export default [
+export default tseslint.config(
+	// global file config
 	{
 		ignores: [
 			"**/node_modules/**",
@@ -23,9 +23,37 @@ export default [
 		],
 	},
 
-	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
-	pluginJs.configs.recommended,
+	// node.js environment
+	{
+		files: ["./*"],
+		languageOptions: {
+			globals: { ...globals.node },
+		},
+	},
 
+	// browser environment
+	{
+		files: ["./src/**"],
+		languageOptions: {
+			globals: { ...globals.node },
+		},
+	},
+
+	// agnostic/edge environment
+	{
+		files: ["./convex/**", "./shared/**"],
+		languageOptions: {},
+	},
+
+	// javascript
+	pluginJs.configs.recommended,
+	{
+		rules: {
+			"object-shorthand": "warn",
+		},
+	},
+
+	// typescript
 	...tseslint.configs.recommended,
 	{
 		rules: {
@@ -43,8 +71,13 @@ export default [
 		},
 	},
 
-	react.configs.flat?.recommended,
-	react.configs.flat?.["jsx-runtime"],
+	// react
+	/** @type {import("typescript-eslint").ConfigWithExtends} */ (
+		react.configs.flat?.recommended
+	),
+	/** @type {import("typescript-eslint").ConfigWithExtends} */ (
+		react.configs.flat?.["jsx-runtime"]
+	),
 	{
 		settings: {
 			react: {
@@ -53,11 +86,13 @@ export default [
 		},
 	},
 
+	// react-hooks
 	{
 		plugins: { "react-hooks": reactHooks },
 		rules: reactHooks.configs.recommended.rules,
 	},
 
+	// react-compiler
 	{
 		plugins: {
 			"react-compiler": reactCompiler,
@@ -66,4 +101,4 @@ export default [
 			"react-compiler/react-compiler": "error",
 		},
 	},
-]
+)
