@@ -17,6 +17,7 @@ import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
 import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
+import { CharacterName } from "../characters/CharacterName.tsx"
 import { getConditionColorClasses } from "../characters/conditions.ts"
 import { ApiCharacter } from "../characters/types.ts"
 import { useRoomContext } from "../rooms/context.tsx"
@@ -393,14 +394,10 @@ function CharacterTokenAnnotations({
 			<Sprite.Attachment side="top" className="p-4">
 				<Sprite.Badge>
 					<p className="text-base/5 empty:hidden">
-						{character.identity?.name ?? (
-							<span className="opacity-50">(unknown)</span>
-						)}
+						<CharacterName character={character} />
 					</p>
 					<p className="text-sm/5 opacity-80 empty:hidden">
-						{[character.race, character.identity?.pronouns]
-							.filter(Boolean)
-							.join(" • ")}
+						{[character.race, character.pronouns].filter(Boolean).join(" • ")}
 					</p>
 				</Sprite.Badge>
 			</Sprite.Attachment>

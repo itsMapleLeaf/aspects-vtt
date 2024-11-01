@@ -8,6 +8,7 @@ import { interactivePanel } from "~/styles/panel.ts"
 import { secondaryHeading } from "~/styles/text.ts"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
+import { CharacterName } from "./CharacterName.tsx"
 import { ApiCharacter } from "./types.ts"
 
 export function CharacterCard({
@@ -31,9 +32,7 @@ export function CharacterCard({
 			<div className="min-w-0 flex-1">
 				<div className="flex items-center gap-2">
 					<Heading className={secondaryHeading("shrink truncate empty:hidden")}>
-						{character.identity?.name ?? (
-							<span className="opacity-70">(unknown)</span>
-						)}
+						<CharacterName character={character} />
 					</Heading>
 
 					<div className="shrink-0 opacity-50 transition-opacity *:size-4 hover:opacity-100">
@@ -41,9 +40,7 @@ export function CharacterCard({
 					</div>
 				</div>
 				<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
-					{[character.race, character.identity?.pronouns]
-						.filter(Boolean)
-						.join(" • ")}
+					{[character.race, character.pronouns].filter(Boolean).join(" • ")}
 				</p>
 			</div>
 		</div>
@@ -63,7 +60,7 @@ function CharacterVisibilityIcon({ character }: { character: ApiCharacter }) {
 			// public (players can see name and profile)
 			.with(
 				P.union(
-					{ full: P.nullish, identity: P.nonNullable },
+					{ full: P.nullish, name: P.nonNullable },
 					{ full: { visible: true, nameVisible: true } },
 				),
 				() => (
@@ -78,7 +75,7 @@ function CharacterVisibilityIcon({ character }: { character: ApiCharacter }) {
 			// anonymous (players can see profile, but not the name)
 			.with(
 				P.union(
-					{ full: P.nullish, identity: P.nullish },
+					{ full: P.nullish, name: P.nullish },
 					{ full: { visible: true, nameVisible: false } },
 				),
 				() => (

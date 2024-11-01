@@ -77,7 +77,11 @@ export function CharacterList() {
 		if (!group) return []
 
 		const filteredItems = matchSorter(group, search, {
-			keys: [(item) => item.identity?.name ?? [], (item) => item.race ?? ""],
+			keys: [(item) => item.name ?? "", (item) => item.race ?? ""],
+			sorter: (items) =>
+				items.sort((a, b) =>
+					(a.item.name ?? "").localeCompare(b.item.name ?? ""),
+				),
 		})
 		if (filteredItems.length === 0) return []
 

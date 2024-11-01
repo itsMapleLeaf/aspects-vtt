@@ -320,16 +320,11 @@ export function protectCharacter(
 		race: character.race,
 		conditions: character.conditions,
 		type: character.type,
+		name: character.nameVisible || isAdmin ? character.name : null,
 		pronouns: character.pronouns,
 		isAdmin,
 		isPlayer: character.playerId === userId,
-
 		full: isAdmin ? character : null,
-
-		identity:
-			character.nameVisible || isAdmin
-				? { name: character.name, pronouns: character.pronouns }
-				: null,
 	}
 }
 

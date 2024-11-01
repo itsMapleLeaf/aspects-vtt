@@ -9,6 +9,7 @@ import { useImage } from "~/common/react/dom.ts"
 import { StatusBar } from "~/components/StatusBar.tsx"
 import { Tooltip, TooltipContent } from "~/ui/tooltip.tsx"
 import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
+import { CharacterName } from "../characters/CharacterName.tsx"
 import { getConditionColorClasses } from "../characters/conditions.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { ApiScene } from "../scenes/types.ts"
@@ -128,10 +129,10 @@ export function CharacterBattlemapToken({
 									getAnchorRect={getAnchorRect}
 								>
 									<p className="leading-none">
-										{token.character.identity?.name ?? "(unknown)"}
+										<CharacterName character={token.character} />
 									</p>
 									<p className="text-sm leading-none text-primary-100/80 empty:hidden">
-										{[token.character.race, token.character.identity?.pronouns]
+										{[token.character.race, token.character.pronouns]
 											.filter(Boolean)
 											.join(" • ")}
 									</p>

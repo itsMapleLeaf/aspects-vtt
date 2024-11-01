@@ -12,6 +12,7 @@ import { NormalizedCharacter, ProtectedCharacter } from "~/convex/characters.ts"
 import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { useRoomContext } from "~/features/rooms/context.tsx"
 import { lightPanel } from "~/styles/panel.ts"
+import { CharacterName } from "./CharacterName.tsx"
 
 export function CharacterAttackDialog({
 	characters,
@@ -93,7 +94,7 @@ export function CharacterAttackDialog({
 											<LucideVenetianMask className="size-5" />
 										</div>
 									)}
-									{it.identity?.name ?? "(unknown)"}
+									<CharacterName character={it} />
 								</div>
 							))}
 						</div>

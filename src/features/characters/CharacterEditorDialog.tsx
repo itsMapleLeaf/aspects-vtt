@@ -12,6 +12,7 @@ import { useRoomContext } from "~/features/rooms/context.tsx"
 import { panel } from "~/styles/panel.ts"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { CharacterEditor } from "./CharacterEditor.tsx"
+import { CharacterName } from "./CharacterName.tsx"
 import { RaceAbilityList } from "./RaceAbilityList.tsx"
 
 export { Button as CharacterEditorDialogButton } from "~/components/Dialog.tsx"
@@ -71,11 +72,7 @@ export function useCharacterEditorDialog() {
 	) : editingCharacter ? (
 		<Dialog.Root open={editorOpen} setOpen={setEditorOpen}>
 			<Dialog.Content
-				title={
-					editingCharacter.identity?.name ?? (
-						<span className="opacity-70">(unknown)</span>
-					)
-				}
+				title={<CharacterName character={editingCharacter} />}
 				className="overflow-y-scroll"
 			>
 				<CharacterPublicProfile character={editingCharacter} />

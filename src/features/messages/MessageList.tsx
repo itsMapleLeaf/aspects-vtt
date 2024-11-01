@@ -154,9 +154,7 @@ function MessageCard({
 	const characters = useQuery(api.characters.list, {
 		roomId: message.roomId,
 	})
-	const namesById = new Map(
-		characters?.map((it) => [it._id, it.identity?.name]),
-	)
+	const namesById = new Map(characters?.map((it) => [it._id, it.name]))
 	return (
 		<div className={lightPanel("flex flex-col p-2 gap-2")}>
 			{message.content.map((entry, index) => (

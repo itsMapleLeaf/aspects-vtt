@@ -21,6 +21,7 @@ import { api } from "~/convex/_generated/api.js"
 import { lightPanel } from "~/styles/panel.ts"
 import { secondaryHeading, subText } from "~/styles/text.ts"
 import { Id } from "../../../convex/_generated/dataModel"
+import { CharacterName } from "../characters/CharacterName.tsx"
 import { getImageUrl } from "../images/getImageUrl.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 
@@ -162,7 +163,7 @@ function CombatMemberCard({
 			/>
 			<div>
 				<div className={secondaryHeading("leading-6")}>
-					{member.character?.identity?.name ?? "???"}
+					<CharacterName character={member.character} />
 				</div>
 				{member.character?.full && (
 					<div className={subText("leading-4")}>
