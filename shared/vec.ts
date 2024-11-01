@@ -1,4 +1,5 @@
 import { match, P } from "ts-pattern"
+import { safeStringify } from "~/lib/common.ts"
 
 export type VecInput =
 	| { x: number; y: number }
@@ -25,7 +26,9 @@ export class Vec {
 			.with({ x: P.number, y: P.number }, ({ x, y }) => new Vec(x, y))
 			.with([P.number, P.number], ([x, y]) => new Vec(x, y))
 			.with(P.number, (num) => new Vec(num, num))
-			.exhaustive()
+			.otherwise(() => {
+				throw new Error(`Invalid Vec input: ${safeStringify(input)}`)
+			})
 	}
 
 	static size(

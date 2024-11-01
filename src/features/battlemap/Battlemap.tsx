@@ -342,7 +342,6 @@ function BattlemapStage({
 							})
 						}
 					}
-					menu.handlePointerDown(event.evt)
 				}}
 				onPointerMove={(event) => {
 					if (selectionStart) {
@@ -381,7 +380,7 @@ function BattlemapStage({
 				}}
 				onContextMenu={(event) => {
 					event.evt.preventDefault()
-					menu.handleContextMenu(event.evt)
+					menu.show(event.evt)
 				}}
 				onWheel={handleWheel}
 				onPointerDblClick={(event) => {

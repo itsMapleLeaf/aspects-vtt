@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge"
 import { ApiToken } from "~/features/battlemap/types.ts"
 import { ApiScene } from "~/features/scenes/types.ts"
 import { Sprite, SpriteProps } from "./Sprite.tsx"
@@ -16,6 +17,7 @@ export function BaseTokenElement({
 			size={scene.cellSize}
 			pointerEvents
 			{...props}
+			className={twMerge("touch-none", props.className)}
 		/>
 	)
 }

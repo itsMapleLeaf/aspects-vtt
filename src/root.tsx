@@ -29,21 +29,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		const controller = new AbortController()
 
+		const handleError = (error: unknown) => {
+			if (error instanceof ConvexError) {
+				toast.error(error.data)
+			} else if (import.meta.env.DEV) {
+				const message = error instanceof Error ? error.message : String(error)
+				toast.error(`Error: ${message}`)
+			} else {
+				toast.error("Something went wrong. Check the console for details.")
+			}
+			console.error(error)
+		}
+
 		window.addEventListener(
 			"unhandledrejection",
-			(error) => {
-				if (
-					error.reason instanceof ConvexError &&
-					typeof error.reason.data === "string"
-				) {
-					toast.error(error.reason.data)
-				} else {
-					toast.error("Something went wrong. Check the console for details.")
-				}
-				console.error(error.reason)
-			},
+			(event) => handleError(event.reason),
 			{ signal: controller.signal },
 		)
+		window.addEventListener("error", (event) => handleError(event.error), {
+			signal: controller.signal,
+		})
 
 		return () => controller.abort()
 	})

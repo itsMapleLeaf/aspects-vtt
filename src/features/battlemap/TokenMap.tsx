@@ -1,3 +1,4 @@
+import { useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
 import { clamp, omit } from "lodash-es"
 import { useState } from "react"
@@ -7,12 +8,12 @@ import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { Sprite } from "~/features/battlemap/Sprite.tsx"
 import { readonly } from "~/lib/common.ts"
+import { MouseButtons } from "~/lib/dom.ts"
 import { groupBy, keyBy } from "~/lib/iterable.ts"
 import { useKeyPressed } from "~/lib/keyboard.ts"
 import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
-import { usePointer } from "../../lib/usePointer.ts"
 import { getConditionColorClasses } from "../characters/conditions.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
@@ -22,58 +23,82 @@ import { ApiToken } from "./types.ts"
 import { useTokenMapMenu } from "./useTokenMapMenu.tsx"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
+	//#region viewport
 	const [viewportState, setViewportState] = useState({
 		offset: Vec.zero,
 		zoom: 0,
 	})
 
 	const viewportMenu = useTokenMapMenu()
-	const viewportInput = usePointer({
-		button: "secondary",
-		onDragFinish: ({ moved }) => {
-			setViewportState((state) => ({
-				...state,
-				offset: state.offset.plus(moved),
-			}))
-		},
-		onPointerUp: ({ event }) => {
-			if (!event) return
-			viewportMenu.handleContextMenu(event)
-		},
-	})
 
 	const viewportScaleCoefficient = 1.3
 	const viewportScale = viewportScaleCoefficient ** viewportState.zoom
-	const viewportOffset = viewportState.offset.plus(
-		viewportInput.distanceDragged,
+	const viewportOffset = viewportState.offset
+
+	const bindRootGestureHandlers = useGesture(
+		{
+			onDragStart: ({ event }) => {
+				event.preventDefault()
+			},
+			onDrag: (event) => {
+				setViewportState((state) => ({
+					...state,
+					offset: state.offset.plus(event.delta),
+				}))
+			},
+			onDragEnd: () => {
+				window.addEventListener(
+					"contextmenu",
+					(event) => event.preventDefault(),
+					{ once: true },
+				)
+			},
+			onContextMenu: ({ event }) => {
+				event.preventDefault()
+			},
+			onWheel: (info) => {
+				const delta = Vec.from(info.delta)
+				if (delta.y === 0) return
+
+				const zoomAmount = Math.round(delta.y / 100) * -1
+				const pointerOffset = Vec.from(
+					(info.event as unknown as React.WheelEvent).nativeEvent,
+				).minus(viewportOffset)
+
+				setViewportState((state) => {
+					const nextViewportZoom = clamp(state.zoom + zoomAmount, -10, 10)
+
+					const currentViewportScale = viewportScaleCoefficient ** state.zoom
+					const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
+					const scaleRatio = nextViewportScale / currentViewportScale
+
+					return {
+						...state,
+						zoom: nextViewportZoom,
+						offset: state.offset.plus(pointerOffset.times(1 - scaleRatio)),
+					}
+				})
+			},
+		},
+		{
+			drag: {
+				pointer: {
+					buttons: [MouseButtons.Secondary],
+				},
+			},
+		},
 	)
 
-	const handleWheel = (event: React.WheelEvent) => {
-		if (event.deltaY === 0) return
-		const delta = Math.round(event.deltaY / 100) * -1
-
-		setViewportState((state) => {
-			const pointerOffset = Vec.from(event.nativeEvent).minus(viewportOffset)
-			const nextViewportZoom = clamp(state.zoom + delta, -10, 10)
-
-			const currentViewportScale = viewportScaleCoefficient ** state.zoom
-			const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
-			const scaleRatio = nextViewportScale / currentViewportScale
-
-			return {
-				...state,
-				zoom: nextViewportZoom,
-				offset: state.offset.plus(pointerOffset.times(1 - scaleRatio)),
-			}
-		})
-	}
-
-	const toTokenPosition = (input: VecInput) =>
+	const toMapPosition = (input: VecInput) =>
 		Vec.from(input).minus(viewportOffset).dividedBy(viewportScale)
+	//#endregion viewport
 
 	const [selectedTokenIds, setSelectedTokenIds] = useState(
 		readonly(new Set<Id<"characterTokens">>()),
 	)
+	const [tokenDragStart, setTokenDragStart] = useState(Vec.zero)
+	const [tokenDragEnd, setTokenDragEnd] = useState(Vec.zero)
+	const tokenDragOffset = tokenDragEnd.minus(tokenDragStart)
 
 	const baseTokens = useQuery(api.tokens.list, { sceneId: scene._id }) ?? []
 	const updateTokens = useAsyncQueue(useMutation(api.tokens.update))
@@ -97,31 +122,74 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		}
 	}
 
-	const tokenInput = usePointer<{ token: ApiToken }>({
-		button: "primary",
-		onDown: ({ info }) => {
-			const newSelectedTokenIds = selectedTokenIds.has(info.token._id)
-				? selectedTokenIds
-				: new Set([info.token._id])
+	function getElementTokenId(element: HTMLElement) {
+		const tokenId = element.dataset?.tokenId as
+			| Id<"characterTokens">
+			| undefined
+		if (!tokenId) {
+			throw new Error("missing tokenId")
+		}
+		return tokenId
+	}
 
-			setSelectedTokenIds(newSelectedTokenIds)
+	const bindTokenGestureHandlers = useGesture(
+		{
+			onPointerDown: ({ event }) => {
+				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
 
-			updateTokens({
-				updates: [...newSelectedTokenIds].map((tokenId) => ({
-					tokenId,
-					updatedAt: Date.now(),
-				})),
-			})
+				const newSelectedTokenIds = selectedTokenIds.has(tokenId)
+					? selectedTokenIds
+					: new Set([tokenId])
+
+				setSelectedTokenIds(newSelectedTokenIds)
+				// flushSync(() => {
+
+				// })
+			},
+			onDragStart: ({ xy }) => {
+				setTokenDragStart(toMapPosition(xy))
+				setTokenDragEnd(toMapPosition(xy))
+			},
+			onDrag: (info) => {
+				setTokenDragEnd(toMapPosition(info.xy))
+			},
+			onDragEnd: () => {
+				setTokenDragStart(Vec.zero)
+				setTokenDragEnd(Vec.zero)
+				updateTokens({
+					updates: selectedTokens.map((token) => ({
+						tokenId: token._id,
+						position: token.position.toJSON(),
+						updatedAt: Date.now(),
+					})),
+				})
+			},
+
+			onPointerEnter: ({ event }) => {
+				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
+				updateVisibleAnnotations(tokenId, true)
+			},
+			onPointerLeave: ({ event }) => {
+				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
+				updateVisibleAnnotations(tokenId, false)
+			},
+			onContextMenu: ({ event }) => {
+				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
+				if (selectedTokenIds.has(tokenId)) {
+					tokenMenu.handleTrigger(event, selectedTokenIds)
+				} else {
+					setSelectedTokenIds(new Set([tokenId]))
+					tokenMenu.handleTrigger(event, new Set([tokenId]))
+				}
+			},
 		},
-		onDragFinish: () => {
-			updateTokens({
-				updates: selectedTokens.map((token) => ({
-					tokenId: token._id,
-					position: token.position.toJSON(),
-				})),
-			})
+		{
+			eventOptions: {},
+			drag: {
+				preventDefault: true,
+			},
 		},
-	})
+	)
 
 	const tokens = baseTokens
 		.map((token) => ({
@@ -132,11 +200,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			...token,
 			position: Vec.from(token.position)
 				.roundTo(scene.cellSize / 4)
-				.plus(
-					selectedTokenIds.has(token._id)
-						? tokenInput.distanceDragged.dividedBy(viewportScale)
-						: 0,
-				),
+				.plus(selectedTokenIds.has(token._id) ? tokenDragOffset : 0),
 		}))
 		.sort((a, b) => a.updatedAt - b.updatedAt)
 
@@ -145,23 +209,65 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		.map((id) => tokensById.get(id))
 		.filter(Boolean)
 
-	const selectionInput = usePointer({
-		button: "primary",
-		onDown: () => {
-			setSelectedTokenIds(readonly(new Set()))
+	const [selecting, setSelecting] = useState(false)
+	const [selectionStart, setSelectionStart] = useState(Vec.zero)
+	const [selectionEnd, setSelectionEnd] = useState(Vec.zero)
+	const selectionArea = Rect.bounds(selectionStart, selectionEnd)
+
+	const bindSelectionHandlers = useGesture(
+		{
+			onPointerDown: () => {
+				setSelectedTokenIds(readonly(new Set()))
+			},
+			onDragStart: (info) => {
+				if (info.buttons === MouseButtons.Primary) {
+					setSelecting(true)
+					setSelectionStart(Vec.from(info.xy))
+					setSelectionEnd(Vec.from(info.xy))
+				}
+			},
+			onDrag: (info) => {
+				if (selecting) {
+					const end = Vec.from(info.xy)
+					const mapArea = Rect.bounds(
+						toMapPosition(selectionStart),
+						toMapPosition(end),
+					)
+					setSelectionEnd(end)
+					setSelectedTokenIds(
+						new Set(
+							tokens
+								.filter((it) =>
+									mapArea.intersects([it.position, scene.cellSize]),
+								)
+								.map((it) => it._id),
+						),
+					)
+				}
+			},
+			onDragEnd: (info) => {
+				// pointerup events only have a correct `button` property,
+				// and the `button` property is different from `buttons`,
+				// so we can't use the MouseButtons enum here
+				if ((info.event as PointerEvent).button === 0) {
+					setSelecting(false)
+				}
+				if (
+					(info.event as PointerEvent).button === 2 &&
+					Vec.from(info.movement).length < 8
+				) {
+					viewportMenu.show(info.xy, toMapPosition(info.xy))
+				}
+			},
 		},
-		onDragFinish: ({ start, end, cancelled }) => {
-			if (cancelled) return
-			const area = Rect.bounds(toTokenPosition(start), toTokenPosition(end))
-			setSelectedTokenIds(
-				new Set(
-					tokens
-						.filter((it) => area.intersects([it.position, scene.cellSize]))
-						.map((it) => it._id),
-				),
-			)
+		{
+			drag: {
+				pointer: {
+					buttons: [MouseButtons.Primary, MouseButtons.Secondary],
+				},
+			},
 		},
-	})
+	)
 
 	const tokenGroups = groupBy(tokens, (token) =>
 		token.characterId ? "characters" : "activities",
@@ -189,11 +295,10 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		<>
 			{viewportMenu.element}
 			<div
-				{...viewportInput.handlers()}
+				{...bindRootGestureHandlers()}
 				className="absolute inset-0 touch-none select-none overflow-clip [&_*]:will-change-[transform,opacity]"
-				onWheel={handleWheel}
 			>
-				<Sprite position={viewportOffset} scale={viewportScale}>
+				<Sprite position={viewportOffset} scale={viewportScale} pointerEvents>
 					<ApiImage
 						imageId={scene.battlemapBackgroundId}
 						className="max-w-none brightness-75"
@@ -201,14 +306,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				</Sprite>
 
 				<div
-					className="absolute inset-0"
-					onContextMenu={(event) => {
-						viewportMenu.handleContextMenu(event.nativeEvent)
-					}}
-					onPointerDown={(event) => {
-						selectionInput.handlers().onPointerDown(event)
-						viewportMenu.handlePointerDown(event.nativeEvent)
-					}}
+					className="absolute inset-0 touch-none"
+					{...bindSelectionHandlers()}
 				></div>
 
 				<Sprite position={viewportOffset} scale={viewportScale}>
@@ -216,25 +315,14 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						if (!token.characterId) return
 						return (
 							<CharacterTokenElement
-								{...tokenInput.handlers({ token })}
+								{...bindTokenGestureHandlers()}
 								key={token._id}
 								token={token}
 								character={token.character}
 								scene={scene}
 								selected={selectedTokenIds.has(token._id)}
 								pointerEvents
-								onPointerEnter={() => updateVisibleAnnotations(token._id, true)}
-								onPointerLeave={() =>
-									updateVisibleAnnotations(token._id, false)
-								}
-								onContextMenu={(event) => {
-									if (selectedTokenIds.has(token._id)) {
-										tokenMenu.handleTrigger(event, selectedTokenIds)
-									} else {
-										setSelectedTokenIds(new Set([token._id]))
-										tokenMenu.handleTrigger(event, new Set([token._id]))
-									}
-								}}
+								data-token-id={token._id}
 							/>
 						)
 					})}
@@ -245,7 +333,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							scene={scene}
 							selected={selectedTokenIds.has(token._id)}
 							pointerEvents
-							{...tokenInput.handlers({ token })}
+							data-token-id={token._id}
+							{...bindTokenGestureHandlers()}
 							onContextMenu={(event) => {
 								if (selectedTokenIds.has(token._id)) {
 									tokenMenu.handleTrigger(event, selectedTokenIds)
@@ -259,11 +348,11 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				</Sprite>
 
 				<Sprite
-					position={selectionInput.area.topLeft}
-					size={selectionInput.area.size}
+					position={selectionArea.topLeft}
+					size={selectionArea.size}
 					className="rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
 					style={{
-						...(selectionInput.dragging && {
+						...(selecting && {
 							opacity: 1,
 							transitionDuration: "0",
 						}),
@@ -284,8 +373,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 								// and also murders performance lol
 								className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
 								data-visible={
-									selectionInput.distanceDragged.equals(Vec.zero) &&
-									tokenInput.distanceDragged.equals(Vec.zero) &&
+									!selecting &&
+									tokenDragOffset.equals(Vec.zero) &&
 									(visibleAnnotations.get(token._id) ||
 										selectedTokenIds.has(token._id) ||
 										altPressed)

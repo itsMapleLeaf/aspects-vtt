@@ -11,3 +11,11 @@ export const readonly = <const Input>(input: Input) =>
 			: Input extends readonly (infer V)[]
 				? readonly V[]
 				: Readonly<Input>
+
+export const safeStringify = <T>(value: T): string => {
+	try {
+		return JSON.stringify(value)
+	} catch {
+		return String(value)
+	}
+}
