@@ -265,9 +265,11 @@ export function TokenMenu({
 						)
 						.otherwise(() => null)}
 
-					<CharacterConditionsInput
-						characterIds={fullCharacters.map((char) => char._id)}
-					/>
+					{fullCharacters.length > 0 && (
+						<CharacterConditionsInput
+							characterIds={fullCharacters.map((char) => char._id)}
+						/>
+					)}
 				</Popover.Content>
 			</Popover.Root>
 

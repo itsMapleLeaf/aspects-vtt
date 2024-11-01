@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useEffectEvent } from "~/common/react/core.ts"
 
 export type MaybeRef<T> =
@@ -53,4 +53,26 @@ export function useEventListener(
 		target.addEventListener(event, callback, options)
 		return () => target.removeEventListener(event, callback, options)
 	})
+}
+
+export function useElementEmpty() {
+	const [isEmpty, setIsEmpty] = useState(true)
+	const [element, ref] = useState<ParentNode | null>(null)
+
+	useEffect(() => {
+		if (!element) return
+
+		const observer = new MutationObserver((mutations) => {
+			if (mutations.some((it) => it.type === "childList")) {
+				setIsEmpty(element.children.length === 0)
+			}
+		})
+		observer.observe(element, { childList: true })
+
+		return () => {
+			observer.disconnect()
+		}
+	}, [element])
+
+	return [isEmpty, ref] as const
 }

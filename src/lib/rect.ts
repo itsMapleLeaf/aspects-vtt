@@ -8,6 +8,8 @@ export type RectInput =
 	| [topLeft: VecInput, size: VecInput]
 
 export class Rect {
+	static readonly zero = Rect.of(0, 0, 0, 0)
+
 	static of(
 		...args:
 			| [left: number, top: number, width: number, height: number]

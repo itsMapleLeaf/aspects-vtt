@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 import { ApiImage } from "~/components/ApiImage.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
-import { Sprite } from "~/features/battlemap/Sprite.tsx"
+import { Sprite, SpriteProps } from "~/features/battlemap/Sprite.tsx"
 import { readonly } from "~/lib/common.ts"
 import { MouseButtons } from "~/lib/dom.ts"
 import { groupBy, keyBy } from "~/lib/iterable.ts"
@@ -16,6 +16,7 @@ import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
 import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
 import { getConditionColorClasses } from "../characters/conditions.ts"
+import { ApiCharacter } from "../characters/types.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
@@ -24,12 +25,297 @@ import { ApiToken } from "./types.ts"
 import { useTokenMapMenu } from "./useTokenMapMenu.tsx"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
+	const viewport = useViewport()
+	const tokenState = useTokens(scene)
+	const viewportMenu = useTokenMapMenu()
+	const tokenMenu = useTokenMenu()
+	const characterEditor = useCharacterEditorDialog()
+
+	const selection = useSelection({
+		transformPointerPosition: viewport.toMapPosition,
+		onSelectionChange: (area) => {
+			const selectedIds = new Set(
+				tokenState.tokens
+					.filter((it) => area.intersects([it.position, scene.cellSize]))
+					.map((it) => it._id),
+			)
+			tokenState.setSelectedTokenIds(selectedIds)
+		},
+		onContextMenu: (screenPosition) => {
+			viewportMenu.show(screenPosition, viewport.toMapPosition(screenPosition))
+		},
+	})
+
+	const altPressed = useKeyPressed("Alt")
+
+	const isTokenVisible = (token: ApiToken) =>
+		!selection.selecting &&
+		tokenState.tokenDragOffset.equals(Vec.zero) &&
+		(visibleTokenAnnotations.get(token._id) ||
+			tokenState.selectedTokenIds.has(token._id) ||
+			altPressed)
+
+	const [visibleTokenAnnotations, setVisibleTokenAnnotations] = useState(
+		new Map<Id<"characterTokens">, boolean>(),
+	)
+
+	function updateVisibleAnnotations(
+		tokenId: Id<"characterTokens">,
+		visible: boolean,
+	) {
+		setVisibleTokenAnnotations((prev) => {
+			const next = new Map(prev)
+			next.set(tokenId, visible)
+			return next
+		})
+	}
+
+	const bindTokenGestureHandlers = useGesture(
+		{
+			onPointerDown: ({ event }) => {
+				const tokenId = tokenState.getElementTokenId(
+					event.currentTarget as HTMLElement,
+				)
+				const newSelectedTokenIds = tokenState.selectedTokenIds.has(tokenId)
+					? tokenState.selectedTokenIds
+					: new Set([tokenId])
+				tokenState.setSelectedTokenIds(newSelectedTokenIds)
+			},
+			onDragStart: ({ xy }) => {
+				tokenState.setTokenDragStart(viewport.toMapPosition(xy))
+				tokenState.setTokenDragEnd(viewport.toMapPosition(xy))
+			},
+			onDrag: (info) => {
+				tokenState.setTokenDragEnd(viewport.toMapPosition(info.xy))
+			},
+			onDragEnd: () => {
+				tokenState.setTokenDragStart(Vec.zero)
+				tokenState.setTokenDragEnd(Vec.zero)
+				tokenState.updateTokens({
+					updates: tokenState.selectedTokens.map((token) => ({
+						tokenId: token._id,
+						position: token.position.toJSON(),
+						updatedAt: Date.now(),
+					})),
+				})
+			},
+
+			onPointerEnter: ({ event }) => {
+				const tokenId = tokenState.getElementTokenId(
+					event.currentTarget as HTMLElement,
+				)
+				updateVisibleAnnotations(tokenId, true)
+			},
+			onPointerLeave: ({ event }) => {
+				const tokenId = tokenState.getElementTokenId(
+					event.currentTarget as HTMLElement,
+				)
+				updateVisibleAnnotations(tokenId, false)
+			},
+			onContextMenu: ({ event }) => {
+				const tokenId = tokenState.getElementTokenId(
+					event.currentTarget as HTMLElement,
+				)
+				if (tokenState.selectedTokenIds.has(tokenId)) {
+					tokenMenu.handleTrigger(event, tokenState.selectedTokenIds)
+				} else {
+					tokenState.setSelectedTokenIds(new Set([tokenId]))
+					tokenMenu.handleTrigger(event, new Set([tokenId]))
+				}
+			},
+			onDoubleClick: ({ event }) => {
+				const tokenId = tokenState.getElementTokenId(
+					event.currentTarget as HTMLElement,
+				)
+				const token = tokenState.tokensById.get(tokenId)
+				if (!token || !token.characterId) return
+				characterEditor.show(token.characterId)
+			},
+		},
+		{
+			eventOptions: {},
+			drag: {
+				preventDefault: true,
+			},
+		},
+	)
+
+	const tokenGroups = groupBy(tokenState.tokens, (token) =>
+		token.characterId ? "characters" : "activities",
+	)
+
+	return (
+		<>
+			{viewportMenu.element}
+			{characterEditor.element}
+			<div
+				{...viewport.bindRootGestureHandlers()}
+				className="absolute inset-0 touch-none select-none overflow-clip [&_*]:will-change-[transform,opacity]"
+			>
+				<Sprite
+					position={viewport.viewportOffset}
+					scale={viewport.viewportScale}
+					pointerEvents
+				>
+					<ApiImage
+						imageId={scene.battlemapBackgroundId}
+						className="max-w-none brightness-75"
+					/>
+				</Sprite>
+
+				<div
+					className="absolute inset-0 touch-none"
+					{...selection.bindSelectionHandlers()}
+				></div>
+
+				<Sprite
+					position={viewport.viewportOffset}
+					scale={viewport.viewportScale}
+				>
+					{tokenGroups.get("characters")?.map((token) => {
+						if (!token.characterId) return
+						return (
+							<CharacterTokenElement
+								{...bindTokenGestureHandlers()}
+								key={token._id}
+								token={token}
+								character={token.character}
+								scene={scene}
+								selected={tokenState.selectedTokenIds.has(token._id)}
+								pointerEvents
+								data-token-id={token._id}
+							/>
+						)
+					})}
+					{tokenGroups.get("activities")?.map((token) => (
+						<ActivityTokenElement
+							key={token._id}
+							token={token}
+							scene={scene}
+							selected={tokenState.selectedTokenIds.has(token._id)}
+							pointerEvents
+							data-token-id={token._id}
+							{...bindTokenGestureHandlers()}
+							onContextMenu={(event) => {
+								if (tokenState.selectedTokenIds.has(token._id)) {
+									tokenMenu.handleTrigger(event, tokenState.selectedTokenIds)
+								} else {
+									tokenState.setSelectedTokenIds(new Set([token._id]))
+									tokenMenu.handleTrigger(event, new Set([token._id]))
+								}
+							}}
+						/>
+					))}
+				</Sprite>
+
+				<Sprite
+					position={selection.selectionArea.topLeft}
+					size={selection.selectionArea.size}
+					className="rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
+					style={{
+						...(selection.selecting && {
+							opacity: 1,
+							transitionDuration: "0",
+						}),
+					}}
+				/>
+
+				<Sprite position={viewport.viewportOffset} pointerEvents={false}>
+					{tokenGroups.get("characters")?.map((token) => {
+						if (!token.characterId) return
+						return (
+							<CharacterTokenAnnotations
+								key={token._id}
+								position={Vec.from(token.position).times(
+									viewport.viewportScale,
+								)}
+								size={Vec.from(scene.cellSize).times(viewport.viewportScale)}
+								character={token.character}
+								visible={isTokenVisible(token)}
+							/>
+						)
+					})}
+				</Sprite>
+			</div>
+		</>
+	)
+}
+
+function CharacterTokenAnnotations({
+	character,
+	visible,
+	...props
+}: {
+	character: ApiCharacter
+	visible: boolean
+} & SpriteProps) {
+	return (
+		<Sprite
+			{...props}
+			className={twMerge(
+				"opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95",
+				props.className,
+			)}
+			data-visible={visible}
+		>
+			<Sprite.Attachment side="top" className="p-4">
+				<Sprite.Badge>
+					<p className="text-base/5 empty:hidden">
+						{character.identity?.name ?? (
+							<span className="opacity-50">(unknown)</span>
+						)}
+					</p>
+					<p className="text-sm/5 opacity-80 empty:hidden">
+						{[character.race, character.identity?.pronouns]
+							.filter(Boolean)
+							.join(" • ")}
+					</p>
+				</Sprite.Badge>
+			</Sprite.Attachment>
+			<Sprite.Attachment side="bottom" className="items-center p-4 gap-1">
+				{character.full && (
+					<div className="flex gap-1">
+						<Sprite.Meter
+							value={character.full.health}
+							max={character.full.healthMax}
+							className={{
+								root: "border-green-700 bg-green-500/50",
+								fill: "bg-green-500",
+							}}
+						/>
+						<Sprite.Meter
+							value={character.full.resolve}
+							max={character.full.resolveMax}
+							className={{
+								root: "border-blue-700 bg-blue-500/50",
+								fill: "bg-blue-500",
+							}}
+						/>
+					</div>
+				)}
+				<div className="flex w-64 flex-wrap justify-center gap-1">
+					{[...new Set(character.conditions)].map((condition) => (
+						<Sprite.Badge
+							key={condition}
+							className={twMerge(
+								"px-2.5 py-1 text-sm leading-4",
+								getConditionColorClasses(condition),
+							)}
+						>
+							{condition}
+						</Sprite.Badge>
+					))}
+				</div>
+			</Sprite.Attachment>
+		</Sprite>
+	)
+}
+
+function useViewport() {
 	const [viewportState, setViewportState] = useState({
 		offset: Vec.zero,
 		zoom: 0,
 	})
-
-	const viewportMenu = useTokenMapMenu()
 
 	const viewportScaleCoefficient = 1.3
 	const viewportScale = viewportScaleCoefficient ** viewportState.zoom
@@ -70,7 +356,6 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 
 				setViewportState((state) => {
 					const nextViewportZoom = clamp(state.zoom + zoomAmount, -10, 10)
-
 					const currentViewportScale = viewportScaleCoefficient ** state.zoom
 					const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
 					const scaleRatio = nextViewportScale / currentViewportScale
@@ -92,6 +377,15 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	)
 
+	return {
+		viewportScale,
+		viewportOffset,
+		toMapPosition,
+		bindRootGestureHandlers,
+	}
+}
+
+function useTokens(scene: ApiScene) {
 	const [selectedTokenIds, setSelectedTokenIds] = useState(
 		readonly(new Set<Id<"characterTokens">>()),
 	)
@@ -109,11 +403,6 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 
 	for (const run of updateTokens.queue) {
 		for (const { tokenId, characterId: _, ...rest } of run.args.updates) {
-			// merge existing updates with new ones,
-			// to avoid erasing the previous pending state for this token,
-			// e.g. there might be a pending token movement in flight,
-			// and not doing this means that movement will Die
-			// if we don't explicitly keep the pending position
 			pendingTokenUpdates.set(tokenId, {
 				...pendingTokenUpdates.get(tokenId),
 				...rest,
@@ -149,104 +438,38 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		.map((id) => tokensById.get(id))
 		.filter(Boolean)
 
-	const characterEditor = useCharacterEditorDialog()
+	return {
+		tokens,
+		selectedTokenIds,
+		setSelectedTokenIds,
+		tokenDragOffset,
+		setTokenDragStart,
+		setTokenDragEnd,
+		updateTokens,
+		selectedTokens,
+		tokensById,
+		getElementTokenId,
+	}
+}
 
-	const bindTokenGestureHandlers = useGesture(
-		{
-			onPointerDown: ({ event }) => {
-				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
-
-				const newSelectedTokenIds = selectedTokenIds.has(tokenId)
-					? selectedTokenIds
-					: new Set([tokenId])
-
-				setSelectedTokenIds(newSelectedTokenIds)
-				// flushSync(() => {
-
-				// })
-			},
-			onDragStart: ({ xy }) => {
-				setTokenDragStart(toMapPosition(xy))
-				setTokenDragEnd(toMapPosition(xy))
-			},
-			onDrag: (info) => {
-				setTokenDragEnd(toMapPosition(info.xy))
-			},
-			onDragEnd: () => {
-				setTokenDragStart(Vec.zero)
-				setTokenDragEnd(Vec.zero)
-				updateTokens({
-					updates: selectedTokens.map((token) => ({
-						tokenId: token._id,
-						position: token.position.toJSON(),
-						updatedAt: Date.now(),
-					})),
-				})
-			},
-
-			onPointerEnter: ({ event }) => {
-				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
-				updateVisibleAnnotations(tokenId, true)
-			},
-			onPointerLeave: ({ event }) => {
-				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
-				updateVisibleAnnotations(tokenId, false)
-			},
-			onContextMenu: ({ event }) => {
-				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
-				if (selectedTokenIds.has(tokenId)) {
-					tokenMenu.handleTrigger(event, selectedTokenIds)
-				} else {
-					setSelectedTokenIds(new Set([tokenId]))
-					tokenMenu.handleTrigger(event, new Set([tokenId]))
-				}
-			},
-			onDoubleClick: ({ event }) => {
-				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
-				const token = tokensById.get(tokenId)
-				if (!token || !token.characterId) return
-				characterEditor.show(token.characterId)
-			},
-		},
-		{
-			eventOptions: {},
-			drag: {
-				preventDefault: true,
-			},
-		},
-	)
-
+function useSelection({
+	transformPointerPosition,
+	onSelectionChange,
+	onContextMenu,
+}: {
+	transformPointerPosition: (input: Vec) => Vec
+	onSelectionChange: (area: Rect) => void
+	onContextMenu: (screenPosition: Vec) => void
+}) {
 	const [selecting, setSelecting] = useState(false)
 	const [selectionStart, setSelectionStart] = useState(Vec.zero)
 	const [selectionEnd, setSelectionEnd] = useState(Vec.zero)
 	const selectionArea = Rect.bounds(selectionStart, selectionEnd)
 
-	const tokenGroups = groupBy(tokens, (token) =>
-		token.characterId ? "characters" : "activities",
-	)
-
-	const [visibleTokenAnnotations, setVisibleTokenAnnotations] = useState(
-		new Map<Id<"characterTokens">, boolean>(),
-	)
-	const altPressed = useKeyPressed("Alt")
-
-	function updateVisibleAnnotations(
-		tokenId: Id<"characterTokens">,
-		visible: boolean,
-	) {
-		setVisibleTokenAnnotations((prev) => {
-			const next = new Map(prev)
-			next.set(tokenId, visible)
-			return next
-		})
-	}
-
-	const tokenMenu = useTokenMenu()
-
 	const bindSelectionHandlers = useGesture(
 		{
 			onPointerDown: () => {
-				setSelectedTokenIds(readonly(new Set()))
+				onSelectionChange(Rect.zero)
 			},
 			onDragStart: (info) => {
 				if (info.buttons === MouseButtons.Primary) {
@@ -258,26 +481,15 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			onDrag: (info) => {
 				if (selecting) {
 					const end = Vec.from(info.xy)
-					const mapArea = Rect.bounds(
-						toMapPosition(selectionStart),
-						toMapPosition(end),
-					)
 					setSelectionEnd(end)
-					setSelectedTokenIds(
-						new Set(
-							tokens
-								.filter((it) =>
-									mapArea.intersects([it.position, scene.cellSize]),
-								)
-								.map((it) => it._id),
-						),
+					const mapArea = Rect.bounds(
+						transformPointerPosition(selectionStart),
+						transformPointerPosition(end),
 					)
+					onSelectionChange(mapArea)
 				}
 			},
 			onDragEnd: (info) => {
-				// pointerup events only have a correct `button` property,
-				// and the `button` property is different from `buttons`,
-				// so we can't use the MouseButtons enum here
 				if ((info.event as PointerEvent).button === 0) {
 					setSelecting(false)
 				}
@@ -285,7 +497,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					(info.event as PointerEvent).button === 2 &&
 					Vec.from(info.movement).length < 8
 				) {
-					viewportMenu.show(info.xy, toMapPosition(info.xy))
+					onContextMenu(Vec.from(info.xy))
 				}
 			},
 		},
@@ -298,158 +510,12 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	)
 
-	return (
-		<>
-			{viewportMenu.element}
-			{characterEditor.element}
-			<div
-				{...bindRootGestureHandlers()}
-				className="absolute inset-0 touch-none select-none overflow-clip [&_*]:will-change-[transform,opacity]"
-			>
-				<Sprite position={viewportOffset} scale={viewportScale} pointerEvents>
-					<ApiImage
-						imageId={scene.battlemapBackgroundId}
-						className="max-w-none brightness-75"
-					/>
-				</Sprite>
-
-				<div
-					className="absolute inset-0 touch-none"
-					{...bindSelectionHandlers()}
-				></div>
-
-				<Sprite position={viewportOffset} scale={viewportScale}>
-					{tokenGroups.get("characters")?.map((token) => {
-						if (!token.characterId) return
-						return (
-							<CharacterTokenElement
-								{...bindTokenGestureHandlers()}
-								key={token._id}
-								token={token}
-								character={token.character}
-								scene={scene}
-								selected={selectedTokenIds.has(token._id)}
-								pointerEvents
-								data-token-id={token._id}
-							/>
-						)
-					})}
-					{tokenGroups.get("activities")?.map((token) => (
-						<ActivityTokenElement
-							key={token._id}
-							token={token}
-							scene={scene}
-							selected={selectedTokenIds.has(token._id)}
-							pointerEvents
-							data-token-id={token._id}
-							{...bindTokenGestureHandlers()}
-							onContextMenu={(event) => {
-								if (selectedTokenIds.has(token._id)) {
-									tokenMenu.handleTrigger(event, selectedTokenIds)
-								} else {
-									setSelectedTokenIds(new Set([token._id]))
-									tokenMenu.handleTrigger(event, new Set([token._id]))
-								}
-							}}
-						/>
-					))}
-				</Sprite>
-
-				<Sprite
-					position={selectionArea.topLeft}
-					size={selectionArea.size}
-					className="rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
-					style={{
-						...(selecting && {
-							opacity: 1,
-							transitionDuration: "0",
-						}),
-					}}
-				/>
-
-				<Sprite position={viewportOffset} pointerEvents={false}>
-					{tokenGroups.get("characters")?.map((token) => {
-						if (!token.characterId) return
-						return (
-							<Sprite
-								key={token._id}
-								position={Vec.from(token.position).times(viewportScale)}
-								size={Vec.from(scene.cellSize).times(viewportScale)}
-								// using opacity-95 because the browser (just Firefox?)
-								// disables GPU rendering at 100,
-								// which causes weird artifacts like pixel shifting
-								// and also murders performance lol
-								className="opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95"
-								data-visible={
-									!selecting &&
-									tokenDragOffset.equals(Vec.zero) &&
-									(visibleTokenAnnotations.get(token._id) ||
-										selectedTokenIds.has(token._id) ||
-										altPressed)
-								}
-							>
-								<Sprite.Attachment side="top" className="p-4">
-									<Sprite.Badge>
-										<p className="text-base/5 empty:hidden">
-											{token.character.identity?.name ?? (
-												<span className="opacity-50">(unknown)</span>
-											)}
-										</p>
-										<p className="text-sm/5 opacity-80 empty:hidden">
-											{[
-												token.character.race,
-												token.character.identity?.pronouns,
-											]
-												.filter(Boolean)
-												.join(" • ")}
-										</p>
-									</Sprite.Badge>
-								</Sprite.Attachment>
-								<Sprite.Attachment
-									side="bottom"
-									className="items-center p-4 gap-1"
-								>
-									{token.character.full && (
-										<div className="flex gap-1">
-											<Sprite.Meter
-												value={token.character.full.health}
-												max={token.character.full.healthMax}
-												className={{
-													root: "border-green-700 bg-green-500/50",
-													fill: "bg-green-500",
-												}}
-											/>
-											<Sprite.Meter
-												value={token.character.full.resolve}
-												max={token.character.full.resolveMax}
-												className={{
-													root: "border-blue-700 bg-blue-500/50",
-													fill: "bg-blue-500",
-												}}
-											/>
-										</div>
-									)}
-									<div className="flex w-64 flex-wrap justify-center gap-1">
-										{[...new Set(token.character.conditions)].map(
-											(condition) => (
-												<Sprite.Badge
-													key={condition}
-													className={twMerge(
-														"px-2.5 py-1 text-sm leading-4",
-														getConditionColorClasses(condition),
-													)}
-												>
-													{condition}
-												</Sprite.Badge>
-											),
-										)}
-									</div>
-								</Sprite.Attachment>
-							</Sprite>
-						)
-					})}
-				</Sprite>
-			</div>
-		</>
-	)
+	return {
+		selecting,
+		selectionArea,
+		setSelecting,
+		setSelectionStart,
+		setSelectionEnd,
+		bindSelectionHandlers,
+	}
 }
