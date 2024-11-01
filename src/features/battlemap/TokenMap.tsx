@@ -14,6 +14,7 @@ import { useKeyPressed } from "~/lib/keyboard.ts"
 import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/shared/vec.ts"
+import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
 import { getConditionColorClasses } from "../characters/conditions.ts"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
@@ -23,7 +24,6 @@ import { ApiToken } from "./types.ts"
 import { useTokenMapMenu } from "./useTokenMapMenu.tsx"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
-	//#region viewport
 	const [viewportState, setViewportState] = useState({
 		offset: Vec.zero,
 		zoom: 0,
@@ -34,6 +34,9 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 	const viewportScaleCoefficient = 1.3
 	const viewportScale = viewportScaleCoefficient ** viewportState.zoom
 	const viewportOffset = viewportState.offset
+
+	const toMapPosition = (input: VecInput) =>
+		Vec.from(input).minus(viewportOffset).dividedBy(viewportScale)
 
 	const bindRootGestureHandlers = useGesture(
 		{
@@ -89,10 +92,6 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	)
 
-	const toMapPosition = (input: VecInput) =>
-		Vec.from(input).minus(viewportOffset).dividedBy(viewportScale)
-	//#endregion viewport
-
 	const [selectedTokenIds, setSelectedTokenIds] = useState(
 		readonly(new Set<Id<"characterTokens">>()),
 	)
@@ -131,6 +130,26 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		}
 		return tokenId
 	}
+
+	const tokens = baseTokens
+		.map((token) => ({
+			...token,
+			...omit(pendingTokenUpdates.get(token._id), ["tokenId", "characterId"]),
+		}))
+		.map((token) => ({
+			...token,
+			position: Vec.from(token.position)
+				.roundTo(scene.cellSize / 4)
+				.plus(selectedTokenIds.has(token._id) ? tokenDragOffset : 0),
+		}))
+		.sort((a, b) => a.updatedAt - b.updatedAt)
+
+	const tokensById = keyBy(tokens, (t) => t._id)
+	const selectedTokens = [...selectedTokenIds]
+		.map((id) => tokensById.get(id))
+		.filter(Boolean)
+
+	const characterEditor = useCharacterEditorDialog()
 
 	const bindTokenGestureHandlers = useGesture(
 		{
@@ -182,6 +201,12 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					tokenMenu.handleTrigger(event, new Set([tokenId]))
 				}
 			},
+			onDoubleClick: ({ event }) => {
+				const tokenId = getElementTokenId(event.currentTarget as HTMLElement)
+				const token = tokensById.get(tokenId)
+				if (!token || !token.characterId) return
+				characterEditor.show(token.characterId)
+			},
 		},
 		{
 			eventOptions: {},
@@ -191,28 +216,32 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	)
 
-	const tokens = baseTokens
-		.map((token) => ({
-			...token,
-			...omit(pendingTokenUpdates.get(token._id), ["tokenId", "characterId"]),
-		}))
-		.map((token) => ({
-			...token,
-			position: Vec.from(token.position)
-				.roundTo(scene.cellSize / 4)
-				.plus(selectedTokenIds.has(token._id) ? tokenDragOffset : 0),
-		}))
-		.sort((a, b) => a.updatedAt - b.updatedAt)
-
-	const tokensById = keyBy(tokens, (t) => t._id)
-	const selectedTokens = [...selectedTokenIds]
-		.map((id) => tokensById.get(id))
-		.filter(Boolean)
-
 	const [selecting, setSelecting] = useState(false)
 	const [selectionStart, setSelectionStart] = useState(Vec.zero)
 	const [selectionEnd, setSelectionEnd] = useState(Vec.zero)
 	const selectionArea = Rect.bounds(selectionStart, selectionEnd)
+
+	const tokenGroups = groupBy(tokens, (token) =>
+		token.characterId ? "characters" : "activities",
+	)
+
+	const [visibleTokenAnnotations, setVisibleTokenAnnotations] = useState(
+		new Map<Id<"characterTokens">, boolean>(),
+	)
+	const altPressed = useKeyPressed("Alt")
+
+	function updateVisibleAnnotations(
+		tokenId: Id<"characterTokens">,
+		visible: boolean,
+	) {
+		setVisibleTokenAnnotations((prev) => {
+			const next = new Map(prev)
+			next.set(tokenId, visible)
+			return next
+		})
+	}
+
+	const tokenMenu = useTokenMenu()
 
 	const bindSelectionHandlers = useGesture(
 		{
@@ -269,31 +298,10 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	)
 
-	const tokenGroups = groupBy(tokens, (token) =>
-		token.characterId ? "characters" : "activities",
-	)
-
-	const [visibleAnnotations, setVisibleAnnotations] = useState(
-		new Map<Id<"characterTokens">, boolean>(),
-	)
-	const altPressed = useKeyPressed("Alt")
-
-	function updateVisibleAnnotations(
-		tokenId: Id<"characterTokens">,
-		visible: boolean,
-	) {
-		setVisibleAnnotations((prev) => {
-			const next = new Map(prev)
-			next.set(tokenId, visible)
-			return next
-		})
-	}
-
-	const tokenMenu = useTokenMenu()
-
 	return (
 		<>
 			{viewportMenu.element}
+			{characterEditor.element}
 			<div
 				{...bindRootGestureHandlers()}
 				className="absolute inset-0 touch-none select-none overflow-clip [&_*]:will-change-[transform,opacity]"
@@ -375,7 +383,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 								data-visible={
 									!selecting &&
 									tokenDragOffset.equals(Vec.zero) &&
-									(visibleAnnotations.get(token._id) ||
+									(visibleTokenAnnotations.get(token._id) ||
 										selectedTokenIds.has(token._id) ||
 										altPressed)
 								}
