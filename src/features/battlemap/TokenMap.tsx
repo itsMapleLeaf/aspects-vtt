@@ -1,4 +1,4 @@
-import { useGesture } from "@use-gesture/react"
+import { FullGestureState, useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
 import { clamp, omit } from "lodash-es"
 import { useState } from "react"
@@ -19,19 +19,26 @@ import { Vec, VecInput } from "~/shared/vec.ts"
 import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
 import { getConditionColorClasses } from "../characters/conditions.ts"
 import { ApiCharacter } from "../characters/types.ts"
+import { useRoomContext } from "../rooms/context.tsx"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
+import { PingLayer } from "./PingLayer.tsx"
 import { useTokenMenu } from "./TokenMenu.tsx"
 import { ApiToken } from "./types.ts"
 import { useTokenMapMenu } from "./useTokenMapMenu.tsx"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
+	const room = useRoomContext()
 	const viewport = useViewport(scene)
 	const tokenState = useTokens(scene)
 	const viewportMenu = useTokenMapMenu()
 	const tokenMenu = useTokenMenu()
 	const characterEditor = useCharacterEditorDialog()
+
+	const tokenGroups = groupBy(tokenState.tokens, (token) =>
+		token.characterId ? "characters" : "activities",
+	)
 
 	const selection = useSelection({
 		transformPointerPosition: viewport.toMapPosition,
@@ -142,8 +149,126 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	)
 
-	const tokenGroups = groupBy(tokenState.tokens, (token) =>
-		token.characterId ? "characters" : "activities",
+	const me = useQuery(api.users.me)
+	const createPing = useMutation(api.pings.create).withOptimisticUpdate(
+		(store, { roomId, position, key }) => {
+			if (!me) return
+			store.setQuery(api.pings.list, { roomId }, [
+				...(store.getQuery(api.pings.list, { roomId }) ?? []),
+				{
+					_id: crypto.randomUUID() as Id<"pings">,
+					_creationTime: Date.now(),
+					user: { _id: me._id, name: me.name },
+					userId: me._id,
+					roomId,
+					position,
+					key,
+				},
+			])
+		},
+	)
+
+	const bindRootGestureHandlers = useGesture(
+		{
+			onDragStart: (info) => {
+				if (info.buttons !== MouseButtons.Secondary) {
+					info.cancel()
+				}
+			},
+			onDrag: (info) => {
+				if (info.buttons === MouseButtons.Secondary) {
+					viewport.handleDrag(info)
+				}
+			},
+			onDragEnd: (info) => {
+				if (info.buttons === MouseButtons.Secondary) {
+					window.addEventListener(
+						"contextmenu",
+						(event) => event.preventDefault(),
+						{ once: true },
+					)
+				}
+			},
+			onContextMenu: ({ event }) => {
+				event.preventDefault()
+			},
+			onWheel: (info) => {
+				viewport.handleWheel(info)
+			},
+			onPointerDown: (info) => {
+				if (info.buttons === MouseButtons.Middle) {
+					createPing({
+						roomId: room._id,
+						position: viewport
+							.toMapPosition({
+								x: info.event.clientX,
+								y: info.event.clientY,
+							})
+							.toJSON(),
+						key: crypto.randomUUID(),
+					})
+					info.event.preventDefault()
+				}
+
+				// ghetto long press
+				if (
+					info.buttons === MouseButtons.Primary ||
+					info.buttons === MouseButtons.Middle
+				) {
+					const controller = new AbortController()
+					const signal = controller.signal
+					let moved = Vec.zero
+
+					const timeout = setTimeout(() => {
+						createPing({
+							roomId: room._id,
+							position: viewport
+								.toMapPosition({
+									x: info.event.clientX,
+									y: info.event.clientY,
+								})
+								.toJSON(),
+							key: crypto.randomUUID(),
+						})
+						controller.abort()
+					}, 400)
+
+					controller.signal.addEventListener("abort", () => {
+						clearTimeout(timeout)
+					})
+
+					window.addEventListener(
+						"pointermove",
+						(event) => {
+							moved = moved.plus(Vec.from(event).length)
+							if (moved.length > 8) {
+								controller.abort()
+							}
+						},
+						{ signal },
+					)
+
+					window.addEventListener(
+						"pointerup",
+						() => {
+							controller.abort()
+						},
+						{ signal },
+					)
+				}
+			},
+		},
+		{
+			drag: {
+				pointer: {
+					buttons: [
+						MouseButtons.Primary,
+						MouseButtons.Secondary,
+						MouseButtons.Middle,
+					],
+				},
+			},
+		},
 	)
 
 	return (
@@ -151,7 +276,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			{viewportMenu.element}
 			{characterEditor.element}
 			<div
-				{...viewport.bindRootGestureHandlers()}
+				{...bindRootGestureHandlers()}
 				className="absolute inset-0 touch-none select-none overflow-clip"
 			>
 				<Sprite
@@ -209,6 +334,11 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						/>
 					))}
 				</Sprite>
+
+				<PingLayer
+					position={viewport.viewportOffset}
+					viewportScale={viewport.viewportScale}
+				/>
 
 				<Sprite
 					position={selection.selectionArea.topLeft}
@@ -338,64 +468,45 @@ function useViewport(scene: ApiScene) {
 	const toMapPosition = (input: VecInput) =>
 		Vec.from(input).minus(viewportOffset).dividedBy(viewportScale)
 
-	const bindRootGestureHandlers = useGesture(
-		{
-			onDragStart: ({ event }) => {
-				event.preventDefault()
-			},
-			onDrag: (event) => {
-				setViewportState((state) => ({
-					...state,
-					offset: state.offset.plus(event.delta),
-				}))
-			},
-			onDragEnd: () => {
-				window.addEventListener(
-					"contextmenu",
-					(event) => event.preventDefault(),
-					{ once: true },
-				)
-			},
-			onContextMenu: ({ event }) => {
-				event.preventDefault()
-			},
-			onWheel: (info) => {
-				const delta = Vec.from(info.delta)
-				if (delta.y === 0) return
+	const handleDrag = (info: FullGestureState<"drag">) => {
+		setViewportState((state) => ({
+			...state,
+			offset: state.offset.plus(info.delta),
+		}))
+	}
 
-				const zoomAmount = Math.round(delta.y / 100) * -1
-				const pointerOffset = Vec.from(
-					(info.event as unknown as React.WheelEvent).nativeEvent,
-				).minus(viewportOffset)
+	const handleWheel = (info: FullGestureState<"wheel">) => {
+		const delta = Vec.from(info.delta)
+		if (delta.y === 0) return
 
-				setViewportState((state) => {
-					const nextViewportZoom = clamp(state.zoom + zoomAmount, -10, 10)
-					const currentViewportScale = viewportScaleCoefficient ** state.zoom
-					const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
-					const scaleRatio = nextViewportScale / currentViewportScale
+		const zoomAmount = Math.round(delta.y / 100) * -1
+		const pointerOffset = Vec.from(
+			(info.event as unknown as React.WheelEvent).nativeEvent,
+		).minus(viewportOffset)
 
-					return {
-						...state,
-						zoom: nextViewportZoom,
-						offset: state.offset.plus(pointerOffset.times(1 - scaleRatio)),
-					}
-				})
-			},
-		},
-		{
-			drag: {
-				pointer: {
-					buttons: [MouseButtons.Secondary],
-				},
-			},
-		},
-	)
+		setViewportState((state) => {
+			const nextViewportZoom = clamp(state.zoom + zoomAmount, -10, 10)
+			const currentViewportScale = viewportScaleCoefficient ** state.zoom
+			const nextViewportScale = viewportScaleCoefficient ** nextViewportZoom
+			const scaleRatio = nextViewportScale / currentViewportScale
+
+			return {
+				...state,
+				zoom: nextViewportZoom,
+				offset: state.offset.plus(pointerOffset.times(1 - scaleRatio)),
+			}
+		})
+	}
+
+	const toMapPosition = (input: VecInput) =>
+		Vec.from(input).minus(viewportOffset).dividedBy(viewportScale)
 
 	return {
 		viewportScale,
 		viewportOffset,
 		toMapPosition,
-		bindRootGestureHandlers,
+		handleDrag,
+		handleWheel,
 	}
 }
 
@@ -482,8 +593,10 @@ function useSelection({
 
 	const bindSelectionHandlers = useGesture(
 		{
-			onPointerDown: () => {
-				onSelectionChange(Rect.zero)
+			onPointerDown: (info) => {
+				if (info.buttons === MouseButtons.Primary) {
+					onSelectionChange(Rect.zero)
+				}
 			},
 			onDragStart: (info) => {
 				if (info.buttons === MouseButtons.Primary) {
