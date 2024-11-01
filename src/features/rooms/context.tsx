@@ -1,5 +1,5 @@
 import { createContext, use } from "react"
-import { raise } from "~/shared/errors.ts"
+import { raise } from "~/lib/errors.ts"
 import type { ApiRoom } from "./types.ts"
 
 export const RoomContext = createContext<ApiRoom | undefined>(undefined)

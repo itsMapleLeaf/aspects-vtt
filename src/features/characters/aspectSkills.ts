@@ -1,5 +1,5 @@
 import { mapValues } from "lodash-es"
-import { formatTitle } from "~/shared/string.ts"
+import { formatTitle } from "~/lib/string.ts"
 import { Aspect } from "./aspects.ts"
 
 type AspectSkillDefinition = {

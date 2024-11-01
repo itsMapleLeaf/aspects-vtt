@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useEffectEvent } from "~/common/react/core.ts"
+import { useEffectEvent } from "./react/core.ts"
 
 export type MaybeRef<T> =
 	| T

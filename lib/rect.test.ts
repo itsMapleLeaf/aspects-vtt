@@ -1,5 +1,5 @@
 import { expect, test } from "vitest"
-import { Vec } from "~/shared/vec.ts"
+import { Vec } from "~/lib/vec.ts"
 import { Rect } from "./rect.ts"
 
 test("scaled with reference to origin", () => {

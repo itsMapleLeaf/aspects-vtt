@@ -6,8 +6,8 @@ import { useToastAction } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { useRoomContext } from "~/features/rooms/context.tsx"
 import { useActiveSceneContext } from "~/features/scenes/context.ts"
-import { ensure } from "~/shared/errors.ts"
-import { Vec, VecInput } from "~/shared/vec.ts"
+import { ensure } from "~/lib/errors"
+import { Vec, VecInput } from "~/lib/vec"
 
 export function useTokenMapMenu() {
 	const [open, setOpen] = useState(false)

@@ -1,5 +1,5 @@
 import { createContext, RefObject, use } from "react"
-import { Vec } from "~/shared/vec.ts"
+import { Vec } from "~/lib/vec"
 
 export type BattleMapStageInfo = {
 	getViewportCenter: () => { x: number; y: number }

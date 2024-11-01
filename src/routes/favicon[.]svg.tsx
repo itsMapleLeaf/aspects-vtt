@@ -6,7 +6,7 @@ import {
 	LucideTornado,
 } from "lucide-react"
 import { renderToStaticMarkup } from "react-dom/server"
-import { ensure } from "../../shared/errors.ts"
+import { ensure } from "../../lib/errors.ts"
 
 const icons = [LucideFlame, LucideDroplet, LucideTornado, LucideSun, LucideMoon]
 

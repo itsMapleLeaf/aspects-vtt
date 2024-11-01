@@ -5,9 +5,9 @@ import { mkdir } from "node:fs/promises"
 import { platform } from "node:os"
 import { resolve } from "node:path"
 import waitOn from "wait-on"
-import { api } from "../../../convex/_generated/api.js"
-import { Doc, Id } from "../../../convex/_generated/dataModel"
-import { EntTableNames } from "../../../convex/lib/ents.ts"
+import { api } from "../_generated/api.js"
+import { Doc, Id } from "../_generated/dataModel"
+import { EntTableNames } from "./ents.ts"
 
 // unsensitive test-only credentials
 const BACKEND_ADMIN_KEY = `0135d8598650f8f5cb0f30c34ec2e2bb62793bc28717c8eb6fb577996d50be5f4281b59181095065c5d0f86a2c31ddbe9b597ec62b47ded69782cd`

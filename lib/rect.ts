@@ -1,5 +1,5 @@
 import { match, P } from "ts-pattern"
-import { Vec, VecInput } from "~/shared/vec.ts"
+import { Vec, VecInput } from "~/lib/vec"
 
 export type RectInput =
 	| { x: number; y: number; width: number; height: number }

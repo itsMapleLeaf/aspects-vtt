@@ -1,5 +1,5 @@
 import { Id } from "~/convex/_generated/dataModel"
-import { AppError } from "../../../src/common/AppError.ts"
+import { AppError } from "~/lib/AppError.ts"
 
 export async function uploadImage(file: File) {
 	const response = await fetch(

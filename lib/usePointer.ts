@@ -1,7 +1,7 @@
 import { startTransition, useEffect, useRef, useState } from "react"
 import { useEventListener } from "~/lib/react.ts"
 import { Rect } from "~/lib/rect.ts"
-import { Vec } from "~/shared/vec.ts"
+import { Vec } from "~/lib/vec"
 
 type ButtonName = "primary" | "secondary" | "aux"
 

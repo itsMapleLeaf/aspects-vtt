@@ -4,8 +4,8 @@ import Konva from "konva"
 import { useEffect, useRef, useState } from "react"
 import { Circle, Group, Text } from "react-konva"
 import { api } from "~/convex/_generated/api.js"
-import { Vec } from "~/shared/vec.ts"
-import { ensure } from "../../../shared/errors.ts"
+import { Vec } from "~/lib/vec.ts"
+import { ensure } from "../../../lib/errors.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 
 type Ping = FunctionReturnType<typeof api.pings.list>[number]

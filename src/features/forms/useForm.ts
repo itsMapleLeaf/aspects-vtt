@@ -2,9 +2,9 @@ import { ConvexError } from "convex/values"
 import { useId, useState, type SetStateAction } from "react"
 import { toast } from "react-toastify"
 import * as v from "valibot"
-import { AppError } from "~/common/AppError.ts"
-import type { Something } from "~/common/types.ts"
 import { useToastAction } from "~/components/ToastActionForm.tsx"
+import { AppError } from "~/lib/AppError.ts"
+import type { Something } from "~/lib/types.ts"
 
 export type FormValues = Record<string, unknown>
 

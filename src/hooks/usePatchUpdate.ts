@@ -1,6 +1,6 @@
 import { startTransition, useState } from "react"
-import { useToastAction } from "../../components/ToastActionForm.tsx"
-import { useDebouncedCallback } from "./state.ts"
+import { useDebouncedCallback } from "../../lib/react/state.ts"
+import { useToastAction } from "../components/ToastActionForm.tsx"
 
 export function usePatchUpdate<Entity, Patch = Entity>(
 	base: Entity,

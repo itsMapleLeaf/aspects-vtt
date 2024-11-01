@@ -1,4 +1,4 @@
-import { List } from "~/shared/list.ts"
+import { List } from "~/lib/list"
 
 export const RACES = Object.fromEntries(
 	[

@@ -8,8 +8,8 @@ import {
 } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
-import { extract } from "~/common/object.ts"
-import type { StrictOmit } from "~/common/types.ts"
+import { extract } from "~/lib/object.ts"
+import type { StrictOmit } from "~/lib/types.ts"
 import {
 	button,
 	buttonVariantNames,

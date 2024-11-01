@@ -1,6 +1,6 @@
 import * as v from "valibot"
-import { positiveInteger } from "~/common/validators"
 import { WEALTH_TIERS } from "~/features/characters/wealth"
+import { positiveInteger } from "~/lib/validators"
 
 export const wealthTier = v.pipe(
 	positiveInteger,

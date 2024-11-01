@@ -1,8 +1,8 @@
 import { Link } from "@remix-run/react"
 import type { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
-import { Heading } from "~/common/react/heading"
 import { UserButton } from "~/features/auth/UserButton.tsx"
+import { Heading } from "~/lib/react/heading"
 import { heading } from "~/ui/styles.ts"
 import { Button } from "./Button.tsx"
 

@@ -1,9 +1,9 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import type { StrictOmit } from "~/common/types.ts"
 import { Button, type ButtonProps } from "~/components/Button.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
+import type { StrictOmit } from "~/lib/types.ts"
 import { NormalizedCharacter } from "../../../convex/characters.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 

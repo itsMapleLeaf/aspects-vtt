@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values"
 import { expect, test } from "vitest"
-import { ensure } from "../shared/errors.ts"
+import { ensure } from "../lib/errors.ts"
 import { api } from "./_generated/api"
 import {
 	createConvexTest,

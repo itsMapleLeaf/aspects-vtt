@@ -7,8 +7,6 @@ import {
 } from "lucide-react"
 import { useRef } from "react"
 import { match, P } from "ts-pattern"
-import { useLocalStorageSwitch } from "~/common/react/dom.ts"
-import { Heading, HeadingLevel } from "~/common/react/heading"
 import { Button } from "~/components/Button.tsx"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
@@ -29,6 +27,8 @@ import {
 	ActiveSceneContext,
 	useActiveSceneContext,
 } from "~/features/scenes/context.ts"
+import { useLocalStorageSwitch } from "~/lib/react/dom.ts"
+import { Heading, HeadingLevel } from "~/lib/react/heading"
 import { primaryHeading, subText } from "~/styles/text.ts"
 
 export function RoomRoute() {

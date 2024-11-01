@@ -1,6 +1,6 @@
 import * as ConvexAuth from "@convex-dev/auth/react"
 import type { InferInput } from "valibot"
-import type { credentialsPayloadValidator } from "../../../shared/auth/validators.ts"
+import type { credentialsPayloadValidator } from "../../../lib/auth/validators.ts"
 
 /** Typesafe wrapper around Convex Auth's useAuthActions */
 export function useAuthActions() {

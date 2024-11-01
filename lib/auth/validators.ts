@@ -1,5 +1,5 @@
 import { literal, object, pipe, regex, union } from "valibot"
-import { longText, shortText } from "~/common/validators"
+import { longText, shortText } from "~/lib/validators"
 
 export const usernameValidator = pipe(
 	shortText,

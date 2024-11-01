@@ -1,6 +1,6 @@
 import { ComponentProps } from "react"
 import { twMerge } from "tailwind-merge"
-import { Vec, VecInput } from "~/shared/vec.ts"
+import { Vec, VecInput } from "~/lib/vec"
 
 export type SpriteProps = ComponentProps<"div"> & {
 	position?: VecInput

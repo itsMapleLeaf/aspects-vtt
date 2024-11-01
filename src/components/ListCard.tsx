@@ -1,5 +1,5 @@
 import { ComponentProps, type ReactNode } from "react"
-import { StrictOmit } from "~/common/types.ts"
+import { StrictOmit } from "~/lib/types.ts"
 import { lightPanel } from "~/styles/panel.ts"
 import { secondaryHeading, subText } from "../styles/text"
 import { Heading } from "./Heading"

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
-import { extract } from "~/common/object.ts"
+import { extract } from "~/lib/object.ts"
 import {
 	control,
 	controlVariantNames,

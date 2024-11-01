@@ -1,7 +1,7 @@
 import { twMerge } from "tailwind-merge"
-import { ensure } from "~/shared/errors.ts"
-import { List } from "~/shared/list.ts"
-import { mod } from "../../common/math.ts"
+import { ensure } from "~/lib/errors"
+import { List } from "~/lib/list"
+import { mod } from "~/lib/math.ts"
 
 const conditionColors = [
 	twMerge(

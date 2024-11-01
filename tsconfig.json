@@ -10,6 +10,7 @@
 		"allowImportingTsExtensions": true,
 		"paths": {
 			"~/convex/*": ["./convex/*"],
+			"~/lib/*": ["./lib/*"],
 			"~/shared/*": ["./shared/*"],
 			"~/*": ["./src/*"]
 		},
@@ -30,5 +31,5 @@
 		"noEmit": true,
 		"incremental": true
 	},
-	"include": ["./*.*", "src", "convex", "shared", "scripts", "docs"]
+	"include": ["./*.*", "src", "convex", "shared", "scripts", "docs", "lib"]
 }

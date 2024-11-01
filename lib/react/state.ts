@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useRef } from "react"
-import { useLatestRef } from "~/common/react/core.ts"
+import { useLatestRef } from "../react/core.ts"
 
 export function useSwitch(initialOn: boolean) {
 	return useSwitchActions(React.useState(initialOn))

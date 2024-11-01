@@ -1,5 +1,5 @@
 import { type ComponentPropsWithoutRef } from "react"
-import { List } from "~/shared/list.ts"
+import { List } from "~/lib/list.ts"
 import { errorText } from "~/styles/forms.ts"
 import type { FormStore } from "./useForm.ts"
 

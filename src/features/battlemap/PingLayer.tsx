@@ -1,6 +1,6 @@
 import { useQuery } from "convex/react"
 import { api } from "~/convex/_generated/api.js"
-import { Vec } from "~/shared/vec.ts"
+import { Vec } from "~/lib/vec.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { Sprite, SpriteProps } from "./Sprite.tsx"
 
