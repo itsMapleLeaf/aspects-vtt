@@ -3,6 +3,8 @@ import { useMutation, useQuery } from "convex/react"
 import { clamp, omit } from "lodash-es"
 import { useState } from "react"
 import { twMerge } from "tailwind-merge"
+import * as v from "valibot"
+import { useLocalStorage } from "~/common/react/dom.ts"
 import { ApiImage } from "~/components/ApiImage.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
@@ -25,7 +27,7 @@ import { ApiToken } from "./types.ts"
 import { useTokenMapMenu } from "./useTokenMapMenu.tsx"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
-	const viewport = useViewport()
+	const viewport = useViewport(scene)
 	const tokenState = useTokens(scene)
 	const viewportMenu = useTokenMapMenu()
 	const tokenMenu = useTokenMenu()
@@ -311,11 +313,23 @@ function CharacterTokenAnnotations({
 	)
 }
 
-function useViewport() {
-	const [viewportState, setViewportState] = useState({
-		offset: Vec.zero,
-		zoom: 0,
-	})
+function useViewport(scene: ApiScene) {
+	const [viewportState, setViewportState] = useLocalStorage(
+		`tokenMap:viewportState:${scene._id}`,
+		{
+			offset: Vec.zero,
+			zoom: 0,
+		},
+		v.parser(
+			v.object({
+				offset: v.pipe(
+					v.object({ x: v.number(), y: v.number() }),
+					v.transform((input) => Vec.from(input)),
+				),
+				zoom: v.number(),
+			}),
+		),
+	)
 
 	const viewportScaleCoefficient = 1.3
 	const viewportScale = viewportScaleCoefficient ** viewportState.zoom
