@@ -152,7 +152,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			{characterEditor.element}
 			<div
 				{...viewport.bindRootGestureHandlers()}
-				className="absolute inset-0 touch-none select-none overflow-clip [&_*]:will-change-[transform,opacity]"
+				className="absolute inset-0 touch-none select-none overflow-clip"
 			>
 				<Sprite
 					position={viewport.viewportOffset}
