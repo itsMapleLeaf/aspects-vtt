@@ -1,6 +1,6 @@
 import { convexTest, type TestConvexForDataModel } from "convex-test"
-import type { DataModel, Id } from "../../convex/_generated/dataModel"
-import schema from "../../convex/schema.ts"
+import type { DataModel, Id } from "../_generated/dataModel"
+import schema from "../schema.ts"
 
 export function createConvexTest() {
 	return convexTest(schema, import.meta.glob("../**/*.ts"))

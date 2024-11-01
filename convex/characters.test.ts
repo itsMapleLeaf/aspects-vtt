@@ -1,11 +1,8 @@
 import { ConvexError } from "convex/values"
 import { expect, test } from "vitest"
 import { ensure } from "../shared/errors.ts"
-import {
-	createConvexTest,
-	createConvexTestWithIdentity,
-} from "../src/common/convex-test.ts"
 import { api } from "./_generated/api"
+import { createConvexTest, createConvexTestWithIdentity } from "./lib/test.ts"
 
 async function setupTestEnvironment() {
 	const convex = createConvexTest()
@@ -174,8 +171,8 @@ test("non-owner can see visible character but not full details", async () => {
 	})
 
 	expect(character).not.toBeNull()
-	expect(character?.identity?.name).toBe("Visible Character")
-	expect(character?.full).toBeUndefined()
+	expect(character?.name).toBe("Visible Character")
+	expect(character?.full).toSatisfy((value) => value == null)
 })
 
 test("non-owner cannot update character", async () => {
@@ -222,7 +219,7 @@ test("room owner can see and modify all characters", async () => {
 		roomId,
 	} = await setupTestEnvironment()
 
-	const characterId = await roomOwnerConvex.mutation(api.characters.create, {
+	await roomOwnerConvex.mutation(api.characters.create, {
 		name: "Room Owner's Character",
 		roomId,
 		attributes: { strength: 1, sense: 1, mobility: 1, intellect: 1, wit: 1 },
@@ -248,4 +245,29 @@ test("room owner can see and modify all characters", async () => {
 			name: "Modified by Room Owner",
 		}),
 	).resolves.not.toThrow()
+})
+
+test("character name should be hidden to players if `nameVisible` is false", async () => {
+	const {
+		convex,
+		ownerConvex: roomOwnerConvex,
+		roomId,
+	} = await setupTestEnvironment()
+
+	const characterId = await roomOwnerConvex.mutation(api.characters.create, {
+		name: "Room Owner's Character",
+		roomId,
+		attributes: { strength: 1, sense: 1, mobility: 1, intellect: 1, wit: 1 },
+		nameVisible: false,
+	})
+
+	const nonOwnerConvex = await createConvexTestWithIdentity(convex)
+
+	const character = await nonOwnerConvex.query(api.characters.get, {
+		characterId,
+	})
+
+	expect(character).toBeDefined()
+	expect(character?.full?.name).not.toBeDefined()
+	expect(character?.name).not.toBeDefined()
 })

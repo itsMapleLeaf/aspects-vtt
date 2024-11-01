@@ -1,6 +1,6 @@
 import { expect, test } from "vitest"
-import { createConvexTest } from "../src/common/convex-test.ts"
 import { api } from "./_generated/api.js"
+import { createConvexTest } from "./lib/test.ts"
 
 test("me returns the authenticated user", async () => {
 	const convex = createConvexTest()

@@ -1,10 +1,7 @@
 import { ConvexError } from "convex/values"
 import { expect, test } from "vitest"
-import {
-	createConvexTest,
-	createConvexTestWithIdentity,
-} from "../src/common/convex-test"
 import { api } from "./_generated/api"
+import { createConvexTest, createConvexTestWithIdentity } from "./lib/test"
 
 test("create and get token", async () => {
 	const convex = createConvexTest()

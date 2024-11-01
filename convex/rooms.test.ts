@@ -1,8 +1,8 @@
 import { ConvexError } from "convex/values"
 import { expect, test } from "vitest"
-import { createConvexTestWithIdentity } from "../src/common/convex-test"
 import { api } from "./_generated/api"
 import { Id } from "./_generated/dataModel"
+import { createConvexTestWithIdentity } from "./lib/test"
 
 async function setupTestRoom() {
 	const convex = await createConvexTestWithIdentity()
