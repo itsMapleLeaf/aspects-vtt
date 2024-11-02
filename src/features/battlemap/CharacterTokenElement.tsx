@@ -22,8 +22,14 @@ export function CharacterTokenElement({
 					props.className,
 				)}
 			>
-				<div className="absolute -inset-1 rounded-full bg-black/50" />
-				<div className="absolute -inset-2 rounded-full bg-black/50" />
+				<div
+					className="absolute -inset-1 rounded-full bg-black/50 data-[is-player=true]:bg-accent-400/50"
+					data-is-player={character.isPlayer}
+				/>
+				<div
+					className="absolute -inset-2 rounded-full bg-black/50 data-[is-player=true]:bg-accent-400/50"
+					data-is-player={character.isPlayer}
+				/>
 				<StatefulApiImage
 					imageId={character.imageId}
 					className="absolute inset-0 size-full rounded-full object-cover object-top"
