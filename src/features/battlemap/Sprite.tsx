@@ -97,7 +97,7 @@ function SpriteMeter({
 	return (
 		<div
 			className={twMerge(
-				"bg-opacity-500 flex h-4 rounded-sm border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-sm will-change-transform gap-0.5",
+				"flex h-4 rounded-sm border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-sm will-change-transform gap-0.5",
 				className?.root,
 			)}
 			style={{ width: `${max * 16}px` }}
