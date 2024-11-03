@@ -28,10 +28,29 @@ export function useWindowSize() {
 	return [width, height] as const
 }
 
-export function useLocalStorage<T>(
+type JsonInput =
+	| string
+	| number
+	| boolean
+	| null
+	| undefined
+	| { toJSON: () => JsonInput }
+	| { [key: string]: JsonInput }
+	| JsonInput[]
+
+type JsonOutput =
+	| string
+	| number
+	| boolean
+	| null
+	| undefined
+	| { [key: string]: JsonOutput }
+	| JsonOutput[]
+
+export function useLocalStorage<T extends JsonInput>(
 	key: string,
 	initialValue: T,
-	parse: (deserialized: unknown) => T,
+	parse: (deserialized: JsonOutput) => T,
 ) {
 	const [value, setValue] = React.useState<T>(initialValue)
 
@@ -40,7 +59,7 @@ export function useLocalStorage<T>(
 		if (serialized == null) return
 
 		try {
-			const parsed = parse(JSON.parse(serialized))
+			const parsed = parse(JSON.parse(serialized) as JsonOutput)
 			setValue(parsed)
 		} catch (error) {
 			console.error(
@@ -53,7 +72,7 @@ export function useLocalStorage<T>(
 
 	React.useLayoutEffect(() => {
 		loadValue(key)
-	}, [key])
+	}, [key, loadValue])
 
 	const idleCallbackRef = React.useRef<number | undefined>(undefined)
 	const saveValue = useEffectEvent((action: React.SetStateAction<T>) => {
