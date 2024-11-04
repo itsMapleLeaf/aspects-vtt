@@ -124,10 +124,16 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					event.currentTarget as HTMLElement,
 				)
 				if (tokenState.selectedTokenIds.has(tokenId)) {
-					tokenMenu.show(event, tokenState.selectedTokenIds)
+					tokenMenu.show(
+						{ x: event.clientX, y: event.clientY },
+						tokenState.selectedTokenIds,
+					)
 				} else {
 					tokenState.setSelectedTokenIds(new Set([tokenId]))
-					tokenMenu.show(event, new Set([tokenId]))
+					tokenMenu.show(
+						{ x: event.clientX, y: event.clientY },
+						new Set([tokenId]),
+					)
 				}
 			},
 			onDoubleClick: ({ event }) => {
