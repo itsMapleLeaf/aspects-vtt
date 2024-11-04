@@ -20,6 +20,7 @@ import { api } from "~/convex/_generated/api.js"
 import { NormalizedCharacter } from "~/convex/characters.ts"
 import { CharacterAttributeButtonRow } from "~/features/characters/CharacterAttributeButtonRow.tsx"
 import { CharacterToggleCombatMemberButton } from "~/features/characters/CharacterToggleCombatMemberButton.tsx"
+import { Vec, VecInput } from "~/lib/vec.ts"
 import { Id } from "../../../convex/_generated/dataModel"
 import { raise } from "../../../lib/errors.ts"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
@@ -34,18 +35,18 @@ import { useActiveSceneContext } from "../scenes/context.ts"
 function useTokenMenuController() {
 	const [state, setState] = useState({
 		open: false,
-		position: { x: 0, y: 0 },
+		position: Vec.zero,
 		tokenIds: new Set<Id<"characterTokens">>(),
 	})
 
-	const handleTrigger = (
-		event: { clientX: number; clientY: number },
+	const show = (
+		position: VecInput,
 		tokenIds: Iterable<Id<"characterTokens">>,
 	) => {
 		startTransition(() => {
 			setState({
 				open: true,
-				position: { x: event.clientX, y: event.clientY },
+				position: Vec.from(position),
 				tokenIds: new Set(tokenIds),
 			})
 		})
@@ -57,7 +58,7 @@ function useTokenMenuController() {
 		})
 	}
 
-	return { ...state, handleTrigger, close }
+	return { ...state, show, close }
 }
 
 const Context = createContext<
