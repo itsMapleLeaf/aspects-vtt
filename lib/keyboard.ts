@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
-export function useKeyPressed(targetKey: string) {
-	const [isPressed, setIsPressed] = useState(false)
+export function useKeyDown(targetKey: string) {
+	const [down, setDown] = useState(false)
 
 	useEffect(() => {
 		const controller = new AbortController()
@@ -11,7 +11,7 @@ export function useKeyPressed(targetKey: string) {
 			function handleKeyDown(event: KeyboardEvent) {
 				if (event.key === targetKey) {
 					event.preventDefault()
-					setIsPressed(true)
+					setDown(true)
 				}
 			},
 			{ signal: controller.signal },
@@ -22,7 +22,7 @@ export function useKeyPressed(targetKey: string) {
 			function handleKeyUp(event: KeyboardEvent) {
 				if (event.key === targetKey) {
 					event.preventDefault()
-					setIsPressed(false)
+					setDown(false)
 				}
 			},
 			{ signal: controller.signal },
@@ -31,5 +31,5 @@ export function useKeyPressed(targetKey: string) {
 		return () => controller.abort()
 	}, [targetKey])
 
-	return isPressed
+	return down
 }
