@@ -39,9 +39,11 @@ export default defineConfig({
 		babel({
 			filter: /\.[jt]sx?$/,
 			include: ["src/**/*"],
+			loader: "tsx",
 			babelConfig: {
 				presets: ["@babel/preset-typescript"],
 				plugins: [["babel-plugin-react-compiler", {}]],
+				sourceMaps: true,
 			},
 		}),
 	],
