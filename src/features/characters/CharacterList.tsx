@@ -145,6 +145,7 @@ export function CharacterList() {
 
 		return (
 			<button
+				key={entry.key}
 				type="button"
 				className="contents"
 				onClick={() => {
