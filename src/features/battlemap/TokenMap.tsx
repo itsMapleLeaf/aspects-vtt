@@ -2,27 +2,24 @@ import { FullGestureState, useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
 import { clamp, omit } from "lodash-es"
 import { useState } from "react"
-import { twMerge } from "tailwind-merge"
 import * as v from "valibot"
 import { ApiImage } from "~/components/ApiImage.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
-import { Sprite, SpriteProps } from "~/features/battlemap/Sprite.tsx"
+import { Sprite } from "~/features/battlemap/Sprite.tsx"
 import { readonly } from "~/lib/common.ts"
 import { MouseButtons } from "~/lib/dom.ts"
 import { groupBy, keyBy } from "~/lib/iterable.ts"
-import { useKeyPressed } from "~/lib/keyboard.ts"
+import { useKeyDown } from "~/lib/keyboard.ts"
 import { useLocalStorage } from "~/lib/react/dom.ts"
 import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/lib/vec.ts"
 import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
-import { CharacterName } from "../characters/CharacterName.tsx"
-import { getConditionColorClasses } from "../characters/conditions.ts"
-import { ApiCharacter } from "../characters/types.ts"
 import { useRoomContext } from "../rooms/context.tsx"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
+import { CharacterTokenAnnotations } from "./CharacterTokenAnnotations.tsx"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
 import { PingLayer } from "./PingLayer.tsx"
 import { useTokenMenu } from "./TokenMenu.tsx"
@@ -56,7 +53,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	})
 
-	const altPressed = useKeyPressed("Alt")
+	const altPressed = useKeyDown("Alt")
 
 	const isTokenVisible = (token: ApiToken) =>
 		!selection.selecting &&
@@ -127,10 +124,10 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					event.currentTarget as HTMLElement,
 				)
 				if (tokenState.selectedTokenIds.has(tokenId)) {
-					tokenMenu.handleTrigger(event, tokenState.selectedTokenIds)
+					tokenMenu.show(event, tokenState.selectedTokenIds)
 				} else {
 					tokenState.setSelectedTokenIds(new Set([tokenId]))
-					tokenMenu.handleTrigger(event, new Set([tokenId]))
+					tokenMenu.show(event, new Set([tokenId]))
 				}
 			},
 			onDoubleClick: ({ event }) => {
@@ -325,11 +322,12 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 							data-token-id={token._id}
 							{...bindTokenGestureHandlers()}
 							onContextMenu={(event) => {
+								const position = { x: event.clientX, y: event.clientY }
 								if (tokenState.selectedTokenIds.has(token._id)) {
-									tokenMenu.handleTrigger(event, tokenState.selectedTokenIds)
+									tokenMenu.show(position, tokenState.selectedTokenIds)
 								} else {
 									tokenState.setSelectedTokenIds(new Set([token._id]))
-									tokenMenu.handleTrigger(event, new Set([token._id]))
+									tokenMenu.show(position, new Set([token._id]))
 								}
 							}}
 						/>
@@ -371,72 +369,6 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				</Sprite>
 			</div>
 		</>
-	)
-}
-
-function CharacterTokenAnnotations({
-	character,
-	visible,
-	...props
-}: {
-	character: ApiCharacter
-	visible: boolean
-} & SpriteProps) {
-	return (
-		<Sprite
-			{...props}
-			className={twMerge(
-				"opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95",
-				props.className,
-			)}
-			data-visible={visible}
-		>
-			<Sprite.Attachment side="top" className="p-4">
-				<Sprite.Badge>
-					<p className="text-base/5 empty:hidden">
-						<CharacterName character={character} />
-					</p>
-					<p className="text-sm/5 opacity-80 empty:hidden">
-						{[character.race, character.pronouns].filter(Boolean).join(" • ")}
-					</p>
-				</Sprite.Badge>
-			</Sprite.Attachment>
-			<Sprite.Attachment side="bottom" className="items-center p-4 gap-2">
-				{character.full && (
-					<div className="flex max-w-[180px] gap-1">
-						<Sprite.Meter
-							value={character.full.health}
-							max={character.full.healthMax}
-							className={{
-								root: "border-green-700 bg-green-500/50",
-								fill: "bg-green-500",
-							}}
-						/>
-						<Sprite.Meter
-							value={character.full.resolve}
-							max={character.full.resolveMax}
-							className={{
-								root: "border-blue-700 bg-blue-500/50",
-								fill: "bg-blue-500",
-							}}
-						/>
-					</div>
-				)}
-				<div className="flex w-64 flex-wrap justify-center gap-1">
-					{[...new Set(character.conditions)].map((condition) => (
-						<Sprite.Badge
-							key={condition}
-							className={twMerge(
-								"px-2.5 py-1 text-sm leading-4",
-								getConditionColorClasses(condition),
-							)}
-						>
-							{condition}
-						</Sprite.Badge>
-					))}
-				</div>
-			</Sprite.Attachment>
-		</Sprite>
 	)
 }
 
