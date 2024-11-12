@@ -200,6 +200,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				event.preventDefault()
 			},
 			onWheel: (info) => {
+				info.event.preventDefault()
 				viewport.handleWheel(info)
 			},
 			onPointerDown: (info) => {
@@ -273,6 +274,11 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 						MouseButtons.Secondary,
 						MouseButtons.Middle,
 					],
+				},
+			},
+			wheel: {
+				eventOptions: {
+					passive: false,
 				},
 			},
 		},
