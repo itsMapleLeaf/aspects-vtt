@@ -25,14 +25,14 @@ import { MessageList } from "../messages/MessageList.tsx"
 import { SceneList } from "../scenes/SceneList.tsx"
 import { useRoomContext } from "./context.tsx"
 
-interface ModuleDefinition {
+type ModuleDefinition = {
 	name: string
 	icon: React.ReactNode
 	defaultLocation: ModuleLocation
 	content: () => React.ReactNode
 }
 
-interface ModuleLocation {
+type ModuleLocation = {
 	sidebar: number
 	panel: number
 }
