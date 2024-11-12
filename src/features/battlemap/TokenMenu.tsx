@@ -6,13 +6,7 @@ import {
 	LucideSwords,
 	LucideTrash,
 } from "lucide-react"
-import {
-	ComponentProps,
-	createContext,
-	startTransition,
-	use,
-	useState,
-} from "react"
+import { startTransition, useState } from "react"
 import { match, P } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
 import { Popover } from "~/components/Popover.tsx"
@@ -22,17 +16,15 @@ import { CharacterAttributeButtonRow } from "~/features/characters/CharacterAttr
 import { CharacterToggleCombatMemberButton } from "~/features/characters/CharacterToggleCombatMemberButton.tsx"
 import { Vec, VecInput } from "~/lib/vec.ts"
 import { Id } from "../../../convex/_generated/dataModel"
-import { raise } from "../../../lib/errors.ts"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { panel } from "../../styles/panel.ts"
 import { CharacterAttackDialog } from "../characters/CharacterAttackDialog.tsx"
 import { CharacterConditionsInput } from "../characters/CharacterConditionsInput.tsx"
 import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
-import { CharacterToggleTokenButton } from "../characters/CharacterToggleTokenButton.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
 
-function useTokenMenuController() {
+export function useTokenMenu() {
 	const [state, setState] = useState({
 		open: false,
 		position: Vec.zero,
@@ -58,22 +50,6 @@ function useTokenMenuController() {
 		})
 	}
 
-	return { ...state, show, close }
-}
-
-const Context = createContext<
-	ReturnType<typeof useTokenMenuController> | undefined
->(undefined)
-
-export function useTokenMenu() {
-	return use(Context) ?? raise("bad")
-}
-
-export function TokenMenu({
-	children,
-	...props
-}: ComponentProps<typeof Popover.Root>) {
-	const controller = useTokenMenuController()
 	const room = useRoomContext()
 	const scene = useActiveSceneContext()
 	const update = useMutation(api.tokens.update)
@@ -81,7 +57,7 @@ export function TokenMenu({
 
 	const selectedTokens =
 		useQuery(api.tokens.list, scene ? { sceneId: scene._id } : "skip")?.filter(
-			(token) => controller.tokenIds.has(token._id),
+			(token) => state.tokenIds.has(token._id),
 		) ?? []
 
 	const visibleTokens = selectedTokens.filter((it) => it.visible)
@@ -104,15 +80,13 @@ export function TokenMenu({
 			.filter(Boolean)
 			.filter((it) => attackingCharacterIds.has(it._id))
 
-	return (
+	const element = (
 		<>
-			<Context value={controller}>{children}</Context>
-
-			<Popover.Root placement="bottom-start" open={controller.open} {...props}>
+			<Popover.Root placement="bottom-start" open={state.open}>
 				<Popover.Content
-					getAnchorRect={() => controller.position ?? null}
+					getAnchorRect={() => state.position ?? null}
 					className={panel("grid w-[240px] rounded-xl p-2 gap-2")}
-					backdrop={<Popover.Backdrop onPointerDown={controller.close} />}
+					backdrop={<Popover.Backdrop onPointerDown={close} />}
 				>
 					{fullCharacters.length > 0 && (
 						<CharacterAttributeButtonRow characters={fullCharacters} />
@@ -168,7 +142,7 @@ export function TokenMenu({
 								await remove({
 									tokenIds: selectedTokens.map((it) => it._id),
 								})
-								controller.close()
+								close()
 							}}
 						>
 							<Button
@@ -232,17 +206,6 @@ export function TokenMenu({
 												characters={fullCharacters}
 											/>
 										)}
-										{fullCharacters.length > 0 && room.isOwner && (
-											<Popover.Close
-												render={
-													<CharacterToggleTokenButton
-														appearance="clear"
-														className="justify-start"
-														characters={fullCharacters}
-													/>
-												}
-											/>
-										)}
 										<Popover.Close
 											render={
 												<Button
@@ -285,4 +248,6 @@ export function TokenMenu({
 			) : null}
 		</>
 	)
+
+	return { element, show }
 }

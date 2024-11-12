@@ -18,7 +18,6 @@ import {
 	defaultStageInfo,
 } from "~/features/battlemap/context.ts"
 import { TokenMap } from "~/features/battlemap/TokenMap.tsx"
-import { TokenMenu } from "~/features/battlemap/TokenMenu.tsx"
 import { getImageUrl } from "~/features/images/getImageUrl.ts"
 import { RoomContext, useRoomContext } from "~/features/rooms/context.tsx"
 import { RoomPanels } from "~/features/rooms/RoomPanels.tsx"
@@ -67,7 +66,7 @@ function RoomRoot({ children }: { children: React.ReactNode }) {
 				<ActiveSceneContext value={activeScene}>
 					<BattleMapStageInfoContext value={stageInfoRef}>
 						<title>{`${room.name} | Aspects VTT`}</title>
-						<TokenMenu>{children}</TokenMenu>
+						{children}
 					</BattleMapStageInfoContext>
 				</ActiveSceneContext>
 			</RoomContext>
