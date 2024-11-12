@@ -133,7 +133,7 @@ export function CharacterList() {
 					<button
 						type="submit"
 						className={twMerge(
-							"w-full transition-opacity",
+							"w-full transition-opacity *:select-none",
 							toggleInScenePending ? "opacity-75" : "opacity-100",
 						)}
 					>
@@ -147,7 +147,7 @@ export function CharacterList() {
 			<button
 				key={entry.key}
 				type="button"
-				className="contents"
+				className="contents *:select-none"
 				onClick={() => {
 					editor.show(entry.item._id)
 				}}
