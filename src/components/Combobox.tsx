@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react"
 import { matchSorter } from "match-sorter"
-import { type ReactNode } from "react"
+import { Key, type ReactNode } from "react"
 import { textInput } from "~/styles/input.ts"
 import { menuItem, menuPanel } from "~/styles/menu.ts"
 
@@ -16,6 +16,7 @@ export interface ComboboxOption {
 	name?: ReactNode
 	description?: ReactNode
 	icon?: ReactNode
+	key?: Key
 }
 
 export function Combobox({
@@ -52,7 +53,7 @@ export function Combobox({
 				>
 					{matches.map((item) => (
 						<Ariakit.ComboboxItem
-							key={item.value}
+							key={item.key ?? item.value}
 							id={item.value}
 							value={item.value}
 							className={menuItem()}
