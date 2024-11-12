@@ -227,11 +227,17 @@ export function useImage(src: string | undefined | null) {
 	return [image, status] as const
 }
 
-export function useSize() {
+export function useSize(
+	ref:
+		| HTMLElement
+		| null
+		| undefined
+		| { readonly current: HTMLElement | null | undefined },
+) {
 	const [size, setSize] = React.useState({ width: 0, height: 0 })
-	const [element, ref] = React.useState<HTMLElement | null>(null)
 
 	React.useEffect(() => {
+		const element = ref instanceof HTMLElement ? ref : ref?.current
 		if (!element) return
 
 		setSize({ width: element.clientWidth, height: element.clientHeight })
@@ -248,7 +254,7 @@ export function useSize() {
 		return () => {
 			observer.disconnect()
 		}
-	}, [element])
+	}, [ref])
 
-	return [size, ref] as const
+	return size
 }
