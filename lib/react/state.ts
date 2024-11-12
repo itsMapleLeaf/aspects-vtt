@@ -19,7 +19,7 @@ export function useSwitchActions([on, setOn]: readonly [
 				toggle: () => setOn((current) => !current),
 				set: (value: boolean) => setOn(value),
 			}),
-			[],
+			[setOn],
 		),
 	] as const
 }
@@ -113,4 +113,21 @@ export function useDictionary<K extends PropertyKey, V>(
 		entries,
 		size,
 	}
+}
+
+export function useFilter<In, Out extends In>(
+	current: In,
+	filter: (item: In) => item is Out,
+): In | Out
+export function useFilter<T>(current: T, filter: (item: T) => boolean): T
+export function useFilter<T>(current: T, filter: (item: T) => boolean) {
+	const [value, setValue] = useState(current)
+	if (value !== current && filter(current)) {
+		setValue(current)
+	}
+	return value
+}
+
+export function useNonNilFilter<T>(value: T) {
+	return useFilter(value, (value) => value != null)
 }
