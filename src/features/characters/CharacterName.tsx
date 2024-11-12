@@ -7,7 +7,7 @@ export function CharacterName({
 	return <span className={name.isKnown ? "" : "opacity-70"}>{name.text}</span>
 }
 
-function resolveCharacterName(name: string | null | undefined) {
+export function resolveCharacterName(name: string | null | undefined) {
 	name = name?.trim()
 
 	const state =

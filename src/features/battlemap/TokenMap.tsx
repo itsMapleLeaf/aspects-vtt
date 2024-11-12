@@ -1,7 +1,7 @@
 import { FullGestureState, useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
 import { clamp, omit } from "lodash-es"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import * as v from "valibot"
 import { ApiImage } from "~/components/ApiImage.tsx"
 import { api } from "~/convex/_generated/api.js"
@@ -11,7 +11,7 @@ import { readonly } from "~/lib/common.ts"
 import { MouseButtons } from "~/lib/dom.ts"
 import { groupBy, keyBy } from "~/lib/iterable.ts"
 import { useKeyDown } from "~/lib/keyboard.ts"
-import { useLocalStorage } from "~/lib/react/dom.ts"
+import { useLocalStorage, useSize } from "~/lib/react/dom.ts"
 import { Rect } from "~/lib/rect.ts"
 import { useAsyncQueue } from "~/lib/useAsyncQueue.ts"
 import { Vec, VecInput } from "~/lib/vec.ts"
@@ -24,13 +24,23 @@ import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
 import { PingLayer } from "./PingLayer.tsx"
 import { useTokenMenu } from "./TokenMenu.tsx"
 import { ApiToken } from "./types.ts"
-import { useTokenMapMenu } from "./useTokenMapMenu.tsx"
+import { useMapBackdropMenu } from "./useMapBackdropMenu.tsx"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
 	const room = useRoomContext()
+
 	const viewport = useViewport(scene)
+
+	const rootRef = useRef<HTMLDivElement>(null)
+	const viewportSize = useSize(rootRef)
+
+	const newTokenPosition = Vec.size(viewportSize)
+		.dividedBy(2)
+		.times(viewport.viewportScale)
+		.minus(viewport.viewportOffset)
+
 	const tokenState = useTokens(scene)
-	const viewportMenu = useTokenMapMenu()
+	const viewportMenu = useMapBackdropMenu()
 	const tokenMenu = useTokenMenu()
 	const characterEditor = useCharacterEditorDialog()
 
@@ -288,9 +298,11 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		<>
 			{viewportMenu.element}
 			{characterEditor.element}
+			{tokenMenu.element}
 			<div
 				{...bindRootGestureHandlers()}
 				className="absolute inset-0 touch-none select-none overflow-clip"
+				ref={rootRef}
 			>
 				<Sprite
 					position={viewport.viewportOffset}

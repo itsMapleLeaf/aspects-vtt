@@ -1,6 +1,8 @@
 import * as Ariakit from "@ariakit/react"
-import { type ReactNode } from "react"
+import { ComponentProps, type ReactNode } from "react"
 import { menuItem, menuPanel } from "~/styles/menu.ts"
+
+export { MenuProvider } from "@ariakit/react"
 
 export interface MenuOption {
 	label: ReactNode
@@ -8,51 +10,65 @@ export interface MenuOption {
 	onClick: () => void
 }
 
-export interface MenuProps extends Ariakit.MenuButtonProps {
+export interface MenuProps extends Ariakit.MenuProps {
 	options: MenuOption[]
 	providerProps?: Ariakit.MenuProviderProps
+	panelProps?: Omit<ComponentProps<typeof MenuPanel>, "options">
 }
 
-export function Menu({ options, providerProps, ...props }: MenuProps) {
+export function Menu({
+	options,
+	providerProps,
+	panelProps,
+	...props
+}: MenuProps) {
 	return (
-		<MenuPanel {...providerProps} options={options}>
-			<Ariakit.MenuButton {...props} />
-		</MenuPanel>
+		<Ariakit.MenuProvider {...providerProps}>
+			<MenuPanel {...panelProps} options={options}>
+				<Ariakit.MenuButton {...props} />
+			</MenuPanel>
+		</Ariakit.MenuProvider>
 	)
 }
 
-export interface MenuPanelProps extends Ariakit.MenuProviderProps {
-	options: MenuOption[]
-	menuProps?: Ariakit.MenuProps
+export interface MenuPanelProps extends Ariakit.MenuProps {
+	/** @deprecated */
+	options?: MenuOption[]
 }
 
-export function MenuPanel({
-	options,
-	children,
-	menuProps,
-	...props
-}: MenuPanelProps) {
+export function MenuPanel({ options, children, ...props }: MenuPanelProps) {
 	return (
-		<Ariakit.MenuProvider {...props}>
+		<Ariakit.Menu
+			gutter={8}
+			portal
+			unmountOnHide
+			{...props}
+			className={menuPanel("w-fit min-w-32", props.className)}
+		>
 			{children}
-			<Ariakit.Menu
-				gutter={8}
-				portal
-				unmountOnHide
-				{...menuProps}
-				className={menuPanel("w-fit min-w-32", menuProps?.className)}
-			>
-				{options.map((option, index) => (
-					<Ariakit.MenuItem
-						key={index}
-						className={menuItem()}
-						onClick={option.onClick}
-					>
-						{option.icon && <span className="mr-2">{option.icon}</span>}
-						{option.label}
-					</Ariakit.MenuItem>
-				))}
-			</Ariakit.Menu>
-		</Ariakit.MenuProvider>
+			{options?.map((option, index) => (
+				<Ariakit.MenuItem
+					key={index}
+					className={menuItem()}
+					onClick={option.onClick}
+				>
+					{option.icon && <span className="mr-2">{option.icon}</span>}
+					{option.label}
+				</Ariakit.MenuItem>
+			))}
+		</Ariakit.Menu>
+	)
+}
+
+export interface MenuItemProps extends Ariakit.MenuItemProps {
+	icon: ReactNode
+}
+
+export function MenuItem({ icon, children, ...props }: MenuItemProps) {
+	return (
+		<Ariakit.MenuItem {...props} className={menuItem(props.className)}>
+			{icon && <span className="mr-2 *:size-6">{icon}</span>}
+			{children}
+		</Ariakit.MenuItem>
 	)
 }

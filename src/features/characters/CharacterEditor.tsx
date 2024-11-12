@@ -32,7 +32,6 @@ import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { CharacterConditionsInput } from "./CharacterConditionsInput.tsx"
 import { CharacterToggleCombatMemberButton } from "./CharacterToggleCombatMemberButton.tsx"
-import { CharacterToggleTokenButton } from "./CharacterToggleTokenButton.tsx"
 
 export function CharacterEditor({
 	character,
@@ -227,7 +226,6 @@ function CharacterAdminManagement({
 			</div>
 			<div className="flex flex-wrap gap">
 				<CharacterToggleCombatMemberButton characters={[character]} />
-				<CharacterToggleTokenButton characters={[character]} />
 			</div>
 			<div className="flex flex-wrap gap">
 				<ToastActionForm
