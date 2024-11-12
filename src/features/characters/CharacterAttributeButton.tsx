@@ -10,7 +10,7 @@ import { Button } from "~/components/Button.tsx"
 import { Heading } from "~/components/Heading.tsx"
 import { Popover } from "~/components/Popover.tsx"
 import { api } from "~/convex/_generated/api.js"
-import type { NormalizedCharacter } from "~/convex/characters.ts"
+import { Id } from "~/convex/_generated/dataModel.js"
 import { CharacterAttributeName } from "~/features/characters/types.ts"
 import { secondaryHeading, subText } from "~/styles/text.ts"
 import { NumberInputField } from "../forms/fields.tsx"
@@ -24,7 +24,13 @@ export function CharacterAttributeButton({
 	attribute,
 	icon: iconOverride,
 }: {
-	characters: NormalizedCharacter[]
+	characters: {
+		_id: Id<"characters">
+		name: string
+		race: string | undefined
+		attributes: Record<CharacterAttributeName, number>
+		resolve: number
+	}[]
 	attribute: CharacterAttributeName
 	icon?: React.ReactNode
 }) {
@@ -34,7 +40,10 @@ export function CharacterAttributeButton({
 
 	const [open, setOpen] = useState(false)
 
-	const getCharacterDice = (character: NormalizedCharacter) => {
+	const getCharacterDice = (character: {
+		race: string | undefined
+		attributes: Record<CharacterAttributeName, number>
+	}) => {
 		const attributeDieFaces = getAttributeDie(character.attributes[attribute])
 
 		const dice = [
@@ -132,7 +141,13 @@ export function CharacterAttributeButton({
 			<div className="flex flex-col items-center gap-0.5">
 				<Popover.Button
 					render={
-						<Button appearance="clear" square icon={icon} type="button" />
+						<Button
+							appearance="clear"
+							square
+							icon={icon}
+							type="button"
+							tooltip={`Roll ${startCase(attribute)}`}
+						/>
 					}
 				/>
 
