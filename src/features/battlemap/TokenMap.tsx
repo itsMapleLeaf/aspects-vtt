@@ -53,14 +53,17 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	})
 
-	const altPressed = useKeyDown("Alt")
+	/**
+	 * "peeking" status means it's being temporarily shown on all tokens without
+	 * needing to hover over
+	 */
+	const peekingStatus = useKeyDown("Alt")
 
-	const isTokenVisible = (token: ApiToken) =>
+	const areAnnotationsVisible = (token: ApiToken) =>
 		!selection.selecting &&
 		tokenState.tokenDragOffset.equals(Vec.zero) &&
 		(visibleTokenAnnotations.get(token._id) ||
-			tokenState.selectedTokenIds.has(token._id) ||
-			altPressed)
+			tokenState.selectedTokenIds.has(token._id))
 
 	const [visibleTokenAnnotations, setVisibleTokenAnnotations] = useState(
 		new Map<Id<"characterTokens">, boolean>(),
@@ -368,7 +371,8 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 								)}
 								size={Vec.from(scene.cellSize).times(viewport.viewportScale)}
 								character={token.character}
-								visible={isTokenVisible(token)}
+								visible={areAnnotationsVisible(token)}
+								statusVisible={peekingStatus}
 							/>
 						)
 					})}

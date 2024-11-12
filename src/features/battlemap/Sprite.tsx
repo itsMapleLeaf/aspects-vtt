@@ -52,13 +52,15 @@ function SpriteAttachment({
 	children,
 	side,
 	className,
+	...props
 }: {
 	children: React.ReactNode
 	side: "top" | "bottom"
 	className?: string
-}) {
+} & ComponentProps<"div">) {
 	return (
 		<div
+			{...props}
 			className={twMerge(
 				"absolute left-1/2 flex -translate-x-1/2 flex-col gap-2",
 				side === "top" && "bottom-full",

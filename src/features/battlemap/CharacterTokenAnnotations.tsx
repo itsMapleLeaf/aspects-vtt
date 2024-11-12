@@ -7,21 +7,23 @@ import { Sprite, SpriteProps } from "./Sprite.tsx"
 export function CharacterTokenAnnotations({
 	character,
 	visible,
+	statusVisible,
 	...props
 }: {
 	character: ApiCharacter
 	visible: boolean
+	statusVisible: boolean
 } & SpriteProps) {
 	return (
-		<Sprite
-			{...props}
-			className={twMerge(
-				"opacity-0 transition-opacity will-change-[opacity] data-[visible=true]:opacity-95",
-				props.className,
-			)}
-			data-visible={visible}
-		>
-			<Sprite.Attachment side="top" className="p-4">
+		<Sprite {...props}>
+			<Sprite.Attachment
+				side="top"
+				className={twMerge(
+					"p-4 opacity-0 transition-opacity data-[visible=true]:opacity-95",
+					props.className,
+				)}
+				data-visible={visible}
+			>
 				<Sprite.Badge>
 					<p className="text-base/5 empty:hidden">
 						<CharacterName character={character} />
@@ -31,7 +33,11 @@ export function CharacterTokenAnnotations({
 					</p>
 				</Sprite.Badge>
 			</Sprite.Attachment>
-			<Sprite.Attachment side="bottom" className="items-center p-4 gap-2">
+			<Sprite.Attachment
+				side="bottom"
+				className="items-center p-4 opacity-0 transition-opacity gap-2 data-[visible=true]:opacity-95"
+				data-visible={visible || statusVisible}
+			>
 				{character.full && (
 					<div className="flex max-w-[180px] gap-1">
 						<Sprite.Meter
