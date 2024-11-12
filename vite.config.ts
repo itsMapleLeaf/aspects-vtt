@@ -65,8 +65,8 @@ export default defineConfig({
 		open: false,
 		setupFiles: ["vitest.setup.ts"],
 		environmentMatchGlobs: [
-			["{convex,shared}/**/*", "edge-runtime"],
-			["src/**/*", "happy-dom"],
+			["convex/**/*", "edge-runtime"],
+			["{src,lib}/**/*", "happy-dom"],
 		],
 		environment: "edge-runtime",
 		server: { deps: { inline: ["convex-test"] } },
