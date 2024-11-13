@@ -10,7 +10,7 @@ export interface MenuOption {
 	onClick: () => void
 }
 
-export interface MenuProps extends Ariakit.MenuProps {
+export interface MenuProps extends Ariakit.MenuButtonProps {
 	options: MenuOption[]
 	providerProps?: Ariakit.MenuProviderProps
 	panelProps?: Omit<ComponentProps<typeof MenuPanel>, "options">
@@ -24,9 +24,8 @@ export function Menu({
 }: MenuProps) {
 	return (
 		<Ariakit.MenuProvider {...providerProps}>
-			<MenuPanel {...panelProps} options={options}>
-				<Ariakit.MenuButton {...props} />
-			</MenuPanel>
+			<Ariakit.MenuButton {...props} />
+			<MenuPanel {...panelProps} options={options}></MenuPanel>
 		</Ariakit.MenuProvider>
 	)
 }
