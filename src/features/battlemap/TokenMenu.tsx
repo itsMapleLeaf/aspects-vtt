@@ -7,7 +7,7 @@ import {
 	LucideTrash,
 } from "lucide-react"
 import { startTransition, useState } from "react"
-import { match, P } from "ts-pattern"
+import { P, match } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
 import { Popover } from "~/components/Popover.tsx"
 import { api } from "~/convex/_generated/api.js"
@@ -64,7 +64,7 @@ export function useTokenMenu() {
 	const hiddenTokens = selectedTokens.filter((it) => !it.visible)
 
 	const characters = selectedTokens.flatMap((it) =>
-		it.characterId ? [it.character] : [],
+		it.character ? [it.character] : [],
 	)
 	const fullCharacters = characters.map((it) => it.full).filter(Boolean)
 	const characterEditor = useCharacterEditorDialog()
@@ -76,7 +76,7 @@ export function useTokenMenu() {
 	const attackingCharacters =
 		attackingCharacterIds &&
 		selectedTokens
-			.map((it) => it.characterId && it.character)
+			.map((it) => it.character)
 			.filter(Boolean)
 			.filter((it) => attackingCharacterIds.has(it._id))
 

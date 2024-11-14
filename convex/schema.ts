@@ -14,6 +14,7 @@ export const roomItemValidator = v.object({
 })
 
 export const characterItemValidator = v.object({
+	// allow additional overrides per-character
 	...partial(roomItemValidator.fields),
 	quantity: v.optional(v.number()),
 })

@@ -1,6 +1,6 @@
 import type { WithoutSystemFields } from "convex/server"
 import { ConvexError, v } from "convex/values"
-import { compact } from "lodash-es"
+import { compact } from "es-toolkit"
 import { match } from "ts-pattern"
 import {
 	getAttributeDie,

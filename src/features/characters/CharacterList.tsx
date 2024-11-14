@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react"
-import { startCase } from "lodash-es"
+import { startCase } from "es-toolkit"
 import { LucideImage, LucideUserRoundPlus, LucideUserX2 } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { Key, ReactNode, useState } from "react"

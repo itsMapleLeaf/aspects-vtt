@@ -1,5 +1,5 @@
 import { v } from "convex/values"
-import { random } from "lodash-es"
+import { random } from "es-toolkit"
 import { ensureUserId } from "./auth.ts"
 import { diceRollInputValidator } from "./dice.ts"
 import { mutation, query } from "./lib/ents.ts"

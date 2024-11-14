@@ -1,5 +1,5 @@
 import { useMutation } from "convex/react"
-import { omit } from "lodash-es"
+import { omit } from "es-toolkit"
 import { LucidePackagePlus, LucideTrash } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
@@ -27,8 +27,10 @@ export function CharacterInventoryEditor({
 	const [search, setSearch] = useState("")
 
 	const items = Object.entries(character.inventory ?? {}).flatMap(
-		([itemId, overrides]) =>
-			room.items[itemId] ? [{ ...room.items[itemId], ...overrides }] : [],
+		([itemId, overrides]) => {
+			const item = room.items[itemId]
+			return item ? [{ ...item, ...overrides }] : []
+		},
 	)
 
 	const filteredItems = matchSorter(items, search, {
@@ -47,7 +49,7 @@ export function CharacterInventoryEditor({
 					characterId: character._id,
 					inventory: active
 						? { ...character.inventory, [item._id]: {} }
-						: omit(character.inventory, item._id),
+						: omit(character.inventory ?? {}, [item._id]),
 				})
 			}}
 		/>
@@ -90,7 +92,7 @@ export function CharacterInventoryEditor({
 							onClick={() => {
 								update({
 									characterId: character._id,
-									inventory: omit(character.inventory, item._id),
+									inventory: omit(character.inventory ?? {}, [item._id]),
 								})
 							}}
 						/>

@@ -277,9 +277,10 @@ function SidebarPanel({
 	onModuleDrop: (event: { moduleId: string }) => void
 	availableModules: Record<string, ModuleDefinition>
 }) {
-	const modules = moduleIds.flatMap((id) =>
-		availableModules[id] ? [{ ...availableModules[id], id }] : [],
-	)
+	const modules = moduleIds.flatMap((id) => {
+		const module = availableModules[id]
+		return module ? [{ ...module, id }] : []
+	})
 
 	const [selectedId, setSelectedId] = useState<string | null>()
 	const selectedModule =

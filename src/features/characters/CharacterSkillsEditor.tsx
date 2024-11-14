@@ -1,5 +1,5 @@
 import { useMutation } from "convex/react"
-import { sum, without } from "lodash-es"
+import { sum, without } from "es-toolkit"
 import {
 	LucideCheckCircle2,
 	LucideDroplets,
@@ -28,8 +28,8 @@ import { useLocalStorage } from "~/lib/react/dom.ts"
 import { formatTitle } from "~/lib/string.ts"
 import { textInput } from "~/styles/input.ts"
 import { primaryHeading, secondaryHeading } from "~/styles/text.ts"
-import { type Aspect } from "./aspects.ts"
 import { ASPECT_SKILLS, AspectSkill } from "./aspectSkills.ts"
+import { type Aspect } from "./aspects.ts"
 
 const aspectOrder = List.of<Aspect["id"]>(
 	"fire",

@@ -1,4 +1,4 @@
-import { startCase } from "lodash-es"
+import { startCase } from "es-toolkit"
 
 export class Aspect {
 	name: string

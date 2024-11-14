@@ -1,4 +1,4 @@
-import { clamp } from "lodash-es"
+import { clamp } from "es-toolkit"
 import { createContext, useContext, type ComponentProps } from "react"
 
 const HeadingContext = createContext(0)

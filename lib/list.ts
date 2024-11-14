@@ -65,7 +65,7 @@ export class List<T> extends Array<T> {
 	}
 
 	compact() {
-		return this.select((it) => it != null)
+		return this.select((it): it is NonNullable<T> => it != null)
 	}
 
 	unique() {

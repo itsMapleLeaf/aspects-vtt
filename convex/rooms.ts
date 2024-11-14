@@ -1,11 +1,11 @@
 import type { PromiseEntOrNull } from "convex-ents"
 import { ConvexError, v, type Infer } from "convex/values"
-import { mapValues, merge, pickBy, uniqBy } from "lodash-es"
+import { mapValues, toMerged, uniqBy } from "es-toolkit"
 import { DEFAULT_INVENTORY_ITEMS } from "~/features/inventory/items.ts"
 import { List } from "~/lib/list.ts"
 import { mod } from "~/lib/math.ts"
 import type { Doc, Id } from "./_generated/dataModel"
-import { ensureAuthUser, ensureUserId, InaccessibleError } from "./auth.ts"
+import { InaccessibleError, ensureAuthUser, ensureUserId } from "./auth.ts"
 import { normalizeCharacter, protectCharacter } from "./characters.ts"
 import { mutation, query, type Ent, type EntQueryCtx } from "./lib/ents.ts"
 import { partial, tableFields } from "./lib/validators.ts"
@@ -81,9 +81,18 @@ export const update = mutation({
 			ctx,
 			ctx.table("rooms").get(roomId),
 		)
+		const newItems = { ...room.items }
+		for (const key in props.items) {
+			const item = props.items[key]
+			if (item === null) {
+				delete newItems[key]
+			} else if (item !== undefined) {
+				newItems[key] = item
+			}
+		}
 		return await room.patch({
 			...props,
-			items: pickBy({ ...room.items, ...props.items }, (it) => it !== null),
+			items: newItems,
 		})
 	},
 })
@@ -158,7 +167,7 @@ export const getPlayers = query({
 				.uniqueX()
 
 			const players = await room.edge("players").docs()
-			return uniqBy([...players, user], "_id")
+			return uniqBy([...players, user.doc()], (it) => it._id)
 		} catch {
 			return []
 		}
@@ -234,7 +243,7 @@ export function normalizeRoom(room: Ent<"rooms">, userId: Id<"users">) {
 		...room.doc(),
 		isOwner: room.ownerId === userId,
 		items: mapValues(
-			merge({}, DEFAULT_INVENTORY_ITEMS, room.items),
+			toMerged(DEFAULT_INVENTORY_ITEMS, room.items ?? {}),
 			(item, _id) => ({
 				...item,
 				_id,

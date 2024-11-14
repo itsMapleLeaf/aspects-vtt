@@ -1,6 +1,6 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { defaults, pick } from "lodash-es"
+import { defaults, pick } from "es-toolkit/compat"
 import { ensureUserId } from "~/convex/auth.ts"
 import { normalizeCharacter, protectCharacter } from "~/convex/characters.ts"
 import { mutation, query } from "./lib/ents.ts"
@@ -30,13 +30,15 @@ export const list = query({
 						updatedAt: 0,
 					})
 
+					let character
+
 					if (token.characterId) {
 						const characterEnt = await ctx
 							.table("characters")
 							.get(token.characterId)
 						if (!characterEnt) return
 
-						const character = protectCharacter(
+						character = protectCharacter(
 							{
 								...normalizeCharacter(characterEnt),
 								// if the token is visible, also treat this character as being public
@@ -46,24 +48,19 @@ export const list = query({
 							userId,
 							room,
 						)
-						if (!character) return
 
-						return {
-							...normalizedToken,
-							characterId: token.characterId,
-							/** @deprecated Fetch the character from another query instead */
-							character,
-						}
+						// don't show the character token if the character shouldn't be visible
+						if (!character) return
 					}
 
 					return {
 						...normalizedToken,
-						characterId: null,
+						character,
 					}
 				}),
 			)
 
-			return protectedTokens.filter((token) => token != null)
+			return protectedTokens.filter(Boolean)
 		} catch {
 			return []
 		}

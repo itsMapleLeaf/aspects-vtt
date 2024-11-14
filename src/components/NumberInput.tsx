@@ -1,4 +1,4 @@
-import { clamp } from "lodash-es"
+import { clamp } from "es-toolkit"
 import {
 	startTransition,
 	useActionState,

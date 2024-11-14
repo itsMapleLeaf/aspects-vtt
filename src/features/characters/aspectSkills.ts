@@ -1,4 +1,4 @@
-import { mapValues } from "lodash-es"
+import { mapValues } from "es-toolkit"
 import { formatTitle } from "~/lib/string.ts"
 import { Aspect } from "./aspects.ts"
 
@@ -23,14 +23,14 @@ export interface AspectSkill extends AspectSkillDefinition {
 	requires: readonly AspectSkill[]
 }
 
-function defineSkills<Graph extends Record<string, AspectSkillDefinition>>(
+function defineSkills<Graph extends { [key: string]: AspectSkillDefinition }>(
 	skills: Graph & RequirementGraph<Graph>,
 ): Record<keyof Graph, AspectSkill> & Record<string, AspectSkill | undefined> {
 	const mappedSkills = mapValues(skills, (skill, id) => {
 		const mappedSkill: AspectSkill = {
 			...skill,
-			id,
-			name: formatTitle(id),
+			id: id as string,
+			name: formatTitle(id as string),
 			aspect: new Aspect(skill.aspectId),
 			get requires() {
 				return skill.requires.map((id) => mappedSkills[id])

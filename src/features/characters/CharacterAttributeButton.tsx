@@ -1,6 +1,6 @@
 import { useMutation } from "convex/react"
+import { startCase } from "es-toolkit"
 import { Iterator } from "iterator-helpers-polyfill"
-import { startCase } from "lodash-es"
 import * as Lucide from "lucide-react"
 import { LucideDices } from "lucide-react"
 import { useState } from "react"

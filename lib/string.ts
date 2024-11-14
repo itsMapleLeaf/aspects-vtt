@@ -1,4 +1,4 @@
-import { startCase } from "lodash-es"
+import { startCase } from "es-toolkit"
 
 const ARTICLES = ["the", "a", "and", "or", "of"]
 

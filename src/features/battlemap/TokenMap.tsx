@@ -1,6 +1,6 @@
 import { FullGestureState, useGesture } from "@use-gesture/react"
 import { useMutation, useQuery } from "convex/react"
-import { clamp, omit } from "lodash-es"
+import { clamp } from "es-toolkit"
 import { useState } from "react"
 import * as v from "valibot"
 import { ApiImage } from "~/components/ApiImage.tsx"
@@ -315,7 +315,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					scale={viewport.viewportScale}
 				>
 					{tokenGroups.get("characters")?.map((token) => {
-						if (!token.characterId) return
+						if (!token.character) return
 						return (
 							<CharacterTokenElement
 								{...bindTokenGestureHandlers()}
@@ -370,7 +370,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 
 				<Sprite position={viewport.viewportOffset} pointerEvents={false}>
 					{tokenGroups.get("characters")?.map((token) => {
-						if (!token.characterId) return
+						if (!token.character) return
 						return (
 							<CharacterTokenAnnotations
 								key={token._id}
@@ -492,7 +492,7 @@ function useTokens(scene: ApiScene) {
 	const tokens = baseTokens
 		.map((token) => ({
 			...token,
-			...omit(pendingTokenUpdates.get(token._id), ["tokenId", "characterId"]),
+			...pendingTokenUpdates.get(token._id),
 		}))
 		.map((token) => ({
 			...token,

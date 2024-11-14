@@ -4,7 +4,7 @@ import {
 	type OptionalProperty,
 	type VOptional,
 } from "convex/values"
-import { omit } from "lodash-es"
+import { Simplify } from "type-fest"
 import schema from "~/convex/schema.ts"
 
 export function partial<
@@ -36,11 +36,12 @@ export function nullish<InputValidator extends Validator<unknown>>(
 
 type Tables = typeof schema.tables
 
-export function tableFields<T extends keyof Tables>(
-	table: T,
-): Omit<Tables[T]["validator"]["fields"], "FieldName"> {
-	return omit<Tables[T]["validator"]["fields"], ["FieldName"]>(
-		schema.tables[table].validator.fields,
-		"FieldName",
-	)
+export function tableFields<T extends keyof Tables>(table: T) {
+	const fields = schema.tables[table].validator
+		.fields as Tables[T]["validator"]["fields"]
+	if ("FieldName" in fields) {
+		const { FieldName: _, ...rest } = fields
+		return rest as Simplify<Omit<Tables[T]["validator"]["fields"], "FieldName">>
+	}
+	return fields as Simplify<Tables[T]["validator"]["fields"]>
 }

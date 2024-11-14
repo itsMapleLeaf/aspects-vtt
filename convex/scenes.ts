@@ -1,11 +1,9 @@
 import { v } from "convex/values"
-import { omit } from "lodash-es"
 import type { Doc } from "./_generated/dataModel"
 import { InaccessibleError, ensureUserId } from "./auth.ts"
 import { mutation, query } from "./lib/ents.ts"
 import { partial, tableFields } from "./lib/validators.ts"
 import { isRoomOwner } from "./rooms.ts"
-import schema from "./schema.ts"
 
 export const list = query({
 	args: {
@@ -66,7 +64,7 @@ export const get = query({
 
 export const create = mutation({
 	args: {
-		...omit(schema.tables.scenes.validator.fields, "FieldName"),
+		...tableFields("scenes"),
 		name: v.optional(v.string()),
 		mode: v.optional(v.union(v.literal("scenery"), v.literal("battlemap"))),
 		roomId: v.id("rooms"),

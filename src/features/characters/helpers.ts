@@ -1,4 +1,4 @@
-import { clamp } from "lodash-es"
+import { clamp } from "es-toolkit"
 import { Doc } from "~/convex/_generated/dataModel"
 export function getAttributeDie(attribute: number) {
 	return [4, 6, 8, 10, 12][normalizeAttribute(attribute) - 1] as number
