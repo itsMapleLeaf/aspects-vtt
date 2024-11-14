@@ -32,7 +32,7 @@ export const list = query({
 
 			const scenes = await scenesQuery
 			return scenes.map(normalizeScene)
-		} catch (error) {
+		} catch {
 			return []
 		}
 	},
@@ -56,7 +56,7 @@ export const get = query({
 			}
 
 			return normalizeScene(scene)
-		} catch (error) {
+		} catch {
 			return null
 		}
 	},
@@ -81,7 +81,7 @@ export const create = mutation({
 			})
 		}
 
-		const { backgroundIds = [], ...sceneArgs } = args
+		const { backgroundIds: _, ...sceneArgs } = args
 		return await ctx.table("scenes").insert({
 			...sceneArgs,
 			name: args.name ?? "New Scene",
@@ -95,9 +95,9 @@ export const update = mutation({
 		...partial(tableFields("scenes")),
 		sceneId: v.id("scenes"),
 	},
-	async handler(ctx, args) {
+	async handler(ctx, { sceneId, ...args }) {
 		const userId = await ensureUserId(ctx)
-		const scene = await ctx.table("scenes").getX(args.sceneId)
+		const scene = await ctx.table("scenes").getX(sceneId)
 		const room = await scene.edgeX("room")
 
 		if (!isRoomOwner(room, userId)) {
@@ -107,8 +107,7 @@ export const update = mutation({
 			})
 		}
 
-		const { sceneId, ...updateArgs } = args
-		await scene.patch(updateArgs)
+		await scene.patch(args)
 	},
 })
 
