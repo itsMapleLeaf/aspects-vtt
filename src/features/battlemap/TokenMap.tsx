@@ -465,6 +465,12 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 									character={token.character}
 									visible={areAnnotationsVisible(token)}
 									statusVisible={peekingStatus}
+									distanceMoved={
+										tokenState.selectedTokenIds.has(token._id)
+											? tokenState.tokenDragOffset.dividedBy(scene.cellSize)
+													.manhattanLength
+											: 0
+									}
 								/>
 							)
 						})}

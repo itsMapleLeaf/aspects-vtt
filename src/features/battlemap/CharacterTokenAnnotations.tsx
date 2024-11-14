@@ -8,11 +8,13 @@ export function CharacterTokenAnnotations({
 	character,
 	visible,
 	statusVisible,
+	distanceMoved,
 	...props
 }: {
 	character: ApiCharacter
 	visible: boolean
 	statusVisible: boolean
+	distanceMoved: number
 } & SpriteProps) {
 	return (
 		<Sprite {...props}>
@@ -72,6 +74,13 @@ export function CharacterTokenAnnotations({
 					))}
 				</div>
 			</Sprite.Attachment>
+			{distanceMoved >= 2 && (
+				<div className="absolute inset-0 flex items-center justify-center">
+					<div className="rounded-lg bg-black/75 px-2 py-0.5 text-lg font-medium tabular-nums text-blue-200">
+						{Math.round(distanceMoved)}m
+					</div>
+				</div>
+			)}
 		</Sprite>
 	)
 }

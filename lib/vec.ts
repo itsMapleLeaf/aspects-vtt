@@ -58,6 +58,10 @@ export class Vec {
 		return Math.sqrt(this.x * this.x + this.y * this.y)
 	}
 
+	get manhattanLength() {
+		return Math.abs(this.x) + Math.abs(this.y)
+	}
+
 	toString() {
 		return `(${this.x}, ${this.y})`
 	}
