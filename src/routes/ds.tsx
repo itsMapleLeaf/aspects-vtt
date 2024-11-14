@@ -1,4 +1,5 @@
 import { HeadingLevel } from "@ariakit/react"
+import { Link } from "@remix-run/react"
 import {
 	LucideBoxes,
 	LucideChevronUpSquare,
@@ -7,7 +8,6 @@ import {
 	LucideLink,
 	LucideSquare,
 } from "lucide-react"
-import { Link } from "react-router"
 import { Button } from "~/components/Button.tsx"
 import { Heading } from "~/components/Heading.tsx"
 import { LoadingCover } from "~/components/LoadingCover.tsx"

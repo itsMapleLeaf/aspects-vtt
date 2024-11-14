@@ -2,7 +2,7 @@
 	// copied from "@total-typescript/tsconfig/bundler/dom"
 	"compilerOptions": {
 		/* Resolution */
-		"module": "ESNext",
+		"module": "Preserve",
 		"moduleResolution": "Bundler",
 		"moduleDetection": "force",
 		"resolveJsonModule": true,
@@ -14,11 +14,10 @@
 			"~/shared/*": ["./shared/*"],
 			"~/*": ["./src/*"]
 		},
-		"rootDirs": [".", "./.react-router/types"],
 
 		/* Type Checking */
-		"target": "esnext",
-		"lib": ["esnext", "dom", "dom.iterable"],
+		"target": "es2023",
+		"lib": ["es2023", "dom", "dom.iterable"],
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
@@ -32,14 +31,5 @@
 		"noEmit": true,
 		"incremental": true
 	},
-	"include": [
-		"./*.*",
-		"src",
-		"convex",
-		"shared",
-		"scripts",
-		"docs",
-		"lib",
-		".react-router"
-	]
+	"include": ["./*.*", "src", "convex", "shared", "scripts", "docs", "lib"]
 }
