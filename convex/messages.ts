@@ -1,5 +1,5 @@
 import { v } from "convex/values"
-import { random } from "es-toolkit"
+import { randomInt } from "es-toolkit"
 import { ensureUserId } from "./auth.ts"
 import { diceRollInputValidator } from "./dice.ts"
 import { mutation, query } from "./lib/ents.ts"
@@ -61,7 +61,7 @@ export const create = mutation({
 				...entry,
 				dice: entry.dice.map((die) => ({
 					...die,
-					result: random(1, die.faces),
+					result: randomInt(0, die.faces) + 1,
 				})),
 			}
 		})
