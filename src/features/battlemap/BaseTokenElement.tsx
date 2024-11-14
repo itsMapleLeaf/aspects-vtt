@@ -14,10 +14,11 @@ export function BaseTokenElement({
 	return (
 		<Sprite
 			position={token.position}
-			size={scene.cellSize}
+			size={token.size ?? scene.cellSize}
 			pointerEvents
 			{...props}
 			className={twMerge("touch-none", props.className)}
+			data-token-id={token._id}
 		/>
 	)
 }

@@ -83,6 +83,11 @@ export class Rect {
 		readonly height: number,
 	) {}
 
+	toJSON() {
+		const { left, top, width, height } = this
+		return { left, top, width, height }
+	}
+
 	get right() {
 		return this.left + this.width
 	}

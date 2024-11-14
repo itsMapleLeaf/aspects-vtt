@@ -19,6 +19,7 @@ import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.ts
 import { useRoomContext } from "../rooms/context.tsx"
 import { ApiScene } from "../scenes/types.ts"
 import { ActivityTokenElement } from "./ActivityTokenElement.tsx"
+import { BaseTokenElement } from "./BaseTokenElement.tsx"
 import { CharacterTokenAnnotations } from "./CharacterTokenAnnotations.tsx"
 import { CharacterTokenElement } from "./CharacterTokenElement.tsx"
 import { PingLayer } from "./PingLayer.tsx"
@@ -28,15 +29,42 @@ import { useMapBackdropMenu } from "./useMapBackdropMenu.tsx"
 
 export function TokenMap({ scene }: { scene: ApiScene }) {
 	const room = useRoomContext()
-
 	const viewport = useViewport(scene)
 	const tokenState = useTokens(scene)
-	const viewportMenu = useMapBackdropMenu()
 	const tokenMenu = useTokenMenu()
 	const characterEditor = useCharacterEditorDialog()
+	const [inputMode, setInputMode] = useState<"default" | "area">("default")
+	const [newAreaStart, setNewAreaStart] = useState(Vec.zero)
+	const [newAreaEnd, setNewAreaEnd] = useState(Vec.zero)
+	const createTokens = useMutation(api.tokens.create)
 
-	const tokenGroups = groupBy(tokenState.tokens, (token) =>
-		token.characterId ? "characters" : "activities",
+	const newAreaBaseRect = Rect.bounds(newAreaStart, newAreaEnd)
+
+	const newAreaMapRect = Rect.bounds(
+		viewport.toMapPosition(newAreaBaseRect.topLeft).floorTo(scene.cellSize),
+		viewport.toMapPosition(newAreaBaseRect.bottomRight).ceilTo(scene.cellSize),
+	)
+
+	const newAreaScreenRect = Rect.bounds(
+		newAreaMapRect.topLeft
+			.times(viewport.viewportScale)
+			.plus(viewport.viewportOffset),
+		newAreaMapRect.bottomRight
+			.times(viewport.viewportScale)
+			.plus(viewport.viewportOffset),
+	)
+
+	const viewportMenu = useMapBackdropMenu({
+		onAddArea(event) {
+			setInputMode("area")
+			setNewAreaStart(Vec.from(event.nativeEvent))
+			setNewAreaEnd(Vec.from(event.nativeEvent))
+		},
+	})
+
+	const tokenGroups = groupBy(
+		tokenState.tokens,
+		(token) => token.type ?? (token.characterId ? "character" : "activity"),
 	)
 
 	const selection = useSelection({
@@ -44,7 +72,9 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		onSelectionChange: (area) => {
 			const selectedIds = new Set(
 				tokenState.tokens
-					.filter((it) => area.intersects([it.position, scene.cellSize]))
+					.filter((it) =>
+						area.intersects([it.position, it.size ?? scene.cellSize]),
+					)
 					.map((it) => it._id),
 			)
 			tokenState.setSelectedTokenIds(selectedIds)
@@ -285,6 +315,35 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		},
 	)
 
+	const bindAreaGestureHandlers = useGesture({
+		onPointerMove({ pressed, event }) {
+			if (!pressed) {
+				setNewAreaStart(Vec.of(event.clientX, event.clientY))
+				setNewAreaEnd(Vec.of(event.clientX, event.clientY))
+			}
+		},
+		onDragStart({ xy }) {
+			setNewAreaStart(Vec.from(xy))
+			setNewAreaEnd(Vec.from(xy))
+		},
+		onDrag({ xy }) {
+			setNewAreaEnd(Vec.from(xy))
+		},
+		onDragEnd() {
+			setInputMode("default")
+			createTokens({
+				inputs: [
+					{
+						type: "area",
+						position: newAreaMapRect.topLeft.toJSON(),
+						size: newAreaMapRect.size.toJSON(),
+						sceneId: scene._id,
+					},
+				],
+			})
+		},
+	})
+
 	return (
 		<>
 			{viewportMenu.element}
@@ -294,97 +353,142 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 				{...bindRootGestureHandlers()}
 				className="absolute inset-0 touch-none select-none overflow-clip"
 			>
-				<Sprite
-					position={viewport.viewportOffset}
-					scale={viewport.viewportScale}
-					pointerEvents
-				>
-					<ApiImage
-						imageId={scene.battlemapBackgroundId}
-						className="max-w-none brightness-75"
-					/>
-				</Sprite>
-
 				<div
-					className="absolute inset-0 touch-none"
-					{...selection.bindSelectionHandlers()}
-				></div>
-
-				<Sprite
-					position={viewport.viewportOffset}
-					scale={viewport.viewportScale}
+					className="absolute inset-0 transition data-[input-mode=area]:brightness-50"
+					data-input-mode={inputMode}
 				>
-					{tokenGroups.get("characters")?.map((token) => {
-						if (!token.character) return
-						return (
-							<CharacterTokenElement
+					<Sprite
+						position={viewport.viewportOffset}
+						scale={viewport.viewportScale}
+						pointerEvents
+					>
+						<ApiImage
+							imageId={scene.battlemapBackgroundId}
+							className="max-w-none brightness-75"
+						/>
+					</Sprite>
+
+					<div
+						className="absolute inset-0 touch-none"
+						{...selection.bindSelectionHandlers()}
+					></div>
+
+					<Sprite
+						position={viewport.viewportOffset}
+						scale={viewport.viewportScale}
+					>
+						{tokenGroups.get("area")?.map((token) => (
+							<BaseTokenElement
 								{...bindTokenGestureHandlers()}
 								key={token._id}
 								token={token}
-								character={token.character}
+								scene={scene}
+							>
+								<div className="absolute inset-0 flex items-center justify-center rounded-sm border border-blue-700 bg-blue-400/50">
+									<p className="rounded-lg bg-black/50 px-3 py-2 text-[50px] font-medium tabular-nums text-blue-200">
+										{Math.round(
+											(token.size?.x ?? scene.cellSize) / scene.cellSize,
+										)}
+										x
+										{Math.round(
+											(token.size?.y ?? scene.cellSize) / scene.cellSize,
+										)}
+									</p>
+								</div>
+								{tokenState.selectedTokenIds.has(token._id) && (
+									<div className="pointer-events-none absolute -inset-1 border-2 border-accent-900 bg-accent-600/50 transition-opacity" />
+								)}
+							</BaseTokenElement>
+						))}
+						{tokenGroups.get("character")?.map((token) => {
+							if (!token.character) return
+							return (
+								<CharacterTokenElement
+									{...bindTokenGestureHandlers()}
+									key={token._id}
+									token={token}
+									character={token.character}
+									scene={scene}
+									selected={tokenState.selectedTokenIds.has(token._id)}
+									pointerEvents
+								/>
+							)
+						})}
+						{tokenGroups.get("activity")?.map((token) => (
+							<ActivityTokenElement
+								key={token._id}
+								token={token}
 								scene={scene}
 								selected={tokenState.selectedTokenIds.has(token._id)}
 								pointerEvents
-								data-token-id={token._id}
+								{...bindTokenGestureHandlers()}
+								onContextMenu={(event) => {
+									const position = { x: event.clientX, y: event.clientY }
+									if (tokenState.selectedTokenIds.has(token._id)) {
+										tokenMenu.show(position, tokenState.selectedTokenIds)
+									} else {
+										tokenState.setSelectedTokenIds(new Set([token._id]))
+										tokenMenu.show(position, new Set([token._id]))
+									}
+								}}
 							/>
-						)
-					})}
-					{tokenGroups.get("activities")?.map((token) => (
-						<ActivityTokenElement
-							key={token._id}
-							token={token}
-							scene={scene}
-							selected={tokenState.selectedTokenIds.has(token._id)}
-							pointerEvents
-							data-token-id={token._id}
-							{...bindTokenGestureHandlers()}
-							onContextMenu={(event) => {
-								const position = { x: event.clientX, y: event.clientY }
-								if (tokenState.selectedTokenIds.has(token._id)) {
-									tokenMenu.show(position, tokenState.selectedTokenIds)
-								} else {
-									tokenState.setSelectedTokenIds(new Set([token._id]))
-									tokenMenu.show(position, new Set([token._id]))
-								}
-							}}
-						/>
-					))}
-				</Sprite>
+						))}
+					</Sprite>
 
-				<PingLayer
-					position={viewport.viewportOffset}
-					viewportScale={viewport.viewportScale}
-				/>
+					<PingLayer
+						position={viewport.viewportOffset}
+						viewportScale={viewport.viewportScale}
+					/>
 
-				<Sprite
-					position={selection.selectionArea.topLeft}
-					size={selection.selectionArea.size}
-					className="rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
-					style={{
-						...(selection.selecting && {
-							opacity: 1,
-							transitionDuration: "0",
-						}),
-					}}
-				/>
+					<Sprite
+						position={selection.selectionArea.topLeft}
+						size={selection.selectionArea.size}
+						className="rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
+						style={{
+							...(selection.selecting && {
+								opacity: 1,
+								transitionDuration: "0",
+							}),
+						}}
+					/>
 
-				<Sprite position={viewport.viewportOffset} pointerEvents={false}>
-					{tokenGroups.get("characters")?.map((token) => {
-						if (!token.character) return
-						return (
-							<CharacterTokenAnnotations
-								key={token._id}
-								position={Vec.from(token.position).times(
-									viewport.viewportScale,
-								)}
-								size={Vec.from(scene.cellSize).times(viewport.viewportScale)}
-								character={token.character}
-								visible={areAnnotationsVisible(token)}
-								statusVisible={peekingStatus}
-							/>
-						)
-					})}
-				</Sprite>
+					<Sprite position={viewport.viewportOffset} pointerEvents={false}>
+						{tokenGroups.get("character")?.map((token) => {
+							if (!token.character) return
+							return (
+								<CharacterTokenAnnotations
+									key={token._id}
+									position={Vec.from(token.position).times(
+										viewport.viewportScale,
+									)}
+									size={Vec.from(scene.cellSize).times(viewport.viewportScale)}
+									character={token.character}
+									visible={areAnnotationsVisible(token)}
+									statusVisible={peekingStatus}
+								/>
+							)
+						})}
+					</Sprite>
+				</div>
+				<div
+					{...bindAreaGestureHandlers()}
+					className="pointer-events-none absolute inset-0 touch-none opacity-0 transition data-[input-mode=area]:pointer-events-auto data-[input-mode=area]:opacity-100"
+					data-input-mode={inputMode}
+				>
+					<div
+						className="absolute left-0 top-0 flex items-center justify-center rounded-sm border border-blue-700 bg-blue-400/50"
+						style={{
+							transform: `translate(${newAreaScreenRect.topLeft.toCSSPixels()})`,
+							width: newAreaScreenRect.width,
+							height: newAreaScreenRect.height,
+						}}
+					>
+						<p className="rounded-lg bg-black/50 px-3 py-2 text-lg font-medium tabular-nums text-blue-200">
+							{Math.round(newAreaMapRect.width / scene.cellSize)}x
+							{Math.round(newAreaMapRect.height / scene.cellSize)}
+						</p>
+					</div>
+				</div>
 			</div>
 		</>
 	)
@@ -497,7 +601,7 @@ function useTokens(scene: ApiScene) {
 		.map((token) => ({
 			...token,
 			position: Vec.from(token.position)
-				.roundTo(scene.cellSize / 4)
+				.roundTo(token.type === "area" ? scene.cellSize : scene.cellSize / 4)
 				.plus(selectedTokenIds.has(token._id) ? tokenDragOffset : 0),
 		}))
 		.sort((a, b) => a.updatedAt - b.updatedAt)

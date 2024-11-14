@@ -1,7 +1,12 @@
 import { authTables } from "@convex-dev/auth/server"
-import { defineEnt, defineEntSchema, getEntDefinitions } from "convex-ents"
+import {
+	defineEnt,
+	defineEntFromTable,
+	defineEntSchema,
+	getEntDefinitions,
+} from "convex-ents"
 import { literals, nullable } from "convex-helpers/validators"
-import { defineSchema, defineTable } from "convex/server"
+import { defineSchema } from "convex/server"
 import { v } from "convex/values"
 import { diceRollResultValidator } from "./dice.ts"
 import { nullish, partial } from "./lib/validators.ts"
@@ -25,11 +30,7 @@ export const vectorValidator = v.object({
 })
 
 const entSchema = defineEntSchema({
-	users: defineEnt({
-		...authTables.users.validator.fields,
-		email: v.optional(v.string()),
-	})
-		.index("email", ["email"])
+	users: defineEntFromTable(authTables.users)
 		.edges("ownedRooms", { to: "rooms", ref: "ownerId" })
 		.edges("joinedRooms", { to: "rooms", table: "rooms_to_players" })
 		.edges("messages", { ref: true })
@@ -133,10 +134,12 @@ const entSchema = defineEntSchema({
 		}),
 
 	characterTokens: defineEnt({
+		type: v.optional(literals("character", "activity", "area")),
 		position: v.optional(vectorValidator),
 		visible: v.optional(v.boolean()),
 		updatedAt: v.optional(v.number()),
 		characterId: nullish(v.id("characters")),
+		size: v.optional(vectorValidator),
 	})
 		.edge("scene")
 		.index("characterId_sceneId", ["characterId", "sceneId"]),
@@ -161,16 +164,4 @@ const entSchema = defineEntSchema({
 
 export const entDefinitions = getEntDefinitions(entSchema)
 
-export default defineSchema(
-	{
-		...entSchema.tables,
-		...authTables,
-		users: defineTable({
-			...authTables.users.validator.fields,
-			...entSchema.tables.users.validator.fields,
-		}).index("email", ["email"]),
-	},
-	{
-		schemaValidation: true,
-	},
-)
+export default defineSchema({ ...authTables, ...entSchema.tables })

@@ -99,6 +99,14 @@ export class Vec {
 		return this.zip(input, (a, b) => Math.round(a / b) * b)
 	}
 
+	floorTo(input: VecInput): Vec {
+		return this.zip(input, (a, b) => Math.floor(a / b) * b)
+	}
+
+	ceilTo(input: VecInput): Vec {
+		return this.zip(input, (a, b) => Math.ceil(a / b) * b)
+	}
+
 	equals(input: VecInput) {
 		const other = Vec.from(input)
 		return this.x === other.x && this.y === other.y

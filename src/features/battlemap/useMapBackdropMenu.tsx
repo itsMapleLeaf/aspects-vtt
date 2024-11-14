@@ -1,6 +1,10 @@
 import * as Ariakit from "@ariakit/react"
 import { useConvex, useQuery } from "convex/react"
-import { LucideInfo, LucideUserRoundPlus } from "lucide-react"
+import {
+	LucideGrid2x2Plus,
+	LucideInfo,
+	LucideUserRoundPlus,
+} from "lucide-react"
 import { startTransition, useRef, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
@@ -14,11 +18,16 @@ import { ensure } from "~/lib/errors"
 import { useNonNilFilter } from "~/lib/react/state.ts"
 import { Vec, VecInput } from "~/lib/vec"
 import { textInput } from "~/styles/input.ts"
+import { panel } from "~/styles/panel.ts"
 import { CharacterAvatar } from "../characters/CharacterAvatar.tsx"
 import { CharacterName } from "../characters/CharacterName.tsx"
 import { ApiCharacter } from "../characters/types.ts"
 
-export function useMapBackdropMenu() {
+export function useMapBackdropMenu({
+	onAddArea,
+}: {
+	onAddArea: (event: React.MouseEvent<HTMLDivElement>) => void
+}) {
 	const room = useRoomContext()
 	const [open, setOpen] = useState(false)
 	const [position, setPosition] = useState(Vec.from(0))
@@ -26,40 +35,43 @@ export function useMapBackdropMenu() {
 	const justOpened = useRef(false)
 	const [, createToken] = useCreateTokenAction()
 
+	const hideOnInteractOutside = () => {
+		if (!justOpened.current) {
+			return true
+		}
+		justOpened.current = false
+		return false
+	}
+
+	const addActivityToken = () => {
+		startTransition(() => {
+			createToken({ position: newTokenPosition, characterId: null })
+		})
+	}
+
 	const element = room.isOwner && (
 		<MenuProvider open={open} setOpen={setOpen}>
 			<MenuPanel
 				getAnchorRect={() => position}
-				hideOnInteractOutside={() => {
-					if (!justOpened.current) {
-						return true
-					}
-					justOpened.current = false
-					return false
-				}}
+				hideOnInteractOutside={hideOnInteractOutside}
 			>
-				<MenuItem
-					icon={<LucideInfo />}
-					onClick={() => {
-						startTransition(() => {
-							createToken({ position: newTokenPosition, characterId: null })
-						})
-					}}
-				>
-					Add activity token
-				</MenuItem>
-
 				<MenuProvider>
 					<MenuItem
 						render={<Ariakit.MenuButton />}
 						icon={<LucideUserRoundPlus />}
 					>
-						Add character
+						Add character...
 					</MenuItem>
-					<MenuPanel>
+					<MenuPanel className={panel()}>
 						<CharacterTokenSearchList newTokenPosition={newTokenPosition} />
 					</MenuPanel>
 				</MenuProvider>
+				<MenuItem icon={<LucideGrid2x2Plus />} onClick={onAddArea}>
+					Add area
+				</MenuItem>
+				<MenuItem icon={<LucideInfo />} onClick={addActivityToken}>
+					Add activity
+				</MenuItem>
 			</MenuPanel>
 		</MenuProvider>
 	)
@@ -104,6 +116,7 @@ function CharacterTokenSearchList({
 				className={textInput()}
 				value={search}
 				onChange={(event) => setSearch(event.target.value)}
+				placeholder="Search..."
 			/>
 			<div className="min-h-0 flex-1 overflow-y-auto">
 				{(characters ?? [])
