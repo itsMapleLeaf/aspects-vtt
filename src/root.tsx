@@ -1,5 +1,9 @@
 import { ConvexAuthProvider } from "@convex-dev/auth/react"
 import nunito from "@fontsource-variable/nunito?url"
+import { ConvexReactClient } from "convex/react"
+import { ConvexError } from "convex/values"
+import { useEffect } from "react"
+import type { LinksFunction } from "react-router"
 import {
 	Links,
 	Meta,
@@ -7,11 +11,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 	useNavigate,
-} from "@remix-run/react"
-import type { LinksFunction } from "@remix-run/server-runtime"
-import { ConvexReactClient } from "convex/react"
-import { ConvexError } from "convex/values"
-import { useEffect } from "react"
+} from "react-router"
 import { toast } from "react-toastify"
 import toastify from "react-toastify/ReactToastify.css?url"
 import { CustomToastContainer } from "./components/CustomToastContainer.tsx"

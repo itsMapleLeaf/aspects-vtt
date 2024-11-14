@@ -1,6 +1,6 @@
 import { SiDiscord } from "@icons-pack/react-simple-icons"
-import { Link, useSearchParams } from "@remix-run/react"
 import { LucideLogIn, LucideUserPlus } from "lucide-react"
+import { Link, useSearchParams } from "react-router"
 import * as v from "valibot"
 import { Button } from "~/components/Button.tsx"
 import { Heading } from "~/components/Heading.tsx"

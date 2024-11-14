@@ -1,4 +1,4 @@
-import "@remix-run/node"
+import "@react-router/node"
 import "@total-typescript/ts-reset"
 import "vite/client"
 

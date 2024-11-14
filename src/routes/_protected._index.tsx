@@ -1,5 +1,5 @@
-import { Link } from "@remix-run/react"
 import { useQuery } from "convex/react"
+import { Link } from "react-router"
 import { api } from "~/convex/_generated/api.js"
 
 export default function IndexRoute() {

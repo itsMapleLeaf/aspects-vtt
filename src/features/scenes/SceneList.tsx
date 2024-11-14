@@ -1,4 +1,3 @@
-import { useSearchParams } from "@remix-run/react"
 import { useMutation, useQuery } from "convex/react"
 import {
 	LucideEdit,
@@ -9,6 +8,7 @@ import {
 } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { useState } from "react"
+import { useSearchParams } from "react-router"
 import { Button } from "~/components/Button.tsx"
 import { Menu } from "~/components/Menu.tsx"
 import { api } from "~/convex/_generated/api.js"

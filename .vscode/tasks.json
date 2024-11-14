@@ -3,34 +3,17 @@
 	"tasks": [
 		{
 			"label": "dev",
-			"dependsOn": ["dev:app", "dev:convex", "tsc:watch"],
+			"dependsOn": [
+				"npm: dev:app",
+				"npm: dev:convex",
+				"npm: dev:types",
+				"tsc: watch - tsconfig.json"
+			],
 			"dependsOrder": "parallel",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			}
-		},
-		{
-			"label": "dev:app",
-			"type": "shell",
-			"command": ["pnpm", "run", "dev:app"],
-			"group": "build",
-			"isBackground": true
-		},
-		{
-			"label": "dev:convex",
-			"type": "shell",
-			"command": ["pnpm", "run", "dev:convex"],
-			"group": "build",
-			"isBackground": true
-		},
-		{
-			"label": "tsc:watch",
-			"type": "shell",
-			"command": ["pnpm", "tsc", "--noEmit", "--watch"],
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": "$tsc-watch"
 		}
 	]
 }
