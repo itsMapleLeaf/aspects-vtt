@@ -120,7 +120,7 @@ function CharacterTokenSearchList({
 			/>
 			<div className="min-h-0 flex-1 overflow-y-auto">
 				{(characters ?? [])
-					.filter((it) => it.sceneId == scene?._id)
+					.filter((it) => it.sceneId == null || it.sceneId == scene?._id)
 					.filter((it) =>
 						tokens?.every((token) => token.characterId !== it._id),
 					)
