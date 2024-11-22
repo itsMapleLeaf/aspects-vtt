@@ -72,9 +72,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 		onSelectionChange: (area) => {
 			const selectedIds = new Set(
 				tokenState.tokens
-					.filter((it) =>
-						area.intersects([it.position, it.size ?? scene.cellSize]),
-					)
+					.filter((it) => area.intersects([it.position, it.size]))
 					.map((it) => it._id),
 			)
 			tokenState.setSelectedTokenIds(selectedIds)
@@ -461,7 +459,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 									position={Vec.from(token.position).times(
 										viewport.viewportScale,
 									)}
-									size={Vec.from(scene.cellSize).times(viewport.viewportScale)}
+									size={Vec.from(token.size).times(viewport.viewportScale)}
 									character={token.character}
 									visible={areAnnotationsVisible(token)}
 									statusVisible={peekingStatus}

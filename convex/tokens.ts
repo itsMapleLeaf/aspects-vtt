@@ -1,6 +1,7 @@
 import { partial } from "convex-helpers/validators"
 import { v } from "convex/values"
-import { defaults, pick } from "es-toolkit/compat"
+import { toMerged } from "es-toolkit"
+import { pick } from "es-toolkit/compat"
 import { ensureUserId } from "~/convex/auth.ts"
 import { normalizeCharacter, protectCharacter } from "~/convex/characters.ts"
 import { mutation, query } from "./lib/ents.ts"
@@ -10,6 +11,7 @@ import {
 	isRoomOwner,
 	queryViewerOwnedRoom,
 } from "./rooms.ts"
+import { normalizeScene } from "./scenes.ts"
 
 export const list = query({
 	args: {
@@ -19,16 +21,21 @@ export const list = query({
 		try {
 			const userId = await ensureUserId(ctx)
 			const scene = await ctx.table("scenes").getX(args.sceneId)
+			const { cellSize } = normalizeScene(scene)
 			const room = await scene.edgeX("room")
 
 			const tokens = await scene.edge("characterTokens")
 			const protectedTokens = await Promise.all(
 				tokens.map(async (token) => {
-					const normalizedToken = defaults(token.doc(), {
-						position: { x: 0, y: 0 },
-						visible: false,
-						updatedAt: 0,
-					})
+					const normalizedToken = toMerged(
+						{
+							position: { x: 0, y: 0 },
+							visible: false,
+							updatedAt: 0,
+							size: { x: cellSize, y: cellSize },
+						},
+						token.doc(),
+					)
 
 					let character
 
@@ -119,10 +126,18 @@ export const update = mutation({
 		for (const { tokenId, ...props } of updates) {
 			const token = await ctx.table("characterTokens").getX(tokenId)
 			const room = await token.edge("scene").edge("room")
+
+			if (props.size) {
+				props.size = {
+					x: Math.round(props.size.x),
+					y: Math.round(props.size.y),
+				}
+			}
+
 			if (isRoomOwner(room, userId)) {
 				await token.patch(props)
 			} else {
-				await token.patch(pick(props, ["updatedAt", "position"]))
+				await token.patch(pick(props, ["updatedAt", "position", "size"]))
 			}
 		}
 	},

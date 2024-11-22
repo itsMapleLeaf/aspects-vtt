@@ -26,6 +26,7 @@ export function NumberInput({
 	max = Number.POSITIVE_INFINITY,
 	step = 1,
 	value: valueProp,
+	defaultValue,
 	required = true,
 	onSubmitValue,
 	onSubmitEmpty,
@@ -46,18 +47,18 @@ export function NumberInput({
 				return true
 			}
 
-			let value = parseInt(String(valueProp))
+			let value = parseFloat(String(valueProp))
 
 			if (input.startsWith("+")) {
-				value += parseInt(input.slice(1))
+				value += parseFloat(input.slice(1))
 			} else if (input.startsWith("-")) {
-				value -= parseInt(input.slice(1))
+				value -= parseFloat(input.slice(1))
 			} else if (input.startsWith("*")) {
-				value *= parseInt(input.slice(1))
+				value *= parseFloat(input.slice(1))
 			} else if (input.startsWith("/")) {
-				value /= parseInt(input.slice(1))
+				value /= parseFloat(input.slice(1))
 			} else {
-				value = parseInt(input)
+				value = parseFloat(input)
 			}
 
 			if (!Number.isFinite(value)) {
@@ -86,9 +87,9 @@ export function NumberInput({
 	function tweak(delta: number) {
 		let value
 		if (editingValue !== undefined) {
-			value = parseInt(editingValue)
+			value = parseFloat(editingValue)
 		} else {
-			value = valueProp ?? props.defaultValue ?? min
+			value = valueProp ?? defaultValue ?? min
 		}
 		setEditingValue(String(clamp(value + delta, min, max)))
 	}
@@ -101,7 +102,7 @@ export function NumberInput({
 			{...props}
 			placeholder={String(props.placeholder ?? 0)}
 			className={twMerge("text-center tabular-nums", props.className)}
-			value={editingValue ?? valueProp ?? ""}
+			value={editingValue ?? valueProp ?? defaultValue ?? ""}
 			data-success={success || undefined}
 			data-error={success === false || undefined}
 			onChange={(event) => {

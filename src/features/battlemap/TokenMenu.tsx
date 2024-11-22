@@ -9,12 +9,16 @@ import {
 import { startTransition, useState } from "react"
 import { P, match } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
+import { Field } from "~/components/Field.tsx"
+import { NumberInput } from "~/components/NumberInput.tsx"
 import { Popover } from "~/components/Popover.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { NormalizedCharacter } from "~/convex/characters.ts"
 import { CharacterAttributeButtonRow } from "~/features/characters/CharacterAttributeButtonRow.tsx"
 import { CharacterToggleCombatMemberButton } from "~/features/characters/CharacterToggleCombatMemberButton.tsx"
+import { roundTo } from "~/lib/math.ts"
 import { Vec, VecInput } from "~/lib/vec.ts"
+import { textInput } from "~/styles/input.ts"
 import { Id } from "../../../convex/_generated/dataModel"
 import { ToastActionForm } from "../../components/ToastActionForm.tsx"
 import { panel } from "../../styles/panel.ts"
@@ -80,7 +84,7 @@ export function useTokenMenu() {
 			.filter(Boolean)
 			.filter((it) => attackingCharacterIds.has(it._id))
 
-	const element = (
+	const element = scene && (
 		<>
 			<Popover.Root placement="bottom-start" open={state.open}>
 				<Popover.Content
@@ -227,6 +231,69 @@ export function useTokenMenu() {
 								)
 							},
 						)
+						.otherwise(() => null)}
+
+					{match(selectedTokens)
+						.with([P._, ...P.array(P._)], (tokens) => {
+							const [first, ...rest] = tokens
+
+							const isMixed = rest.some(
+								(it) =>
+									roundTo(first.size.x / scene.cellSize, 0.01) !==
+									roundTo(it.size.x / scene.cellSize, 0.01),
+							)
+							return (
+								<Field label="Size (cells)" htmlFor="tokenSize">
+									<NumberInput
+										id="tokenSize"
+										placeholder={isMixed ? "mixed" : "0"}
+										value={
+											isMixed
+												? undefined
+												: roundTo(first.size.x / scene.cellSize, 0.01)
+										}
+										min={0.25}
+										step={0.25}
+										onSubmitValue={(value) => {
+											return update({
+												updates: tokens.map((token) => ({
+													tokenId: token._id,
+													size: {
+														x: value * scene.cellSize,
+														y: value * scene.cellSize,
+													},
+												})),
+											})
+										}}
+										className={textInput()}
+									/>
+								</Field>
+							)
+						})
+						.with([P._], ([token]) => (
+							<Field label="Size (cells)" htmlFor="tokenSize">
+								<NumberInput
+									id="tokenSize"
+									value={roundTo(token.size.x / scene.cellSize, 0.01)}
+									min={0.25}
+									step={0.25}
+									onSubmitValue={(value) => {
+										return update({
+											updates: [
+												{
+													tokenId: token._id,
+													size: {
+														x: value * scene.cellSize,
+														y: value * scene.cellSize,
+													},
+												},
+											],
+										})
+									}}
+									className={textInput()}
+								/>
+							</Field>
+						))
 						.otherwise(() => null)}
 
 					{fullCharacters.length > 0 && (
