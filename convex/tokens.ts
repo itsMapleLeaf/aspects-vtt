@@ -27,17 +27,8 @@ export const list = query({
 			const tokens = await scene.edge("characterTokens")
 			const protectedTokens = await Promise.all(
 				tokens.map(async (token) => {
-					const normalizedToken = toMerged(
-						{
-							position: { x: 0, y: 0 },
-							visible: false,
-							updatedAt: 0,
-							size: { x: cellSize, y: cellSize },
-						},
-						token.doc(),
-					)
-
 					let character
+					let size = { x: cellSize, y: cellSize }
 
 					if (token.characterId) {
 						const characterEnt = await ctx
@@ -58,7 +49,24 @@ export const list = query({
 
 						// don't show the character token if the character shouldn't be visible
 						if (!character) return
+
+						if (characterEnt.defaultTokenSize) {
+							size = {
+								x: characterEnt.defaultTokenSize,
+								y: characterEnt.defaultTokenSize,
+							}
+						}
 					}
+
+					const normalizedToken = toMerged(
+						{
+							position: { x: 0, y: 0 },
+							visible: false,
+							updatedAt: 0,
+							size,
+						},
+						token.doc(),
+					)
 
 					return {
 						...normalizedToken,
@@ -131,6 +139,10 @@ export const update = mutation({
 				props.size = {
 					x: Math.round(props.size.x),
 					y: Math.round(props.size.y),
+				}
+				if (token.characterId) {
+					const character = await ctx.table("characters").get(token.characterId)
+					await character?.patch({ defaultTokenSize: props.size.x })
 				}
 			}
 

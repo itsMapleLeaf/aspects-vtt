@@ -119,6 +119,7 @@ const entSchema = defineEntSchema({
 		// metadata
 		type: v.optional(literals("player", "npc")),
 		updatedAt: v.number(),
+		defaultTokenSize: v.optional(v.number()),
 
 		// relations
 		sceneId: nullish(v.id("scenes")),
