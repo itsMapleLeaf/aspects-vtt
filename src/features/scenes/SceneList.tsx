@@ -129,7 +129,13 @@ export function SceneList() {
 					setSearch(search)
 				}}
 				actions={
-					<ToastActionForm action={() => createScene({ roomId: room._id })}>
+					<ToastActionForm
+						action={async () => {
+							const id = await createScene({ roomId: room._id })
+							setEditorOpen(true)
+							setEditingSceneId(id)
+						}}
+					>
 						<Button type="submit" icon={<LucideImagePlus />} appearance="clear">
 							<span className="sr-only">Create scene</span>
 						</Button>
