@@ -93,6 +93,11 @@ export function MessageList() {
 					rows={2}
 					value={messageText}
 					onChange={(event) => setMessageText(event.currentTarget.value)}
+					onKeyDown={(event) => {
+						if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
+							handleSend()
+						}
+					}}
 				/>
 				<div className="grid auto-cols-fr grid-flow-col gap">
 					<Button
