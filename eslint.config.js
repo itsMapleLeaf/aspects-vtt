@@ -1,5 +1,4 @@
 // @ts-check
-// @ts-expect-error
 import pluginJs from "@eslint/js"
 import react from "eslint-plugin-react"
 // @ts-expect-error
