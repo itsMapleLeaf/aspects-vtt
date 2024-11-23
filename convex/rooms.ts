@@ -1,4 +1,3 @@
-import type { PromiseEntOrNull } from "convex-ents"
 import { ConvexError, v, type Infer } from "convex/values"
 import { mapValues, toMerged, uniqBy } from "es-toolkit"
 import { DEFAULT_INVENTORY_ITEMS } from "~/features/inventory/items.ts"
@@ -9,7 +8,7 @@ import { InaccessibleError, ensureAuthUser, ensureUserId } from "./auth.ts"
 import { normalizeCharacter, protectCharacter } from "./characters.ts"
 import { mutation, query, type Ent, type EntQueryCtx } from "./lib/ents.ts"
 import { partial, tableFields } from "./lib/validators.ts"
-import { roomItemValidator, type entDefinitions } from "./schema.ts"
+import { roomItemValidator } from "./schema.ts"
 
 export const list = query({
 	async handler(ctx) {
@@ -267,14 +266,14 @@ export async function ensureViewerRoomOwner(
 }
 
 export async function queryViewerOwnedRoom<
-	Query extends PromiseEntOrNull<typeof entDefinitions, "rooms">,
+	Query extends PromiseLike<Ent<"rooms"> | null>,
 >(ctx: EntQueryCtx, query: Query) {
 	const userId = await ensureUserId(ctx)
 	const room = await query
 	if (!room || room.ownerId !== userId) {
 		throw new InaccessibleError({ table: "rooms" })
 	}
-	return { userId, room: room as NonNullable<Awaited<Query>> }
+	return { userId, room }
 }
 
 type NormalizedRoomCombat = NonNullable<
