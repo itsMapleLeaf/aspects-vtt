@@ -16,7 +16,7 @@ export const ScrollArea = ({
 		{...props}
 		className={twMerge("size-full min-h-0 min-w-0 rounded", props.className)}
 	>
-		<Viewport className="size-full min-h-0 min-w-0 overflow-clip rounded-[inherit] *:!min-w-0">
+		<Viewport className="size-full min-h-0 min-w-0 overflow-clip rounded-[inherit]">
 			{children}
 		</Viewport>
 		<Scrollbar
