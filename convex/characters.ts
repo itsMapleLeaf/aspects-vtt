@@ -84,6 +84,7 @@ export const listByRoomScene = query({
 					q.or(
 						q.eq(q.field("sceneId"), args.sceneId),
 						q.eq(q.field("sceneId"), null),
+						q.eq(q.field("sceneId"), undefined),
 					),
 				)
 			const protectedCharacters = await Promise.all(
