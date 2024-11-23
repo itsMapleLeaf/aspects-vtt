@@ -125,10 +125,11 @@ const entSchema = defineEntSchema({
 		sceneId: nullish(v.id("scenes")),
 		playerId: nullish(v.id("users")),
 	})
-		.index("sceneId", ["sceneId"])
-		.index("playerId", ["playerId"])
 		.edge("room")
 		.edge("owner", { to: "users", field: "ownerId" })
+		.index("sceneId", ["sceneId"])
+		.index("roomId_sceneId", ["roomId", "sceneId"])
+		.index("playerId", ["playerId"])
 		.searchIndex("name", {
 			searchField: "name",
 			filterFields: ["roomId", "sceneId", "playerId", "ownerId"],

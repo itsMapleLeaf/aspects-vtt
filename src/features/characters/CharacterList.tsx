@@ -4,6 +4,7 @@ import { LucideImage, LucideUserRoundPlus, LucideUserX2 } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { Key, ReactNode, useState } from "react"
 import { twMerge } from "tailwind-merge"
+import { Simplify } from "type-fest"
 import { Button } from "~/components/Button.tsx"
 import { EmptyState } from "~/components/EmptyState.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
@@ -24,7 +25,10 @@ import { ApiCharacter } from "./types.ts"
 export function CharacterList() {
 	const room = useRoomContext()
 	const scene = useActiveSceneContext()
-	const characters = useQuery(api.characters.list, { roomId: room._id })
+	const characters = useQuery(api.characters.listByRoomScene, {
+		roomId: room._id,
+		sceneId: scene?._id ?? null,
+	})
 	const createCharacter = useMutation(api.characters.create)
 	const updateCharacter = useMutation(api.characters.update)
 	const [search, setSearch] = useState("")
@@ -55,23 +59,28 @@ export function CharacterList() {
 		)
 	}
 
-	const groups = groupBy(
-		characters.filter((it) => it.sceneId == null || it.sceneId === scene?._id),
-		(it) => {
-			if (it.isPlayer) return "yourCharacters"
-			if (it.sceneId == null) return "global"
-			if (it.sceneId === scene?._id) return "currentScene"
-			return "otherScenes"
-		},
-	)
+	const groups = groupBy(characters, (it) => {
+		if (it.isPlayer) return "yourCharacters"
+		if (it.playerId != null) return "players"
+		if (it.sceneId == null) return "global"
+		if (it.sceneId === scene?._id) return "currentScene"
+		return "otherScenes"
+	})
 
-	type ListItem = { key: Key } & (
-		| { type: "heading"; text: ReactNode }
-		| { type: "item"; item: ApiCharacter }
-	)
+	type ListItem = Simplify<
+		{ key: Key } & (
+			| { type: "heading"; text: ReactNode }
+			| { type: "item"; item: ApiCharacter }
+		)
+	>
 
 	const sectionItems = (
-		groupName: "yourCharacters" | "global" | "currentScene" | "otherScenes",
+		groupName:
+			| "yourCharacters"
+			| "players"
+			| "global"
+			| "currentScene"
+			| "otherScenes",
 	): ListItem[] => {
 		const group = groups.get(groupName)
 		if (!group) return []
@@ -101,6 +110,7 @@ export function CharacterList() {
 
 	const listItems: ListItem[] = [
 		...sectionItems("yourCharacters"),
+		...sectionItems("players"),
 		...sectionItems("global"),
 		...sectionItems("currentScene"),
 		...sectionItems("otherScenes"),

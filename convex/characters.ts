@@ -69,6 +69,33 @@ export const list = query({
 	},
 })
 
+export const listByRoomScene = query({
+	args: {
+		roomId: v.id("rooms"),
+		sceneId: v.union(v.id("scenes"), v.null()),
+	},
+	async handler(ctx, args) {
+		try {
+			const userId = await ensureUserId(ctx)
+
+			const characters = await ctx
+				.table("characters", "roomId", (q) => q.eq("roomId", args.roomId))
+				.filter((q) =>
+					q.or(
+						q.eq(q.field("sceneId"), args.sceneId),
+						q.eq(q.field("sceneId"), null),
+					),
+				)
+			const protectedCharacters = await Promise.all(
+				characters.map((ent) => protectCharacterEnt(ent, userId)),
+			)
+			return compact(protectedCharacters)
+		} catch {
+			return []
+		}
+	},
+})
+
 export const create = mutation({
 	args: {
 		...partial(schema.tables.characters.validator.fields),
@@ -317,6 +344,7 @@ export function protectCharacter(
 		_id: character._id,
 		imageId: character.imageId,
 		sceneId: character.sceneId,
+		playerId: character.playerId,
 		race: character.race,
 		conditions: character.conditions,
 		type: character.type,
