@@ -44,7 +44,8 @@ function defineSkills<Graph extends { [key: string]: AspectSkillDefinition }>(
 export const ASPECT_SKILLS = defineSkills({
 	//#region Fire
 	heating: {
-		description: "Generate enough heat to boil water.",
+		description:
+			"Generate enough heat to boil water. As an attack, deals 1 damage.",
 		aspectId: "fire",
 		category: "heat",
 		price: 5,
@@ -60,14 +61,14 @@ export const ASPECT_SKILLS = defineSkills({
 	},
 
 	candlelight: {
-		description: "Generate a small, controlled flame equivalent to a candle.",
+		description: "Generate a small controlled flame equivalent to a candle.",
 		aspectId: "fire",
 		category: "flame",
 		price: 5,
 		requires: ["burning"],
 	},
 	torchlight: {
-		description: "Create a larger flame, similar to a torch.",
+		description: "Create a larger flame like that of a torch.",
 		aspectId: "fire",
 		category: "flame",
 		price: 10,
@@ -349,9 +350,7 @@ export const ASPECT_SKILLS = defineSkills({
 	//#region Wind
 	breeze: {
 		description: `Apply a gradual force of wind.
-		Roll mobility, then choose a target.
-		If they are an enemy, they lose that much movement.
-		If they are an ally or yourself, they gain that much movement.
+		Roll mobility, then choose a target. They either gain or lose that much movement until the start of their turn.
 		Repeatable: Spend 1 resolve for an additional target.`,
 		aspectId: "wind",
 		category: "air",
