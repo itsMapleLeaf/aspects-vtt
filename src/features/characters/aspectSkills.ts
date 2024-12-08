@@ -366,6 +366,13 @@ export const ASPECT_SKILLS = defineSkills({
 		price: 10,
 		requires: [],
 	},
+	shapeWind: {
+		description: `Morph wind into a solid shape, such as a swirling ball, or a wing-shaped blade.`,
+		aspectId: "wind",
+		category: "air",
+		price: 25,
+		requires: [],
+	},
 	disperse: {
 		description: `In an area no larger than your mobility's power, rapidly reduce the air density, potentially depriving subjects of oxygen.
 		If you roll lower than your mobility's power, take that much damage.`,
