@@ -41,7 +41,7 @@ const aspectOrder = List.of<Aspect["id"]>(
 
 const allSkills = List.values(ASPECT_SKILLS).compact()
 
-const totalExperience = 195
+const totalExperience = 205
 
 export function CharacterSkillsEditor({
 	character,
