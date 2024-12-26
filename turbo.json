@@ -14,13 +14,14 @@
 			"cache": false,
 			"persistent": true
 		},
-		"codegen":{
-			"inputs": ["convex/**","!convex/_generated/**"],
+		"codegen": {
+			"inputs": ["convex/**", "!convex/_generated/**"],
 			"outputs": ["convex/_generated/**"]
 		},
 		"build": {
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["build/**", ".vercel/**"]
+			"outputs": ["build/**", ".vercel/**"],
+			"dependsOn": ["codegen"]
 		},
 		"preview": {
 			"dependsOn": ["build"],
