@@ -15,7 +15,7 @@
     "deploy": "convex deploy --cmd 'turbo run build' --cmd-url-env-var-name VITE_CONVEX_URL --typecheck disable",
     "lint": "eslint .",
     "format": "prettier . --write --list-different",
-    "preview": "react-router serve ./build/server/index.js",
+    "preview": "deno run -A server.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "checks": "turbo build lint format test typecheck",
@@ -31,8 +31,10 @@
     "@nanostores/react": "^0.8.4",
     "@radix-ui/react-scroll-area": "^1.2.2",
     "@radix-ui/react-slot": "^1.1.1",
+    "@react-router/express": "^7.1.1",
     "@react-router/fs-routes": "^7.1.1",
     "@react-router/node": "^7.1.1",
+    "@std/http": "npm:@jsr/std__http@^1.0.12",
     "@use-gesture/react": "^10.3.1",
     "@vercel/remix": "^2.15.2",
     "canvas": "3.0.0",
@@ -43,6 +45,7 @@
     "convex-helpers": "^0.1.67",
     "date-fns": "^4.1.0",
     "es-toolkit": "^1.30.1",
+    "express": "^5.0.1",
     "isbot": "^5.1.18",
     "iterator-helpers-polyfill": "^3.0.1",
     "konva": "^9.3.18",
@@ -77,9 +80,11 @@
     "@testing-library/user-event": "^14.5.2",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/babel__core": "^7.20.5",
+    "@types/deno": "^2.0.0",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
-    "@types/react": "npm:types-react@^19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@^19.0.0-rc.1",
+    "@types/react": "19.0.2",
+    "@types/react-dom": "19.0.2",
     "@types/wait-on": "^5.3.4",
     "@vitest/ui": "^2.1.8",
     "autoprefixer": "^10.4.20",
@@ -113,12 +118,10 @@
   },
   "pnpm": {
     "overrides": {
-      "react": "19.0.0-rc-1631855f-20241023",
-      "react-dom": "19.0.0-rc-1631855f-20241023",
-      "react-reconciler": "0.31.0-rc-1631855f-20241023",
-      "react-konva": "19.0.0-1",
-      "@types/react": "npm:types-react@^19.0.0-rc.1",
-      "@types/react-dom": "npm:types-react-dom@^19.0.0-rc.1"
+      "react": "19.0.0",
+      "react-dom": "19.0.0",
+      "react-reconciler": "0.31.0",
+      "react-konva": "19.0.0-1"
     }
   }
 }

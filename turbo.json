@@ -19,8 +19,15 @@
 			"outputs": ["convex/_generated/**"]
 		},
 		"build": {
-			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["build/**", ".vercel/**"],
+			"inputs": [
+				"src/**",
+				"lib/**",
+				"public/**",
+				"vite.config.ts",
+				"package.json",
+				".env*"
+			],
+			"outputs": ["build/**"],
 			"dependsOn": ["codegen"]
 		},
 		"preview": {

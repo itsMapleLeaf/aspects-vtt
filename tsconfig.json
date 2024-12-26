@@ -14,7 +14,7 @@
 			"~/shared/*": ["./shared/*"],
 			"~/*": ["./src/*"]
 		},
-		"typeRoots": [".react-router/types"],
+		"typeRoots": ["node_modules/@types", ".react-router/types"],
 
 		/* Type Checking */
 		"target": "es2023",
