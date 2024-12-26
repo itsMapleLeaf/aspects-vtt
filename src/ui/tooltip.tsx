@@ -11,7 +11,7 @@ const TooltipContent = ({ className, ...props }: Ariakit.TooltipProps) => (
 	<Ariakit.Tooltip
 		gutter={8}
 		className={cn(
-			"max-w-48 scale-90 overflow-hidden rounded-md bg-primary-100 px-2 py-1.5 text-center text-sm leading-tight text-primary-900 opacity-0 shadow transition data-[enter]:scale-100 data-[enter]:opacity-100",
+			"max-w-48 scale-90 overflow-hidden rounded-md bg-primary-100 px-2 py-1.5 text-center text-sm leading-tight text-primary-900 opacity-0 shadow-sm transition data-enter:scale-100 data-enter:opacity-100",
 			className,
 		)}
 		unmountOnHide

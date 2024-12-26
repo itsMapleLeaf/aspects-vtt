@@ -304,7 +304,7 @@ function SkillCard({
 		<form action={submit} className="contents">
 			<button
 				type="submit"
-				className="relative flex w-full items-center transition gap disabled:cursor-not-allowed disabled:opacity-60 data-[pending]:opacity-50"
+				className="relative flex w-full items-center transition gap disabled:cursor-not-allowed disabled:opacity-60 data-pending:opacity-50"
 				data-pending={pending || undefined}
 				disabled={disabled}
 			>
@@ -348,7 +348,7 @@ function SkillCard({
 					<AspectIcon aspectId={skill.aspectId} />
 				</div>
 				<div
-					className="pointer-events-none invisible absolute inset-0 grid place-content-center opacity-0 transition-all data-[visible]:visible data-[visible]:opacity-100"
+					className="pointer-events-none invisible absolute inset-0 grid place-content-center opacity-0 transition-all data-visible:visible data-visible:opacity-100"
 					data-visible={pending || undefined}
 				>
 					<LoadingIcon className="size-12" />

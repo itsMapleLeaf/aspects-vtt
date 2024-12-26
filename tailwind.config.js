@@ -10,7 +10,6 @@ import { lerp } from "./lib/math.ts"
 
 /** @type {import("tailwindcss").Config} */
 export default {
-	darkMode: ["class"],
 	content: ["./src/**/*.{ts,tsx}", "index.html"],
 	theme: {
 		extend: {
@@ -64,10 +63,6 @@ export default {
 				"control-icon-lg": defaultTheme.spacing[1.5],
 			},
 		},
-	},
-
-	corePlugins: {
-		gap: false,
 	},
 
 	plugins: [

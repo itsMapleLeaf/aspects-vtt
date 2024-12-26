@@ -19,7 +19,7 @@ export const button = (props: ButtonVariantProps) => {
 const uniqueButtonVariantNames = [
 	"appearance",
 	"square",
-	"rounded",
+	"rounded-sm",
 	"align",
 ] as const
 

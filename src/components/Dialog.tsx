@@ -37,7 +37,7 @@ export function Content({
 			backdrop={
 				<div
 					className={fadeTransition(
-						"fixed inset-0 bg-primary-900/50 backdrop-blur-sm",
+						"fixed inset-0 bg-primary-900/50 backdrop-blur-xs",
 					)}
 				/>
 			}

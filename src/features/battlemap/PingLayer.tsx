@@ -24,7 +24,7 @@ export function PingLayer({
 					size={pingSize}
 				>
 					<svg
-						className="size-full stroke-blue-300 drop-shadow-[0_0_4px_theme(colors.blue.900)] will-change-transform"
+						className="size-full stroke-blue-300 drop-shadow-[0_0_4px_var(--color-blue-900)] will-change-transform"
 						viewBox="0 0 100 100"
 						ref={animatePing}
 					>
@@ -37,7 +37,7 @@ export function PingLayer({
 							fill="none"
 						/>
 					</svg>
-					<p className="absolute inset-x-0 top-full text-center text-xl font-bold tracking-wide text-blue-200 delay-1000 duration-500 animate-out fade-out fill-mode-forwards [text-shadow:0_0_4px_theme(colors.blue.900)]">
+					<p className="absolute inset-x-0 top-full text-center text-xl font-bold tracking-wide text-blue-200 delay-1000 duration-500 animate-out fade-out fill-mode-forwards [text-shadow:0_0_4px_var(--color-blue-900)]">
 						{ping.user.name}
 					</p>
 				</Sprite>

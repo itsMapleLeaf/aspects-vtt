@@ -49,7 +49,7 @@ export function Select<const Value extends string>({
 				<Ariakit.Select
 					{...props}
 					value={selectedItem?.value}
-					className={textInput("!flex items-center text-start gap-1.5")}
+					className={textInput("flex! items-center text-start gap-1.5")}
 				>
 					<span className="flex-1">{selectedItem?.name ?? "Choose one"}</span>
 					<LucideChevronDown />
@@ -64,7 +64,7 @@ export function Select<const Value extends string>({
 						<Ariakit.SelectItem
 							key={item.value}
 							value={item.value}
-							className={menuItem("flex !h-fit flex-col items-start py-1.5")}
+							className={menuItem("flex h-fit! flex-col items-start py-1.5")}
 						>
 							<div className="flex gap-2">
 								{item.icon && <span className="mr-2">{item.icon}</span>}

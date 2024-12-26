@@ -12,7 +12,7 @@ function Content({ children, ...props }: Ariakit.DisclosureContentProps) {
 	return (
 		<Ariakit.DisclosureContent
 			{...props}
-			className="grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,opacity] duration-200 data-[enter]:grid-rows-[1fr] data-[enter]:opacity-100"
+			className="grid grid-rows-[0fr] overflow-hidden opacity-0 transition-[grid-template-rows,opacity] duration-200 data-enter:grid-rows-[1fr] data-enter:opacity-100"
 		>
 			<div className="min-h-0">{children}</div>
 		</Ariakit.DisclosureContent>

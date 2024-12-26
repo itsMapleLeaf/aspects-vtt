@@ -88,7 +88,7 @@ export function CharacterConditionsInput({
 						<Button
 							type="submit"
 							className={twMerge(
-								"!h-7 rounded border-2 !px-2 !text-sm leading-none text-white shadow",
+								"h-7! rounded-sm border-2 px-2! text-sm! leading-none text-white shadow-sm",
 								getConditionColorClasses(condition),
 							)}
 						>

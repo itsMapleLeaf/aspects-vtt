@@ -22,7 +22,7 @@ export function Avatar({ src, className, ...props }: AvatarProps) {
 			<img
 				src={src ?? undefined}
 				alt=""
-				className="absolute inset-0 size-full rounded-full object-cover object-top p-px opacity-0 transition duration-500 data-[visible]:opacity-100"
+				className="absolute inset-0 size-full rounded-full object-cover object-top p-px opacity-0 transition duration-500 data-visible:opacity-100"
 				data-visible={loaded || undefined}
 				ref={(image) => {
 					if (!image) return

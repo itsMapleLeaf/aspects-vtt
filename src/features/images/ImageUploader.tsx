@@ -79,19 +79,19 @@ export function ImageUploader({
 					<img
 						src={imageUrl}
 						alt="Character"
-						className="absolute inset-0 size-full object-cover object-top transition group-hover:opacity-50 data-[over]:opacity-50"
+						className="absolute inset-0 size-full object-cover object-top transition group-hover:opacity-50 data-over:opacity-50"
 						data-over={over || undefined}
 					/>
 				) : (
 					<LucideImagePlus className="size-16 opacity-25" />
 				)}
 				<LucideImagePlus
-					className="absolute inset-0 m-auto size-16 opacity-0 transition group-hover:opacity-50 data-[over]:opacity-50"
+					className="absolute inset-0 m-auto size-16 opacity-0 transition group-hover:opacity-50 data-over:opacity-50"
 					data-over={over || undefined}
 				/>
 			</div>
 			<div
-				className="pointer-events-none invisible absolute inset-0 grid place-content-center bg-primary-900/50 opacity-0 transition-all data-[visible]:visible data-[visible]:opacity-100"
+				className="pointer-events-none invisible absolute inset-0 grid place-content-center bg-primary-900/50 opacity-0 transition-all data-visible:visible data-visible:opacity-100"
 				data-visible={pending || imageLoading || undefined}
 			>
 				<LoadingIcon className="size-12" />

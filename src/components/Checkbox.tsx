@@ -21,7 +21,7 @@ export function Checkbox({
 	)
 
 	return (
-		<label className="flex items-center space-x-2 transition-opacity has-[:disabled]:opacity-50">
+		<label className="flex items-center space-x-2 transition-opacity has-disabled:opacity-50">
 			<input
 				type="checkbox"
 				checked={checked}

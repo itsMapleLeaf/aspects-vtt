@@ -382,7 +382,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 								token={token}
 								scene={scene}
 							>
-								<div className="absolute inset-0 flex items-center justify-center rounded-sm border border-blue-700 bg-blue-400/50">
+								<div className="absolute inset-0 flex items-center justify-center rounded-xs border border-blue-700 bg-blue-400/50">
 									<p className="rounded-lg bg-black/50 px-3 py-2 text-[50px] font-medium tabular-nums text-blue-200">
 										{Math.round(
 											(token.size?.x ?? scene.cellSize) / scene.cellSize,
@@ -441,7 +441,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					<Sprite
 						position={selection.selectionArea.topLeft}
 						size={selection.selectionArea.size}
-						className="rounded-sm border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
+						className="rounded-xs border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
 						style={{
 							...(selection.selecting && {
 								opacity: 1,
@@ -480,7 +480,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					data-input-mode={inputMode}
 				>
 					<div
-						className="absolute left-0 top-0 flex items-center justify-center rounded-sm border border-blue-700 bg-blue-400/50"
+						className="absolute left-0 top-0 flex items-center justify-center rounded-xs border border-blue-700 bg-blue-400/50"
 						style={{
 							transform: `translate(${newAreaScreenRect.topLeft.toCSSPixels()})`,
 							width: newAreaScreenRect.width,

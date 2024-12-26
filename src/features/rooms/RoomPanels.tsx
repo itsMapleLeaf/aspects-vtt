@@ -160,7 +160,7 @@ export function RoomPanels({
 			<Ariakit.DisclosureProvider open={leftSidebarOpen}>
 				<Ariakit.DisclosureContent
 					className={twMerge(
-						"mr-auto h-full -translate-x-4 data-[enter]:translate-x-0",
+						"mr-auto h-full -translate-x-4 data-enter:translate-x-0",
 						fadeTransition(),
 					)}
 				>
@@ -176,7 +176,7 @@ export function RoomPanels({
 			<Ariakit.DisclosureProvider open={rightSidebarOpen}>
 				<Ariakit.DisclosureContent
 					className={twMerge(
-						"ml-auto h-full translate-x-4 data-[enter]:translate-x-0",
+						"ml-auto h-full translate-x-4 data-enter:translate-x-0",
 						fadeTransition(),
 					)}
 				>
@@ -306,7 +306,7 @@ function SidebarPanel({
 	return (
 		<div
 			className={panel(
-				"flex h-full min-h-0 flex-col p-2 shadow shadow-primary-900/75 transition gap-2",
+				"flex h-full min-h-0 flex-col p-2 shadow-sm shadow-primary-900/75 transition gap-2",
 				over && "border-accent-500",
 			)}
 			ref={ref}
@@ -364,7 +364,7 @@ function SidebarPanelSpaceDroppable({
 			<div className="absolute -inset-y-3 inset-x-0" ref={ref} />
 			<div
 				data-visible={over || undefined}
-				className="pointer-events-none absolute -inset-y-px inset-x-0 rounded-full bg-accent-500 opacity-0 transition-opacity data-[visible]:opacity-100"
+				className="pointer-events-none absolute -inset-y-px inset-x-0 rounded-full bg-accent-500 opacity-0 transition-opacity data-visible:opacity-100"
 			/>
 		</div>
 	)

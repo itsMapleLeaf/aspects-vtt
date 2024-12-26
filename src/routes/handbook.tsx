@@ -5,7 +5,7 @@ export default function HandbookRoute() {
 	return (
 		<>
 			<AppHeader />
-			<main className="prose prose-slate prose-invert mx-auto w-full max-w-screen-sm px-4 py-12 [&_a:hover]:prose-h1:underline [&_a]:prose-h1:no-underline">
+			<main className="prose prose-slate prose-invert mx-auto w-full max-w-(--breakpoint-sm) px-4 py-12 prose-h1:[&_a:hover]:underline prose-h1:[&_a]:no-underline">
 				<Content />
 			</main>
 		</>

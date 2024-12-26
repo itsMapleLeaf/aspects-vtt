@@ -129,7 +129,7 @@ export function MessageList() {
 										className="w-8"
 									/>
 								}
-								className="h-auto !px-1.5 !py-0.5"
+								className="h-auto px-1.5! py-0.5!"
 								onClick={() => {
 									setMessageDice((dice) => List.of(...dice, opt))
 								}}

@@ -34,7 +34,7 @@ export function RoomRoute() {
 	return (
 		<RoomRoot>
 			<RoomBackground />
-			<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-primary-900" />
+			<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-b from-primary-900" />
 			<RoomInterface />
 		</RoomRoot>
 	)

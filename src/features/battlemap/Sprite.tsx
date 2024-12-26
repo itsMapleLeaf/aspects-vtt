@@ -79,7 +79,7 @@ function SpriteBadge(props: ComponentProps<"div">) {
 		<div
 			{...props}
 			className={twMerge(
-				"flex flex-col items-center whitespace-nowrap rounded-sm border border-black bg-black/75 px-3 py-1 text-center font-medium backdrop-blur-sm empty:hidden",
+				"flex flex-col items-center whitespace-nowrap rounded-xs border border-black bg-black/75 px-3 py-1 text-center font-medium backdrop-blur-xs empty:hidden",
 				props.className,
 			)}
 		/>
@@ -99,7 +99,7 @@ function SpriteMeter({
 	return (
 		<div
 			className={twMerge(
-				"flex h-4 rounded-sm border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-sm will-change-transform gap-0.5",
+				"flex h-4 rounded-xs border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-xs will-change-transform gap-0.5",
 				className?.root,
 			)}
 			style={{ width: `${max * 16}px` }}

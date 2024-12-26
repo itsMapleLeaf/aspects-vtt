@@ -17,7 +17,7 @@ import { primaryHeading } from "~/styles/text.ts"
 
 export default function DesignSystem() {
 	return (
-		<main className="mx-auto flex w-full max-w-screen-md flex-col p-8 gap-8">
+		<main className="mx-auto flex w-full max-w-(--breakpoint-md) flex-col p-8 gap-8">
 			<PageSection title="Button">
 				<div className="flex gap-2">
 					<Button appearance="solid" icon={<LucideFlame />}>
@@ -125,11 +125,11 @@ function GradientBox({
 	return (
 		<div
 			className={panel(
-				"grid h-40 place-content-center rounded-none bg-gradient-to-r from-accent-500",
+				"grid h-40 place-content-center rounded-none bg-linear-to-r from-accent-500",
 				natural && "natural-gradient",
 			)}
 		>
-			<p className="font-medium tracking-wide text-primary-100 drop-shadow">
+			<p className="font-medium tracking-wide text-primary-100 drop-shadow-sm">
 				{children}
 			</p>
 		</div>

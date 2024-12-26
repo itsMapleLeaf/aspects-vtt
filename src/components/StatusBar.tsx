@@ -12,7 +12,7 @@ export function StatusBar({ value, max, className }: StatusBarProps) {
 	return (
 		<div
 			className={twMerge(
-				"relative h-5 overflow-clip rounded border-2 border-current shadow",
+				"relative h-5 overflow-clip rounded-sm border-2 border-current shadow-sm",
 				className,
 			)}
 		>
