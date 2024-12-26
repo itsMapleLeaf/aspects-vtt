@@ -1,15 +1,17 @@
 import { Id } from "~/convex/_generated/dataModel"
 import { AppError } from "~/lib/AppError.ts"
 
+const convexSiteUrl = import.meta.env.VITE_CONVEX_URL.replace(
+	/\.cloud$/,
+	".site",
+)
+
 export async function uploadImage(file: File) {
-	const response = await fetch(
-		new URL("/images", import.meta.env.VITE_CONVEX_API_URL),
-		{
-			method: "PUT",
-			body: file,
-			headers: { "Content-Type": file.type },
-		},
-	)
+	const response = await fetch(new URL("/images", convexSiteUrl), {
+		method: "PUT",
+		body: file,
+		headers: { "Content-Type": file.type },
+	})
 
 	if (!response.ok) {
 		throw new AppError({
