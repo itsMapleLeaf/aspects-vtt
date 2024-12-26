@@ -15,7 +15,7 @@ dist
 dist-ssr
 /build
 **/convex/_generated
-.vercel
+.netlify
 .react-router/
 
 # config

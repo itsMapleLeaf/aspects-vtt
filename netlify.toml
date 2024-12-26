@@ -1,0 +1,6 @@
+[build]
+command = "pnpm run predeploy"
+publish = "build/client"
+
+[dev]
+command = "react-router dev"

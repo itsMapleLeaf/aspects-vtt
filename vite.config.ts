@@ -1,4 +1,5 @@
 import mdx from "@mdx-js/rollup"
+import netlifyPlugin from "@netlify/vite-plugin-react-router"
 import { reactRouter } from "@react-router/dev/vite"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
@@ -32,6 +33,7 @@ export default defineConfig({
 				sourceMaps: true,
 			},
 		}),
+		netlifyPlugin(),
 	],
 	ssr: {
 		noExternal: [
