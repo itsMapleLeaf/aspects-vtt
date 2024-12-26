@@ -2,7 +2,8 @@
 	"$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
 	"nodeModulesDir": "auto",
 	"imports": {
-		"@std/http": "jsr:@std/http@^1"
+		"@std/http": "jsr:@std/http@^1",
+		"@std/path": "jsr:@std/path@^1"
 	},
 	"deploy": {
 		"project": "aspects-vtt",

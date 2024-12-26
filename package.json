@@ -34,7 +34,6 @@
     "@react-router/express": "^7.1.1",
     "@react-router/fs-routes": "^7.1.1",
     "@react-router/node": "^7.1.1",
-    "@std/http": "npm:@jsr/std__http@^1.0.12",
     "@use-gesture/react": "^10.3.1",
     "@vercel/remix": "^2.15.2",
     "canvas": "3.0.0",
