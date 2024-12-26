@@ -14,7 +14,6 @@
 			"~/shared/*": ["./shared/*"],
 			"~/*": ["./src/*"]
 		},
-		"types": [],
 
 		/* Type Checking */
 		"target": "es2023",
