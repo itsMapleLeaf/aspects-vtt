@@ -22,9 +22,9 @@ export default tseslint.config(
 		],
 	},
 
-	// node.js environment
+	// node.js environment (for config files)
 	{
-		files: ["./*"],
+		files: ["*.js", "*.cjs", "*.mjs", "*.ts"],
 		languageOptions: {
 			globals: { ...globals.node },
 		},
@@ -32,7 +32,7 @@ export default tseslint.config(
 
 	// browser environment
 	{
-		files: ["./src/**"],
+		files: ["src/**/*"],
 		languageOptions: {
 			globals: { ...globals.node },
 		},
@@ -40,7 +40,7 @@ export default tseslint.config(
 
 	// agnostic/edge environment
 	{
-		files: ["./convex/**", "./shared/**"],
+		files: ["convex/**/*", "shared/**/*"],
 		languageOptions: {},
 	},
 
