@@ -43,10 +43,10 @@ jobs:
           key: turbo-${{ runner.os }}
 
       - name: Install
-        run: "pnpm install"
+        run: pnpm install
 
       - name: Build
-        run: pnpm exec convex deploy --cmd "pnpm run build" --cmd-url-env-var-name VITE_CONVEX_URL
+        run: pnpm run predeploy
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
@@ -58,6 +58,7 @@ jobs:
           root: "."
           include: |
             build/**
+            node_modules/**
             server.ts
             deno.json
             deno.lock

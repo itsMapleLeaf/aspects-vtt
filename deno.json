@@ -8,6 +8,15 @@
 	"deploy": {
 		"project": "aspects-vtt",
 		"entrypoint": "server.ts",
-		"include": ["build", "server.ts", "deno.json", "package.json"]
-	}
+		"include": [
+			"build/**",
+			"node_modules/**",
+			"server.ts",
+			"deno.json",
+			"deno.lock",
+			"package.json",
+			".npmrc"
+		]
+	},
+	"unstable": ["node-globals"]
 }
