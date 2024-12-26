@@ -46,7 +46,7 @@ jobs:
         run: "pnpm install"
 
       - name: Build
-        run: "pnpm exec turbo run build"
+        run: pnpm exec convex deploy --cmd "pnpm run build" --cmd-url-env-var-name VITE_CONVEX_URL
 
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
