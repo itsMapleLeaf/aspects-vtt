@@ -47,6 +47,8 @@ jobs:
 
       - name: Build
         run: pnpm exec convex deploy --cmd "pnpm run build" --cmd-url-env-var-name VITE_CONVEX_URL
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
