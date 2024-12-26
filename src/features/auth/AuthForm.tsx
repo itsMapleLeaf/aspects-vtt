@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "@remix-run/react"
+import { Link, useSearchParams } from "react-router"
 import { LucideLogIn, LucideUserPlus } from "lucide-react"
 import * as v from "valibot"
 import { Button } from "~/components/Button.tsx"

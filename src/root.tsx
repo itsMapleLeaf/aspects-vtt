@@ -7,8 +7,8 @@ import {
 	Scripts,
 	ScrollRestoration,
 	useNavigate,
-} from "@remix-run/react"
-import type { LinksFunction } from "@remix-run/server-runtime"
+} from "react-router"
+import type { LinksFunction } from "react-router"
 import { ConvexReactClient } from "convex/react"
 import { ConvexError } from "convex/values"
 import { useEffect } from "react"

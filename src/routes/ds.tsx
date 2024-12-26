@@ -1,5 +1,5 @@
 import { HeadingLevel } from "@ariakit/react"
-import { Link } from "@remix-run/react"
+import { Link } from "react-router"
 import {
 	LucideBoxes,
 	LucideChevronUpSquare,

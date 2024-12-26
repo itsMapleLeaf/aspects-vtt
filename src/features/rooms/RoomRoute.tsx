@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from "@remix-run/react"
+import { useParams, useSearchParams } from "react-router"
 import { useMutation, useQuery } from "convex/react"
 import {
 	LucideDoorOpen,

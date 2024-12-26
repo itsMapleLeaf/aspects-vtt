@@ -1,6 +1,5 @@
 import mdx from "@mdx-js/rollup"
-import { vitePlugin as remix } from "@remix-run/dev"
-import { vercelPreset } from "@vercel/remix/vite"
+import { reactRouter } from "@react-router/dev/vite"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
@@ -20,22 +19,9 @@ export default defineConfig({
 				[rehypeAutolinkHeadings, { behavior: "wrap" }],
 			],
 		}),
-		// the remix plugin can't run under the Vite testing env at the moment
+		// the react router plugin can't run under the Vite testing env at the moment
 		// https://github.com/remix-run/remix/issues/8982
-		process.env.NODE_ENV === "test"
-			? []
-			: remix({
-					appDirectory: "src",
-					future: {
-						v3_fetcherPersist: true,
-						v3_relativeSplatPath: true,
-						v3_throwAbortReason: true,
-						v3_singleFetch: true,
-						v3_lazyRouteDiscovery: true,
-						unstable_optimizeDeps: true,
-					},
-					presets: process.env.VERCEL ? [vercelPreset()] : [],
-				}),
+		process.env.NODE_ENV === "test" ? [] : reactRouter(),
 		babel({
 			filter: /\.[jt]sx?$/,
 			include: ["src/**/*"],
@@ -72,9 +58,3 @@ export default defineConfig({
 		server: { deps: { inline: ["convex-test"] } },
 	},
 })
-
-declare module "@remix-run/server-runtime" {
-	interface Future {
-		unstable_singleFetch: true
-	}
-}

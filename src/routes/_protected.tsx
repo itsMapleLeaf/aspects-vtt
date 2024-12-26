@@ -1,4 +1,4 @@
-import { Outlet } from "@remix-run/react"
+import { Outlet } from "react-router"
 import { useConvexAuth } from "convex/react"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
 import { AuthForm } from "~/features/auth/AuthForm.tsx"
