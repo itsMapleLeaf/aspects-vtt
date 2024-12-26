@@ -57,6 +57,7 @@ jobs:
           include: |
             build/**
             server.ts
-            package.json
             deno.json
             deno.lock
+            package.json
+            .npmrc
