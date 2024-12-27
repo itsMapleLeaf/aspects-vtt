@@ -231,9 +231,6 @@ importers:
       globals:
         specifier: ^15.14.0
         version: 15.14.0
-      jose:
-        specifier: ^5.9.6
-        version: 5.9.6
       knip:
         specifier: ^5.41.1
         version: 5.41.1(@types/node@22.10.2)(typescript@5.7.2)
