@@ -35,3 +35,28 @@
 		cursor: default;
 	}
 }
+
+@utility container {
+	margin-left: auto;
+	margin-right: auto;
+	max-width: var(--container-5xl);
+	padding-left: calc(var(--spacing) * 4);
+	padding-right: calc(var(--spacing) * 4);
+}
+
+@utility heading-lg {
+	font-size: var(--text-lg);
+	font-weight: 300;
+}
+@utility heading-xl {
+	font-size: var(--text-xl);
+	font-weight: 300;
+}
+@utility heading-2xl {
+	font-size: var(--text-2xl);
+	font-weight: 300;
+}
+@utility heading-3xl {
+	font-size: var(--text-3xl);
+	font-weight: 300;
+}

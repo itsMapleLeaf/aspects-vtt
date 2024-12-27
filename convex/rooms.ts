@@ -15,9 +15,27 @@ export const list = query({
 		try {
 			const userId = await ensureUserId(ctx)
 			const user = await ctx.table("users").getX(userId)
-			const ownedRooms = await user.edge("ownedRooms").map((ent) => ent.doc())
-			const joinedRooms = await user.edge("joinedRooms").map((ent) => ent.doc())
-			return [...ownedRooms, ...joinedRooms]
+			const ownedRooms = await user.edge("ownedRooms")
+			const joinedRooms = await user.edge("joinedRooms")
+			return await Promise.all(
+				[...ownedRooms, ...joinedRooms].map(async (room) => {
+					const scene =
+						room.activeSceneId &&
+						(await ctx.table("scenes").get(room.activeSceneId).doc())
+
+					const sceneImageId =
+						scene?.mode === "battlemap"
+							? scene.battlemapBackgroundId
+							: scene?.mode === "scenery"
+								? scene.sceneryBackgroundId
+								: undefined
+
+					const previewUrl =
+						sceneImageId && (await ctx.storage.getUrl(sceneImageId))
+
+					return { ...room.doc(), previewUrl }
+				}),
+			)
 		} catch {
 			return []
 		}
