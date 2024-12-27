@@ -1,4 +1,3 @@
-import { useParams, useSearchParams } from "react-router"
 import { useMutation, useQuery } from "convex/react"
 import {
 	LucideDoorOpen,
@@ -6,8 +5,10 @@ import {
 	LucideSidebarOpen,
 } from "lucide-react"
 import { useRef } from "react"
+import { useParams, useSearchParams } from "react-router"
 import { match, P } from "ts-pattern"
 import { Button } from "~/components/Button.tsx"
+import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
 import { api } from "~/convex/_generated/api.js"
@@ -27,7 +28,6 @@ import {
 	useActiveSceneContext,
 } from "~/features/scenes/context.ts"
 import { useLocalStorageSwitch } from "~/lib/react/dom.ts"
-import { Heading, HeadingLevel } from "~/lib/react/heading"
 import { primaryHeading, subText } from "~/styles/text.ts"
 
 export function RoomRoute() {
