@@ -33,7 +33,7 @@ export const buttonVariants = cva("", {
 		appearance: {
 			solid: `border-primary-600 bg-primary-700 hover:border-primary-500 hover:bg-primary-600 active:bg-primary-500`,
 			clear: `hover:border-primary-700 hover:bg-primary-700 active:border-primary-600 active:bg-primary-600 border-transparent bg-transparent opacity-60 hover:opacity-100`,
-			outline: `border-primary-600 hover:border-primary-500 hover:bg-primary-700 active:bg-primary-600`,
+			outline: `border-primary-600 bg-transparent hover:border-primary-500 hover:bg-primary-700 active:bg-primary-600`,
 		},
 		square: {
 			true: "aspect-square",
