@@ -61,6 +61,7 @@ export type FormStore<Values extends FormValues = FormValues> = ReturnType<
 	typeof useForm<Values>
 >
 
+/** @deprecated */
 export function useForm<Values extends FormValues>(
 	options: FormConfig<Values>,
 ) {
