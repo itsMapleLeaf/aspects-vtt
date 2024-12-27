@@ -20,7 +20,7 @@ export function DieIcon({
 			<div className="relative flex aspect-square w-full items-center justify-center transition hover:brightness-125">
 				<div
 					data-color={color}
-					className="size-full *:size-full *:fill-primary-600 *:stroke-1 data-color:saturate-50 data-[color=green]:*:fill-green-900 data-[color=red]:*:fill-red-900 data-[color=green]:*:stroke-green-200 data-[color=red]:*:stroke-red-200"
+					className="*:fill-primary-600 size-full *:size-full *:stroke-1 data-color:saturate-50 data-[color=green]:*:fill-green-900 data-[color=green]:*:stroke-green-200 data-[color=red]:*:fill-red-900 data-[color=red]:*:stroke-red-200"
 				>
 					{faces === 4 ? (
 						<Lucide.Pyramid />
@@ -40,12 +40,12 @@ export function DieIcon({
 				</div>
 				<p
 					data-color={color}
-					className="absolute rounded-lg bg-primary-600 p-0.5 text-center font-bold leading-none empty:hidden data-[color=green]:bg-green-900 data-[color=red]:bg-red-900 data-color:saturate-50"
+					className="bg-primary-600 absolute rounded-lg p-0.5 text-center leading-none font-bold empty:hidden data-color:saturate-50 data-[color=green]:bg-green-900 data-[color=red]:bg-red-900"
 				>
 					{value}
 				</p>
 			</div>
-			<p className="text-center text-[10px] font-bold leading-3 tracking-wide">
+			<p className="text-center text-[10px] leading-3 font-bold tracking-wide">
 				{label}
 			</p>
 		</div>

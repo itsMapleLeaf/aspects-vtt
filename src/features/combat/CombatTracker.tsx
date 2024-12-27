@@ -63,7 +63,7 @@ export function CombatTracker() {
 				) : (
 					<p
 						className={secondaryHeading(
-							"text-balance px-4 py-8 text-center opacity-50",
+							"px-4 py-8 text-center text-balance opacity-50",
 						)}
 					>
 						Combat is currently inactive.
@@ -72,7 +72,7 @@ export function CombatTracker() {
 			) : (
 				<>
 					<ul
-						className="flex min-h-0 flex-1 flex-col overflow-y-auto gap-1"
+						className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
 						ref={animateRef}
 					>
 						{combat.members.map((member, index) => (
@@ -95,7 +95,7 @@ export function CombatTracker() {
 					</ul>
 
 					{room.isOwner && (
-						<div className="flex justify-center gap">
+						<div className="gap flex justify-center">
 							<ToastActionForm
 								action={() => update({ roomId, action: { type: "rewind" } })}
 							>
@@ -153,7 +153,7 @@ function CombatMemberCard({
 	const content = (
 		<div
 			className={twMerge(
-				"flex w-full items-center p-gap text-start transition gap-1.5",
+				"p-gap flex w-full items-center gap-1.5 text-start transition",
 				member.isCurrent ? lightPanel() : "opacity-75",
 			)}
 		>
@@ -185,7 +185,7 @@ function CombatMemberCard({
 	return (
 		<ToastActionForm
 			data-over={over}
-			className="rounded-md border border-transparent transition-colors data-[over=true]:border-accent-700"
+			className="data-[over=true]:border-accent-700 rounded-md border border-transparent transition-colors"
 			action={() =>
 				update({
 					roomId: room._id,
@@ -218,7 +218,7 @@ function CombatMemberCard({
 		>
 			<button
 				type="submit"
-				className="w-full rounded-md transition-colors hover:bg-primary-700"
+				className="hover:bg-primary-700 w-full rounded-md transition-colors"
 				ref={(element) => {
 					if (!element) return
 

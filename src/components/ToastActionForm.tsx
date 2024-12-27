@@ -1,18 +1,22 @@
 import { ConvexError } from "convex/values"
 import { ComponentProps, useActionState } from "react"
 import { toast } from "react-toastify"
+import type { Except } from "type-fest"
 import { sleep } from "~/lib/async.ts"
+
+export interface ToastActionFormProps
+	extends Except<ComponentProps<"form">, "action"> {
+	action: (_state: unknown, formData: FormData) => Promise<unknown>
+	pendingMessage?: string
+	successMessage?: string
+}
 
 export function ToastActionForm({
 	action,
 	successMessage,
 	pendingMessage,
 	...props
-}: ComponentProps<"form"> & {
-	action: (_state: unknown, formData: FormData) => Promise<unknown>
-	pendingMessage?: string
-	successMessage?: string
-}) {
+}: ToastActionFormProps) {
 	const [, formAction] = useToastAction(action, {
 		successMessage,
 		pendingMessage,

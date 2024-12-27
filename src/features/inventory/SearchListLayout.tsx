@@ -57,7 +57,7 @@ export function SearchListLayout<T>({
 
 	return (
 		<div className={twMerge("flex h-full flex-col gap-2", className)}>
-			<div className="flex gap">
+			<div className="gap flex">
 				<input
 					className={textInput("flex-1")}
 					placeholder="Search..."
@@ -68,7 +68,7 @@ export function SearchListLayout<T>({
 			</div>
 			{items.length > 0 ? (
 				<ul
-					className="mt-0 flex min-h-0 flex-1 flex-col overflow-y-auto gap"
+					className="gap mt-0 flex min-h-0 flex-1 flex-col overflow-y-auto"
 					ref={animateRef}
 				>
 					{items.map((item) => (

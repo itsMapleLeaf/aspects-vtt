@@ -55,7 +55,7 @@ export function CharacterEditor({
 				setSelectedId={(id) => setActiveId((current) => id ?? current)}
 			>
 				<HeadingLevel>
-					<div className="sticky top-0 z-10 flex shrink-0 flex-col bg-primary-800 py-2 gap">
+					<div className="bg-primary-800 gap sticky top-0 z-10 flex shrink-0 flex-col py-2">
 						<Tabs.List>
 							<Tabs.Tab id="profile">
 								<LucideUserRound /> Profile
@@ -120,7 +120,7 @@ function CharacterStatusEditor({
 
 	return (
 		<div className="flex flex-col gap-3">
-			<div className="grid auto-cols-fr grid-flow-col gap">
+			<div className="gap grid auto-cols-fr grid-flow-col">
 				<Field label={`Health`}>
 					<div className="flex items-center gap-2">
 						<NumberInput
@@ -191,8 +191,8 @@ function CharacterAdminManagement({
 	)
 
 	return (
-		<div className="flex flex-col @container gap-3">
-			<div className="grid gap @md:grid-cols-2">
+		<div className="@container flex flex-col gap-3">
+			<div className="gap grid @md:grid-cols-2">
 				<CharacterPlayerSelect character={character} />
 				<Select
 					label="Type"
@@ -212,7 +212,7 @@ function CharacterAdminManagement({
 					onChangeValue={(value) => handleChange({ type: value })}
 				/>
 			</div>
-			<div className="flex flex-wrap gap">
+			<div className="gap flex flex-wrap">
 				<Checkbox
 					label="Public"
 					checked={character.visible ?? false}
@@ -224,10 +224,10 @@ function CharacterAdminManagement({
 					onChange={(checked) => handleChange({ nameVisible: checked })}
 				/>
 			</div>
-			<div className="flex flex-wrap gap">
+			<div className="gap flex flex-wrap">
 				<CharacterToggleCombatMemberButton characters={[character]} />
 			</div>
-			<div className="flex flex-wrap gap">
+			<div className="gap flex flex-wrap">
 				<ToastActionForm
 					action={() =>
 						duplicate({ characterIds: [character._id] }).then((result) =>

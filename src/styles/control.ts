@@ -22,13 +22,13 @@ export const controlVariants = cva([interactivePanel(), "flex items-center"], {
 		},
 		size: {
 			small: [
-				"h-8 px-control-padding-sm text-sm gap-1.5 control-icon:-mx-0.5 control-icon:size-4",
+				"px-control-padding-sm control-icon:-mx-0.5 control-icon:size-4 h-8 gap-1.5 text-sm",
 			],
 			medium: [
-				"h-10 px-control-padding-md text-base gap-2.5 control-icon:-mx-1 control-icon:size-5",
+				"px-control-padding-md control-icon:-mx-1 control-icon:size-5 h-10 gap-2.5 text-base",
 			],
 			large: [
-				"h-12 px-control-padding-md text-lg gap-3 control-icon:-mx-1.5 control-icon:size-6",
+				"px-control-padding-md control-icon:-mx-1.5 control-icon:size-6 h-12 gap-3 text-lg",
 			],
 		},
 		disabled: {

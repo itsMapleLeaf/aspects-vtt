@@ -17,7 +17,7 @@ export function EmptyState({
 		<div
 			{...props}
 			className={twMerge(
-				"flex flex-col items-center justify-center py-16 gap",
+				"gap flex flex-col items-center justify-center py-16",
 				className,
 			)}
 		>

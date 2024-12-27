@@ -12,11 +12,11 @@ export function Avatar({ src, className, ...props }: AvatarProps) {
 		<div
 			{...props}
 			className={twMerge(
-				"relative aspect-square overflow-clip rounded-full border border-primary-600",
+				"border-primary-600 relative aspect-square overflow-clip rounded-full border",
 				className,
 			)}
 		>
-			<div className="absolute inset-0 size-full bg-primary-900">
+			<div className="bg-primary-900 absolute inset-0 size-full">
 				<Lucide.VenetianMask className="size-full scale-[0.6]" aria-hidden />
 			</div>
 			<img

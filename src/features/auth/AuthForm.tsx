@@ -55,7 +55,7 @@ export function AuthForm() {
 	return (
 		<Form
 			form={form}
-			className={panel("flex w-full max-w-sm flex-col p-gap shadow-md gap-3")}
+			className={panel("p-gap flex w-full max-w-sm flex-col gap-3 shadow-md")}
 		>
 			<Heading className={primaryHeading()}>
 				{action === "login" ? "Sign in" : "Sign up"}
@@ -71,9 +71,9 @@ export function AuthForm() {
 			</Button>
 
 			<div className="my-2 flex items-center gap-2">
-				<div className="h-px flex-1 bg-primary-700" />
-				<span className="text-sm text-primary-200/75">or</span>
-				<div className="h-px flex-1 bg-primary-700" />
+				<div className="bg-primary-700 h-px flex-1" />
+				<span className="text-primary-200/75 text-sm">or</span>
+				<div className="bg-primary-700 h-px flex-1" />
 			</div>
 
 			<InputField label="Username" field={fields.username} />
@@ -93,14 +93,14 @@ export function AuthForm() {
 			</Button>
 			{action === "login" ? (
 				<Link
-					className="self-center text-sm font-semibold text-primary-200 underline"
+					className="text-primary-200 self-center text-sm font-semibold underline"
 					to="?action=register"
 				>
 					Create an account
 				</Link>
 			) : (
 				<Link
-					className="self-center text-sm font-semibold text-primary-200 underline"
+					className="text-primary-200 self-center text-sm font-semibold underline"
 					to="?action=login"
 				>
 					Sign in with existing account

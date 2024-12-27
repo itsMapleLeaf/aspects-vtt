@@ -306,7 +306,7 @@ function SidebarPanel({
 	return (
 		<div
 			className={panel(
-				"flex h-full min-h-0 flex-col p-2 shadow-sm shadow-primary-900/75 transition gap-2",
+				"shadow-primary-900/75 flex h-full min-h-0 flex-col gap-2 p-2 shadow-sm transition",
 				over && "border-accent-500",
 			)}
 			ref={ref}
@@ -315,7 +315,7 @@ function SidebarPanel({
 				selectedId={selectedModule?.id}
 				setSelectedId={setSelectedId}
 			>
-				<div className="flex flex-wrap justify-center bg-primary-800 gap">
+				<div className="bg-primary-800 gap flex flex-wrap justify-center">
 					{modules.map((module) => (
 						<ModuleHandle
 							key={module.id}
@@ -361,10 +361,10 @@ function SidebarPanelSpaceDroppable({
 
 	return (
 		<div className="relative">
-			<div className="absolute -inset-y-3 inset-x-0" ref={ref} />
+			<div className="absolute inset-x-0 -inset-y-3" ref={ref} />
 			<div
 				data-visible={over || undefined}
-				className="pointer-events-none absolute -inset-y-px inset-x-0 rounded-full bg-accent-500 opacity-0 transition-opacity data-visible:opacity-100"
+				className="bg-accent-500 pointer-events-none absolute inset-x-0 -inset-y-px rounded-full opacity-0 transition-opacity data-visible:opacity-100"
 			/>
 		</div>
 	)

@@ -40,7 +40,7 @@ function SceneEditorForm({ scene: sceneProp }: { scene: ApiScene }) {
 	)
 
 	return (
-		<form className="flex flex-col @container gap">
+		<form className="gap @container flex flex-col">
 			<Field label="Name">
 				<input
 					required
@@ -49,7 +49,7 @@ function SceneEditorForm({ scene: sceneProp }: { scene: ApiScene }) {
 					onChange={(event) => handleChange({ name: event.target.value })}
 				/>
 			</Field>
-			<div className="flex gap @md:grid-flow-col">
+			<div className="gap flex @md:grid-flow-col">
 				<Select
 					className="flex-1"
 					label="Mode"

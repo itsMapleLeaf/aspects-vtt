@@ -37,7 +37,7 @@ export function PingLayer({
 							fill="none"
 						/>
 					</svg>
-					<p className="absolute inset-x-0 top-full text-center text-xl font-bold tracking-wide text-blue-200 delay-1000 duration-500 animate-out fade-out fill-mode-forwards [text-shadow:0_0_4px_var(--color-blue-900)]">
+					<p className="animate-out fade-out fill-mode-forwards absolute inset-x-0 top-full text-center text-xl font-bold tracking-wide text-blue-200 delay-1000 duration-500 [text-shadow:0_0_4px_var(--color-blue-900)]">
 						{ping.user.name}
 					</p>
 				</Sprite>

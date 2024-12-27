@@ -123,7 +123,7 @@ export function CharacterList() {
 	const renderListItem = (entry: ListItem) => {
 		if (entry.type === "heading") {
 			return (
-				<Heading key={entry.key} className="-mb-1.5 text-primary-100/70">
+				<Heading key={entry.key} className="text-primary-100/70 -mb-1.5">
 					{entry.text}
 				</Heading>
 			)
@@ -171,7 +171,7 @@ export function CharacterList() {
 		<div className="flex h-full min-h-0 flex-col gap-2">
 			{editor.element}
 
-			<div className="flex gap">
+			<div className="gap flex">
 				<input
 					className={textInput("flex-1")}
 					placeholder="Search..."
@@ -191,7 +191,7 @@ export function CharacterList() {
 				)}
 			</div>
 
-			<div className="flex gap empty:hidden">
+			<div className="gap flex empty:hidden">
 				{room.isOwner && (
 					<Button
 						icon={<LucideImage />}
@@ -207,7 +207,7 @@ export function CharacterList() {
 				<ScrollArea>
 					<HeadingLevel>
 						<ul
-							className="flex w-full min-w-0 flex-col gap data-[editing=true]:animate-pulse"
+							className="gap flex w-full min-w-0 flex-col data-[editing=true]:animate-pulse"
 							data-editing={listEditor != null}
 						>
 							{listItems.map(renderListItem)}

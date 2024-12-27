@@ -21,7 +21,7 @@ export function Sprite({
 		<div
 			{...props}
 			className={twMerge(
-				"absolute left-0 top-0 origin-top-left will-change-[transform,opacity]",
+				"absolute top-0 left-0 origin-top-left will-change-[transform,opacity]",
 				pointerEvents ? "pointer-events-auto" : "pointer-events-none",
 				props.className,
 			)}
@@ -79,7 +79,7 @@ function SpriteBadge(props: ComponentProps<"div">) {
 		<div
 			{...props}
 			className={twMerge(
-				"flex flex-col items-center whitespace-nowrap rounded-xs border border-black bg-black/75 px-3 py-1 text-center font-medium backdrop-blur-xs empty:hidden",
+				"flex flex-col items-center rounded-xs border border-black bg-black/75 px-3 py-1 text-center font-medium whitespace-nowrap backdrop-blur-xs empty:hidden",
 				props.className,
 			)}
 		/>
@@ -99,7 +99,7 @@ function SpriteMeter({
 	return (
 		<div
 			className={twMerge(
-				"flex h-4 rounded-xs border border-blue-700 bg-blue-400 bg-opacity-50 backdrop-blur-xs will-change-transform gap-0.5",
+				"bg-opacity-50 flex h-4 gap-0.5 rounded-xs border border-blue-700 bg-blue-400 backdrop-blur-xs will-change-transform",
 				className?.root,
 			)}
 			style={{ width: `${max * 16}px` }}

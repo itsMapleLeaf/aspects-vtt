@@ -36,7 +36,7 @@ export function Content({
 			{...props}
 			className={panel(
 				fadeZoomTransition(),
-				"w-fit bg-primary-800 p-0 shadow-md",
+				"bg-primary-800 w-fit p-0 shadow-md",
 				className,
 			)}
 		>
@@ -47,7 +47,7 @@ export function Content({
 
 export function Actions(props: ComponentProps<"footer">) {
 	return (
-		<footer {...props} className={twMerge("mt-auto flex justify-end gap")} />
+		<footer {...props} className={twMerge("gap mt-auto flex justify-end")} />
 	)
 }
 
@@ -56,7 +56,7 @@ export function Backdrop(props: ComponentProps<"div">) {
 		<div
 			{...props}
 			className={fadeTransition(
-				"fixed inset-0 bg-primary-900/25",
+				"bg-primary-900/25 fixed inset-0",
 				props.className,
 			)}
 		/>

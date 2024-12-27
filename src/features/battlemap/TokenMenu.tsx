@@ -89,7 +89,7 @@ export function useTokenMenu() {
 			<Popover.Root placement="bottom-start" open={state.open}>
 				<Popover.Content
 					getAnchorRect={() => state.position ?? null}
-					className={panel("grid w-[240px] rounded-xl p-2 gap-2")}
+					className={panel("grid w-[240px] gap-2 rounded-xl p-2")}
 					backdrop={<Popover.Backdrop onPointerDown={close} />}
 				>
 					{fullCharacters.length > 0 && (

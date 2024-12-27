@@ -190,7 +190,7 @@ export function CharacterSkillsEditor({
 				</Button>
 			</div>
 
-			<div className="flex gap [&>*:not(:last-child)]:flex-1">
+			<div className="gap flex [&>*:not(:last-child)]:flex-1">
 				{aspectOrder.map((aspect) => (
 					<Button
 						key={aspect}
@@ -216,7 +216,7 @@ export function CharacterSkillsEditor({
 				/>
 			</div>
 
-			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto gap-6">
+			<div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto">
 				{filteredSections.length === 0 ? (
 					<EmptyState
 						text="No skills found."
@@ -304,7 +304,7 @@ function SkillCard({
 		<form action={submit} className="contents">
 			<button
 				type="submit"
-				className="relative flex w-full items-center transition gap disabled:cursor-not-allowed disabled:opacity-60 data-pending:opacity-50"
+				className="gap relative flex w-full items-center transition disabled:cursor-not-allowed disabled:opacity-60 data-pending:opacity-50"
 				data-pending={pending || undefined}
 				disabled={disabled}
 			>

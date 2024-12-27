@@ -31,10 +31,10 @@ export function Checkbox({
 					})
 				}}
 				disabled={disabled ?? pending}
-				className="size-5 accent-accent-400"
+				className="accent-accent-400 size-5"
 			/>
 			<span
-				className={`select-none font-semibold ${disabled ? "text-gray-500" : ""}`}
+				className={`font-semibold select-none ${disabled ? "text-gray-500" : ""}`}
 			>
 				{label}
 			</span>

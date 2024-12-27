@@ -18,7 +18,7 @@ export function CharacterVitalFields({
 	const healthId = useId()
 	const resolveId = useId()
 	return (
-		<div className={twMerge("grid grid-cols-2 gap", className)}>
+		<div className={twMerge("gap grid grid-cols-2", className)}>
 			<Field label={`Health / ${character.healthMax}`} htmlFor={healthId}>
 				<NumberInput
 					id={healthId}

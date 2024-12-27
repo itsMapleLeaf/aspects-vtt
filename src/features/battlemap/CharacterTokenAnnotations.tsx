@@ -37,7 +37,7 @@ export function CharacterTokenAnnotations({
 			</Sprite.Attachment>
 			<Sprite.Attachment
 				side="bottom"
-				className="items-center p-4 opacity-0 transition-opacity gap-2 data-[visible=true]:opacity-95"
+				className="items-center gap-2 p-4 opacity-0 transition-opacity data-[visible=true]:opacity-95"
 				data-visible={visible || statusVisible}
 			>
 				{character.full && (
@@ -76,7 +76,7 @@ export function CharacterTokenAnnotations({
 			</Sprite.Attachment>
 			{distanceMoved >= 2 && (
 				<div className="absolute inset-0 flex items-center justify-center">
-					<div className="rounded-lg bg-black/75 px-2 py-0.5 text-lg font-medium tabular-nums text-blue-200">
+					<div className="rounded-lg bg-black/75 px-2 py-0.5 text-lg font-medium text-blue-200 tabular-nums">
 						{Math.round(distanceMoved)}m
 					</div>
 				</div>

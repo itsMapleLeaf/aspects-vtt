@@ -38,7 +38,7 @@ export function RoomItemForm({
 	})
 
 	return (
-		<EditorFormLayout form={form} className="flex flex-col gap">
+		<EditorFormLayout form={form} className="gap flex flex-col">
 			<fieldset className={formRow()}>
 				<InputField label="Name" field={form.fields.name} />
 				<WealthTierSelect

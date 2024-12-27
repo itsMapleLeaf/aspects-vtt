@@ -74,7 +74,7 @@ export function StatefulApiImage({
 				classes.root,
 			)}
 		>
-			<div className="absolute m-auto aspect-square w-full max-w-32 p-[20%] text-primary-100 opacity-40 *:size-full">
+			<div className="text-primary-100 absolute m-auto aspect-square w-full max-w-32 p-[20%] opacity-40 *:size-full">
 				{imageId == null ? (
 					<LucideImageOff className={twMerge(classes.icon)} />
 				) : status === "loading" ? (

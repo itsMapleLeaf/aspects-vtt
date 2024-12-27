@@ -152,7 +152,7 @@ export function CharacterAttributeButton({
 				/>
 
 				{dicePowerValues.size > 0 && (
-					<p className="text-[12px] font-semibold leading-3 text-primary-200">
+					<p className="text-primary-200 text-[12px] leading-3 font-semibold">
 						{dicePowerValues.size === 1
 							? `d${[...dicePowerValues][0]}`
 							: `mixed`}
@@ -160,7 +160,7 @@ export function CharacterAttributeButton({
 				)}
 			</div>
 			<Popover.Content>
-				<Form form={form} className="flex flex-col p-gap gap">
+				<Form form={form} className="p-gap gap flex flex-col">
 					<Heading className={secondaryHeading()}>
 						Rolling <strong>{startCase(attribute)}</strong>
 					</Heading>

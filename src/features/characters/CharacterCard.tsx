@@ -21,7 +21,7 @@ export function CharacterCard({
 		<div
 			{...props}
 			className={interactivePanel(
-				"group flex w-full min-w-0 items-center p-2 text-start gap-2",
+				"group flex w-full min-w-0 items-center gap-2 p-2 text-start",
 				props.className,
 			)}
 		>
@@ -39,7 +39,7 @@ export function CharacterCard({
 						<CharacterVisibilityIcon character={character} />
 					</div>
 				</div>
-				<p className="mt-1 text-sm font-semibold leading-none tracking-wide text-primary-300 empty:hidden">
+				<p className="text-primary-300 mt-1 text-sm leading-none font-semibold tracking-wide empty:hidden">
 					{[character.race, character.pronouns].filter(Boolean).join(" • ")}
 				</p>
 			</div>

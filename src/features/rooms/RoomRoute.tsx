@@ -34,7 +34,7 @@ export function RoomRoute() {
 	return (
 		<RoomRoot>
 			<RoomBackground />
-			<div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-b from-primary-900" />
+			<div className="from-primary-900 pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-b" />
 			<RoomInterface />
 		</RoomRoot>
 	)
@@ -94,7 +94,7 @@ function JoinRoomMessage({ room }: { room: ApiRoom }) {
 	const joinRoom = useMutation(api.rooms.join)
 	return (
 		<div className="absolute inset-0 flex flex-col *:m-auto">
-			<main className="flex flex-col items-center text-balance p-4 text-center">
+			<main className="flex flex-col items-center p-4 text-center text-balance">
 				<p className="mb-4 text-xl">You have been invited to</p>
 				<h1 className={primaryHeading("mb-5 text-3xl")}>{room.name}</h1>
 				<ToastActionForm
@@ -123,10 +123,10 @@ function RoomInterface() {
 	)
 
 	return (
-		<div className="pointer-events-children absolute inset-0 flex h-screen w-screen flex-col p-3 gap-3">
+		<div className="pointer-events-children absolute inset-0 flex h-screen w-screen flex-col gap-3 p-3">
 			<HeadingLevel>
 				<header className="pointer-events-children flex items-center justify-between">
-					<div className="flex gap">
+					<div className="gap flex">
 						<Button
 							appearance="clear"
 							icon={
@@ -142,7 +142,7 @@ function RoomInterface() {
 							<div className={primaryHeading("-mt-1")}>{room.name}</div>
 						</Heading>
 					</div>
-					<div className="flex gap">
+					<div className="gap flex">
 						<UserButton />
 						<Button
 							appearance="clear"
@@ -178,7 +178,7 @@ function SceneHeading() {
 	const scene = useActiveSceneContext()
 	return scene ? (
 		<HeadingLevel>
-			<div className="pointer-events-children absolute inset-x-0 top-6 flex flex-col items-center animate-in fade-in">
+			<div className="pointer-events-children animate-in fade-in absolute inset-x-0 top-6 flex flex-col items-center">
 				<Heading className="text-3xl font-light">{scene.name}</Heading>
 				{/* <p className="text-xl font-light">Harvest 24th, 365 &bull; Evening</p>
 				<p className="text-xl font-light">(weather)</p> */}

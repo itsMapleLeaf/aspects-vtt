@@ -99,7 +99,7 @@ export function CharacterAttackDialog({
 							))}
 						</div>
 					</Field>
-					<div className="flex gap *:flex-1">
+					<div className="gap flex *:flex-1">
 						<Select
 							label="Attacker"
 							value={attacker?._id ?? ""}

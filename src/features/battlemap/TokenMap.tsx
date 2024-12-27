@@ -349,7 +349,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 			{tokenMenu.element}
 			<div
 				{...bindRootGestureHandlers()}
-				className="absolute inset-0 touch-none select-none overflow-clip"
+				className="absolute inset-0 touch-none overflow-clip select-none"
 			>
 				<div
 					className="absolute inset-0 transition data-[input-mode=area]:brightness-50"
@@ -383,7 +383,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 								scene={scene}
 							>
 								<div className="absolute inset-0 flex items-center justify-center rounded-xs border border-blue-700 bg-blue-400/50">
-									<p className="rounded-lg bg-black/50 px-3 py-2 text-[50px] font-medium tabular-nums text-blue-200">
+									<p className="rounded-lg bg-black/50 px-3 py-2 text-[50px] font-medium text-blue-200 tabular-nums">
 										{Math.round(
 											(token.size?.x ?? scene.cellSize) / scene.cellSize,
 										)}
@@ -394,7 +394,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 									</p>
 								</div>
 								{tokenState.selectedTokenIds.has(token._id) && (
-									<div className="pointer-events-none absolute -inset-1 border-2 border-accent-900 bg-accent-600/50 transition-opacity" />
+									<div className="border-accent-900 bg-accent-600/50 pointer-events-none absolute -inset-1 border-2 transition-opacity" />
 								)}
 							</BaseTokenElement>
 						))}
@@ -441,7 +441,7 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					<Sprite
 						position={selection.selectionArea.topLeft}
 						size={selection.selectionArea.size}
-						className="rounded-xs border-2 border-accent-900 bg-accent-600/50 opacity-0 transition-opacity"
+						className="border-accent-900 bg-accent-600/50 rounded-xs border-2 opacity-0 transition-opacity"
 						style={{
 							...(selection.selecting && {
 								opacity: 1,
@@ -480,14 +480,14 @@ export function TokenMap({ scene }: { scene: ApiScene }) {
 					data-input-mode={inputMode}
 				>
 					<div
-						className="absolute left-0 top-0 flex items-center justify-center rounded-xs border border-blue-700 bg-blue-400/50"
+						className="absolute top-0 left-0 flex items-center justify-center rounded-xs border border-blue-700 bg-blue-400/50"
 						style={{
 							transform: `translate(${newAreaScreenRect.topLeft.toCSSPixels()})`,
 							width: newAreaScreenRect.width,
 							height: newAreaScreenRect.height,
 						}}
 					>
-						<p className="rounded-lg bg-black/50 px-3 py-2 text-lg font-medium tabular-nums text-blue-200">
+						<p className="rounded-lg bg-black/50 px-3 py-2 text-lg font-medium text-blue-200 tabular-nums">
 							{Math.round(newAreaMapRect.width / scene.cellSize)}x
 							{Math.round(newAreaMapRect.height / scene.cellSize)}
 						</p>

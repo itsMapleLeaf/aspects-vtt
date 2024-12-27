@@ -41,8 +41,8 @@ export function CharacterProfileEditor({
 	const id = useId()
 
 	return (
-		<div className="flex flex-col @container gap">
-			<div className="grid gap @md:grid-cols-2">
+		<div className="gap @container flex flex-col">
+			<div className="gap grid @md:grid-cols-2">
 				<Field
 					label="Name"
 					htmlFor={`${id}:name`} /* errors={fieldErrors.name} */
@@ -70,8 +70,8 @@ export function CharacterProfileEditor({
 					/>
 				</Field>
 			</div>
-			<div className="grid gap @md:grid-cols-2">
-				<div className="flex flex-col justify-between @container gap">
+			<div className="gap grid @md:grid-cols-2">
+				<div className="gap @container flex flex-col justify-between">
 					<Field label="Image" className="flex-1">
 						<ImageUploader
 							className="aspect-auto h-full min-h-[100cqw]"
@@ -95,7 +95,7 @@ export function CharacterProfileEditor({
 				<Field label="Attributes">
 					<div
 						className={panel(
-							"flex h-full flex-col items-center justify-center border-primary-600 bg-primary-700 px-4 py-8 gap-4",
+							"border-primary-600 bg-primary-700 flex h-full flex-col items-center justify-center gap-4 px-4 py-8",
 						)}
 					>
 						{character.type === "npc" ? (
@@ -196,7 +196,7 @@ function AttributeInput(props: AttributeInputProps) {
 						key={n}
 						type="button"
 						className={twMerge(
-							"size-6 rounded-full border-2 border-primary-100 bg-primary-100 bg-opacity-0 transition active:border-primary-300 active:bg-primary-300 active:duration-0",
+							"border-primary-100 bg-primary-100 bg-opacity-0 active:border-primary-300 active:bg-primary-300 size-6 rounded-full border-2 transition active:duration-0",
 							n <= value ? "bg-opacity-100" : "hover:bg-opacity-50",
 						)}
 						onClick={() => setValue(n)}

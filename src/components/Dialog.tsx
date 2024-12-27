@@ -37,23 +37,23 @@ export function Content({
 			backdrop={
 				<div
 					className={fadeTransition(
-						"fixed inset-0 bg-primary-900/50 backdrop-blur-xs",
+						"bg-primary-900/50 fixed inset-0 backdrop-blur-xs",
 					)}
 				/>
 			}
 			{...props}
 			className={fadeZoomTransition(
-				"fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-2 md:p-4",
+				"fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-2 md:p-4",
 			)}
 			unmountOnHide
 		>
 			<div
 				className={panel(
-					"flex max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] max-w-lg flex-col rounded-lg p-gap shadow-lg shadow-primary-900/75 gap",
+					"p-gap shadow-primary-900/75 gap flex max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] max-w-lg flex-col rounded-lg shadow-lg",
 					className,
 				)}
 			>
-				<header className="-mx-3 -mt-3 flex items-center rounded-t-[inherit] bg-primary-900 px-3 py-2 gap">
+				<header className="bg-primary-900 gap -mx-3 -mt-3 flex items-center rounded-t-[inherit] px-3 py-2">
 					<div className="flex-1">
 						<Ariakit.DialogHeading className={primaryHeading()}>
 							{title}
@@ -84,6 +84,6 @@ export function Content({
 
 export function Actions(props: ComponentProps<"footer">) {
 	return (
-		<footer {...props} className={twMerge("mt-auto flex justify-end gap")} />
+		<footer {...props} className={twMerge("gap mt-auto flex justify-end")} />
 	)
 }

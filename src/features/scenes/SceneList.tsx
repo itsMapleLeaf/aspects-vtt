@@ -58,7 +58,7 @@ export function SceneList() {
 							)}
 							<span
 								className={secondaryHeading(
-									"line-clamp-2 text-balance px-2 drop-shadow-sm",
+									"line-clamp-2 px-2 text-balance drop-shadow-sm",
 								)}
 							>
 								{scene.name}

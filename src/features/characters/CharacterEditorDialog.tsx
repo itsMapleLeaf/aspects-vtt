@@ -89,15 +89,15 @@ function CharacterPublicProfile({
 	character: ProtectedCharacter
 }) {
 	return (
-		<div className="flex h-fit max-h-[calc(100vh-8rem)] flex-col gap">
+		<div className="gap flex h-fit max-h-[calc(100vh-8rem)] flex-col">
 			{character.imageId && (
 				<img
 					src={getImageUrl(character.imageId)}
 					alt=""
-					className={panel("min-h-0 flex-1 bg-primary-900 object-contain")}
+					className={panel("bg-primary-900 min-h-0 flex-1 object-contain")}
 				/>
 			)}
-			<div className="grid auto-cols-fr grid-flow-col gap empty:hidden">
+			<div className="gap grid auto-cols-fr grid-flow-col empty:hidden">
 				{character.race && <Field label="Race">{character.race}</Field>}
 				{character.pronouns && (
 					<Field label="Pronouns">{character.pronouns}</Field>

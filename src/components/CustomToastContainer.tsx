@@ -24,7 +24,7 @@ export function CustomToastContainer() {
 			toastClassName={(context) =>
 				twMerge(
 					context?.defaultClassName,
-					"text-primary-100 transition hover:bg-opacity-100",
+					"text-primary-100 hover:bg-opacity-100 transition",
 					{
 						default: "",
 						success: twMerge(

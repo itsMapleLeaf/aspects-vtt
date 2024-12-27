@@ -13,10 +13,10 @@ export function EditorFormLayout({
 		<Form
 			{...props}
 			form={form}
-			className={twMerge("flex flex-col gap", props.className)}
+			className={twMerge("gap flex flex-col", props.className)}
 		>
 			{children}
-			<footer className="flex justify-end gap">
+			<footer className="gap flex justify-end">
 				<Button type="submit" icon={<LucideSave />}>
 					Save
 				</Button>

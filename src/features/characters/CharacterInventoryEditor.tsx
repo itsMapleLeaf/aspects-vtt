@@ -61,13 +61,13 @@ export function CharacterInventoryEditor({
 			items={filteredItems}
 			itemKey="_id"
 			renderItem={(item) => (
-				<div className="flex items-stretch gap">
+				<div className="gap flex items-stretch">
 					<InventoryItemCard
 						className="justify-center"
 						key={item._id}
 						item={item}
 					/>
-					<div className="grid w-16 auto-rows-fr gap">
+					<div className="gap grid w-16 auto-rows-fr">
 						<NumberInput
 							className={textInput("h-full min-h-10")}
 							value={item.quantity ?? 1}

@@ -21,12 +21,12 @@ export function ListCard({
 		<article
 			{...props}
 			className={lightPanel(
-				"flex w-full flex-col p-2 text-left gap-1.5",
+				"flex w-full flex-col gap-1.5 p-2 text-left",
 				props.className,
 			)}
 		>
 			<Heading className={secondaryHeading()}>{title}</Heading>
-			<DescriptionTag className="-mb-0.5 -mt-1 whitespace-pre-line leading-snug empty:hidden">
+			<DescriptionTag className="-mt-1 -mb-0.5 leading-snug whitespace-pre-line empty:hidden">
 				{description}
 			</DescriptionTag>
 			<aside className={subText("whitespace-pre-line italic empty:hidden")}>

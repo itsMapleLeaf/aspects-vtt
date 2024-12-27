@@ -17,7 +17,7 @@ import { primaryHeading } from "~/styles/text.ts"
 
 export default function DesignSystem() {
 	return (
-		<main className="mx-auto flex w-full max-w-(--breakpoint-md) flex-col p-8 gap-8">
+		<main className="mx-auto flex w-full max-w-(--breakpoint-md) flex-col gap-8 p-8">
 			<PageSection title="Button">
 				<div className="flex gap-2">
 					<Button appearance="solid" icon={<LucideFlame />}>
@@ -85,7 +85,7 @@ export default function DesignSystem() {
 			</PageSection>
 
 			<PageSection title="Loading Cover">
-				<div className="relative h-[480px] overflow-clip rounded-lg border border-primary-700">
+				<div className="border-primary-700 relative h-[480px] overflow-clip rounded-lg border">
 					<LoadingCover visible={true} />
 				</div>
 			</PageSection>
@@ -125,11 +125,11 @@ function GradientBox({
 	return (
 		<div
 			className={panel(
-				"grid h-40 place-content-center rounded-none bg-linear-to-r from-accent-500",
+				"from-accent-500 grid h-40 place-content-center rounded-none bg-linear-to-r",
 				natural && "natural-gradient",
 			)}
 		>
-			<p className="font-medium tracking-wide text-primary-100 drop-shadow-sm">
+			<p className="text-primary-100 font-medium tracking-wide drop-shadow-sm">
 				{children}
 			</p>
 		</div>

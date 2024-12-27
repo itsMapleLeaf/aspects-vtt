@@ -72,7 +72,7 @@ export function ImageUploader({
 		<div className={twMerge("group relative aspect-square", className)}>
 			<div
 				className={panel(
-					"absolute inset-0 grid size-full place-content-center overflow-clip border-primary-600 bg-primary-700 text-center transition hover:border-primary-500",
+					"border-primary-600 bg-primary-700 hover:border-primary-500 absolute inset-0 grid size-full place-content-center overflow-clip text-center transition",
 				)}
 			>
 				{imageUrl ? (
@@ -91,7 +91,7 @@ export function ImageUploader({
 				/>
 			</div>
 			<div
-				className="pointer-events-none invisible absolute inset-0 grid place-content-center bg-primary-900/50 opacity-0 transition-all data-visible:visible data-visible:opacity-100"
+				className="bg-primary-900/50 pointer-events-none invisible absolute inset-0 grid place-content-center opacity-0 transition-all data-visible:visible data-visible:opacity-100"
 				data-visible={pending || imageLoading || undefined}
 			>
 				<LoadingIcon className="size-12" />

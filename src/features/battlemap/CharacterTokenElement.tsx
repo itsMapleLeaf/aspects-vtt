@@ -23,11 +23,11 @@ export function CharacterTokenElement({
 				)}
 			>
 				<div
-					className="absolute -inset-1 rounded-full bg-black/50 data-[is-player=true]:bg-accent-400/50"
+					className="data-[is-player=true]:bg-accent-400/50 absolute -inset-1 rounded-full bg-black/50"
 					data-is-player={character.isPlayer}
 				/>
 				<div
-					className="absolute -inset-2 rounded-full bg-black/50 data-[is-player=true]:bg-accent-400/50"
+					className="data-[is-player=true]:bg-accent-400/50 absolute -inset-2 rounded-full bg-black/50"
 					data-is-player={character.isPlayer}
 				/>
 				<StatefulApiImage
@@ -36,7 +36,7 @@ export function CharacterTokenElement({
 					draggable={false}
 				/>
 				{selected && (
-					<div className="pointer-events-none absolute -inset-0.5 rounded-full border-2 border-accent-900 bg-accent-600/50 transition-opacity" />
+					<div className="border-accent-900 bg-accent-600/50 pointer-events-none absolute -inset-0.5 rounded-full border-2 transition-opacity" />
 				)}
 			</BaseTokenElement>
 		</>

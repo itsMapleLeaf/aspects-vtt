@@ -78,7 +78,7 @@ export function MessageList() {
 	return (
 		<div className="flex h-full flex-col gap-2">
 			<div
-				className="flex min-h-0 flex-1 flex-col overflow-y-auto gap-2"
+				className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto"
 				ref={ref}
 			>
 				{messages
@@ -99,7 +99,7 @@ export function MessageList() {
 						}
 					}}
 				/>
-				<div className="grid auto-cols-fr grid-flow-col gap">
+				<div className="gap grid auto-cols-fr grid-flow-col">
 					<Button
 						icon={<Lucide.RotateCcw />}
 						size="small"
@@ -113,7 +113,7 @@ export function MessageList() {
 						</Button>
 					</ToastActionForm>
 				</div>
-				<div className="flex flex-wrap items-center justify-center gap">
+				<div className="gap flex flex-wrap items-center justify-center">
 					{diceOptions.map((opt) => {
 						const count = messageDice.count(opt)
 						return (
@@ -161,7 +161,7 @@ function MessageCard({
 	})
 	const namesById = new Map(characters?.map((it) => [it._id, it.name]))
 	return (
-		<div className={lightPanel("flex flex-col p-2 gap-2")}>
+		<div className={lightPanel("flex flex-col gap-2 p-2")}>
 			{message.content.map((entry, index) => (
 				<Fragment key={index}>
 					{entry.type === "text" ? (
@@ -204,7 +204,7 @@ function MessageCard({
 					)}
 				</Fragment>
 			))}
-			<p className="text-sm font-bold text-primary-400">
+			<p className="text-primary-400 text-sm font-bold">
 				{message.author.name} •{" "}
 				<time dateTime={new Date(message._creationTime).toISOString()}>
 					{formatDistanceToNow(message._creationTime, { addSuffix: true })}
