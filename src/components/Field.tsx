@@ -1,10 +1,12 @@
 import { type ComponentProps, type ReactNode } from "react"
 import { errorText, formField, labelText } from "~/styles/forms.ts"
+import { subText } from "~/styles/text"
 
 export interface FieldProps extends ComponentProps<"div"> {
 	label?: ReactNode
 	htmlFor?: string
 	errors?: string | string[]
+	description?: ReactNode
 }
 
 export function Field({
@@ -13,6 +15,7 @@ export function Field({
 	children,
 	className,
 	errors: errorsProp,
+	description,
 	...props
 }: FieldProps) {
 	let errors
@@ -24,6 +27,7 @@ export function Field({
 				{label}
 			</label>
 			{children}
+			{description && <p className={subText()}>{description}</p>}
 			{errors.map((error) => (
 				<p key={error} className={errorText()}>
 					{error}
