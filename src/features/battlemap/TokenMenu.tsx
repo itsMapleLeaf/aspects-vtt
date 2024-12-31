@@ -13,7 +13,7 @@ import { Field } from "~/components/Field.tsx"
 import { NumberInput } from "~/components/NumberInput.tsx"
 import { Popover } from "~/components/Popover.tsx"
 import { api } from "~/convex/_generated/api.js"
-import { NormalizedCharacter } from "~/convex/characters.ts"
+import { type ProtectedCharacter } from "~/convex/characters.ts"
 import { CharacterAttributeButtonRow } from "~/features/characters/CharacterAttributeButtonRow.tsx"
 import { CharacterToggleCombatMemberButton } from "~/features/characters/CharacterToggleCombatMemberButton.tsx"
 import { roundTo } from "~/lib/math.ts"
@@ -27,6 +27,7 @@ import { CharacterConditionsInput } from "../characters/CharacterConditionsInput
 import { useCharacterEditorDialog } from "../characters/CharacterEditorDialog.tsx"
 import { useRoomContext } from "../rooms/context.tsx"
 import { useActiveSceneContext } from "../scenes/context.ts"
+import type { ApiToken } from "./types.ts"
 
 export function useTokenMenu() {
 	const [state, setState] = useState({
@@ -56,33 +57,16 @@ export function useTokenMenu() {
 
 	const room = useRoomContext()
 	const scene = useActiveSceneContext()
-	const update = useMutation(api.tokens.update)
-	const remove = useMutation(api.tokens.remove)
 
 	const selectedTokens =
 		useQuery(api.tokens.list, scene ? { sceneId: scene._id } : "skip")?.filter(
 			(token) => state.tokenIds.has(token._id),
 		) ?? []
 
-	const visibleTokens = selectedTokens.filter((it) => it.visible)
-	const hiddenTokens = selectedTokens.filter((it) => !it.visible)
-
 	const characters = selectedTokens.flatMap((it) =>
 		it.character ? [it.character] : [],
 	)
 	const fullCharacters = characters.map((it) => it.full).filter(Boolean)
-	const characterEditor = useCharacterEditorDialog()
-
-	const [attackOpen, setAttackOpen] = useState(false)
-	const [attackingCharacterIds, setAttackingCharacterIds] =
-		useState<Set<NormalizedCharacter["_id"]>>()
-
-	const attackingCharacters =
-		attackingCharacterIds &&
-		selectedTokens
-			.map((it) => it.character)
-			.filter(Boolean)
-			.filter((it) => attackingCharacterIds.has(it._id))
 
 	const element = scene && (
 		<>
@@ -96,205 +80,22 @@ export function useTokenMenu() {
 						<CharacterAttributeButtonRow characters={fullCharacters} />
 					)}
 
-					{room.isOwner && hiddenTokens.length > 0 && (
-						<ToastActionForm
-							action={() =>
-								update({
-									updates: hiddenTokens.map((it) => ({
-										tokenId: it._id,
-										visible: true,
-									})),
-								})
-							}
-						>
-							<Button
-								type="submit"
-								appearance="clear"
-								icon={<LucideEye />}
-								className="w-full justify-start"
-							>
-								Show
-							</Button>
-						</ToastActionForm>
+					<VisibilityOption tokens={selectedTokens} />
+					<RemoveOption tokens={selectedTokens} onRemove={close} />
+
+					<EditCharacterOption characters={characters} onClose={close} />
+
+					{fullCharacters.length > 0 && room.isOwner && (
+						<CharacterToggleCombatMemberButton
+							appearance="clear"
+							className="justify-start"
+							characters={fullCharacters}
+						/>
 					)}
 
-					{room.isOwner && visibleTokens.length > 0 && (
-						<ToastActionForm
-							action={() =>
-								update({
-									updates: visibleTokens.map((it) => ({
-										tokenId: it._id,
-										visible: false,
-									})),
-								})
-							}
-						>
-							<Button
-								type="submit"
-								appearance="clear"
-								icon={<LucideEyeOff />}
-								className="w-full justify-start"
-							>
-								Hide
-							</Button>
-						</ToastActionForm>
-					)}
+					<AttackCharacterOption characters={characters} onClose={close} />
 
-					{room.isOwner && (
-						<ToastActionForm
-							action={async () => {
-								await remove({
-									tokenIds: selectedTokens.map((it) => it._id),
-								})
-								close()
-							}}
-						>
-							<Button
-								type="submit"
-								appearance="clear"
-								icon={<LucideTrash />}
-								className="w-full justify-start"
-							>
-								Remove
-							</Button>
-						</ToastActionForm>
-					)}
-
-					{match(characters)
-						.with([{ full: P.nonNullable }], ([character]) => (
-							<>
-								<Popover.Close
-									key="edit"
-									render={
-										<Button
-											appearance="clear"
-											icon={<LucideEdit />}
-											className="justify-start"
-										/>
-									}
-									onClick={() => {
-										characterEditor.show(character._id)
-									}}
-								>
-									Edit
-								</Popover.Close>
-
-								{/* TODO: move this to the character editor */}
-								<Popover.Close
-									key="attack"
-									render={
-										<Button
-											appearance="clear"
-											icon={<LucideSwords />}
-											className="justify-start"
-										/>
-									}
-									onClick={() => {
-										setAttackingCharacterIds(new Set([character._id]))
-										setAttackOpen(true)
-									}}
-								>
-									Attack
-								</Popover.Close>
-							</>
-						))
-						.when(
-							(characters) => characters.length > 0,
-							(characters) => {
-								return (
-									<>
-										{fullCharacters.length > 0 && room.isOwner && (
-											<CharacterToggleCombatMemberButton
-												appearance="clear"
-												className="justify-start"
-												characters={fullCharacters}
-											/>
-										)}
-										<Popover.Close
-											render={
-												<Button
-													appearance="clear"
-													className="justify-start"
-													icon={<LucideSwords />}
-												/>
-											}
-											onClick={() => {
-												setAttackingCharacterIds(
-													new Set(characters.map((it) => it._id)),
-												)
-												setAttackOpen(true)
-											}}
-										>
-											Attack
-										</Popover.Close>
-									</>
-								)
-							},
-						)
-						.otherwise(() => null)}
-
-					{match(selectedTokens)
-						.with([P._, ...P.array(P._)], (tokens) => {
-							const [first, ...rest] = tokens
-
-							const isMixed = rest.some(
-								(it) =>
-									roundTo(first.size.x / scene.cellSize, 0.01) !==
-									roundTo(it.size.x / scene.cellSize, 0.01),
-							)
-							return (
-								<Field label="Size (cells)" htmlFor="tokenSize">
-									<NumberInput
-										id="tokenSize"
-										placeholder={isMixed ? "mixed" : "0"}
-										value={
-											isMixed
-												? undefined
-												: roundTo(first.size.x / scene.cellSize, 0.01)
-										}
-										min={0.25}
-										step={0.25}
-										onSubmitValue={(value) => {
-											return update({
-												updates: tokens.map((token) => ({
-													tokenId: token._id,
-													size: {
-														x: value * scene.cellSize,
-														y: value * scene.cellSize,
-													},
-												})),
-											})
-										}}
-										className={textInput()}
-									/>
-								</Field>
-							)
-						})
-						.with([P._], ([token]) => (
-							<Field label="Size (cells)" htmlFor="tokenSize">
-								<NumberInput
-									id="tokenSize"
-									value={roundTo(token.size.x / scene.cellSize, 0.01)}
-									min={0.25}
-									step={0.25}
-									onSubmitValue={(value) => {
-										return update({
-											updates: [
-												{
-													tokenId: token._id,
-													size: {
-														x: value * scene.cellSize,
-														y: value * scene.cellSize,
-													},
-												},
-											],
-										})
-									}}
-									className={textInput()}
-								/>
-							</Field>
-						))
-						.otherwise(() => null)}
+					<TokenSizeFields tokens={selectedTokens} scene={scene} />
 
 					{fullCharacters.length > 0 && (
 						<CharacterConditionsInput
@@ -303,18 +104,227 @@ export function useTokenMenu() {
 					)}
 				</Popover.Content>
 			</Popover.Root>
+		</>
+	)
 
+	return { element, show }
+}
+
+function EditCharacterOption({
+	characters,
+	onClose,
+}: {
+	characters: ProtectedCharacter[]
+	onClose: () => void
+}) {
+	const characterEditor = useCharacterEditorDialog()
+
+	if (characters.length === 0) return null
+
+	const singleCharacter = characters.length === 1 ? characters[0] : null
+
+	return (
+		<>
+			{singleCharacter?.full && (
+				<Popover.Close
+					key="edit"
+					render={
+						<Button
+							appearance="clear"
+							icon={<LucideEdit />}
+							className="justify-start"
+						/>
+					}
+					onClick={() => {
+						characterEditor.show(singleCharacter._id)
+						onClose()
+					}}
+				>
+					Edit
+				</Popover.Close>
+			)}
 			{characterEditor.element}
+		</>
+	)
+}
 
-			{attackingCharacters?.length ? (
+function AttackCharacterOption({
+	characters,
+	onClose,
+}: {
+	characters: ProtectedCharacter[]
+	onClose: () => void
+}) {
+	const [attackOpen, setAttackOpen] = useState(false)
+	const [attackingCharacterIds, setAttackingCharacterIds] =
+		useState<Set<Id<"characters">>>()
+
+	if (characters.length === 0) return null
+
+	return (
+		<>
+			<Popover.Close
+				render={
+					<Button
+						appearance="clear"
+						className="justify-start"
+						icon={<LucideSwords />}
+					/>
+				}
+				onClick={() => {
+					setAttackingCharacterIds(new Set(characters.map((it) => it._id)))
+					setAttackOpen(true)
+					onClose()
+				}}
+			>
+				Attack
+			</Popover.Close>
+
+			{attackingCharacterIds?.size ? (
 				<CharacterAttackDialog
-					characters={attackingCharacters}
+					characters={[...attackingCharacterIds]
+						.map((id) => characters.find((c) => c._id === id))
+						.filter(Boolean)}
 					open={attackOpen}
 					setOpen={setAttackOpen}
 				/>
 			) : null}
 		</>
 	)
+}
 
-	return { element, show }
+function VisibilityOption({ tokens }: { tokens: ApiToken[] }) {
+	const room = useRoomContext()
+	const update = useMutation(api.tokens.update)
+
+	if (!room.isOwner) return null
+
+	const allVisible = tokens.every((it) => it.visible)
+	const targetVisibility = !allVisible
+
+	return (
+		<ToastActionForm
+			action={() =>
+				update({
+					updates: tokens.map((it) => ({
+						tokenId: it._id,
+						visible: targetVisibility,
+					})),
+				})
+			}
+		>
+			<Button
+				type="submit"
+				appearance="clear"
+				icon={allVisible ? <LucideEyeOff /> : <LucideEye />}
+				className="w-full justify-start"
+			>
+				{allVisible ? "Hide" : "Show"}
+			</Button>
+		</ToastActionForm>
+	)
+}
+
+function RemoveOption({
+	tokens,
+	onRemove,
+}: {
+	tokens: ApiToken[]
+	onRemove: () => void
+}) {
+	const room = useRoomContext()
+	const remove = useMutation(api.tokens.remove)
+
+	if (!room.isOwner) return null
+
+	return (
+		<ToastActionForm
+			action={async () => {
+				await remove({
+					tokenIds: tokens.map((it) => it._id),
+				})
+				onRemove()
+			}}
+		>
+			<Button
+				type="submit"
+				appearance="clear"
+				icon={<LucideTrash />}
+				className="w-full justify-start"
+			>
+				Remove
+			</Button>
+		</ToastActionForm>
+	)
+}
+
+function TokenSizeFields({
+	tokens,
+	scene,
+}: {
+	tokens: ApiToken[]
+	scene: { cellSize: number }
+}) {
+	const update = useMutation(api.tokens.update)
+
+	return match(tokens)
+		.with([P._, ...P.array(P._)], (tokens) => {
+			const [first, ...rest] = tokens
+
+			const isMixed = rest.some(
+				(it) =>
+					roundTo(first.size.x / scene.cellSize, 0.01) !==
+					roundTo(it.size.x / scene.cellSize, 0.01),
+			)
+			return (
+				<Field label="Size (cells)" htmlFor="tokenSize">
+					<NumberInput
+						id="tokenSize"
+						placeholder={isMixed ? "mixed" : "0"}
+						value={
+							isMixed ? undefined : roundTo(first.size.x / scene.cellSize, 0.01)
+						}
+						min={0.25}
+						step={0.25}
+						onSubmitValue={(value) => {
+							return update({
+								updates: tokens.map((token) => ({
+									tokenId: token._id,
+									size: {
+										x: value * scene.cellSize,
+										y: value * scene.cellSize,
+									},
+								})),
+							})
+						}}
+						className={textInput()}
+					/>
+				</Field>
+			)
+		})
+		.with([P._], ([token]) => (
+			<Field label="Size (cells)" htmlFor="tokenSize">
+				<NumberInput
+					id="tokenSize"
+					value={roundTo(token.size.x / scene.cellSize, 0.01)}
+					min={0.25}
+					step={0.25}
+					onSubmitValue={(value) => {
+						return update({
+							updates: [
+								{
+									tokenId: token._id,
+									size: {
+										x: value * scene.cellSize,
+										y: value * scene.cellSize,
+									},
+								},
+							],
+						})
+					}}
+					className={textInput()}
+				/>
+			</Field>
+		))
+		.otherwise(() => null)
 }
