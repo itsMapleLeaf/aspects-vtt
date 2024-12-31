@@ -1,7 +1,6 @@
 import { LucideCheck, LucidePlus } from "lucide-react"
 import type { ReactNode } from "react"
-import { Button } from "~/components/Button.tsx"
-import { ToastActionForm } from "~/components/ToastActionForm.tsx"
+import { FormButton } from "~/components/FormButton.tsx"
 
 export function AddButton({
 	active,
@@ -19,18 +18,16 @@ export function AddButton({
 	action: (newActive: boolean) => Promise<unknown>
 }) {
 	return (
-		<ToastActionForm action={() => action(!active)}>
-			<Button
-				type="submit"
-				appearance="clear"
-				icon={active ? activeIcon : inactiveIcon}
-			>
-				{active ? (
-					<span className="sr-only">{activeLabel}</span>
-				) : (
-					<span className="sr-only">{inactiveLabel}</span>
-				)}
-			</Button>
-		</ToastActionForm>
+		<FormButton
+			action={() => action(!active)}
+			appearance="clear"
+			icon={active ? activeIcon : inactiveIcon}
+		>
+			{active ? (
+				<span className="sr-only">{activeLabel}</span>
+			) : (
+				<span className="sr-only">{inactiveLabel}</span>
+			)}
+		</FormButton>
 	)
 }

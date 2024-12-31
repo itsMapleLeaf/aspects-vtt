@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react"
 import * as Lucide from "lucide-react"
-import { Button, type ButtonProps } from "~/components/Button.tsx"
-import { ToastActionForm } from "~/components/ToastActionForm.tsx"
+import { type ButtonProps } from "~/components/Button.tsx"
+import { FormButton } from "~/components/FormButton.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { StrictOmit } from "~/lib/types.ts"
 import { NormalizedCharacter } from "../../../convex/characters.ts"
@@ -42,26 +42,22 @@ export function CharacterToggleCombatMemberButton({
 	return (
 		<>
 			{outOfCombat.length > 0 && (
-				<ToastActionForm action={addMembers} className="contents">
-					<Button
-						icon={<Lucide.Swords className="size-5" />}
-						{...props}
-						type="submit"
-					>
-						Add to combat
-					</Button>
-				</ToastActionForm>
+				<FormButton
+					action={addMembers}
+					icon={<Lucide.Swords className="size-5" />}
+					{...props}
+				>
+					Add to combat
+				</FormButton>
 			)}
 			{inCombat.length > 0 && (
-				<ToastActionForm action={removeMembers} className="contents">
-					<Button
-						icon={<Lucide.UserMinus className="size-5" />}
-						{...props}
-						type="submit"
-					>
-						Remove from combat
-					</Button>
-				</ToastActionForm>
+				<FormButton
+					action={removeMembers}
+					icon={<Lucide.UserMinus className="size-5" />}
+					{...props}
+				>
+					Remove from combat
+				</FormButton>
 			)}
 		</>
 	)

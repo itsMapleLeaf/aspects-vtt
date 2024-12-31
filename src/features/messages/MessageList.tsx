@@ -6,7 +6,7 @@ import * as Lucide from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Fragment } from "react/jsx-runtime"
 import { Button } from "~/components/Button.tsx"
-import { ToastActionForm } from "~/components/ToastActionForm.tsx"
+import { FormButton } from "~/components/FormButton.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { List } from "~/lib/list.ts"
 import { useMergedRefs } from "~/lib/react/core.ts"
@@ -121,11 +121,9 @@ function MessageInput({ onSend }: MessageInputProps) {
 				>
 					Clear dice
 				</Button>
-				<ToastActionForm action={handleSend} className="contents">
-					<Button type="submit" icon={<Lucide.Send />} size="small">
-						Send
-					</Button>
-				</ToastActionForm>
+				<FormButton action={handleSend} icon={<Lucide.Send />} size="small">
+					Send
+				</FormButton>
 			</div>
 			<div className="gap flex flex-wrap items-center justify-center">
 				{diceOptions.map((opt) => {

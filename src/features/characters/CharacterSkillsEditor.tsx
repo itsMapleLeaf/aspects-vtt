@@ -8,8 +8,7 @@ import {
 	LucideMoon,
 	LucideSparkles,
 	LucideSun,
-	LucideWind,
-	LucideX,
+	LucideWind, LucideX
 } from "lucide-react"
 import { matchSorter } from "match-sorter"
 import { startTransition, useState } from "react"
@@ -21,6 +20,7 @@ import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { ListCard } from "~/components/ListCard.tsx"
 import { LoadingIcon } from "~/components/LoadingIcon.tsx"
 import { useToastAction } from "~/components/ToastActionForm.tsx"
+import { TooltipButton } from "~/components/TooltipButton.tsx"
 import { api } from "~/convex/_generated/api.js"
 import type { NormalizedCharacter } from "~/convex/characters.ts"
 import { List } from "~/lib/list.ts"
@@ -192,7 +192,7 @@ export function CharacterSkillsEditor({
 
 			<div className="gap flex [&>*:not(:last-child)]:flex-1">
 				{aspectOrder.map((aspect) => (
-					<Button
+					<TooltipButton
 						key={aspect}
 						icon={<AspectIcon aspectId={aspect} />}
 						tooltip={`Show ${aspect} skills`}
@@ -207,7 +207,7 @@ export function CharacterSkillsEditor({
 						}
 					/>
 				))}
-				<Button
+				<TooltipButton
 					icon={<LucideX />}
 					tooltip={`Clear aspect filter`}
 					tooltipPlacement="bottom"

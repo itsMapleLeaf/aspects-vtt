@@ -9,6 +9,7 @@ import * as v from "valibot"
 import { Button } from "~/components/Button.tsx"
 import { Heading } from "~/components/Heading.tsx"
 import { Popover } from "~/components/Popover.tsx"
+import { TooltipButton } from "~/components/TooltipButton.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { CharacterAttributeName } from "~/features/characters/types.ts"
@@ -141,7 +142,7 @@ export function CharacterAttributeButton({
 			<div className="flex flex-col items-center gap-0.5">
 				<Popover.Button
 					render={
-						<Button
+						<TooltipButton
 							appearance="clear"
 							square
 							icon={icon}
@@ -177,15 +178,9 @@ export function CharacterAttributeButton({
 							</p>
 						</div>
 					</label>
-					{/* TODO: show preview of dice that will be rolled */}
 					<Button type="submit" icon={<LucideDices />}>
 						Roll
 					</Button>
-					{/* i want this hint to be here but it clutters the UI so i'll figure it out later */}
-					{/* <aside className={subText("text-balance text-center")}>
-						Psst, your friends can spend 1 resolve to assist and add a boost
-						die!
-					</aside> */}
 				</Form>
 			</Popover.Content>
 		</Popover.Root>

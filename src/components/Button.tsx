@@ -1,11 +1,5 @@
-import { TooltipProviderProps } from "@ariakit/react"
 import { Slot, Slottable } from "@radix-ui/react-slot"
-import {
-	ReactElement,
-	startTransition,
-	type ComponentProps,
-	type ReactNode,
-} from "react"
+import { startTransition, type ComponentProps, type ReactNode } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
 import { usePendingDelay } from "~/hooks/usePendingDelay.ts"
@@ -16,7 +10,6 @@ import {
 	buttonVariantNames,
 	type ButtonVariantProps,
 } from "~/styles/button.ts"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip.tsx"
 import { LoadingIcon } from "./LoadingIcon.tsx"
 
 export interface ButtonProps
@@ -25,8 +18,6 @@ export interface ButtonProps
 	asChild?: boolean
 	pending?: boolean
 	icon?: ReactNode
-	tooltip?: string | ReactElement
-	tooltipPlacement?: TooltipProviderProps["placement"]
 }
 
 export function Button({
@@ -35,8 +26,6 @@ export function Button({
 	pending: pendingProp,
 	children,
 	icon,
-	tooltip,
-	tooltipPlacement,
 	...props
 }: ButtonProps) {
 	const [variantProps, buttonProps] = extract(props, buttonVariantNames)
@@ -46,7 +35,7 @@ export function Button({
 	const disabled = variantProps.disabled ?? pending
 	const Tag = asChild ? Slot : "button"
 
-	const element = (
+	return (
 		<Tag
 			type={Tag === "button" ? "button" : undefined}
 			{...buttonProps}
@@ -62,21 +51,7 @@ export function Button({
 			}}
 		>
 			{pending ? <LoadingIcon data-control-icon /> : icon}
-			<Slottable>
-				{children ??
-					(tooltip ? <span className="sr-only">{tooltip}</span> : null)}
-			</Slottable>
+			<Slottable>{children}</Slottable>
 		</Tag>
-	)
-
-	if (!tooltip) {
-		return element
-	}
-
-	return (
-		<Tooltip placement={tooltipPlacement}>
-			<TooltipTrigger render={element} />
-			<TooltipContent>{tooltip}</TooltipContent>
-		</Tooltip>
 	)
 }

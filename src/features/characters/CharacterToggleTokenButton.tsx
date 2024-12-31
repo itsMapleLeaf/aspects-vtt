@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "convex/react"
 import * as Lucide from "lucide-react"
 import { ComponentProps } from "react"
 import { Button } from "~/components/Button.tsx"
-import { ToastActionForm } from "~/components/ToastActionForm.tsx"
+import { FormButton } from "~/components/FormButton.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { useActiveSceneContext } from "~/features/scenes/context.ts"
 import { NormalizedCharacter } from "../../../convex/characters.ts"
@@ -58,18 +58,22 @@ export function CharacterToggleTokenButton({
 	return (
 		<>
 			{outOfScene.length > 0 && (
-				<ToastActionForm action={addTokensAction} className="contents">
-					<Button icon={<Lucide.ImagePlus />} {...props} type="submit">
-						Add to scene
-					</Button>
-				</ToastActionForm>
+				<FormButton
+					action={addTokensAction}
+					icon={<Lucide.ImagePlus />}
+					{...props}
+				>
+					Add to scene
+				</FormButton>
 			)}
 			{inScene.length > 0 && (
-				<ToastActionForm action={removeTokensAction} className="contents">
-					<Button icon={<Lucide.ImageOff />} {...props} type="submit">
-						Remove from scene
-					</Button>
-				</ToastActionForm>
+				<FormButton
+					action={removeTokensAction}
+					icon={<Lucide.ImageOff />}
+					{...props}
+				>
+					Remove from scene
+				</FormButton>
 			)}
 		</>
 	)
