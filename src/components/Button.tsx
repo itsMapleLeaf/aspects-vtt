@@ -8,6 +8,7 @@ import {
 } from "react"
 import { useFormStatus } from "react-dom"
 import { twMerge } from "tailwind-merge"
+import { usePendingDelay } from "~/hooks/usePendingDelay.ts"
 import { extract } from "~/lib/object.ts"
 import type { StrictOmit } from "~/lib/types.ts"
 import {
@@ -41,7 +42,7 @@ export function Button({
 	const [variantProps, buttonProps] = extract(props, buttonVariantNames)
 
 	const formStatus = useFormStatus()
-	const pending = pendingProp ?? formStatus.pending
+	const pending = usePendingDelay(pendingProp ?? formStatus.pending)
 	const disabled = variantProps.disabled ?? pending
 	const Tag = asChild ? Slot : "button"
 
