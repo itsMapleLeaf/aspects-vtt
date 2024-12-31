@@ -22,6 +22,13 @@ export function useForm<
 				)
 	) as Partial<Record<keyof v.InferInput<Schema>, string>>
 
+	const setValue = (
+		key: keyof v.InferInput<Schema> & string,
+		value: string,
+	) => {
+		setValues((current) => ({ ...current, [key]: value }))
+	}
+
 	const patchValues = (patch: Partial<v.InferInput<Schema>>) => {
 		setValues((current) => ({ ...current, ...patch }))
 	}
@@ -41,10 +48,7 @@ export function useForm<
 				name,
 				value: values[name],
 				onChange: (event) => {
-					patchValues(
-						// @ts-expect-error
-						{ [name]: event.currentTarget.value },
-					)
+					setValue(name, event.currentTarget.value)
 				},
 			}) satisfies ComponentProps<"input">,
 	}
