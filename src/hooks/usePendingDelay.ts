@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { timeoutEffect } from "~/lib/async.ts"
 
 export const INITIAL_PENDING_DELAY = 300
 export const MINIMUM_PENDING_DURATION = 500
@@ -28,9 +29,4 @@ export function usePendingDelay(input: boolean) {
 	}, [input])
 
 	return output
-}
-
-function timeoutEffect(delay: number, callback: () => void) {
-	const id = setTimeout(callback, delay)
-	return () => clearTimeout(id)
 }
