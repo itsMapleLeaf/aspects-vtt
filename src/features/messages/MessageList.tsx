@@ -42,19 +42,15 @@ export function MessageList() {
 		})
 	}, [latestMessageTimestamp])
 
-	const [messageText, setMessageText] = useState("")
-	const [messageDice, setMessageDice] = useState(List.of<DiceOption[]>())
 	const createMessage = useMutation(api.messages.create)
 
-	const handleSend = async () => {
+	const handleSend = async (text: string, dice: List<DiceOption>) => {
 		const content = List.of(
-			messageText.trim()
-				? { type: "text" as const, text: messageText }
-				: undefined,
-			messageDice.length > 0
+			text.trim() ? { type: "text" as const, text } : undefined,
+			dice.length > 0
 				? {
 						type: "dice" as const,
-						dice: messageDice.map((die) => ({
+						dice: dice.map((die) => ({
 							faces: die.faces,
 							color: die.color,
 						})),
@@ -70,9 +66,6 @@ export function MessageList() {
 			roomId,
 			content,
 		})
-
-		setMessageText("")
-		setMessageDice(List.of())
 	}
 
 	return (
@@ -87,65 +80,85 @@ export function MessageList() {
 						<MessageCard key={message._id} message={message} />
 					))}
 			</div>
-			<div className="flex flex-col gap-1">
-				<textarea
-					className={textArea()}
-					rows={2}
-					value={messageText}
-					onChange={(event) => setMessageText(event.currentTarget.value)}
-					onKeyDown={(event) => {
-						if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
-							handleSend()
-						}
-					}}
-				/>
-				<div className="gap grid auto-cols-fr grid-flow-col">
-					<Button
-						icon={<Lucide.RotateCcw />}
-						size="small"
-						onClick={() => setMessageDice(List.of())}
-					>
-						Clear dice
+			<MessageInput onSend={handleSend} />
+		</div>
+	)
+}
+
+interface MessageInputProps {
+	onSend: (text: string, dice: List<DiceOption>) => Promise<void>
+}
+
+function MessageInput({ onSend }: MessageInputProps) {
+	const [messageText, setMessageText] = useState("")
+	const [messageDice, setMessageDice] = useState(List.of<DiceOption>())
+
+	const handleSend = async () => {
+		await onSend(messageText, messageDice)
+		setMessageText("")
+		setMessageDice(List.of())
+	}
+
+	return (
+		<div className="flex flex-col gap-1">
+			<textarea
+				className={textArea()}
+				rows={2}
+				value={messageText}
+				onChange={(event) => setMessageText(event.currentTarget.value)}
+				onKeyDown={(event) => {
+					if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
+						event.preventDefault()
+						handleSend()
+					}
+				}}
+			/>
+			<div className="gap grid auto-cols-fr grid-flow-col">
+				<Button
+					icon={<Lucide.RotateCcw />}
+					size="small"
+					onClick={() => setMessageDice(List.of())}
+				>
+					Clear dice
+				</Button>
+				<ToastActionForm action={handleSend} className="contents">
+					<Button type="submit" icon={<Lucide.Send />} size="small">
+						Send
 					</Button>
-					<ToastActionForm action={handleSend} className="contents">
-						<Button type="submit" icon={<Lucide.Send />} size="small">
-							Send
-						</Button>
-					</ToastActionForm>
-				</div>
-				<div className="gap flex flex-wrap items-center justify-center">
-					{diceOptions.map((opt) => {
-						const count = messageDice.count(opt)
-						return (
-							<Button
-								key={opt.id}
-								appearance={count > 0 ? "solid" : "clear"}
-								icon={
-									<DieIcon
-										faces={opt.faces}
-										color={opt.color}
-										label={opt.label}
-										value={count > 0 ? count : null}
-										className="w-8"
-									/>
-								}
-								className="h-auto px-1.5! py-0.5!"
-								onClick={() => {
-									setMessageDice((dice) => List.of(...dice, opt))
-								}}
-								onContextMenu={(event) => {
-									event.preventDefault()
-									setMessageDice((dice) => {
-										const index = dice.findIndex((it) => it.id === opt.id)
-										return index !== -1
-											? List.from(dice.toSpliced(index, 1))
-											: dice
-									})
-								}}
-							/>
-						)
-					})}
-				</div>
+				</ToastActionForm>
+			</div>
+			<div className="gap flex flex-wrap items-center justify-center">
+				{diceOptions.map((opt) => {
+					const count = messageDice.count(opt)
+					return (
+						<Button
+							key={opt.id}
+							appearance={count > 0 ? "solid" : "clear"}
+							icon={
+								<DieIcon
+									faces={opt.faces}
+									color={opt.color}
+									label={opt.label}
+									value={count > 0 ? count : null}
+									className="w-8"
+								/>
+							}
+							className="h-auto px-1.5! py-0.5!"
+							onClick={() => {
+								setMessageDice((dice) => List.of(...dice, opt))
+							}}
+							onContextMenu={(event) => {
+								event.preventDefault()
+								setMessageDice((dice) => {
+									const index = dice.findIndex((it) => it.id === opt.id)
+									return index !== -1
+										? List.from(dice.toSpliced(index, 1))
+										: dice
+								})
+							}}
+						/>
+					)
+				})}
 			</div>
 		</div>
 	)
