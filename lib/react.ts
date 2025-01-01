@@ -7,31 +7,15 @@ export type MaybeRef<T> =
 	| undefined
 	| React.RefObject<T | null | undefined>
 
-export function useEventListener<E extends keyof WindowEventMap>(
-	target: MaybeRef<Window>,
-	event: E,
-	listener: (event: WindowEventMap[E]) => void,
-	options?: AddEventListenerOptions,
-): void
-export function useEventListener<E extends keyof DocumentEventMap>(
-	target: MaybeRef<Document>,
-	event: E,
-	listener: (event: DocumentEventMap[E]) => void,
-	options?: AddEventListenerOptions,
-): void
-export function useEventListener<E extends keyof HTMLElementEventMap>(
-	target: MaybeRef<HTMLElement>,
-	event: E,
-	listener: (event: HTMLElementEventMap[E]) => void,
-	options?: AddEventListenerOptions,
-): void
-export function useEventListener<E extends keyof ElementEventMap>(
-	target: MaybeRef<Element>,
-	event: E,
-	listener: (event: ElementEventMap[E]) => void,
-	options?: AddEventListenerOptions,
-): void
-export function useEventListener(
+function unwrapRef(targetRef: MaybeRef<EventTarget>) {
+	return targetRef == null
+		? null
+		: "current" in targetRef
+			? targetRef.current
+			: targetRef
+}
+
+function useEventListener(
 	targetRef: MaybeRef<EventTarget>,
 	event: string,
 	listener: (event: Event) => void,
@@ -41,18 +25,66 @@ export function useEventListener(
 		listener(event)
 	})
 	useEffect(() => {
-		const target =
-			targetRef == null
-				? null
-				: "current" in targetRef
-					? targetRef.current
-					: targetRef
-
+		const target = unwrapRef(targetRef)
 		if (!target) return
 
 		target.addEventListener(event, callback, options)
 		return () => target.removeEventListener(event, callback, options)
 	})
+}
+
+export function useWindowEvent<E extends keyof WindowEventMap>(
+	event: E,
+	listener: (event: WindowEventMap[E]) => void,
+	options?: AddEventListenerOptions,
+) {
+	return useEventListener(
+		window,
+		event,
+		listener as (event: Event) => void,
+		options,
+	)
+}
+
+export function useDocumentEvent<E extends keyof DocumentEventMap>(
+	event: E,
+	listener: (event: DocumentEventMap[E]) => void,
+	options?: AddEventListenerOptions,
+) {
+	return useEventListener(
+		document,
+		event,
+		listener as (event: Event) => void,
+		options,
+	)
+}
+
+export function useHtmlElementEvent<E extends keyof HTMLElementEventMap>(
+	target: MaybeRef<HTMLElement>,
+	event: E,
+	listener: (event: HTMLElementEventMap[E]) => void,
+	options?: AddEventListenerOptions,
+) {
+	return useEventListener(
+		target,
+		event,
+		listener as (event: Event) => void,
+		options,
+	)
+}
+
+export function useElementEvent<E extends keyof ElementEventMap>(
+	target: MaybeRef<Element>,
+	event: E,
+	listener: (event: ElementEventMap[E]) => void,
+	options?: AddEventListenerOptions,
+) {
+	return useEventListener(
+		target,
+		event,
+		listener as (event: Event) => void,
+		options,
+	)
 }
 
 export function useElementEmpty() {

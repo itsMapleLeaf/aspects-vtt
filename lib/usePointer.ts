@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useRef, useState } from "react"
-import { useEventListener } from "~/lib/react.ts"
+import { useWindowEvent } from "~/lib/react.ts"
 import { Rect } from "~/lib/rect.ts"
 import { Vec } from "~/lib/vec"
 
@@ -126,7 +126,7 @@ export function usePointer<StartInfo = void>({
 		}
 	})
 
-	useEventListener(window, "contextmenu", (event) => {
+	useWindowEvent("contextmenu", (event) => {
 		if (shouldPreventContextMenu.current) {
 			event.preventDefault()
 			shouldPreventContextMenu.current = false
