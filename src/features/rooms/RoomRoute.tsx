@@ -11,6 +11,7 @@ import { Button } from "~/components/Button.tsx"
 import { Heading, HeadingLevel } from "~/components/Heading.tsx"
 import { LoadingCover } from "~/components/LoadingCover.tsx"
 import { ToastActionForm } from "~/components/ToastActionForm.tsx"
+import { TooltipButton } from "~/components/TooltipButton.tsx"
 import { api } from "~/convex/_generated/api.js"
 import { Id } from "~/convex/_generated/dataModel.js"
 import { UserButton } from "~/features/auth/UserButton.tsx"
@@ -127,7 +128,7 @@ function RoomInterface() {
 			<HeadingLevel>
 				<header className="pointer-events-children flex items-center justify-between">
 					<div className="gap flex">
-						<Button
+						<TooltipButton
 							appearance="clear"
 							icon={
 								leftSidebarOpen ? <LucideSidebarClose /> : <LucideSidebarOpen />
@@ -144,7 +145,7 @@ function RoomInterface() {
 					</div>
 					<div className="gap flex">
 						<UserButton />
-						<Button
+						<TooltipButton
 							appearance="clear"
 							icon={
 								rightSidebarOpen ? (
